@@ -13,14 +13,12 @@
       <NFormItem path="title" label="Title" class="h-10" :show-feedback="false" ref="titleFormItemRef">
         <NPopover trigger="hover" v-model:disabled="formErrors.title.disabled">
           <template #trigger>
-            <NBadge v-model:show="formErrors.title.badgeShow" dot v-model:type="formErrors.title.badgeType" :offset="[0, 2]">
-              <NInput maxlength="64"
-                      autosize
-                      class="min-w-48 max-w-64"
-                      v-model:value="formModel.title"
-                      placeholder="Enter Snippet Title"
-                      @updateValue="validateTitle"/>
-            </NBadge>
+            <NInput maxlength="64"
+                    autosize
+                    class="min-w-48 max-w-64"
+                    v-model:value="formModel.title"
+                    placeholder="Enter Snippet Title"
+                    @updateValue="validateTitle"/>
           </template>
           <template #default>
             <span>{{ formErrors.title.message }}</span>
@@ -57,17 +55,15 @@
                  ref="passwordFormItemRef">
         <NPopover trigger="hover" v-model:disabled="formErrors.password.disabled">
           <template #trigger>
-            <NBadge v-model:show="formErrors.password.badgeShow" dot v-model:type="formErrors.password.badgeType" :offset="[0, 2]">
-              <NInput v-model:value="formModel.password"
-                      placeholder="Password"
-                      type="password"
-                      class="w-40 max-w-40"
-                      show-password-on="click"
-                      maxlength="16"
-                      size="small"
-                      @updateValue="validatePassword"
-              />
-            </NBadge>
+            <NInput v-model:value="formModel.password"
+                    placeholder="Password"
+                    type="password"
+                    class="w-40 max-w-40"
+                    show-password-on="click"
+                    maxlength="16"
+                    size="small"
+                    @updateValue="validatePassword"
+            />
           </template>
           <template #default>
             <span>{{ formErrors.password.message }}</span>
@@ -113,14 +109,10 @@ function validatePassword(): void {
     formErrors.value.password.disabled = true;
     formErrors.value.password.message = '';
 
-    formErrors.value.password.badgeShow = formModel.value.expiry === 'permanent' || formModel.value.password.length > 0;
-    formErrors.value.password.badgeType = 'success';
-
     passwordFormItemRef.value?.validate().catch((errors) => {
       if (errors) {
         formErrors.value.password.disabled = false;
         formErrors.value.password.message = errors[0].message;
-        formErrors.value.password.badgeType = 'error';
       }
     });
   }, 0);
@@ -135,14 +127,10 @@ function validateTitle(): void {
     formErrors.value.title.disabled = true;
     formErrors.value.title.message = '';
 
-    formErrors.value.title.badgeShow = formModel.value.title.length > 0;
-    formErrors.value.title.badgeType = 'success';
-
     titleFormItemRef.value?.validate().catch((errors) => {
       if (errors) {
         formErrors.value.title.disabled = false;
         formErrors.value.title.message = errors[0].message;
-        formErrors.value.title.badgeType = 'error';
       }
     });
   }, 0);
@@ -262,14 +250,10 @@ const formErrors = ref({
   password: {
     message: '',
     disabled: true,
-    badgeShow: false,
-    badgeType: 'error',
   },
   title: {
     message: '',
     disabled: true,
-    badgeShow: false,
-    badgeType: 'error',
   }
 });
 
