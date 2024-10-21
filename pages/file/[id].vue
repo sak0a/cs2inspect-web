@@ -128,7 +128,7 @@ onMounted(() => fetchFileMetadata());
     <!-- Password Input Section -->
     <div v-else-if="passwordRequired && !file">
       <label for="password">Enter Password:</label>
-      <input v-model="password" id="password" type="password" />
+      <input id="password" v-model="password" type="password"/>
       <button @click="submitPassword">Submit</button>
     </div>
 
@@ -136,7 +136,7 @@ onMounted(() => fetchFileMetadata());
     <div v-else-if="file">
       <h1>{{ file.filename }}</h1>
       <button @click="downloadFile">Download</button>
-      <button @click="deleteFile" class="delete-btn">Delete</button> <!-- Delete Button -->
+      <button class="delete-btn" @click="deleteFile">Delete</button> <!-- Delete Button -->
     </div>
 
     <!-- Feedback Message -->
