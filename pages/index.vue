@@ -19,8 +19,7 @@ import { NThemeEditor } from "naive-ui";
           </button>
           </NuxtLink>
           <lazy-client-only>
-            <NThemeEditor>
-            </NThemeEditor>
+            <NThemeEditor />
           </lazy-client-only>
         </div>
       </div>
