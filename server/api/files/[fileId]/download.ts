@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
             if (decoded.fileId !== fileId) {
                 throw new Error('Invalid token');
             }
-        } catch (error) {
+        } catch {
             return { statusCode: 401, message: 'Unauthorized or invalid token' };
         }
     }
