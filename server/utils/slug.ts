@@ -20,10 +20,10 @@ const wordList = [
     "city", "village", "forest", "river", "mountain", "desert", "ocean", "island", "valley", "canyon",
     "book", "pencil", "keyboard", "chair", "lamp", "window", "mirror", "cup", "bottle", "desk"
 ];
-export function generateSlug(): string {
+export function generateSlug(wordCount: number | 4): string {
     // Pick 5 random words from the wordList and join them with hyphens
     const selectedWords = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < wordCount; i++) {
         const randomWord = wordList[Math.floor(Math.random() * wordList.length)];
         selectedWords.push(randomWord);
     }
