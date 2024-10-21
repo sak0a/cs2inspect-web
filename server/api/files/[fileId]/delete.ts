@@ -1,5 +1,4 @@
-import {getFileMetadata, validateFileAccess} from '~~/server/utils/files';
-import { deleteFile } from '~~/server/utils/files';
+import {getFileMetadata, validateFileAccess, deleteFile} from '~/server/utils/files';
 
 export default defineEventHandler(async (event) => {
     const fileId = event.context.params.fileId;
