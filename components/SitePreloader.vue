@@ -1,7 +1,11 @@
 <script setup lang="ts">
+import {generateSlug} from "~/server/utils/slug";
 
 const props = defineProps({
-  preloaderName: String
+  preloaderName: {
+    type: String,
+    default: generateSlug(2)
+  }
 })
 const state = reactive({
   preloader: true
@@ -19,13 +23,13 @@ function animation() {
 }
 
 onMounted(() => {
-  if (sessionStorage.getItem("preload" + props.preloaderName?.toUpperCase()) === "shown") {
+  if (sessionStorage.getItem("preload-" + props.preloaderName?.toUpperCase()) === "shown") {
     state.preloader = false;
     return;
   }
-  let preloader = document.getElementById("preloader_" + preloaderStyle);
+  const preloader = document.getElementById("preloader_" + preloaderStyle);
   preloader.classList.add(preloaderStyle);
-  let outerWrapper = document.querySelector(".preloader_wrapper_outer");
+  const outerWrapper = document.querySelector(".preloader_wrapper_outer");
   outerWrapper.animate(animation(), {
     duration: revealDuration,
     delay: revealDelay,
@@ -46,7 +50,7 @@ onMounted(() => {
     <div class="preloader_wrapper_inner">
       <div :id="'preloader_' + preloaderStyle" class="preloader">
         <div v-for="n in preloaderDivsToCreate" :key="n">
-          <div :id="`loader-div-${n}`"></div>
+          <div :id="`loader-div-${n}`"/>
         </div>
       </div>
     </div>
