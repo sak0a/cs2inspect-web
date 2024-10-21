@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
         return {
             passwordRequired: !!metadata.password,
         };
-    } catch (error) {
+    } catch {
         throw createError({
             statusCode: 404,
             message: 'Snippet not found',
