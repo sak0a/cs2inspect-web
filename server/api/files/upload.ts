@@ -1,5 +1,3 @@
-import bcrypt from 'bcrypt';
-import { generateSlug } from '~~/server/utils/slug';
 import { saveFile } from '~~/server/utils/files';
 
 export default defineEventHandler(async (event) => {
