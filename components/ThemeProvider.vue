@@ -4,7 +4,7 @@ import { darkTheme, NConfigProvider } from 'naive-ui'
 
 <template>
   <n-config-provider :theme="darkTheme">
-    <slot></slot>
+    <slot/>
   </n-config-provider>
 </template>
 
