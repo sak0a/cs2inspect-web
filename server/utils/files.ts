@@ -1,6 +1,5 @@
 import { createWriteStream, createReadStream } from 'fs';
 import path from 'path';
-import archiver from 'archiver';
 import { query } from './db'; // MariaDB connection
 import { generateSlug } from './slug';
 import bcrypt from 'bcrypt';
