@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
             expiration_date: metadata.expiration_date,
             code: await getSnippetForView(snippetId),
         };
-    } catch (error) {
+    } catch {
         throw createError({
             statusCode: 404,
             message: 'Snippet not found',
