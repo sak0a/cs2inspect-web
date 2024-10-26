@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import {generateSlug} from "~/server/utils/slug";
 
 const props = defineProps({
   preloaderName: {
     type: String,
-    default: generateSlug(2)
+    default: "preloader" + Math.floor(Math.random() * 100)
   }
 })
 const state = reactive({
   preloader: true
 });
 const preloaderStyle: string = "line-scale-pulse-out";
-const revealDuration: number = 250;
+const revealDuration: number = 200;
 const revealDelay: number = 25;
 const preloaderDivsToCreate: number = 5;
 

@@ -2,55 +2,28 @@ import { createWriteStream, createReadStream } from 'fs';
 import path from 'path';
 import archiver from 'archiver'; // For zipping
 import bcrypt from 'bcrypt';
-import { query } from './db'; // MariaDB connection
 import fs from 'fs/promises';
-import { generateSlug } from "~/server/utils/slug";
 import unzipper from 'unzipper'; // For unzipping
-
+import { query } from './db';
 const MAX_SNIPPET_SIZE = 2 * 1024 * 1024; // 2 MB limit
-const JWT_SECRET = 'vbh5tva9bne-nau3XTV';
 const SNIPPETS_DIR = './storage/snippets';
 
-export async function validateSnippetAccess(snippetId: string, password: string | undefined) {
-    const metadata = await getSnippetMetadata(snippetId);
-
-    if (!metadata) {
-        throw createError({
-            statusCode: 404,
-            statusMessage: 'Snippet not found'
-        });
-    }
-
-    // If a password is required, validate it
-    if (metadata.password) {
-        if (!password) {
-            // If password is required but not provided, throw a 401 error
-            throw createError({
-                statusCode: 401,
-                statusMessage: 'Password required'
-            });
-        }
-        const isValidPassword = await bcrypt.compare(password, metadata.password);
-        if (!isValidPassword) {
-            // Throw a 401 error if the password is invalid
-            throw createError({
-                statusCode: 401,
-                statusMessage: 'Invalid password'
-            });
-        }
-    }
-    // If validation is successful, return the metadata
-    return metadata;
-}
-
-// Save code snippet as a .txt file inside a .zip
-export async function saveSnippet(title: string, code: string, password: string | null, expirationDate: Date) {
-    const slug = generateSlug(); // Generate a unique slug for the snippet
+/**
+ * Save a code snippet to the file system and database
+ * @param title The title of the snippet
+ * @param code The code content of the snippet
+ * @param language The programming language of the snippet
+ * @param password Optional password to protect the snippet
+ * @param expirationDate The expiration date of the snippet
+ * @returns The slug of the saved snippet
+ */
+export async function saveSnippet(title: string, code: string, language: string, password: string | null, expirationDate: Date): Promise<string> {
+    const slug: string = generateSlug(4);
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
-    const zipPath = path.join(SNIPPETS_DIR, `${slug}.zip`); // Save as a .zip file
-    const buffer = Buffer.from(code);
+    const zipPath: string = path.join(SNIPPETS_DIR, `${slug}.zip`); // Save as a .zip file
+    const buffer: Buffer = Buffer.from(code);
     if (buffer.length > MAX_SNIPPET_SIZE) {
-        throw new Error('Snippet exceeds the maximum size of 2 MB');
+        return createStatus(500, 'Snippet exceeds the maximum size of 2 MB');
     }
     try {
         // Check if the directory exists, and create it if it doesn't
@@ -61,7 +34,7 @@ export async function saveSnippet(title: string, code: string, password: string 
         const archive = archiver('zip', { zlib: { level: 9 } });
 
         archive.pipe(output);
-        archive.append(`Title: ${title}\n\n${code}`, { name: `${slug}.txt` });
+        archive.append(`${code}`, { name: `${slug}.txt` });
 
         // Finalize the archive to ensure all data is written to the zip file
         await archive.finalize();
@@ -74,56 +47,181 @@ export async function saveSnippet(title: string, code: string, password: string 
 
         // Save metadata to the database
         await query(
-            `INSERT INTO snippets (slug, title, password, path, expiration_date) VALUES (?, ?, ?, ?, ?)`,
-            [slug, title, hashedPassword, zipPath, expirationDate]
+            `INSERT INTO snippets (slug, title, language, password, path, expiration_date) VALUES (?, ?, ?, ?, ?, ?)`,
+            [slug, title, language, hashedPassword, zipPath, expirationDate]
         );
+
         return slug; // Return the slug so the user can be redirected to the snippet view page
     } catch (error) {
-        console.error('Error saving snippet:', error);
-        throw createError({
-            statusCode: 500,
-            statusMessage: 'Failed to save the snippet'
-        });
+        return createStatus(500, 'Failed to save the snippet: ' + error.message);
     }
 }
 
-export async function getSnippetForView(slug: string) {
-    // Get the metadata for the snippet
-    const metadata = await getSnippetMetadata(slug);
-
-    const zipPath = metadata.path; // The path to the .zip file
-
+/**
+ * Get the code content of a snippet
+ * @param slug
+ * @returns The code content of the snippet
+ */
+export async function getSnippetContent(slug: string): Promise<string> {
+    const zipPath = await getSnippetPath(slug); // The path to the .zip file
     // Use unzipper to extract the contents of the zip
     const directory = await unzipper.Open.file(zipPath);
     const file = directory.files.find(file => file.path.endsWith('.txt'));
-
     if (file) {
         // Extract and return the code content from the .txt file
         const content = await file.buffer();
         return content.toString('utf-8');
-    } else {
-        throw new Error('Snippet file not found in zip');
     }
+    return createError(404, 'Snippet file not found in zip');
 }
 
-export async function getSnippetMetadata(slug: string) {
+export interface SnippetData {
+    id: number;
+    slug: string;
+    title: string;
+    language: string;
+    password: string | null;
+    path: string;
+    created_at: Date;
+    expiration_date: Date;
+}
+
+/**
+ * Get the metadata of a snippet
+ * @param slug The slug of the snippet
+ * @returns The metadata of the snippet
+ */
+export async function getSnippetData(slug: string): Promise<SnippetData> {
     const result = await query(`SELECT * FROM snippets WHERE slug = ?`, [slug]);
-    if (result.length === 0) {
-        throw new Error('Snippet not found');
-    }
-    return result[0];
+    return result.length > 0 ? result[0] : null;
 }
 
+/**
+ * Check if a snippet with the given slug exists
+ * @param slug The slug of the snippet
+ */
+export async function snippetExists(slug: string): Promise<boolean> {
+    const result = await query(`SELECT COUNT(*) as count FROM snippets WHERE slug = ?`, [slug]);
+    return result[0].count > 0;
+}
+
+/**
+ * Get the path to the snippet zip file
+ * @param slug The slug of the snippet
+ * @returns The path to the snippet zip file
+ */
+export async function getSnippetPath(slug: string): Promise<string> {
+    const result = await query(`SELECT path FROM snippets WHERE slug = ?`, [slug]);
+    return result[0].path;
+}
+
+/**
+ * Get the expiration date of a snippet
+ * @param slug The slug of the snippet
+ */
 export async function getSnippetForDownload(slug: string) {
-    // Get the metadata for the snippet
-    const metadata = await getSnippetMetadata(slug);
-    const zipPath = metadata.path; // The path to the .zip file
+    const zipPath = await getSnippetPath(slug); // The path to the .zip file
     return createReadStream(zipPath); // Stream the zip file
 }
 
-export async function deleteSnippet(slug: string) {
-    const metadata = await getSnippetMetadata(slug);
-    await fs.unlink(metadata.path);
+/**
+ * Delete a snippet from the file system and database
+ * @param slug The slug of the snippet to delete
+ */
+export async function deleteSnippet(slug: string): Promise<void> {
+    const path: string = await getSnippetPath(slug);
+    await fs.unlink(path);
     await query(`DELETE FROM snippets WHERE slug = ?`, [slug]);
 }
+
+export async function validateExpiration(metadata: SnippetData, date: Date): Promise<boolean> {
+    if (metadata.expiration_date && metadata.expiration_date < date) {
+        await deleteSnippet(metadata.slug);
+        return true;
+    }
+    return false;
+}
+
+export async function validateSnippet(event, snippetId: string): Promise<{ statusCode: number, metadata?: SnippetData, statusMessage?: string }> {
+    const metadata = await getSnippetData(snippetId);
+    const now = new Date();
+    Logger.info(`Time: ${now.toISOString()}`);
+
+    if (!metadata) {
+        Logger.error(`Snippet not found`);
+        return createStatus(404, 'Snippet not found');
+    } else {
+        Logger.success(`Snippet found`);
+    }
+
+    if (await validateExpiration(metadata, now)) {
+        Logger.success(`Snippet expired > deleting`);
+        return createStatus(402, 'This snippet has already expired');
+    } else {
+        Logger.success(`Snippet not expired`);
+    }
+    return { statusCode: 200, metadata };
+}
+
+export async function validateAuth(metadata: SnippetData, authToken: string | undefined, password: string, onTokenSuccess: () => Promise<any>, onPasswordSuccess: () => Promise<any>, onNoAuthRequired: () => any): Promise<any> {
+    // Check if snippet requires authentication
+    if (metadata.password) {
+        Logger.info(`Snippet requires authentication`);
+        // Check if authorization token is provided
+        if (authToken !== undefined) {
+            Logger.success(`JWT Token provided`);
+            try {
+                // Decode the JWT token
+                const decoded = verifyJwtToken(authToken);
+                if (decoded.snippetId === metadata.slug) {
+                    Logger.success(`JWT Token validated`);
+                    // Run the custom success handler
+                    return await onTokenSuccess();
+                }
+                Logger.error(`Unauthorized: Invalid token`);
+                return createStatus(405, 'Unauthorized: Invalid token');
+            } catch (error) {
+                if (error.message === 'jwt expired') {
+                    Logger.error(`JWT Token has expired`);
+                    return createStatus(406, 'JWT Token expired');
+                }
+                Logger.error(`Error validating token: ${error.message}`);
+                return createStatus(405, `Error validating token: ${error.message}`);
+            }
+        }
+        Logger.error(`No JWT token provided, checking password`);
+        // Check if password is provided
+        if (!password) {
+            Logger.error(`Unauthorized: No password provided`);
+            return createStatus(401, 'Unauthorized: Password required');
+        }
+        Logger.success(`Password provided`);
+        // Validate the password
+        const isValidPassword = await bcrypt.compare(password, metadata.password);
+        if (!isValidPassword) {
+            Logger.error(`Unauthorized: Invalid password`);
+            return createStatus(403, 'Unauthorized: Invalid password');
+        }
+        Logger.success(`Password validated`);
+        // Run the custom success handler
+        return await onPasswordSuccess();
+    } else {
+        Logger.info(`Snippet does not require password`);
+        return await onNoAuthRequired();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

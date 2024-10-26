@@ -21,6 +21,7 @@
     "archiver": "^7.0.1",
     "autoprefixer": "^10.4.20",
     "bcrypt": "^5.1.1",
+    "date-fns-tz": "^3.2.0",
     "eslint": "^9.13.0",
     "google-fonts": "^1.0.0",
     "jsonwebtoken": "^9.0.2",

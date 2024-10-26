@@ -1,7 +1,6 @@
 import { createWriteStream, createReadStream } from 'fs';
 import path from 'path';
 import { query } from './db'; // MariaDB connection
-import { generateSlug } from './slug';
 import bcrypt from 'bcrypt';
 import fs from 'fs/promises';
 
@@ -16,20 +15,20 @@ export async function validateFileAccess(fileId: string, password: string | unde
 
     if (!metadata) {
         // Throw a 404 error if the file is not found
-        throw createError({ statusCode: 404, statusMessage: 'File not found' });
+        return createError(404, 'File not found');
     }
 
     // If a password is required, validate it
     if (metadata.password) {
         if (!password) {
             // If password is required but not provided, throw a 401 error
-            throw createError({ statusCode: 401, statusMessage: 'Password required' });
+            return createError(401, 'Password required');
         }
 
         const isValidPassword = await bcrypt.compare(password, metadata.password);
         if (!isValidPassword) {
             // Throw a 401 error if the password is invalid
-            throw createError({ statusCode: 401, statusMessage: 'Invalid password' });
+            return createError(401, 'Invalid password');
         }
     }
 
@@ -40,13 +39,13 @@ export async function validateFileAccess(fileId: string, password: string | unde
 export async function getFileMetadata(slug: string) {
     const result = await query(`SELECT * FROM files WHERE slug = ?`, [slug]);
     if (result.length === 0) {
-        throw new Error('File not found');
+        return createError(401, 'File not found');
     }
     return result[0];
 }
 
 // Save a file and split it into chunks if it exceeds 8MB
-export async function saveFile(file: Buffer, filename: string, password: string | null) {
+export async function saveFile(file: Buffer, filename: string, password: string | null): Promise<string> {
     const slug = generateSlug();
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
 

@@ -1,24 +1,30 @@
 <template >
-  <Preloader />
+  <SitePreloader />
   <NSpace class="bg-[#181818] px-4" size="small">
-    <NIcon size="30" class="pt-2" color="#86DFBA">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g fill="none"><path d="M19.754 11a.75.75 0 0 1 .743.648l.007.102v7a3.25 3.25 0 0 1-3.065 3.246l-.185.005h-11a3.25 3.25 0 0 1-3.244-3.066l-.006-.184V11.75a.75.75 0 0 1 1.494-.102l.006.102v7a1.75 1.75 0 0 0 1.607 1.745l.143.006h11A1.75 1.75 0 0 0 19 18.894l.005-.143V11.75a.75.75 0 0 1 .75-.75zM6.22 7.216l4.996-4.996a.75.75 0 0 1 .976-.073l.084.072l5.005 4.997a.75.75 0 0 1-.976 1.134l-.084-.073l-3.723-3.716l.001 11.694a.75.75 0 0 1-.648.743l-.102.007a.75.75 0 0 1-.743-.648L11 16.255V4.558L7.28 8.277a.75.75 0 0 1-.976.073l-.084-.073a.75.75 0 0 1-.073-.977l.073-.084l4.996-4.996L6.22 7.216z" fill="currentColor"></path></g></svg>
+    <NIcon size="30" class="pt-2" color="#86DFBA" @click="router.push('/')">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24"><g fill="none"><path d="M19.754 11a.75.75 0 0 1 .743.648l.007.102v7a3.25 3.25 0 0 1-3.065 3.246l-.185.005h-11a3.25 3.25 0 0 1-3.244-3.066l-.006-.184V11.75a.75.75 0 0 1 1.494-.102l.006.102v7a1.75 1.75 0 0 0 1.607 1.745l.143.006h11A1.75 1.75 0 0 0 19 18.894l.005-.143V11.75a.75.75 0 0 1 .75-.75zM6.22 7.216l4.996-4.996a.75.75 0 0 1 .976-.073l.084.072l5.005 4.997a.75.75 0 0 1-.976 1.134l-.084-.073l-3.723-3.716l.001 11.694a.75.75 0 0 1-.648.743l-.102.007a.75.75 0 0 1-.743-.648L11 16.255V4.558L7.28 8.277a.75.75 0 0 1-.976.073l-.084-.073a.75.75 0 0 1-.073-.977l.073-.084l4.996-4.996L6.22 7.216z" fill="currentColor"/></g></svg>
     </NIcon>
-    <NH2 class="m-0 pt-2">Share</NH2>
-    <NSpace/><NSpace/>
+    <NH2 class="m-0 pt-2" @click="router.push('/')">Share</NH2>
+    <NSpace/>
+    <NSpace/>
     <!-- Snippet Form -->
-    <NForm id="form" :model="formModel" ref="formRef" label-placement="left" size="small" class="pt-3" inline :rules="formRules">
-
+    <NForm id="form" ref="formRef" :model="formModel"  label-placement="left" size="small" class="pt-3" inline :rules="formRules">
       <!-- Snippet Title Input -->
-      <NFormItem path="title" label="Title" class="h-10" :show-feedback="false" ref="titleFormItemRef">
-        <NPopover trigger="hover" v-model:disabled="formErrors.title.disabled">
+      <NFormItem
+          ref="titleFormItemRef"
+          path="title"
+          label="Title"
+          class="h-10"
+          :show-feedback="false">
+        <NPopover v-model:disabled="formErrors.title.disabled" trigger="hover">
           <template #trigger>
-            <NInput maxlength="64"
-                    autosize
-                    class="min-w-48 max-w-64"
-                    v-model:value="formModel.title"
-                    placeholder="Enter Snippet Title"
-                    @updateValue="validateTitle"/>
+            <NInput
+                v-model:value="formModel.title"
+                class="min-w-48 max-w-64"
+                maxlength="64"
+                autosize
+                placeholder="Enter Snippet Title"
+                @updateValue="validateTitle"/>
           </template>
           <template #default>
             <span>{{ formErrors.title.message }}</span>
@@ -27,42 +33,52 @@
       </NFormItem>
 
       <!-- Snippet Language Dropdown -->
-      <NFormItem path="language" label="Language" class="h-10">
-        <NSelect v-model:value="formModel.language"
-                 class="w-40"
-                 filterable
-                 :options="languageOptions"
-                 :consistent-menu-width="true"
-                 size="small"/>
+      <NFormItem
+          path="language"
+          label="Language"
+          class="h-10">
+        <NSelect
+            v-model:value="formModel.language"
+            class="w-40"
+            filterable
+            :options="languageOptions"
+            :consistent-menu-width="true"
+            size="small"/>
       </NFormItem>
 
       <!-- Snippet Expiry Time Dropdown -->
-      <NFormItem path="expiry" label="Expiration in" class="h-10">
-        <NSelect v-model:value="formModel.expiry"
-                 :options="expirationOptions"
-                 :consistent-menu-width="false"
-                 class="w-40"
-                 size="small"
-                 @updateValue="validatePassword"/>
+      <NFormItem
+          class="h-10"
+          path="expiry"
+          label="Expiration in">
+        <NSelect
+            v-model:value="formModel.expiry"
+            :options="expirationOptions"
+            :consistent-menu-width="false"
+            class="w-40"
+            size="small"
+            @updateValue="validatePassword"/>
       </NFormItem>
 
       <!-- Password Input (Optional) -->
-      <NFormItem path="password"
-                 label="Password"
-                 class="h-10"
-                 :show-require-mark="passwordRequired"
-                 :show-feedback="false"
-                 ref="passwordFormItemRef">
-        <NPopover trigger="hover" v-model:disabled="formErrors.password.disabled">
+      <NFormItem
+          ref="passwordFormItemRef"
+          class="h-10"
+          path="password"
+          label="Password"
+          :show-require-mark="passwordRequired"
+          :show-feedback="false">
+        <NPopover v-model:disabled="formErrors.password.disabled" trigger="hover" >
           <template #trigger>
-            <NInput v-model:value="formModel.password"
-                    placeholder="Password"
-                    type="password"
-                    class="w-40 max-w-40"
-                    show-password-on="click"
-                    maxlength="16"
-                    size="small"
-                    @updateValue="validatePassword"
+            <NInput
+                v-model:value="formModel.password"
+                class="w-40 max-w-40"
+                placeholder="Password"
+                type="password"
+                show-password-on="click"
+                maxlength="16"
+                size="small"
+                @updateValue="validatePassword"
             />
           </template>
           <template #default>
@@ -72,23 +88,25 @@
       </NFormItem>
 
       <!-- Submit Button -->
-      <NButton @click="uploadSnippet" size="small" attr-type="button" >
+      <NButton v-model:disabled="formDisabled" class="px-8 font-semibold" size="small" attr-type="button" @click="uploadSnippet">
         Share
       </NButton>
     </NForm>
 
-    <!-- Feedback Message -->
-    <div v-if="uploadStatus" :class="{'success': isUploadSuccess, 'error': !isUploadSuccess}">
-      {{ uploadStatus }}
-    </div>
+    <!-- Feedback Modal -->
+    <NModal v-model:show="showUploadFeedback">
+      <NAlert :type="uploadFeedbackType">{{ uploadFeedbackMessage }}</NAlert>
+    </NModal>
   </NSpace>
-  <pre>{{ JSON.stringify(formModel, null, 2) }}</pre>
-  <pre>{{ JSON.stringify(formErrors, null, 2) }}</pre>
+  <!--<pre>{{ JSON.stringify(formModel, null, 2) }}</pre>
+  <pre>{{ JSON.stringify(formErrors, null, 2) }}</pre>-->
+
   <!-- Snippet Code Input (Textarea) -->
   <MonacoEditor id="codeEditor" v-model="code" :lang="formModel.language" :options="{ theme: 'vs-dark' }" class="w-100"/>
 </template>
 
 <script setup lang="ts">
+import { useLoadingBar } from 'naive-ui'
 import type {
   FormInst,
   FormItemInst,
@@ -96,13 +114,11 @@ import type {
   FormRules } from 'naive-ui'
 
 const router = useRouter();
-
+const code = ref('');
 
 /******* Password Validation *******/
 const passwordFormItemRef = ref<FormItemInst | null>(null)
-
 const passwordRequired: boolean = computed(() => formModel.value.expiry === 'permanent');
-
 function validatePassword(): void {
   // Delay to ensure form item is updated
   setTimeout(() => {
@@ -118,10 +134,8 @@ function validatePassword(): void {
   }, 0);
 }
 
-
 /******* Title Validation *******/
 const titleFormItemRef = ref<FormItemInst | null>(null)
-
 function validateTitle(): void {
   setTimeout(() => {
     formErrors.value.title.disabled = true;
@@ -138,10 +152,11 @@ function validateTitle(): void {
 
 /******* Form Handling *******/
 /*
-  - Options for dropdowns
-  - Databinding
-  - Error Handling with Popovers
-  - Validation Rules
+  - Data Options for Selects
+  - Data Binding with Form Model
+  - Error Handling with Form Errors
+  - Form Rules for Validation
+  - Form Disabled State for Submit Button
  */
 const formRef = ref<FormInst | null>(null)
 
@@ -245,7 +260,6 @@ const formModel = ref({
   password: '' as string,
   expiry: '1_week' as string
 });
-
 const formErrors = ref({
   password: {
     message: '',
@@ -256,7 +270,6 @@ const formErrors = ref({
     disabled: true,
   }
 });
-
 const formRules: FormRules = {
   title: [{
     required: true,
@@ -297,20 +310,41 @@ const formRules: FormRules = {
   ]
 }
 
+const formDisabled = computed(() => {
+  return !formModel.value.title
+      || !code.value
+      || code.value.length < 3
+      || formModel.value.title.length < 3
+      || formModel.value.expiry === 'permanent' && (!formModel.value.password || formModel.value.password.length < 4);
+});
 
+/********** Loading Bar **********/
+const loadingBar = useLoadingBar()
+const loadingBarDisabled = ref(true)
 
+function handleLoadingBarStart() {
+  loadingBar.start()
+  loadingBarDisabled.value = false
+}
+function handleLoadingBarFinish() {
+  loadingBar.finish()
+  loadingBarDisabled.value = true
+}
+function handleLoadingBarError() {
+  loadingBarDisabled.value = true
+  loadingBar.error()
+}
 
+/********** Upload Feedback **********/
+const showUploadFeedback = ref(false); // Modal visibility
+const uploadFeedbackType = ref('error'); // Upload feedback type
+const uploadFeedbackMessage = ref(''); // Upload feedback message
 
-
-const code = ref(''); // Snippet code content
-
-const uploadStatus = ref(''); // Upload feedback message
-const isUploadSuccess = ref(false); // Boolean to track upload success/failure
-
-// Boolean to track if password is required
-
-
-
+function showUploadFeedbackModal(type: string, message: string) {
+  showUploadFeedback.value = true;
+  uploadFeedbackType.value = type;
+  uploadFeedbackMessage.value = message;
+}
 
 /* Automatically detect language based on code content (unfinshed)
 //const languageList = languageOptions.map(option => option.value);
@@ -322,54 +356,41 @@ watch(code, (newCode: string) => {
 
 
 
-// Function to handle snippet upload
+/********** Upload Snippet **********/
 const uploadSnippet = async () => {
-  // Ensure title and code are not empty
-  if (!formModel.value.title || !code) {
-    uploadStatus.value = 'Title and code are required.';
-    isUploadSuccess.value = false;
-    return;
-  }
-
-  // If permanent is selected, password must be provided
-  if (formModel.value.expiry === 'permanent' && !formValue.value.password) {
-    uploadStatus.value = 'Password is required for permanent snippets.';
-    isUploadSuccess.value = false;
-    return;
-  }
-
+  handleLoadingBarStart();
   // Prepare the request body
   const payload = {
     title: formModel.value.title,
     code: code.value,
-    language: formModel.value.language || 'plaintext', // Default to plaintext
-    password: formModel.value.password || null, // Optional password
+    language: formModel.value.language, // Default to plaintext
+    password: formModel.value.password, // Optional password
     expiry: formModel.value.expiry, // Expiry time selection
   };
-
   try {
-    const res = await fetch('/api/snippets/upload', {
+    const response = await fetch('/api/snippets/upload', {
       method: 'POST',
       body: JSON.stringify(payload),
       headers: {
         'Content-Type': 'application/json',
       },
     });
+    const data = await response.json();
+    if (response.ok) {
+      handleLoadingBarFinish();
+      showUploadFeedbackModal('success', 'Snippet uploaded successfully! Access it at: ' + data.slug + " or wait for the redirect.");
 
-    const data = await res.json();
-
-    if (res.ok) {
-      uploadStatus.value = 'Snippet uploaded successfully!';
-      isUploadSuccess.value = true;
-
-      // Redirect to the snippet view page after upload
-      router.push(`/snippet/${data.slug}`);
+      setTimeout(() => {
+        router.push(`/snippet/${data.slug}`);
+      }, 5000);
     } else {
+      handleLoadingBarError();
+      showUploadFeedbackModal('error', data.message);
       throw new Error(data.message || 'Error uploading snippet.');
     }
   } catch (error) {
-    uploadStatus.value = `Upload failed: ${error.message}`;
-    isUploadSuccess.value = false;
+    handleLoadingBarError();
+    showUploadFeedbackModal('error', error.message);
   }
 };
 </script>
