@@ -169,7 +169,6 @@
 <script lang="ts" setup>
 import { MonacoEditor} from "#components";
 import { useLoadingBar, useDialog } from 'naive-ui'
-import Countdown from "~/components/Countdown.vue";
 
 enum Status {
   Loading = 'loading',
