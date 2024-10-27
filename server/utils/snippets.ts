@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import fs from 'fs/promises';
 import unzipper from 'unzipper'; // For unzipping
 import { query } from './db';
+import {getCache, setCache, deleteFromCache} from "~/server/utils/cache";
 const MAX_SNIPPET_SIZE = 2 * 1024 * 1024; // 2 MB limit
 const SNIPPETS_DIR = './storage/snippets';
 
@@ -92,8 +93,17 @@ export interface SnippetData {
  * @returns The metadata of the snippet
  */
 export async function getSnippetData(slug: string): Promise<SnippetData> {
-    const result = await query(`SELECT * FROM snippets WHERE slug = ?`, [slug]);
-    return result.length > 0 ? result[0] : null;
+    const cacheKey = `snippet:${slug}:metadata`;
+    let metadata: SnippetData = await getCache(cacheKey);
+
+    if (!metadata) {
+        const result = await query(`SELECT * FROM snippets WHERE slug = ?`, [slug]);
+        metadata = result.length > 0 ? result[0] : null;
+        if (metadata) {
+            setCache(cacheKey, metadata);
+        }
+    }
+    return metadata;
 }
 
 /**
@@ -111,10 +121,14 @@ export async function snippetExists(slug: string): Promise<boolean> {
  * @returns The path to the snippet zip file
  */
 export async function getSnippetPath(slug: string): Promise<string> {
-    const result = await query(`SELECT path FROM snippets WHERE slug = ?`, [slug]);
-    return result[0].path;
+    const metadata = await getSnippetData(slug);
+    let path: string = metadata ? metadata.path : null;
+    if (!metadata) {
+        const result = await query(`SELECT path FROM snippets WHERE slug = ?`, [slug]);
+        path = result[0].path;
+    }
+    return path;
 }
-
 /**
  * Get the expiration date of a snippet
  * @param slug The slug of the snippet
@@ -132,6 +146,7 @@ export async function deleteSnippet(slug: string): Promise<void> {
     const path: string = await getSnippetPath(slug);
     await fs.unlink(path);
     await query(`DELETE FROM snippets WHERE slug = ?`, [slug]);
+    deleteFromCache(`snippet:${slug}:metadata`);
 }
 
 export async function validateExpiration(metadata: SnippetData, date: Date): Promise<boolean> {
