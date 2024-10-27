@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || '4dj52dl6fq8532s!dkfj'
+const SECRET = process.env.SECRET_AUTH_TOKEN;
 
 export function createJwtToken(snippetId: string) {
-    return jwt.sign({ snippetId }, JWT_SECRET, { expiresIn: '30m' });
+    return jwt.sign({ snippetId }, SECRET, { expiresIn: '30m' });
 }
 export function verifyJwtToken(token: string) {
-    return jwt.verify(token, JWT_SECRET);
+    return jwt.verify(token, SECRET);
 }
