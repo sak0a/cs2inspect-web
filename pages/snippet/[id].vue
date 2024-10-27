@@ -1,5 +1,4 @@
 <template>
-  <SitePreloader />
   <NSpace class="bg-[#181818] px-4 pt-2" size="small" justify="space-between">
     <NSpace>
         <NIcon size="30" class="" color="#86DFBA" @click="router.push('/')">
