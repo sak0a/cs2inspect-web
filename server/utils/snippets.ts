@@ -7,7 +7,7 @@ import unzipper from 'unzipper'; // For unzipping
 import { query } from './db';
 import {getCache, setCache, deleteFromCache} from "~/server/utils/cache";
 const MAX_SNIPPET_SIZE = 2 * 1024 * 1024; // 2 MB limit
-const SNIPPETS_DIR = './storage/snippets';
+const SNIPPETS_DIR = process.env.STORAGE_PATH_SNIPPETS;
 
 /**
  * Save a code snippet to the file system and database
@@ -87,11 +87,6 @@ export interface SnippetData {
     expiration_date: Date;
 }
 
-/**
- * Get the metadata of a snippet
- * @param slug The slug of the snippet
- * @returns The metadata of the snippet
- */
 export async function getSnippetData(slug: string): Promise<SnippetData> {
     const cacheKey = `snippet:${slug}:metadata`;
     let metadata: SnippetData = await getCache(cacheKey);
@@ -106,20 +101,11 @@ export async function getSnippetData(slug: string): Promise<SnippetData> {
     return metadata;
 }
 
-/**
- * Check if a snippet with the given slug exists
- * @param slug The slug of the snippet
- */
 export async function snippetExists(slug: string): Promise<boolean> {
     const result = await query(`SELECT COUNT(*) as count FROM snippets WHERE slug = ?`, [slug]);
     return result[0].count > 0;
 }
 
-/**
- * Get the path to the snippet zip file
- * @param slug The slug of the snippet
- * @returns The path to the snippet zip file
- */
 export async function getSnippetPath(slug: string): Promise<string> {
     const metadata = await getSnippetData(slug);
     let path: string = metadata ? metadata.path : null;
@@ -129,19 +115,12 @@ export async function getSnippetPath(slug: string): Promise<string> {
     }
     return path;
 }
-/**
- * Get the expiration date of a snippet
- * @param slug The slug of the snippet
- */
+
 export async function getSnippetForDownload(slug: string) {
     const zipPath = await getSnippetPath(slug); // The path to the .zip file
     return createReadStream(zipPath); // Stream the zip file
 }
 
-/**
- * Delete a snippet from the file system and database
- * @param slug The slug of the snippet to delete
- */
 export async function deleteSnippet(slug: string): Promise<void> {
     const path: string = await getSnippetPath(slug);
     await fs.unlink(path);
