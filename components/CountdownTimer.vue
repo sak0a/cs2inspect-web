@@ -46,7 +46,7 @@ const time = ref<TimeLeft>({
 const animateClass = ref('')
 
 // Timer interval reference
-let timerInterval: any = null
+let timerInterval: number = null
 
 // Calculate the time difference
 function calculateTimeLeft() {
