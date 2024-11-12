@@ -17,21 +17,8 @@ ENV PATH="/root/.bun/bin:$PATH"
 # Copy the entrypoint script
 COPY entrypoint.sh /app/entrypoint.sh
 RUN chmod +x /app/entrypoint.sh
-
-COPY .env /app/.env
-
-# Copy package.json and install dependencies
-COPY package*.json ./
-RUN bun install
-
-# Copy the rest of the application code
-COPY . .
-
-# Build the Nuxt app
-RUN bun run build
-
 # Expose port 3000
 EXPOSE 3000
 
 # Use the entrypoint script as the container command
-ENTRYPOINT ["/app/entrypoint.sh"]
+ENTRYPOINT ["sh", "/app/entrypoint.sh"]

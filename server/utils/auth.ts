@@ -1,9 +1,10 @@
 import jwt from "jsonwebtoken";
 
-const SECRET = process.env.SECRET_AUTH_TOKEN || 'secret';
+const SECRET = process.env.AUTH_TOKEN || 'secret';
+const EXPIRATION = process.env.AUTH_TOKEN_EXPIRATION || '30m';
 
 export function createJwtToken(snippetId: string) {
-    return jwt.sign({ snippetId }, SECRET, { expiresIn: '30m' });
+    return jwt.sign({ snippetId }, SECRET, { expiresIn: EXPIRATION });
 }
 export function createJwtTokenWithExpiration(snippetId: string, expiration: string) {
     return jwt.sign({ snippetId }, SECRET, { expiresIn: expiration });
