@@ -3,13 +3,12 @@ export default defineEventHandler(async (event) => {
     const authToken = getHeader(event, 'Authorization')?.replace('Bearer ', ''); // Extract the token from the headers
     const snippetId = event.context.params.snippetId;
 
-    console.log(`\n---------- \x1b[104m\x1b[30m ${event._method} API Request /snippet/${snippetId}/delete \x1b[0m ----------`);
+    Logger.header(`${event._method} API Request /snippet/${snippetId}/delete`);
 
     // Retrieve snippet metadata
     const validationResponse = await validateSnippet(event, snippetId);
     if (validationResponse.statusCode !== 200) {
-        const responseTime = Date.now() - startTime; // Calculate response time
-        Logger.info(`Response Time: ${responseTime}ms`);
+        Logger.responseTime(startTime);
         return createStatus(validationResponse.statusCode, validationResponse.statusMessage);
     }
     const metadata = validationResponse.metadata;
@@ -32,8 +31,7 @@ export default defineEventHandler(async (event) => {
             Logger.error('Unauthorized: No authentication provided');
             return createStatus(401, 'Unauthorized: No authentication provided');
         });
-    const responseTime = Date.now() - startTime; // Calculate response time
-    Logger.info(`Response Time: ${responseTime}ms`);
+    Logger.responseTime(startTime);
     return result;
 });
 

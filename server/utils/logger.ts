@@ -8,4 +8,11 @@ export class Logger {
     static success(message: string): void {
         console.log(`\x1b[92m✔\x1b[97m ${message}`);
     }
+    static header(message: string): void {
+        console.log(`\n---------- \x1b[104m\x1b[30m ${message} \x1b[0m ----------`);
+    }
+    static responseTime(startTime: number): void {
+        const responseTime = Date.now() - startTime;
+        console.log(`Response Time: ${responseTime}ms`);
+    }
 }

@@ -1,10 +1,5 @@
 <script setup lang="ts">
 import { NThemeEditor } from "naive-ui";
-
-
-
-
-//const colorMode = useColorMode()
 </script>
 <template>
   <div>

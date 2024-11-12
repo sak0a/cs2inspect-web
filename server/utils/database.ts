@@ -1,4 +1,4 @@
-import mariadb from 'mariadb';
+import mariadb, { PoolConnection } from 'mariadb';
 
 const pool = mariadb.createPool({
     host: process.env.DATABASE_HOST,
@@ -8,14 +8,15 @@ const pool = mariadb.createPool({
     database: process.env.DATABASE_NAME,  // Replace with your database name
     connectionLimit: process.env.DATABASE_CONNECTION_LIMIT
 });
-let conn;
+let conn: PoolConnection;
 // Helper function to query the database
 export async function query(sql: string, params: any[]) {
-
     try {
         conn = await pool.getConnection();
         return await conn.query(sql, params);
+    } catch (err) {
+        throw err;
     } finally {
-        if (conn) conn.release();
+        if (conn) await conn.release();
     }
 }

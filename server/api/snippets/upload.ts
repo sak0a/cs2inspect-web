@@ -1,7 +1,7 @@
 export default defineEventHandler(async (event) => {
     const { title, code, language, password, expiry } = await readBody(event) || {};
     // Check if required fields are present
-    console.log(`\n---------- \x1b[104m\x1b[30m ${event._method} API Request Upload Snippet \x1b[0m ----------`);
+    Logger.header(`${event._method} API Request Upload (Title: ${title})`);
     if (!title) {
         Logger.error('Missing title field for snippet upload');
         return createStatus(400, 'Missing title field for snippet upload');

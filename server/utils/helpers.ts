@@ -31,15 +31,39 @@ export function generateSlug(wordCount: number | 4): string {
     return selectedWords.join('-');
 }
 
-/** Unused
-export function validateSlug(slug: string): boolean {
-    // A valid slug contains only lowercase letters, numbers, and hyphens
-    const slugRegex = /^[a-z0-9]+(-[a-z0-9]+)*$/;
-    return slugRegex.test(slug);
+export function generateTitle(): string {
+    // Pick a random word from the wordList
+    return wordList[Math.floor(Math.random() * wordList.length)];
 }
-**/
 
-export function convertExpirationDate(expiry): Date | null {
+export function generatePassword(): string {
+    // Generate a random 8-character password
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let password = '';
+    for (let i = 0; i < 8; i++) {
+        password += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return password;
+}
+
+export function generateLanguage(): string {
+    // Pick a random programming language
+    const languages = ['javascript', 'python', 'java', 'c', 'c++', 'c#', 'ruby', 'php', 'swift', 'typescript'];
+    return languages[Math.floor(Math.random() * languages.length)];
+}
+
+export function generateExpirationDate(): Date {
+    // Pick a random expiration date within the next 30 days
+    const now = new Date();
+    return new Date(now.getTime() + Math.floor(Math.random() * 30) * 24 * 60 * 60 * 1000);
+}
+
+export function generateCode(): string {
+    // Generate a random code snippet
+    return `function ${generateTitle()}() {\n    console.log('Hello, World!');\n}`;
+}
+
+export function convertExpirationDate(expiry: string): Date | null {
     const now = new Date();
     switch (expiry) {
         case '1_hour':

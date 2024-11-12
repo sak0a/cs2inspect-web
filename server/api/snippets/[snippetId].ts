@@ -1,7 +1,7 @@
-export default defineEventHandler(async (event) => {
-    const startTime = Date.now(); // Start the timer
+export default defineEventHandler(async (event): Promise<any> => {
+    const startTime: number = Date.now(); // Start the timer
 
-    const snippetId: string = event.context.params.snippetId;
+    const snippetId: string | undefined = event.context.params?.snippetId;
     const authToken: string | undefined = getHeader(event, 'Authorization')?.replace('Bearer ', ''); // Extract the token from the query
     // Attempt to read the request body if present (e.g., for POST requests)
     let password: string | undefined;
@@ -9,14 +9,13 @@ export default defineEventHandler(async (event) => {
         const body = await readBody(event) || {};
         password = body.password || '';
     }
+    Logger.header(`${event._method} API Request /snippet/${snippetId}`);
 
-    console.log(`\n---------- \x1b[104m\x1b[30m ${event._method} API Request /snippet/${snippetId} \x1b[0m ----------`);
     try {
         // Retrieve snippet metadata
         const validationResponse= await validateSnippet(event, snippetId);
         if (validationResponse.statusCode !== 200) {
-            const responseTime = Date.now() - startTime; // Calculate response time
-            Logger.info(`Response Time: ${responseTime}ms`);
+            Logger.responseTime(startTime);
             return createStatus(validationResponse.statusCode, validationResponse.statusMessage);
         }
         const metadata: SnippetData = validationResponse.metadata;
@@ -49,12 +48,10 @@ export default defineEventHandler(async (event) => {
                 code: await getSnippetContent(snippetId),
             };
         });
-        const responseTime = Date.now() - startTime; // Calculate response time
-        Logger.info(`Response Time: ${responseTime}ms`);
+        Logger.responseTime(startTime);
         return result;
     } catch(error) {
-        const responseTime = Date.now() - startTime; // Calculate response time
-        Logger.info(`Response Time: ${responseTime}ms`);
+        Logger.responseTime(startTime);
         Logger.error(`Error retrieving snippet: ${error.message}`);
         return createStatus(500, 'Internal server error');
     }

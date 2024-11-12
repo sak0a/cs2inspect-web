@@ -1,28 +1,87 @@
-import { createWriteStream, createReadStream } from 'fs';
 import path from 'path';
 import archiver from 'archiver'; // For zipping
 import bcrypt from 'bcrypt';
 import fs from 'fs/promises';
 import unzipper from 'unzipper'; // For unzipping
-import { query } from './db';
-import {getCache, setCache, deleteFromCache} from "~/server/utils/cache";
-const MAX_SNIPPET_SIZE = 2 * 1024 * 1024; // 2 MB limit
+import { createWriteStream, createReadStream } from 'fs';
+import { Logger } from "~/server/utils/logger";
+import { createStatus } from "~/server/utils/helpers";
+import { query } from './database';
+import { getCache, setCache, deleteFromCache } from "~/server/utils/cache";
+import { verifyJwtToken } from "~/server/utils/auth";
+
+
+const MAX_SNIPPET_SIZE = process.env.MAX_SNIPPET_SIZE; // 2 MB limit
 const SNIPPETS_DIR = process.env.STORAGE_PATH_SNIPPETS;
 
-/**
- * Save a code snippet to the file system and database
- * @param title The title of the snippet
- * @param code The code content of the snippet
- * @param language The programming language of the snippet
- * @param password Optional password to protect the snippet
- * @param expirationDate The expiration date of the snippet
- * @returns The slug of the saved snippet
- */
-export async function saveSnippet(title: string, code: string, language: string, password: string | null, expirationDate: Date): Promise<string> {
-    const slug: string = generateSlug(4);
+
+export interface SnippetData {
+    id: number;
+    slug: string;
+    title: string;
+    language: string;
+    password: string | null;
+    path: string;
+    created_at: Date;
+    expiration_date: Date;
+}
+
+export class SnippetCreator {
+    public static PRESET_TEST_PASSWORD: SnippetData = {
+        slug: 'preset-test-password',
+        password: 'Hello World',
+    }
+    private data: SnippetData;
+    constructor() {
+        this.data = {}
+    }
+    withPreset(preset: SnippetData): SnippetCreator {
+        this.data = preset;
+        return this;
+    }
+    withTitle(title: string): SnippetCreator {
+        this.data.title = title;
+        return this;
+    }
+    withLanguage(language: string): SnippetCreator {
+        this.data.language = language;
+        return this;
+    }
+    withPassword(password: string): SnippetCreator {
+        this.data.password = password;
+        return this;
+    }
+    withExpirationDate(expirationDate: Date): SnippetCreator {
+        this.data.expiration_date = expirationDate;
+        return this;
+    }
+    withSlug(slug: string): SnippetCreator {
+        this.data.slug = slug;
+        return this;
+    }
+    withPath(path: string): SnippetCreator {
+        this.data.path = path;
+        return this;
+    }
+    withCreatedAt(createdAt: Date): SnippetCreator {
+        this.data.created_at = createdAt;
+        return this;
+    }
+    build(): SnippetData {
+        return this.data;
+    }
+}
+
+
+export async function saveSnippet(title: string,
+                                  code: string,
+                                  language: string,
+                                  password: string | null,
+                                  expirationDate: Date | null): Promise<string> {
+    const slug = generateSlug(4);
     const hashedPassword = password ? await bcrypt.hash(password, 10) : null;
-    const zipPath: string = path.join(SNIPPETS_DIR, `${slug}.zip`); // Save as a .zip file
-    const buffer: Buffer = Buffer.from(code);
+    const zipPath = path.join(SNIPPETS_DIR, `${slug}.zip`); // Save as a .zip file
+    const buffer = Buffer.from(code);
     if (buffer.length > MAX_SNIPPET_SIZE) {
         return createStatus(500, 'Snippet exceeds the maximum size of 2 MB');
     }
@@ -58,13 +117,8 @@ export async function saveSnippet(title: string, code: string, language: string,
     }
 }
 
-/**
- * Get the code content of a snippet
- * @param slug
- * @returns The code content of the snippet
- */
 export async function getSnippetContent(slug: string): Promise<string> {
-    const zipPath = await getSnippetPath(slug); // The path to the .zip file
+    const zipPath = (await getSnippetData(slug)).path; // The path to the .zip file
     // Use unzipper to extract the contents of the zip
     const directory = await unzipper.Open.file(zipPath);
     const file = directory.files.find(file => file.path.endsWith('.txt'));
@@ -76,27 +130,21 @@ export async function getSnippetContent(slug: string): Promise<string> {
     return createError(404, 'Snippet file not found in zip');
 }
 
-export interface SnippetData {
-    id: number;
-    slug: string;
-    title: string;
-    language: string;
-    password: string | null;
-    path: string;
-    created_at: Date;
-    expiration_date: Date;
-}
-
 export async function getSnippetData(slug: string): Promise<SnippetData> {
+    if (!slug) {
+        throw new Error('Snippet data is undefined');
+    }
+
     const cacheKey = `snippet:${slug}:metadata`;
     let metadata: SnippetData = await getCache(cacheKey);
 
     if (!metadata) {
         const result = await query(`SELECT * FROM snippets WHERE slug = ?`, [slug]);
-        metadata = result.length > 0 ? result[0] : null;
-        if (metadata) {
-            setCache(cacheKey, metadata);
+        if (!result || result.length === 0) {
+            throw new Error('Snippet not found');
         }
+        metadata = result[0];
+        setCache(cacheKey, metadata);
     }
     return metadata;
 }
@@ -106,24 +154,14 @@ export async function snippetExists(slug: string): Promise<boolean> {
     return result[0].count > 0;
 }
 
-export async function getSnippetPath(slug: string): Promise<string> {
-    const metadata = await getSnippetData(slug);
-    let path: string = metadata ? metadata.path : null;
-    if (!metadata) {
-        const result = await query(`SELECT path FROM snippets WHERE slug = ?`, [slug]);
-        path = result[0].path;
-    }
-    return path;
-}
-
 export async function getSnippetForDownload(slug: string) {
-    const zipPath = await getSnippetPath(slug); // The path to the .zip file
+    const zipPath = (await getSnippetData(slug)).path; // The path to the .zip file
     return createReadStream(zipPath); // Stream the zip file
 }
 
 export async function deleteSnippet(slug: string): Promise<void> {
-    const path: string = await getSnippetPath(slug);
-    await fs.unlink(path);
+    const metadata: SnippetData = await getSnippetData(slug);
+    await fs.unlink(metadata.path);
     await query(`DELETE FROM snippets WHERE slug = ?`, [slug]);
     deleteFromCache(`snippet:${slug}:metadata`);
 }
@@ -157,7 +195,12 @@ export async function validateSnippet(event, snippetId: string): Promise<{ statu
     return { statusCode: 200, metadata };
 }
 
-export async function validateAuth(metadata: SnippetData, authToken: string | undefined, password: string, onTokenSuccess: () => Promise<any>, onPasswordSuccess: () => Promise<any>, onNoAuthRequired: () => any): Promise<any> {
+export async function validateAuth(metadata: SnippetData,
+                                   authToken: string | undefined,
+                                   password: string,
+                                   onTokenSuccess: () => Promise<any>,
+                                   onPasswordSuccess: () => Promise<any>,
+                                   onNoAuthRequired: () => any): Promise<any> {
     // Check if snippet requires authentication
     if (metadata.password) {
         Logger.info(`Snippet requires authentication`);
@@ -174,9 +217,10 @@ export async function validateAuth(metadata: SnippetData, authToken: string | un
                 }
                 Logger.error(`Unauthorized: Invalid token`);
                 return createStatus(405, 'Unauthorized: Invalid token');
-            } catch (error) {
+            } catch (error: Error) {
+
                 if (error.message === 'jwt expired') {
-                    Logger.error(`JWT Token has expired`);
+                    Logger.error(`JWT Token expired`);
                     return createStatus(406, 'JWT Token expired');
                 }
                 Logger.error(`Error validating token: ${error.message}`);
