@@ -10,4 +10,14 @@ services:
       - .env  # Load other environment variables from .env file
     volumes:
       - .:/app  # Bind mount for live updates (useful in development)
+      - repo_data:/app/repository
+      - snippets_data:/app/storage/snippets
+      - files_data:/app/storage/files
     restart: unless-stopped
+volumes:
+  snippets_data:
+    driver: local
+  files_data:
+    driver: local
+  repo_data:
+    driver: local
