@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: lx-share:latest
     container_name: lx-share-container
     ports:
       - "3000:3000"  # Expose port 3000 for accessing the Nuxt app
