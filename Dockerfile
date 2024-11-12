@@ -1,5 +1,5 @@
 # Use a lightweight base image
-FROM debian:12-slim as builder
+FROM debian:12-slim
 
 # Set working directory
 WORKDIR /app
