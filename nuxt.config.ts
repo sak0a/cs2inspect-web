@@ -1,13 +1,13 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import Components from 'unplugin-vue-components/vite'
-import {defineNuxtConfig} from "nuxt/config";
+import { defineNuxtConfig } from "nuxt/config";
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
   ssr: true,
   target: 'server',
   server: {
-    port: process.env.PORT || 3000,  // default: 3000
+    port: process.env.SERVER_PORT || 3000,  // default: 3000
     host: '0.0.0.0',  // default: localhost
   },
   devtools: {
@@ -16,11 +16,15 @@ export default defineNuxtConfig({
   build: {
     transpile: ['vueuc']
   },
-
+  hooks: {
+    'app:before': async () => {
+      const { initializeDatabase } = require('./server/utils/database');
+      await initializeDatabase();
+    }
+  },
   css: [
     '~/assets/css/tailwind.sass',
   ],
-
   vite: {
     plugins: [
       Components({
@@ -28,16 +32,14 @@ export default defineNuxtConfig({
       })
     ]
   },
-
   tailwindcss: {
     cssPath: ['~/assets/css/tailwind.sass', { injectPosition: "first" }],
     exposeConfig: {
       level: 2
     },
     config: {},
-    viewer: true,
+    viewer: false,
   },
-
   monacoEditor: {
     // These are default values:
     locale: 'en',
@@ -46,11 +48,15 @@ export default defineNuxtConfig({
       diffEditor: 'MonacoDiffEditor'
     }
   },
-
-  modules: [//'nuxt-social-share',
-  //'@nuxtjs/robots',
-  //'device'
-    '@nuxt/test-utils/module', '@nuxtjs/tailwindcss', 'nuxt-mdi', 'google-fonts', 'nuxt-monaco-editor', '@nuxtjs/color-mode', 'nuxtjs-naive-ui', '@nuxt/eslint'],
-
+  modules: [
+    '@nuxt/test-utils/module',
+    '@nuxtjs/tailwindcss',
+    'nuxt-mdi',
+    'google-fonts',
+    'nuxt-monaco-editor',
+    '@nuxtjs/color-mode',
+    'nuxtjs-naive-ui',
+    '@nuxt/eslint'
+  ],
   compatibilityDate: '2024-10-12',
 })

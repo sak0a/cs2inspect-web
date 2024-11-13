@@ -20,3 +20,20 @@ export async function query(sql: string, params: any[]) {
         if (conn) await conn.release();
     }
 }
+
+export async function initializeDatabase() {
+    try {
+        await query(`CREATE TABLE IF NOT EXISTS snippets (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            slug VARCHAR(100) NOT NULL,
+            title VARCHAR(100) NOT NULL,
+            language VARCHAR(100) NOT NULL,
+            password VARCHAR(100),
+            path VARCHAR(100) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            expires_at DATETIME DEFAULT NULL
+        )`, []);
+    } catch (err) {
+        throw err;
+    }
+}
