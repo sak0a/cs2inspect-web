@@ -15,6 +15,10 @@ services:
       - snippets_data:/app/storage/snippets
       - files_data:/app/storage/files
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 2500MB
 volumes:
   snippets_data:
     driver: local

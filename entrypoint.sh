@@ -31,6 +31,10 @@ else
     bun install
   else
     echo "INFO | No changes detected. Starting the server..."
+    if [ ! -f ".output/server/index.mjs" ] ; then
+      echo "INFO | Building the project..."
+      bun run build
+    fi
     bun run .output/server/index.mjs
     exit 0
   fi
