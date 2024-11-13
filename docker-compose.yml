@@ -6,11 +6,11 @@ services:
     image: lx-share:latest
     container_name: lx-share-container
     ports:
-      - "3000:3000"  # Expose port 3000 for accessing the Nuxt app
+      - "3000:3000"
     env_file:
-      - .env  # Load other environment variables from .env file
+      - .env
     volumes:
-      - .:/app  # Bind mount for live updates (useful in development)
+      - .:/app
       - repo_data:/app/repository
       - snippets_data:/app/storage/snippets
       - files_data:/app/storage/files
