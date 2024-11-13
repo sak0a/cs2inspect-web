@@ -6,7 +6,7 @@ services:
     image: lx-share:latest
     container_name: lx-share-container
     ports:
-      - "3000:3000"
+      - "${PORT}:${PORT}"
     env_file:
       - .env
     volumes:

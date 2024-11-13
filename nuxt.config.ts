@@ -7,8 +7,8 @@ export default defineNuxtConfig({
   ssr: true,
   target: 'server',
   server: {
-    port: process.env.SERVER_PORT || 3000,  // default: 3000
-    host: '0.0.0.0',  // default: localhost
+    port: process.env.PORT || 3000,  // default: 3000
+    host: process.env.HOST || '0.0.0.0',  // default: localhost
   },
   devtools: {
     enabled: true,
@@ -56,7 +56,7 @@ export default defineNuxtConfig({
     'nuxt-monaco-editor',
     '@nuxtjs/color-mode',
     'nuxtjs-naive-ui',
-    '@nuxt/eslint'
+    '@nuxt/eslint',
   ],
   compatibilityDate: '2024-10-12',
 })
