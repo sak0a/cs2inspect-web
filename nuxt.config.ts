@@ -54,7 +54,6 @@ export default defineNuxtConfig({
     'nuxt-mdi',
     'google-fonts',
     'nuxt-monaco-editor',
-    '@nuxtjs/color-mode',
     'nuxtjs-naive-ui',
     '@nuxt/eslint',
   ],
