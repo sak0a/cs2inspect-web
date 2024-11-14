@@ -102,7 +102,9 @@
   <pre>{{ JSON.stringify(formErrors, null, 2) }}</pre>-->
 
   <!-- Snippet Code Input (Textarea) -->
-  <MonacoEditor id="codeEditor" v-model="code" :lang="formModel.language" :options="{ theme: 'vs-dark' }" class="w-100"/>
+  <LazyClientOnly>
+    <MonacoEditor id="codeEditor" v-model="code" :lang="formModel.language" :options="{ theme: 'vs-dark' }" class="w-100"/>
+  </LazyClientOnly>
 </template>
 
 <script setup lang="ts">
