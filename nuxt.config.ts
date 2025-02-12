@@ -4,8 +4,10 @@ import { defineNuxtConfig } from "nuxt/config";
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
+  $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
   target: 'server',
+
   server: {
     port: process.env.PORT || 3000,  // default: 3000
     host: process.env.HOST || '0.0.0.0',  // default: localhost
@@ -16,6 +18,12 @@ export default defineNuxtConfig({
   build: {
     transpile: ['vueuc']
   },
+  app: {
+    pageTransition: {
+      name: 'page',
+      mode: 'out-in'
+    }
+  },
   hooks: {
     'app:before': async () => {
       const { initializeDatabase } = require('./server/utils/database');
@@ -25,6 +33,11 @@ export default defineNuxtConfig({
   css: [
     '~/assets/css/tailwind.sass',
   ],
+  router: {
+    options: {
+      hashMode: false // Ensure this is set to false for proper URL handling
+    }
+  },
   vite: {
     plugins: [
       Components({
@@ -40,22 +53,14 @@ export default defineNuxtConfig({
     config: {},
     viewer: false,
   },
-  monacoEditor: {
-    // These are default values:
-    locale: 'en',
-    componentName: {
-      codeEditor: 'MonacoEditor',
-      diffEditor: 'MonacoDiffEditor'
-    }
-  },
   modules: [
     '@nuxt/test-utils/module',
     '@nuxtjs/tailwindcss',
     'nuxt-mdi',
-    'google-fonts',
-    'nuxt-monaco-editor',
     'nuxtjs-naive-ui',
     '@nuxt/eslint',
+    '@pinia/nuxt',
+    'motion-v/nuxt'
   ],
-  compatibilityDate: '2024-10-12',
+  compatibilityDate: '2024-10-12'
 })
