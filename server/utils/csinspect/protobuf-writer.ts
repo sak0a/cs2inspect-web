@@ -1,3 +1,9 @@
+/**
+ * CS2 Inspect URL handling and item builder for with ProtoBufWriter and ProtoBufDecoder
+ * Ported from my (sak0a) Python Project
+ * github.com/sak0a/CSInspect-API
+ */
+
 class ProtoWriter {
     private buffer: number[] = [];
 

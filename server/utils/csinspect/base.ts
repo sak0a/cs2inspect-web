@@ -1,5 +1,10 @@
-// Types and Enums
-import {testCreateInspectUrl} from "~/server/utils/csinspect/protobuf-writer";
+/**
+ * CS2 Inspect URL handling and item builder for with ProtoBufWriter and ProtoBufDecoder
+ * Ported from my (sak0a) Python Project
+ * github.com/sak0a/CSInspect-API
+ */
+
+import { testCreateInspectUrl } from "~/server/utils/csinspect/protobuf-writer";
 
 export enum ItemRarity {
     STOCK = 0,
@@ -132,6 +137,7 @@ export interface BaseItem {
     keychain?: Sticker;
 }
 
+
 export interface ItemBuilder {
     defindex: number | WeaponType;
     paintindex: number;
@@ -155,10 +161,8 @@ export interface ItemBuilder {
     keychains?: Sticker[];
 }
 
-// Constants
 export const INSPECT_BASE = "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20";
 
-// Utility Functions
 export function processRarity(rarityValue: ItemRarity | number | string): number {
     if (typeof rarityValue === 'number') {
         // Validate that the number is a valid rarity value
@@ -399,6 +403,5 @@ export function testAnalyzeInspectUrl() {
 
 export function runAllTests() {
     testAnalyzeInspectUrl();
-    testCreateInspectUrl();
     testCreateInspectUrl();
 }

@@ -1,4 +1,9 @@
-// Protobuf decoding utility classes
+/**
+ * CS2 Inspect URL handling and item builder for with ProtoBufWriter and ProtoBufDecoder
+ * Ported from my (sak0a) Python Project
+ * github.com/sak0a/CSInspect-API
+ */
+
 class ProtoReader {
     private pos: number = 0;
     private view: DataView;
@@ -224,7 +229,6 @@ export function decodeMaskedData(hexData: string): ItemBuilder {
     return decoded;
 }
 
-// Test the decoder with the given example
 export function testDecodeMaskedData() {
     const link = "csgo_econ_action_preview 00183C209909280138A9B8BDEC034020480050B2035A064A414D4F494E62180800103C1D000000002D000000003DADE1BEBB4542290FBB62180801104C1D000000002D000000003DFEABE2BE4542290FBD62180802104C1D000000002D000000003D9F9571BD45353289BC62180803103C1D000000002D000000003D5671B43D4571B4073E62180803103C1D000000002D000000003D7E56C63D45AE36863DA20115080010143D25E701424577B0DF3F4D000000005036813580F3"
     const urlInfo = analyzeInspectUrl(link);

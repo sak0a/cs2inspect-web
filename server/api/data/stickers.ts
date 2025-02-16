@@ -1,5 +1,4 @@
-import {getStickerData} from '~/server/utils/csgoData';
-import {APISticker} from "~/server/utils/interfaces";
+import {getStickerData} from '~/server/utils/csgoAPI';
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
@@ -24,6 +23,5 @@ export default defineEventHandler(async (event) => {
             return true; // If the key doesn't exist in the skin, ignore it
         });
     });
-
     return { stickers: filteredStickers };
 });

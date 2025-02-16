@@ -57,8 +57,6 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-import {EnhancedWeaponResponse} from "~/server/api/weapons/[type].js";
-
 const WEARS = {
   0.00: 'Factory New',
   0.07: 'Minimal Wear',
@@ -118,13 +116,13 @@ function startHideTooltip() {
   }
 }
 
-function clampValue(val) {
+function clampValue(val: any) {
   const numVal = Number(val)
   if (isNaN(numVal)) return props.min
   return Math.min(Math.max(numVal, props.min), props.max)
 }
 
-function handleCustomInput(event) {
+function handleCustomInput(event: any) {
   let value = event.target.value
   // Allow only numbers, single decimal point, and minus sign
   if (!/^-?\d*\.?\d*$/.test(value)) {
@@ -133,7 +131,7 @@ function handleCustomInput(event) {
   }
 }
 
-function handleBlur(event) {
+function handleBlur(event: any) {
   const newValue = parseFloat(event.target.value)
   if (!isNaN(newValue)) {
     localValue.value = clampValue(newValue)
@@ -152,7 +150,7 @@ function getCurrentWearLabel() {
   return WEARS[0]
 }
 
-function startDragging(event) {
+function startDragging(event: any) {
   isDragging.value = true
   showTooltip()
   event.preventDefault()
@@ -328,7 +326,7 @@ onBeforeUnmount(() => {
   caret-color: #80E6C4;
   padding: 5px 8px;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 3px;
   font-size: 14px;
   text-align: center;
   background: #313131;

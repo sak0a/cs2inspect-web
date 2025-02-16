@@ -7,7 +7,6 @@ export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
   target: 'server',
-
   server: {
     port: process.env.PORT || 3000,  // default: 3000
     host: process.env.HOST || '0.0.0.0',  // default: localhost
@@ -24,12 +23,6 @@ export default defineNuxtConfig({
       mode: 'out-in'
     }
   },
-  hooks: {
-    'app:before': async () => {
-      const { initializeDatabase } = require('./server/utils/database');
-      await initializeDatabase();
-    }
-  },
   css: [
     '~/assets/css/tailwind.sass',
   ],
@@ -39,6 +32,13 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    css: {
+      preprocessorOptions: {
+        sass: {
+          api: 'modern',
+        },
+      },
+    },
     plugins: [
       Components({
         resolvers: [NaiveUiResolver()]

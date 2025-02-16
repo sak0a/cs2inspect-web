@@ -2,8 +2,7 @@
 import {ref, computed, watch, watchEffect} from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
 import { hexToRgba } from '~/utilities/helpers'
-
-
+import { APISticker } from "~/server/utils/interfaces";
 
 const props = defineProps<{
   visible: boolean
@@ -19,9 +18,9 @@ const emit = defineEmits<{
 const state = ref({
   searchQuery: '',
   currentPage: 1,
-  items: [],
+  items: [] as APISticker[],
   isLoading: false,
-  selectedItem: null as any,
+  selectedItem: null as APISticker | null | undefined,
   customization: {
     x: 0,
     y: 0,
@@ -100,6 +99,12 @@ const handleSave = () => {
   handleClose()
 }
 
+const handleRemove = () => {
+  if (!props.currentSticker) return
+  emit('select', null)
+  handleClose()
+}
+
 const handleClose = () => {
   emit('update:visible', false)
   state.value.selectedItem = null
@@ -121,7 +126,8 @@ onMounted(() => {
 // Initialize with current sticker if editing
 watchEffect(() => {
   if (props.currentSticker) {
-    state.value.selectedItem = state.value.items.find(item => item.id === ("sticker-"+ props.currentSticker?.id))
+    state.value.selectedItem = state.value.items.find(item => item.id === ("sticker-" + props.currentSticker?.id))
+    console.log('StickerModal - watchEffect currentSticker:', props.currentSticker)
     state.value.customization = {
       x: props.currentSticker.x,
       y: props.currentSticker.y,
@@ -169,7 +175,7 @@ watch(() => props.visible, (newValue) => {
       />
     </template>
 
-    <NSpace vertical size="large">
+    <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Sticker Preview -->
       <div v-if="state.selectedItem" class="bg-[#1a1a1a] p-6 rounded-lg">
         <div class="grid grid-cols-2 gap-6">
@@ -178,7 +184,7 @@ watch(() => props.visible, (newValue) => {
             <img
                 :src="state.selectedItem.image"
                 :alt="state.selectedItem.name"
-                class="w-48 h-48 object-contain"
+                class="h-40 object-top object-cover"
             />
             <h3 class="text-lg font-semibold mt-4 break-words">{{ state.selectedItem.name }}</h3>
           </div>
@@ -193,7 +199,7 @@ watch(() => props.visible, (newValue) => {
                     v-model:value="state.customization.x"
                     :min="-100"
                     :max="100"
-                    :step="1"
+                    :step="0.01"
                     class="w-full"
                 />
               </div>
@@ -203,7 +209,7 @@ watch(() => props.visible, (newValue) => {
                     v-model:value="state.customization.y"
                     :min="-100"
                     :max="100"
-                    :step="1"
+                    :step="0.01"
                     class="w-full"
                 />
               </div>
@@ -215,9 +221,9 @@ watch(() => props.visible, (newValue) => {
                 <h4 class="font-medium mb-2">Scale</h4>
                 <NInputNumber
                     v-model:value="state.customization.scale"
-                    :min="0.1"
-                    :max="2"
-                    :step="0.1"
+                    :min="0.01"
+                    :max="1"
+                    :step="0.01"
                     class="w-full"
                 />
               </div>
@@ -225,33 +231,49 @@ watch(() => props.visible, (newValue) => {
                 <h4 class="font-medium mb-2">Rotation</h4>
                 <NInputNumber
                     v-model:value="state.customization.rotation"
-                    :min="0"
-                    :max="359"
+                    :min="-360"
+                    :max="360"
                     :step="1"
                     class="w-full"
                 />
               </div>
             </div>
 
+            <div class="grid grid-cols-2 gap-4 justify-start w-full mt-0">
             <!-- Wear -->
-            <div>
-              <h4 class="font-medium mb-2">Wear</h4>
-              <NInputNumber
-                  v-model:value="state.customization.wear"
-                  :min="0"
-                  :max="1"
-                  :step="0.01"
-                  class="w-full"
-              />
+              <div>
+                <h4 class="font-medium mb-2">Wear</h4>
+                <NInputNumber
+                    v-model:value="state.customization.wear"
+                    :min="0"
+                    :max="1"
+                    :step="0.01"
+                    class=""
+                />
+              </div>
+              <div class="grid grid-cols-2 gap-2">
+                <NButton
+                    type="primary"
+                    class="mt-[30px] w-full "
+                    :class="{
+                      currentSticker: 'col-span-full'
+                    }"
+                    secondary
+                    @click="handleSave"
+                >
+                  {{ currentSticker ? 'Update' : 'Apply' }} Sticker
+                </NButton>
+                <NButton v-if="currentSticker"
+                    type="error"
+                    class="mt-[30px] w-full"
+                    secondary
+                    @click="handleRemove"
+                >
+                  Delete Sticker
+                </NButton>
+              </div>
             </div>
 
-            <NButton
-                type="primary"
-                class="w-full mt-4"
-                @click="handleSave"
-            >
-              {{ currentSticker ? 'Update' : 'Apply' }} Sticker
-            </NButton>
           </div>
         </div>
       </div>

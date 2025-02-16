@@ -1,11 +1,10 @@
 <script setup lang="ts">
-import { APISkin, APISticker, APIKeychain, DBSticker, DBWeapon, DBKeychain, WeaponCustomization } from '~/server/utils/interfaces'
-import { ref, watchEffect, computed } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, NInputNumber, NSwitch, NButton, NGrid, NGridItem } from 'naive-ui'
-import {hexToRgba} from "~/utilities/helpers";
-import {EnhancedWeaponResponse} from "~/server/api/weapons/[type]";
-import { ChevronDown as ChevronDownIcon, ChevronUp as ChevronUpIcon } from '@vicons/tabler'
-import {SteamUser} from "~/services/steamAuth";
+import { APISkin, WeaponCustomization } from '~/server/utils/interfaces'
+import { ref, computed } from 'vue'
+import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, NInputNumber, NSwitch, NButton } from 'naive-ui'
+import { hexToRgba } from "~/utilities/helpers";
+import { EnhancedWeaponResponse } from "~/server/api/weapons/[type]";
+import { SteamUser } from "~/services/steamAuth";
 
 interface Props {
   visible: boolean
@@ -13,7 +12,7 @@ interface Props {
   isLoading?: boolean
   otherTeamHasSkin: boolean
   pageSize?: number
-  user?: SteamUser
+  user: SteamUser
 }
 const props = defineProps<Props>()
 const message = useMessage()
@@ -117,21 +116,21 @@ const mapCustomizationToRepresentation = (customization: WeaponCustomization) =>
     return {
       slot: index || 0,
       sticker_id: sticker.id,
-      wear: sticker.wear || 0.0,
-      scale: sticker.scale || 1.0,
-      rotation: sticker.rotation || 0.0,
-      offset_x: sticker.x || 0.0,
-      offset_y: sticker.y || 0.0,
+      wear: sticker.wear,
+      scale: sticker.scale,
+      rotation: sticker.rotation,
+      offset_x: sticker.x,
+      offset_y: sticker.y,
     };
   }).filter(sticker => sticker !== null);
 
   const keychain = customization.keychain ? {
     slot: 0,
     sticker_id: customization.keychain.id,
-    offset_x: customization.keychain.x || 0,
-    offset_y: customization.keychain.y || 0,
-    offset_z: customization.keychain.z || 0,
-    pattern: customization.keychain.seed || 0
+    offset_x: customization.keychain.x,
+    offset_y: customization.keychain.y,
+    offset_z: customization.keychain.z,
+    pattern: customization.keychain.seed
   } : null;
   console.log('WeaponSkinModal - Mapping customization to representation:', { stickers, keychain });
   return {
@@ -154,14 +153,18 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       body: JSON.stringify({ inspectUrl })
     })
 
-    if (!response.ok) {
-      throw new Error('Failed to decode inspect URL')
-    }
-
     const data = await response.json()
 
+    if (!response.ok) {
+      throw new Error(data.message)
+    }
+
+    if (data.defindex !== props.weapon.weapon_defindex) {
+      throw new Error('Inspect URL does not match selected weapon')
+    }
+
     // Fetch sticker data in parallel
-    const stickerPromises = data.stickers?.map(async (sticker: any) => {
+    const stickerPromises = data.stickers?.map(async (sticker: any, index: number) => {
       if (!sticker) return null
       const response = await fetch(`/api/data/stickers?id=sticker-${sticker.sticker_id}`)
       const data = await response.json()
@@ -176,6 +179,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
         wear: sticker.wear || 0,
         scale: sticker.scale || 1,
         rotation: sticker.rotation || 0,
+        index,
         api: {
           name: stickerData.name,
           image: stickerData.image,
@@ -189,7 +193,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     }) || []
 
     // Fetch keychain data if exists
-    let keychainPromise = Promise.resolve(null);
+    let keychainPromise
     if (data.keychains?.[0]) {
       keychainPromise = await fetch(`/api/data/keychains?id=keychain-${data.keychains[0].sticker_id}`)
           .then(res => res.json())
@@ -221,20 +225,22 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     // Initialize array with nulls
     const stickers = Array(5).fill(null)
 
-    // Place each sticker in its correct slot position
-    stickerResults.forEach(stickerData => {
-      if (stickerData) {
-        const decodedSticker = data.stickers.find((s: any) => s.sticker_id === stickerData.id)
-        if (decodedSticker) {
-          stickers[decodedSticker.slot] = stickerData
-        }
-      }
-    })
+    // Sort sticker results by their original index and place them in order
+    stickerResults
+        .filter(Boolean) // Remove any null results
+        .sort((a, b) => a.index - b.index) // Sort by original index
+        .forEach((stickerData, index) => {
+          if (stickerData && index < 5) {
+            // Remove the temporary index property before assigning
+            const { index: _, ...stickerWithoutIndex } = stickerData
+            stickers[index] = stickerWithoutIndex
+          }
+        })
 
     // Update customization with complete data
     customization.value = {
       active: true,
-      statTrak: Boolean(data.killeaterscoretype),
+      statTrak: data.killeaterscoretype !== null,
       statTrakCount: data.killeatervalue || 0,
       paintIndex: data.paintindex,
       paintIndexOverride: false,
@@ -266,16 +272,14 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       }
     }
 
-    message.success('Successfully imported weapon configuration')
+    message.success('Successfully imported weapon configuration', { duration: 3000 })
     state.value.showImportModal = false
-  } catch (error) {
-    console.error('Error importing from inspect URL:', error)
-    message.error('Failed to import weapon configuration')
+  } catch (error: any) {
+    message.error(error.message || 'Failed to import weapon configuration', { duration: 3000 })
   } finally {
     state.value.isImporting = false
   }
 }
-
 const handleCreateInspectLink = async () => {
   if (!props.weapon || !selectedSkin || !props.user) return
 
@@ -309,14 +313,13 @@ const handleCreateInspectLink = async () => {
     await navigator.clipboard.writeText(link)
     message.success('Inspect link copied to clipboard' , { duration: 3000 })
   } catch (error) {
-    console.error('Error fetching skins:', error)
+    console.error('Error creating inspect link:', error)
   } finally {
     state.value.isLoadingInspect = false
   }
 }
 
 const handleSkinSelect = (skin: APISkin) => {
-  console.log('WeaponSkinModal - Selecting grid-skin:', skin)
   selectedSkin.value = {
     ...props.weapon!,
     name: skin.name,
@@ -385,8 +388,6 @@ const handleStickerSelect = (stickerData: any) => {
     message.error('Please select a weapon first')
     return
   }
-
-  // Update the sticker in the customization object
   customization.value.stickers[state.value.currentStickerPosition] = stickerData
 }
 
@@ -394,7 +395,7 @@ const handleAddKeychain = () => {
   state.value.showKeychainModal = true
 }
 const handleKeychainSelect = (keychainData: any) => {
-  if (!selectedSkin.value?.databaseInfo) {
+  if (!selectedSkin.value) {
     message.error('Please select a weapon first')
     return
   }
@@ -403,20 +404,16 @@ const handleKeychainSelect = (keychainData: any) => {
 
 const handleSave = () => {
   if (!selectedSkin.value) return
-  console.log('WeaponSkinModal - Saving customization:', customization.value);
-  console.log('WeaponSkinModal - Saving selectedSkin:', selectedSkin.value);
   emit('select', selectedSkin.value, customization.value)
   emit('update:visible', false)
 }
 const handleClose = () => {
   emit('update:visible', false)
-  //console.log('WeaponSkinModal - Closing modal')
   setTimeout(() => {
     state.value.searchQuery = ''
     selectedSkin.value = null
     inheritedWeapon.value = null
     customization.value = { ...defaultCustomization }
-    //console.log('WeaponSkinModal - Resetting state')
   }, 300)
 }
 
@@ -447,12 +444,10 @@ watch(() => props.weapon, () => {
         keychain: dbInfo.keychain ?? null,
         team: Number(dbInfo.team)
       }
-      console.log('WeaponSkinModal - Setting customization:', customization.value);
     } else if (props.weapon.databaseInfo?.team !== undefined) {
       customization.value.team = Number(props.weapon.databaseInfo.team)
     }
     selectedSkin.value = inheritedWeapon.value
-    console.log('WeaponSkinModal - Setting custom:', customization.value);
   }
 })
 </script>
@@ -469,7 +464,7 @@ watch(() => props.weapon, () => {
   >
     <template #header-extra>
       <!-- Import Weapon by Inspect Link -->
-      <NButton :disabled="!selectedSkin" secondary  @click="state.showImportModal = true">
+      <NButton :loading="state.isImporting" secondary type="default" :disabled="!selectedSkin"  @click="state.showImportModal = true">
         <template #icon>
           <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
         </template>
@@ -478,7 +473,7 @@ watch(() => props.weapon, () => {
       <NDivider vertical />
 
       <!-- Generate Weapon Inspect Link by Data -->
-      <NButton :loading="state.isLoadingInspect" :disabled="!selectedSkin" secondary @click="handleCreateInspectLink">
+      <NButton :loading="state.isLoadingInspect" secondary type="default" :disabled="!selectedSkin" @click="handleCreateInspectLink">
         <template #icon>
           <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
         </template>
@@ -486,17 +481,11 @@ watch(() => props.weapon, () => {
       </NButton>
       <NDivider vertical />
 
-      <!-- Save Weapon -->
-      <NButton type="primary" class="w-40 col-span-2" @click="handleSave">
-        Save Changes
-      </NButton>
-      <NDivider vertical />
-
       <!-- Weapon Search -->
       <NInput
           v-model:value="state.searchQuery"
           placeholder="Search skins..."
-          class="w-80"
+          class="pl-1 w-96"
       />
     </template>
 
@@ -532,6 +521,7 @@ watch(() => props.weapon, () => {
               <NInput
                   v-model:value="customization.nameTag"
                   placeholder="Name Tag"
+                  class="pl-1"
               />
             </div>
 
@@ -576,9 +566,27 @@ watch(() => props.weapon, () => {
             </div>
 
             <!-- Save Button & Active Switch-->
-            <div class="flex items-center justify-center w-full mt-0">
-              <div class="flex items-center justify-center w-full h-full">
-                <NSwitch v-model:value="customization.active" size="large" class="w-32 col-span-1">
+            <div class="flex items-center justify-center w-full mt-0 gap-2">
+              <!-- Save Weapon -->
+              <NButton type="success" secondary :class="[
+                selectedSkin?.availableTeams !== 'both' ? 'w-96' : 'w-40']" @click="handleSave">
+                Save Changes
+              </NButton>
+              <!-- Duplicate Weapon -->
+              <div v-if="selectedSkin?.availableTeams === 'both'" class="">
+                <NButton
+                    :disabled="!selectedSkin"
+                    type="default"
+                    secondary
+                    class="w-full"
+                    @click="state.showDuplicateConfirm = true"
+                >
+                  Duplicate to Other Team
+                </NButton>
+              </div>
+
+              <NSpace justify="center" align="center" class="w-full h-full">
+                <NSwitch v-model:value="customization.active" size="large" class="col-span-1">
                   <template #checked>
                     Active
                   </template>
@@ -586,11 +594,11 @@ watch(() => props.weapon, () => {
                     Inactive
                   </template>
                 </NSwitch>
-              </div>
+              </NSpace>
             </div>
 
             <!-- Stickers & Keychain Toggle and Duplicate Weapon Buttons -->
-            <div class="flex flex-row w-max items-center justify-center gap-4">
+            <!--<div class="flex flex-row w-max items-center justify-center gap-4">
               <NButton
                   text
                   class="text-gray-400 hover:text-gray-200"
@@ -604,21 +612,11 @@ watch(() => props.weapon, () => {
                 </template>
                 {{ state.showDetails ? 'Hide' : 'Show' }} Stickers & Keychain
               </NButton>
-              <div v-if="selectedSkin?.availableTeams === 'both'" class="">
-                <NButton
-                    :disabled="!selectedSkin"
-                    type="info"
-                    class="w-full"
-                    @click="state.showDuplicateConfirm = true"
-                >
-                  Duplicate to Other Team
-                </NButton>
-              </div>
-            </div>
+            </div>-->
           </div>
         </div>
         <!-- Sticker and Keychain customization-->
-        <div v-if="state.showDetails" class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': !state.showDetails }">
+        <div class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': state.showDetails }">
           <!-- Stickers -->
           <div class="col-span-5 mt-4">
             <h4 class="font-bold mb-1">Stickers</h4>
@@ -669,7 +667,7 @@ watch(() => props.weapon, () => {
                     :alt="customization.keychain.api.name"
                     class="w-full h-full object-contain"
                 />
-                <p class="text-sm text-center text-gray-400 mt-1">{{ customization.keychain.api.name }}</p>
+                <p class="text-sm text-center text-gray-400 mt-1">{{ customization.keychain.api.name.replace('Charm | ', '') }}</p>
               </div>
               <div v-else class="h-30 flex items-center justify-center">
                 <span class="text-gray-400 text-sm">Add Keychain</span>
@@ -741,7 +739,7 @@ watch(() => props.weapon, () => {
     <!-- Keychain Modal -->
     <KeychainModal
         v-model:visible="state.showKeychainModal"
-        :current-keychain="customization.keychain"
+        :currentKeychain="customization.keychain"
         @select="handleKeychainSelect"
     />
 
@@ -756,7 +754,7 @@ watch(() => props.weapon, () => {
     <NModal v-model:show="state.showDuplicateConfirm">
       <NCard
           style="width: 600px"
-          :bordered="false"
+          :bordered="true"
           size="medium"
           role="dialog"
           aria-modal="true"
@@ -765,7 +763,7 @@ watch(() => props.weapon, () => {
           <div class="text-lg font-semibold">Duplicate Weapon</div>
         </template>
 
-        <div class="py-4">
+        <div class="py-2">
           <p v-if="otherTeamHasSkin" class="text-warning mb-4">
             Warning: The other team already has a skin configured for this weapon.
             This action will overwrite it.
@@ -778,11 +776,14 @@ watch(() => props.weapon, () => {
             <NButton
                 @click="state.showDuplicateConfirm = false"
                 :disabled="state.isDuplicating"
+                type="error"
+                secondary
             >
               Cancel
             </NButton>
             <NButton
-                type="primary"
+                type="success"
+                secondary
                 :loading="state.isDuplicating"
                 @click="handleDuplicate"
             >

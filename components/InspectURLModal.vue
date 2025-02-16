@@ -25,8 +25,8 @@ const handleSubmit = async () => {
     error.value = ''
     emit('submit', inspectUrl.value)
     inspectUrl.value = ''
-  } catch (err: any) {
-    error.value = err.message || 'Failed to decode inspect URL'
+  } catch (e: any) {
+    error.value = e.message || 'Failed to decode inspect URL'
   }
 }
 
@@ -44,11 +44,54 @@ const handleClose = () => {
       preset="card"
       title="Import from Inspect URL"
       :bordered="false"
+      :mask-closable="!loading"
+      :closable="!loading"
       @update:show="handleClose"
   >
     <NSpace vertical>
+      <div class="grid grid-cols-2 gap-4">
+        <NTooltip >
+          <template #trigger>
+            <NButton type="info" size="small" secondary>Masked Links (HEX Data)</NButton>
+          </template>
+          <h3 class="font-bold text-center">These Links are mostly generated from Websites or other Apps</h3>
+          <div>{data} Example: 001809209209280138C0D9C0DF034001FCADACCE</div>
+          <div>
+            steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}
+          </div>
+          <div>
+            csgo_econ_action_preview {data}
+          </div>
+          <div>
+            +csgo_econ_action_preview {data}
+          </div>
+          <div>
+            {data}
+          </div>
+        </NTooltip>
+        <NTooltip >
+          <template #trigger>
+            <NButton type="info" size="small" secondary>Unmasked Links (Market / Inventory)</NButton>
+          </template>
+          <h3 class="font-bold text-center">These Links are used in the Steam Market and Player Inventories</h3>
+          <div>{data} Examples: M123456789A123456D123456 - S123456789A123456D123456</div>
+          <div>
+            steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}
+          </div>
+          <div>
+            csgo_econ_action_preview {data}
+          </div>
+          <div>
+            +csgo_econ_action_preview {data}
+          </div>
+          <div>
+            {data}
+          </div>
+        </NTooltip>
+      </div>
       <div>
         <NInput
+            :disabled="loading"
             v-model:value="inspectUrl"
             type="text"
             placeholder="Paste inspect URL here..."
@@ -58,17 +101,10 @@ const handleClose = () => {
       </div>
 
       <div class="flex justify-end gap-4">
-        <NButton
-            @click="handleClose"
-            :disabled="loading"
-        >
+        <NButton @click="handleClose" secondary type="error" :disabled="loading">
           Cancel
         </NButton>
-        <NButton
-            type="primary"
-            @click="handleSubmit"
-            :loading="loading"
-        >
+        <NButton :disabled="inspectUrl.length <= 15" secondary type="success" @click="handleSubmit" :loading="loading">
           Import
         </NButton>
       </div>

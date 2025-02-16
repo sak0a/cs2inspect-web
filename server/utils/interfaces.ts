@@ -1,5 +1,8 @@
+/**
+ * Interfactes from the CSGO-API
+ */
 export interface APISticker {
-    id: number;
+    id: string;
     name: string;
     description?: string;
     rarity: {
@@ -94,6 +97,7 @@ export interface APIKeychain {
     image: string;
 }
 
+
 export interface WeaponCustomization {
     active: boolean
     statTrak: boolean
@@ -106,6 +110,56 @@ export interface WeaponCustomization {
     stickers: any[]
     keychain: any | null
     team: number | null
+}
+
+export interface EnhancedSticker {
+    id: number;
+    x: number;
+    y: number;
+    wear: number;
+    scale: number;
+    rotation: number;
+    api: {
+
+    }
+}
+
+export interface DefaultWeapon {
+    weapon_defindex: number;
+    defaultName: string;
+    paintIndex: number;
+    defaultImage: string;
+    weapon_name: string;
+    category: string;
+}
+
+export interface EnhancedWeaponResponse extends DefaultWeapon {
+    name: string;
+    defaultName: string;
+    image: string;
+    defaultImage: string;
+    minFloat: number;
+    maxFloat: number;
+    paintIndex: number;
+    rarity?: {
+        id: string;
+        name: string;
+        color: string;
+    };
+    availableTeams?: string;
+    databaseInfo?: {
+        active: boolean;
+        team: number;
+        defindex: number;
+        statTrak: boolean;
+        statTrakCount: number;
+        paintIndex: number;
+        paintWear: number;
+        pattern: number;
+        nameTag: string;
+        stickers: any[];
+        keychain: any;
+    };
 }
 
 export interface DBLoadout {

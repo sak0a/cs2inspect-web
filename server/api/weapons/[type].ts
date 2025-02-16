@@ -1,47 +1,9 @@
-import { DEFAULT_WEAPONS } from "~/utilities/weapons";
-import { DBWeapon, APISkin, APISticker, DBKeychain, DBSticker } from "~/server/utils/interfaces";
-import {getSkinsData, getStickerData} from '~/server/utils/csgoData';
-import {APIRequestLogger as Logger} from "~/server/utils/logger";
-import {validateSteamId, verifyUserAccess} from "~/server/utils/helpers";
-import {pool} from "~/server/database/database";
-
-interface DefaultWeapon {
-    weapon_defindex: number;
-    defaultName: string;
-    paintIndex: number;
-    defaultImage: string;
-    weapon_name: string;
-    category: string;
-}
-
-export interface EnhancedWeaponResponse extends DefaultWeapon {
-    name: string;
-    defaultName: string;
-    image: string;
-    defaultImage: string;
-    minFloat: number;
-    maxFloat: number;
-    paintIndex: number;
-    rarity?: {
-        id: string;
-        name: string;
-        color: string;
-    };
-    availableTeams?: string;
-    databaseInfo?: {
-        active: boolean;
-        team: number;
-        defindex: number;
-        statTrak: boolean;
-        statTrakCount: number;
-        paintIndex: number;
-        paintWear: number;
-        pattern: number;
-        nameTag: string;
-        stickers: any[];
-        keychain: any;
-    };
-}
+import { DEFAULT_WEAPONS } from "~/server/utils/constants"
+import { DBWeapon, APISkin, DefaultWeapon, EnhancedWeaponResponse } from "~/server/utils/interfaces";
+import { getSkinsData, getStickerData } from '~/server/utils/csgoAPI';
+import { verifyUserAccess, validateWeaponDatabaseTable } from "~/server/utils/helpers";
+import { APIRequestLogger as Logger } from "~/server/utils/logger";
+import { executeQuery } from "~/server/database/database";
 
 function findMatchingSkin(baseWeapon: DefaultWeapon, databaseWeapon: DBWeapon | undefined, skinsData: APISkin[]): APISkin | undefined {
     if (!databaseWeapon) return undefined;
@@ -53,46 +15,27 @@ function findMatchingSkin(baseWeapon: DefaultWeapon, databaseWeapon: DBWeapon | 
 }
 
 export default defineEventHandler(async (event) => {
-    const type = event.context.params?.type;
     const query = getQuery(event);
+
+    Logger.header(`Weapons API request: ${event.method} ${event.req.url}`);
+
     const steamId = query.steamId as string;
+    validateQueryParam(steamId, 'Steam ID');
+    verifyUserAccess(steamId, event)
+
+    const type: any = event.context.params?.type;
+    validateQueryParam(type, 'Type');
+
     const loadoutId = query.loadoutId as string;
+    validateQueryParam(loadoutId, 'Loadout ID');
 
-    Logger.header(`Weapons API request: ${event.req.method} ${event.req.url}`)
+    const table = validateWeaponDatabaseTable(type);
 
-    validateSteamId(steamId)
-    verifyUserAccess(event, steamId)
-
-    if (!type || !loadoutId) {
-        throw createError({
-            statusCode: 400,
-            message: 'Type and Loadout ID are required'
-        });
-    }
-
-    const tableMap: Record<string, string> = {
-        smgs: 'wp_player_smgs',
-        rifles: 'wp_player_rifles',
-        heavys: 'wp_player_heavys',
-        pistols: 'wp_player_pistols',
-    };
-
-    const table = tableMap[type];
-    if (!table) {
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid weapon type'
-        });
-    }
-
-    Logger.info(`Fetching weapons for Steam ID: ${steamId}, Loadout ID: ${loadoutId}, Type: ${type}`)
-
-
-    let conn;
     try {
         // Get all available skins data
         const skinData = getSkinsData();
         if (!skinData) {
+            Logger.error('Failed to load skins data');
             throw createError({
                 statusCode: 500,
                 message: 'Failed to load skins data'
@@ -101,6 +44,7 @@ export default defineEventHandler(async (event) => {
 
         const stickerData = getStickerData();
         if (!stickerData) {
+            Logger.error('Failed to load stickers data');
             throw createError({
                 statusCode: 500,
                 message: 'Failed to load stickers data'
@@ -109,18 +53,19 @@ export default defineEventHandler(async (event) => {
 
         const keychainData = getKeychainData();
         if (!keychainData) {
+            Logger.error('Failed to load keychain data');
             throw createError({
                 statusCode: 500,
                 message: 'Failed to load keychain data'
             });
         }
 
-        // Get database entries and map them to the DBWeapon interface
-        conn = await pool.getConnection();
-        const rows = await conn.query(
+        const rows = await executeQuery<DBWeapon[]>(
             `SELECT * FROM ${table} WHERE steamid = ? AND loadoutid = ?`,
-            [steamId, loadoutId]
+            [steamId, loadoutId],
+            'Failed to fetch weapons'
         );
+
         const databaseResponse = rows.map((row: DBWeapon) => {
             return {
                 id: row.id,
@@ -153,7 +98,7 @@ export default defineEventHandler(async (event) => {
             // Find the database entry for this weapon if it exists
             // Find matching skin from skin api using both weapon ID and paint index
             let data: EnhancedWeaponResponse[] = [];
-            const matchingDatabaseResults = databaseResponse.filter(
+            const matchingDatabaseResults: any[] = databaseResponse.filter(
                 (weapon: any) => weapon.defindex === baseWeapon.weapon_defindex
             );
 
@@ -206,8 +151,8 @@ export default defineEventHandler(async (event) => {
                  * "0;0;0;0;0",
                  * We need to split this string into an array of numbers to represent the DBKeychain interface
                  */
-                let keychain: null | any = databaseResult.keychain === null ? null : databaseResult.keychain;
-                const keychainInfo = keychainData?.find(keychain => keychain.id === ("keychain-" + databaseResult.keychain.split(';')[0]));
+                let keychain: any = databaseResult.keychain === null ? null : databaseResult.keychain;
+                const keychainInfo = keychainData?.find((keychain: any) => keychain.id === ("keychain-" + databaseResult.keychain.split(';')[0]));
                 keychain = keychain.split(';')[0] === '0' ? null : {
                     id: parseInt(keychain.split(';')[0]),
                     x: parseInt(keychain.split(';')[1]),
@@ -292,6 +237,7 @@ export default defineEventHandler(async (event) => {
         /**
          * Return the data with additional meta information
          */
+        Logger.success(`Fetched ${rows.length} weapons for Steam ID: ${steamId}`);
         return {
             skins: enhancedWeapons,
             meta: {
@@ -301,13 +247,11 @@ export default defineEventHandler(async (event) => {
                 type
             }
         };
-    } catch (error) {
-        console.error('Failed to fetch weapons:', error);
+    } catch (error: any) {
+        Logger.error('Failed to fetch weapons: ' + error.message);
         throw createError({
             statusCode: 500,
-            message: 'Failed to fetch weapons'
+            message: error.message || 'Failed to fetch weapons'
         });
-    } finally {
-        if (conn) conn.release();
     }
 });

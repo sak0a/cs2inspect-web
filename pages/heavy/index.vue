@@ -1,13 +1,15 @@
 
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue'
-import {NAlert, NButton, NSpin, useMessage} from 'naive-ui'
-import {useLoadoutStore} from '~/stores/loadoutStore'
-import type {SteamUser} from "~/services/steamAuth"
-import {steamAuth} from "~/services/steamAuth"
+import { onMounted, ref, watch } from 'vue'
+import { NAlert, NButton, NSpin, useMessage } from 'naive-ui'
+import { useLoadoutStore } from '~/stores/loadoutStore'
+import type { SteamUser } from "~/services/steamAuth"
+import { steamAuth } from "~/services/steamAuth"
 import LoadoutSelector from '~/components/LoadoutSelector.vue'
-import {WeaponCustomization} from "~/server/utils/interfaces";
-import {EnhancedWeaponResponse} from "~/server/api/weapons/[type]";
+import { WeaponCustomization } from "~/server/utils/interfaces";
+import { EnhancedWeaponResponse } from "~/server/api/weapons/[type]";
+
+const WEAPON_TYPE = 'heavys'
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
@@ -56,10 +58,11 @@ const handleSkinSelect = async (skin: EnhancedWeaponResponse, customization: Wea
     return
   }
   try {
-    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=heavys`, {
+    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'credentials': 'include'
       },
       body: JSON.stringify({
         defindex: skin.weapon_defindex,
@@ -118,7 +121,7 @@ const handleWeaponDuplicate = async (skin: EnhancedWeaponResponse, customization
       seed: customization.keychain.seed || 0
     } : null
 
-    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=heavys`, {
+    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -170,7 +173,7 @@ const fetchLoadoutSkins = async () => {
   }
   try {
     isLoading.value = true
-    await loadoutStore.fetchLoadoutWeaponSkins("heavys", user.value.steamId)
+    await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId)
     skins.value = loadoutStore.loadoutSkins
   } catch (e) {
     message.error('Failed to load skins')
@@ -191,18 +194,14 @@ onMounted(async () => {
 })
 
 watch(() => showSkinModal.value, (isVisible) => {
-  //console.log('Rifles - Skin Modal visibility changed:', isVisible, 'Selected weapon:', selectedWeapon.value)
   if (!isVisible && selectedWeapon.value) {
     selectedWeapon.value = {...selectedWeapon.value}
-    //console.log('Riflex - Last selected weapon:', selectedWeapon.value)
   }
 })
 
 watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
-  if (newLoadoutId) {
+  if (newLoadoutId || skins.value.length === 0) {
     await fetchLoadoutSkins()
-  } else {
-    skins.value = []
   }
 }, { immediate: true })
 </script>
@@ -239,14 +238,14 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 
       <!-- No Loadout Selected State -->
       <div v-else-if="!loadoutStore.selectedLoadoutId" class="text-center py-12">
-        <p class="text-gray-400 mb-4">Please select or create a loadout to view heavy</p>
+        <p class="text-gray-400 mb-4">Please select or create a loadout to view rifles</p>
         <NButton type="primary" @click="loadoutStore.createLoadout(user.steamId, 'Default Loadout')">
           Create Default Loadout
         </NButton>
       </div>
 
       <!-- Skins Grid -->
-      <div v-else class=" grid grid-cols-1 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-2">
+      <div v-else class=" grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
         <WeaponTabs class=""
                     v-for="(weaponData, weaponName) in groupedWeapons"
                     :key="weaponName"
@@ -262,6 +261,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 
       <!-- Skin Selection Modal -->
       <WeaponSkinModal
+          :user="user"
           v-model:visible="showSkinModal"
           :weapon="selectedWeapon"
           :other-team-has-skin="otherTeamHasSkin"

@@ -1,193 +1,269 @@
--- Player Loadouts (Parent table)
-CREATE TABLE wp_player_loadouts (
-                                    id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                    steamid VARCHAR(64) NOT NULL,
-                                    name VARCHAR(255) NOT NULL,
-                                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                    INDEX idx_steamid (steamid)
+create table wp_player_loadouts
+(
+    id         int unsigned auto_increment
+        primary key,
+    steamid    varchar(64)                           not null,
+    name       varchar(255)                          not null,
+    created_at timestamp default current_timestamp() not null,
+    updated_at timestamp default current_timestamp() not null on update current_timestamp()
 );
 
--- Player Knives
-CREATE TABLE wp_player_knifes (
-                                  id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                  steamid VARCHAR(64) NOT NULL,
-                                  loadoutid INT UNSIGNED NOT NULL,
-                                  active BOOLEAN DEFAULT TRUE,
-                                  team TINYINT UNSIGNED NOT NULL,
-                                  defindex INT UNSIGNED NOT NULL,
-                                  paintindex INT UNSIGNED NOT NULL,
-                                  paintseed INT UNSIGNED NOT NULL,
-                                  paintwear FLOAT NOT NULL,
-                                  stattrack_enabled BOOLEAN DEFAULT FALSE,
-                                  stattrack_count INT UNSIGNED DEFAULT 0,
-                                  nametag VARCHAR(255),
-                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                  INDEX idx_steamid_loadout (steamid, loadoutid)
+create table wp_player_agents
+(
+    id         int unsigned auto_increment
+        primary key,
+    steamid    varchar(64)                            not null,
+    loadoutid  int unsigned                           not null,
+    active     tinyint(1) default 1                   null,
+    team       tinyint unsigned                       not null,
+    defindex   int unsigned                           not null,
+    agent_name varchar(255)                           not null,
+    created_at timestamp  default current_timestamp() not null,
+    updated_at timestamp  default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_agents_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player SMGs
-CREATE TABLE wp_player_smgs (
-                                id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                steamid VARCHAR(64) NOT NULL,
-                                loadoutid INT UNSIGNED NOT NULL,
-                                active BOOLEAN DEFAULT TRUE,
-                                team TINYINT UNSIGNED NOT NULL,
-                                defindex INT UNSIGNED NOT NULL,
-                                paintindex INT UNSIGNED NOT NULL,
-                                paintseed INT UNSIGNED NOT NULL,
-                                paintwear FLOAT NOT NULL,
-                                stattrack_enabled BOOLEAN DEFAULT FALSE,
-                                stattrack_count INT UNSIGNED DEFAULT 0,
-                                nametag VARCHAR(255),
-                                sticker_0 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                sticker_1 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                sticker_2 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                sticker_3 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                sticker_4 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                keychain VARCHAR(200) DEFAULT '0;0;0;0;0' NOT NULL COMMENT 'id;x;y;z;seed',
-                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_agents (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_agents (loadoutid);
+
+create table wp_player_gloves
+(
+    id         int unsigned auto_increment
+        primary key,
+    steamid    varchar(64)                            not null,
+    loadoutid  int unsigned                           not null,
+    active     tinyint(1) default 1                   null,
+    team       tinyint unsigned                       not null,
+    defindex   int unsigned                           not null,
+    paintindex int unsigned                           not null,
+    paintseed  int unsigned                           not null,
+    paintwear  float                                  not null,
+    created_at timestamp  default current_timestamp() not null,
+    updated_at timestamp  default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_gloves_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player Rifles
-CREATE TABLE wp_player_rifles (
-                                  id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                  steamid VARCHAR(64) NOT NULL,
-                                  loadoutid INT UNSIGNED NOT NULL,
-                                  active BOOLEAN DEFAULT TRUE,
-                                  team TINYINT UNSIGNED NOT NULL,
-                                  defindex INT UNSIGNED NOT NULL,
-                                  paintindex INT UNSIGNED NOT NULL,
-                                  paintseed INT UNSIGNED NOT NULL,
-                                  paintwear FLOAT NOT NULL,
-                                  stattrack_enabled BOOLEAN DEFAULT FALSE,
-                                  stattrack_count INT UNSIGNED DEFAULT 0,
-                                  nametag VARCHAR(255),
-                                  sticker_0 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_1 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_2 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_3 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_4 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  keychain VARCHAR(200) DEFAULT '0;0;0;0;0' NOT NULL COMMENT 'id;x;y;z;seed',
-                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                  INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_gloves (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_gloves (loadoutid);
+
+create table wp_player_heavys
+(
+    id               int unsigned auto_increment
+        primary key,
+    steamid          varchar(64)                              not null,
+    loadoutid        int unsigned                             not null,
+    active           tinyint(1)   default 1                   null,
+    team             tinyint unsigned                         not null,
+    defindex         int unsigned                             not null,
+    paintindex       int unsigned                             not null,
+    paintseed        int unsigned                             not null,
+    paintwear        float                                    not null,
+    stattrak_enabled tinyint(1)   default 0                   null,
+    stattrak_count   int unsigned default 0                   null,
+    nametag          varchar(255)                             null,
+    sticker_0        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_1        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_2        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_3        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_4        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    keychain         varchar(200) default '0;0;0;0;0'         not null comment 'id;x;y;z;seed',
+    created_at       timestamp    default current_timestamp() not null,
+    updated_at       timestamp    default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_heavys_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player Heavy Weapons
-CREATE TABLE wp_player_heavys (
-                                  id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                  steamid VARCHAR(64) NOT NULL,
-                                  loadoutid INT UNSIGNED NOT NULL,
-                                  active BOOLEAN DEFAULT TRUE,
-                                  team TINYINT UNSIGNED NOT NULL,
-                                  defindex INT UNSIGNED NOT NULL,
-                                  paintindex INT UNSIGNED NOT NULL,
-                                  paintseed INT UNSIGNED NOT NULL,
-                                  paintwear FLOAT NOT NULL,
-                                  stattrack_enabled BOOLEAN DEFAULT FALSE,
-                                  stattrack_count INT UNSIGNED DEFAULT 0,
-                                  nametag VARCHAR(255),
-                                  sticker_0 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_1 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_2 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_3 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  sticker_4 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                  keychain VARCHAR(200) DEFAULT '0;0;0;0;0' NOT NULL COMMENT 'id;x;y;z;seed',
-                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                  INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_heavys (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_heavys (loadoutid);
+
+create table wp_player_knifes
+(
+    id                int unsigned auto_increment
+        primary key,
+    steamid           varchar(64)                              not null,
+    loadoutid         int unsigned                             not null,
+    active            tinyint(1)   default 1                   null,
+    team              tinyint unsigned                         not null,
+    defindex          int unsigned                             not null,
+    paintindex        int unsigned                             not null,
+    paintseed         int unsigned                             not null,
+    paintwear         float                                    not null,
+    stattrack_enabled tinyint(1)   default 0                   null,
+    stattrack_count   int unsigned default 0                   null,
+    nametag           varchar(255)                             null,
+    created_at        timestamp    default current_timestamp() not null,
+    updated_at        timestamp    default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_knifes_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player Pistols
-CREATE TABLE wp_player_pistols (
-                                   id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                   steamid VARCHAR(64) NOT NULL,
-                                   loadoutid INT UNSIGNED NOT NULL,
-                                   active BOOLEAN DEFAULT TRUE,
-                                   team TINYINT UNSIGNED NOT NULL,
-                                   defindex INT UNSIGNED NOT NULL,
-                                   paintindex INT UNSIGNED NOT NULL,
-                                   paintseed INT UNSIGNED NOT NULL,
-                                   paintwear FLOAT NOT NULL,
-                                   stattrack_enabled BOOLEAN DEFAULT FALSE,
-                                   stattrack_count INT UNSIGNED DEFAULT 0,
-                                   nametag VARCHAR(255),
-                                   sticker_0 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                   sticker_1 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                   sticker_2 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                   sticker_3 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                   sticker_4 VARCHAR(200) DEFAULT '0;0;0;0;0;0' NOT NULL COMMENT 'id;x;y;wear;scale;rotation',
-                                   keychain VARCHAR(200) DEFAULT '0;0;0;0;0' NOT NULL COMMENT 'id;x;y;z;seed',
-                                   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                   FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                   INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_knifes (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_knifes (loadoutid);
+
+create index idx_steamid
+    on wp_player_loadouts (steamid);
+
+create table wp_player_music
+(
+    id         int unsigned auto_increment
+        primary key,
+    steamid    varchar(64)                            not null,
+    loadoutid  int unsigned                           not null,
+    active     tinyint(1) default 1                   null,
+    team       tinyint unsigned                       not null,
+    musicid    int unsigned                           not null,
+    created_at timestamp  default current_timestamp() not null,
+    updated_at timestamp  default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_music_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player Gloves
-CREATE TABLE wp_player_gloves (
-                                  id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                  steamid VARCHAR(64) NOT NULL,
-                                  loadoutid INT UNSIGNED NOT NULL,
-                                  active BOOLEAN DEFAULT TRUE,
-                                  team TINYINT UNSIGNED NOT NULL,
-                                  defindex INT UNSIGNED NOT NULL,
-                                  paintindex INT UNSIGNED NOT NULL,
-                                  paintseed INT UNSIGNED NOT NULL,
-                                  paintwear FLOAT NOT NULL,
-                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                  INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_music (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_music (loadoutid);
+
+create table wp_player_pins
+(
+    id         int unsigned auto_increment
+        primary key,
+    steamid    varchar(64)                            not null,
+    loadoutid  int unsigned                           not null,
+    active     tinyint(1) default 1                   null,
+    team       tinyint unsigned                       not null,
+    pinid      int unsigned                           not null,
+    created_at timestamp  default current_timestamp() not null,
+    updated_at timestamp  default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_pins_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player Agents
-CREATE TABLE wp_player_agents (
-                                  id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                  steamid VARCHAR(64) NOT NULL,
-                                  loadoutid INT UNSIGNED NOT NULL,
-                                  active BOOLEAN DEFAULT TRUE,
-                                  team TINYINT UNSIGNED NOT NULL,
-                                  defindex INT UNSIGNED NOT NULL,
-                                  agent_name VARCHAR(255) NOT NULL,
-                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                  FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                  INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_pins (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_pins (loadoutid);
+
+create table wp_player_pistols
+(
+    id               int unsigned auto_increment
+        primary key,
+    steamid          varchar(64)                              not null,
+    loadoutid        int unsigned                             not null,
+    active           tinyint(1)   default 1                   null,
+    team             tinyint unsigned                         not null,
+    defindex         int unsigned                             not null,
+    paintindex       int unsigned                             not null,
+    paintseed        int unsigned                             not null,
+    paintwear        float                                    not null,
+    stattrak_enabled tinyint(1)   default 0                   null,
+    stattrak_count   int unsigned default 0                   null,
+    nametag          varchar(255)                             null,
+    sticker_0        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_1        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_2        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_3        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_4        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    keychain         varchar(200) default '0;0;0;0;0'         not null comment 'id;x;y;z;seed',
+    created_at       timestamp    default current_timestamp() not null,
+    updated_at       timestamp    default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_pistols_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player Pins
-CREATE TABLE wp_player_pins (
-                                id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                steamid VARCHAR(64) NOT NULL,
-                                loadoutid INT UNSIGNED NOT NULL,
-                                active BOOLEAN DEFAULT TRUE,
-                                team TINYINT UNSIGNED NOT NULL,
-                                pinid INT UNSIGNED NOT NULL,
-                                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_pistols (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_pistols (loadoutid);
+
+create table wp_player_rifles
+(
+    id               int unsigned auto_increment
+        primary key,
+    steamid          varchar(64)                              not null,
+    loadoutid        int unsigned                             not null,
+    active           tinyint(1)   default 1                   null,
+    team             tinyint unsigned                         not null,
+    defindex         int unsigned                             not null,
+    paintindex       int unsigned                             not null,
+    paintseed        int unsigned                             not null,
+    paintwear        float                                    not null,
+    stattrak_enabled tinyint(1)   default 0                   null,
+    stattrak_count   int unsigned default 0                   null,
+    nametag          varchar(255)                             null,
+    sticker_0        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_1        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_2        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_3        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_4        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    keychain         varchar(200) default '0;0;0;0;0'         not null comment 'id;x;y;z;seed',
+    created_at       timestamp    default current_timestamp() not null,
+    updated_at       timestamp    default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_rifles_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
 
--- Player Music
-CREATE TABLE wp_player_music (
-                                 id INT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-                                 steamid VARCHAR(64) NOT NULL,
-                                 loadoutid INT UNSIGNED NOT NULL,
-                                 active BOOLEAN DEFAULT TRUE,
-                                 team TINYINT UNSIGNED NOT NULL,
-                                 musicid INT UNSIGNED NOT NULL,
-                                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                 updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                                 FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts(id) ON DELETE CASCADE,
-                                 INDEX idx_steamid_loadout (steamid, loadoutid)
+create index idx_steamid_loadout
+    on wp_player_rifles (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_rifles (loadoutid);
+
+create table wp_player_smgs
+(
+    id               int unsigned auto_increment
+        primary key,
+    steamid          varchar(64)                              not null,
+    loadoutid        int unsigned                             not null,
+    active           tinyint(1)   default 1                   null,
+    team             tinyint unsigned                         not null,
+    defindex         int unsigned                             not null,
+    paintindex       int unsigned                             not null,
+    paintseed        int unsigned                             not null,
+    paintwear        float                                    not null,
+    stattrak_enabled tinyint(1)   default 0                   null,
+    stattrak_count   int unsigned default 0                   null,
+    nametag          varchar(255)                             null,
+    sticker_0        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_1        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_2        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_3        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    sticker_4        varchar(200) default '0;0;0;0;0;0'       not null comment 'id;x;y;wear;scale;rotation',
+    keychain         varchar(200) default '0;0;0;0;0'         not null comment 'id;x;y;z;seed',
+    created_at       timestamp    default current_timestamp() not null,
+    updated_at       timestamp    default current_timestamp() not null on update current_timestamp(),
+    constraint wp_player_smgs_ibfk_1
+        foreign key (loadoutid) references wp_player_loadouts (id)
+            on delete cascade
 );
+
+create index idx_steamid_loadout
+    on wp_player_smgs (steamid, loadoutid);
+
+create index loadoutid
+    on wp_player_smgs (loadoutid);
+

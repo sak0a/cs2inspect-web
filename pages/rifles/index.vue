@@ -1,13 +1,15 @@
 
 <script setup lang="ts">
-import {onMounted, ref, watch} from 'vue'
-import {NAlert, NButton, NSpin, useMessage} from 'naive-ui'
-import {useLoadoutStore} from '~/stores/loadoutStore'
-import type {SteamUser} from "~/services/steamAuth"
-import {steamAuth} from "~/services/steamAuth"
+import { onMounted, ref, watch } from 'vue'
+import { NAlert, NButton, NSpin, useMessage } from 'naive-ui'
+import { useLoadoutStore } from '~/stores/loadoutStore'
+import type { SteamUser } from "~/services/steamAuth"
+import { steamAuth } from "~/services/steamAuth"
 import LoadoutSelector from '~/components/LoadoutSelector.vue'
-import {WeaponCustomization} from "~/server/utils/interfaces";
-import {EnhancedWeaponResponse} from "~/server/api/weapons/[type]";
+import { WeaponCustomization } from "~/server/utils/interfaces";
+import { EnhancedWeaponResponse } from "~/server/api/weapons/[type]";
+
+const WEAPON_TYPE = 'rifles'
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
@@ -56,7 +58,7 @@ const handleSkinSelect = async (skin: EnhancedWeaponResponse, customization: Wea
     return
   }
   try {
-    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=rifles`, {
+    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -119,7 +121,7 @@ const handleWeaponDuplicate = async (skin: EnhancedWeaponResponse, customization
       seed: customization.keychain.seed || 0
     } : null
 
-    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=rifles`, {
+    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -171,7 +173,7 @@ const fetchLoadoutSkins = async () => {
   }
   try {
     isLoading.value = true
-    await loadoutStore.fetchLoadoutWeaponSkins("rifles", user.value.steamId)
+    await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId)
     skins.value = loadoutStore.loadoutSkins
   } catch (e) {
     message.error('Failed to load skins')
@@ -192,20 +194,16 @@ onMounted(async () => {
 })
 
 watch(() => showSkinModal.value, (isVisible) => {
-  //console.log('Rifles - Skin Modal visibility changed:', isVisible, 'Selected weapon:', selectedWeapon.value)
   if (!isVisible && selectedWeapon.value) {
     selectedWeapon.value = {...selectedWeapon.value}
-    //console.log('Riflex - Last selected weapon:', selectedWeapon.value)
   }
 })
 
 watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
-      if (newLoadoutId) {
-        await fetchLoadoutSkins()
-      } else {
-        skins.value = []
-      }
-    }, { immediate: true })
+    if (newLoadoutId || skins.value.length === 0) {
+      await fetchLoadoutSkins()
+    }
+}, { immediate: true })
 </script>
 
 <template>

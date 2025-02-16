@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
 import { hexToRgba } from '~/utilities/helpers'
+import { APIKeychain } from "~/server/utils/interfaces";
 
 const props = defineProps<{
   visible: boolean
@@ -16,9 +17,9 @@ const emit = defineEmits<{
 const state = ref({
   searchQuery: '',
   currentPage: 1,
-  items: [],
+  items: [] as APIKeychain[],
   isLoading: false,
-  selectedItem: null as any,
+  selectedItem: null as APIKeychain | null | undefined,
   customization: {
     x: 0,
     y: 0,
@@ -56,7 +57,8 @@ const fetchItems = async () => {
   }
 }
 
-const handleSelect = (item: any) => {
+const handleSelect = (item: APIKeychain) => {
+  console.log('KeychainModal - handleSelect:', item)
   state.value.selectedItem = item
   if (!props.currentKeychain) {
     state.value.customization = {
@@ -87,6 +89,12 @@ const handleSave = () => {
   handleClose()
 }
 
+const handleRemove = () => {
+  if (!props.currentKeychain) return
+  emit('select', null)
+  handleClose()
+}
+
 const handleClose = () => {
   emit('update:visible', false)
   state.value.selectedItem = null
@@ -108,7 +116,6 @@ watchEffect(() => {
   if (props.currentKeychain) {
     state.value.selectedItem = state.value.items.find(item => item.id === ("keychain-"+ props.currentKeychain?.id))
     console.log('KeychainModal - watchEffect currentKeychain:', props.currentKeychain)
-    console.log('KeychainModal - weatchEffect selectedItem:', state.value.selectedItem)
     state.value.customization = {
       x: props.currentKeychain.x,
       y: props.currentKeychain.y,
@@ -122,10 +129,10 @@ watchEffect(() => {
 watch(() => props.currentKeychain, (newKeychain) => {
   if (newKeychain) {
     state.value.customization = {
-      x: Number(newKeychain.x),
-      y: Number(newKeychain.y),
-      z: Number(newKeychain.z),
-      seed: Number(newKeychain.seed)
+      x: newKeychain.x,
+      y: newKeychain.y,
+      z: newKeychain.z,
+      seed: newKeychain.seed
     }
   }
 }, { immediate: true })
@@ -156,16 +163,16 @@ watch(() => props.visible, (newValue) => {
       />
     </template>
 
-    <NSpace vertical size="large">
+    <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Keychain Preview -->
-      <div v-if="state.selectedItem" class="bg-[#1a1a1a] p-6 rounded-lg">
-        <div class="grid grid-cols-2 gap-6">
+      <div v-if="state.selectedItem" class="bg-[#1a1a1a] px-6 py-4 rounded-lg">
+        <div class="grid grid-cols-2 gap-4">
           <!-- Left side - Image -->
           <div class="flex flex-col items-center">
             <img
                 :src="state.selectedItem.image"
                 :alt="state.selectedItem.name"
-                class="w-48 h-48 object-contain"
+                class="scale-125 h-40 object-top object-cover"
             />
             <h3 class="text-lg font-semibold mt-4">{{ state.selectedItem.name }}</h3>
           </div>
@@ -180,7 +187,7 @@ watch(() => props.visible, (newValue) => {
                     v-model:value="state.customization.x"
                     :min="-100"
                     :max="100"
-                    :step="1"
+                    :step="0.01"
                     class="w-full"
                 />
               </div>
@@ -190,7 +197,7 @@ watch(() => props.visible, (newValue) => {
                     v-model:value="state.customization.y"
                     :min="-100"
                     :max="100"
-                    :step="1"
+                    :step="0.01"
                     class="w-full"
                 />
               </div>
@@ -204,7 +211,7 @@ watch(() => props.visible, (newValue) => {
                     v-model:value="state.customization.z"
                     :min="-100"
                     :max="100"
-                    :step="1"
+                    :step="0.01"
                     class="w-full"
                 />
               </div>
@@ -213,20 +220,30 @@ watch(() => props.visible, (newValue) => {
                 <NInputNumber
                     v-model:value="state.customization.seed"
                     :min="0"
-                    :max="999"
+                    :max="100000"
                     :step="1"
                     class="w-full"
                 />
               </div>
             </div>
-
-            <NButton
-                type="primary"
-                class="w-full mt-4"
-                @click="handleSave"
-            >
-              {{ currentKeychain ? 'Update' : 'Apply' }} Keychain
-            </NButton>
+            <div class="grid grid-cols-2 gap-4">
+              <NButton
+                  type="primary"
+                  class="w-full"
+                  secondary
+                  @click="handleSave"
+              >
+                {{ currentKeychain ? 'Update' : 'Apply' }} Keychain
+              </NButton>
+              <NButton v-if="currentKeychain"
+                       type="error"
+                       class="w-full"
+                       secondary
+                       @click="handleRemove"
+              >
+                Delete Keychain
+              </NButton>
+            </div>
           </div>
         </div>
       </div>

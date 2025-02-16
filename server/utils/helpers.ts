@@ -1,7 +1,17 @@
-import {APIRequestLogger as Logger} from "~/server/utils/logger";
-import {createError} from "h3";
+import { APIRequestLogger as Logger } from "~/server/utils/logger";
+import { createError } from "h3";
 
-export const verifyUserAccess = (event: any, steamId: string) => {
+export const validateQueryParam = (param: any, paramName: string) => {
+    if (!param) {
+        Logger.error(`${paramName} is required`)
+        throw createError({
+            statusCode: 400,
+            message: `${paramName} is required`
+        })
+    }
+}
+
+export const verifyUserAccess = (steamId: string, event: any) => {
     // Get the auth data from the event context (set by auth middleware)
     const auth = event.context.auth
     if (!auth || auth.steamId !== steamId) {
@@ -14,14 +24,22 @@ export const verifyUserAccess = (event: any, steamId: string) => {
     Logger.info(`User access verified for Steam ID: ${steamId}`)
 }
 
-export const validateSteamId = (steamId: string) => {
-    if (!steamId) {
-        Logger.error('Steam ID is required')
+export const validateWeaponDatabaseTable = (type: string) => {
+    const tableMap: Record<string, string> = {
+        smgs: 'wp_player_smgs',
+        rifles: 'wp_player_rifles',
+        heavys: 'wp_player_heavys',
+        pistols: 'wp_player_pistols',
+    };
+
+    if (!tableMap[type]) {
+        Logger.error('Invalid weapon type')
         throw createError({
             statusCode: 400,
-            message: 'Steam ID is required'
+            message: 'Invalid weapon type'
         })
     }
+    return tableMap[type]
 }
 
 export const hasStickers = (skin: any) => {

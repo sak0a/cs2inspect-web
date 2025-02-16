@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { NTabs, NTabPane, NCard } from 'naive-ui'
 import { hexToRgba } from "~/utilities/helpers"
-import {EnhancedWeaponResponse} from "~/server/api/weapons/[type]";
+import { EnhancedWeaponResponse } from "~/server/api/weapons/[type]";
 
 const props = defineProps({
   weaponData: {

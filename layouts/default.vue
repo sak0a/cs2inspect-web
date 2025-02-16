@@ -3,7 +3,7 @@ import { NIcon } from 'naive-ui'
 import { LogOut as LogOutIcon, LogoSteam as SteamLogoIcon } from '@vicons/ionicons5'
 import {Music, Pin, ZoomIn} from "@vicons/tabler";
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
-const selectedKey = ref<string>('rifles')
+const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
 const user = ref<SteamUser | null>(null)
 
@@ -289,6 +289,9 @@ async function handleLogin() {
 }
 
 onMounted(async () => {
+  if (!selectedKey.value) {
+    selectedKey.value = window.location.pathname
+  }
   try {
     user.value = steamAuth.getSavedUser()
   } catch (error) {

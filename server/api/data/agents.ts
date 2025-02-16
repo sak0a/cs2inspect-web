@@ -1,5 +1,4 @@
-import {getAgentData} from '~/server/utils/csgoData';
-import {APIAgent} from "~/server/utils/interfaces";
+import {getAgentData} from '~/server/utils/csgoAPI';
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);

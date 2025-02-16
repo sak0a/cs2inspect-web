@@ -1,5 +1,4 @@
-import {getMusicKitData} from '~/server/utils/csgoData';
-import {APIMusicKit} from "~/server/utils/interfaces";
+import {getMusicKitData} from '~/server/utils/csgoAPI';
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);

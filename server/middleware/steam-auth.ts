@@ -4,7 +4,7 @@ import jwt, {SignOptions} from "jsonwebtoken";
 import axios from 'axios'
 
 
-const JWT_SECRET = process.env.JWT_TOKEN || 'defaultKey=323'
+const JWT_SECRET = process.env.JWT_TOKEN || ''
 
 export default defineEventHandler(async (event) => {
     const url = event.node.req.url
@@ -34,9 +34,9 @@ export default defineEventHandler(async (event) => {
                 // Set JWT as an HTTP-only cookie
                 setCookie(event, 'auth_token', token, {
                     httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
+                    secure: true,
                     sameSite: 'lax',
-                    maxAge: 60 * 60 * 24 * 3// 24 hours
+                    maxAge: 60 * 60 * 24 * 7 // 7d
                 })
             }
         }

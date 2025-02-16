@@ -1,4 +1,4 @@
-import { getSkinsData } from '~/server/utils/csgoData';
+import { getSkinsData } from '~/server/utils/csgoAPI';
 import { APISkin } from "~/server/utils/interfaces";
 
 interface QueryFilters {
@@ -10,8 +10,15 @@ interface QueryFilters {
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
     const weapon = query.weapon as string;
-    try {
 
+    if (!weapon) {
+        throw createError({
+            statusCode: 400,
+            message: 'Weapon is required'
+        });
+    }
+
+    try {
         const skinData = getSkinsData();
 
         if (!skinData) {
@@ -97,12 +104,11 @@ export default defineEventHandler(async (event) => {
             appliedFilters: filters
         };
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Error processing skins query:', error);
         throw createError({
             statusCode: 500,
-            message: 'Failed to process skins query',
-            cause: error
+            message: error.message || 'Failed to process skins query',
         });
     }
 });

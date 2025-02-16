@@ -45,7 +45,6 @@ export const useLoadoutStore = defineStore('loadout', {
                     }
                 })
                 const data = await response.json()
-                console.log('DATA:', data)
                 this.currentSkins = data.skins;
             } catch (error) {
                 this.error = 'Failed to fetch loadouts';

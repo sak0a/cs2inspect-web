@@ -1,4 +1,14 @@
-export const DEFAULT_WEAPONS = [
+import { DefaultWeapon } from "~/server/utils/interfaces";
+
+export const PROTECTED_API_PATHS = [
+    '/api/weapons',
+    '/api/loadouts',
+    '/api/weapons/save',
+    '/api/weapons/inspect',
+    '/api/weapons/[type]'
+]
+
+export const DEFAULT_WEAPONS: DefaultWeapon[] = [
     {
         weapon_defindex: 1,
         weapon_name: "weapon_deagle",
@@ -123,6 +133,7 @@ export const DEFAULT_WEAPONS = [
         defaultImage:
             "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_p90.png",
         defaultName: "P90",
+        category: "smgs"
     },
     {
         weapon_defindex: 23,
@@ -405,12 +416,4 @@ const DEFINDEXES = {
     motorcycle_gloves: 5033,
     specialist_gloves: 5034,
     studded_hydra_gloves: 5035
-}
-
-const WEARS = {
-    0.00: 'Factory New',
-    0.07: 'Minimal Wear',
-    0.15: 'Field-Tested',
-    0.38: 'Well-Worn',
-    0.45: 'Battle-Scarred'
 }

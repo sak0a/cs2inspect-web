@@ -1,5 +1,4 @@
-import {getKeychainData} from '~/server/utils/csgoData';
-import {APIKeychain} from "~/server/utils/interfaces";
+import {getKeychainData} from '~/server/utils/csgoAPI';
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
