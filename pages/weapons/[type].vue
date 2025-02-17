@@ -6,10 +6,15 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import LoadoutSelector from '~/components/LoadoutSelector.vue'
-import { WeaponCustomization } from "~/server/utils/interfaces";
-import { EnhancedWeaponResponse } from "~/server/api/weapons/[type]";
+import { IEnhancedWeapon, WeaponCustomization } from "~/server/utils/interfaces";
 
-const WEAPON_TYPE = 'pistols'
+definePageMeta({
+  middleware: 'validate-weapon-url'
+})
+const route = useRoute()
+const WEAPON_TYPE = route.params.type as string ?? 'rifles'
+
+
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
@@ -19,7 +24,7 @@ const loadoutStore = useLoadoutStore()
 const message = useMessage()
 
 const showSkinModal = ref<boolean>(false)
-const selectedWeapon = ref<EnhancedWeaponResponse | null>(null)
+const selectedWeapon = ref<IEnhancedWeapon | null>(null)
 
 const otherTeamHasSkin = computed(() => {
   if (!selectedWeapon.value || selectedWeapon.value.availableTeams !== 'both') return false
@@ -28,7 +33,7 @@ const otherTeamHasSkin = computed(() => {
   const otherTeam = currentTeam === 1 ? 2 : 1
 
   return skins.value.some(weaponGroup =>
-      weaponGroup.some((weapon: EnhancedWeaponResponse) =>
+      weaponGroup.some((weapon: IEnhancedWeapon) =>
           weapon.weapon_defindex === selectedWeapon.value?.weapon_defindex &&
           weapon.databaseInfo?.team === otherTeam
       )
@@ -48,11 +53,11 @@ const groupedWeapons = computed(() => {
   }, {});
 })
 
-const handleWeaponClick = (weapon: EnhancedWeaponResponse) => {
+const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   selectedWeapon.value = weapon
   showSkinModal.value = true
 }
-const handleSkinSelect = async (skin: EnhancedWeaponResponse, customization: WeaponCustomization) => {
+const handleSkinSelect = async (skin: IEnhancedWeapon, customization: WeaponCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return
@@ -92,7 +97,7 @@ const handleSkinSelect = async (skin: EnhancedWeaponResponse, customization: Wea
     message.error('Failed to save weapon configuration')
   }
 }
-const handleWeaponDuplicate = async (skin: EnhancedWeaponResponse, customization: WeaponCustomization) => {
+const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: WeaponCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return
@@ -172,23 +177,28 @@ const fetchLoadoutSkins = async () => {
     return;
   }
   try {
-    isLoading.value = true
-    await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId)
-    skins.value = loadoutStore.loadoutSkins
+    isLoading.value = true;
+    console.log('Fetching loadout skins')
+    await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId);
+    skins.value = loadoutStore.loadoutSkins;
   } catch (e) {
-    message.error('Failed to load skins')
-    error.value = 'Failed to load skins. Please try again later.'
+    message.error('Failed to load skins');
+    error.value = 'Failed to load skins. Please try again later.';
   } finally {
     isLoading.value = false
   }
 }
 
 onMounted(async () => {
-  user.value = steamAuth.getSavedUser()
+  const validTypes = ['heavys', 'rifles', 'pistols', 'smgs']
+  if (!validTypes.includes(WEAPON_TYPE)) {
+    navigateTo('/404');
+  }
+  user.value = steamAuth.getSavedUser();
   if (user.value?.steamId) {
-    await initializeLoadouts()
-    if (skins.value.length === 0) {
-      await fetchLoadoutSkins()
+    await initializeLoadouts();
+    if (loadoutStore.selectedLoadoutId) {
+      await fetchLoadoutSkins();
     }
   }
 })
@@ -200,7 +210,7 @@ watch(() => showSkinModal.value, (isVisible) => {
 })
 
 watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
-  if (newLoadoutId || skins.value.length === 0) {
+  if (newLoadoutId && skins.value.length > 0) {
     await fetchLoadoutSkins()
   }
 }, { immediate: true })
@@ -211,7 +221,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
     <div class="max-w-7xl mx-auto">
       <!-- Header with Loadout Selector -->
       <div class="flex justify-between mb-2">
-        <h1 class="text-2xl font-bold text-white">Pistols</h1>
+        <h1 class="text-2xl font-bold text-white"> JAMOIN</h1>
         <LoadoutSelector v-if="user" />
       </div>
 
@@ -261,7 +271,6 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 
       <!-- Skin Selection Modal -->
       <WeaponSkinModal
-          :user="user"
           v-model:visible="showSkinModal"
           :weapon="selectedWeapon"
           :other-team-has-skin="otherTeamHasSkin"
