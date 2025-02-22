@@ -1,5 +1,5 @@
 import { verifyUserAccess, validateQueryParam } from "~/server/utils/helpers";
-import {getCS2Client} from "~/server/plugins/init";
+import { getCS2Client } from "~/server/plugins/init";
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 
 export default defineEventHandler(async (event) => {

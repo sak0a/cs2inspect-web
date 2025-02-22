@@ -6,7 +6,6 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
-  target: 'server',
   server: {
     port: process.env.PORT || 3000,  // default: 3000
     host: process.env.HOST || '0.0.0.0',  // default: localhost
@@ -54,13 +53,14 @@ export default defineNuxtConfig({
     viewer: false,
   },
   modules: [
-    '@nuxt/test-utils/module',
     '@nuxtjs/tailwindcss',
+    '@nuxt/test-utils/module',
     'nuxt-mdi',
     'nuxtjs-naive-ui',
     '@nuxt/eslint',
     '@pinia/nuxt',
-    'motion-v/nuxt'
+    'motion-v/nuxt',
+
   ],
   compatibilityDate: '2024-10-12'
 })

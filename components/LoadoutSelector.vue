@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
-import {NButton, useMessage} from 'naive-ui'
+import { NButton, useMessage} from 'naive-ui'
 import { steamAuth } from '~/services/steamAuth'
 import { Trash as DeleteIcon, Edit as RenameIcon, Plus as NewIcon } from '@vicons/tabler'
 
@@ -46,7 +46,6 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
 <template>
   <!-- Main Loadout Selector -->
   <NSpace vertical>
-    <NAlert v-if="loadoutStore.error" type="error" :title="loadoutStore.error" closable class="z-10" />
     <NSpace align="center">
       <NSelect
           v-if="loadoutStore.hasLoadouts"
@@ -55,6 +54,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
             label: loadout.name,
             value: loadout.id
           }))"
+
           placeholder="Select a loadout"
           :loading="loadoutStore.isLoading"
           class="min-w-[180px]"

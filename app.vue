@@ -1,17 +1,9 @@
 <template>
   <ThemeProvider>
-    <NLoadingBarProvider>
-      <NModalProvider>
-        <NDialogProvider>
-          <NMessageProvider>
             <!--<Preloader />-->
-            <NuxtLayout name="default" class="h-screen">
-
+            <NuxtLayout name="default">
+              <NuxtPage />
             </NuxtLayout>
-          </NMessageProvider>
-        </NDialogProvider>
-      </NModalProvider>
-    </NLoadingBarProvider>
   </ThemeProvider>
 </template>
 <script setup lang="ts">

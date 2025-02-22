@@ -277,7 +277,7 @@ watch(() => props.visible, (newValue) => {
           </div>
         </div>
       </div>
-
+      
       <!-- Stickers Grid -->
       <div v-if="!state.isLoading" class="grid grid-cols-5 gap-4">
         <NCard

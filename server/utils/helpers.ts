@@ -12,7 +12,6 @@ export const validateQueryParam = (param: any, paramName: string) => {
 }
 
 export const verifyUserAccess = (steamId: string, event: any) => {
-    // Get the auth data from the event context (set by auth middleware)
     const auth = event.context.auth
     if (!auth || auth.steamId !== steamId) {
         Logger.error('Unauthorized access')

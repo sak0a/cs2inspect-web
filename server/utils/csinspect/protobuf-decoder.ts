@@ -3,6 +3,7 @@
  * Ported from my (sak0a) Python Project
  * github.com/sak0a/CSInspect-API
  */
+import {bytesToFloat, hexToBytes} from "~/server/utils/csinspect/base";
 
 class ProtoReader {
     private pos: number = 0;

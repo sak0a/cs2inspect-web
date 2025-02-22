@@ -1,22 +1,11 @@
 import { defineEventHandler, createError } from 'h3'
-import { pool, executeQuery } from '~/server/database/database'
+import { executeQuery } from '~/server/database/database'
 import {
     validateQueryParam,
     validateWeaponDatabaseTable,
     verifyUserAccess
 } from '~/server/utils/helpers'
-import { DBKeychain, DBSticker, DBWeapon } from '~/server/utils/interfaces'
-
-
-const formatStickerString = (sticker: DBSticker): string => {
-    if (!sticker || !sticker.id) return '0;0;0;0;0;0'
-    return `${sticker.id};${sticker.x};${sticker.y};${sticker.wear};${sticker.scale};${sticker.rotation}`
-}
-
-const formatKeychainString = (keychain: DBKeychain): string => {
-    if (!keychain || !keychain.id) return '0;0;0;0;0'
-    return `${keychain.id};${keychain.x};${keychain.y};${keychain.z};${keychain.seed}`
-}
+import { DBWeapon, EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/utils/interfaces'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
@@ -38,17 +27,37 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     validateQueryParam(body, 'Body')
 
-    // Format stickers array into the required string format
-    const formattedStickers = (body.stickers || []).map(formatStickerString)
-    // Pad array to always have 5 sticker slots
-    while (formattedStickers.length < 5) {
-        formattedStickers.push('0;0;0;0;0;0')
-    }
-
-    // Format keychain into required string format
-    const formattedKeychain = formatKeychainString(body.keychain)
-
     try {
+
+        if (!body.paintIndex || body.paintIndex <= 0) {
+            throw createError({
+                statusCode: 400,
+                message: 'Invalid paint index'
+            })
+        }
+
+        // Format stickers array into the required string format
+        const stickers: IEnhancedWeaponSticker[] = body.stickers;
+        const formattedStickers: string[] = stickers.map(
+            sticker => sticker ?
+                new EnhancedWeaponSticker(sticker).convertToDatabaseString() : '0;0;0;0;0;0'
+        );
+
+        // Pad array to always have 5 sticker slots
+        while (formattedStickers.length < 5) {
+            formattedStickers.push('0;0;0;0;0;0');
+        }
+
+        // Format keychain into required string format
+        const defaultKeychain = {
+            id: 0,
+            x: 0,
+            y: 0,
+            z: 0,
+            seed: 0,
+            api: {id: 'default', name: 'Default', color: '#000000'}
+        };
+        const formattedKeychain = new EnhancedWeaponKeychain((!body.keychain || body.keychain.id === 0) ? defaultKeychain : body.keychain).convertToDatabaseString();
 
         const existingWeapons = await executeQuery<DBWeapon[]>(
             `SELECT * FROM ${table} WHERE steamid = ? AND loadoutid = ? AND defindex = ? AND team = ?`,

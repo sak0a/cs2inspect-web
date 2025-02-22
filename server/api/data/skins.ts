@@ -9,14 +9,9 @@ interface QueryFilters {
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event);
-    const weapon = query.weapon as string;
 
-    if (!weapon) {
-        throw createError({
-            statusCode: 400,
-            message: 'Weapon is required'
-        });
-    }
+    const weapon = query.weapon as string;
+    validateQueryParam(weapon, "Weapon");
 
     try {
         const skinData = getSkinsData();

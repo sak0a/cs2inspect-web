@@ -12,7 +12,6 @@
       />
     </div>
 
-
     <div class="progress-container">
       <div class="progress-bar" ref="progressBar"
            @mouseenter="showTooltip"

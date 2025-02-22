@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia'
-import { DBLoadout } from '~/server/utils/interfaces'
-import {EnhancedWeaponResponse} from "~/server/api/weapons/[type]";
+import {DBLoadout, IEnhancedWeapon} from '~/server/utils/interfaces'
 
 interface LoadoutState {
     loadouts: DBLoadout[];
-    currentSkins: EnhancedWeaponResponse[];
+    currentSkins: IEnhancedWeapon[];
     selectedLoadoutId: string | null;
     isLoading: boolean;
     error: string | null;
@@ -53,6 +52,25 @@ export const useLoadoutStore = defineStore('loadout', {
             }
         },
 
+        async fetchLoadoutKnifes(steamId: string) {
+            try {
+                this.isLoading = true;
+                const response = await fetch(`/api/knifes?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+                    method: 'GET',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                })
+                const data = await response.json()
+                this.currentSkins = data.knifes;
+            } catch (error) {
+                this.error = 'Failed to fetch loadouts';
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
         /**
          * Fetch loadouts for the given Steam ID
          * @param steamId
@@ -70,13 +88,13 @@ export const useLoadoutStore = defineStore('loadout', {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to fetch loadouts');
+                    this.error = 'Failed to fetch loadouts API response';
                 }
 
                 const data = await response.json();
 
                 if (!data.loadouts) {
-                    this.error = 'Failed to fetch loadouts';
+                    this.error = 'Failed to fetch loadouts API data';
                     return;
                 }
 
@@ -84,8 +102,8 @@ export const useLoadoutStore = defineStore('loadout', {
                 if (!this.selectedLoadoutId && this.loadouts.length > 0) {
                     this.selectedLoadoutId = this.loadouts[0].id;
                 }
-            } catch (error) {
-                this.error = 'Failed to fetch loadouts';
+            } catch (error: any) {
+                this.error = 'Failed to fetch loadouts: ' + error.message;
             } finally {
                 this.isLoading = false;
             }

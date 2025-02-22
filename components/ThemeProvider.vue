@@ -3,9 +3,17 @@ import { darkTheme, NConfigProvider } from 'naive-ui'
 </script>
 
 <template>
-  <n-config-provider :theme="darkTheme">
-    <slot/>
-  </n-config-provider>
+  <NConfigProvider :theme="darkTheme" inline-theme-disabled>
+    <NLoadingBarProvider>
+      <NModalProvider>
+        <NDialogProvider>
+          <NMessageProvider>
+            <slot/>
+          </NMessageProvider>
+        </NDialogProvider>
+      </NModalProvider>
+    </NLoadingBarProvider>
+  </NConfigProvider>
 </template>
 
 <style scoped>

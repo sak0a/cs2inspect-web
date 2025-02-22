@@ -14,13 +14,46 @@ export interface SteamUser {
 
 export class SteamAuthService {
     private apiKey: string
-    private returnUrl: string
+    private readonly returnUrl: string
     private apiBase: string
+    private static instance: SteamAuthService
+
+    public static getInstance(): SteamAuthService {
+        if (!this.instance) {
+            this.instance = new SteamAuthService()
+        }
+        return this.instance
+    }
 
     constructor() {
         this.apiKey = process.env.STEAM_API_KEY || 'defaultKey=323'
         this.returnUrl = `${process.client ? window.location.origin : ''}/auth/callback`
         this.apiBase = 'https://api.steampowered.com'
+
+        if (process.client) {
+            this.setupAxiosInterceptors()
+        }
+    }
+
+    private setupAxiosInterceptors() {
+        axios.interceptors.response.use(
+            (response) => response,
+            (error) => {
+                if (error.response?.status === 401) {
+                    this.handleUnauthorized()
+                }
+                return Promise.reject(error)
+            }
+        )
+    }
+
+    private handleUnauthorized() {
+        this.logout()
+        if (window.location.pathname !== '/') {
+            window.location.href = '/'
+        } else {
+            window.location.reload()
+        }
     }
 
     async login(): Promise<void> {

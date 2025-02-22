@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { NModal, NInput, NButton, NCard, NSpace } from 'naive-ui'
+import { NModal, NInput, NButton, NSpace } from 'naive-ui'
 
 const props = defineProps<{
   visible: boolean

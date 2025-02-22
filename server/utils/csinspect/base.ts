@@ -163,6 +163,7 @@ export interface ItemBuilder {
 
 export const INSPECT_BASE = "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20";
 
+
 export function processRarity(rarityValue: ItemRarity | number | string): number {
     if (typeof rarityValue === 'number') {
         // Validate that the number is a valid rarity value

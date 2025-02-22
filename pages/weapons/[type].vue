@@ -11,10 +11,9 @@ import { IEnhancedWeapon, WeaponCustomization } from "~/server/utils/interfaces"
 definePageMeta({
   middleware: 'validate-weapon-url'
 })
+
 const route = useRoute()
 const WEAPON_TYPE = route.params.type as string ?? 'rifles'
-
-
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
@@ -60,6 +59,10 @@ const handleWeaponClick = (weapon: IEnhancedWeapon) => {
 const handleSkinSelect = async (skin: IEnhancedWeapon, customization: WeaponCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
+    return
+  }
+  if (customization.paintIndex === null || customization.paintIndex === 0) {
+    message.error('Please select a paint to save the weapon')
     return
   }
   try {
@@ -159,44 +162,24 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
   }
 }
 
-const initializeLoadouts = async () => {
-  if (!user.value?.steamId) {
-    error.value = 'Please login with Steam to continue'
-    return;
-  }
-  try {
-    await loadoutStore.fetchLoadouts(user.value.steamId)
-  } catch (err) {
-    console.error('Error initializing loadouts:', err)
-    message.error('Failed to load loadouts')
-    error.value = 'Failed to load loadouts. Please try again later.'
-  }
-}
 const fetchLoadoutSkins = async () => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
+    message.error('Please select a loadout first / login')
     return;
   }
-  try {
-    isLoading.value = true;
-    console.log('Fetching loadout skins')
-    await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId);
+  isLoading.value = true;
+  await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId).then(() => {
     skins.value = loadoutStore.loadoutSkins;
-  } catch (e) {
-    message.error('Failed to load skins');
+  }).catch((e) => {
     error.value = 'Failed to load skins. Please try again later.';
-  } finally {
-    isLoading.value = false
-  }
+    message.error('Failed to load skins');
+  }).finally(() => isLoading.value = false);
 }
 
 onMounted(async () => {
-  const validTypes = ['heavys', 'rifles', 'pistols', 'smgs']
-  if (!validTypes.includes(WEAPON_TYPE)) {
-    navigateTo('/404');
-  }
   user.value = steamAuth.getSavedUser();
   if (user.value?.steamId) {
-    await initializeLoadouts();
+    await loadoutStore.fetchLoadouts(user.value.steamId)
     if (loadoutStore.selectedLoadoutId) {
       await fetchLoadoutSkins();
     }
@@ -219,56 +202,27 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 <template>
   <div class="p-4 bg-[#181818]">
     <div class="max-w-7xl mx-auto">
-      <!-- Header with Loadout Selector -->
-      <div class="flex justify-between mb-2">
-        <h1 class="text-2xl font-bold text-white"> JAMOIN</h1>
-        <LoadoutSelector v-if="user" />
+      <SkinPageLayout
+          title="Rifles"
+          :user="user"
+          :error="error || loadoutStore.error || ''"
+          :isLoading="isLoading"
+          />
+      <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
+        <!-- Skins Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+          <WeaponTabs class=""
+                      v-for="(weaponData, weaponName) in groupedWeapons"
+                      :key="weaponName"
+                      :weapon-data="weaponData"
+                      @weapon-click="handleWeaponClick"
+          />
+        </div>
+        <!-- No Skins State -->
+        <div v-if="skins.length === 0" class="text-center py-12">
+          <p class="text-gray-400">No skins available for this loadout</p>
+        </div>
       </div>
-
-      <!-- Error State -->
-      <NAlert
-          v-if="error"
-          type="error"
-          :title="error"
-          class="mb-6 z-10"
-      />
-
-      <!-- Loading State -->
-      <div v-else-if="isLoading" class="flex justify-center items-center h-64">
-        <NSpin size="large" />
-      </div>
-
-      <!-- No Steam Login State -->
-      <div v-else-if="!user" class="text-center py-12">
-        <p class="text-gray-400 mb-4">Please login with Steam to view and select skins</p>
-        <NButton type="primary" @click="steamAuth.login()">
-          Login with Steam
-        </NButton>
-      </div>
-
-      <!-- No Loadout Selected State -->
-      <div v-else-if="!loadoutStore.selectedLoadoutId" class="text-center py-12">
-        <p class="text-gray-400 mb-4">Please select or create a loadout to view rifles</p>
-        <NButton type="primary" @click="loadoutStore.createLoadout(user.steamId, 'Default Loadout')">
-          Create Default Loadout
-        </NButton>
-      </div>
-
-      <!-- Skins Grid -->
-      <div v-else class=" grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
-        <WeaponTabs class=""
-                    v-for="(weaponData, weaponName) in groupedWeapons"
-                    :key="weaponName"
-                    :weapon-data="weaponData"
-                    @weapon-click="handleWeaponClick"
-        />
-      </div>
-
-      <!-- No Skins State -->
-      <div v-if="!isLoading && loadoutStore.selectedLoadoutId && skins.length === 0" class="text-center py-12">
-        <p class="text-gray-400">No skins available for this loadout</p>
-      </div>
-
       <!-- Skin Selection Modal -->
       <WeaponSkinModal
           v-model:visible="showSkinModal"

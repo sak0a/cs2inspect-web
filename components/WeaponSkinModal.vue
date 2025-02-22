@@ -1,25 +1,21 @@
 <script setup lang="ts">
-import { APISkin, WeaponCustomization } from '~/server/utils/interfaces'
+import { APISkin, WeaponCustomization, IEnhancedWeapon } from '~/server/utils/interfaces'
 import { ref, computed } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, NInputNumber, NSwitch, NButton } from 'naive-ui'
 import { hexToRgba } from "~/utilities/helpers";
-import { EnhancedWeaponResponse } from "~/server/api/weapons/[type]";
-import { SteamUser } from "~/services/steamAuth";
-
-interface Props {
+import { steamAuth } from "~/services/steamAuth";
+const props = defineProps<{
   visible: boolean
-  weapon: EnhancedWeaponResponse | null
+  weapon: IEnhancedWeapon | null
   isLoading?: boolean
   otherTeamHasSkin: boolean
   pageSize?: number
-  user: SteamUser
-}
-const props = defineProps<Props>()
+}>()
 const message = useMessage()
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: EnhancedWeaponResponse, customization: WeaponCustomization): void
-  (e: 'duplicate', skin: EnhancedWeaponResponse, customization: WeaponCustomization): void
+  (e: 'select', skin: IEnhancedWeapon, customization: WeaponCustomization): void
+  (e: 'duplicate', skin: IEnhancedWeapon, customization: WeaponCustomization): void
 }>()
 // Basic state
 // APISkin because we are only fetching from the API with the same structure (images/name/rarity)
@@ -39,8 +35,10 @@ const state = ref({
   isDuplicating: false
 })
 
-const inheritedWeapon = ref<EnhancedWeaponResponse | null>()
-const selectedSkin = ref<EnhancedWeaponResponse | null>()
+const user = computed(() => steamAuth.getSavedUser())
+
+const inheritedWeapon = ref<IEnhancedWeapon | null>();
+const selectedSkin = ref<IEnhancedWeapon | null>();
 
 const defaultCustomization: WeaponCustomization = {
   active: false,
@@ -140,11 +138,11 @@ const mapCustomizationToRepresentation = (customization: WeaponCustomization) =>
 };
 
 const handleImportInspectLink = async (inspectUrl: string) => {
-  if (!props.weapon || !props.user) return
+  if (!props.weapon || !user.value) return
 
   try {
     state.value.isImporting = true
-    const response = await fetch(`/api/weapons/inspect?url=decode-link&steamId=${props.user.steamId}`, {
+    const response = await fetch(`/api/weapons/inspect?url=decode-link&steamId=${user.value.steamId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -281,12 +279,12 @@ const handleImportInspectLink = async (inspectUrl: string) => {
   }
 }
 const handleCreateInspectLink = async () => {
-  if (!props.weapon || !selectedSkin || !props.user) return
+  if (!props.weapon || !selectedSkin || !user.value) return
 
   try {
     state.value.isLoadingInspect = true
     const customizationRepresentation = mapCustomizationToRepresentation(customization.value);
-    const response = await fetch(`/api/weapons/inspect?url=create-link&steamId=${props.user.steamId}`, {
+    const response = await fetch(`/api/weapons/inspect?url=create-link&steamId=${user.value.steamId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -405,9 +403,10 @@ const handleKeychainSelect = (keychainData: any) => {
 const handleSave = () => {
   if (!selectedSkin.value) return
   emit('select', selectedSkin.value, customization.value)
-  emit('update:visible', false)
+  handleClose();
 }
 const handleClose = () => {
+  console.log("WSM - handleClose")
   emit('update:visible', false)
   setTimeout(() => {
     state.value.searchQuery = ''
@@ -460,6 +459,7 @@ watch(() => props.weapon, () => {
       :title="weapon ? `Select Skin for ${weapon.defaultName}` : 'Select Skin'"
       :bordered="false"
       size="huge"
+      class="duration-500 ease-in-out transition-all"
       @update:show="handleClose"
   >
     <template #header-extra>

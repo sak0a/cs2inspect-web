@@ -65,13 +65,42 @@ export const loadoutExistsById = async (id: string): Promise<boolean> => {
     return loadout.length > 0;
 };
 
-export const deleteLoadout = async (id: string, steamId: string): Promise<void> =>
-    executeQuery<void>(
+export const deleteLoadout = async (id: string, steamId: string): Promise<void> => {
+    await executeQuery<void>('DELETE FROM wp_player_heavys WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+
+        'Failed to delete heavys');
+    await executeQuery<void>('DELETE FROM wp_player_pistols WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete pistols');
+    await executeQuery<void>('DELETE FROM wp_player_rifles WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete rifles');
+    await executeQuery<void>('DELETE FROM wp_player_smgs WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete smgs');
+    await executeQuery<void>('DELETE FROM wp_player_knifes WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete knifes');
+    await executeQuery<void>('DELETE FROM wp_player_gloves WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete gloves');
+    await executeQuery<void>('DELETE FROM wp_player_pins WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete pins');
+    await executeQuery<void>('DELETE FROM wp_player_music WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete music kits');
+    await executeQuery<void>('DELETE FROM wp_player_agents WHERE loadoutid = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to delete agents');
+    await executeQuery<void>(
         'DELETE FROM wp_player_loadouts WHERE id = ? AND steamid = ?',
         [id, steamId],
         'Failed to delete loadout'
     );
 
+}
 export const deleteLoadoutByName = async (steamId: string, name: string): Promise<void> =>
     executeQuery<void>(
         'DELETE FROM wp_player_loadouts WHERE steamid = ? AND name = ?',

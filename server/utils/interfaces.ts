@@ -1,3 +1,5 @@
+import {parseInt} from "lodash-es";
+
 /**
  * Interfactes from the CSGO-API
  */
@@ -102,6 +104,7 @@ export interface WeaponCustomization {
     active: boolean
     statTrak: boolean
     statTrakCount: number
+    defindex?: number
     paintIndex: number
     paintIndexOverride: boolean
     pattern: number
@@ -111,42 +114,47 @@ export interface WeaponCustomization {
     keychain: any | null
     team: number | null
 }
-
-export interface EnhancedSticker {
-    id: number;
-    x: number;
-    y: number;
-    wear: number;
-    scale: number;
-    rotation: number;
-    api: {
-
-    }
+export interface KnifeCustomization {
+    active: boolean
+    statTrak: boolean
+    statTrakCount: number
+    defindex?: number
+    paintIndex: number
+    paintIndexOverride: boolean
+    pattern: number
+    wear: number
+    nameTag: string
+    team: number | null
+}
+export interface GloveCustomization {
+    active: boolean
+    paintIndex: number
+    paintIndexOverride: boolean
+    patterb: number
+    wear: number
+    team: number | null
 }
 
-export interface DefaultWeapon {
+export interface IDefaultItem {
     weapon_defindex: number;
     defaultName: string;
     paintIndex: number;
     defaultImage: string;
     weapon_name: string;
     category: string;
+    availableTeams: string;
 }
-
-export interface EnhancedWeaponResponse extends DefaultWeapon {
+export interface IEnhancedWeapon extends IDefaultItem {
     name: string;
-    defaultName: string;
     image: string;
-    defaultImage: string;
     minFloat: number;
     maxFloat: number;
-    paintIndex: number;
     rarity?: {
         id: string;
         name: string;
         color: string;
     };
-    availableTeams?: string;
+
     databaseInfo?: {
         active: boolean;
         team: number;
@@ -162,6 +170,166 @@ export interface EnhancedWeaponResponse extends DefaultWeapon {
     };
 }
 
+export interface IEnhancedWeaponSticker {
+    id: number;
+    x: number;
+    y: number;
+    wear: number;
+    scale: number;
+    rotation: number;
+    api: {
+        name: string;
+        image: string;
+        type: string;
+        effect: string;
+        tournament_event: string;
+        tournament_team: string;
+        rarity: {
+            id: string;
+            name: string;
+            color: string;
+        };
+    }
+}
+export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
+    id: number;
+    x: number;
+    y: number;
+    wear: number;
+    scale: number;
+    rotation: number;
+    api: { name: string; image: string; type: string; effect: string; tournament_event: string; tournament_team: string; rarity: { id: string; name: string; color: string; }; };
+
+    constructor(data: IEnhancedWeaponSticker) {
+        this.id = data.id;
+        this.x = data.x;
+        this.y = data.y;
+        this.wear = data.wear;
+        this.scale = data.scale;
+        this.rotation = data.rotation;
+        this.api = data.api;
+    }
+
+    convertToDatabaseString(): string {
+        return `${this.id};${this.x};${this.y};${this.wear};${this.scale};${this.rotation}`;
+    }
+
+    static fromStringAndAPI(sticker: string, stickerData: APISticker[]): EnhancedWeaponSticker {
+        const [stickerId, x, y, wear, scale, rotation] = sticker.split(';');
+
+        const stickerInfo = stickerData.find(
+            (sticker: APISticker) => sticker.id === ("sticker-" + stickerId)
+        );
+
+        return new EnhancedWeaponSticker({
+            id: parseInt(stickerId),
+            x: parseFloat(x),
+            y: parseFloat(y),
+            wear: parseFloat(wear),
+            scale: parseFloat(scale),
+            rotation: parseInt(rotation),
+            api: {
+                name: stickerInfo?.name ?? '',
+                image: stickerInfo?.image ?? '',
+                type: stickerInfo?.type ?? '',
+                effect: stickerInfo?.effect ?? '',
+                tournament_event: stickerInfo?.tournament_event ?? '',
+                tournament_team: stickerInfo?.tournament_team ?? '',
+                rarity: stickerInfo?.rarity || {
+                    id: 'default',
+                    name: 'Default',
+                    color: '#000000'
+                }
+            }
+        })
+    }
+
+    toInterface(): IEnhancedWeaponSticker | null {
+        if (!this.id || this.id === 0) return null;
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            wear: this.wear,
+            scale: this.scale,
+            rotation: this.rotation,
+            api: this.api
+        }
+    }
+}
+
+export interface IEnhancedWeaponKeychain {
+    id: number;
+    x: number;
+    y: number;
+    z: number;
+    seed: number;
+    api: {
+        name: string;
+        image: string;
+        rarity: {
+            id: string;
+            name: string;
+            color: string;
+        };
+    }
+}
+export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
+    id: number;
+    x: number;
+    y: number;
+    z: number;
+    seed: number;
+    api: { name: string; image: string; rarity: { id: string; name: string; color: string; }; };
+
+    constructor(data: IEnhancedWeaponKeychain) {
+        this.id = data.id;
+        this.x = data.x;
+        this.y = data.y;
+        this.z = data.z;
+        this.seed = data.seed;
+        this.api = data.api;
+    }
+
+    static fromStringAndAPI(keychain: string, keychainData: APIKeychain[]): EnhancedWeaponKeychain {
+        const [keychainId, x, y, z, seed] = keychain.split(';');
+        const keychainInfo = keychainData.find((k: APIKeychain) => k.id === ("keychain-" + keychainId));
+
+        return new EnhancedWeaponKeychain({
+            id: parseInt(keychainId),
+            x: parseFloat(x),
+            y: parseFloat(y),
+            z: parseFloat(z),
+            seed: parseInt(seed),
+            api: {
+                name: keychainInfo?.name || '',
+                image: keychainInfo?.image || '',
+                rarity: keychainInfo?.rarity || { id: 'default', name: 'Default', color: '#000000' }
+            }
+        });
+    }
+
+    convertToDatabaseString(): string {
+        return `${this.id};${this.x};${this.y};${this.z};${this.seed}`;
+    }
+
+    toInterface(): IEnhancedWeaponKeychain | null {
+        if (!this.id || this.id === 0) return null;
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            seed: this.seed,
+            api: this.api
+        }
+    }
+}
+
+
+/**
+ * Interfaces from the database structure
+ */
 export interface DBLoadout {
     id: string;
     steamid: string;
@@ -184,7 +352,6 @@ export interface DBKeychain {
     z: number;
     seed: number;
 }
-// Rifles, Heavy, SMGs, Pistols
 export interface DBWeapon {
     id: string;
     steamid: string;
@@ -198,12 +365,12 @@ export interface DBWeapon {
     stattrak_enabled: boolean;
     stattrak_count: number;
     nametag: string;
-    sticker_0: DBSticker | string | null;
-    sticker_1: DBSticker | string | null;
-    sticker_2: DBSticker | string | null;
-    sticker_3: DBSticker | string | null;
-    sticker_4: DBSticker | string | null;
-    keychain: DBKeychain | string | null;
+    sticker_0: string;
+    sticker_1: string;
+    sticker_2: string;
+    sticker_3: string;
+    sticker_4: string;
+    keychain: string;
     created_at: string;
     updated_at: string;
 }
