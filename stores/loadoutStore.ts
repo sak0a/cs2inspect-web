@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import {DBLoadout, IEnhancedWeapon} from '~/server/utils/interfaces'
+import {DBLoadout, IEnhancedItem} from '~/server/utils/interfaces'
 
 interface LoadoutState {
     loadouts: DBLoadout[];
-    currentSkins: IEnhancedWeapon[];
+    currentSkins: IEnhancedItem[];
     selectedLoadoutId: string | null;
     isLoading: boolean;
     error: string | null;
@@ -21,13 +21,12 @@ export const useLoadoutStore = defineStore('loadout', {
 
     getters: {
         selectedLoadout: (state) =>
-            state.loadouts.find(loadout => loadout.id === state.selectedLoadoutId),
+            state.loadouts.find((loadout: DBLoadout) => loadout.id === state.selectedLoadoutId),
         hasLoadouts: (state) => state.loadouts.length > 0,
-        loadoutSkins: (state) => state.currentSkins
+        loadoutSkins: (state) => state.currentSkins,
     },
 
     actions: {
-
         /**
          * Fetch the skins for the given loadout
          * @param type

@@ -1,4 +1,4 @@
-import { verifyUserAccess, validateQueryParam } from "~/server/utils/helpers";
+import { verifyUserAccess } from "~/server/utils/helpers";
 import { getCS2Client } from "~/server/plugins/init";
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 
@@ -8,14 +8,14 @@ export default defineEventHandler(async (event) => {
     Logger.header(`Inspect API request: ${event.method} ${event.req.url}`)
 
     const steamId = query.steamId as string
-    validateQueryParam(steamId, 'Steam ID')
+    validateRequiredRequestData(steamId, 'Steam ID')
     verifyUserAccess(steamId, event)
 
     const apiUrl = query.url as string
-    validateQueryParam(apiUrl, 'API-URL')
+    validateRequiredRequestData(apiUrl, 'API-URL')
 
     const body = await readBody(event)
-    validateQueryParam(body, 'Body')
+    validateRequiredRequestData(body, 'Body')
 
     if (apiUrl === 'create-link') {
         Logger.info(`Creating inspect URL for ${steamId}`)

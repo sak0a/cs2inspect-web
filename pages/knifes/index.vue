@@ -5,8 +5,7 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import KnifeSkinModal from '~/components/KnifeSkinModal.vue'
-import {IEnhancedWeapon, KnifeCustomization} from "~/server/utils/interfaces"
-import { hexToRgba } from "~/utilities/helpers"
+import { IEnhancedItem, KnifeCustomization } from "~/server/utils/interfaces"
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
@@ -16,58 +15,115 @@ const loadoutStore = useLoadoutStore()
 const message = useMessage()
 
 const showSkinModal = ref<boolean>(false)
-const selectedKnife = ref<IEnhancedWeapon | null>(null)
+const selectedKnife = ref<IEnhancedItem | null>(null)
+const tKnifeType = ref('')
+const ctKnifeType = ref('')
 
 // Currently selected knives for each team at the top
 const selectedTeamKnives = ref({
-  terrorists: null as IEnhancedWeapon | null,
-  counterTerrorists: null as IEnhancedWeapon | null
+  terrorists: null as IEnhancedItem | null,
+  counterTerrorists: null as IEnhancedItem | null
 })
 
-// Group knives by their type
-const groupedKnives = computed(() => {
-  return skins.value.reduce((acc, knife) => {
-    const knifeType = knife[0].defaultName // Using the first knife in group for the type name
-    if (!acc[knifeType]) {
-      acc[knifeType] = {
-        knives: knife,
-        defaultName: knifeType,
-        defaultImage: knife[0].defaultImage
-      }
-    }
-    return acc
-  }, {})
+const otherTeamHasSkin = useOtherTeamSkin(selectedKnife, skins)
+const groupedKnives = useGroupedWeapons(skins)
+
+const knifeOptions = computed(() => {
+  return [
+    { label: 'Default Knife', value: '' },
+    ...Object.entries(groupedKnives.value).map(([knifeName, knifeData]) => ({
+      label: knifeName,
+      value: knifeData.weapons[0].weapon_defindex.toString()
+    }))
+  ]
 })
+
+// For knives
+const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: string) => {
+  if (!loadoutStore.selectedLoadoutId || !loadoutStore.selectedLoadout || !user.value?.steamId) {
+    message.error('Please select a loadout first')
+    return
+  }
+
+  try {
+    const response = await fetch(
+        `/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=knife`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'credentials': 'include'
+          },
+          body: JSON.stringify({
+            team: team === 't' ? 1 : 2,
+            defindex: knifeDefindex ? parseInt(knifeDefindex) : null
+          })
+        }
+    )
+
+    const data = await response.json()
+    if (data.success) {
+      if (team === 't') {
+        loadoutStore.selectedLoadout.selected_knife_t = parseInt(knifeDefindex) || null
+      } else {
+        loadoutStore.selectedLoadout.selected_knife_ct = parseInt(knifeDefindex) || null
+      }
+      updateSelectedKnifes()
+      message.success(`Knife type updated for ${team === 't' ? 'Terrorists' : 'Counter-Terrorists'}`)
+    } else {
+      throw new Error(data.message)
+    }
+  } catch (error) {
+    message.error('Failed to update knife type')
+  }
+}
 
 const fetchLoadoutKnifes = async () => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     return
   }
-  isLoading.value = true
+  isLoading.value = true;
   await loadoutStore.fetchLoadoutKnifes(user.value.steamId)
       .then(() => {
         skins.value = loadoutStore.loadoutSkins;
-
-        selectedTeamKnives.value.terrorists = skins.value.find(
-            (k: any) => k.databaseInfo?.team === 1 && k.databaseInfo?.active
-        )
-        selectedTeamKnives.value.counterTerrorists = skins.value.find(
-            (k: any) => k.databaseInfo?.team === 2 && k.databaseInfo?.active
-        )
+        updateSelectedKnifes();
       })
-      .catch((e) => {
+      .catch(() => {
         message.error("Failed to load knifes")
         error.value = 'Failed to load knifes. Please try again later.'
       })
-      .finally(() => isLoading.value = false)
+      .finally(() => isLoading.value = false);
 }
 
-const handleKnifeClick = (knife: IEnhancedWeapon) => {
+const findKnifeInGroups = (defindex: number | null) => {
+  if (!defindex) return null;
+  // Flatten the nested arrays and find the matching knife
+  return skins.value
+      .flat()
+      .find(knife => knife.weapon_defindex === defindex);
+};
+
+
+/**
+ * Set the selected knives for each team at the top
+ * Need to search through all weapon groups to find matching knives
+ */
+const updateSelectedKnifes = () => {
+  if (!loadoutStore.selectedLoadout) return;
+  selectedTeamKnives.value.terrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_t)
+  selectedTeamKnives.value.counterTerrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_ct)
+
+  // Set initial knife types based on selected knives
+  tKnifeType.value = selectedTeamKnives.value.terrorists?.weapon_defindex.toString() || '';
+  ctKnifeType.value = selectedTeamKnives.value.counterTerrorists?.weapon_defindex.toString() || '';
+}
+
+const handleKnifeClick = (knife: IEnhancedItem) => {
   selectedKnife.value = knife
   showSkinModal.value = true
 }
 
-const handleSkinSelect = async (knife: IEnhancedWeapon, customization: KnifeCustomization) => {
+const handleSkinSelect = async (knife: IEnhancedItem, customization: KnifeCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return
@@ -88,7 +144,7 @@ const handleSkinSelect = async (knife: IEnhancedWeapon, customization: KnifeCust
         statTrak: customization.statTrak,
         statTrakCount: customization.statTrakCount,
         nameTag: customization.nameTag,
-        team: knife.databaseInfo?.team || customization.team
+        team: knife.databaseInfo?.team || customization.team || 'none'
       } as KnifeCustomization)
     })
 
@@ -106,15 +162,59 @@ const handleSkinSelect = async (knife: IEnhancedWeapon, customization: KnifeCust
   }
 }
 
+const handleKnifeDuplicate = async (knife: IEnhancedItem, customization: KnifeCustomization) => {
+  if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
+    message.error('Please select a loadout first')
+    return
+  }
+
+  try {
+    console.log('Duplicating knife: ', knife.databaseInfo?.team, customization.team)
+    const response = await fetch(`/api/knifes/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        defindex: knife.weapon_defindex,
+        active: true,
+        paintIndex: customization.paintIndex || 0,
+        paintWear: customization.wear || 0,
+        pattern: customization.pattern || 0,
+        statTrak: customization.statTrak || false,
+        statTrakCount: customization.statTrakCount || 0,
+        nameTag: customization.nameTag || '',
+        team: customization.team // This will be the opposite team number
+      })
+    })
+
+    const result = await response.json()
+    if (result.success) {
+      message.success('Knife duplicated successfully')
+      await fetchLoadoutKnifes()
+    } else {
+      throw new Error(result.message)
+    }
+  } catch (error) {
+    console.error('Error duplicating knife:', error)
+    message.error('Failed to duplicate knife')
+  }
+}
+
 onMounted(async () => {
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
-    await loadoutStore.fetchLoadouts(user.value.steamId).catch(() => {
-      message.error('Failed to load loadouts')
-    })
+    await loadoutStore.fetchLoadouts(user.value.steamId)
+        .catch(() => message.error('Failed to load loadouts'))
     if (skins.value.length === 0) {
       await fetchLoadoutKnifes()
     }
+  }
+})
+
+watch(() => showSkinModal.value, (isVisible) => {
+  if (!isVisible && selectedKnife.value) {
+    selectedKnife.value = {...selectedKnife.value}
   }
 })
 
@@ -126,7 +226,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="p-4 bg-[#181818]">
+  <div class="p-4 bg-[#181818] ">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
           title="Knifes"
@@ -136,59 +236,45 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
       />
       <!-- Knife Type Groups -->
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
-          <div v-for="(knifeData, knifeName) in groupedKnives" :key="knifeName" class="mb-4">
-            <!-- Default knife if no skin selected -->
-            <NCard
-                v-if="!knifeData.knives.some((k: IEnhancedWeapon) => k.databaseInfo?.team)"
-                :style="{
-                borderColor: '#313030',
-                background: '#242424'
-              }"
-                class="hover:shadow-lg transition-all cursor-pointer bg-[#242424]"
-                @click="handleKnifeClick({ ...knifeData.knives[0], databaseInfo: { team: 1 } })"
-            >
-              <div class="flex flex-col items-center">
-                <img
-                    :src="knifeData.defaultImage"
-                    :alt="knifeData.defaultName"
-                    class="w-full h-32 object-contain mb-2"
-                    loading="lazy"
-                >
-                <div class="w-full">
-                  <p class="text-sm text-white truncate">{{ knifeData.defaultName }}</p>
-                  <div class="h-1 mt-2" style="background: #313030" />
-                </div>
-              </div>
-            </NCard>
-
-            <!-- Knife skins -->
-            <NCard
-                v-for="knife in knifeData.knives.filter((k: IEnhancedWeapon) => k.databaseInfo?.team)"
-                :key="knife.paintIndex"
-                :style="{
-                  borderColor: knife.rarity?.color || '#313030',
-                  background: knife.rarity?.color ?
-                  `linear-gradient(135deg, #101010, ${hexToRgba(knife.rarity?.color, '0.15')})` :
-                  '#242424'
-                }"
-                class="hover:shadow-lg transition-all cursor-pointer bg-[#242424]"
-                @click="handleKnifeClick(knife)"
-            >
-              <div class="flex flex-col items-center">
-                <img
-                    :src="knife.image"
-                    :alt="knife.name"
-                    class="w-full h-32 object-contain mb-2"
-                    loading="lazy"
-                >
-                <div class="w-full">
-                  <p class="text-sm text-white truncate">{{ knife.name }}</p>
-                  <div class="h-1 mt-2" :style="{ background: knife.rarity?.color || '#313030' }" />
-                </div>
-              </div>
-            </NCard>
+        <div class="flex gap-x-10 justify-start">
+          <div class="flex items-center justify-end space-x-2 ">
+            <span class="font-bold  whitespace-nowrap">
+              Counter Terrorists
+            </span>
+            <NSelect
+                v-model:value="ctKnifeType"
+                :options="knifeOptions"
+                placeholder="Select knife type"
+                class="w-48"
+                @update:value="handleKnifeTypeChange('ct', $event)"
+            />
           </div>
+          <div class="flex items-center space-x-2">
+            <span class=" font-bold">
+              Terrorists
+            </span>
+            <NSelect
+                v-model:value="tKnifeType"
+                :options="knifeOptions"
+                placeholder="Select knife type"
+                class="w-48"
+                @update:value="handleKnifeTypeChange('t', $event)"
+            />
+          </div>
+        </div>
+        <!-- Skins Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
+          <WeaponTabs
+              v-for="(knifeData, knifeName) in groupedKnives"
+              :key="knifeName"
+              :weapon-data="{
+              weapons: knifeData.weapons,
+              defaultName: knifeData.defaultName,
+              defaultImage: knifeData.defaultImage,
+              availableTeams: 'both'
+            }"
+              @weapon-click="handleKnifeClick"
+          />
         </div>
         <!-- No Skins State -->
         <div v-if="skins.length === 0" class="text-center py-12">
@@ -196,13 +282,15 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
         </div>
       </div>
 
-      <!-- Knife Skin Selection Modal -->
+      <!-- Knife Skin Selection & Customization Modal -->
       <KnifeSkinModal
           v-if="user"
           v-model:visible="showSkinModal"
-          :weapon="selectedKnife"
           :user="user"
+          :weapon="selectedKnife"
+          :other-team-has-skin="otherTeamHasSkin"
           @select="handleSkinSelect"
+          @duplicate="handleKnifeDuplicate"
       />
     </div>
   </div>

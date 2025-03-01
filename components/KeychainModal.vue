@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
-import { hexToRgba } from '~/utilities/helpers'
 import { APIKeychain } from "~/server/utils/interfaces";
 
 const props = defineProps<{
@@ -115,7 +114,6 @@ onMounted(() => {
 watchEffect(() => {
   if (props.currentKeychain) {
     state.value.selectedItem = state.value.items.find(item => item.id === ("keychain-"+ props.currentKeychain?.id))
-    console.log('KeychainModal - watchEffect currentKeychain:', props.currentKeychain)
     state.value.customization = {
       x: props.currentKeychain.x,
       y: props.currentKeychain.y,

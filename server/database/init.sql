@@ -1,11 +1,15 @@
 create table wp_player_loadouts
 (
-    id         int unsigned auto_increment
+    id                int unsigned auto_increment
         primary key,
-    steamid    varchar(64)                           not null,
-    name       varchar(255)                          not null,
-    created_at timestamp default current_timestamp() not null,
-    updated_at timestamp default current_timestamp() not null on update current_timestamp()
+    steamid           varchar(64)                           not null,
+    name              varchar(25)                           not null,
+    selected_knife_t  smallint unsigned                     null comment 'DEFINDEX of selected knife',
+    selected_knife_ct smallint unsigned                     null comment 'DEFINDEX of selected knife for ct',
+    selected_glove_t  smallint unsigned                     null comment 'DEFINDEX of selected glove for t',
+    selected_glove_ct smallint unsigned                     null comment 'DEFINDEX of selected glove for ct',
+    created_at        timestamp default current_timestamp() not null,
+    updated_at        timestamp default current_timestamp() not null on update current_timestamp()
 );
 
 create table wp_player_agents
@@ -92,21 +96,21 @@ create index loadoutid
 
 create table wp_player_knifes
 (
-    id                int unsigned auto_increment
+    id               int unsigned auto_increment
         primary key,
-    steamid           varchar(64)                              not null,
-    loadoutid         int unsigned                             not null,
-    active            tinyint(1)   default 1                   null,
-    team              tinyint unsigned                         not null,
-    defindex          int unsigned                             not null,
-    paintindex        int unsigned                             not null,
-    paintseed         int unsigned                             not null,
-    paintwear         float                                    not null,
-    stattrack_enabled tinyint(1)   default 0                   null,
-    stattrack_count   int unsigned default 0                   null,
-    nametag           varchar(255)                             null,
-    created_at        timestamp    default current_timestamp() not null,
-    updated_at        timestamp    default current_timestamp() not null on update current_timestamp(),
+    steamid          varchar(64)                              not null,
+    loadoutid        int unsigned                             not null,
+    active           tinyint(1)   default 1                   null,
+    team             tinyint unsigned                         not null,
+    defindex         int unsigned                             not null,
+    paintindex       int unsigned                             not null,
+    paintseed        int unsigned                             not null,
+    paintwear        float                                    not null,
+    stattrak_enabled tinyint(1)   default 0                   null,
+    stattrak_count   int unsigned default 0                   null,
+    nametag          varchar(255)                             null,
+    created_at       timestamp    default current_timestamp() not null,
+    updated_at       timestamp    default current_timestamp() not null on update current_timestamp(),
     constraint wp_player_knifes_ibfk_1
         foreign key (loadoutid) references wp_player_loadouts (id)
             on delete cascade

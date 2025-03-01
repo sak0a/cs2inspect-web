@@ -2,31 +2,23 @@ import { DEFAULT_WEAPONS } from "~/server/utils/constants"
 import {
     DBWeapon,
     APISkin,
-    IEnhancedWeapon,
+    IEnhancedItem,
     IDefaultItem,
     APISticker,
     EnhancedWeaponSticker,
-    EnhancedWeaponKeychain
+    EnhancedWeaponKeychain, IMappedDBWeapon
 } from "~/server/utils/interfaces";
 import { getSkinsData, getStickerData } from '~/server/utils/csgoAPI';
-import { verifyUserAccess, validateWeaponDatabaseTable } from "~/server/utils/helpers";
+import {
+    verifyUserAccess,
+    validateWeaponDatabaseTable,
+    findMatchingSkin,
+    createDefaultEnhancedWeapon
+} from "~/server/utils/helpers";
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { executeQuery } from "~/server/database/database";
 import { defineEventHandler } from "h3";
 
-/**
- * Find matching skin from the skin data using the weapon ID and paint index
- * @param baseWeapon
- * @param databaseWeapon
- * @param skinsData
- */
-function findMatchingSkin(baseWeapon: IDefaultItem, databaseWeapon: DBWeapon | undefined, skinsData: APISkin[]): APISkin | undefined {
-    if (!databaseWeapon) return undefined;
-    return skinsData.find(skin =>
-        skin.weapon?.id === baseWeapon.weapon_name &&
-        skin.paint_index === databaseWeapon?.paintindex.toString()
-    );
-}
 
 function parseStickers(databaseResult: DBWeapon, stickerData: APISticker[]): (IEnhancedWeaponSticker | null)[] {
     const stickers: (IEnhancedWeaponSticker | null)[] = [];
@@ -50,14 +42,14 @@ export default defineEventHandler(async (event) => {
     Logger.header(`Weapons API request: ${event.method} ${event.req.url}`);
 
     const steamId = query.steamId as string;
-    validateQueryParam(steamId, 'Steam ID');
+    validateRequiredRequestData(steamId, 'Steam ID');
     verifyUserAccess(steamId, event)
 
-    const type: any = event.context.params?.type;
-    validateQueryParam(type, 'Type');
+    const type = event.context.params?.type as string;
+    validateRequiredRequestData(type, 'Type');
 
     const loadoutId = query.loadoutId as string;
-    validateQueryParam(loadoutId, 'Loadout ID');
+    validateRequiredRequestData(loadoutId, 'Loadout ID');
 
     const table = validateWeaponDatabaseTable(type);
 
@@ -98,11 +90,12 @@ export default defineEventHandler(async (event) => {
 
         // Filter and type-guard the weapons first
         const baseWeaponsWithCategory: IDefaultItem[] = DEFAULT_WEAPONS.filter(weapon => weapon.category === type);
+
         // Map through weapons and enhance them with skin data
         const enhancedWeapons = baseWeaponsWithCategory.map((baseWeapon: IDefaultItem) => {
             // Find the database entry for this weapon if it exists
             // Find matching skin from skin api using both weapon ID and paint index
-            let data: IEnhancedWeapon[] = [];
+            let data: IEnhancedItem[] = [];
             const matchingDatabaseResults: DBWeapon[] = rows.filter(
                 (weapon: DBWeapon) => weapon.defindex === baseWeapon.weapon_defindex
             );
@@ -120,25 +113,23 @@ export default defineEventHandler(async (event) => {
                  * Push the enhanced weapon to the returned data array
                  */
                 data.push({
-                    name: skinInfo?.name || undefined,
                     defaultName: baseWeapon.defaultName,
                     weapon_name: baseWeapon.weapon_name,
                     weapon_defindex: baseWeapon.weapon_defindex,
-
                     defaultImage: baseWeapon.defaultImage,
-                    image: skinInfo?.image || undefined,
+                    category: baseWeapon.category,
 
+                    image: skinInfo?.image || undefined,
+                    name: skinInfo?.name || undefined,
                     minFloat: skinInfo?.min_float || 0.0,
                     maxFloat: skinInfo?.max_float || 1.0,
                     paintIndex: skinInfo?.paint_index || 0,
-
                     rarity: skinInfo?.rarity || {
                         id: 'default',
                         name: 'Default',
                         color: '#000000'
                     },
                     availableTeams: skinInfo?.team?.id || 'both',
-                    category: baseWeapon.category,
 
                     databaseInfo: {
                         active: databaseResult.active,
@@ -152,8 +143,8 @@ export default defineEventHandler(async (event) => {
                         nameTag: databaseResult.nametag || '',
                         stickers: parseStickers(databaseResult, stickerData),
                         keychain: EnhancedWeaponKeychain.fromStringAndAPI(databaseResult.keychain, keychainData)?.toInterface()
-                    }
-                } as IEnhancedWeapon);
+                    } as IMappedDBWeapon
+                } as IEnhancedItem);
             }
 
             // If there are any custom skins for this, return them
@@ -162,19 +153,7 @@ export default defineEventHandler(async (event) => {
             }
 
             // If there are no custom skins for this weapon, return the default skin
-            return [{
-                weapon_defindex: baseWeapon.weapon_defindex,
-                weapon_name: baseWeapon.weapon_name,
-                category: baseWeapon.category,
-                name: baseWeapon.defaultName,
-                defaultName: baseWeapon.defaultName,
-                image: baseWeapon.defaultImage,
-                defaultImage: baseWeapon.defaultImage,
-                minFloat: 0,
-                maxFloat: 1,
-                paintIndex: 0,
-                availableTeams: baseWeapon.availableTeams || 'both',
-            } as IEnhancedWeapon];
+            return createDefaultEnhancedWeapon(baseWeapon);
         });
 
         /**

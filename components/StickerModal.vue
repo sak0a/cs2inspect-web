@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import {ref, computed, watch, watchEffect} from 'vue'
+import { ref, computed, watch, watchEffect } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
-import { hexToRgba } from '~/utilities/helpers'
 import { APISticker } from "~/server/utils/interfaces";
 
 const props = defineProps<{

@@ -2,7 +2,6 @@
 import { NIcon } from 'naive-ui'
 import { LogOut as LogOutIcon, LogoSteam as SteamLogoIcon } from '@vicons/ionicons5'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
-import {weaponMenuOptions, extrasMenuOptions, equipmentMenuOptions} from "~/utilities/helpers";
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
@@ -10,6 +9,7 @@ const user = ref<SteamUser | null>(null)
 
 const validateAuth = async () => {
   if (!user.value) return false
+
   const response = await fetch('/api/auth/validate?steamId=' + user.value?.steamId, {
     credentials: 'include',
     headers: {
@@ -219,7 +219,7 @@ onMounted(async () => {
             Sign in
           </NButton>
         </div>
-        <div v-else class="h-full">
+        <div v-else class="h-full bg-[#181818]">
           <NuxtPage />
         </div>
       </NLayoutContent>

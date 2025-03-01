@@ -2,7 +2,7 @@
 import { defineEventHandler, createError } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { DBLoadout } from '~/server/utils/interfaces'
-import { verifyUserAccess, validateQueryParam} from '~/server/utils/helpers'
+import { verifyUserAccess } from '~/server/utils/helpers'
 import {
     createLoadout,
     getLoadoutsBySteamId,
@@ -21,7 +21,7 @@ export default defineEventHandler(async (event) => {
     Logger.header(`Loadouts API request: ${method} ${event.req.url}`)
 
     const steamId = query.steamId as string
-    validateQueryParam(steamId, 'Steam ID')
+    validateRequiredRequestData(steamId, 'Steam ID')
     verifyUserAccess(steamId, event)
 
     try {
@@ -33,13 +33,7 @@ export default defineEventHandler(async (event) => {
 
         if (method === 'POST') {
             const body = await readBody(event)
-            if (!body.name) {
-                Logger.error('Loadout name is required')
-                throw createError({
-                    statusCode: 400,
-                    message: 'Loadout name is required'
-                })
-            }
+            validateRequiredRequestData(body.name, 'Loadout name')
 
             await createLoadout(steamId, body.name)
             const data: DBLoadout = await getLoadoutByName(steamId, body.name)
@@ -51,23 +45,10 @@ export default defineEventHandler(async (event) => {
         // PUT request - Update loadout
         if (method === 'PUT') {
             const id = query.id as string
+            validateRequiredRequestData(id, 'Loadout ID')
+
             const body = await readBody(event)
-
-            if (!id) {
-                Logger.error('Loadout ID is required')
-                throw createError({
-                    statusCode: 400,
-                    message: 'Loadout ID is required'
-                })
-            }
-
-            if (!body.name) {
-                Logger.error('Loadout name is required')
-                throw createError({
-                    statusCode: 400,
-                    message: 'Loadout name is required'
-                })
-            }
+            validateRequiredRequestData(body.name, 'Loadout name')
 
             await updateLoadout(id, steamId, body.name)
             const data = await getLoadout(id, steamId)
@@ -78,14 +59,7 @@ export default defineEventHandler(async (event) => {
 
         if (method === 'DELETE') {
             const id = query.id as string
-
-            if (!id) {
-                Logger.error('Loadout ID is required')
-                throw createError({
-                    statusCode: 400,
-                    message: 'ID is required'
-                })
-            }
+            validateRequiredRequestData(id, 'Loadout ID')
 
             await deleteLoadout(id, steamId)
 

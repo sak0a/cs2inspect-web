@@ -30,7 +30,7 @@ const loadoutStore = useLoadoutStore()
 </script>
 
 <template>
-  <div class="p-2 bg-[#181818]">
+  <div class="">
     <div class="max-w-7xl mx-auto">
       <!-- Header with Loadout Selector -->
       <div class="flex justify-between mb-2">

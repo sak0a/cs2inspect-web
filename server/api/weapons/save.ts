@@ -1,7 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
 import { executeQuery } from '~/server/database/database'
 import {
-    validateQueryParam,
     validateWeaponDatabaseTable,
     verifyUserAccess
 } from '~/server/utils/helpers'
@@ -13,27 +12,46 @@ export default defineEventHandler(async (event) => {
     Logger.header(`Save weapon request: ${event.method} ${event.req.url}`)
 
     const steamId = query.steamId as string
-    validateQueryParam(steamId, 'Steam ID')
+    validateRequiredRequestData(steamId, 'Steam ID')
     verifyUserAccess(steamId, event)
 
     const type = query.type as string
-    validateQueryParam(type, 'Type')
+    validateRequiredRequestData(type, 'Type')
 
     const loadoutId = query.loadoutId as string
-    validateQueryParam(loadoutId, 'Loadout ID')
+    validateRequiredRequestData(loadoutId, 'Loadout ID')
 
     const table = validateWeaponDatabaseTable(type)
 
     const body = await readBody(event)
-    validateQueryParam(body, 'Body')
+    validateRequiredRequestData(body, 'Body')
 
     try {
 
         if (!body.paintIndex || body.paintIndex <= 0) {
+            Logger.error('Paint index is invalid')
             throw createError({
                 statusCode: 400,
-                message: 'Invalid paint index'
+                message: 'Paint index is invalid'
             })
+        }
+
+        if (body.reset && body.reset === true) {
+            await executeQuery<void>(
+                `DELETE
+                 FROM ${table}
+                 WHERE steamid = ?
+                   AND loadoutid = ?
+                   AND defindex = ?
+                   AND team = ?`,
+                [steamId, loadoutId, body.defindex, body.team],
+                'Failed to delete weapon'
+            )
+            Logger.success('Weapon deleted successfully')
+            return {
+                success: true,
+                message: 'Weapon deleted successfully'
+            }
         }
 
         // Format stickers array into the required string format
@@ -55,7 +73,11 @@ export default defineEventHandler(async (event) => {
             y: 0,
             z: 0,
             seed: 0,
-            api: {id: 'default', name: 'Default', color: '#000000'}
+            api: {
+                id: 'default',
+                name: 'Default',
+                color: '#000000'
+            }
         };
         const formattedKeychain = new EnhancedWeaponKeychain((!body.keychain || body.keychain.id === 0) ? defaultKeychain : body.keychain).convertToDatabaseString();
 
@@ -105,19 +127,21 @@ export default defineEventHandler(async (event) => {
                 ],
                 'Failed to update weapon'
             );
+            Logger.success('Weapon updated successfully')
         } else {
             await executeQuery<void>(
                 `INSERT INTO ${table} (
-                    steamid, loadoutid, defindex, active, paintindex, paintwear,
+                    steamid, loadoutid, defindex, active, team, paintindex, paintwear,
                     paintseed, stattrak_enabled, stattrak_count, nametag,
                     sticker_0, sticker_1, sticker_2, sticker_3, sticker_4,
-                    keychain, team
+                    keychain
                 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
                     steamId,
                     loadoutId,
                     body.defindex,
                     body.active,
+                    body.team,
                     body.paintIndex,
                     body.paintWear,
                     body.pattern,
@@ -129,21 +153,20 @@ export default defineEventHandler(async (event) => {
                     formattedStickers[2],
                     formattedStickers[3],
                     formattedStickers[4],
-                    formattedKeychain,
-                    body.team
+                    formattedKeychain
                 ], 'Failed to create weapon')
+            Logger.success('Weapon created successfully')
         }
 
         return {
             success: true,
             message: existingWeapons.length > 0 ? 'Weapon updated successfully' : 'Weapon created successfully'
         }
-
     } catch (error: any) {
         Logger.error(`Failed to save weapon: ${error.message}`)
         throw createError({
             statusCode: 500,
-            message: 'Failed to save weapon'
+            message: `Failed to save weapon: ${error.message}`
         })
     }
 })

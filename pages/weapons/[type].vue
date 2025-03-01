@@ -1,12 +1,11 @@
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref } from 'vue'
 import { NAlert, NButton, NSpin, useMessage } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import LoadoutSelector from '~/components/LoadoutSelector.vue'
-import { IEnhancedWeapon, WeaponCustomization } from "~/server/utils/interfaces";
+import { IEnhancedItem, WeaponCustomization } from "~/server/utils/interfaces";
 
 definePageMeta({
   middleware: 'validate-weapon-url'
@@ -23,40 +22,17 @@ const loadoutStore = useLoadoutStore()
 const message = useMessage()
 
 const showSkinModal = ref<boolean>(false)
-const selectedWeapon = ref<IEnhancedWeapon | null>(null)
+const selectedWeapon = ref<IEnhancedItem | null>(null)
 
-const otherTeamHasSkin = computed(() => {
-  if (!selectedWeapon.value || selectedWeapon.value.availableTeams !== 'both') return false
+const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
+const groupedWeapons = useGroupedWeapons(skins)
 
-  const currentTeam = selectedWeapon.value.databaseInfo?.team
-  const otherTeam = currentTeam === 1 ? 2 : 1
-
-  return skins.value.some(weaponGroup =>
-      weaponGroup.some((weapon: IEnhancedWeapon) =>
-          weapon.weapon_defindex === selectedWeapon.value?.weapon_defindex &&
-          weapon.databaseInfo?.team === otherTeam
-      )
-  )
-})
-const groupedWeapons = computed(() => {
-  return skins.value.reduce((acc, weaponGroup) => {
-    const weapon = weaponGroup[0];
-    if (!acc[weapon.defaultName]) {
-      acc[weapon.defaultName] = {
-        weapons: weaponGroup,
-        availableTeams: weapon.availableTeams,
-        defaultName: weapon.defaultName
-      };
-    }
-    return acc;
-  }, {});
-})
-
-const handleWeaponClick = (weapon: IEnhancedWeapon) => {
+const handleWeaponClick = (weapon: IEnhancedItem) => {
   selectedWeapon.value = weapon
   showSkinModal.value = true
 }
-const handleSkinSelect = async (skin: IEnhancedWeapon, customization: WeaponCustomization) => {
+
+const handleSkinSelect = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return
@@ -83,7 +59,8 @@ const handleSkinSelect = async (skin: IEnhancedWeapon, customization: WeaponCust
         nameTag: customization.nameTag,
         stickers: customization.stickers,
         keychain: customization.keychain,
-        team: selectedWeapon.value?.databaseInfo?.team || customization.team || 0
+        team: customization.team || 0,
+        reset: customization.reset
       })
     })
 
@@ -100,7 +77,8 @@ const handleSkinSelect = async (skin: IEnhancedWeapon, customization: WeaponCust
     message.error('Failed to save weapon configuration')
   }
 }
-const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: WeaponCustomization) => {
+
+const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return
@@ -128,7 +106,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
       z: customization.keychain.z || 0,
       seed: customization.keychain.seed || 0
     } : null
-
+    console.log("DUPLICATE CUSTOM TEAM: ", customization.team)
     const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
       headers: {
@@ -170,7 +148,7 @@ const fetchLoadoutSkins = async () => {
   isLoading.value = true;
   await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId).then(() => {
     skins.value = loadoutStore.loadoutSkins;
-  }).catch((e) => {
+  }).catch(() => {
     error.value = 'Failed to load skins. Please try again later.';
     message.error('Failed to load skins');
   }).finally(() => isLoading.value = false);
@@ -223,9 +201,12 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           <p class="text-gray-400">No skins available for this loadout</p>
         </div>
       </div>
-      <!-- Skin Selection Modal -->
+
+      <!-- Skin Selection & Customization Modal -->
       <WeaponSkinModal
+          v-if="user"
           v-model:visible="showSkinModal"
+          :user="user"
           :weapon="selectedWeapon"
           :other-team-has-skin="otherTeamHasSkin"
           @select="handleSkinSelect"

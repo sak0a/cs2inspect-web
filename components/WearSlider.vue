@@ -174,7 +174,6 @@ function onDrag(event: MouseEvent) {
   emit('update:modelValue', newValue)
 }
 
-
 // Watch for external value changes
 watch(() => props.modelValue, (newValue) => {
   if (newValue !== localValue.value) {

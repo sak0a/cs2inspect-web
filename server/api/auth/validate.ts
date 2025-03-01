@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
     Logger.header(`Auth validation request: ${event.method} ${event.req.url}`)
 
     const steamId = query.steamId as string
-    validateQueryParam(steamId, 'Steam ID')
+    validateRequiredRequestData(steamId, 'Steam ID')
 
     try {
         verifyUserAccess(steamId, event)

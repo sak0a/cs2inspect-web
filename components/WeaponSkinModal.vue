@@ -1,22 +1,23 @@
 <script setup lang="ts">
-import { APISkin, WeaponCustomization, IEnhancedWeapon } from '~/server/utils/interfaces'
+import {APISkin, WeaponCustomization, IEnhancedItem, IMappedDBWeapon} from '~/server/utils/interfaces'
 import { ref, computed } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, NInputNumber, NSwitch, NButton } from 'naive-ui'
-import { hexToRgba } from "~/utilities/helpers";
 import { steamAuth } from "~/services/steamAuth";
+import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
 const props = defineProps<{
   visible: boolean
-  weapon: IEnhancedWeapon | null
+  weapon: IEnhancedItem | null
   isLoading?: boolean
   otherTeamHasSkin: boolean
   pageSize?: number
 }>()
-const message = useMessage()
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedWeapon, customization: WeaponCustomization): void
-  (e: 'duplicate', skin: IEnhancedWeapon, customization: WeaponCustomization): void
+  (e: 'select', skin: IEnhancedItem, customization: WeaponCustomization): void
+  (e: 'duplicate', skin: IEnhancedItem, customization: WeaponCustomization): void
 }>()
+const message = useMessage()
+
 // Basic state
 // APISkin because we are only fetching from the API with the same structure (images/name/rarity)
 const state = ref({
@@ -28,8 +29,11 @@ const state = ref({
   showKeychainModal: false,
   showImportModal: false,
   showDetails: false,
+
   currentStickerPosition: 0,
+  showResetConfirm: false,
   showDuplicateConfirm: false,
+  isResetting: false,
   isImporting: false,
   isLoadingInspect: false,
   isDuplicating: false
@@ -37,8 +41,7 @@ const state = ref({
 
 const user = computed(() => steamAuth.getSavedUser())
 
-const inheritedWeapon = ref<IEnhancedWeapon | null>();
-const selectedSkin = ref<IEnhancedWeapon | null>();
+const selectedSkin = ref<IEnhancedItem | null>();
 
 const defaultCustomization: WeaponCustomization = {
   active: false,
@@ -62,11 +65,13 @@ const filteredSkins = computed(() => {
       skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
+
 const paginatedSkins = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE.value
   const end = start + PAGE_SIZE.value
   return filteredSkins.value.slice(start, end)
 })
+
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
 const fetchSkinsForWeapon = async () => {
@@ -80,31 +85,6 @@ const fetchSkinsForWeapon = async () => {
     console.error('Error fetching skins:', error)
   } finally {
     state.value.isLoadingSkins = false
-  }
-}
-
-const handleDuplicate = async () => {
-  if (!selectedSkin.value) return
-
-  state.value.isDuplicating = true
-  try {
-    // Calculate the other team number (if current is 1, other is 2 and vice versa)
-    const otherTeam = props.weapon?.databaseInfo?.team === 1 ? 2 : 1
-
-    // Create copy of current customization for other team
-    const duplicateData = {
-      ...customization.value,
-      team: otherTeam
-    }
-
-    // Emit duplicate event to parent
-    emit('duplicate', selectedSkin.value, duplicateData)
-
-    state.value.showDuplicateConfirm = false
-  } catch (error) {
-    console.error('Error duplicating weapon:', error)
-  } finally {
-    state.value.isDuplicating = false
   }
 }
 
@@ -317,6 +297,46 @@ const handleCreateInspectLink = async () => {
   }
 }
 
+const handleReset = async () => {
+  if (!selectedSkin.value) return
+
+  state.value.isResetting = true
+  try {
+    customization.value.reset = true
+    message.success('Weapon configuration reset')
+    state.value.showResetConfirm = false
+    handleSave();
+  } catch (error) {
+    console.error('Error resetting weapon:', error)
+  } finally {
+    state.value.isResetting = false
+  }
+}
+
+const handleDuplicate = async () => {
+  if (!selectedSkin.value) return
+
+  state.value.isDuplicating = true
+  try {
+    // Calculate the other team number (if current is 1, other is 2 and vice versa)
+    const otherTeam = props.weapon?.databaseInfo?.team === 1 ? 2 : 1
+
+    // Create copy of current customization for other team
+    const duplicateData = {
+      ...customization.value,
+      team: otherTeam
+    }
+
+    // Emit duplicate event to parent
+    emit('duplicate', selectedSkin.value, duplicateData)
+
+    state.value.showDuplicateConfirm = false
+  } catch (error) {
+    console.error('Error duplicating weapon:', error)
+  } finally {
+    state.value.isDuplicating = false
+  }
+}
 const handleSkinSelect = (skin: APISkin) => {
   selectedSkin.value = {
     ...props.weapon!,
@@ -407,13 +427,14 @@ const handleSave = () => {
 }
 const handleClose = () => {
   console.log("WSM - handleClose")
-  emit('update:visible', false)
   setTimeout(() => {
     state.value.searchQuery = ''
     selectedSkin.value = null
-    inheritedWeapon.value = null
-    customization.value = { ...defaultCustomization }
-  }, 300)
+    state.value.skins = []
+    customization.value = defaultCustomization
+  }, 200)
+
+  emit('update:visible', false)
 }
 
 watch(() => customization.value.wear, (newWear) => {
@@ -423,30 +444,30 @@ watch(() => customization.value.wear, (newWear) => {
     }, { immediate: true }
 );
 
+
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
-    inheritedWeapon.value = props.weapon
     fetchSkinsForWeapon()
+    selectedSkin.value = props.weapon
 
-    const dbInfo = props.weapon.databaseInfo
+    const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
     if (dbInfo) {
       customization.value = {
-        active: Boolean(dbInfo.active) || false,
-        statTrak: Boolean(dbInfo.statTrak) || false,
-        statTrakCount: Number(dbInfo.statTrakCount) | 0,
-        paintIndex: Number(dbInfo.paintIndex) | 0,
+        active: dbInfo.active || false,
+        statTrak: dbInfo.statTrak || false,
+        statTrakCount: dbInfo.statTrakCount | 0,
+        paintIndex: dbInfo.paintIndex | 0,
         paintIndexOverride: false,
-        pattern: Number(dbInfo.pattern) | 0,
-        wear: Number(dbInfo.paintWear),
+        pattern: dbInfo.pattern | 0,
+        wear: dbInfo.paintWear,
         nameTag: dbInfo.nameTag || '',
         stickers: dbInfo.stickers || [null, null, null, null, null],
         keychain: dbInfo.keychain ?? null,
-        team: Number(dbInfo.team)
+        team: dbInfo.team
       }
-    } else if (props.weapon.databaseInfo?.team !== undefined) {
-      customization.value.team = Number(props.weapon.databaseInfo.team)
+    } else {
+      customization.value.team = props.weapon.availableTeams === 'terrorists' ? 1 : 2
     }
-    selectedSkin.value = inheritedWeapon.value
   }
 })
 </script>
@@ -463,6 +484,15 @@ watch(() => props.weapon, () => {
       @update:show="handleClose"
   >
     <template #header-extra>
+      <!-- Reset Weapon Configuration -->
+      <NButton :loading="state.isResetting" secondary type="default" :disabled="!selectedSkin" @click="state.showResetConfirm = true">
+        <template #icon>
+          <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-restore"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.06 13a9 9 0 1 0 .49 -4.087" /><path d="M3 4.001v5h5" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+        </template>
+        Reset
+      </NButton>
+      <NDivider vertical />
+
       <!-- Import Weapon by Inspect Link -->
       <NButton :loading="state.isImporting" secondary type="default" :disabled="!selectedSkin"  @click="state.showImportModal = true">
         <template #icon>
@@ -491,7 +521,7 @@ watch(() => props.weapon, () => {
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Skin Preview -->
-      <div v-if="inheritedWeapon" class="bg-[#1a1a1a] p-6  rounded-lg">
+      <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg">
         <div class="grid grid-cols-2 gap-6">
           <!-- Left side - Image -->
           <div>
@@ -751,47 +781,42 @@ watch(() => props.weapon, () => {
     />
 
     <!-- Duplicate Modal -->
-    <NModal v-model:show="state.showDuplicateConfirm">
-      <NCard
-          style="width: 600px"
-          :bordered="true"
-          size="medium"
-          role="dialog"
-          aria-modal="true"
-      >
-        <template #header>
-          <div class="text-lg font-semibold">Duplicate Weapon</div>
-        </template>
+    <DuplicateItemConfirmModal
+        v-model:visible="state.showDuplicateConfirm"
+        :loading="state.isDuplicating"
+        :other-team-has-skin="otherTeamHasSkin"
+        item-type="Knife"
+        @confirm="handleDuplicate"
+    />
 
-        <div class="py-2">
-          <p v-if="otherTeamHasSkin" class="text-warning mb-4">
-            Warning: The other team already has a skin configured for this weapon.
-            This action will overwrite it.
-          </p>
-          <p>Are you sure you want to duplicate this weapon configuration to the other team?</p>
-        </div>
-
-        <template #footer>
-          <div class="flex justify-end gap-4">
-            <NButton
-                @click="state.showDuplicateConfirm = false"
-                :disabled="state.isDuplicating"
-                type="error"
-                secondary
-            >
-              Cancel
-            </NButton>
-            <NButton
-                type="success"
-                secondary
-                :loading="state.isDuplicating"
-                @click="handleDuplicate"
-            >
-              Confirm Duplicate
-            </NButton>
-          </div>
-        </template>
-      </NCard>
+    <NModal
+        :show="state.showResetConfirm"
+        style="width: 600px"
+        preset="card"
+        title="Reset Skin"
+        :bordered="false"
+        :mask-closable="!state.isResetting"
+        :closable="!state.isResetting"
+        @update:show="handleClose">
+      <p>Are you sure you want to reset the skin configuration?</p>
+      <div class="flex justify-end mt-4">
+        <NButton
+            secondary
+            type="error"
+            :loading="state.isResetting"
+            @click="state.showResetConfirm = false"
+        >
+          Cancel
+        </NButton>
+        <NButton
+            secondary
+            type="success"
+            :loading="state.isResetting"
+            @click="handleReset"
+        >
+          Reset
+        </NButton>
+      </div>
     </NModal>
   </NModal>
 </template>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { NTabs, NTabPane, NCard } from 'naive-ui'
-import { hexToRgba } from "~/utilities/helpers"
-import {IEnhancedWeapon} from "~/server/utils/interfaces";
+import {IEnhancedItem, IMappedDBWeapon} from "~/server/utils/interfaces";
 
 const props = defineProps({
   weaponData: {
@@ -27,6 +26,7 @@ const handleDefaultWeaponClick = (team: number) => {
     databaseInfo: {
       team: team,
       active: false,
+      defindex: 0,
       paintIndex: 0,
       paintWear: 0,
       pattern: 0,
@@ -34,14 +34,14 @@ const handleDefaultWeaponClick = (team: number) => {
       statTrakCount: 0,
       nameTag: '',
       stickers: [null, null, null, null, null],
-      keychain: false,
-    }
-  } as IEnhancedWeapon
+      keychain: null,
+    } as IMappedDBWeapon
+  } as IEnhancedItem
   //console.log("WeaponTabs - default weapon clicked: ", defaultWeapon)
   emit('weaponClick', defaultWeapon)
 }
 
-const handleSkinClick = (weapon: IEnhancedWeapon) => {
+const handleSkinClick = (weapon: IEnhancedItem) => {
   //console.log("WeaponTabs - skin clicked: ", weapon)
   emit('weaponClick', weapon)
 }
@@ -54,7 +54,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
       <NTabPane name="ct" tab="Counter-Terrorists">
         <!-- Default weapon if no skin selected -->
         <NCard
-            v-if="!weaponData.weapons.some((w: IEnhancedWeapon) => w.databaseInfo?.team === 2)"
+            v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 2)"
             :style="{
               borderColor: '#313030',
               background: '#242424'
@@ -77,7 +77,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
         </NCard>
         <!-- CT skins -->
         <NCard
-            v-for="weapon in weaponData.weapons.filter((w: IEnhancedWeapon) => w.databaseInfo?.team === 2)"
+            v-for="weapon in weaponData.weapons.filter((w: IEnhancedItem) => w.databaseInfo?.team === 2)"
             :key="weapon.paintIndex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
@@ -105,7 +105,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
       <NTabPane name="t" tab="Terrorists">
         <!-- Default weapon if no skin selected -->
         <NCard
-            v-if="!weaponData.weapons.some((w: IEnhancedWeapon) => w.databaseInfo?.team === 1)"
+            v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 1)"
             :style="{
               borderColor: '#313030',
               background: '#242424'
@@ -128,7 +128,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
         </NCard>
         <!-- T skins -->
         <NCard
-            v-for="weapon in weaponData.weapons.filter((w: IEnhancedWeapon) => w.databaseInfo?.team === 1)"
+            v-for="weapon in weaponData.weapons.filter((w: IEnhancedItem) => w.databaseInfo?.team === 1)"
             :key="weapon.paintIndex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',

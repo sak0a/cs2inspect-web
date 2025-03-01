@@ -100,6 +100,19 @@ export interface APIKeychain {
 }
 
 
+export enum CsTeam {
+    /**
+     * Original values
+     */
+    //None = 0,
+    //Spectator = 1,
+    //Terrorist = 2,
+    //CounterTerrorist = 3
+    None = 0,
+    Terrorist = 1,
+    CounterTerrorist = 2
+}
+
 export interface WeaponCustomization {
     active: boolean
     statTrak: boolean
@@ -112,7 +125,8 @@ export interface WeaponCustomization {
     nameTag: string
     stickers: any[]
     keychain: any | null
-    team: number | null
+    team: number
+    reset?: boolean
 }
 export interface KnifeCustomization {
     active: boolean
@@ -124,15 +138,16 @@ export interface KnifeCustomization {
     pattern: number
     wear: number
     nameTag: string
-    team: number | null
+    team: number
+    reset?: boolean
 }
 export interface GloveCustomization {
     active: boolean
     paintIndex: number
     paintIndexOverride: boolean
-    patterb: number
+    pattern: number
     wear: number
-    team: number | null
+    team: number
 }
 
 export interface IDefaultItem {
@@ -144,7 +159,7 @@ export interface IDefaultItem {
     category: string;
     availableTeams: string;
 }
-export interface IEnhancedWeapon extends IDefaultItem {
+export interface IEnhancedItem extends IDefaultItem {
     name: string;
     image: string;
     minFloat: number;
@@ -154,20 +169,21 @@ export interface IEnhancedWeapon extends IDefaultItem {
         name: string;
         color: string;
     };
+    databaseInfo?: DBKnife | DBGlove | IMappedDBWeapon;
+}
 
-    databaseInfo?: {
-        active: boolean;
-        team: number;
-        defindex: number;
-        statTrak: boolean;
-        statTrakCount: number;
-        paintIndex: number;
-        paintWear: number;
-        pattern: number;
-        nameTag: string;
-        stickers: any[];
-        keychain: any;
-    };
+export interface IMappedDBWeapon {
+    active: boolean;
+    team: number;
+    defindex: number;
+    statTrak: boolean;
+    statTrakCount: number;
+    paintIndex: number;
+    paintWear: number;
+    pattern: number;
+    nameTag: string;
+    stickers: any;
+    keychain: IEnhancedWeaponKeychain | null;
 }
 
 export interface IEnhancedWeaponSticker {
@@ -334,30 +350,19 @@ export interface DBLoadout {
     id: string;
     steamid: string;
     name: string;
+    selected_knife_t: number;
+    selected_knife_ct: number;
+    selected_glove_t: number;
+    selected_glove_ct: number;
     created_at: string;
     updated_at: string;
-}
-export interface DBSticker {
-    id: number;
-    x: number;
-    y: number;
-    wear: number;
-    scale: number;
-    rotation: number;
-}
-export interface DBKeychain {
-    id: string;
-    x: number;
-    y: number;
-    z: number;
-    seed: number;
 }
 export interface DBWeapon {
     id: string;
     steamid: string;
     loadoutid: string;
-    active: boolean
-    team: number
+    active: boolean;
+    team: number;
     defindex: number;
     paintindex: number;
     paintseed: string;
@@ -378,8 +383,8 @@ export interface DBKnife {
     id: string;
     steamid: string;
     loadoutid: string;
-    active: boolean
-    team: number
+    active: boolean;
+    team: number;
     defindex: number;
     paintindex: number;
     paintseed: string;
@@ -394,8 +399,8 @@ export interface DBGlove {
     id: string;
     steamid: string;
     loadoutid: string;
-    active: boolean
-    team: number
+    active: boolean;
+    team: number;
     defindex: number;
     paintindex: number;
     paintseed: string;

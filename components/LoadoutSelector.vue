@@ -37,7 +37,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
       formInputs.value.newName = ''
       formInputs.value.renameName = ''
     }
-  } catch (error) {
+  } catch (error: any) {
     message.error(error.message, { duration: 3, closable: true })
   }
 }
