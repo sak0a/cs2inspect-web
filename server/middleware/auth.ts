@@ -11,32 +11,24 @@ export default defineEventHandler(async (event) => {
         return;
     }
 
-    try {
-        const cookies: Record<string, string> = parseCookies(event);
-        const token = cookies.auth_token;
+    const cookies: Record<string, string> = parseCookies(event);
+    const token = cookies.auth_token;
 
-        if (!token) {
-            throw createError({
-                statusCode: 401,
-                message: 'Authentication required'
-            })
-        }
-
-        try {
-            // Verify JWT token
-            // Add user info to event context for use in API routes
-            event.context.auth = jwt.verify(token, JWT_SECRET)
-        } catch (jwtError) {
-            throw createError({
-                statusCode: 401,
-                message: 'Invalid token'
-            })
-        }
-
-    } catch (error) {
+    if (!token) {
         throw createError({
             statusCode: 401,
-            message: 'Authentication failed'
+            message: 'Authentication required'
+        })
+    }
+
+    try {
+        // Verify JWT token
+        // Add user info to event context for use in API routes
+        event.context.auth = jwt.verify(token, JWT_SECRET)
+    } catch (jwtError) {
+        throw createError({
+            statusCode: 401,
+            message: 'Invalid token'
         })
     }
 })

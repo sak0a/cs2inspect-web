@@ -33,41 +33,35 @@ export const useLoadoutStore = defineStore('loadout', {
          * @param steamId
          */
         async fetchLoadoutWeaponSkins(type: string, steamId: string) {
-            try {
-                this.isLoading = true;
-                const response = await fetch(`/api/weapons/${type}?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                const data = await response.json()
+            this.isLoading = true;
+            await fetch(`/api/weapons/${type}?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(async (response) => {
+                const data = await response.json();
                 this.currentSkins = data.skins;
-            } catch (error) {
+            }).catch(() => {
                 this.error = 'Failed to fetch loadouts';
-            } finally {
-                this.isLoading = false;
-            }
+            }).finally(() => this.isLoading = false);
         },
 
         async fetchLoadoutKnifes(steamId: string) {
-            try {
-                this.isLoading = true;
-                const response = await fetch(`/api/knifes?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                const data = await response.json()
+            this.isLoading = true;
+            await fetch(`/api/knifes?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(async (response) => {
+                const data = await response.json();
                 this.currentSkins = data.knifes;
-            } catch (error) {
+            }).catch(() => {
                 this.error = 'Failed to fetch loadouts';
-            } finally {
-                this.isLoading = false;
-            }
+            }).finally(() => this.isLoading = false);
         },
 
         /**

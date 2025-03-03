@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import { NAlert, NButton, NSpin, useMessage, NSwitch, NCard } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
@@ -19,7 +19,6 @@ const selectedKnife = ref<IEnhancedItem | null>(null)
 const tKnifeType = ref('')
 const ctKnifeType = ref('')
 
-// Currently selected knives for each team at the top
 const selectedTeamKnives = ref({
   terrorists: null as IEnhancedItem | null,
   counterTerrorists: null as IEnhancedItem | null
@@ -38,7 +37,6 @@ const knifeOptions = computed(() => {
   ]
 })
 
-// For knives
 const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: string) => {
   if (!loadoutStore.selectedLoadoutId || !loadoutStore.selectedLoadout || !user.value?.steamId) {
     message.error('Please select a loadout first')

@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
     const query = getQuery(event);
 
     const weapon = query.weapon as string;
-    validateQueryParam(weapon, "Weapon");
+    validateRequiredRequestData(weapon, "Weapon");
 
     try {
         const skinData = getSkinsData();

@@ -1,12 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { DBKnife, IEnhancedItem, APISkin, IDefaultItem } from "~/server/utils/interfaces"
-import {
-    verifyUserAccess,
-    validateRequiredRequestData,
-    findMatchingSkin,
-    createDefaultEnhancedWeapon
-} from '~/server/utils/helpers'
 import { getSkinsData } from '~/server/utils/csgoAPI'
 import { executeQuery } from '~/server/database/database'
 import { DEFAULT_KNIFES } from '~/server/utils/constants'
@@ -19,7 +13,6 @@ export default defineEventHandler(async (event) => {
 
     const steamId = query.steamId as string;
     validateRequiredRequestData(steamId, 'Steam ID');
-    verifyUserAccess(steamId, event)
 
     const loadoutId = query.loadoutId as string;
     validateRequiredRequestData(loadoutId, 'Loadout ID');
@@ -65,11 +58,7 @@ export default defineEventHandler(async (event) => {
                     minFloat: skinInfo?.min_float || 0,
                     maxFloat: skinInfo?.max_float || 1,
                     paintIndex: skinInfo?.paint_index || baseKnife.paintIndex,
-                    rarity: skinInfo?.rarity || {
-                        id: 'default',
-                        name: 'Default',
-                        color: '#000000'
-                    },
+                    rarity: skinInfo?.rarity,
                     availableTeams: 'both',
                     databaseInfo: databaseResult
                 } as IEnhancedItem);
@@ -96,7 +85,7 @@ export default defineEventHandler(async (event) => {
 
     } catch (error: any) {
         Logger.error('Failed to fetch knifes: ' + error.message);
-        createError({
+        throw createError({
             statusCode: 500,
             message: error.message || 'Failed to fetch knifes'
         });

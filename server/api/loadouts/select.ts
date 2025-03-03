@@ -1,7 +1,6 @@
 // server/api/loadout/select.ts
 import { defineEventHandler, createError } from 'h3'
 import { executeQuery } from '~/server/database/database'
-import { verifyUserAccess } from '~/server/utils/helpers'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 
 type SelectionType = 'knife' | 'glove'
@@ -29,7 +28,6 @@ export default defineEventHandler(async (event) => {
 
     const steamId = query.steamId as string
     validateRequiredRequestData(steamId, 'Steam ID')
-    verifyUserAccess(steamId, event)
 
     const loadoutId = query.loadoutId as string
     validateRequiredRequestData(loadoutId, 'Loadout ID')

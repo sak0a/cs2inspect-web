@@ -1,4 +1,3 @@
-import { verifyUserAccess } from "~/server/utils/helpers";
 import { getCS2Client } from "~/server/plugins/init";
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 
@@ -9,7 +8,6 @@ export default defineEventHandler(async (event) => {
 
     const steamId = query.steamId as string
     validateRequiredRequestData(steamId, 'Steam ID')
-    verifyUserAccess(steamId, event)
 
     const apiUrl = query.url as string
     validateRequiredRequestData(apiUrl, 'API-URL')
@@ -18,7 +16,8 @@ export default defineEventHandler(async (event) => {
     validateRequiredRequestData(body, 'Body')
 
     if (apiUrl === 'create-link') {
-        Logger.info(`Creating inspect URL for ${steamId}`)
+        Logger.info(`Creating inspect URL`)
+
         const createdLink = createInspectUrl({
             defindex: body.defindex,
             paintindex: body.paintIndex,
@@ -29,13 +28,19 @@ export default defineEventHandler(async (event) => {
             killeatervalue: body.statTrakCount,
             customname: body.nametag,
             stickers: body.stickers,
-            keychains: [body.keychain],
-        })
+            keychains: [
+                body.keychain
+            ],
+        } as ItemBuilder)
+
         Logger.success(`Inspect URL created: ${createdLink}`)
         return { inspectUrl: createdLink };
+
     } else if (apiUrl === 'analyze-link') {
+
         Logger.success(`Analyzing inspect URL ${body.inspectUrl}`)
         return analyzeInspectUrl(body.inspectUrl)
+
     } else if (apiUrl === 'decode-link') {
         const analyzeResult: InspectURLInfo | null = analyzeInspectUrl(body.inspectUrl)
         Logger.info(`Decoding inspect URL ${body.inspectUrl}`)

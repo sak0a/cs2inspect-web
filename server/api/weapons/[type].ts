@@ -9,12 +9,6 @@ import {
     EnhancedWeaponKeychain, IMappedDBWeapon
 } from "~/server/utils/interfaces";
 import { getSkinsData, getStickerData } from '~/server/utils/csgoAPI';
-import {
-    verifyUserAccess,
-    validateWeaponDatabaseTable,
-    findMatchingSkin,
-    createDefaultEnhancedWeapon
-} from "~/server/utils/helpers";
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { executeQuery } from "~/server/database/database";
 import { defineEventHandler } from "h3";
@@ -43,7 +37,6 @@ export default defineEventHandler(async (event) => {
 
     const steamId = query.steamId as string;
     validateRequiredRequestData(steamId, 'Steam ID');
-    verifyUserAccess(steamId, event)
 
     const type = event.context.params?.type as string;
     validateRequiredRequestData(type, 'Type');
@@ -124,11 +117,7 @@ export default defineEventHandler(async (event) => {
                     minFloat: skinInfo?.min_float || 0.0,
                     maxFloat: skinInfo?.max_float || 1.0,
                     paintIndex: skinInfo?.paint_index || 0,
-                    rarity: skinInfo?.rarity || {
-                        id: 'default',
-                        name: 'Default',
-                        color: '#000000'
-                    },
+                    rarity: skinInfo?.rarity,
                     availableTeams: skinInfo?.team?.id || 'both',
 
                     databaseInfo: {

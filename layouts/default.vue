@@ -10,23 +10,25 @@ const user = ref<SteamUser | null>(null)
 const validateAuth = async () => {
   if (!user.value) return false
 
-  const response = await fetch('/api/auth/validate?steamId=' + user.value?.steamId, {
+  await fetch('/api/auth/validate?steamId=' + user.value?.steamId, {
     credentials: 'include',
     headers: {
       'Content-Type': 'application/json',
     }
-  })
-
-  if (!response.ok) {
-    if (response.status === 401) {
-      steamAuth.logout();
-      user.value = null;
+  }).then(async (response) => {
+    if (!response.ok) {
+      if (response.status === 401) {
+        steamAuth.logout();
+        user.value = null;
+      }
+      return false;
     }
-    return false;
-  }
-
-  const data = await response.json();
-  return data.authenticated;
+    const data = await response.json();
+    return data.authenticated;
+  }).catch((error) => {
+    console.error('Error validating auth:', error)
+    return false
+  })
 }
 
 function handleSelect(key: string) {

@@ -1,9 +1,5 @@
 import { defineEventHandler, createError } from 'h3'
 import { executeQuery } from '~/server/database/database'
-import {
-    validateWeaponDatabaseTable,
-    verifyUserAccess
-} from '~/server/utils/helpers'
 import { DBWeapon, EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/utils/interfaces'
 
 export default defineEventHandler(async (event) => {
@@ -13,7 +9,6 @@ export default defineEventHandler(async (event) => {
 
     const steamId = query.steamId as string
     validateRequiredRequestData(steamId, 'Steam ID')
-    verifyUserAccess(steamId, event)
 
     const type = query.type as string
     validateRequiredRequestData(type, 'Type')

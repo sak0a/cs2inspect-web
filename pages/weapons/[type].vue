@@ -1,14 +1,14 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { NAlert, NButton, NSpin, useMessage } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import { IEnhancedItem, WeaponCustomization } from "~/server/utils/interfaces";
+import { useMessage } from "naive-ui";
 
 definePageMeta({
-  middleware: 'validate-weapon-url'
+  middleware: ['validate-weapon-url']
 })
 
 const route = useRoute()
@@ -41,29 +41,27 @@ const handleSkinSelect = async (skin: IEnhancedItem, customization: WeaponCustom
     message.error('Please select a paint to save the weapon')
     return
   }
-  try {
-    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-      body: JSON.stringify({
-        defindex: skin.weapon_defindex,
-        active: customization.active,
-        paintIndex: customization.paintIndex,
-        paintWear: customization.wear,
-        pattern: customization.pattern,
-        statTrak: customization.statTrak,
-        statTrakCount: customization.statTrakCount,
-        nameTag: customization.nameTag,
-        stickers: customization.stickers,
-        keychain: customization.keychain,
-        team: customization.team || 0,
-        reset: customization.reset
-      })
+  await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'credentials': 'include'
+    },
+    body: JSON.stringify({
+      defindex: skin.weapon_defindex,
+      active: customization.active,
+      paintIndex: customization.paintIndex,
+      paintWear: customization.wear,
+      pattern: customization.pattern,
+      statTrak: customization.statTrak,
+      statTrakCount: customization.statTrakCount,
+      nameTag: customization.nameTag,
+      stickers: customization.stickers,
+      keychain: customization.keychain,
+      team: customization.team || 0,
+      reset: customization.reset
     })
-
+  }).then(async (response) => {
     const data = await response.json()
     if (data.success) {
       message.success(data.message)
@@ -72,10 +70,10 @@ const handleSkinSelect = async (skin: IEnhancedItem, customization: WeaponCustom
     } else {
       throw new Error(data.message)
     }
-  } catch (error) {
+  }).catch((error) => {
     console.error('Error saving weapon:', error)
     message.error('Failed to save weapon configuration')
-  }
+  })
 }
 
 const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponCustomization) => {

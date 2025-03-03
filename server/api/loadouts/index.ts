@@ -2,7 +2,6 @@
 import { defineEventHandler, createError } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { DBLoadout } from '~/server/utils/interfaces'
-import { verifyUserAccess } from '~/server/utils/helpers'
 import {
     createLoadout,
     getLoadoutsBySteamId,
@@ -12,7 +11,7 @@ import {
 
 /**
  * Client uses the loadoutStore on the client side to interact with the loadouts API
- * loadout API fetches with the loadoutHelpers the datq from the database
+ * loadout API fetches with the loadoutHelpers the data from the database
  */
 export default defineEventHandler(async (event) => {
     const method = event.method
@@ -22,7 +21,6 @@ export default defineEventHandler(async (event) => {
 
     const steamId = query.steamId as string
     validateRequiredRequestData(steamId, 'Steam ID')
-    verifyUserAccess(steamId, event)
 
     try {
         if (method === 'GET') {
