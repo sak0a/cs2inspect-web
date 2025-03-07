@@ -11,6 +11,18 @@ export const validateRequiredRequestData = (param: any, paramName: string) => {
     }
 }
 
+export const verifyUserAccess = (steamId: string, event: any) => {
+    const auth = event.context.auth
+    if (!auth || auth.steamId !== steamId) {
+        Logger.error('Unauthorized access')
+        throw createError({
+            statusCode: 401,
+            message: 'Unauthorized access'
+        })
+    }
+    Logger.info(`User access verified for Steam ID: ${steamId}`)
+}
+
 export const validateWeaponDatabaseTable = (type: string) => {
     const tableMap: Record<string, string> = {
         smgs: 'wp_player_smgs',

@@ -122,7 +122,7 @@ export const useLoadoutStore = defineStore('loadout', {
 
                 if (!response.ok) {
                     if (response.status === 401) {
-                        window.location.href = '/login';
+                        navigateTo('/');
                         return;
                     }
                     throw new Error('Failed to create loadout');

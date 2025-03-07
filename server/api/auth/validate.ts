@@ -1,4 +1,3 @@
-// server/api/auth/validate.ts
 import { defineEventHandler, createError } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 
