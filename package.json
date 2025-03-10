@@ -14,7 +14,7 @@
     "@nuxt/devtools": "latest",
     "@nuxt/eslint": "^0.6.2",
     "@nuxt/eslint-config": "^0.6.2",
-    "@nuxt/test-utils": "^3.15.4",
+    "@nuxt/test-utils": "^3.17.1",
     "@nuxtjs/tailwindcss": "^6.13.1",
     "@types/bun": "latest",
     "@types/node": "^22.13.4",
@@ -24,8 +24,8 @@
     "bcrypt": "^5.1.1",
     "date-fns-tz": "^3.2.0",
     "dotenv-cli": "^7.4.4",
-    "steam-user": "^5.2.0",
     "eslint": "^9.20.1",
+    "globaloffensive": "^3.2.0",
     "happy-dom": "^15.11.7",
     "jsonwebtoken": "^9.0.2",
     "mariadb": "^3.4.0",
@@ -37,12 +37,13 @@
     "postcss": "^8.5.2",
     "sass": "^1.85.0",
     "sitemap": "^8.0.0",
+    "steam-user": "^5.2.0",
     "tailwindcss": "^3.4.17",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "unplugin-vue-components": "^0.27.5",
     "unzipper": "^0.12.3",
-    "globaloffensive": "^3.2.0"
+    "vitest": "^3.0.8"
   },
   "dependencies": {
     "@formkit/auto-animate": "^0.8.2",
@@ -63,7 +64,7 @@
     "pinia": "^2.3.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.7.3"
+    "typescript": "^5.0.0"
   },
   "module": "index.ts",
   "peerDependencies": {
