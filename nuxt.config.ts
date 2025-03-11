@@ -59,8 +59,6 @@ export default defineNuxtConfig({
     'nuxtjs-naive-ui',
     '@nuxt/eslint',
     '@pinia/nuxt',
-    'motion-v/nuxt',
-
   ],
   compatibilityDate: '2024-10-12'
 })
