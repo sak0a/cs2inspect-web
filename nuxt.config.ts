@@ -52,6 +52,30 @@ export default defineNuxtConfig({
     config: {},
     viewer: false,
   },
+  i18n: {
+    locales: [
+      {
+        code: 'en',
+        name: 'English',
+        file: 'en.json'
+      }
+      /*{
+        code: 'de',
+        name: 'Deutsch',
+        file: 'de.json'
+      },*/
+    ],
+    defaultLocale: 'en',
+    strategy: 'prefix_except_default',
+    langDir: 'locales/',
+    detectBrowserLanguage: {
+      useCookie: true,
+      cookieKey: 'i18n_lang',
+      alwaysRedirect: true,
+      fallbackLocale: 'en'
+    },
+  },
+
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxt/test-utils/module',
@@ -59,8 +83,7 @@ export default defineNuxtConfig({
     'nuxtjs-naive-ui',
     '@nuxt/eslint',
     '@pinia/nuxt',
-    'motion-v/nuxt',
-
+    '@nuxtjs/i18n'
   ],
   compatibilityDate: '2024-10-12'
 })

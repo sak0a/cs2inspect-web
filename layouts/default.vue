@@ -2,7 +2,9 @@
 import { NIcon } from 'naive-ui'
 import { LogOut as LogOutIcon, LogoSteam as SteamLogoIcon } from '@vicons/ionicons5'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
 const user = ref<SteamUser | null>(null)
@@ -121,7 +123,7 @@ onMounted(async () => {
             <!-- Weapon Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
-                <span class="text-xs font-bold text-gray-500">WEAPONS</span>
+                <span class="text-xs font-bold text-gray-500">{{ t('sidebar.subtitles.weapons') }}</span>
               </div>
               <NMenu
                   :icon-size="45"

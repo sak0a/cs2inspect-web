@@ -6,11 +6,13 @@ import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import { IEnhancedItem, WeaponCustomization } from "~/server/utils/interfaces";
 import { useMessage } from "naive-ui";
+import { useI18n } from 'vue-i18n'
 
 definePageMeta({
   middleware: ['validate-weapon-url']
 })
 
+const { t } = useI18n()
 const route = useRoute()
 const WEAPON_TYPE = route.params.type as string ?? 'rifles'
 
@@ -26,6 +28,16 @@ const selectedWeapon = ref<IEnhancedItem | null>(null)
 
 const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
 const groupedWeapons = useGroupedWeapons(skins)
+
+useHead({
+  title: () => t('seo.page.weapons.title', { type: t(`types.weapons.${WEAPON_TYPE}`) }),
+  meta: [
+    {
+      name: 'description',
+      content: () => t('seo.page.weapons.description', { type: t(`types.weapons.${WEAPON_TYPE}`) })
+    }
+  ]
+})
 
 const handleWeaponClick = (weapon: IEnhancedItem) => {
   selectedWeapon.value = weapon

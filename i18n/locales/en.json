@@ -1,0 +1,121 @@
+{
+  "seo": {
+    "page": {
+      "weapons": {
+        "title": "CS2 Weapon Skins | {type}",
+        "description": "Configure your {type} skins with stickers and keychains"
+      }
+    }
+  },
+  "types": {
+    "weapons": {
+      "rifles": "Rifles",
+      "pistols": "Pistols",
+      "smgs": "SMGs",
+      "heavys": "Heavys"
+    },
+    "melee": {
+      "knifes": "Knifes",
+      "gloves": "Gloves"
+    },
+    "extras": {
+      "agents": "Agents",
+      "music_kits": "Music Kits",
+      "pins": "Pins"
+    }
+  },
+  "modals": {
+    "logout": {
+      "question": "Are you sure you want to logout?",
+      "buttonCancel": "Cancel",
+      "buttonConfirm": "Logout"
+    },
+    "loadout": {
+      "create": {
+        "title": "Create New Loadout",
+        "inputPlaceholder": "Enter loadout name"
+      },
+      "delete": {
+        "title": "Delete Loadout",
+        "question": "Are you sure you want to delete this loadout?",
+        "warning": "All Skins from this Loadout will be deleted and can't be restored",
+        "buttonCancel": "Cancel",
+        "buttonConfirm": "Delete"
+      },
+      "rename": {
+        "title": "Rename Loadout",
+        "inputPlaceholder": "Enter new loadout name",
+        "buttonCancel": "Cancel",
+        "buttonConfirm": "Rename"
+      }
+    }
+  },
+  "sidebar": {
+    "subtitles": {
+      "weapons": "WEAPONS",
+      "melee": "MELEE",
+      "extras": "EXTRAS",
+      "actions": "ACTIONS"
+    },
+    "weapons": {
+      "rifles": "Rifles",
+      "pistols": "Pistols",
+      "smgs": "SMGs",
+      "heavys": "Heavys"
+    },
+    "melee": {
+      "knifes": "Knifes",
+      "gloves": "Gloves"
+    },
+    "extras": {
+      "agents": "Agents",
+      "music_kits": "Music Kits",
+      "pins": "Pins",
+      "inspect": "Inspects"
+    },
+    "actions": {
+      "logout": "Logout"
+    }
+  },
+  "content": {
+    "authRequired": "To access this website, please login with your Steam Account.",
+    "authSignInButton": "Sign in"
+  },
+  "loadout": {
+    "hasNoLoadouts": "Create first Loadout"
+  },
+
+  "weapons": {
+    "title": "Weapons",
+    "types": {
+      "rifles": "Rifles",
+      "pistols": "Pistols",
+      "smgs": "SMGs",
+      "heavys": "Heavy Weapons"
+    }
+  },
+  "skins": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "import": "Import from Link",
+    "generate": "Generate Link",
+    "stattrak": "StatTrak™",
+    "name_tag": "Name Tag",
+    "paint_index": "Paint Index",
+    "pattern": "Paint Pattern (Seed)",
+    "wear": "Wear (Float)",
+    "override": "Override",
+    "stickers": "Stickers",
+    "keychain": "Keychain",
+    "add_sticker": "Add Sticker",
+    "add_keychain": "Add Keychain",
+    "duplicate": "Duplicate to Other Team",
+    "duplicate_confirm": "Duplicate Confirmation"
+  },
+  "team": {
+    "terrorists": "Terrorists",
+    "counter_terrorists": "Counter-Terrorists",
+    "both": "Both Teams"
+  }
+
+}

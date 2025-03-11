@@ -77,6 +77,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
           Create Loadout
         </template>
       </NButton>
+      <LanguageSwitcher />
     </NSpace>
   </NSpace>
 
