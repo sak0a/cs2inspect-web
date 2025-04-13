@@ -2,9 +2,9 @@
 
 </script>
 <template>
-  <div>
+  <h1>
     ja moin
-  </div>
+  </h1>
 </template>
 
 <style lang="sass">

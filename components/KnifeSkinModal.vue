@@ -21,6 +21,8 @@ const emit = defineEmits<{
 }>()
 
 const message = useMessage()
+const { t } = useI18n()
+
 const state = ref({
   searchQuery: '',
   currentPage: 1,
@@ -48,7 +50,6 @@ const defaultCustomization: KnifeCustomization = {
   nameTag: '',
   team: 0
 }
-
 const customization = ref<KnifeCustomization>({ ...defaultCustomization })
 
 const PAGE_SIZE = ref(props.pageSize || 10)
@@ -58,13 +59,11 @@ const filteredSkins = computed(() => {
       skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
-
 const paginatedSkins = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE.value
   const end = start + PAGE_SIZE.value
   return filteredSkins.value.slice(start, end)
 })
-
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
 const fetchSkinsForKnife = async () => {
@@ -146,7 +145,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     }
 
     if (data.defindex !== props.weapon.weapon_defindex) {
-      throw new Error('Inspect URL does not match selected weapon')
+      throw new Error(t('modals.knifeSkin.invalidInspectLink') as string)
     }
 
     customization.value = {
@@ -158,7 +157,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       pattern: data.paintseed,
       wear: data.paintwear,
       nameTag: data.customname || '',
-      team: props.weapon.databaseInfo?.team || 'none'
+      team: props.weapon.databaseInfo?.team || 0
     }
 
     const matchingSkin = state.value.skins.find(skin =>
@@ -180,10 +179,10 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       }
     }
 
-    message.success('Successfully imported knife configuration', { duration: 3000 })
+    message.success(t('modals.knifeSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
   } catch (error: any) {
-    message.error(error.message || 'Failed to import knife configuration', { duration: 3000 })
+    message.error(error.message || t('modals.knifeSkin.importFailed') as string, { duration: 3000 })
   } finally {
     state.value.isImporting = false
   }
@@ -195,10 +194,7 @@ const handleCreateInspectLink = async () => {
     state.value.isLoadingInspect = true
     const response = await fetch(`/api/weapons/inspect?url=create-link&steamId=${props.user.steamId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
+      headers: { 'Content-Type': 'application/json', 'credentials': 'include'},
       body: JSON.stringify({
         defindex: props.weapon.weapon_defindex,
         paintIndex: customization.value.paintIndex,
@@ -216,9 +212,10 @@ const handleCreateInspectLink = async () => {
     }
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
-    message.success('Inspect link copied to clipboard', { duration: 3000 })
+    message.success(t('modals.knifeSkin.generateInspectUrlSuccess') as string, { duration: 3000 })
   } catch (error) {
-    console.error('Error creating inspect link:', error)
+    message.error(t('modals.knifeSkin.generateInspectUrlFailed') as string, { duration: 3000 })
+    console.log('Error generating inspect link:', error)
   } finally {
     state.value.isLoadingInspect = false
   }
@@ -277,7 +274,7 @@ watch(() => props.weapon, () => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="weapon ? `Select Skin for ${weapon.defaultName}` : 'Select Skin'"
+      :title="weapon ? t('modals.knifeSkin.title', { weaponName: weapon?.defaultName }) as string : t('modals.knifeSkin.defaultTitle') as string"
       :bordered="false"
       size="huge"
       @update:show="handleClose"
@@ -296,7 +293,7 @@ watch(() => props.weapon, () => {
             <path d="M16 16l-2.5 -2.5"/>
           </svg>
         </template>
-        Import from Link
+        {{ t('modals.knifeSkin.buttons.importFromLink') }}
       </NButton>
       <NDivider vertical />
 
@@ -313,14 +310,14 @@ watch(() => props.weapon, () => {
             <path d="M16 16l-2.5 -2.5"/>
           </svg>
         </template>
-        Generate Link
+        {{ t('modals.knifeSkin.buttons.generateLink') }}
       </NButton>
       <NDivider vertical />
 
       <!-- Knife Search -->
       <NInput
           v-model:value="state.searchQuery"
-          placeholder="Search skins..."
+          :placeholder="t('modals.knifeSkin.inputs.searchPlaceholder') as string"
           class="pl-1 w-96"
       />
     </template>
@@ -345,7 +342,7 @@ watch(() => props.weapon, () => {
             <div class="grid grid-cols-2 gap-4 w-full">
               <div class="flex items-center space-x-4">
                 <NSwitch v-model:value="customization.statTrak" />
-                <span>StatTrak™</span>
+                <span>{{ t('modals.knifeSkin.labels.stattrak') }}</span>
                 <NInputNumber
                     :disabled="!customization.statTrak"
                     v-model:value="customization.statTrakCount"
@@ -356,7 +353,7 @@ watch(() => props.weapon, () => {
               </div>
               <NInput
                   v-model:value="customization.nameTag"
-                  placeholder="Name Tag"
+                  :placeholder="t('modals.knifeSkin.inputs.nameTagPlaceholder') as string"
                   class="pl-1"
               />
             </div>
@@ -365,10 +362,10 @@ watch(() => props.weapon, () => {
             <div class="grid grid-cols-2 gap-4 w-full">
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <h4 class="font-bold">Paint Index</h4>
+                  <h4 class="font-bold">{{ t('modals.knifeSkin.labels.paintIndex') }}</h4>
                   <div class="flex items-center space-x-2">
                     <NSwitch v-model:value="customization.paintIndexOverride" />
-                    <span class="text-sm">Override</span>
+                    <span class="text-sm">{{ t('modals.knifeSkin.labels.paintIndexOverride') }}</span>
                   </div>
                 </div>
                 <NInputNumber
@@ -380,7 +377,7 @@ watch(() => props.weapon, () => {
               </div>
 
               <div class="space-y-2">
-                <h4 class="font-bold">Paint Pattern (Seed)</h4>
+                <h4 class="font-bold">{{ t('modals.knifeSkin.labels.pattern') }}</h4>
                 <NInputNumber
                     v-model:value="customization.pattern"
                     :min="0"
@@ -392,7 +389,7 @@ watch(() => props.weapon, () => {
             <!-- Wear Slider -->
             <div class="w-full">
               <div class="flex items-start justify-between">
-                <h4 class="font-bold">Wear (Float)</h4>
+                <h4 class="font-bold">{{ t('modals.knifeSkin.labels.wear') }}</h4>
               </div>
               <WearSlider
                   v-model="customization.wear"
@@ -405,7 +402,7 @@ watch(() => props.weapon, () => {
             <div class="flex items-center justify-center w-full mt-0 gap-2">
               <!-- Save Knife -->
               <NButton type="success" secondary class="w-40" @click="handleSave">
-                Save Changes
+                {{ t('modals.knifeSkin.buttons.save') }}
               </NButton>
 
               <!-- Duplicate Knife -->
@@ -417,17 +414,17 @@ watch(() => props.weapon, () => {
                     class="w-full"
                     @click="state.showDuplicateConfirm = true"
                 >
-                  Duplicate to Other Team
+                  {{ t('modals.knifeSkin.buttons.duplicate') }}
                 </NButton>
               </div>
 
               <NSpace justify="center" align="center" class="w-full h-full">
                 <NSwitch v-model:value="customization.active" size="large" class="col-span-1">
                   <template #checked>
-                    Active
+                    {{ t('modals.knifeSkin.labels.itemActive') }}
                   </template>
                   <template #unchecked>
-                    Inactive
+                    {{ t('modals.knifeSkin.labels.itemInactive') }}
                   </template>
                 </NSwitch>
               </NSpace>
@@ -478,7 +475,7 @@ watch(() => props.weapon, () => {
 
       <!-- No Results -->
       <div v-if="!state.isLoadingSkins && filteredSkins.length === 0" class="flex justify-center items-center h-64">
-        <NEmpty description="No skins found" />
+        <NEmpty :description="t('modals.knifeSkin.noSearchResults') as string" />
       </div>
 
       <!-- Pagination -->
@@ -503,7 +500,7 @@ watch(() => props.weapon, () => {
         v-model:visible="state.showDuplicateConfirm"
         :loading="state.isDuplicating"
         :other-team-has-skin="otherTeamHasSkin"
-        item-type="Knife"
+        :item-type="t('modals.duplicateItem.type.knife') as string"
         @confirm="handleDuplicate"
     />
   </NModal>

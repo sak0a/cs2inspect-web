@@ -350,10 +350,10 @@ export interface DBLoadout {
     id: string;
     steamid: string;
     name: string;
-    selected_knife_t: number;
-    selected_knife_ct: number;
-    selected_glove_t: number;
-    selected_glove_ct: number;
+    selected_knife_t: number | null;
+    selected_knife_ct: number | null;
+    selected_glove_t: number | null;
+    selected_glove_ct: number | null;
     created_at: string;
     updated_at: string;
 }

@@ -17,7 +17,6 @@ export default defineEventHandler(async (event) => {
         if (response.data.includes('is_valid:true')) {
             // Extract Steam ID from the validation response
             const steamId = body['openid.claimed_id']?.match(/(\d+)$/)?.[1]
-            console.log('Steam ID extracted:', steamId) // Debug log
             if (steamId) {
                 const payload: { steamId: string; type: string } = {
                     steamId,
@@ -28,8 +27,6 @@ export default defineEventHandler(async (event) => {
                 const token = jwt.sign(payload, JWT_SECRET,{
                     expiresIn: String(process.env.JWT_EXPIRY || '7d')
                 } as SignOptions);
-
-                console.log('JWT Token created:', token) // Debug log
 
                 // Set JWT as an HTTP-only cookie
                 setCookie(event, 'auth_token', token, {

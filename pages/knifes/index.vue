@@ -11,69 +11,64 @@ const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
-const loadoutStore = useLoadoutStore()
-const message = useMessage()
-
 const showSkinModal = ref<boolean>(false)
 const selectedKnife = ref<IEnhancedItem | null>(null)
-const tKnifeType = ref('')
-const ctKnifeType = ref('')
-
+const tKnifeType = ref<number | null>(null)
+const ctKnifeType = ref<number | null>(null)
 const selectedTeamKnives = ref({
   terrorists: null as IEnhancedItem | null,
   counterTerrorists: null as IEnhancedItem | null
 })
 
+const loadoutStore = useLoadoutStore()
+const message = useMessage()
+const { t } = useI18n()
 const otherTeamHasSkin = useOtherTeamSkin(selectedKnife, skins)
 const groupedKnives = useGroupedWeapons(skins)
 
 const knifeOptions = computed(() => {
   return [
-    { label: 'Default Knife', value: '' },
+    { label: 'Default Knife', value: -1 },
     ...Object.entries(groupedKnives.value).map(([knifeName, knifeData]) => ({
       label: knifeName,
-      value: knifeData.weapons[0].weapon_defindex.toString()
+      value: knifeData.weapons[0].weapon_defindex
     }))
   ]
 })
 
-const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: string) => {
+const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: number) => {
   if (!loadoutStore.selectedLoadoutId || !loadoutStore.selectedLoadout || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return
   }
 
-  try {
-    const response = await fetch(
-        `/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=knife`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'credentials': 'include'
-          },
-          body: JSON.stringify({
-            team: team === 't' ? 1 : 2,
-            defindex: knifeDefindex ? parseInt(knifeDefindex) : null
-          })
-        }
-    )
-
-    const data = await response.json()
-    if (data.success) {
-      if (team === 't') {
-        loadoutStore.selectedLoadout.selected_knife_t = parseInt(knifeDefindex) || null
-      } else {
-        loadoutStore.selectedLoadout.selected_knife_ct = parseInt(knifeDefindex) || null
+  await fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=knife`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'credentials': 'include'
+        },
+        body: JSON.stringify({
+          team: team === 't' ? 1 : 2,
+          defindex: knifeDefindex === -1 ? null : knifeDefindex
+        })
       }
-      updateSelectedKnifes()
-      message.success(`Knife type updated for ${team === 't' ? 'Terrorists' : 'Counter-Terrorists'}`)
-    } else {
-      throw new Error(data.message)
+  ).then(async (response) => {
+    const data = await response.json()
+    if (!loadoutStore.selectedLoadout) {
+      return
     }
-  } catch (error) {
-    message.error('Failed to update knife type')
-  }
+    if (team === 't') {
+      loadoutStore.selectedLoadout.selected_knife_t = knifeDefindex === -1 ? null : knifeDefindex
+    } else {
+      loadoutStore.selectedLoadout.selected_knife_ct = knifeDefindex === -1 ? null : knifeDefindex
+    }
+    updateSelectedKnifes()
+  }).catch((error) => {
+    console.error(error)
+    message.error("Failed to update Knife Type")
+  })
 }
 
 const fetchLoadoutKnifes = async () => {
@@ -101,7 +96,6 @@ const findKnifeInGroups = (defindex: number | null) => {
       .find(knife => knife.weapon_defindex === defindex);
 };
 
-
 /**
  * Set the selected knives for each team at the top
  * Need to search through all weapon groups to find matching knives
@@ -112,8 +106,8 @@ const updateSelectedKnifes = () => {
   selectedTeamKnives.value.counterTerrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_ct)
 
   // Set initial knife types based on selected knives
-  tKnifeType.value = selectedTeamKnives.value.terrorists?.weapon_defindex.toString() || '';
-  ctKnifeType.value = selectedTeamKnives.value.counterTerrorists?.weapon_defindex.toString() || '';
+  tKnifeType.value = selectedTeamKnives.value.terrorists?.weapon_defindex || -1;
+  ctKnifeType.value = selectedTeamKnives.value.counterTerrorists?.weapon_defindex || -1;
 }
 
 const handleKnifeClick = (knife: IEnhancedItem) => {
@@ -237,7 +231,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
         <div class="flex gap-x-10 justify-start">
           <div class="flex items-center justify-end space-x-2 ">
             <span class="font-bold  whitespace-nowrap">
-              Counter Terrorists
+              {{ t('teams.counterTerrorists') }}
             </span>
             <NSelect
                 v-model:value="ctKnifeType"
@@ -249,7 +243,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           </div>
           <div class="flex items-center space-x-2">
             <span class=" font-bold">
-              Terrorists
+              {{ t('teams.terrorists') }}
             </span>
             <NSelect
                 v-model:value="tKnifeType"

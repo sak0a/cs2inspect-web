@@ -10,6 +10,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['weaponClick'])
+const { t } = useI18n()
 
 const handleDefaultWeaponClick = (team: number) => {
   const defaultWeapon = {
@@ -51,7 +52,7 @@ const handleSkinClick = (weapon: IEnhancedItem) => {
   <!-- For weapons that both teams can use (like AWP) -->
   <div v-if="weaponData.availableTeams === 'both'" >
     <NTabs type="line" animated size="small">
-      <NTabPane name="ct" tab="Counter-Terrorists">
+      <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
         <!-- Default weapon if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 2)"
@@ -102,7 +103,7 @@ const handleSkinClick = (weapon: IEnhancedItem) => {
         </NCard>
       </NTabPane>
 
-      <NTabPane name="t" tab="Terrorists">
+      <NTabPane name="t" :tab="t('teams.terrorists') as string">
         <!-- Default weapon if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 1)"
@@ -160,7 +161,7 @@ const handleSkinClick = (weapon: IEnhancedItem) => {
     <NTabs type="line" animated size="small">
       <NTabPane
           :name="weaponData.availableTeams === 'terrorists' ? 't' : 'ct'"
-          :tab="weaponData.availableTeams === 'terrorists' ? 'Terrorists' : 'Counter-Terrorists'"
+          :tab="weaponData.availableTeams === 'terrorists' ? t('teams.terrorists') as string : t('teams.counterTerrorists') as string"
       >
         <!-- Default weapon if no skin selected -->
         <NCard

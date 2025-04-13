@@ -24,6 +24,7 @@ const props = defineProps({
   }
 })
 
+const { t } = useI18n()
 const loadoutStore = useLoadoutStore()
 
 // Expose slot for custom content
@@ -35,6 +36,8 @@ const loadoutStore = useLoadoutStore()
       <!-- Header with Loadout Selector -->
       <div class="flex justify-between mb-2">
         <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
+        <LanguageSwitcher
+        />
         <LoadoutSelector v-if="user" />
       </div>
 
@@ -53,9 +56,9 @@ const loadoutStore = useLoadoutStore()
 
       <!-- No Steam Login State -->
       <div v-else-if="!user" class="text-center py-12">
-        <p class="text-gray-400 mb-4">Please login with Steam to view and select items</p>
+        <p class="text-gray-400 mb-4">{{ t('auth.loginRequired') }}</p>
         <NButton type="primary" @click="steamAuth.login()">
-          Login with Steam
+          {{ t('auth.login') }}
         </NButton>
       </div>
 
@@ -63,7 +66,7 @@ const loadoutStore = useLoadoutStore()
       <div v-else-if="!loadoutStore.selectedLoadoutId" class="text-center py-12">
         <p class="text-gray-400 mb-4">Please select or create a loadout to view {{ title.toLowerCase() }}</p>
         <NButton type="primary" @click="loadoutStore.createLoadout(user.steamId, 'Default Loadout')">
-          Create Default Loadout
+          {{ t('loadout.createDefault') }}
         </NButton>
       </div>
 

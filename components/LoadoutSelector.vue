@@ -6,16 +6,26 @@ import { steamAuth } from '~/services/steamAuth'
 import { Trash as DeleteIcon, Edit as RenameIcon, Plus as NewIcon } from '@vicons/tabler'
 
 const loadoutStore = useLoadoutStore()
+const { t } = useI18n()
 const message = useMessage()
 
-const showModal = ref({ create: false, rename: false, delete: false })
-const formInputs = ref({ newName: '', renameName: '' })
+const showModal = ref({
+  create: false,
+  rename: false,
+  delete: false
+})
+
+const formInputs = ref({
+  newName: '',
+  renameName: ''
+})
 
 
 const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
   const user = steamAuth.getSavedUser()
-  if (!user?.steamId) {
-    message.error('Please login first')
+
+  if (!user) {
+    message.error(t('auth.rejectAction') as string, { duration: 2 })
     return
   }
 
@@ -23,24 +33,33 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
     switch (action) {
       case 'create':
         await loadoutStore.createLoadout(user.steamId, formInputs.value.newName)
+            .catch((error) => {
+              throw error
+            })
         break
       case 'rename':
-        await loadoutStore.updateLoadout(loadoutStore.selectedLoadoutId || "0", user.steamId, formInputs.value.renameName)
+        await loadoutStore.updateLoadout(loadoutStore.selectedLoadoutId, user.steamId, formInputs.value.renameName)
+            .catch((error) => {
+              throw error
+            })
         break
       case 'delete':
-        await loadoutStore.deleteLoadout(user.steamId, loadoutStore.selectedLoadoutId || "0")
+        await loadoutStore.deleteLoadout(user.steamId, loadoutStore.selectedLoadoutId)
+            .catch((error) => {
+              throw error
+            })
         break
     }
-    if (!loadoutStore.error) {
-      showModal.value[action] = false
-      message.success(`Loadout ${action}d successfully`)
-      formInputs.value.newName = ''
-      formInputs.value.renameName = ''
-    }
+    formInputs.value.newName = ''
+    formInputs.value.renameName = ''
+    showModal.value[action] = false
+    message.success(t('modals.loadout.successMessage', { action: action }) as string, { duration: 2 })
   } catch (error: any) {
+    console.log(error)
     message.error(error.message, { duration: 3, closable: true })
   }
 }
+
 </script>
 
 <template>
@@ -54,8 +73,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
             label: loadout.name,
             value: loadout.id
           }))"
-
-          placeholder="Select a loadout"
+          :placeholder="t('loadout.select') as string"
           :loading="loadoutStore.isLoading"
           class="min-w-[180px]"
       />
@@ -74,7 +92,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
           <NIcon><NewIcon /></NIcon>
         </template>
         <template v-if="!loadoutStore.hasLoadouts">
-          Create Loadout
+          {{ t('loadout.create') }}
         </template>
       </NButton>
     </NSpace>
@@ -84,9 +102,9 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
   <NModal
       v-model:show="showModal.create"
       preset="dialog"
-      title="Create New Loadout"
-      positive-text="Create"
-      negative-text="Cancel"
+      :title="t('modals.loadout.create.title') as string"
+      :positive-text="t('modals.loadout.create.confirm') as string"
+      :negative-text="t('modals.loadout.create.cancel') as string"
       :positive-button-props="{
         type: 'success',
         secondary: true,
@@ -97,7 +115,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
   >
     <NInput
         v-model:value="formInputs.newName"
-        placeholder="Enter loadout name"
+        :placeholder="t('modals.loadout.create.formPlaceholder') as string"
     />
   </NModal>
 
@@ -107,30 +125,21 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
       :bordered="false"
       preset="card"
       style="width: 500px"
-      title="Rename Loadout"
+      :title="t('modals.loadout.rename.title') as string"
       @afterLeave = "formInputs.renameName = ''"
   >
     <NInput
         :minlength="1"
         v-model:value="formInputs.renameName"
-        placeholder="Enter loadout name"
+        :placeholder="t('modals.loadout.rename.formPlaceholder') as string"
     />
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton
-            @click="() => { showModal.rename = false; formInputs.renameName = '' }"
-            type="error"
-            secondary
-        >
-          Cancel
+        <NButton @click="() => { showModal.rename = false; formInputs.renameName = '' }" type="error" secondary>
+          {{ t('modals.loadout.rename.cancel') }}
         </NButton>
-        <NButton
-            type="success"
-            secondary
-            :disabled="formInputs.renameName === '' || formInputs.renameName.length > 20"
-            @click="handleLoadoutAction('rename')"
-        >
-          Confirm Rename
+        <NButton type="success" secondary :disabled="formInputs.renameName === '' || formInputs.renameName.length > 20" @click="handleLoadoutAction('rename')">
+          {{ t('modals.loadout.rename.confirm') }}
         </NButton>
       </div>
     </template>
@@ -140,9 +149,9 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
   <NModal
       v-model:show="showModal.delete"
       preset="dialog"
-      title="Delete Loadout"
-      positive-text="Delete"
-      negative-text="Cancel"
+      :title="t('modals.loadout.delete.title') as string"
+      :positive-text="t('modals.loadout.delete.confirm') as string"
+      :negative-text="t('modals.loadout.delete.cancel') as string"
       :positive-button-props="{
         type: 'error',
         secondary: true
@@ -150,8 +159,8 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
       @positive-click="handleLoadoutAction('delete')"
       @negative-click="() => showModal.delete = false"
   >
-    <p>Are you sure you want to delete this loadout?</p>
-    <p class="font-bold">All Skins from this Loadout will be deleted and can't be restored</p>
+    <p>{{ t('modals.loadout.delete.question') }}</p>
+    <p class="font-bold">{{ t('modals.loadout.delete.warning') }}</p>
   </NModal>
 </template>
 <style lang="sass" scoped>
