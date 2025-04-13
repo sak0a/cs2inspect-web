@@ -6,10 +6,6 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
-  server: {
-    port: process.env.PORT || 3000,  // default: 3000
-    host: process.env.HOST || '0.0.0.0',  // default: localhost
-  },
   devtools: {
     enabled: true,
   },
@@ -31,6 +27,9 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    ssr: {
+      noExternal: ['naive-ui']
+    },
     css: {
       preprocessorOptions: {
         sass: {
