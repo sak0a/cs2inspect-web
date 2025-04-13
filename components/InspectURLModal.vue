@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { NModal, NInput, NButton, NSpace } from 'naive-ui'
 
 const props = defineProps<{
@@ -12,12 +11,14 @@ const emit = defineEmits<{
   (e: 'submit', url: string): void
 }>()
 
+const { t } = useI18n()
+
 const inspectUrl = ref('')
 const error = ref('')
 
-const handleSubmit = async () => {
+const handleSubmit = async () =>  {
   if (!inspectUrl.value.trim()) {
-    error.value = 'Please enter an inspect URL'
+    error.value = t('modals.inspectUrl.noInspectUrl') as string
     return
   }
 
@@ -26,7 +27,7 @@ const handleSubmit = async () => {
     emit('submit', inspectUrl.value)
     inspectUrl.value = ''
   } catch (e: any) {
-    error.value = e.message || 'Failed to decode inspect URL'
+    error.value = e.message || t('modals.inspectUrl.defaultError') as string
   }
 }
 
@@ -40,9 +41,9 @@ const handleClose = () => {
 <template>
   <NModal
       :show="visible"
-      style="width: 600px"
+      style="width: 700px"
       preset="card"
-      title="Import from Inspect URL"
+      :title="t('modals.inspectUrl.title') as string"
       :bordered="false"
       :mask-closable="!loading"
       :closable="!loading"
@@ -52,10 +53,10 @@ const handleClose = () => {
       <div class="grid grid-cols-2 gap-4">
         <NTooltip >
           <template #trigger>
-            <NButton type="info" size="small" secondary>Masked Links (HEX Data)</NButton>
+            <NButton type="info" size="small" secondary>{{ t('modals.inspectUrl.maskedLinks') }}</NButton>
           </template>
-          <h3 class="font-bold text-center">These Links are mostly generated from Websites or other Apps</h3>
-          <div>{data} Example: 001809209209280138C0D9C0DF034001FCADACCE</div>
+          <h3 class="font-bold text-center">{{ t('modals.inspectUrl.maskedLinksDescription') }}</h3>
+          <div>{data} {{ t('modals.inspectUrl.maskedLinksExample') }} 001809209209280138C0D9C0DF034001FCADACCE</div>
           <div>
             steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}
           </div>
@@ -71,10 +72,10 @@ const handleClose = () => {
         </NTooltip>
         <NTooltip >
           <template #trigger>
-            <NButton type="info" size="small" secondary>Unmasked Links (Market / Inventory)</NButton>
+            <NButton type="info" size="small" secondary>{{ t('modals.inspectUrl.unmaskedLinks') }}</NButton>
           </template>
-          <h3 class="font-bold text-center">These Links are used in the Steam Market and Player Inventories</h3>
-          <div>{data} Examples: M123456789A123456D123456 - S123456789A123456D123456</div>
+          <h3 class="font-bold text-center">{{ t('modals.inspectUrl.unmaskedLinksDescription') }}</h3>
+          <div>{data} {{ t('modals.inspectUrl.unmaskedLinksExample') }} M123456789A123456D123456 - S123456789A123456D123456</div>
           <div>
             steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}
           </div>
@@ -94,7 +95,7 @@ const handleClose = () => {
             :disabled="loading"
             v-model:value="inspectUrl"
             type="text"
-            placeholder="Paste inspect URL here..."
+            :placeholder="t('modals.inspectUrl.inputPlaceholder') as string"
             class="w-full"
         />
         <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
@@ -102,10 +103,10 @@ const handleClose = () => {
 
       <div class="flex justify-end gap-4">
         <NButton @click="handleClose" secondary type="error" :disabled="loading">
-          Cancel
+          {{ t('modals.inspectUrl.cancel') }}
         </NButton>
         <NButton :disabled="inspectUrl.length <= 15" secondary type="success" @click="handleSubmit" :loading="loading">
-          Import
+          {{ t('modals.inspectUrl.confirm') }}
         </NButton>
       </div>
     </NSpace>

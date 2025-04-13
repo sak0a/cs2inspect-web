@@ -1,11 +1,35 @@
 <script setup lang="ts">
-import { NIcon } from 'naive-ui'
+import { NIcon, useMessage } from 'naive-ui'
 import { LogOut as LogOutIcon, LogoSteam as SteamLogoIcon } from '@vicons/ionicons5'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
 const user = ref<SteamUser | null>(null)
+
+const message = useMessage()
+const { t } = useI18n()
+
+const translatedWeaponMenuOptions = computed(() =>
+    weaponMenuOptions.map(item => ({
+      ...item,
+      label: t(item.labelKey)
+    }))
+)
+
+const translatedEquipmentMenuOptions = computed(() =>
+    equipmentMenuOptions.map(item => ({
+      ...item,
+      label: t(item.labelKey)
+    }))
+)
+
+const translatedExtrasMenuOptions = computed(() =>
+    extrasMenuOptions.map(item => ({
+      ...item,
+      label: t(item.labelKey)
+    }))
+)
 
 const validateAuth = async () => {
   if (!user.value) return false
@@ -18,6 +42,7 @@ const validateAuth = async () => {
   }).then(async (response) => {
     if (!response.ok) {
       if (response.status === 401) {
+        message.error(t('auth.automaticallyLoggedOut') as string)
         steamAuth.logout();
         user.value = null;
       }
@@ -26,7 +51,7 @@ const validateAuth = async () => {
     const data = await response.json();
     return data.authenticated;
   }).catch((error) => {
-    console.error('Error validating auth:', error)
+    console.log(error)
     return false
   })
 }
@@ -94,16 +119,7 @@ onMounted(async () => {
         <div class="grid grid-rows-[auto_1fr_auto] h-full">
           <!-- Steam Account Menu Section -->
           <div class="p-4 flex flex-col items-center">
-            <div v-if="!user">
-              <button @click="handleLogin" class="login-button">
-                <img
-                    src="https://steamcommunity-a.akamaihd.net/public/images/signinthroughsteam/sits_02.png"
-                    alt="Sign in through Steam"
-                    class="w-full"
-                >
-              </button>
-            </div>
-            <div v-else class="flex items-center flex-col">
+            <div class="flex items-center flex-col">
               <NAvatar
                   round
                   size="large"
@@ -121,12 +137,12 @@ onMounted(async () => {
             <!-- Weapon Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
-                <span class="text-xs font-bold text-gray-500">WEAPONS</span>
+                <span class="text-xs font-bold text-gray-500">{{ t('navigation.weapons') }}</span>
               </div>
               <NMenu
                   :icon-size="45"
                   :indent="14"
-                  :options="weaponMenuOptions"
+                  :options="translatedWeaponMenuOptions"
                   :value="selectedKey"
                   @update:value="handleSelect"
                   class="text-[15px]"
@@ -136,26 +152,27 @@ onMounted(async () => {
             <!-- Melee Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
-                <span class="text-xs font-bold text-gray-500">MELEE</span>
+                <span class="text-xs font-bold text-gray-500">{{ t('navigation.melee') }}</span>
               </div>
               <NMenu
                   :icon-size="45"
                   :indent="14"
-                  :options="equipmentMenuOptions"
+                  :options="translatedEquipmentMenuOptions"
                   :value="selectedKey"
                   @update:value="handleSelect"
                   class="text-[15px]"
               />
             </div>
 
+            <!-- Extras Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
-                <span class="text-xs font-bold text-gray-500">EXTRAS</span>
+                <span class="text-xs font-bold text-gray-500">{{ t('navigation.extras') }}</span>
               </div>
               <NMenu
                   :icon-size="30"
                   :indent="14"
-                  :options="extrasMenuOptions"
+                  :options="translatedExtrasMenuOptions"
                   :value="selectedKey"
                   @update:value="handleSelect"
                   class="text-[15px]"
@@ -166,42 +183,39 @@ onMounted(async () => {
           <!-- Bottom: Actions Section -->
           <div class="p-4">
             <div class="mb-2">
-              <span class="text-xs font-bold text-gray-500">ACTIONS</span>
+              <span class="text-xs font-bold text-gray-500">{{ t('navigation.actions') }}</span>
             </div>
             <div class="">
-              <NTooltip placement="right" trigger="hover">
-                <template #trigger>
-                  <NButton
-                      secondary
-                      type="error"
-                      class="w-full"
-                      @click="showLogoutModal = true"
-                  >
-                    <template #icon>
-                      <NIcon><LogOutIcon/></NIcon>
-                    </template>
-                    Logout
-                  </NButton>
+              <NButton
+                  secondary
+                  type="error"
+                  class="w-full"
+                  @click="showLogoutModal = true"
+              >
+                <template #icon>
+                  <NIcon><LogOutIcon/></NIcon>
                 </template>
-                Logout
-              </NTooltip>
+                {{ t('auth.logoutButton') }}
+              </NButton>
               <NModal :show="showLogoutModal">
                 <NCard
-                    title="Confirm Logout"
+                    :title="t('modals.logout.title') as string"
                     :bordered="false"
                     size="small"
                     aria-modal="true"
-                    style="width: 300px"
+                    :closable="false"
+                    :mask-closable="false"
+                    style="width: 400px"
                 >
                   <div class="mb-3">
-                    <p>Are you sure you want to logout?</p>
+                    <p>{{ t('modals.logout.question') }}</p>
                   </div>
                   <div class="flex justify-end gap-2">
-                    <NButton @click="showLogoutModal = false">
-                      Cancel
+                    <NButton @click="showLogoutModal = false" secondary type="default">
+                      {{ t('modals.logout.cancel') }}
                     </NButton>
-                    <NButton type="error" @click="handleLogout">
-                      Logout
+                    <NButton type="error" @click="handleLogout" secondary>
+                      {{ t('modals.logout.confirm') }}
                     </NButton>
                   </div>
                 </NCard>
@@ -213,12 +227,12 @@ onMounted(async () => {
       <NLayoutContent class="h-screen overflow-auto">
 
         <div v-if="!user" class="flex items-center justify-center flex-col text-xl h-full">
-          To access this website, please login with your Steam Account.
+          {{ t('auth.loginRequired') }}
           <NButton size="large" @click="handleLogin" class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md">
             <template #icon >
               <SteamLogoIcon/>
             </template>
-            Sign in
+            {{ t('auth.loginButton') }}
           </NButton>
         </div>
         <div v-else class="h-full bg-[#181818]">

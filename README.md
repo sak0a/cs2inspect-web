@@ -59,7 +59,7 @@ Client Update: open We
         "name": "High Grade",
         "id": "rarity_rare",
         "color": "#4b69ff"
-      },
+      }
     }
   }
   ```
@@ -100,8 +100,116 @@ Client Update: open We
 
 
 
-## API Endpoints
+# API Endpoints
+#### All Endpoints require Authentication
 
+## GET /api/loadouts?steamId=[id]
+Fetches the loadouts for a client
+### Successful Response
+```json
+{
+  "loadouts": [
+    {
+      "id": 1,
+      "steamid": "1234567890",
+      "name": "Example Name",
+      "selected_knife_t": 500,
+      "selected_knife_ct": 505,
+      "selected_glove_t": null,
+      "selected_glove_ct": null,
+      "created_at": "2025-01-30T15:48:11.000Z",
+      "updated_at": "2025-03-15T01:20:21.000Z"
+    }
+  ],
+  "message": "Loadouts fetched successfully!"
+}
+```
+---
+## POST /api/loadouts?steamId=[id]
+Creates a new loadout and retrieves it
+### Required Body
+```json
+{
+  "name": "Example Name"
+}
+```
+### Successful Response
+```json
+{
+  "loadout": {
+    "id": 1,
+    "steamid": "1234567890",
+    "name": "Example Name",
+    "selected_knife_t": 500,
+    "selected_knife_ct": 505,
+    "selected_glove_t": null,
+    "selected_glove_ct": null,
+    "created_at": "2025-01-30T15:48:11.000Z",
+    "updated_at": "2025-03-15T01:20:21.000Z"
+  },
+  "message": "Loadout created successfully"
+}
+```
+---
+## PUT /api/loadouts?steamId=[id]&id=[id]
+Updates a loadout and retrieves it
+INFO: Currently it's only possible updating the loadout name
+
+### Required Body
+```json
+{
+  "name": "New Name"
+}
+```
+### Successful Response
+```json
+{
+  "loadout": {
+    "id": 1,
+    "steamid": "1234567890",
+    "name": "New Name",
+    "selected_knife_t": 500,
+    "selected_knife_ct": 505,
+    "selected_glove_t": null,
+    "selected_glove_ct": null,
+    "created_at": "2025-01-30T15:48:11.000Z",
+    "updated_at": "2025-03-15T01:20:21.000Z"
+  },
+  "message": "Loadout updated successfully"
+}
+```
+---
+## DELETE /api/loadouts?steamId=[id]&id=[id]
+Deletes a loadout
+### Successful Response
+```json
+{
+  "message": "Loadout deleted successfully"
+}
+```
+---
+## POST /api/loadouts/select?steamId=[id]&loadoutId=[id]&type=[type]
+Updates the selected knife/glove for a loadout
+### Required Body
+team: 1 = Terrorists, 2 = Counter Terrorists
+defindex: {defindex}, null
+```json
+{
+  "team": 1,
+  "defindex": 503
+}
+```
+### Successful Response
+```json
+{
+  "message": "Updated {type} selection for loadout {loadoutId}"
+}
+```
+
+---
+---
+---
+---
 ### GET /api/weapons/[type]?loadoutId=[id]&steamId=[id]
 Fetches the weapons for a specific loadout and player.
 ## Request Parameters (exlusive Authorization Header)

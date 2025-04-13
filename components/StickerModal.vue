@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue'
-import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
+import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
 import { APISticker } from "~/server/utils/interfaces";
 
 const props = defineProps<{
@@ -13,6 +13,9 @@ const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (e: 'select', sticker: any): void
 }>()
+
+const { t } = useI18n()
+const message = useMessage()
 
 const state = ref({
   searchQuery: '',
@@ -36,13 +39,11 @@ const filteredItems = computed(() => {
       item.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
-
 const paginatedItems = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE
   const end = start + PAGE_SIZE
   return filteredItems.value.slice(start, end)
 })
-
 const totalPages = computed(() => Math.ceil(filteredItems.value.length / PAGE_SIZE))
 
 const fetchItems = async () => {
@@ -52,6 +53,7 @@ const fetchItems = async () => {
     const data = await response.json()
     state.value.items = data.stickers
   } catch (error) {
+    message.error(t('modals.sticker.errorFetching') as string)
     console.error('Error fetching stickers:', error)
   } finally {
     state.value.isLoading = false
@@ -92,8 +94,6 @@ const handleSave = () => {
       rarity: state.value.selectedItem.rarity,
     }
   };
-  console.log("StickerModal - handleSave - emitData: ");
-  console.log(emitData);
   emit('select', emitData)
   handleClose()
 }
@@ -161,7 +161,7 @@ watch(() => props.visible, (newValue) => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="currentSticker ? 'Edit Sticker' : 'Add Sticker'"
+      :title="currentSticker ? t('modals.sticker.titleEdit') as string : t('modals.sticker.titleAdd') as string"
       :bordered="false"
       size="huge"
       @update:show="handleClose"
@@ -169,7 +169,7 @@ watch(() => props.visible, (newValue) => {
     <template #header-extra>
       <NInput
           v-model:value="state.searchQuery"
-          placeholder="Search stickers..."
+          :placeholder="t('modals.sticker.searchPlaceholder') as string"
           class="w-64"
       />
     </template>
@@ -193,7 +193,7 @@ watch(() => props.visible, (newValue) => {
             <!-- Position Controls -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <h4 class="font-medium mb-2">X Position</h4>
+                <h4 class="font-medium mb-2">X {{ t('modals.sticker.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.x"
                     :min="-100"
@@ -203,7 +203,7 @@ watch(() => props.visible, (newValue) => {
                 />
               </div>
               <div>
-                <h4 class="font-medium mb-2">Y Position</h4>
+                <h4 class="font-medium mb-2">Y {{ t('modals.sticker.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.y"
                     :min="-100"
@@ -217,7 +217,7 @@ watch(() => props.visible, (newValue) => {
             <!-- Scale and Rotation -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <h4 class="font-medium mb-2">Scale</h4>
+                <h4 class="font-medium mb-2">{{ t('modals.sticker.labels.scale') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.scale"
                     :min="0.01"
@@ -227,7 +227,7 @@ watch(() => props.visible, (newValue) => {
                 />
               </div>
               <div>
-                <h4 class="font-medium mb-2">Rotation</h4>
+                <h4 class="font-medium mb-2">{{ t('modals.sticker.labels.rotation') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.rotation"
                     :min="-360"
@@ -241,7 +241,7 @@ watch(() => props.visible, (newValue) => {
             <div class="grid grid-cols-2 gap-4 justify-start w-full mt-0">
             <!-- Wear -->
               <div>
-                <h4 class="font-medium mb-2">Wear</h4>
+                <h4 class="font-medium mb-2">{{ t('modals.sticker.labels.wear') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.wear"
                     :min="0"
@@ -260,7 +260,7 @@ watch(() => props.visible, (newValue) => {
                     secondary
                     @click="handleSave"
                 >
-                  {{ currentSticker ? 'Update' : 'Apply' }} Sticker
+                  {{ currentSticker ? t('modals.sticker.buttons.update') : t('modals.sticker.buttons.create') }}
                 </NButton>
                 <NButton v-if="currentSticker"
                     type="error"
@@ -268,11 +268,10 @@ watch(() => props.visible, (newValue) => {
                     secondary
                     @click="handleRemove"
                 >
-                  Delete Sticker
+                  {{ t('modals.sticker.buttons.delete') }}
                 </NButton>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -320,7 +319,7 @@ watch(() => props.visible, (newValue) => {
           v-if="!state.isLoading && filteredItems.length === 0"
           class="flex justify-center items-center h-64 text-gray-400"
       >
-        No stickers found
+        {{ t('modals.sticker.noSearchResults') }}
       </div>
 
       <!-- Pagination -->

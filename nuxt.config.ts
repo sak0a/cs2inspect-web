@@ -6,6 +6,10 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
+  devServer: {
+    port: Number(process.env.PORT),  // default: 3000
+    host: process.env.HOST,  // default: localhost
+  },
   devtools: {
     enabled: true,
   },
@@ -58,6 +62,19 @@ export default defineNuxtConfig({
     'nuxtjs-naive-ui',
     '@nuxt/eslint',
     '@pinia/nuxt',
+    'nuxt-i18n-micro',
   ],
+  i18n: {
+    locales: [
+      { code: 'en', iso: 'en-US', displayName: 'English' },
+      { code: 'de', iso: 'de-DE', displayName: 'Deutsch' },
+      { code: 'ru', iso: 'ru-RU', displayName: 'Русский' },
+    ],
+    defaultLocale: 'en',
+    translationDir: 'locales',
+    meta: true,
+    localeCookie: 'i18n_locale',
+    strategy: 'no_prefix'
+  },
   compatibilityDate: '2024-10-12'
 })

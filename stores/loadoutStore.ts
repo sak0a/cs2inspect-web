@@ -16,7 +16,7 @@ export const useLoadoutStore = defineStore('loadout', {
         currentSkins: [],
         selectedLoadoutId: null,
         isLoading: false,
-        error: null
+        error: null,
     }),
 
     getters: {
@@ -41,10 +41,18 @@ export const useLoadoutStore = defineStore('loadout', {
                     'Content-Type': 'application/json',
                 }
             }).then(async (response) => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        navigateTo('/')
+                        return
+                    }
+                    throw new Error('Failed to fetch loadout weapon skin; Authentication / Response failed')
+                }
                 const data = await response.json();
                 this.currentSkins = data.skins;
-            }).catch(() => {
-                this.error = 'Failed to fetch loadouts';
+            }).catch((error) => {
+                console.error(error)
+                throw error
             }).finally(() => this.isLoading = false);
         },
 
@@ -59,8 +67,8 @@ export const useLoadoutStore = defineStore('loadout', {
             }).then(async (response) => {
                 const data = await response.json();
                 this.currentSkins = data.knifes;
-            }).catch(() => {
-                this.error = 'Failed to fetch loadouts';
+            }).catch((error) => {
+                throw error
             }).finally(() => this.isLoading = false);
         },
 
@@ -71,6 +79,7 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadouts(steamId: string) {
             this.isLoading = true;
             this.error = null;
+
             try {
                 const response = await fetch('/api/loadouts?steamId=' + steamId, {
                     method: 'GET',
@@ -78,8 +87,7 @@ export const useLoadoutStore = defineStore('loadout', {
                     headers: {
                         'Content-Type': 'application/json',
                     }
-                });
-
+                })
                 if (!response.ok) {
                     this.error = 'Failed to fetch loadouts API response';
                 }
@@ -109,40 +117,33 @@ export const useLoadoutStore = defineStore('loadout', {
          */
         async createLoadout(steamId: string, name: string) {
             this.isLoading = true;
-            this.error = null;
-            try {
-                const response = await fetch(`/api/loadouts?steamId=${steamId}`, {
-                    method: 'POST',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name }),
-                });
-
+            await fetch(`/api/loadouts?steamId=${steamId}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name }),
+            }).then(async (response) => {
                 if (!response.ok) {
                     if (response.status === 401) {
-                        navigateTo('/');
-                        return;
+                        navigateTo('/')
+                        return
                     }
-                    throw new Error('Failed to create loadout');
+                    throw new Error('Failed to create loadout; Authentication / Response failed')
                 }
-
                 const data = await response.json();
 
                 if (!data.loadout) {
-                    throw new Error('Failed to create loadout');
+                    throw new Error('Failed to create loadout, data not present');
                 }
 
                 this.loadouts.push(data.loadout);
                 this.selectedLoadoutId = data.loadout.id;
-            } catch (error) {
-                this.error = 'Failed to create loadout';
-                console.error('Error creating loadout:', error);
-                throw error;
-            } finally {
-                this.isLoading = false;
-            }
+            }).catch((error) => {
+                console.error(error);
+                throw error
+            }).finally(() => this.isLoading = false);
         },
 
         /**
@@ -153,41 +154,39 @@ export const useLoadoutStore = defineStore('loadout', {
          */
         async updateLoadout(id: string, steamId: string, newName: string) {
             this.isLoading = true;
-            this.error = null;
 
-            try {
-                if (newName.length === 0 || newName.length > 20) {
-                    this.error = 'Loadout name must be between 1 and 20 characters';
-                    throw new Error('Invalid loadout name');
-                }
+            if (newName.length <= 0) {
+                throw new Error("Failed to update loadout; newName too short")
+            }
 
-                const response = await fetch(`/api/loadouts?steamId=${steamId}&id=${id}`, {
-                    method: 'PUT',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ name: newName })
-                });
+            if (newName.length > 20) {
+                throw new Error("Failed to update loadout; newName too long")
+            }
 
+            await fetch(`/api/loadouts?steamId=${steamId}&id=${id}`, {
+                method: 'PUT',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ name: newName })
+            }).then(async (response) => {
                 if (!response.ok) {
                     if (response.status === 401) {
-                        window.location.href = '/login';
-                        return;
+                        window.location.href = '/'
+                        return
                     }
-                    throw new Error('Failed to update loadout');
+                    throw new Error('Failed to update loadout; Authentication / Response failed');
                 }
-
                 const data = await response.json();
                 const index = this.loadouts.findIndex(l => l.id === id);
                 if (index !== -1) {
-                    this.loadouts[index] = data.loadout;
+                    this.loadouts[index] = data.loadout
                 }
-            } catch (error) {
-                throw error;
-            } finally {
-                this.isLoading = false;
-            }
+            }).catch((error) => {
+                console.error(error)
+                throw error
+            }).finally(() => this.isLoading = false);
         },
 
         /**
@@ -197,32 +196,27 @@ export const useLoadoutStore = defineStore('loadout', {
          */
         async deleteLoadout(steamId: string, id: string) {
             this.isLoading = true;
-            this.error = null;
-            try {
-                const response = await fetch(`/api/loadouts?steamId=${steamId}&id=${id}`, {
-                    method: 'DELETE',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-
+            await fetch(`/api/loadouts?steamId=${steamId}&id=${id}`, {
+                method: 'DELETE',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            }).then(async (response) => {
                 if (!response.ok) {
                     if (response.status === 401) {
-                        window.location.href = '/login';
-                        return;
+                        window.location.href = '/'
+                        return
                     }
-                    throw new Error('Failed to delete loadout');
+                    throw new Error('Failed to delete loadout; Authentication / Response failed');
                 }
 
                 this.loadouts = this.loadouts.filter(l => l.id !== id);
-                this.selectedLoadoutId = this.loadouts.length > 0 ? this.loadouts[0].id : null;
-            } catch (error) {
-                this.error = 'Failed to delete loadout';
-                console.error('Error deleting loadout:', error);
-            } finally {
-                this.isLoading = false;
-            }
+                this.selectedLoadoutId = this.loadouts.length > 0 ? this.loadouts[0].id : '0';
+            }).catch(error => {
+                console.error(error);
+                throw error
+            }).finally(() => this.isLoading = false);
         },
 
         selectLoadout(id: string) {

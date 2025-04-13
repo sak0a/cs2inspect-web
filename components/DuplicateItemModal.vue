@@ -4,7 +4,7 @@ import { NModal, NCard, NButton } from 'naive-ui'
 const props = defineProps<{
   visible: boolean
   loading: boolean
-  itemType: string // e.g., 'weapon', 'knife', 'glove'
+  itemType: string
   otherTeamHasSkin: boolean
 }>()
 
@@ -12,6 +12,8 @@ const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (e: 'confirm'): void
 }>()
+
+const { t } = useI18n()
 
 const handleClose = () => {
   emit('update:visible', false)
@@ -22,10 +24,7 @@ const handleConfirm = () => {
 </script>
 
 <template>
-  <NModal :show="visible"
-      :closable="!loading"
-      :mask-closable="!loading"
-  >
+  <NModal :show="visible" :closable="!loading" :mask-closable="!loading">
     <NCard
         style="width: 600px"
         :bordered="true"
@@ -34,15 +33,14 @@ const handleConfirm = () => {
         aria-modal="true"
     >
       <template #header>
-        <div class="text-lg font-semibold">Duplicate {{ itemType }}</div>
+        <div class="text-lg font-semibold">{{ t('modals.duplicateItem.header', { itemType: itemType }) }}</div>
       </template>
 
       <div class="py-2">
         <p v-if="otherTeamHasSkin" class="text-warning mb-4">
-          Warning: The other team already has a skin configured for this {{ itemType.toLowerCase() }}.
-          This action will overwrite it.
+          {{ t('modals.duplicateItem.warning', { itemType: itemType.toLowerCase() }) }}
         </p>
-        <p>Are you sure you want to duplicate this {{ itemType.toLowerCase() }} configuration to the other team?</p>
+        <p>{{ t('modals.duplicateItem.question', { itemType: itemType.toLowerCase() }) }}</p>
       </div>
 
       <template #footer>
@@ -51,17 +49,15 @@ const handleConfirm = () => {
               @click="handleClose"
               :disabled="loading"
               type="error"
-              secondary
-          >
-            Cancel
+              secondary>
+            {{ t('modals.duplicateItem.cancel') }}
           </NButton>
           <NButton
-              type="success"
-              secondary
-              :loading="loading"
               @click="handleConfirm"
-          >
-            Confirm Duplicate
+              :loading="loading"
+              type="success"
+              secondary>
+            {{ t('modals.duplicateItem.confirm') }}
           </NButton>
         </div>
       </template>

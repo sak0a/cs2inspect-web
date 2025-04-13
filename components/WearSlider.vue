@@ -56,13 +56,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-const WEARS = {
-  0.00: 'Factory New',
-  0.07: 'Minimal Wear',
-  0.15: 'Field-Tested',
-  0.38: 'Well-Worn',
-  0.45: 'Battle-Scarred'
-}
+
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
@@ -82,6 +76,16 @@ const props = defineProps({
     default: 1.00
   }
 })
+
+const { t } = useI18n()
+
+const WEARS = {
+  0.00: t('wears.factoryNew') as string,
+  0.07: t('wears.minimalWear') as string,
+  0.15: t('wears.fieldTested') as string,
+  0.38: t('wears.wellWorn') as string,
+  0.45: t('wears.battleScarred') as string
+}
 
 const progressBar = ref(null)
 const isDragging = ref(false)

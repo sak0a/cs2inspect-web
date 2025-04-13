@@ -11,6 +11,7 @@ definePageMeta({
   middleware: ['validate-weapon-url']
 })
 
+const { t } = useI18n()
 const route = useRoute()
 const WEAPON_TYPE = route.params.type as string ?? 'rifles'
 
@@ -34,7 +35,7 @@ const handleWeaponClick = (weapon: IEnhancedItem) => {
 
 const handleSkinSelect = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
-    message.error('Please select a loadout first')
+    message.error(t('loadout.selectLoadoutFirst') as string)
     return
   }
   if (customization.paintIndex === null || customization.paintIndex === 0) {
@@ -77,8 +78,8 @@ const handleSkinSelect = async (skin: IEnhancedItem, customization: WeaponCustom
 }
 
 const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
-  if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
-    message.error('Please select a loadout first')
+  if (!loadoutStore.selectedLoadoutId) {
+    message.error(t('loadout.selectLoadoutFirst') as string)
     return
   }
 
@@ -139,8 +140,8 @@ const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponC
 }
 
 const fetchLoadoutSkins = async () => {
-  if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
-    message.error('Please select a loadout first / login')
+  if (!loadoutStore.selectedLoadoutId) {
+    message.error(t('loadout.selectLoadoutFirst') as string)
     return;
   }
   isLoading.value = true;

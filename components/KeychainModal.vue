@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
+import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
 import { APIKeychain } from "~/server/utils/interfaces";
 
 const props = defineProps<{
@@ -12,6 +12,9 @@ const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (e: 'select', keychain: any): void
 }>()
+
+const { t } = useI18n()
+const message = useMessage()
 
 const state = ref({
   searchQuery: '',
@@ -28,19 +31,16 @@ const state = ref({
 })
 
 const PAGE_SIZE = 10
-
 const filteredItems = computed(() => {
   return state.value.items.filter(item =>
       item.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
-
 const paginatedItems = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE
   const end = start + PAGE_SIZE
   return filteredItems.value.slice(start, end)
 })
-
 const totalPages = computed(() => Math.ceil(filteredItems.value.length / PAGE_SIZE))
 
 const fetchItems = async () => {
@@ -50,6 +50,7 @@ const fetchItems = async () => {
     const data = await response.json()
     state.value.items = data.keychains
   } catch (error) {
+    message.error(t('modals.keychain.errorFetching') as string)
     console.error('Error fetching keychains:', error)
   } finally {
     state.value.isLoading = false
@@ -57,7 +58,6 @@ const fetchItems = async () => {
 }
 
 const handleSelect = (item: APIKeychain) => {
-  console.log('KeychainModal - handleSelect:', item)
   state.value.selectedItem = item
   if (!props.currentKeychain) {
     state.value.customization = {
@@ -148,7 +148,7 @@ watch(() => props.visible, (newValue) => {
       :show="visible"
       style="width: 1000px"
       preset="card"
-      :title="currentKeychain ? 'Edit Keychain' : 'Add Keychain'"
+      :title="currentKeychain ? t('modals.keychain.titleEdit') as string : t('modals.keychain.titleAdd') as string"
       :bordered="false"
       size="huge"
       @update:show="handleClose"
@@ -156,7 +156,7 @@ watch(() => props.visible, (newValue) => {
     <template #header-extra>
       <NInput
           v-model:value="state.searchQuery"
-          placeholder="Search keychains..."
+          :placeholder="t('modals.keychain.searchPlaceholder') as string"
           class="w-64"
       />
     </template>
@@ -180,7 +180,7 @@ watch(() => props.visible, (newValue) => {
             <!-- Position Controls -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <h4 class="font-medium mb-2">X Position</h4>
+                <h4 class="font-medium mb-2">X {{ t('modals.keychain.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.x"
                     :min="-100"
@@ -190,7 +190,7 @@ watch(() => props.visible, (newValue) => {
                 />
               </div>
               <div>
-                <h4 class="font-medium mb-2">Y Position</h4>
+                <h4 class="font-medium mb-2">Y {{ t('modals.keychain.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.y"
                     :min="-100"
@@ -204,7 +204,7 @@ watch(() => props.visible, (newValue) => {
             <!-- Z Position and Seed -->
             <div class="grid grid-cols-2 gap-4">
               <div>
-                <h4 class="font-medium mb-2">Z Position</h4>
+                <h4 class="font-medium mb-2">Z {{ t('modals.keychain.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.z"
                     :min="-100"
@@ -214,7 +214,7 @@ watch(() => props.visible, (newValue) => {
                 />
               </div>
               <div>
-                <h4 class="font-medium mb-2">Seed</h4>
+                <h4 class="font-medium mb-2">{{ t('modals.keychain.labels.seed') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.seed"
                     :min="0"
@@ -225,21 +225,11 @@ watch(() => props.visible, (newValue) => {
               </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
-              <NButton
-                  type="primary"
-                  class="w-full"
-                  secondary
-                  @click="handleSave"
-              >
-                {{ currentKeychain ? 'Update' : 'Apply' }} Keychain
+              <NButton type="primary" class="w-full" secondary @click="handleSave">
+                {{ currentKeychain ? t('modals.keychain.buttons.update') : t('modals.keychain.buttons.create') }}
               </NButton>
-              <NButton v-if="currentKeychain"
-                       type="error"
-                       class="w-full"
-                       secondary
-                       @click="handleRemove"
-              >
-                Delete Keychain
+              <NButton v-if="currentKeychain" type="error" class="w-full" secondary @click="handleRemove">
+                {{ t('modals.keychain.delete') }}
               </NButton>
             </div>
           </div>
@@ -289,7 +279,7 @@ watch(() => props.visible, (newValue) => {
           v-if="!state.isLoading && filteredItems.length === 0"
           class="flex justify-center items-center h-64 text-gray-400"
       >
-        No keychains found
+        {{ t('modals.keychain.noSearchResults') }}
       </div>
 
       <!-- Pagination -->

@@ -11,11 +11,14 @@ const props = defineProps<{
   otherTeamHasSkin: boolean
   pageSize?: number
 }>()
+
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (e: 'select', skin: IEnhancedItem, customization: WeaponCustomization): void
   (e: 'duplicate', skin: IEnhancedItem, customization: WeaponCustomization): void
 }>()
+
+const { t } = useI18n()
 const message = useMessage()
 
 // Basic state
@@ -39,9 +42,7 @@ const state = ref({
   isDuplicating: false
 })
 
-const user = computed(() => steamAuth.getSavedUser())
-
-const selectedSkin = ref<IEnhancedItem | null>();
+const selectedSkin = ref<IEnhancedItem | null>()
 
 const defaultCustomization: WeaponCustomization = {
   active: false,
@@ -58,20 +59,18 @@ const defaultCustomization: WeaponCustomization = {
 }
 const customization = ref<WeaponCustomization>({ ...defaultCustomization })
 
-const PAGE_SIZE = ref(props.pageSize || 10);
-
+const user = computed(() => steamAuth.getSavedUser())
+const PAGE_SIZE = ref(props.pageSize || 10)
 const filteredSkins = computed(() => {
   return state.value.skins.filter(skin =>
       skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
-
 const paginatedSkins = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE.value
   const end = start + PAGE_SIZE.value
   return filteredSkins.value.slice(start, end)
 })
-
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
 const fetchSkinsForWeapon = async () => {
@@ -110,7 +109,6 @@ const mapCustomizationToRepresentation = (customization: WeaponCustomization) =>
     offset_z: customization.keychain.z,
     pattern: customization.keychain.seed
   } : null;
-  console.log('WeaponSkinModal - Mapping customization to representation:', { stickers, keychain });
   return {
     stickers,
     keychain
@@ -138,7 +136,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     }
 
     if (data.defindex !== props.weapon.weapon_defindex) {
-      throw new Error('Inspect URL does not match selected weapon')
+      throw new Error(t('modals.weaponSkin.importFailedNoMatchingWeapon') as string)
     }
 
     // Fetch sticker data in parallel
@@ -250,10 +248,10 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       }
     }
 
-    message.success('Successfully imported weapon configuration', { duration: 3000 })
+    message.success(t('modals.weaponSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
   } catch (error: any) {
-    message.error(error.message || 'Failed to import weapon configuration', { duration: 3000 })
+    message.error(error.message || t('modals.weaponSkin.importFailedDefault') as string, { duration: 3000 })
   } finally {
     state.value.isImporting = false
   }
@@ -289,8 +287,9 @@ const handleCreateInspectLink = async () => {
     }
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
-    message.success('Inspect link copied to clipboard' , { duration: 3000 })
+    message.success(t('modals.weaponSkin.generateInspectUrlSuccess') as string, { duration: 3000 })
   } catch (error) {
+    message.error(t('modals.weaponSkin.generateInspectUrlFailed') as string)
     console.error('Error creating inspect link:', error)
   } finally {
     state.value.isLoadingInspect = false
@@ -303,10 +302,11 @@ const handleReset = async () => {
   state.value.isResetting = true
   try {
     customization.value.reset = true
-    message.success('Weapon configuration reset')
+    message.success(t('modals.weaponSkin.resetSuccess') as string)
     state.value.showResetConfirm = false
     handleSave();
   } catch (error) {
+    message.error(t('modals.weaponSkin.resetFailed') as string)
     console.error('Error resetting weapon:', error)
   } finally {
     state.value.isResetting = false
@@ -332,6 +332,7 @@ const handleDuplicate = async () => {
 
     state.value.showDuplicateConfirm = false
   } catch (error) {
+    message.error(t('modals.weaponSkin.duplicateFailed') as string)
     console.error('Error duplicating weapon:', error)
   } finally {
     state.value.isDuplicating = false
@@ -426,7 +427,6 @@ const handleSave = () => {
   handleClose();
 }
 const handleClose = () => {
-  console.log("WSM - handleClose")
   setTimeout(() => {
     state.value.searchQuery = ''
     selectedSkin.value = null
@@ -443,7 +443,6 @@ watch(() => customization.value.wear, (newWear) => {
       }
     }, { immediate: true }
 );
-
 
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
@@ -477,7 +476,7 @@ watch(() => props.weapon, () => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="weapon ? `Select Skin for ${weapon.defaultName}` : 'Select Skin'"
+      :title="weapon ? t('modals.weaponSkin.title', { weaponName: weapon?.defaultName }) as string : t('modals.weaponSkin.defaultTitle') as string"
       :bordered="false"
       size="huge"
       class="duration-500 ease-in-out transition-all"
@@ -489,7 +488,7 @@ watch(() => props.weapon, () => {
         <template #icon>
           <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-restore"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.06 13a9 9 0 1 0 .49 -4.087" /><path d="M3 4.001v5h5" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
         </template>
-        Reset
+        {{ t('modals.weaponSkin.buttons.reset') }}
       </NButton>
       <NDivider vertical />
 
@@ -498,7 +497,7 @@ watch(() => props.weapon, () => {
         <template #icon>
           <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
         </template>
-        Import from Link
+        {{ t('modals.weaponSkin.buttons.importFromLink') }}
       </NButton>
       <NDivider vertical />
 
@@ -507,14 +506,14 @@ watch(() => props.weapon, () => {
         <template #icon>
           <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
         </template>
-        Generate Link
+        {{ t('modals.weaponSkin.buttons.generateLink') }}
       </NButton>
       <NDivider vertical />
 
       <!-- Weapon Search -->
       <NInput
           v-model:value="state.searchQuery"
-          placeholder="Search skins..."
+          :placeholder="t('modals.weaponSkin.inputs.searchPlaceholder') as string"
           class="pl-1 w-96"
       />
     </template>
@@ -539,7 +538,7 @@ watch(() => props.weapon, () => {
             <div class="grid grid-cols-2 gap-4 w-full">
               <div class="flex items-center space-x-4">
                 <NSwitch v-model:value="customization.statTrak" />
-                <span>StatTrak™</span>
+                <span>{{ t('modals.weaponSkin.labels.stattrak') }}</span>
                 <NInputNumber
                     :disabled="!customization.statTrak"
                     v-model:value="customization.statTrakCount"
@@ -550,7 +549,7 @@ watch(() => props.weapon, () => {
               </div>
               <NInput
                   v-model:value="customization.nameTag"
-                  placeholder="Name Tag"
+                  :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
                   class="pl-1"
               />
             </div>
@@ -559,10 +558,10 @@ watch(() => props.weapon, () => {
             <div class="grid grid-cols-2 gap-4 w-full">
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <h4 class="font-bold">Paint Index</h4>
+                  <h4 class="font-bold">{{ t('modals.weaponSkin.labels.paintIndex') }}</h4>
                   <div class="flex items-center space-x-2">
                     <NSwitch v-model:value="customization.paintIndexOverride" />
-                    <span class="text-sm">Override</span>
+                    <span class="text-sm">{{ t('modals.weaponSkin.labels.paintIndexOverride') }}</span>
                   </div>
                 </div>
                 <NInputNumber
@@ -574,7 +573,7 @@ watch(() => props.weapon, () => {
               </div>
 
               <div class="space-y-2">
-                <h4 class="font-bold">Paint Pattern (Seed) </h4>
+                <h4 class="font-bold">{{ t('modals.weaponSkin.labels.pattern') }}</h4>
                 <NInputNumber
                     v-model:value="customization.pattern"
                     :min="0"
@@ -586,7 +585,7 @@ watch(() => props.weapon, () => {
             <!-- Wear Slider -->
             <div class="w-full">
               <div class="flex items-start justify-between">
-                <h4 class="font-bold">Wear (Float)</h4>
+                <h4 class="font-bold">{{ t('modals.weaponSkin.labels.wear') }}</h4>
               </div>
               <WearSlider
                   v-model="customization.wear"
@@ -600,7 +599,7 @@ watch(() => props.weapon, () => {
               <!-- Save Weapon -->
               <NButton type="success" secondary :class="[
                 selectedSkin?.availableTeams !== 'both' ? 'w-96' : 'w-40']" @click="handleSave">
-                Save Changes
+                {{ t('modals.weaponSkin.buttons.save') }}
               </NButton>
               <!-- Duplicate Weapon -->
               <div v-if="selectedSkin?.availableTeams === 'both'" class="">
@@ -611,17 +610,17 @@ watch(() => props.weapon, () => {
                     class="w-full"
                     @click="state.showDuplicateConfirm = true"
                 >
-                  Duplicate to Other Team
+                  {{ t('modals.weaponSkin.buttons.duplicate') }}
                 </NButton>
               </div>
 
               <NSpace justify="center" align="center" class="w-full h-full">
                 <NSwitch v-model:value="customization.active" size="large" class="col-span-1">
                   <template #checked>
-                    Active
+                    {{ t('modals.weaponSkin.labels.itemActive') }}
                   </template>
                   <template #unchecked>
-                    Inactive
+                    {{ t('modals.weaponSkin.labels.itemInactive') }}
                   </template>
                 </NSwitch>
               </NSpace>
@@ -649,7 +648,7 @@ watch(() => props.weapon, () => {
         <div class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': state.showDetails }">
           <!-- Stickers -->
           <div class="col-span-5 mt-4">
-            <h4 class="font-bold mb-1">Stickers</h4>
+            <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.stickers.title') }}</h4>
             <div class="grid grid-cols-5 gap-x-2 min-h-36 max-h-36">
               <div
                   v-for="(sticker, index) in customization.stickers"
@@ -671,11 +670,11 @@ watch(() => props.weapon, () => {
                       class="w-full h-full object-contain"
                   />
                   <div class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                    <span class="text-white text-xs">Drag to reposition</span>
+                    <span class="text-white text-xs">{{ t('modals.weaponSkin.stickers.reposition') }}</span>
                   </div>
                 </div>
                 <div v-else class="h-28 flex items-center justify-center">
-                  <span class="text-gray-400 text-sm">Add Sticker</span>
+                  <span class="text-gray-400 text-sm">{{ t('modals.weaponSkin.stickers.add') }}</span>
                 </div>
                 <div class="mt-1 absolute top-0 left-1 text-xs text-gray-400">
                   #{{ index + 1 }}
@@ -685,7 +684,7 @@ watch(() => props.weapon, () => {
           </div>
           <!-- Keychain -->
           <div class="col-span-1 mt-4">
-            <h4 class="font-bold mb-1">Keychain</h4>
+            <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.keychain.title') }}</h4>
             <div
                 class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
                 :class="{ 'inactive-item': !customization.keychain, 'active-item': customization.keychain }"
@@ -700,7 +699,7 @@ watch(() => props.weapon, () => {
                 <p class="text-sm text-center text-gray-400 mt-1">{{ customization.keychain.api.name.replace('Charm | ', '') }}</p>
               </div>
               <div v-else class="h-30 flex items-center justify-center">
-                <span class="text-gray-400 text-sm">Add Keychain</span>
+                <span class="text-gray-400 text-sm">{{ t('modals.weaponSkin.keychain.add') }}</span>
               </div>
 
             </div>
@@ -745,7 +744,7 @@ watch(() => props.weapon, () => {
 
       <!-- No Results -->
       <div v-if="!state.isLoadingSkins && filteredSkins.length === 0" class="flex justify-center items-center h-64">
-        <NEmpty description="No skins found" />
+        <NEmpty :description="t('modals.weaponSkin.noSearchResults') as string" />
       </div>
 
       <!-- Pagination -->
@@ -785,7 +784,7 @@ watch(() => props.weapon, () => {
         v-model:visible="state.showDuplicateConfirm"
         :loading="state.isDuplicating"
         :other-team-has-skin="otherTeamHasSkin"
-        item-type="Knife"
+        :item-type="t('modals.duplicateItem.type.weapon') as string"
         @confirm="handleDuplicate"
     />
 
@@ -793,28 +792,29 @@ watch(() => props.weapon, () => {
         :show="state.showResetConfirm"
         style="width: 600px"
         preset="card"
-        title="Reset Skin"
+        :title="t('modals.reset.title') as string"
         :bordered="false"
         :mask-closable="!state.isResetting"
         :closable="!state.isResetting"
         @update:show="handleClose">
-      <p>Are you sure you want to reset the skin configuration?</p>
-      <div class="flex justify-end mt-4">
+      <p>{{ t('modals.reset.question') }}</p>
+      <div class="flex justify-end mt-4 gap-2">
         <NButton
             secondary
             type="error"
             :loading="state.isResetting"
             @click="state.showResetConfirm = false"
         >
-          Cancel
+          {{ t('modals.reset.cancel') }}
         </NButton>
+
         <NButton
             secondary
             type="success"
             :loading="state.isResetting"
             @click="handleReset"
         >
-          Reset
+          {{ t('modals.reset.confirm') }}
         </NButton>
       </div>
     </NModal>

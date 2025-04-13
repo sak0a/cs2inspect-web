@@ -1,9 +1,9 @@
 <template>
   <ThemeProvider>
-            <!--<Preloader />-->
-            <NuxtLayout name="default">
-              <NuxtPage />
-            </NuxtLayout>
+      <!--<Preloader />-->
+      <NuxtLayout name="default">
+        <NuxtPage />
+      </NuxtLayout>
   </ThemeProvider>
 </template>
 <script setup lang="ts">

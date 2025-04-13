@@ -1,0 +1,113 @@
+{
+  "navigation": {
+    "weapons": "ОРУЖИЕ",
+    "melee": "БЛИЖНИЙ БОЙ",
+    "extras": "ДОПОЛНИТЕЛЬНО",
+    "actions": "ДЕЙСТВИЯ"
+  },
+  "weapons": {
+    "rifles": "Винтовки",
+    "pistols": "Пистолеты",
+    "smgs": "ПП",
+    "heavys": "Тяжёлое оружие"
+  },
+  "melee": {
+    "knifes": "Ножи",
+    "gloves": "Перчатки"
+  },
+  "extras": {
+    "agents": "Агенты",
+    "pins": "Значки",
+    "music": "Музыкальные наборы",
+    "inspects": "Inspects"
+  },
+  "skins": {
+    "title": "Скины",
+    "noSkinsAvailable": "Нет доступных скинов для этого снаряжения",
+    "selectSkin": "Выбрать скин для {weapon}"
+  },
+  "modals": {
+    "logout": {
+      "title": "Подтвердите выход",
+      "question": "Вы уверены, что хотите выйти?",
+      "cancel": "Отмена",
+      "confirm": "Выйти"
+    },
+    "inspectUrl": {
+      "title": "Импорт из Inspect-URL",
+      "inputPlaceholder": "Вставьте Inspect-URL сюда...",
+      "maskedLinks": "Маскированные ссылки (HEX-данные)",
+      "maskedLinksDescription": "Эти ссылки обычно создаются веб-сайтами или приложениями",
+      "maskedLinksExample": "Пример:",
+      "unmaskedLinks": "Немаскированные ссылки (рынок / инвентарь)",
+      "unmaskedLinksDescription": "Эти ссылки используются на торговой площадке Steam и в инвентарях игроков",
+      "unmaskedLinksExample": "Примеры:",
+      "noInspectUrl": "Введите Inspect-URL",
+      "defaultError": "Ошибка декодирования Inspect-URL",
+      "cancel": "Отмена",
+      "confirm": "Импортировать"
+    },
+    "duplicateItem": {
+      "header": "Дублирование {itemType}",
+      "cancel": "Отмена",
+      "confirm": "Дублировать",
+      "warning": "Внимание: У другой команды уже настроен скин для этого {itemType}. Это действие его заменит.",
+      "question": "Вы уверены, что хотите дублировать настройку {itemType} для другой команды?",
+      "type": {
+        "weapon": "оружия",
+        "knife": "ножа"
+      }
+    },
+    "reset": {
+      "title": "Сброс скина",
+      "question": "Вы уверены, что хотите сбросить настройку скина?",
+      "cancel": "Отмена",
+      "confirm": "Сбросить"
+    }
+  },
+  "loadout": {
+    "create": "Создать снаряжение",
+    "select": "Выберите снаряжение",
+    "createDefault": "Создать стандартное снаряжение",
+    "confirmDelete": "Вы уверены, что хотите удалить это снаряжение?",
+    "confirmDeleteWarning": "Все скины этого снаряжения будут удалены и не подлежат восстановлению",
+    "nameRequired": "Введите название снаряжения",
+    "nameTooLong": "Название снаряжения должно содержать не более 20 символов",
+    "selectLoadoutFirst": "Сначала выберите снаряжение"
+  },
+  "teams": {
+    "terrorists": "Террористы",
+    "counterTerrorists": "Контр-террористы"
+  },
+  "wears": {
+    "factoryNew": "Прямо с завода",
+    "minimalWear": "Немного поношенное",
+    "fieldTested": "После полевых испытаний",
+    "wellWorn": "Сильно поношенное",
+    "battleScarred": "Закалённое в боях"
+  },
+  "auth": {
+    "loginButton": "Войти",
+    "logoutButton": "Выйти",
+    "loginRequired": "Чтобы получить доступ к этому сайту, войдите в систему через Steam.",
+    "automaticallyLoggedOut": "Вы были автоматически выведены из системы",
+    "confirmLogout": "Вы уверены, что хотите выйти?",
+    "rejectAction": "Войдите, чтобы выполнить это действие",
+    "authenticating": "Авторизация..."
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "save": "Сохранить",
+    "update": "Обновить",
+    "delete": "Удалить",
+    "create": "Создать",
+    "search": "Поиск",
+    "selectAll": "Выбрать всё",
+    "noResults": "Результаты не найдены",
+    "pleaseSelectLoadout": "Сначала выберите снаряжение"
+  }
+}

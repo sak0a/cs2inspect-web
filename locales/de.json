@@ -1,0 +1,148 @@
+{
+  "navigation": {
+    "weapons": "WAFFEN",
+    "melee": "NAHKAMPF",
+    "extras": "EXTRAS",
+    "actions": "AKTIONEN"
+  },
+  "weapons": {
+    "rifles": "Gewehre",
+    "pistols": "Pistolen",
+    "smgs": "MPs",
+    "heavys": "Schwere Waffen"
+  },
+  "melee": {
+    "knifes": "Messer",
+    "gloves": "Handschuhe"
+  },
+  "extras": {
+    "agents": "Agenten",
+    "pins": "Pins",
+    "music": "Musik-Kits",
+    "inspects": "Inspects"
+  },
+  "skins": {
+    "title": "Skins",
+    "noSkinsAvailable": "Keine Skins für dieses Loadout verfügbar",
+    "selectSkin": "Skin für {weapon} auswählen"
+  },
+
+  "modals": {
+    "logout": {
+      "title": "Abmeldung bestätigen",
+      "question": "Bist du sicher, dass du dich abmelden möchtest?",
+      "cancel": "Abbrechen",
+      "confirm": "Abmelden"
+    },
+    "inspectUrl": {
+      "title": "Aus Inspect-URL importieren",
+      "inputPlaceholder": "Inspect-URL hier einfügen...",
+      "maskedLinks": "Maskierte Links (HEX-Daten)",
+      "maskedLinksDescription": "Diese Links werden meistens von Websites oder anderen Apps generiert",
+      "maskedLinksExample": "Beispiel:",
+      "unmaskedLinks": "Unmaskierte Links (Marktplatz / Inventar)",
+      "unmaskedLinksDescription": "Diese Links werden im Steam-Marktplatz und in Spielerinventaren verwendet",
+      "unmaskedLinksExample": "Beispiele:",
+      "noInspectUrl": "Bitte eine Inspect-URL eingeben",
+      "defaultError": "Fehler beim Dekodieren der Inspect-URL",
+      "cancel": "Abbrechen",
+      "confirm": "Importieren"
+    },
+    "duplicateItem": {
+      "header": "{itemType} duplizieren",
+      "cancel": "Abbrechen",
+      "confirm": "Duplizieren",
+      "warning": "Warnung: Das andere Team hat bereits einen Skin für dieses {itemType} konfiguriert. Diese Aktion wird ihn überschreiben.",
+      "question": "Bist du sicher, dass du diese {itemType}-Konfiguration für das andere Team duplizieren möchtest?",
+      "type": {
+        "weapon": "Waffe",
+        "knife": "Messer"
+      }
+    },
+    "knifeSkin": {
+      "defaultTitle": "Skin auswählen",
+      "title": "Skin für {weaponName} auswählen",
+      "buttons": {
+        "importFromLink": "Aus Link importieren",
+        "generateLink": "Link generieren",
+        "save": "Änderungen speichern",
+        "duplicate": "Für anderes Team duplizieren"
+      },
+      "inputs": {
+        "searchPlaceholder": "Skins suchen...",
+        "nameTagPlaceholder": "Namensschild"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Farbindex",
+        "paintIndexOverride": "Überschreiben",
+        "pattern": "Farbmuster (Seed)",
+        "wear": "Abnutzung (Float)",
+        "itemActive": "Aktiv",
+        "itemInactive": "Inaktiv"
+      },
+      "importFailedDefault": "Fehler beim Import der Messer-Konfiguration",
+      "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit dem ausgewählten Messer überein",
+      "importSuccess": "Messer-Konfiguration erfolgreich importiert",
+      "generateInspectUrlSuccess": "Inspect-URL in die Zwischenablage kopiert",
+      "generateInspectUrlFailed": "Fehler beim Generieren der Inspect-URL",
+      "noSearchResults": "Keine Skins gefunden"
+    },
+    "reset": {
+      "title": "Skin zurücksetzen",
+      "question": "Bist du sicher, dass du die Skin-Konfiguration zurücksetzen möchtest?",
+      "cancel": "Abbrechen",
+      "confirm": "Zurücksetzen"
+    }
+  },
+
+  "loadout": {
+    "create": "Loadout erstellen",
+    "select": "Wähle ein Loadout",
+    "createDefault": "Standard-Loadout erstellen",
+    "confirmDelete": "Bist du sicher, dass du dieses Loadout löschen möchtest?",
+    "confirmDeleteWarning": "Alle Skins dieses Loadouts werden gelöscht und können nicht wiederhergestellt werden",
+    "nameRequired": "Bitte einen Loadout-Namen eingeben",
+    "nameTooLong": "Der Name des Loadouts darf maximal 20 Zeichen lang sein",
+    "selectLoadoutFirst": "Bitte zuerst ein Loadout auswählen"
+  },
+  "teams": {
+    "terrorists": "Terroristen",
+    "counterTerrorists": "Antiterror-Einheit"
+  },
+  "wears": {
+    "factoryNew": "Fabrikneu",
+    "minimalWear": "Minimale Gebrauchsspuren",
+    "fieldTested": "Gebraucht",
+    "wellWorn": "Stark gebraucht",
+    "battleScarred": "Kampfspuren"
+  },
+  "auth": {
+    "loginButton": "Anmelden",
+    "logoutButton": "Abmelden",
+    "loginRequired": "Um auf diese Website zuzugreifen, melde dich bitte mit deinem Steam-Konto an.",
+    "automaticallyLoggedOut": "Du wurdest automatisch abgemeldet",
+    "confirmLogout": "Bist du sicher, dass du dich abmelden möchtest?",
+    "rejectAction": "Melde dich an, um diese Aktion auszuführen",
+    "authenticating": "Authentifiziere..."
+  },
+  "common": {
+    "loading": "Lädt...",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "cancel": "Abbrechen",
+    "confirm": "Bestätigen",
+    "save": "Speichern",
+    "update": "Aktualisieren",
+    "delete": "Löschen",
+    "create": "Erstellen",
+    "search": "Suchen",
+    "selectAll": "Alles auswählen",
+    "noResults": "Keine Ergebnisse gefunden",
+    "pleaseSelectLoadout": "Bitte zuerst ein Loadout auswählen"
+  },
+
+  "loadoutStore": {
+
+  }
+}
