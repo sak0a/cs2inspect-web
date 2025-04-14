@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
             Logger.success(`Knife deleted successfully`)
             return {
                 success: true,
-                message: 'Weapon deleted successfully'
+                message: 'Knife deleted successfully'
             }
         }
 

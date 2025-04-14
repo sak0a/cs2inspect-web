@@ -1,33 +1,46 @@
 import { DEFAULT_WEAPONS } from "~/server/utils/constants"
-import {
-    DBWeapon,
-    APISkin,
-    IEnhancedItem,
-    IDefaultItem,
-    APISticker,
-    EnhancedWeaponSticker,
-    EnhancedWeaponKeychain, IMappedDBWeapon
-} from "~/server/utils/interfaces";
-import { getSkinsData, getStickerData } from '~/server/utils/csgoAPI';
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { executeQuery } from "~/server/database/database";
 import { defineEventHandler } from "h3";
 
-
-function parseStickers(databaseResult: DBWeapon, stickerData: APISticker[]): (IEnhancedWeaponSticker | null)[] {
-    const stickers: (IEnhancedWeaponSticker | null)[] = [];
-    for (let i = 0; i < 5; i++) {
-        const stickerField = `sticker_${i}` as keyof DBWeapon;
-        const stickerDatabaseData: string = databaseResult[stickerField]?.toString();
-
-        if (!stickerDatabaseData) {
-            stickers.push(null);
-            continue;
-        }
-
-        stickers.push(EnhancedWeaponSticker.fromStringAndAPI(stickerDatabaseData, stickerData).toInterface());
+const createMappedDBWeapon = (databaseResult: DBWeapon): IMappedDBWeapon => {
+    return {
+        active: databaseResult.active,
+        team: databaseResult.team,
+        defindex: databaseResult.defindex,
+        statTrak: databaseResult.stattrak_enabled,
+        statTrakCount: databaseResult.stattrak_count,
+        paintIndex: databaseResult.paintindex,
+        paintWear: parseFloat(databaseResult.paintwear),
+        pattern: parseInt(databaseResult.paintseed),
+        nameTag: databaseResult.nametag,
+        stickers: [
+            EnhancedWeaponSticker.fromString(databaseResult.sticker_0).toInterface() || null,
+            EnhancedWeaponSticker.fromString(databaseResult.sticker_1).toInterface() || null,
+            EnhancedWeaponSticker.fromString(databaseResult.sticker_2).toInterface() || null,
+            EnhancedWeaponSticker.fromString(databaseResult.sticker_3).toInterface() || null,
+            EnhancedWeaponSticker.fromString(databaseResult.sticker_4).toInterface() || null,
+        ],
+        keychain: EnhancedWeaponKeychain.fromString(databaseResult.keychain).toInterface() || null
     }
-    return stickers;
+}
+
+const createEnhancedWeapon = (defaultWeapon: IDefaultItem, databaseWeapon: DBWeapon, skin: APISkin): IEnhancedItem => {
+    return {
+        defaultName: defaultWeapon.defaultName,
+        weapon_name: defaultWeapon.weapon_name,
+        weapon_defindex: defaultWeapon.weapon_defindex,
+        defaultImage: defaultWeapon.defaultImage,
+        category: defaultWeapon.category,
+
+        image: skin.image || undefined,
+        name: skin.name || undefined,
+        minFloat: skin.min_float || 0.0,
+        maxFloat: skin.max_float || 1.0,
+        paintIndex: skin.paint_index || 0,
+        rarity: skin.rarity,
+        databaseInfo: createMappedDBWeapon(databaseWeapon)
+    } as IEnhancedItem;
 }
 
 export default defineEventHandler(async (event) => {
@@ -49,31 +62,8 @@ export default defineEventHandler(async (event) => {
     try {
         // Get all available skins data
         const skinData = getSkinsData();
-        if (!skinData) {
-            Logger.error('Failed to load skins data');
-            throw createError({
-                statusCode: 500,
-                message: 'Failed to load skins data'
-            });
-        }
-
         const stickerData = getStickerData();
-        if (!stickerData) {
-            Logger.error('Failed to load stickers data');
-            throw createError({
-                statusCode: 500,
-                message: 'Failed to load stickers data'
-            });
-        }
-
         const keychainData = getKeychainData();
-        if (!keychainData) {
-            Logger.error('Failed to load keychain data');
-            throw createError({
-                statusCode: 500,
-                message: 'Failed to load keychain data'
-            });
-        }
 
         const rows = await executeQuery<DBWeapon[]>(
             `SELECT * FROM ${table} WHERE steamid = ? AND loadoutid = ?`,
@@ -81,78 +71,40 @@ export default defineEventHandler(async (event) => {
             'Failed to fetch weapons'
         );
 
-        // Filter and type-guard the weapons first
-        const baseWeaponsWithCategory: IDefaultItem[] = DEFAULT_WEAPONS.filter(weapon => weapon.category === type);
+        const defaultWeapons: IDefaultItem[] = DEFAULT_WEAPONS.filter(weapon => weapon.category === type);
 
-        // Map through weapons and enhance them with skin data
-        const enhancedWeapons = baseWeaponsWithCategory.map((baseWeapon: IDefaultItem) => {
-            // Find the database entry for this weapon if it exists
-            // Find matching skin from skin api using both weapon ID and paint index
-            let data: IEnhancedItem[] = [];
-            const matchingDatabaseResults: DBWeapon[] = rows.filter(
-                (weapon: DBWeapon) => weapon.defindex === baseWeapon.weapon_defindex
+        const fetchedWeapons: IEnhancedItem[][] = defaultWeapons.map(defaultWeapon => {
+            let weaponSkins: IEnhancedItem[] = []
+
+            const databaseResults: DBWeapon[] = rows.filter(
+                weapon => weapon.defindex === defaultWeapon.weapon_defindex
             );
 
-            /**
-             * Iterate through all matching database results for this weapon_defindex
-             */
-            for (const databaseResult of matchingDatabaseResults) {
-                /**
-                 * Find matching skin from the skin data using the weapon ID and paint index
-                 */
-                const skinInfo: APISkin | undefined = findMatchingSkin(baseWeapon, databaseResult, skinData);
-
-                /**
-                 * Push the enhanced weapon to the returned data array
-                 */
-                data.push({
-                    defaultName: baseWeapon.defaultName,
-                    weapon_name: baseWeapon.weapon_name,
-                    weapon_defindex: baseWeapon.weapon_defindex,
-                    defaultImage: baseWeapon.defaultImage,
-                    category: baseWeapon.category,
-
-                    image: skinInfo?.image || undefined,
-                    name: skinInfo?.name || undefined,
-                    minFloat: skinInfo?.min_float || 0.0,
-                    maxFloat: skinInfo?.max_float || 1.0,
-                    paintIndex: skinInfo?.paint_index || 0,
-                    rarity: skinInfo?.rarity,
-                    availableTeams: skinInfo?.team?.id || 'both',
-
-                    databaseInfo: {
-                        active: databaseResult.active,
-                        team: databaseResult.team,
-                        defindex: databaseResult.defindex,
-                        statTrak: databaseResult.stattrak_enabled || false,
-                        statTrakCount: databaseResult.stattrak_count || 0,
-                        paintIndex: databaseResult.paintindex || 0,
-                        paintWear: databaseResult.paintwear || 0.01,
-                        pattern: databaseResult.paintseed || 0,
-                        nameTag: databaseResult.nametag || '',
-                        stickers: parseStickers(databaseResult, stickerData),
-                        keychain: EnhancedWeaponKeychain.fromStringAndAPI(databaseResult.keychain, keychainData)?.toInterface()
-                    } as IMappedDBWeapon
-                } as IEnhancedItem);
+            for (const databaseWeapon of databaseResults) {
+                const matchingSkin = findMatchingSkin(
+                    defaultWeapon,
+                    databaseWeapon,
+                    skinData
+                )
+                weaponSkins.push(
+                    createEnhancedWeapon(
+                        defaultWeapon,
+                        databaseWeapon,
+                        matchingSkin
+                    )
+                )
             }
 
-            // If there are any custom skins for this, return them
-            if (data.length > 0) {
-                return data;
-            }
+            if (weaponSkins.length > 0) return weaponSkins;
 
-            // If there are no custom skins for this weapon, return the default skin
-            return createDefaultEnhancedWeapon(baseWeapon);
+            return createDefaultEnhancedWeapon(defaultWeapon);
         });
 
-        /**
-         * Return the data with additional meta information
-         */
-        Logger.success(`Fetched ${rows.length} weapons for Steam ID: ${steamId}`);
+        Logger.success(`Fetched ${fetchedWeapons.length} weapons for Steam ID: ${steamId}`);
         return {
-            skins: enhancedWeapons,
+            skins: fetchedWeapons,
             meta: {
-                rows: rows.length,
+                rows: fetchedWeapons.length,
                 steamId,
                 loadoutId,
                 type

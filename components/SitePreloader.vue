@@ -10,14 +10,14 @@ const state = reactive({
   preloader: true
 });
 const preloaderStyle: string = "line-scale-pulse-out";
-const revealDuration: number = 200;
-const revealDelay: number = 25;
+const revealDuration: number = 5;
+const revealDelay: number = 0;
 const preloaderDivsToCreate: number = 5;
 
 function animation() {
   return [
     {transform: "scale(1)", opacity: 1},
-    {transform: "scale(5)", opacity: 0},
+    {transform: "scale(3)", opacity: 0},
   ];
 }
 
@@ -95,7 +95,7 @@ onMounted(() => {
   animation-delay: -0.2s !important
 @-webkit-keyframes line-scale-pulse-out
   0%, 100%
-    transform: scaley(1)
+    transform: scaleY(1)
   50%
     transform: scaleY(0.4)
 

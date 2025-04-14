@@ -5,11 +5,31 @@ import { getSkinsData } from '~/server/utils/csgoAPI'
 import { executeQuery } from '~/server/database/database'
 import { DEFAULT_KNIFES } from '~/server/utils/constants'
 
+const createMappedKnife = (defaultKnife: IDefaultItem, databaseKnife: DBKnife, skinInfo: APISkin): IEnhancedItem => {
+    return {
+        weapon_defindex: defaultKnife.weapon_defindex,
+        weapon_name: defaultKnife.weapon_name,
+        name: skinInfo?.name || defaultKnife.defaultName,
+        defaultName: defaultKnife.defaultName,
+
+        image: skinInfo?.image || defaultKnife.defaultImage,
+        defaultImage: defaultKnife.defaultImage,
+
+        category: 'knife',
+        minFloat: skinInfo?.min_float || 0,
+        maxFloat: skinInfo?.max_float || 1,
+        paintIndex: parseInt(skinInfo?.paint_index) || defaultKnife.paintIndex,
+        rarity: skinInfo?.rarity,
+        availableTeams: 'both',
+        databaseInfo: databaseKnife
+    }
+}
+
 
 export default defineEventHandler(async (event) => {
-    const query = getQuery(event);
-
     Logger.header(`Knife API request: ${event.method} ${event.req.url}`);
+
+    const query = getQuery(event);
 
     const steamId = query.steamId as string;
     validateRequiredRequestData(steamId, 'Steam ID');
@@ -34,43 +54,32 @@ export default defineEventHandler(async (event) => {
 
         // Map through default knives and enhance them with skin data
         const enhancedKnifes = DEFAULT_KNIFES.map((baseKnife: IDefaultItem) => {
-            // Find the database entries for this knife if they exist
             const matchingDatabaseResults: DBKnife[] = knifes.filter(
-                (knife: DBKnife) => knife.defindex === baseKnife.weapon_defindex
+                knife => knife.defindex === baseKnife.weapon_defindex
             );
 
             let data: IEnhancedItem[] = [];
 
-            // Process each database result for this knife type
             for (const databaseResult of matchingDatabaseResults) {
-                const skinInfo = findMatchingSkin(baseKnife, databaseResult, knifeSkins);
-
-                data.push({
-                    weapon_defindex: baseKnife.weapon_defindex,
-                    weapon_name: baseKnife.weapon_name,
-                    name: skinInfo?.name || baseKnife.defaultName,
-                    defaultName: baseKnife.defaultName,
-
-                    image: skinInfo?.image || baseKnife.defaultImage,
-                    defaultImage: baseKnife.defaultImage,
-
-                    category: 'knife',
-                    minFloat: skinInfo?.min_float || 0,
-                    maxFloat: skinInfo?.max_float || 1,
-                    paintIndex: skinInfo?.paint_index || baseKnife.paintIndex,
-                    rarity: skinInfo?.rarity,
-                    availableTeams: 'both',
-                    databaseInfo: databaseResult
-                } as IEnhancedItem);
+                const matchingSkin = findMatchingSkin(
+                    baseKnife,
+                    databaseResult,
+                    knifeSkins
+                )
+                data.push(
+                   createMappedKnife(
+                       baseKnife,
+                       databaseResult,
+                       matchingSkin
+                   )
+                );
             }
 
-            // If there are any custom skins for this knife, return them
             if (data.length > 0) {
                 return data;
             }
 
-            // If no custom skins found, return the default knife
-            return createDefaultEnhancedWeapon(baseKnife, true);
+            return createDefaultEnhancedWeapon(baseKnife, true, false);
         });
 
         Logger.success(`Fetched ${knifes.length} knives for Steam ID: ${steamId}`);

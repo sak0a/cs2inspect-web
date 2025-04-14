@@ -72,6 +72,22 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
+        async fetchLoadoutGloves(steamId: string) {
+            this.isLoading = true;
+            await fetch(`/api/gloves?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(async (response) => {
+                const data = await response.json();
+                this.currentSkins = data.gloves;
+            }).catch((error) => {
+                throw error
+            }).finally(() => this.isLoading = false);
+        },
+
         /**
          * Fetch loadouts for the given Steam ID
          * @param steamId

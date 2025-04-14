@@ -67,7 +67,8 @@
       "question": "Are you sure you want to duplicate this {itemType} configuration to the other team?",
       "type": {
         "weapon": "Weapon",
-        "knife": "Knife"
+        "knife": "Knife",
+        "glove": "Glove"
       }
     },
     "knifeSkin": {
@@ -95,6 +96,33 @@
       "importFailedDefault": "Failed to import knife configuration",
       "importFailedNoMatchingWeapon": "Inspect URL does not match selected knife",
       "importSuccess": "Successfully imported knife configuration",
+      "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
+      "generateInspectUrlFailed": "Failed to generate inspect URL",
+      "noSearchResults": "No Skins found"
+    },
+    "gloveSkin": {
+      "defaultTitle": "Select Skin",
+      "title": "Select Skin for {weaponName}",
+      "buttons": {
+        "importFromLink": "Import from Link",
+        "generateLink": "Generate Link",
+        "save": "Save Changes",
+        "duplicate": "Duplicate to Other Team"
+      },
+      "inputs":{
+        "searchPlaceholder": "Search skins..."
+      },
+      "labels": {
+        "paintIndex": "Paint Index",
+        "paintIndexOverride": "Override",
+        "pattern": "Paint Pattern (Seed)",
+        "wear": "Wear (Float)",
+        "itemActive": "Active",
+        "itemInactive": "Inactive"
+      },
+      "importFailedDefault": "Failed to import glove configuration",
+      "importFailedNoMatchingWeapon": "Inspect URL does not match selected glove",
+      "importSuccess": "Successfully imported glove configuration",
       "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
       "generateInspectUrlFailed": "Failed to generate inspect URL",
       "noSearchResults": "No Skins found"

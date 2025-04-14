@@ -230,9 +230,9 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
         return `${this.id};${this.x};${this.y};${this.wear};${this.scale};${this.rotation}`;
     }
 
-    static fromStringAndAPI(sticker: string, stickerData: APISticker[]): EnhancedWeaponSticker {
+    static fromString(sticker: string): EnhancedWeaponSticker {
         const [stickerId, x, y, wear, scale, rotation] = sticker.split(';');
-
+        const stickerData = getStickerData();
         const stickerInfo = stickerData.find(
             (sticker: APISticker) => sticker.id === ("sticker-" + stickerId)
         );
@@ -307,9 +307,9 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
         this.api = data.api;
     }
 
-    static fromStringAndAPI(keychain: string, keychainData: APIKeychain[]): EnhancedWeaponKeychain {
-        const [keychainId, x, y, z, seed] = keychain.split(';');
-        const keychainInfo = keychainData.find((k: APIKeychain) => k.id === ("keychain-" + keychainId));
+    static fromString(keychain: string): EnhancedWeaponKeychain {
+        const [keychainId, x, y, z, seed] = keychain.split(';')
+        const keychainInfo = getKeychainData().find((k: APIKeychain) => k.id === ("keychain-" + keychainId))
 
         return new EnhancedWeaponKeychain({
             id: parseInt(keychainId),
@@ -322,7 +322,7 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
                 image: keychainInfo?.image || '',
                 rarity: keychainInfo?.rarity || { id: 'default', name: 'Default', color: '#000000' }
             }
-        });
+        })
     }
 
     convertToDatabaseString(): string {

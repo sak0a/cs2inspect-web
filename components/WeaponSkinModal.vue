@@ -75,16 +75,20 @@ const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SI
 
 const fetchSkinsForWeapon = async () => {
   if (!props.weapon) return
-  try {
-    state.value.isLoadingSkins = true
-    const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
-    const data = await response.json()
+
+  state.value.isLoadingSkins = true
+  await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`).then(res => {
+    if (!res.ok) {
+      throw new Error('Failed to fetch skins')
+    }
+    return res.json()
+  }).then(data => {
     state.value.skins = data.skins
-  } catch (error) {
+  }).catch(error => {
     console.error('Error fetching skins:', error)
-  } finally {
+  }).finally(() => {
     state.value.isLoadingSkins = false
-  }
+  })
 }
 
 const mapCustomizationToRepresentation = (customization: WeaponCustomization) => {

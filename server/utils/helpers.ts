@@ -75,7 +75,7 @@ export function createDefaultEnhancedWeapon<T extends {
     paintIndex?: number,
     category?: string,
     availableTeams?: string
-}>(baseItem: T, isKnife: boolean = false): IEnhancedItem[] {
+}>(baseItem: T, isKnife: boolean = false, isGlove: boolean = false): IEnhancedItem[] {
     return [{
         weapon_defindex: baseItem.weapon_defindex,
         weapon_name: baseItem.weapon_name,
@@ -83,7 +83,7 @@ export function createDefaultEnhancedWeapon<T extends {
         defaultName: baseItem.defaultName,
         image: baseItem.defaultImage,
         defaultImage: baseItem.defaultImage,
-        category: isKnife ? 'knife' : (baseItem.category || 'weapon'),
+        category: isGlove ? 'glove' : (isKnife ? 'knife' : (baseItem.category || 'weapon')),
         minFloat: 0,
         maxFloat: 1,
         paintIndex: isKnife ? (baseItem.paintIndex || 0) : 0,
