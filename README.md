@@ -1,111 +1,423 @@
-# Nuxt 3 Minimal Starter
+# CS2 Loadout Manager
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A comprehensive web application for managing Counter-Strike 2 weapon loadouts, built with Nuxt 3.
 
+![CS2 Loadout Manager](https://example.com/cs2-loadout-manager-preview.png)
 
+## 🚀 Overview
 
-rifles/index.vue
-> fetch the loadouts from the database
-> fetch the loadout skins from the database
+This application allows users to:
+- Create and manage multiple CS2 weapon loadouts
+- Customize weapons with skins, stickers, and keychains
+- Configure team-specific equipment (T/CT sides)
+- Authenticate via Steam
 
+## 🔄 Application Flow
 
+### Server-side
+1. **Initialization**: Fetches latest CS2 item data from the [CSGO-API](https://bymykel.github.io/CSGO-API/)
+2. **Authentication**: Handles Steam authentication and user sessions
+3. **Database**: Manages user loadouts and weapon configurations
 
+### Client-side
+1. **Authentication**: User logs in via Steam
+2. **Loadout Management**: 
+   - Fetches user loadouts from `/api/loadouts?steamid=[id]`
+   - Displays loadout selection interface
+3. **Weapon Customization**:
+   - Fetches weapon data for selected loadout via `/api/weapons/[type]?loadoutid=[id]&steamid=[id]`
+   - Provides interface for skin, sticker, and keychain selection
 
-## Flow
-Server Start: fetch the latest CSGO Data from the Steam API and store it
-Client Start: fetch Loadouts from the Database and display them
-Client Update: fetch the Skins from the Loadout via /api/weapons/[type]?loadoutid=[id]&steamid=[id]
-Server Update: fetch the Skins from the Database if no skin is present, use the Default Weapon Skin
-Client Update: open We
+## 📊 Data Models
 
+### Core Interfaces
 
-## Datastructure
-- StickerData for Database and Frontend using API
-  ```json
-  {
-    "id": 1,
-    "x": 0.5,
-    "y": 0.5,
-    "wear": 0.3,
-    "scale": 0.5,
-    "rotation": 0.5,
-    "api": {
-      "name": "Sticker Name",
-      "type": "team",
-      "image": "https://example.com/image.png",
-      "effect": "Holo",
-      "rarity": {
-        "name": "High Grade",
-        "id": "rarity_rare",
-        "color": "#4b69ff"
-      },
-      "tournament_team": "Astralis",
-      "tournament_event": "IEM Katowice 2021"
+#### APISkin
+Represents weapon skins from the CS2 API:
+
+```typescript
+interface APISkin {
+    id: string;
+    name: string;
+    description?: string;
+    weapon: {
+        id: string;
+        name: string;
+        weapon_id: string;
     }
-  }
-  ```
-  - KeychainData for Database and Frontend using API
-  ```json
-  {
-    "id": 1,
-    "x": 0.5,
-    "y": 0.5,
-    "z": 0.3,
-    "seed": 0.3,
-    "api": {
-      "name": "Keychain Name",
-      "image": "https://example.com/keychain.png",
-      "rarity": {
-        "name": "High Grade",
-        "id": "rarity_rare",
-        "color": "#4b69ff"
-      }
+    category: {
+        id: string;
+        name: string
     }
-  }
-  ```
-- WeaponData for Database and Frontend using API
-  ```json
-  {
-    "weapon_defindex": 7,
-    "name": "AK-47 - The Empress",
-    "defaultName": "AK-47",
-    "weapon_name": "weapon_ak47",
-    "image": "https://example.com/skin.png",
-    "defaultImage": "https://example.com/default.png",
-    "minFloat": 0.06,
-    "maxFloat": 0.8,
-    "paintIndex": 43,
-    "rarity": {
-      "name": "Covert",
-      "id": "rarity_covert",
-      "color": "#eb4b4b"
-    }, 
-    "availableTeams": "both", 
-    "category": "rifles",
-    "databaseInfo": {
-      "active": true,
-      "team": 2,
-      "defindex": 7,
-      "statTrak": true,
-      "statTrakCount":  532,
-      "paintIndex": 302,
-      "paintWear": 0.7,
-      "pattern": 424,
-      "nameTag": "AK-47 Crazy 8",
-      "stickers": [1, 2, 3, 4, 5],
-      "keychain": 1
+    pattern: {
+        id: string;
+        name: string;
     }
+    min_float: number;
+    max_float: number;
+    rarity: {
+        id: string;
+        name: string;
+        color: string;
+    }
+    stattrak?: boolean
+    souvenir?: boolean
+    paint_index: string
+    wears?: any[]
+    collections?: any[]
+    crates?: any[]
+    team?: {
+        id: string;
+        name: string;
+    }
+    image: string;
+}
+```
+
+#### APISticker
+Represents stickers from the CS2 API:
+
+```typescript
+interface APISticker {
+    id: string;
+    name: string;
+    description?: string;
+    rarity: {
+        id: string;
+        name: string;
+        color: string
+    }
+    crates?: any[]
+    tournament_event: string
+    tournament_team: string
+    type: string
+    market_hash_name?: string
+    effect?: string
+    image: string
+}
+```
+
+#### APIKeychain
+Represents weapon charms from the CS2 API:
+
+```typescript
+interface APIKeychain {
+    id: string;
+    name: string;
+    description?: string;
+    rarity: {
+        id: string;
+        name: string;
+        color: string;
+    }
+    market_hash_name?: string;
+    image: string;
+}
+```
+
+#### APIMusicKit
+Represents music kits from the CS2 API:
+
+```typescript
+interface APIMusicKit {
+    id: string
+    name: string
+    description?: string
+    rarity: {
+        id: string
+        name: string
+        color: string
+    }
+    market_hash_name?: string
+    exclusive?: boolean
+    image: string
+}
+```
+
+#### APIAgent
+Represents player models from the CS2 API:
+
+```typescript
+interface APIAgent {
+  id: string;
+  name: string;
+  description?: string;
+  rarity: {
+    id: string;
+    name: string;
+    color: string;
   }
-  ```
+  collections?: any[];
+  team: {
+    id: string;
+    name: string;
+  }
+  market_hash_name?: string;
+  image: string;
+}
+```
+
+#### DBLoadout
+Represents a user's loadout in the database:
+
+```typescript
+interface DBLoadout {
+    id: string;
+    steamid: string;
+    name: string;
+    selected_knife_t: number | null;
+    selected_knife_ct: number | null;
+    selected_glove_t: number | null;
+    selected_glove_ct: number | null;
+    created_at: string;
+    updated_at: string;
+}
+```
+
+#### DBKnife
+Represents a user's knife entry in the database:
+
+```typescript
+interface DBKnife {
+    id: string;
+    steamid: string;
+    loadoutid: string;
+    active: boolean;
+    team: number;
+    defindex: number;
+    paintindex: number;
+    paintseed: string;
+    paintwear: string;
+    stattrak_enabled: boolean;
+    stattrak_count: number;
+    nametag: string;
+    created_at: string;
+    updated_at: string;
+}
+```
+
+#### DBGlove
+Represents a user's glove entry in the database:
+
+```typescript
+interface DBGlove {
+    id: string;
+    steamid: string;
+    loadoutid: string;
+    active: boolean;
+    team: number;
+    defindex: number;
+    paintindex: number;
+    paintseed: string;
+    paintwear: string;
+    created_at: string;
+    updated_at: string;
+}
+```
+
+#### DBWeapon
+Represents a user's weapon entry in the database:
+
+```typescript
+interface DBWeapon {
+    id: string;
+    steamid: string;
+    loadoutid: string;
+    active: boolean;
+    team: number;
+    defindex: number;
+    paintindex: number;
+    paintseed: string;
+    paintwear: string;
+    stattrak_enabled: boolean;
+    stattrak_count: number;
+    nametag: string;
+    sticker_0: string;
+    sticker_1: string;
+    sticker_2: string;
+    sticker_3: string;
+    sticker_4: string;
+    keychain: string;
+    created_at: string;
+    updated_at: string;
+}
+```
+
+#### DBPin
+Represents a user's pin entry in the database:
+
+```typescript
+interface DBPin {
+    id: string;
+    steamid: string;
+    loadoutid: string;
+    active: boolean
+    team: number
+    pinid: number;
+    created_at: string;
+    updated_at: string;
+}
+```
+
+#### DBMusicKit
+Represents a user's music kit entry in the database:
+
+```typescript
+interface DBMusicKit {
+    id: string;
+    steamid: string;
+    loadoutid: string;
+    active: boolean
+    team: number;
+    musicid: number;
+    created_at: string;
+    updated_at: string;
+}
+```
+
+#### DBAgent
+Represents a user's agent entry in the database:
+
+```typescript
+interface DBAgent {
+    id: string;
+    steamid: string;
+    loadoutid: string;
+    active: boolean
+    team: number;
+    defindex: number;
+    agent_name: string;
+    created_at: string;
+    updated_at: string;
+}
+```
 
 
+### Frontend Data Structures
 
-# API Endpoints
-#### All Endpoints require Authentication
+### StickerData
+Represents a sticker applied to a weapon:
 
-## GET /api/loadouts?steamId=[id]
-Fetches the loadouts for a client
-### Successful Response
+```typescript
+interface IEnhancedWeaponSticker {
+  id: number;
+  x: number;
+  y: number;
+  wear: number;
+  scale: number;
+  rotation: number;
+  api: {
+    name: string;
+    type: string;
+    image: string;
+    effect: string;
+    rarity: {
+      name: string;
+      id: string;
+      color: string;
+    };
+    tournament_team: string;
+    tournament_event: string;
+  };
+}
+```
+
+### KeychainData
+Represents a keychain attached to a weapon:
+
+```typescript
+interface IEnhancedWeaponKeychain {
+  id: number;
+  x: number;
+  y: number;
+  z: number;
+  seed: number;
+  api: {
+    name: string;
+    image: string;
+    rarity: {
+      name: string;
+      id: string;
+      color: string;
+    };
+  };
+}
+```
+
+### WeaponData
+`IMappedDBWeapon` represents a weapon's database information with mapped Keychain and Sticker data:
+```typescript
+interface IMappedDBWeapon {
+  active: boolean;
+  team: number;
+  defindex: number;
+  statTrak: boolean;
+  statTrakCount: number;
+  paintIndex: number;
+  paintWear: number;
+  pattern: number;
+  nameTag: string;
+  stickers: any;
+  keychain: IEnhancedWeaponKeychain | null;
+}
+```
+
+`IDefaultItem` represents default weapon information used from `/server/utils/constants.ts` to display default weapons
+```ts
+interface IDefaultItem {
+  weapon_defindex: number;
+  defaultName: string;
+  paintIndex: number;
+  defaultImage: string;
+  weapon_name: string;
+  category: string;
+  availableTeams: string;
+}
+```
+
+`IEnhancedItem` extends `IDefaultItem` and uses `DBKnife` or `IMappedDBWeapon` or `DBGlove` for database information:
+```typescript
+interface IEnhancedItem extends IDefaultItem {
+  name: string;
+  image: string;
+  minFloat: number;
+  maxFloat: number;
+  rarity?: {
+    name: string;
+    id: string;
+    color: string;
+  };
+  databaseInfo?: DBKnife | IEnha | IMappedDBWeapon;
+}
+```
+
+## 🗄️ Database Structure
+
+The application uses the following database tables:
+
+| Table | Description |
+|-------|-------------|
+| `wp_player_loadouts` | Stores user loadout configurations |
+| `wp_player_knifes` | Knife configurations for each loadout |
+| `wp_player_gloves` | Glove configurations for each loadout |
+| `wp_player_rifles` | Rifle configurations for each loadout |
+| `wp_player_smgs` | SMG configurations for each loadout |
+| `wp_player_pistols` | Pistol configurations for each loadout |
+| `wp_player_heavys` | Heavy weapon configurations for each loadout |
+| `wp_player_agents` | Agent (player model) configurations |
+| `wp_player_pins` | Pin configurations |
+| `wp_player_music` | Music kit configurations |
+
+## 🔌 API Endpoints
+
+All endpoints require authentication.
+
+### Loadout Management
+
+#### `GET /api/loadouts?steamId=[id]`
+Fetches all loadouts for a user.
+
+**Response:**
 ```json
 {
   "loadouts": [
@@ -124,16 +436,18 @@ Fetches the loadouts for a client
   "message": "Loadouts fetched successfully!"
 }
 ```
----
-## POST /api/loadouts?steamId=[id]
-Creates a new loadout and retrieves it
-### Required Body
+
+#### `POST /api/loadouts?steamId=[id]`
+Creates a new loadout.
+
+**Request:**
 ```json
 {
   "name": "Example Name"
 }
 ```
-### Successful Response
+
+**Response:**
 ```json
 {
   "loadout": {
@@ -150,18 +464,18 @@ Creates a new loadout and retrieves it
   "message": "Loadout created successfully"
 }
 ```
----
-## PUT /api/loadouts?steamId=[id]&id=[id]
-Updates a loadout and retrieves it
-INFO: Currently it's only possible updating the loadout name
 
-### Required Body
+#### `PUT /api/loadouts?steamId=[id]&id=[id]`
+Updates a loadout (currently only name updates are supported).
+
+**Request:**
 ```json
 {
   "name": "New Name"
 }
 ```
-### Successful Response
+
+**Response:**
 ```json
 {
   "loadout": {
@@ -178,156 +492,80 @@ INFO: Currently it's only possible updating the loadout name
   "message": "Loadout updated successfully"
 }
 ```
----
-## DELETE /api/loadouts?steamId=[id]&id=[id]
-Deletes a loadout
-### Successful Response
+
+#### `DELETE /api/loadouts?steamId=[id]&id=[id]`
+Deletes a loadout.
+
+**Response:**
 ```json
 {
   "message": "Loadout deleted successfully"
 }
 ```
----
-## POST /api/loadouts/select?steamId=[id]&loadoutId=[id]&type=[type]
-Updates the selected knife/glove for a loadout
-### Required Body
-team: 1 = Terrorists, 2 = Counter Terrorists
-defindex: {defindex}, null
+
+#### `POST /api/loadouts/select?steamId=[id]&loadoutId=[id]&type=[type]`
+Updates the selected knife/glove for a loadout.
+
+**Request:**
 ```json
 {
-  "team": 1,
-  "defindex": 503
-}
-```
-### Successful Response
-```json
-{
-  "message": "Updated {type} selection for loadout {loadoutId}"
+  "team": 1,  // 1 = Terrorists, 2 = Counter Terrorists
+  "defindex": 503  // Weapon defindex, or null to unselect
 }
 ```
 
----
----
----
----
-### GET /api/weapons/[type]?loadoutId=[id]&steamId=[id]
-Fetches the weapons for a specific loadout and player.
-## Request Parameters (exlusive Authorization Header)
-```json
-{
-  "type": "rifles",
-  "loadoutId": 1,
-  "steamId": "1234567890"
-}
-```
-## Response
-```json
-{
-  "weapons": [
-    {
-      "defindex": 7,
-      "paintindex": 302,
-      "paintseed": 424,
-      "paintwear": 0.023,
-      "stattrack_enabled": true,
-      "stattrack_count": 1432,
-      "nametag": "AK-47 Vulcan ST FN",
-      "sticker_0": 1,
-      "sticker_1": 2,
-      "sticker_2": 3,
-      "sticker_3": 4,
-      "sticker_4": 5,
-      "keychain": 1
-    }
-  ]
-}
-```
+## 🛠️ Setup and Development
 
+### Prerequisites
+- Node.js (v16+)
+- MySQL/MariaDB database
 
-
-
-
-## Database Structure
-
-
-wp_player_knifes (id, steamid, loadoutid, active, team, 
-defindex, paintindex, paintseed, paintwear, stattrack_enabled, stattrack_count, nametag, created_at, updated_at)
-
-wp_player_smgs (id, steamid, loadoutid, active, team, defindex, paintindex, paintseed, paintwear, stattrack_enabled, stattrack_count, nametag, sticker_0, sticker_1, sticker_2, sticker_3, sticker_4, keychain, created_at, updated_at)
-
-wp_player_rifles (id, steamid, loadoutid, active, team, defindex, paintindex, paintseed, paintwear, stattrack_enabled, stattrack_count, nametag, sticker_0, sticker_1, sticker_2, sticker_3, sticker_4, keychain, created_at, updated_at)
-
-wp_player_heavys (id, steamid, loadoutid, active, team, defindex, paintindex, paintseed, paintwear, stattrack_enabled, stattrack_count, nametag, sticker_0, sticker_1, sticker_2, sticker_3, sticker_4, keychain, created_at, updated_at)
-
-wp_player_pistols (id, steamid, loadoutid, active, team, defindex, paintindex, paintseed, paintwear, stattrack_enabled, stattrack_count, nametag, sticker_0, sticker_1, sticker_2, sticker_3, sticker_4, keychain, created_at, updated_at)
-
-wp_player_gloves (id, steamid, loadoutid, active, team,
-defindex, paintindex, paintseed, paintwear, created_at, updated_at)
- 
-wp_player_agents (id, steamid, loadoutid, active, team, defindex, agent_name, created_at, updated_at)
-
-wp_player_pins (id, steamid, loadoutid, active, team, pinid, created_at, updated_at)
-
-wp_player_music (id, steamid, loadoutid, active, team, musicid, created_at, updated_at)
-
-wp_player_loadouts (id, steamid, name, created_at, updated_at)
-
-## Setup
-
-Make sure to install the dependencies:
+### Installation
 
 ```bash
-# npm
+# Install dependencies
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
+# or
 yarn install
+# or
+pnpm install
+# or
+bun install
 ```
 
-## Development Server
-
-Start the development server on `http://localhost:3000`:
+### Development Server
 
 ```bash
-# npm
+# Start development server on http://localhost:3000
 npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
+# or
 yarn dev
+# or
+pnpm run dev
+# or
+bun run dev
+# or
+nuxt dev
 ```
 
-## Production
-
-Build the application for production:
+### Production Build
 
 ```bash
-# npm
+# Build for production
 npm run build
-
-# pnpm
+# or
+yarn build
+# or
 pnpm run build
 
-# yarn
-yarn build
-```
-
-Locally preview production build:
-
-```bash
-# npm
+# Preview production build
 npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
+# or
 yarn preview
+# or
+pnpm run preview
 ```
 
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+## 📚 Documentation
+- [Nuxt 3 Documentation](https://nuxt.com/docs/getting-started/introduction)
+- [CS:GO API Documentation](https://bymykel.github.io/CSGO-API/)
