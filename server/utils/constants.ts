@@ -562,7 +562,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 5027, // Bloodhound Gloves
         weapon_name: "studded_bloodhound_gloves",
         defaultName: "Bloodhound Gloves",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/studded_bloodhound_gloves_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
@@ -571,7 +571,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 4725, // Broken Fang Gloves
         weapon_name: "studded_brokenfang_gloves",
         defaultName: "Broken Fang Gloves",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/studded_brokenfang_gloves_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
@@ -580,7 +580,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 5031, // Driver Gloves
         weapon_name: "slick_gloves",
         defaultName: "Driver Gloves",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/slick_gloves_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
@@ -589,7 +589,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 5032, // Hand Wraps
         weapon_name: "leather_handwraps",
         defaultName: "Hand Wraps",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/leather_handwraps_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
@@ -598,7 +598,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 5035, // Hydra Gloves
         weapon_name: "studded_hydra_gloves",
         defaultName: "Hydra Gloves",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/studded_hydra_gloves_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
@@ -607,7 +607,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 5033, // Moto Gloves
         weapon_name: "motorcycle_gloves",
         defaultName: "Moto Gloves",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/motorcycle_gloves_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
@@ -616,7 +616,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 5034, // Specialist Gloves
         weapon_name: "specialist_gloves",
         defaultName: "Specialist Gloves",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/specialist_gloves_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
@@ -625,7 +625,7 @@ export const DEFAULT_GLOVES = [
         weapon_defindex: 5030, // Sport Gloves
         weapon_name: "sporty_gloves",
         defaultName: "Sport Gloves",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/sporty_gloves_png.png",
+        defaultImage: "https://sakoa.xyz/static/cs2inspect-web/default_gloves_t.png",
         category: "glove",
         paintIndex: 0,
         availableTeams: "both"
