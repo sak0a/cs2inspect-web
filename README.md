@@ -21,7 +21,7 @@ This application allows users to:
 
 ### Client-side
 1. **Authentication**: User logs in via Steam
-2. **Loadout Management**: 
+2. **Loadout Management**:
    - Fetches user loadouts from `/api/loadouts?steamid=[id]`
    - Displays loadout selection interface
 3. **Weapon Customization**:
@@ -511,6 +511,259 @@ Updates the selected knife/glove for a loadout.
 {
   "team": 1,  // 1 = Terrorists, 2 = Counter Terrorists
   "defindex": 503  // Weapon defindex, or null to unselect
+}
+```
+
+### Knives Management
+
+#### `GET /api/knifes?steamId=[id]&loadoutId=[id]`
+Fetches all knives for a specific loadout.
+
+**Response:**
+```json
+{
+  "knifes": [
+    {
+      "weapon_defindex": 500,
+      "defaultName": "Bayonet",
+      "paintIndex": 38,
+      "defaultImage": "https://example.com/bayonet.png",
+      "weapon_name": "Bayonet",
+      "category": "knife",
+      "availableTeams": "both",
+      "name": "Bayonet | Fade",
+      "image": "https://example.com/bayonet_fade.png",
+      "minFloat": 0.01,
+      "maxFloat": 0.08,
+      "rarity": {
+        "name": "Covert",
+        "id": "covert",
+        "color": "#eb4b4b"
+      },
+      "databaseInfo": {
+        "active": true,
+        "team": 1,
+        "defindex": 500,
+        "paintIndex": 38,
+        "pattern": 661,
+        "wear": 0.01,
+        "statTrak": true,
+        "statTrakCount": 1337,
+        "nameTag": "My Knife"
+      }
+    }
+  ]
+}
+```
+
+#### `POST /api/knifes/save?steamId=[id]&loadoutId=[id]`
+Saves or updates a knife configuration.
+
+**Request:**
+```json
+{
+  "defindex": 500,
+  "active": true,
+  "paintIndex": 38,
+  "wear": 0.01,
+  "pattern": 661,
+  "statTrak": true,
+  "statTrakCount": 1337,
+  "nameTag": "My Knife",
+  "team": 1,
+  "reset": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Knifes updated successfully"
+}
+```
+
+### Gloves Management
+
+#### `GET /api/gloves?steamId=[id]&loadoutId=[id]`
+Fetches all gloves for a specific loadout.
+
+**Response:**
+```json
+{
+  "knifes": [
+    {
+      "weapon_defindex": 5027,
+      "defaultName": "Specialist Gloves",
+      "paintIndex": 10006,
+      "defaultImage": "https://example.com/specialist_gloves.png",
+      "weapon_name": "Specialist Gloves",
+      "category": "glove",
+      "availableTeams": "both",
+      "name": "Specialist Gloves | Crimson Kimono",
+      "image": "https://example.com/specialist_gloves_crimson.png",
+      "minFloat": 0.06,
+      "maxFloat": 0.8,
+      "rarity": {
+        "name": "Extraordinary",
+        "id": "extraordinary",
+        "color": "#eb4b4b"
+      },
+      "databaseInfo": {
+        "active": true,
+        "team": 1,
+        "defindex": 5027,
+        "paintIndex": 10006,
+        "pattern": 661,
+        "wear": 0.15
+      }
+    }
+  ]
+}
+```
+
+#### `POST /api/gloves/save?steamId=[id]&loadoutId=[id]`
+Saves or updates a glove configuration.
+
+**Request:**
+```json
+{
+  "defindex": 5027,
+  "active": true,
+  "paintIndex": 10006,
+  "wear": 0.15,
+  "pattern": 661,
+  "team": 1,
+  "reset": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Gloves updated successfully"
+}
+```
+
+### Weapons Management
+
+#### `GET /api/weapons/[type]?steamId=[id]&loadoutId=[id]`
+Fetches weapons of a specific type (rifles, pistols, smgs, heavys) for a loadout.
+
+**Response:**
+```json
+{
+  "weapons": [
+    {
+      "weapon_defindex": 7,
+      "defaultName": "AK-47",
+      "paintIndex": 490,
+      "defaultImage": "https://example.com/ak47.png",
+      "weapon_name": "AK-47",
+      "category": "rifle",
+      "availableTeams": "t",
+      "name": "AK-47 | Asiimov",
+      "image": "https://example.com/ak47_asiimov.png",
+      "minFloat": 0.05,
+      "maxFloat": 0.7,
+      "rarity": {
+        "name": "Covert",
+        "id": "covert",
+        "color": "#eb4b4b"
+      },
+      "databaseInfo": {
+        "active": true,
+        "team": 1,
+        "defindex": 7,
+        "paintIndex": 490,
+        "pattern": 661,
+        "wear": 0.05,
+        "statTrak": true,
+        "statTrakCount": 1337,
+        "nameTag": "My AK",
+        "stickers": [
+          {
+            "id": 4,
+            "x": 0,
+            "y": 0,
+            "wear": 0,
+            "scale": 1,
+            "rotation": 0,
+            "api": {
+              "name": "Sticker | Crown (Foil)",
+              "type": "sticker",
+              "image": "https://example.com/crown_foil.png",
+              "effect": "foil",
+              "rarity": {
+                "name": "Extraordinary",
+                "id": "extraordinary",
+                "color": "#eb4b4b"
+              },
+              "tournament_team": "",
+              "tournament_event": ""
+            }
+          }
+        ],
+        "keychain": {
+          "id": 4187,
+          "x": 0,
+          "y": 0,
+          "z": 0,
+          "seed": 0,
+          "api": {
+            "name": "Chicken Capsule",
+            "image": "https://example.com/chicken_capsule.png",
+            "rarity": {
+              "name": "Extraordinary",
+              "id": "extraordinary",
+              "color": "#eb4b4b"
+            }
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+#### `POST /api/weapons/save?steamId=[id]&loadoutId=[id]`
+Saves or updates a weapon configuration.
+
+**Request:**
+```json
+{
+  "defindex": 7,
+  "active": true,
+  "paintIndex": 490,
+  "wear": 0.05,
+  "pattern": 661,
+  "statTrak": true,
+  "statTrakCount": 1337,
+  "nameTag": "My AK",
+  "team": 1,
+  "stickers": [
+    {
+      "slot": 0,
+      "stickerId": 4,
+      "wear": 0,
+      "scale": 1,
+      "rotation": 0
+    }
+  ],
+  "keychain": {
+    "id": 4187,
+    "seed": 0
+  },
+  "reset": false
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Weapon updated successfully"
 }
 ```
 
