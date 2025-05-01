@@ -185,7 +185,12 @@ onMounted(async () => {
             <div class="mb-2">
               <span class="text-xs font-bold text-gray-500">{{ t('navigation.actions') }}</span>
             </div>
-            <div class="">
+            <div class="space-y-2">
+              <!-- Language Switcher -->
+              <div class="mb-2 flex justify-center">
+                <LanguageSwitcher />
+              </div>
+
               <NButton
                   secondary
                   type="error"
@@ -226,7 +231,12 @@ onMounted(async () => {
       </NLayoutSider>
       <NLayoutContent class="h-screen overflow-auto">
 
-        <div v-if="!user" class="flex items-center justify-center flex-col text-xl h-full">
+        <div v-if="!user" class="flex items-center justify-center flex-col text-xl h-full relative">
+          <!-- Language Switcher in top-right corner for login screen -->
+          <div class="absolute top-4 right-4">
+            <LanguageSwitcher />
+          </div>
+
           {{ t('auth.loginRequired') }}
           <NButton size="large" @click="handleLogin" class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md">
             <template #icon >
@@ -234,6 +244,11 @@ onMounted(async () => {
             </template>
             {{ t('auth.loginButton') }}
           </NButton>
+
+          <!-- Copyright footer -->
+          <div class="absolute bottom-4 text-gray-500 text-sm">
+            &copy; saka 2025
+          </div>
         </div>
         <div v-else class="h-full bg-[#181818]">
           <NuxtPage />
