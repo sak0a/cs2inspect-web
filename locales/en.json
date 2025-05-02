@@ -77,7 +77,8 @@
         "importFromLink": "Import from Link",
         "generateLink": "Generate Link",
         "save": "Save Changes",
-        "duplicate": "Duplicate to Other Team"
+        "duplicate": "Duplicate to Other Team",
+        "reset": "Reset"
       },
       "inputs":{
         "searchPlaceholder": "Search skins...",
@@ -99,6 +100,35 @@
       "generateInspectUrlFailed": "Failed to generate inspect URL",
       "noSearchResults": "No Skins found"
     },
+    "gloveSkin": {
+      "defaultTitle": "Select Skin",
+      "title": "Select Skin for {weaponName}",
+      "buttons": {
+        "importFromLink": "Import from Link",
+        "generateLink": "Generate Link",
+        "save": "Save Changes",
+        "duplicate": "Duplicate to Other Team",
+        "reset": "Reset"
+      },
+      "inputs":{
+        "searchPlaceholder": "Search skins...",
+        "nameTagPlaceholder": "Name Tag"
+      },
+      "labels": {
+        "paintIndex": "Paint Index",
+        "paintIndexOverride": "Override",
+        "pattern": "Paint Pattern (Seed)",
+        "wear": "Wear (Float)",
+        "itemActive": "Active",
+        "itemInactive": "Inactive"
+      },
+      "importFailedDefault": "Failed to import Glove configuration",
+      "importFailedNoMatchingWeapon": "Inspect URL does not match selected Glove",
+      "importSuccess": "Successfully imported Glove configuration",
+      "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
+      "generateInspectUrlFailed": "Failed to generate inspect URL",
+      "noSearchResults": "No Skins found"
+    },
     "keychain": {
       "titleEdit": "Edit Keychain",
       "titleAdd": "Add Keychain",
@@ -112,6 +142,7 @@
         "create": "Apply Keychain",
         "delete": "Delete Keychain"
       },
+      "delete": "Delete Keychain",
       "errorFetching": "Error fetching keychain data",
       "noSearchResults": "No Keychains found"
     },

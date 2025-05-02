@@ -66,7 +66,8 @@
         "importFromLink": "Aus Link importieren",
         "generateLink": "Link generieren",
         "save": "Änderungen speichern",
-        "duplicate": "Für anderes Team duplizieren"
+        "duplicate": "Für anderes Team duplizieren",
+        "reset": "Zurücksetzen"
       },
       "inputs": {
         "searchPlaceholder": "Skins suchen...",
@@ -84,6 +85,35 @@
       "importFailedDefault": "Fehler beim Import der Messer-Konfiguration",
       "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit dem ausgewählten Messer überein",
       "importSuccess": "Messer-Konfiguration erfolgreich importiert",
+      "generateInspectUrlSuccess": "Inspect-URL in die Zwischenablage kopiert",
+      "generateInspectUrlFailed": "Fehler beim Generieren der Inspect-URL",
+      "noSearchResults": "Keine Skins gefunden"
+    },
+    "gloveSkin": {
+      "defaultTitle": "Skin auswählen",
+      "title": "Skin für {weaponName} auswählen",
+      "buttons": {
+        "importFromLink": "Aus Link importieren",
+        "generateLink": "Link generieren",
+        "save": "Änderungen speichern",
+        "duplicate": "Für anderes Team duplizieren",
+        "reset": "Zurücksetzen"
+      },
+      "inputs":{
+        "searchPlaceholder": "Skins suchen...",
+        "nameTagPlaceholder": "Namensschild"
+      },
+      "labels": {
+        "paintIndex": "Farbindex",
+        "paintIndexOverride": "Überschreiben",
+        "pattern": "Farbmuster (Seed)",
+        "wear": "Abnutzung (Float)",
+        "itemActive": "Aktiv",
+        "itemInactive": "Inaktiv"
+      },
+      "importFailedDefault": "Fehler beim Import der Handschuh-Konfiguration",
+      "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit dem ausgewählten Handschuh überein",
+      "importSuccess": "Handschuh-Konfiguration erfolgreich importiert",
       "generateInspectUrlSuccess": "Inspect-URL in die Zwischenablage kopiert",
       "generateInspectUrlFailed": "Fehler beim Generieren der Inspect-URL",
       "noSearchResults": "Keine Skins gefunden"

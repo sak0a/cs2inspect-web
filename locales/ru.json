@@ -58,6 +58,65 @@
         "knife": "ножа"
       }
     },
+    "knifeSkin": {
+      "defaultTitle": "Выбрать скин",
+      "title": "Выбрать скин для {weaponName}",
+      "buttons": {
+        "importFromLink": "Импорт из ссылки",
+        "generateLink": "Создать ссылку",
+        "save": "Сохранить изменения",
+        "duplicate": "Дублировать для другой команды",
+        "reset": "Сбросить"
+      },
+      "inputs":{
+        "searchPlaceholder": "Поиск скинов...",
+        "nameTagPlaceholder": "Именной ярлык"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Индекс покраски",
+        "paintIndexOverride": "Переопределить",
+        "pattern": "Паттерн (Seed)",
+        "wear": "Износ (Float)",
+        "itemActive": "Активно",
+        "itemInactive": "Неактивно"
+      },
+      "importFailedDefault": "Ошибка импорта конфигурации ножа",
+      "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному ножу",
+      "importSuccess": "Конфигурация ножа успешно импортирована",
+      "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
+      "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
+      "noSearchResults": "Скины не найдены"
+    },
+    "gloveSkin": {
+      "defaultTitle": "Выбрать скин",
+      "title": "Выбрать скин для {weaponName}",
+      "buttons": {
+        "importFromLink": "Импорт из ссылки",
+        "generateLink": "Создать ссылку",
+        "save": "Сохранить изменения",
+        "duplicate": "Дублировать для другой команды",
+        "reset": "Сбросить"
+      },
+      "inputs":{
+        "searchPlaceholder": "Поиск скинов...",
+        "nameTagPlaceholder": "Именной ярлык"
+      },
+      "labels": {
+        "paintIndex": "Индекс покраски",
+        "paintIndexOverride": "Переопределить",
+        "pattern": "Паттерн (Seed)",
+        "wear": "Износ (Float)",
+        "itemActive": "Активно",
+        "itemInactive": "Неактивно"
+      },
+      "importFailedDefault": "Ошибка импорта конфигурации перчаток",
+      "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранным перчаткам",
+      "importSuccess": "Конфигурация перчаток успешно импортирована",
+      "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
+      "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
+      "noSearchResults": "Скины не найдены"
+    },
     "reset": {
       "title": "Сброс скина",
       "question": "Вы уверены, что хотите сбросить настройку скина?",
