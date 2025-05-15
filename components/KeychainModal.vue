@@ -94,17 +94,25 @@ const handleRemove = () => {
   handleClose()
 }
 
+// Function to completely reset all state
+const resetAllState = () => {
+  state.value = {
+    ...state.value,
+    searchQuery: '',
+    currentPage: 1,
+    selectedItem: null,
+    customization: {
+      x: 0,
+      y: 0,
+      z: 0,
+      seed: 0
+    }
+  }
+}
+
 const handleClose = () => {
   emit('update:visible', false)
-  state.value.selectedItem = null
-  state.value.customization = {
-    x: 0,
-    y: 0,
-    z: 0,
-    seed: 0
-  }
-  state.value.searchQuery = ''
-  state.value.currentPage = 1
+  resetAllState()
 }
 
 onMounted(() => {
@@ -135,10 +143,13 @@ watch(() => props.currentKeychain, (newKeychain) => {
   }
 }, { immediate: true })
 
-// Fetch keychains when modal becomes visible
+// Fetch keychains when modal becomes visible and reset state when closed
 watch(() => props.visible, (newValue) => {
   if (newValue) {
     fetchItems()
+  } else {
+    // Reset state when modal is closed
+    resetAllState()
   }
 })
 </script>

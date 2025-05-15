@@ -170,8 +170,8 @@ function onDrag(event: MouseEvent) {
   const rect = progressBar.value.getBoundingClientRect()
   let percentage = (event.clientX - rect.left) / rect.width
 
-
   const newValue = Math.round(percentage * 1000) / 1000
+  if (newValue > props.max || newValue < props.min) return
   localValue.value = clampValue(newValue)
 
   // Ensure we emit the update
@@ -274,8 +274,8 @@ onBeforeUnmount(() => {
   transform: translateX(-50%);
   background: rgba(70, 70, 70, 0.9);
   color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 4px 12px;
+  border-radius: 20px;
   font-size: 14px;
   white-space: nowrap;
   min-width: max-content;
@@ -328,7 +328,7 @@ onBeforeUnmount(() => {
   caret-color: #80E6C4;
   padding: 5px 8px;
   border: 1px solid transparent;
-  border-radius: 3px;
+  border-radius: 20px;
   font-size: 14px;
   text-align: center;
   background: #313131;

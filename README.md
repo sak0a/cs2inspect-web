@@ -556,6 +556,8 @@ Fetches all knives for a specific loadout.
 }
 ```
 
+
+
 #### `POST /api/knifes/save?steamId=[id]&loadoutId=[id]`
 Saves or updates a knife configuration.
 

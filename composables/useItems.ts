@@ -2,7 +2,7 @@
  * Checks if the selected weapon/knife has a skin configured for the other team
  */
 export function useOtherTeamSkin(
-    selectedItem: Ref<IEnhancedItem | null> | ComputedRef<IEnhancedItem | null>,
+    selectedItem: Ref<IEnhancedItem | IEnhancedKnife | null> | ComputedRef<IEnhancedItem | IEnhancedKnife | null>,
     skins: Ref<any[]> | ComputedRef<any[]>
 ): ComputedRef<boolean> {
     return computed(() => {
@@ -11,7 +11,7 @@ export function useOtherTeamSkin(
         const currentTeam = selectedItem.value.databaseInfo?.team || 0
 
         return skins.value.some(weaponGroup =>
-            weaponGroup.some((weapon: IEnhancedItem) =>
+            weaponGroup.some((weapon: IEnhancedItem | IEnhancedKnife) =>
                 weapon.weapon_defindex === selectedItem.value?.weapon_defindex &&
                 weapon.databaseInfo?.team === oppositeTeam(currentTeam)
             )

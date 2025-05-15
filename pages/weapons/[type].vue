@@ -33,7 +33,7 @@ const handleWeaponClick = (weapon: IEnhancedItem) => {
   showSkinModal.value = true
 }
 
-const handleSkinSelect = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
+const handleSkinSave = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error(t('loadout.selectLoadoutFirst') as string)
     return
@@ -52,7 +52,7 @@ const handleSkinSelect = async (skin: IEnhancedItem, customization: WeaponCustom
       defindex: skin.weapon_defindex,
       active: customization.active,
       paintIndex: customization.paintIndex,
-      paintWear: customization.wear,
+      wear: customization.wear,
       pattern: customization.pattern,
       statTrak: customization.statTrak,
       statTrakCount: customization.statTrakCount,
@@ -82,7 +82,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponC
     message.error(t('loadout.selectLoadoutFirst') as string)
     return
   }
-
+  console.log('Duplicating weapon: ', skin, customization)
   try {
     // Format stickers data
     const formattedStickers = customization.stickers.map((sticker: any) => {
@@ -115,7 +115,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponC
         defindex: skin.weapon_defindex,
         active: true,
         paintIndex: customization.paintIndex || 0,
-        paintWear: customization.wear || 0,
+        wear: customization.wear || 0,
         pattern: customization.pattern || 0,
         statTrak: customization.statTrak || false,
         statTrakCount: customization.statTrakCount || 0,
@@ -140,7 +140,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponC
 }
 
 const fetchLoadoutSkins = async () => {
-  if (!loadoutStore.selectedLoadoutId) {
+  if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error(t('loadout.selectLoadoutFirst') as string)
     return;
   }
@@ -164,10 +164,14 @@ onMounted(async () => {
 })
 
 watch(() => showSkinModal.value, (isVisible) => {
-  if (!isVisible && selectedWeapon.value) {
-    selectedWeapon.value = {...selectedWeapon.value}
+  if (!isVisible) {
+    // When modal is closed, completely reset the selected weapon
+    // This ensures no state persists between modal sessions
+    setTimeout(() => {
+      selectedWeapon.value = null
+    }, 500) // Delay to ensure modal is fully closed
   }
-})
+}, { immediate: true })
 
 watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
   if (newLoadoutId && skins.value.length > 0) {
@@ -184,7 +188,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           :user="user"
           :error="error || loadoutStore.error || ''"
           :isLoading="isLoading"
-          />
+      />
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
         <!-- Skins Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
@@ -208,7 +212,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           :user="user"
           :weapon="selectedWeapon"
           :other-team-has-skin="otherTeamHasSkin"
-          @select="handleSkinSelect"
+          @select="handleSkinSave"
           @duplicate="handleWeaponDuplicate"
       />
     </div>

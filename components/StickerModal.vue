@@ -104,18 +104,26 @@ const handleRemove = () => {
   handleClose()
 }
 
+// Function to completely reset all state
+const resetAllState = () => {
+  state.value = {
+    ...state.value,
+    searchQuery: '',
+    currentPage: 1,
+    selectedItem: null,
+    customization: {
+      x: 0,
+      y: 0,
+      wear: 0,
+      scale: 1,
+      rotation: 0
+    }
+  }
+}
+
 const handleClose = () => {
   emit('update:visible', false)
-  state.value.selectedItem = null
-  state.value.customization = {
-    x: 0,
-    y: 0,
-    wear: 0,
-    scale: 1,
-    rotation: 0
-  }
-  state.value.searchQuery = ''
-  state.value.currentPage = 1
+  resetAllState()
 }
 
 onMounted(() => {
@@ -148,10 +156,13 @@ watch(() => props.currentSticker, (newSticker) => {
   }
 }, { immediate: true })
 
-// Fetch stickers when modal becomes visible
+// Fetch stickers when modal becomes visible and reset state when closed
 watch(() => props.visible, (newValue) => {
   if (newValue) {
     fetchItems()
+  } else {
+    // Reset state when modal is closed
+    resetAllState()
   }
 })
 </script>
@@ -275,7 +286,7 @@ watch(() => props.visible, (newValue) => {
           </div>
         </div>
       </div>
-      
+
       <!-- Stickers Grid -->
       <div v-if="!state.isLoading" class="grid grid-cols-5 gap-4">
         <NCard

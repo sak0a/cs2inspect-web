@@ -18,8 +18,8 @@ export async function executeQuery<T>(
     try {
         conn = await pool.getConnection();
         return await conn.query(query, params) as T;
-    } catch (e) {
-        throw new Error(errorMessage);
+    } catch (e: Error | any) {
+        throw new Error(errorMessage + ': ' + e.message);
     } finally {
         if (conn) conn.release();
     }

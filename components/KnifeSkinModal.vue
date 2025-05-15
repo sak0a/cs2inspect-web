@@ -4,10 +4,12 @@ import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitc
 import {APISkin, IEnhancedItem, IMappedDBWeapon, KnifeCustomization} from "~/server/utils/interfaces"
 import { SteamUser } from "~/services/steamAuth"
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
+import ResetModal from "~/components/ResetModal.vue";
+import {def} from "@vue/shared";
 
 const props = defineProps<{
   visible: boolean
-  weapon: IEnhancedItem | null
+  weapon: IEnhancedKnife | null
   isLoading?: boolean
   otherTeamHasSkin: boolean
   pageSize?: number
@@ -16,7 +18,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedItem, customization: KnifeCustomization): void
+  (e: 'save', skin: IEnhancedItem, customization: KnifeCustomization): void
   (e: 'duplicate', skin: IEnhancedItem, customization: KnifeCustomization): void
 }>()
 
@@ -31,9 +33,11 @@ const state = ref({
   showImportModal: false,
   showDetails: false,
   showDuplicateConfirm: false,
+  showResetConfirm: false,
   isImporting: false,
   isLoadingInspect: false,
-  isDuplicating: false
+  isDuplicating: false,
+  isResetting: false
 })
 
 const inheritedWeapon = ref<IEnhancedItem | null>()
@@ -48,7 +52,8 @@ const defaultCustomization: KnifeCustomization = {
   pattern: 0,
   wear: 0,
   nameTag: '',
-  team: 0
+  team: 0,
+  reset: false
 }
 const customization = ref<KnifeCustomization>({ ...defaultCustomization })
 
@@ -66,43 +71,49 @@ const paginatedSkins = computed(() => {
 })
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
-const fetchSkinsForKnife = async () => {
+const fetchAvailableSkinsForKnife = async () => {
   if (!props.weapon) return
-  try {
-    state.value.isLoadingSkins = true
-    const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
-    const data = await response.json()
-    state.value.skins = data.skins
-  } catch (error) {
-    console.error('Error fetching skins:', error)
-  } finally {
-    state.value.isLoadingSkins = false
-  }
+  state.value.isLoadingSkins = true
+  await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
+      .then(async (response) => {
+        const data = await response.json()
+        state.value.skins = data.skins
+
+        // Check if current page is above available pages and adjust if needed
+        const newTotalPages = Math.ceil(data.skins.filter(skin =>
+          skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
+        ).length / PAGE_SIZE.value)
+
+        if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+          state.value.currentPage = newTotalPages
+        }
+      }).catch((error) => {
+        console.error('Error fetching skins:', error)
+      })
+      .finally(() => state.value.isLoadingSkins = false)
+}
+
+const handleReset = () => {
+  if (!props.weapon || !props.user) return
+
+  customization.value.reset = true
+  emit('save', props.weapon, customization.value)
+  state.value.showResetConfirm = false
 }
 
 const handleDuplicate = async () => {
   if (!selectedSkin.value) return
 
   state.value.isDuplicating = true
-  try {
-    // Calculate the other team number (if current is 1 (T), other is 2 (CT) and vice versa)
-    const otherTeam = props.weapon?.databaseInfo?.team === 1 ? 2 : 1
-
-    // Create copy of current customization for other team
-    const duplicateData = {
-      ...customization.value,
-      team: otherTeam
-    }
-
-    // Emit duplicate event to parent
-    emit('duplicate', selectedSkin.value, duplicateData)
-
-    state.value.showDuplicateConfirm = false
-  } catch (error) {
-    console.error('Error duplicating knife:', error)
-  } finally {
-    state.value.isDuplicating = false
+  const duplicateData = {
+    ...customization.value,
+    team: oppositeTeam(props.weapon?.databaseInfo?.team || 1)
   }
+
+  emit('duplicate', selectedSkin.value, duplicateData)
+
+  state.value.showDuplicateConfirm = false
+  state.value.isDuplicating = false
 }
 const handleSkinSelect = (skin: APISkin) => {
   selectedSkin.value = {
@@ -129,7 +140,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
   try {
     state.value.isImporting = true
-    const response = await fetch(`/api/weapons/inspect?url=decode-link&steamId=${props.user.steamId}`, {
+    const response = await fetch(`/api/knifes/inspect?url=decode-link&steamId=${props.user.steamId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -192,7 +203,7 @@ const handleCreateInspectLink = async () => {
 
   try {
     state.value.isLoadingInspect = true
-    const response = await fetch(`/api/weapons/inspect?url=create-link&steamId=${props.user.steamId}`, {
+    const response = await fetch(`/api/knifes/inspect?url=create-link&steamId=${props.user.steamId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'credentials': 'include'},
       body: JSON.stringify({
@@ -223,9 +234,11 @@ const handleCreateInspectLink = async () => {
 
 const handleSave = () => {
   if (!selectedSkin.value) return
-  emit('select', selectedSkin.value, customization.value)
+  console.log('Saving knife: ', selectedSkin.value, customization.value)
+  emit('save', selectedSkin.value, customization.value)
   handleClose()
 }
+
 const handleClose = () => {
   emit('update:visible', false)
   setTimeout(() => {
@@ -242,27 +255,50 @@ watch(() => customization.value.wear, (newWear) => {
   }
 }, { immediate: true })
 
+// Watch for changes to searchQuery to adjust current page if needed
+watch(() => state.value.searchQuery, () => {
+  // When search query changes, check if we need to adjust the current page
+  const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
+  if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+    state.value.currentPage = newTotalPages
+  } else if (newTotalPages > 0) {
+    // Reset to page 1 when search query changes
+    state.value.currentPage = 1
+  }
+})
+
+// Watch for changes to props.visible to check pagination when modal is opened
+watch(() => props.visible, (isVisible) => {
+  if (isVisible && filteredSkins.value.length > 0) {
+    // Check if current page is above available pages and adjust if needed
+    const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
+    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+      state.value.currentPage = newTotalPages
+    }
+  }
+})
+
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
+    console.log('KnifeSkinModal - watch props.weapon:', props.weapon)
     inheritedWeapon.value = props.weapon
-    fetchSkinsForKnife()
+    customization.value.team = props.weapon.team || 1
+    fetchAvailableSkinsForKnife()
 
-    const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
+    const dbInfo = props.weapon.databaseInfo as DBKnife
     if (dbInfo) {
       customization.value = {
         active: dbInfo.active || false,
-        statTrak: dbInfo.statTrak || false,
-        statTrakCount: dbInfo.statTrakCount | 0,
+        statTrak: dbInfo.stattrak_enabled || false,
+        statTrakCount: dbInfo.stattrak_count | 0,
         defindex: dbInfo.defindex | 0,
-        paintIndex: dbInfo.paintIndex | 0,
+        paintIndex: dbInfo.paintindex | 0,
         paintIndexOverride: false,
-        pattern: dbInfo.pattern | 0,
-        wear: dbInfo.paintWear,
-        nameTag: dbInfo.nameTag || '',
+        pattern: parseInt(dbInfo.paintseed) | 0,
+        wear: parseFloat(dbInfo.paintwear),
+        nameTag: dbInfo.nametag || '',
         team: dbInfo.team || 0
       }
-    } else {
-      customization.value.team = 0
     }
     selectedSkin.value = inheritedWeapon.value
   }
@@ -280,6 +316,19 @@ watch(() => props.weapon, () => {
       @update:show="handleClose"
   >
     <template #header-extra>
+      <!-- Reset Button -->
+      <NButton secondary type="default" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
+        <template #icon>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+          </svg>
+        </template>
+        {{ t('modals.knifeSkin.buttons.reset') }}
+      </NButton>
+      <NDivider vertical />
+
       <!-- Import Knife by Inspect Link -->
       <NButton :loading="state.isImporting" secondary type="default" :disabled="!selectedSkin" @click="state.showImportModal = true">
         <template #icon>
@@ -401,14 +450,14 @@ watch(() => props.weapon, () => {
             <!-- Save Button & Active Switch -->
             <div class="flex items-center justify-center w-full mt-0 gap-2">
               <!-- Save Knife -->
-              <NButton type="success" secondary class="w-40" @click="handleSave">
+              <NButton type="success"  secondary class="w-40" @click="handleSave">
                 {{ t('modals.knifeSkin.buttons.save') }}
               </NButton>
 
               <!-- Duplicate Knife -->
               <div>
                 <NButton
-                    :disabled="!selectedSkin"
+                    :disabled="!selectedSkin || customization.paintIndex == 0"
                     type="default"
                     secondary
                     class="w-full"
@@ -502,6 +551,13 @@ watch(() => props.weapon, () => {
         :other-team-has-skin="otherTeamHasSkin"
         :item-type="t('modals.duplicateItem.type.knife') as string"
         @confirm="handleDuplicate"
+    />
+
+    <!-- Reset Confirmation Modal -->
+    <ResetModal
+        v-model:visible="state.showResetConfirm"
+        :loading="state.isResetting"
+        @confirm="handleReset"
     />
   </NModal>
 </template>

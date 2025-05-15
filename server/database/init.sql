@@ -8,6 +8,8 @@ create table wp_player_loadouts
     selected_knife_ct smallint unsigned                     null comment 'DEFINDEX of selected knife for ct',
     selected_glove_t  smallint unsigned                     null comment 'DEFINDEX of selected glove for t',
     selected_glove_ct smallint unsigned                     null comment 'DEFINDEX of selected glove for ct',
+    selected_agent_t  smallint unsigned                     null comment 'DEFINDEX of selected agent for t',
+    selected_agent_ct smallint unsigned                     null comment 'DEFINDEX of selected agent for ct',
     created_at        timestamp default current_timestamp() not null,
     updated_at        timestamp default current_timestamp() not null on update current_timestamp()
 );

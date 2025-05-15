@@ -1,5 +1,7 @@
 import { getCS2Client } from "~/server/plugins/init";
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { mapCustomizationToRepresentation } from '~/server/utils/inspectHelpers'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
@@ -16,7 +18,16 @@ export default defineEventHandler(async (event) => {
     validateRequiredRequestData(body, 'Body')
 
     if (apiUrl === 'create-link') {
-        Logger.info(`Creating inspect URL`)
+        // Map the customization data if it's a weapon with stickers/keychain
+        let stickers = body.stickers;
+        let keychain = body.keychain;
+
+        // If we have a complete customization object, map it to the representation format
+        if (body.customization) {
+            const representation = mapCustomizationToRepresentation(body.customization);
+            stickers = representation.stickers;
+            keychain = representation.keychain;
+        }
 
         const createdLink = createInspectUrl({
             defindex: body.defindex,
@@ -24,13 +35,11 @@ export default defineEventHandler(async (event) => {
             paintseed: body.pattern,
             paintwear: body.wear,
             rarity: body.rarity,
-            killeaterscoretype: body.statTrak,
+            killeaterscoretype: body.statTrak ? 1 : 0,
             killeatervalue: body.statTrakCount,
-            customname: body.nametag,
-            stickers: body.stickers,
-            keychains: [
-                body.keychain
-            ],
+            customname: body.nameTag,
+            stickers: stickers,
+            keychains: keychain ? [keychain] : undefined,
         } as ItemBuilder)
 
         Logger.success(`Inspect URL created: ${createdLink}`)

@@ -19,7 +19,8 @@
     "agents": "Agents",
     "pins": "Pins",
     "music": "Music Kits",
-    "inspects": "Inspects"
+    "inspects": "Inspects",
+    "home": "Home"
   },
   "teams": {
     "terrorists": "Terrorists",
@@ -230,7 +231,7 @@
     },
     "reset": {
       "title": "Reset Skin",
-      "question": "Are you sure you want to reset the skin configuration?",
+      "question": "Are you sure you want to delete the skin configuration?",
       "cancel": "Cancel",
       "confirm": "Reset"
     }

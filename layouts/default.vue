@@ -141,7 +141,7 @@ onMounted(async () => {
               </div>
               <NMenu
                   :icon-size="45"
-                  :indent="14"
+                  :indent="24"
                   :options="translatedWeaponMenuOptions"
                   :value="selectedKey"
                   @update:value="handleSelect"
@@ -156,7 +156,7 @@ onMounted(async () => {
               </div>
               <NMenu
                   :icon-size="45"
-                  :indent="14"
+                  :indent="24"
                   :options="translatedEquipmentMenuOptions"
                   :value="selectedKey"
                   @update:value="handleSelect"
@@ -171,7 +171,7 @@ onMounted(async () => {
               </div>
               <NMenu
                   :icon-size="30"
-                  :indent="14"
+                  :indent="24"
                   :options="translatedExtrasMenuOptions"
                   :value="selectedKey"
                   @update:value="handleSelect"

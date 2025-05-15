@@ -20,10 +20,15 @@ export default defineNuxtConfig({
     pageTransition: {
       name: 'page',
       mode: 'out-in'
+    },
+    layoutTransition: {
+      name: 'layout',
+      mode: 'out-in'
     }
   },
   css: [
     '~/assets/css/tailwind.sass',
+    '~/assets/css/transitions.css',
   ],
   router: {
     options: {

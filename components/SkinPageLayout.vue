@@ -36,8 +36,6 @@ const loadoutStore = useLoadoutStore()
       <!-- Header with Loadout Selector -->
       <div class="flex justify-between mb-2">
         <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
-        <LanguageSwitcher
-        />
         <LoadoutSelector v-if="user" />
       </div>
 

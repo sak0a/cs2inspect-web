@@ -113,6 +113,28 @@ export enum CsTeam {
     CounterTerrorist = 2
 }
 
+export interface WeaponStickerCustomization {
+    id: number
+    wear: number
+    scale: number
+    rotation: number
+    x: number
+    y: number
+}
+
+export interface WeaponKeychainCustomization {
+    id: number
+    x: number
+    y: number
+    z: number
+    seed: number
+    api?: {
+        id: string
+        name: string
+        color: string
+    }
+}
+
 export interface WeaponCustomization {
     active: boolean
     statTrak: boolean
@@ -123,8 +145,8 @@ export interface WeaponCustomization {
     pattern: number
     wear: number
     nameTag: string
-    stickers: any[]
-    keychain: any | null
+    stickers: WeaponStickerCustomization[] | null[]
+    keychain: WeaponKeychainCustomization | null
     team: number
     reset?: boolean
 }
@@ -143,11 +165,13 @@ export interface KnifeCustomization {
 }
 export interface GloveCustomization {
     active: boolean
+    defindex?: number
     paintIndex: number
     paintIndexOverride: boolean
     pattern: number
     wear: number
     team: number
+    reset?: boolean
 }
 
 export interface IDefaultItem {
@@ -169,7 +193,20 @@ export interface IEnhancedItem extends IDefaultItem {
         name: string;
         color: string;
     };
-    databaseInfo?: DBKnife | DBGlove | IMappedDBWeapon;
+    team: number | null;
+    databaseInfo?: any
+}
+
+export interface IEnhancedWeapon extends IEnhancedItem {
+    databaseInfo?: IMappedDBWeapon
+}
+
+export interface IEnhancedKnife extends IEnhancedItem {
+    databaseInfo?: DBKnife
+}
+
+export interface IEnhancedGlove extends IEnhancedItem {
+    databaseInfo?: DBGlove
 }
 
 export interface IMappedDBWeapon {
@@ -182,7 +219,7 @@ export interface IMappedDBWeapon {
     paintWear: number;
     pattern: number;
     nameTag: string;
-    stickers: any;
+    stickers: (IEnhancedWeaponSticker | null)[];
     keychain: IEnhancedWeaponKeychain | null;
 }
 
@@ -354,6 +391,8 @@ export interface DBLoadout {
     selected_knife_ct: number | null;
     selected_glove_t: number | null;
     selected_glove_ct: number | null;
+    selected_agent_t: number | null;
+    selected_agent_ct: number | null;
     created_at: string;
     updated_at: string;
 }

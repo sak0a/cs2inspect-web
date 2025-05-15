@@ -1,16 +1,21 @@
 <script setup>
-import { NDropdown } from 'naive-ui'
-import { useNuxtApp, computed, useCookie } from '#imports'
+import { NDropdown, NButton, NSelect, NIcon } from 'naive-ui'
+import { useNuxtApp, computed, useCookie, ref } from '#imports'
+import { Language as LanguageIcon } from '@vicons/ionicons5'
 
 const { getLocale, switchLocale, getLocales, t } = useI18n()
+const showDropdown = ref(false)
 
 // Create dropdown options from locales
 const options = computed(() =>
     getLocales().map(loc => ({
-      key: loc.code,
-      label: loc.displayName || loc.code
+      label: `${getFlag(loc.code)} ${loc.displayName || loc.code}`,
+      value: loc.code
     }))
 )
+
+// Current locale
+const currentLocale = computed(() => getLocale())
 
 // Function to get flag emoji based on locale code
 const getFlag = (code) => {
@@ -55,24 +60,41 @@ const handleSelect = (key) => {
 </script>
 
 <template>
-  <NDropdown
-      trigger="hover"
+  <div class="language-switcher">
+    <NSelect
+      v-model:value="currentLocale"
       :options="options"
-      @select="handleSelect"
-  >
-    <div class="flex items-center space-x-1 cursor-pointer px-2 py-1 rounded hover:bg-gray-700">
-      <span class="flag-icon">
-        {{ getFlag(getLocale()) }}
-      </span>
-      <span>
-        {{ getLocales().find(loc => loc.code === getLocale())?.displayName || getLocale() }}
-      </span>
-    </div>
-  </NDropdown>
+      @update:value="handleSelect"
+      size="medium"
+      class="language-select"
+    >
+      <template #prefix>
+        <NIcon>
+          <LanguageIcon />
+        </NIcon>
+      </template>
+    </NSelect>
+  </div>
 </template>
 
 <style scoped>
-.flag-icon {
-  font-size: 1.2em;
+.language-switcher {
+  display: flex;
+  align-items: center;
+}
+
+.language-select {
+  min-width: 140px;
+}
+
+:deep(.n-base-selection-label) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+:deep(.n-base-selection-placeholder) {
+  display: flex;
+  align-items: center;
 }
 </style>

@@ -4,9 +4,11 @@ import { ref, computed } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, NInputNumber, NSwitch, NButton } from 'naive-ui'
 import { steamAuth } from "~/services/steamAuth";
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
+import ResetModal from "~/components/ResetModal.vue";
+import {setElectronClientContext} from "@vue/devtools-kit";
 const props = defineProps<{
   visible: boolean
-  weapon: IEnhancedItem | null
+  weapon: IEnhancedWeapon | null
   isLoading?: boolean
   otherTeamHasSkin: boolean
   pageSize?: number
@@ -14,8 +16,8 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedItem, customization: WeaponCustomization): void
-  (e: 'duplicate', skin: IEnhancedItem, customization: WeaponCustomization): void
+  (e: 'select', skin: IEnhancedWeapon, customization: WeaponCustomization): void
+  (e: 'duplicate', skin: IEnhancedWeapon, customization: WeaponCustomization): void
 }>()
 
 const { t } = useI18n()
@@ -42,7 +44,7 @@ const state = ref({
   isDuplicating: false
 })
 
-const selectedSkin = ref<IEnhancedItem | null>()
+const selectedSkin = ref<IEnhancedWeapon | null>()
 
 const defaultCustomization: WeaponCustomization = {
   active: false,
@@ -73,13 +75,22 @@ const paginatedSkins = computed(() => {
 })
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
-const fetchSkinsForWeapon = async () => {
+const fetchAvailableSkinsForWeapon = async () => {
   if (!props.weapon) return
   try {
     state.value.isLoadingSkins = true
     const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
     const data = await response.json()
     state.value.skins = data.skins
+
+    // Check if current page is above available pages and adjust if needed
+    const newTotalPages = Math.ceil(data.skins.filter(skin =>
+      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
+    ).length / PAGE_SIZE.value)
+
+    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+      state.value.currentPage = newTotalPages
+    }
   } catch (error) {
     console.error('Error fetching skins:', error)
   } finally {
@@ -87,33 +98,7 @@ const fetchSkinsForWeapon = async () => {
   }
 }
 
-const mapCustomizationToRepresentation = (customization: WeaponCustomization) => {
-  const stickers = customization.stickers.map((sticker, index) => {
-    if (!sticker) return null;
-    return {
-      slot: index || 0,
-      sticker_id: sticker.id,
-      wear: sticker.wear,
-      scale: sticker.scale,
-      rotation: sticker.rotation,
-      offset_x: sticker.x,
-      offset_y: sticker.y,
-    };
-  }).filter(sticker => sticker !== null);
-
-  const keychain = customization.keychain ? {
-    slot: 0,
-    sticker_id: customization.keychain.id,
-    offset_x: customization.keychain.x,
-    offset_y: customization.keychain.y,
-    offset_z: customization.keychain.z,
-    pattern: customization.keychain.seed
-  } : null;
-  return {
-    stickers,
-    keychain
-  };
-};
+// mapCustomizationToRepresentation has been moved to the backend
 
 const handleImportInspectLink = async (inspectUrl: string) => {
   if (!props.weapon || !user.value) return
@@ -261,7 +246,6 @@ const handleCreateInspectLink = async () => {
 
   try {
     state.value.isLoadingInspect = true
-    const customizationRepresentation = mapCustomizationToRepresentation(customization.value);
     const response = await fetch(`/api/weapons/inspect?url=create-link&steamId=${user.value.steamId}`, {
       method: 'POST',
       headers: {
@@ -277,8 +261,7 @@ const handleCreateInspectLink = async () => {
         statTrak: customization.value.statTrak,
         statTrakCount: customization.value.statTrakCount,
         nameTag: customization.value.nameTag,
-        stickers: customizationRepresentation.stickers,
-        keychain: customizationRepresentation.keychain
+        customization: customization.value
       })
     })
     const data = await response.json()
@@ -302,7 +285,6 @@ const handleReset = async () => {
   state.value.isResetting = true
   try {
     customization.value.reset = true
-    message.success(t('modals.weaponSkin.resetSuccess') as string)
     state.value.showResetConfirm = false
     handleSave();
   } catch (error) {
@@ -331,6 +313,7 @@ const handleDuplicate = async () => {
     emit('duplicate', selectedSkin.value, duplicateData)
 
     state.value.showDuplicateConfirm = false
+    console.log('handleDuplicate', selectedSkin.value, duplicateData)
   } catch (error) {
     message.error(t('modals.weaponSkin.duplicateFailed') as string)
     console.error('Error duplicating weapon:', error)
@@ -403,10 +386,6 @@ const handleAddSticker = (position: number) => {
   state.value.showStickerModal = true
 }
 const handleStickerSelect = (stickerData: any) => {
-  if (!selectedSkin.value) {
-    message.error('Please select a weapon first')
-    return
-  }
   customization.value.stickers[state.value.currentStickerPosition] = stickerData
 }
 
@@ -414,10 +393,6 @@ const handleAddKeychain = () => {
   state.value.showKeychainModal = true
 }
 const handleKeychainSelect = (keychainData: any) => {
-  if (!selectedSkin.value) {
-    message.error('Please select a weapon first')
-    return
-  }
   customization.value.keychain = keychainData
 }
 
@@ -427,14 +402,13 @@ const handleSave = () => {
   handleClose();
 }
 const handleClose = () => {
-  setTimeout(() => {
-    state.value.searchQuery = ''
-    selectedSkin.value = null
-    state.value.skins = []
-    customization.value = defaultCustomization
-  }, 200)
-
+  // Emit the update event to close the modal
   emit('update:visible', false)
+
+  // We'll also reset the state immediately to ensure it's clean
+  setTimeout(() => {
+    resetAllState()
+  }, 300) // Small delay to ensure modal is closed first
 }
 
 watch(() => customization.value.wear, (newWear) => {
@@ -444,9 +418,83 @@ watch(() => customization.value.wear, (newWear) => {
     }, { immediate: true }
 );
 
+// Function to completely reset all state
+const resetAllState = () => {
+  // Reset customization to default values
+  customization.value = {
+    active: false,
+    statTrak: false,
+    statTrakCount: 0,
+    paintIndex: 0,
+    paintIndexOverride: false,
+    pattern: 0,
+    wear: 0,
+    nameTag: '',
+    stickers: [null, null, null, null, null],
+    keychain: null,
+    team: 0
+  }
+
+  // Reset all other state
+  state.value = {
+    ...state.value,
+    searchQuery: '',
+    currentPage: 1,
+    skins: [],
+    isLoadingSkins: false,
+    showStickerModal: false,
+    showKeychainModal: false,
+    showImportModal: false,
+    showDetails: false,
+    currentStickerPosition: 0,
+    showResetConfirm: false,
+    showDuplicateConfirm: false,
+    isResetting: false,
+    isImporting: false,
+    isLoadingInspect: false,
+    isDuplicating: false
+  }
+
+  // Reset selected skin
+  selectedSkin.value = null
+}
+
+// Watch for changes to props.visible to properly reset state when modal is opened/closed
+watch(() => props.visible, (isVisible) => {
+  if (!isVisible) {
+    // Reset all state when modal is closed
+    setTimeout(() => {
+      resetAllState()
+    }, 300) // Small delay to ensure modal is closed first
+  } else if (filteredSkins.value.length > 0) {
+    // Check if current page is above available pages and adjust if needed
+    const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
+    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+      state.value.currentPage = newTotalPages
+    }
+  }
+}, { immediate: true })
+
+// Watch for changes to searchQuery to adjust current page if needed
+watch(() => state.value.searchQuery, () => {
+  // When search query changes, check if we need to adjust the current page
+  const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
+  if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+    state.value.currentPage = newTotalPages
+  } else if (newTotalPages > 0) {
+    // Reset to page 1 when search query changes
+    state.value.currentPage = 1
+  }
+})
+
+// Watch for changes to props.weapon to initialize state when a weapon is selected
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
-    fetchSkinsForWeapon()
+    // First reset all state to ensure no previous data persists
+    resetAllState()
+
+    // Then fetch new data and initialize state
+    fetchAvailableSkinsForWeapon()
     selectedSkin.value = props.weapon
 
     const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
@@ -460,8 +508,8 @@ watch(() => props.weapon, () => {
         pattern: dbInfo.pattern | 0,
         wear: dbInfo.paintWear,
         nameTag: dbInfo.nameTag || '',
-        stickers: dbInfo.stickers || [null, null, null, null, null],
-        keychain: dbInfo.keychain ?? null,
+        stickers: Array.isArray(dbInfo.stickers) ? [...dbInfo.stickers] : [null, null, null, null, null],
+        keychain: dbInfo.keychain ? {...dbInfo.keychain} : null,
         team: dbInfo.team
       }
     } else {
@@ -484,7 +532,7 @@ watch(() => props.weapon, () => {
   >
     <template #header-extra>
       <!-- Reset Weapon Configuration -->
-      <NButton :loading="state.isResetting" secondary type="default" :disabled="!selectedSkin" @click="state.showResetConfirm = true">
+      <NButton :loading="state.isResetting" secondary type="default" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
         <template #icon>
           <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-restore"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.06 13a9 9 0 1 0 .49 -4.087" /><path d="M3 4.001v5h5" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
         </template>
@@ -788,36 +836,11 @@ watch(() => props.weapon, () => {
         @confirm="handleDuplicate"
     />
 
-    <NModal
-        :show="state.showResetConfirm"
-        style="width: 600px"
-        preset="card"
-        :title="t('modals.reset.title') as string"
-        :bordered="false"
-        :mask-closable="!state.isResetting"
-        :closable="!state.isResetting"
-        @update:show="handleClose">
-      <p>{{ t('modals.reset.question') }}</p>
-      <div class="flex justify-end mt-4 gap-2">
-        <NButton
-            secondary
-            type="error"
-            :loading="state.isResetting"
-            @click="state.showResetConfirm = false"
-        >
-          {{ t('modals.reset.cancel') }}
-        </NButton>
-
-        <NButton
-            secondary
-            type="success"
-            :loading="state.isResetting"
-            @click="handleReset"
-        >
-          {{ t('modals.reset.confirm') }}
-        </NButton>
-      </div>
-    </NModal>
+    <ResetModal
+        v-model:visible="state.showResetConfirm"
+        :loading="state.isResetting"
+        @confirm="handleReset"
+    />
   </NModal>
 </template>
 <style scoped lang="sass">

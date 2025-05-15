@@ -1,9 +1,9 @@
 import { defineStore } from 'pinia'
-import {DBLoadout, IEnhancedItem} from '~/server/utils/interfaces'
+import {DBLoadout, IEnhancedItem, IEnhancedWeapon} from '~/server/utils/interfaces'
 
 interface LoadoutState {
     loadouts: DBLoadout[];
-    currentSkins: IEnhancedItem[];
+    currentSkins: IEnhancedItem[] | IEnhancedKnife[] | IEnhancedWeapon[];
     selectedLoadoutId: string | null;
     isLoading: boolean;
     error: string | null;
@@ -29,7 +29,7 @@ export const useLoadoutStore = defineStore('loadout', {
     actions: {
         /**
          * Fetch the skins for the given loadout
-         * @param type
+         * @param type rifles | pistols | heavys | smgs
          * @param steamId
          */
         async fetchLoadoutWeaponSkins(type: string, steamId: string) {
@@ -48,8 +48,11 @@ export const useLoadoutStore = defineStore('loadout', {
                     }
                     throw new Error('Failed to fetch loadout weapon skin; Authentication / Response failed')
                 }
+
                 const data = await response.json();
+                console.info(`Fetched ${data.meta.rows} skins for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
                 this.currentSkins = data.skins;
+                console.log("Fetched skins: ", data.skins)
             }).catch((error) => {
                 console.error(error)
                 throw error
@@ -65,9 +68,45 @@ export const useLoadoutStore = defineStore('loadout', {
                     'Content-Type': 'application/json',
                 }
             }).then(async (response) => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        navigateTo('/')
+                        return
+                    }
+                    throw new Error('Failed to fetch loadout weapon skin; Authentication / Response failed')
+                }
                 const data = await response.json();
                 this.currentSkins = data.knifes;
+                console.info(`Fetched ${data.meta.rows} knifes for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
+                console.log("Fetched knifes: ", data.knifes)
             }).catch((error) => {
+                console.error(error)
+                throw error
+            }).finally(() => this.isLoading = false);
+        },
+
+        async fetchLoadoutGloves(steamId: string) {
+            this.isLoading = true;
+            await fetch(`/api/gloves?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(async (response) => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        navigateTo('/')
+                        return
+                    }
+                    throw new Error('Failed to fetch loadout gloves; Authentication / Response failed')
+                }
+                const data = await response.json();
+                this.currentSkins = data.gloves;
+                console.info(`Fetched ${data.meta.rows} gloves for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
+                console.log("Fetched gloves: ", data.gloves)
+            }).catch((error) => {
+                console.error(error)
                 throw error
             }).finally(() => this.isLoading = false);
         },

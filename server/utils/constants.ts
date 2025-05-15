@@ -1,5 +1,3 @@
-import { IDefaultItem } from "~/server/utils/interfaces";
-
 export const PROTECTED_API_PATHS = [
     '/api/weapons',
     '/api/loadouts',
@@ -239,7 +237,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         defaultImage:
             "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_taser.png",
         defaultName: "Zeus x27",
-        category: "Melee",
+        category: "pistols",
         availableTeams: "both"
     },
     {
@@ -637,7 +635,8 @@ export const VALID_GLOVE_DEFINDEXES = DEFAULT_GLOVES.reduce((acc, glove) => {
     return acc;
 }, {} as Record<number, boolean>);
 
-const DEFINDEXES = {
+
+export const DEFINDEXES = {
     weapon_deagle: 1,
     weapon_elite: 2,
     weapon_fiveseven: 3,

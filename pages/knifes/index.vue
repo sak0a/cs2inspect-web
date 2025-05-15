@@ -5,19 +5,20 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import KnifeSkinModal from '~/components/KnifeSkinModal.vue'
-import { IEnhancedItem, KnifeCustomization } from "~/server/utils/interfaces"
+import { KnifeCustomization } from "~/server/utils/interfaces"
+import KnifeTabs from "~/components/KnifeTabs.vue";
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const showSkinModal = ref<boolean>(false)
-const selectedKnife = ref<IEnhancedItem | null>(null)
+const selectedKnife = ref<IEnhancedKnife | null>(null)
 const tKnifeType = ref<number | null>(null)
 const ctKnifeType = ref<number | null>(null)
 const selectedTeamKnives = ref({
-  terrorists: null as IEnhancedItem | null,
-  counterTerrorists: null as IEnhancedItem | null
+  terrorists: null as IEnhancedKnife | null,
+  counterTerrorists: null as IEnhancedKnife | null
 })
 
 const loadoutStore = useLoadoutStore()
@@ -79,6 +80,7 @@ const fetchLoadoutKnifes = async () => {
   await loadoutStore.fetchLoadoutKnifes(user.value.steamId)
       .then(() => {
         skins.value = loadoutStore.loadoutSkins;
+        console.log("Fetched loadout knifes: ", skins.value)
         updateSelectedKnifes();
       })
       .catch(() => {
@@ -110,58 +112,55 @@ const updateSelectedKnifes = () => {
   ctKnifeType.value = selectedTeamKnives.value.counterTerrorists?.weapon_defindex || -1;
 }
 
-const handleKnifeClick = (knife: IEnhancedItem) => {
+const handleKnifeClick = (knife: IEnhancedKnife) => {
+  console.log('Knife clicked: ', knife)
   selectedKnife.value = knife
   showSkinModal.value = true
 }
 
-const handleSkinSelect = async (knife: IEnhancedItem, customization: KnifeCustomization) => {
+const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
-    message.error('Please select a loadout first')
     return
   }
-  try {
-    const response = await fetch(`/api/knifes/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-      body: JSON.stringify({
-        defindex: knife.weapon_defindex,
-        active: customization.active,
-        paintIndex: customization.paintIndex,
-        wear: customization.wear,
-        pattern: customization.pattern,
-        statTrak: customization.statTrak,
-        statTrakCount: customization.statTrakCount,
-        nameTag: customization.nameTag,
-        team: knife.databaseInfo?.team || customization.team || 'none'
-      } as KnifeCustomization)
+  console.log('Saving knife: ', knife, customization)
+  await fetch(`/api/knifes/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'credentials': 'include'
+    },
+    body: JSON.stringify({
+      defindex: knife.weapon_defindex,
+      team: customization.team,
+      paintIndex: customization.paintIndex,
+      pattern: customization.pattern,
+      wear: customization.wear,
+      statTrak: customization.statTrak,
+      statTrakCount: customization.statTrakCount,
+      nameTag: customization.nameTag,
+      active: customization.active,
+      reset: customization.reset
     })
 
+  }).then(async (response) => {
     const data = await response.json()
-    if (data.success) {
-      message.success(data.message)
-      await fetchLoadoutKnifes()
-      showSkinModal.value = false
-    } else {
-      throw new Error(data.message)
-    }
-  } catch (error) {
+    message.success(data.message)
+    await fetchLoadoutKnifes()
+    showSkinModal.value = false
+  }).catch((error) => {
     console.error('Error saving knife:', error)
     message.error('Failed to save knife configuration')
-  }
+  })
 }
 
-const handleKnifeDuplicate = async (knife: IEnhancedItem, customization: KnifeCustomization) => {
+const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeCustomization) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
-    message.error('Please select a loadout first')
     return
   }
 
   try {
     console.log('Duplicating knife: ', knife.databaseInfo?.team, customization.team)
+
     const response = await fetch(`/api/knifes/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
       method: 'POST',
       headers: {
@@ -169,14 +168,15 @@ const handleKnifeDuplicate = async (knife: IEnhancedItem, customization: KnifeCu
       },
       body: JSON.stringify({
         defindex: knife.weapon_defindex,
-        active: true,
-        paintIndex: customization.paintIndex || 0,
-        paintWear: customization.wear || 0,
-        pattern: customization.pattern || 0,
-        statTrak: customization.statTrak || false,
-        statTrakCount: customization.statTrakCount || 0,
-        nameTag: customization.nameTag || '',
-        team: customization.team // This will be the opposite team number
+        team: customization.team,
+        paintIndex: customization.paintIndex,
+        pattern: customization.pattern,
+        wear: customization.wear,
+        statTrak: customization.statTrak,
+        statTrakCount: customization.statTrakCount,
+        nameTag: customization.nameTag,
+        active: customization.active,
+        reset: customization.reset
       })
     })
 
@@ -206,12 +206,14 @@ onMounted(async () => {
 
 watch(() => showSkinModal.value, (isVisible) => {
   if (!isVisible && selectedKnife.value) {
+    console.log('Updating selectedKnife:', selectedKnife.value)
     selectedKnife.value = {...selectedKnife.value}
   }
 })
 
 watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
-  if (newLoadoutId || skins.value.length === 0) {
+  if ((newLoadoutId || skins.value.length === 0) && newLoadoutId !== null) {
+    console.log('Fetching knifes for new loadout:', newLoadoutId)
     await fetchLoadoutKnifes()
   }
 }, { immediate: true })
@@ -256,7 +258,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
         </div>
         <!-- Skins Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
-          <WeaponTabs
+          <KnifeTabs
               v-for="(knifeData, knifeName) in groupedKnives"
               :key="knifeName"
               :weapon-data="{
@@ -281,7 +283,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           :user="user"
           :weapon="selectedKnife"
           :other-team-has-skin="otherTeamHasSkin"
-          @select="handleSkinSelect"
+          @save="handleSkinSave"
           @duplicate="handleKnifeDuplicate"
       />
     </div>

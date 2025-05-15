@@ -1,7 +1,9 @@
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { createError } from "h3";
+import {IEnhancedKnife, IEnhancedWeapon} from "~/server/utils/interfaces";
 
-export const validateRequiredRequestData = (param: any, paramName: string) => {
+export const validateRequiredRequestData = (param: any, paramName: string, allowZero = false) => {
+    if (allowZero && param === 0) return
     if (!param) {
         Logger.error(`${paramName} is required`)
         throw createError({
@@ -61,21 +63,7 @@ export function findMatchingSkin<T extends { weapon_name: string }, U extends { 
     );
 }
 
-/**
- * Creates an enhanced weapon object from either a base weapon or knife
- * @param baseItem Base weapon or knife item
- * @param isKnife Boolean flag to indicate if the item is a knife
- * @returns An array containing a single IEnhancedWeapon object
- */
-export function createDefaultEnhancedWeapon<T extends {
-    weapon_defindex: number | string,
-    weapon_name: string,
-    defaultName: string,
-    defaultImage: string,
-    paintIndex?: number,
-    category?: string,
-    availableTeams?: string
-}>(baseItem: T, isKnife: boolean = false): IEnhancedItem[] {
+export function createDefaultEnhancedKnife<T>(baseItem: IDefaultItem): T[] {
     return [{
         weapon_defindex: baseItem.weapon_defindex,
         weapon_name: baseItem.weapon_name,
@@ -83,12 +71,33 @@ export function createDefaultEnhancedWeapon<T extends {
         defaultName: baseItem.defaultName,
         image: baseItem.defaultImage,
         defaultImage: baseItem.defaultImage,
-        category: isKnife ? 'knife' : (baseItem.category || 'weapon'),
+        category: 'knife',
         minFloat: 0,
         maxFloat: 1,
-        paintIndex: isKnife ? (baseItem.paintIndex || 0) : 0,
-        availableTeams: isKnife ? 'both' : (baseItem.availableTeams || 'both')
-    } as IEnhancedItem];
+        paintIndex: 0,
+        availableTeams: 'both'
+    } as T];
+}
+/**
+ * Creates an enhanced weapon object from either a base weapon or knife
+ * @param baseItem Base weapon or knife item
+ * @param isKnife Boolean flag to indicate if the item is a knife
+ * @returns An array containing a single IEnhancedWeapon object
+ */
+export function createDefaultItem<T>(baseItem: IDefaultItem): T[] {
+    return [{
+        weapon_defindex: baseItem.weapon_defindex,
+        weapon_name: baseItem.weapon_name,
+        name: baseItem.defaultName,
+        defaultName: baseItem.defaultName,
+        image: baseItem.defaultImage,
+        defaultImage: baseItem.defaultImage,
+        category: baseItem.category,
+        minFloat: 0,
+        maxFloat: 1,
+        paintIndex: 0,
+        availableTeams: baseItem.availableTeams
+    } as T];
 }
 
 export const hasStickers = (skin: any) => {

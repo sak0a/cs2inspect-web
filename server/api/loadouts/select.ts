@@ -3,7 +3,7 @@ import { executeQuery } from '~/server/database/database'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import {VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES} from "~/server/utils/constants";
 
-type SelectionType = 'knife' | 'glove'
+type SelectionType = 'knife' | 'glove' | 'agent'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const type = query.type as SelectionType
     validateRequiredRequestData(type, 'Type')
 
-    if (type != 'knife' && type != 'glove') {
+    if (type != 'knife' && type != 'glove' && type != 'agent') {
         Logger.error(`Invalid selection type: ${type}`)
         throw createError({
             statusCode: 400,
@@ -62,7 +62,7 @@ export default defineEventHandler(async (event) => {
     }
 
     await executeQuery<void>(
-        `UPDATE wp_player_loadouts 
+        `UPDATE wp_player_loadouts
              SET ${updateField} = ?
              WHERE id = ? AND steamid = ?`,
         [defindex, loadoutId, steamId],

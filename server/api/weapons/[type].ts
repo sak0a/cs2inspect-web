@@ -2,11 +2,10 @@ import { DEFAULT_WEAPONS } from "~/server/utils/constants"
 import {
     DBWeapon,
     APISkin,
-    IEnhancedItem,
     IDefaultItem,
     APISticker,
     EnhancedWeaponSticker,
-    EnhancedWeaponKeychain, IMappedDBWeapon
+    EnhancedWeaponKeychain, IMappedDBWeapon, IEnhancedWeapon
 } from "~/server/utils/interfaces";
 import { getSkinsData, getStickerData } from '~/server/utils/csgoAPI';
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
@@ -88,11 +87,16 @@ export default defineEventHandler(async (event) => {
         const enhancedWeapons = baseWeaponsWithCategory.map((baseWeapon: IDefaultItem) => {
             // Find the database entry for this weapon if it exists
             // Find matching skin from skin api using both weapon ID and paint index
-            let data: IEnhancedItem[] = [];
+
             const matchingDatabaseResults: DBWeapon[] = rows.filter(
                 (weapon: DBWeapon) => weapon.defindex === baseWeapon.weapon_defindex
             );
 
+            if (matchingDatabaseResults.length === 0) {
+                return createDefaultItem<IEnhancedWeapon>(baseWeapon);
+            }
+
+            let data: IEnhancedWeapon[] = [];
             /**
              * Iterate through all matching database results for this weapon_defindex
              */
@@ -102,6 +106,8 @@ export default defineEventHandler(async (event) => {
                  */
                 const skinInfo: APISkin | undefined = findMatchingSkin(baseWeapon, databaseResult, skinData);
 
+                databaseResult.active = !!databaseResult.active;
+                databaseResult.stattrak_enabled = !!databaseResult.stattrak_enabled;
                 /**
                  * Push the enhanced weapon to the returned data array
                  */
@@ -118,7 +124,8 @@ export default defineEventHandler(async (event) => {
                     maxFloat: skinInfo?.max_float || 1.0,
                     paintIndex: skinInfo?.paint_index || 0,
                     rarity: skinInfo?.rarity,
-                    availableTeams: skinInfo?.team?.id || 'both',
+                    availableTeams: baseWeapon.availableTeams,
+                    team: databaseResult.team,
 
                     databaseInfo: {
                         active: databaseResult.active,
@@ -133,16 +140,11 @@ export default defineEventHandler(async (event) => {
                         stickers: parseStickers(databaseResult, stickerData),
                         keychain: EnhancedWeaponKeychain.fromStringAndAPI(databaseResult.keychain, keychainData)?.toInterface()
                     } as IMappedDBWeapon
-                } as IEnhancedItem);
+                } as IEnhancedWeapon);
             }
 
             // If there are any custom skins for this, return them
-            if (data.length > 0) {
-                return data;
-            }
-
-            // If there are no custom skins for this weapon, return the default skin
-            return createDefaultEnhancedWeapon(baseWeapon);
+            return data;
         });
 
         /**
