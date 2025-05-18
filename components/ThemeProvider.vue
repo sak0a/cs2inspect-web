@@ -4,10 +4,10 @@ import {darkTheme, GlobalThemeOverrides, NConfigProvider} from 'naive-ui'
 
 const myThemeOverrides: GlobalThemeOverrides = {
   common: {
-    primaryColor: '#34c4b3',
-    primaryColorHover: '#34c4b3',
-    primaryColorPressed: '#34c4b3',
-    primaryColorSuppl: '#34c4b3',
+    //primaryColor: '#34c4b3',
+    //primaryColorHover: '#34c4b3',
+    //primaryColorPressed: '#34c4b3',
+    //primaryColorSuppl: '#34c4b3',
   },
   Button: {
     borderRadiusMedium: '200px',

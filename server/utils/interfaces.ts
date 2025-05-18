@@ -393,6 +393,7 @@ export interface DBLoadout {
     selected_glove_ct: number | null;
     selected_agent_t: number | null;
     selected_agent_ct: number | null;
+    selected_music: number | null;
     created_at: string;
     updated_at: string;
 }

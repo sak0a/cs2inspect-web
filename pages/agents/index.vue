@@ -81,6 +81,16 @@ const handleAgentTypeChange = async (team: 't' | 'ct', agentDefindex: number) =>
     } else {
       loadoutStore.selectedLoadout.selected_agent_ct = agentDefindex === -1 ? null : agentDefindex
     }
+
+    // Ensure all agent cards remain visible after selection from dropdown
+    nextTick(() => {
+      document.querySelectorAll('.agent-card').forEach(card => {
+        if (!card.classList.contains('visible')) {
+          card.classList.add('visible')
+        }
+      })
+    })
+
     message.success(`${team === 't' ? 'Terrorist' : 'Counter-Terrorist'} agent updated`)
   }).catch((error) => {
     console.error(error)
@@ -97,6 +107,15 @@ const handleAgentSelect = (agent: APIAgent) => {
   } else {
     ctAgentType.value = agentDefindex
   }
+
+  // Ensure all agent cards have the visible class to prevent disappearing
+  nextTick(() => {
+    document.querySelectorAll('.agent-card').forEach(card => {
+      if (!card.classList.contains('visible')) {
+        card.classList.add('visible')
+      }
+    })
+  })
 
   handleAgentTypeChange(team, agentDefindex)
 }
@@ -204,6 +223,18 @@ watch([() => ctAgents.value, () => tAgents.value], () => {
   })
 })
 
+// Watch for changes in agent type selection to ensure visibility is maintained
+watch([() => tAgentType.value, () => ctAgentType.value], () => {
+  nextTick(() => {
+    // Ensure all agent cards are visible after agent type changes
+    document.querySelectorAll('.agent-card').forEach(card => {
+      if (!card.classList.contains('visible')) {
+        card.classList.add('visible')
+      }
+    })
+  })
+})
+
 // Function to handle fade-in animation for agent cards
 const setupFadeInAnimation = () => {
   nextTick(() => {
@@ -220,7 +251,12 @@ const setupFadeInAnimation = () => {
 
     // Observe all agent cards
     document.querySelectorAll('.agent-card').forEach(card => {
-      observer.observe(card)
+      // If the card is for a selected agent, make sure it's visible immediately
+      if (card.classList.contains('ring-2')) {
+        card.classList.add('visible')
+      } else {
+        observer.observe(card)
+      }
     })
   })
 }
@@ -237,7 +273,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="p-4 bg-[#181818]">
+  <div class="px-4 pb-4 bg-[#181818]">
     <div class="max-w-7xl mx-auto content-fade-in">
       <SkinPageLayout
           title="Agents"
@@ -247,32 +283,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
       />
       <!-- Agent Type Groups -->
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <div class="flex gap-x-10 justify-start mb-6">
-          <div class="flex items-center justify-end space-x-2 ">
-            <span class="font-bold whitespace-nowrap">
-              {{ t('teams.counterTerrorists') }}
-            </span>
-            <NSelect
-                v-model:value="ctAgentType"
-                :options="ctAgentOptions"
-                placeholder=" Select agent"
-                class="w-72"
-                @update:value="handleAgentTypeChange('ct', $event)"
-            />
-          </div>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold">
-              {{ t('teams.terrorists') }}
-            </span>
-            <NSelect
-                v-model:value="tAgentType"
-                :options="tAgentOptions"
-                placeholder="Select agent"
-                class="w-72"
-                @update:value="handleAgentTypeChange('t', $event)"
-            />
-          </div>
-        </div>
+
 
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-12">
@@ -287,26 +298,67 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 
         <!-- Agents Grid with Horizontal Scrolling -->
         <div v-else class="overflow-x-auto">
-          <h2 class="text-xl font-bold mb-4">{{ t('teams.counterTerrorists') }}</h2>
+          <div class="flex gap-6 w-[800px]">
+            <h2 class="text-xl font-bold mb-4 text-center pt-0.5 w-[200px]">{{ t('teams.counterTerrorists') }}</h2>
+            <NSelect
+                v-model:value="ctAgentType"
+                :options="ctAgentOptions"
+                placeholder="Select agent"
+                class="w-96"
+                @update:value="(value) => {
+                  handleAgentTypeChange('ct', value)
+                  // Ensure all agent cards remain visible after dropdown selection
+                  nextTick(() => {
+                    document.querySelectorAll('.agent-card').forEach(card => {
+                      if (!card.classList.contains('visible')) {
+                        card.classList.add('visible')
+                      }
+                    })
+                  })
+                }"
+            />
+          </div>
           <div ref="ctScrollContainer" class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll" style="min-width: max-content;">
             <template v-if="ctAgents && ctAgents.length > 0">
               <AgentTabs
                   v-for="agent in ctAgents"
                   :key="agent.id"
                   :agent="agent"
+                  :is-selected="ctAgentType === parseInt(agent.id.replace('agent-', ''))"
                   @select="handleAgentSelect"
               />
             </template>
             <p v-else class="text-gray-400 py-4">No Counter-Terrorist agents available</p>
           </div>
 
-          <h2 class="text-xl font-bold mb-4">{{ t('teams.terrorists') }}</h2>
+          <div class="flex gap-6 w-[800px]">
+            <h2 class="text-xl text-center font-bold mb-4 pt-0.5 w-[200px]">{{ t('teams.terrorists') }}</h2>
+            <NSelect
+                v-model:value="tAgentType"
+                :options="tAgentOptions"
+                placeholder="Select agent"
+                class="w-96"
+                @update:value="(value) => {
+                  handleAgentTypeChange('t', value)
+                  // Ensure all agent cards remain visible after dropdown selection
+                  nextTick(() => {
+                    document.querySelectorAll('.agent-card').forEach(card => {
+                      if (!card.classList.contains('visible')) {
+                        card.classList.add('visible')
+                      }
+                    })
+                  })
+                }"
+            />
+          </div>
+
           <div ref="tScrollContainer" class="flex gap-4 pb-2 overflow-x-auto horizontal-scroll" style="min-width: max-content;">
             <template v-if="tAgents && tAgents.length > 0">
               <AgentTabs
                   v-for="agent in tAgents"
                   :key="agent.id"
                   :agent="agent"
+                  :is-selected="tAgentType === parseInt(agent.id.replace('agent-', ''))"
                   @select="handleAgentSelect"
               />
             </template>
@@ -370,5 +422,10 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 
 .agent-card.visible {
   animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+/* Ensure selected agents are always visible */
+.agent-card.ring-2 {
+  opacity: 1;
 }
 </style>

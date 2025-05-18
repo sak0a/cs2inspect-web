@@ -111,6 +111,32 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
+        async fetchLoadoutMusicKits(steamId: string) {
+            this.isLoading = true;
+            await fetch(`/api/music?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(async (response) => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        navigateTo('/')
+                        return
+                    }
+                    throw new Error('Failed to fetch loadout music kits; Authentication / Response failed')
+                }
+                const data = await response.json();
+                this.currentSkins = data.musicKits;
+                console.info(`Fetched ${data.meta.rows} music kits for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
+                console.log("Fetched music kits: ", data.musicKits)
+            }).catch((error) => {
+                console.error(error)
+                throw error
+            }).finally(() => this.isLoading = false);
+        },
+
         /**
          * Fetch loadouts for the given Steam ID
          * @param steamId

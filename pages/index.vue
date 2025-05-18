@@ -4,6 +4,7 @@ import { useMessage } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 import { useInspectItem } from '~/composables/useInspectItem'
 import { WeaponCustomization, KnifeCustomization, GloveCustomization } from '~/server/utils/interfaces'
+import LanguageSwitcher from '~/components/LanguageSwitcher.vue'
 
 const user = ref<SteamUser | null>(null)
 const showImportModal = ref(false)
@@ -249,11 +250,11 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="p-4 bg-[#181818]">
+  <div class="pb-4 px-4 bg-[#181818]">
     <div class="max-w-7xl mx-auto">
-      <!-- Header -->
-      <div class="mb-6">
-        <h1 class="text-2xl font-bold text-white mb-2">{{ t('inspectItem.title') }}</h1>
+
+      <!-- Description -->
+      <div class="mb-4">
         <p class="text-gray-400">{{ t('inspectItem.description') }}</p>
       </div>
 
@@ -405,5 +406,28 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Add any page-specific styles here */
+/* Menu styles */
+.menu-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu-label {
+  position: absolute;
+  bottom: -25px;
+  font-size: 0.75rem;
+  color: #a0aec0;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.group:hover .menu-label {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>

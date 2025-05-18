@@ -1,10 +1,19 @@
 import {Music, Pin, Home} from "@vicons/tabler";
 import {NIcon} from "naive-ui";
+import { h } from "vue";
 
 
 export function renderIcon(icon: any) {
     return () => h(NIcon, null, { default: () => h(icon) })
 }
+
+export const homeMenuOptions = [
+    {
+        labelKey: 'extras.home',
+        key: '/',
+        icon: renderIcon(Home)
+    }
+]
 
 export const weaponMenuOptions = [
     {
@@ -239,11 +248,6 @@ export const equipmentMenuOptions = [
 ]
 
 export const extrasMenuOptions = [
-    {
-        labelKey: 'extras.home',
-        key: '/',
-        icon: renderIcon(Home)
-    },
     {
         labelKey: 'extras.pins',
         key: '/pins',

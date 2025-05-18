@@ -3,7 +3,10 @@
     "weapons": "ОРУЖИЕ",
     "melee": "БЛИЖНИЙ БОЙ",
     "extras": "ДОПОЛНИТЕЛЬНО",
-    "actions": "ДЕЙСТВИЯ"
+    "actions": "ДЕЙСТВИЯ",
+    "language": "Язык",
+    "loadout": "Снаряжение",
+    "theme": "Тема"
   },
   "weapons": {
     "rifles": "Винтовки",

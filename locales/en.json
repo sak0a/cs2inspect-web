@@ -3,7 +3,10 @@
     "weapons": "WEAPONS",
     "melee": "MELEE",
     "extras": "EXTRAS",
-    "actions": "ACTIONS"
+    "actions": "ACTIONS",
+    "language": "Language",
+    "loadout": "Loadout",
+    "theme": "Theme"
   },
   "weapons": {
     "rifles": "Rifles",

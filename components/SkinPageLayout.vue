@@ -3,8 +3,6 @@ import { NAlert, NButton, NSpin } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import LoadoutSelector from '~/components/LoadoutSelector.vue'
-
 const props = defineProps({
   title: {
     type: String,
@@ -31,13 +29,8 @@ const loadoutStore = useLoadoutStore()
 </script>
 
 <template>
-  <div class="">
-    <div class="max-w-7xl mx-auto">
-      <!-- Header with Loadout Selector -->
-      <div class="flex justify-between mb-2">
-        <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
-        <LoadoutSelector v-if="user" />
-      </div>
+  <div class="max-w-7xl mx-auto">
+
 
       <!-- Error State -->
       <NAlert
@@ -70,5 +63,8 @@ const loadoutStore = useLoadoutStore()
 
       <!-- Main Content -->
     </div>
-  </div>
 </template>
+
+<style scoped>
+
+</style>

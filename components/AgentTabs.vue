@@ -7,6 +7,10 @@ const props = defineProps({
   agent: {
     type: Object as () => APIAgent,
     required: true
+  },
+  isSelected: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -37,7 +41,11 @@ const teamLabel = computed(() => {
         background: agent.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
           hexToRgba(agent.rarity?.color, '0.15') + ')': '#242424'
       }"
-      class="hover:shadow-lg transition-all cursor-pointer bg-[#242424] w-[300px] agent-card"
+
+      :class="[
+        'hover:shadow-lg transition-all cursor-pointer rounded-xl mt-2 mx-2 bg-[#242424] w-[300px] agent-card',
+        isSelected ? 'ring-2 ring-[#80E6C4] !border-0 visible' : ''
+      ]"
       @click="handleSelect"
   >
     <div class="flex flex-col items-center">
@@ -48,7 +56,7 @@ const teamLabel = computed(() => {
           loading="lazy"
       >
       <div class="w-full">
-        <p class="text-sm text-white truncate">{{ agent.name }}</p>
+        <p class="text-sm text-white line-clamp-2 h-10 agent-name">{{ agent.name }}</p>
         <p class="text-xs text-gray-400">{{ teamLabel }}</p>
         <div class="h-1 mt-2" :style="{ background: agent.rarity?.color || '#313030' }" />
       </div>
@@ -60,5 +68,13 @@ const teamLabel = computed(() => {
 .n-card {
   background: #242424;
   border: 1px solid #313030;
+}
+
+.agent-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

@@ -2,6 +2,9 @@
 import { NIcon, useMessage } from 'naive-ui'
 import { LogOut as LogOutIcon, LogoSteam as SteamLogoIcon } from '@vicons/ionicons5'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
+import { homeMenuOptions, weaponMenuOptions, equipmentMenuOptions, extrasMenuOptions } from '@/utils/menuConfig'
+import LoadoutSelector from "~/components/LoadoutSelector.vue";
+import LanguageSwitcher from "~/components/LanguageSwitcher.vue";
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
@@ -9,6 +12,13 @@ const user = ref<SteamUser | null>(null)
 
 const message = useMessage()
 const { t } = useI18n()
+
+const translatedHomeMenuOptions = computed(() =>
+    homeMenuOptions.map(item => ({
+      ...item,
+      label: t(item.labelKey)
+    }))
+)
 
 const translatedWeaponMenuOptions = computed(() =>
     weaponMenuOptions.map(item => ({
@@ -133,7 +143,19 @@ onMounted(async () => {
           </div>
 
           <!-- Middle: Menu Sections with equal spacing -->
-          <div class="flex flex-col justify-between flex-1 py-4">
+          <div class="flex flex-col justify-between flex-1">
+            <!-- Home Menu Section -->
+            <div class="flex flex-col">
+              <NMenu
+                  :icon-size="26"
+                  :indent="28"
+                  :options="translatedHomeMenuOptions"
+                  :value="selectedKey"
+                  @update:value="handleSelect"
+                  class="text-[15px]"
+              />
+            </div>
+
             <!-- Weapon Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
@@ -186,11 +208,6 @@ onMounted(async () => {
               <span class="text-xs font-bold text-gray-500">{{ t('navigation.actions') }}</span>
             </div>
             <div class="space-y-2">
-              <!-- Language Switcher -->
-              <div class="mb-2 flex justify-center">
-                <LanguageSwitcher />
-              </div>
-
               <NButton
                   secondary
                   type="error"
@@ -250,7 +267,33 @@ onMounted(async () => {
             &copy; saka 2025
           </div>
         </div>
-        <div v-else class="h-full bg-[#181818]">
+        <div v-else class="h-full bg-[#181818] p-0">
+          <!-- Secondary Menu -->
+          <div class="bg-[#242424] p-2 mb-4 sticky top-0 z-10">
+            <div class="flex justify-between items-center">
+              <div class="flex items-center gap-6">
+                <!-- Dark/Light Mode Toggle (Example) -->
+                <div class="menu-item group">
+                  <button class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </button>
+                  <span class="menu-label">{{ t('navigation.theme') }}</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-6">
+                <div class="menu-item group">
+                  <LanguageSwitcher />
+                  <span class="menu-label">{{ t('navigation.language') }}</span>
+                </div>
+                <div class="menu-item group" v-if="user">
+                  <LoadoutSelector />
+                  <span class="menu-label">{{ t('navigation.loadout') }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
           <NuxtPage />
         </div>
       </NLayoutContent>
@@ -283,4 +326,26 @@ body
 .n-layout-content
   height: 100vh
   overflow-y: auto
+
+.menu-item
+  position: relative
+  display: flex
+  flex-direction: column
+  align-items: center
+
+
+.menu-label
+  position: absolute
+  bottom: -25px
+  font-size: 0.75rem
+  color: #a0aec0
+  opacity: 0
+  transform: translateY(-5px)
+  transition: opacity 0.2s ease, transform 0.2s ease
+  pointer-events: none
+  white-space: nowrap
+
+.group:hover .menu-label
+  opacity: 1
+  transform: translateY(0)
 </style>

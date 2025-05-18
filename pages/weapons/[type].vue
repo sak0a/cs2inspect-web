@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, nextTick, watch } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
@@ -153,6 +153,8 @@ const fetchLoadoutSkins = async () => {
   }).finally(() => isLoading.value = false);
 }
 
+// No animation code
+
 onMounted(async () => {
   user.value = steamAuth.getSavedUser();
   if (user.value?.steamId) {
@@ -162,6 +164,8 @@ onMounted(async () => {
     }
   }
 })
+
+
 
 watch(() => showSkinModal.value, (isVisible) => {
   if (!isVisible) {
@@ -181,7 +185,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="p-4 bg-[#181818]">
+  <div class="px-4 pb-4 bg-[#181818]">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
           title="Rifles"

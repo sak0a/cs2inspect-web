@@ -60,7 +60,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
               borderColor: '#313030',
               background: '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer bg-[#242424]"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(2)"
         >
           <div class="flex flex-col items-center">
@@ -85,7 +85,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
                 hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer bg-[#242424]"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleSkinClick(weapon)"
         >
           <div class="flex flex-col items-center">
@@ -111,7 +111,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
               borderColor: '#313030',
               background: '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer bg-[#242424]"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(1)"
         >
           <div class="flex flex-col items-center">
@@ -136,7 +136,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
                 hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer bg-[#242424]"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleSkinClick(weapon)"
         >
           <div class="flex flex-col items-center">
@@ -170,7 +170,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
               borderColor: '#313030',
               background: '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer bg-[#242424] "
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(
               weaponData.availableTeams === 'terrorists' ? 1 : 2)"
         >
@@ -196,7 +196,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
                 hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer bg-[#242424]"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleSkinClick(weapon)"
         >
           <div class="flex flex-col items-center">
@@ -216,3 +216,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon) => {
     </NTabs>
   </div>
 </template>
+
+<style scoped>
+/* No animations */
+</style>

@@ -3,7 +3,7 @@ import { executeQuery } from '~/server/database/database'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import {VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES} from "~/server/utils/constants";
 
-type SelectionType = 'knife' | 'glove' | 'agent'
+type SelectionType = 'knife' | 'glove' | 'agent' | 'music'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const type = query.type as SelectionType
     validateRequiredRequestData(type, 'Type')
 
-    if (type != 'knife' && type != 'glove' && type != 'agent') {
+    if (type != 'knife' && type != 'glove' && type != 'agent' && type != 'music') {
         Logger.error(`Invalid selection type: ${type}`)
         throw createError({
             statusCode: 400,
@@ -29,6 +29,22 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody(event)
 
+    // Music kits don't require team selection
+    if (type === 'music') {
+        const musicid: number | null = body.musicid
+
+        // For music kits, we directly update the loadout table
+        await executeQuery<void>(
+            'UPDATE wp_player_loadouts SET selected_music = ? WHERE id = ? AND steamid = ?',
+            [musicid, loadoutId, steamId],
+            'Failed to update music kit'
+        )
+
+        Logger.success(`Updated music kit selection for loadout ${loadoutId}`)
+        return { message: `Updated music kit selection for loadout ${loadoutId}` }
+    }
+
+    // For other types (knife, glove, agent), continue with team-based selection
     const team: number = body.team
 
     validateRequiredRequestData(team, 'Team')

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, nextTick, watch } from 'vue'
 import { useMessage } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
@@ -191,6 +191,8 @@ const handleGloveDuplicate = async (glove: IEnhancedItem, customization: GloveCu
   }
 }
 
+// No animation code
+
 onMounted(async () => {
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
@@ -201,6 +203,8 @@ onMounted(async () => {
     }
   }
 })
+
+
 
 watch(() => showSkinModal.value, (isVisible) => {
   if (!isVisible && selectedGlove.value) {

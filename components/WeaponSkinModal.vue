@@ -765,8 +765,8 @@ watch(() => props.weapon, () => {
               background: 'linear-gradient(135deg, ' + ('#101010') +
               ', ' + (hexToRgba(skin.rarity?.color, '0.15') || '#313030') + ')'}"
             :class="[
-            'hover:shadow-lg cursor-pointer bg-[#242424]',
-            selectedSkin?.name === skin.name ? 'active-item opacity-65' : ''
+            'hover:shadow-lg cursor-pointer transition-all rounded-xl',
+            selectedSkin?.name === skin.name ? 'ring-2 ring-[#80E6C4] !border-0 opacity-85' : ''
           ]"
             @click="handleSkinSelect(skin)"
         >

@@ -3,7 +3,10 @@
     "weapons": "WAFFEN",
     "melee": "NAHKAMPF",
     "extras": "EXTRAS",
-    "actions": "AKTIONEN"
+    "actions": "AKTIONEN",
+    "language": "Sprache",
+    "loadout": "Loadout",
+    "theme": "Thema"
   },
   "weapons": {
     "rifles": "Gewehre",
