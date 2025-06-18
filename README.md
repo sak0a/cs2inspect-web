@@ -1,16 +1,117 @@
 # CS2 Loadout Manager
 
-A comprehensive web application for managing Counter-Strike 2 weapon loadouts, built with Nuxt 3.
+A comprehensive web application for managing Counter-Strike 2 weapon loadouts, built with Nuxt 3 and modern web technologies.
 
 ![CS2 Loadout Manager](https://example.com/cs2-loadout-manager-preview.png)
 
 ## 🚀 Overview
 
-This application allows users to:
-- Create and manage multiple CS2 weapon loadouts
-- Customize weapons with skins, stickers, and keychains
-- Configure team-specific equipment (T/CT sides)
-- Authenticate via Steam
+CS2 Loadout Manager is a full-stack web application that provides Counter-Strike 2 players with a comprehensive tool for creating, managing, and customizing their weapon loadouts. The application features Steam authentication, real-time data synchronization with CS2 APIs, and an intuitive interface for weapon customization.
+
+### Key Features
+
+- **Multi-Loadout Management**: Create and manage multiple weapon loadouts
+- **Comprehensive Customization**: Configure weapons, knives, gloves, agents, music kits, and pins
+- **Team-Specific Equipment**: Separate configurations for Terrorist and Counter-Terrorist sides
+- **Steam Integration**: Secure authentication via Steam OpenID
+- **Real-time Data**: Automatic synchronization with CS2 item databases
+- **Inspect Link Support**: Import items directly from CS2 inspect links
+- **Internationalization**: Multi-language support (English, German, Russian)
+- **Responsive Design**: Optimized for desktop and mobile devices
+- **Advanced Customization**: Sticker positioning, wear values, StatTrak counters, and name tags
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **[Nuxt 3](https://nuxt.com/)** - Vue.js framework with SSR/SSG capabilities
+- **[Vue 3](https://vuejs.org/)** - Progressive JavaScript framework with Composition API
+- **[TypeScript](https://www.typescriptlang.org/)** - Type-safe JavaScript development
+- **[Tailwind CSS](https://tailwindcss.com/)** - Utility-first CSS framework
+- **[Sass](https://sass-lang.com/)** - CSS preprocessor for advanced styling
+- **[Naive UI](https://www.naiveui.com/)** - Vue 3 component library
+- **[Pinia](https://pinia.vuejs.org/)** - State management for Vue
+- **[VueUse](https://vueuse.org/)** - Collection of Vue composition utilities
+- **[Iconify](https://iconify.design/)** - Unified icon framework
+
+### Backend
+- **[Nitro](https://nitro.unjs.io/)** - Universal web server (built into Nuxt 3)
+- **[H3](https://github.com/unjs/h3)** - Minimal HTTP framework
+- **[MariaDB](https://mariadb.org/)** - Relational database management system
+- **[JWT](https://jwt.io/)** - JSON Web Tokens for authentication
+- **[Steam OpenID](https://steamcommunity.com/dev)** - Steam authentication integration
+
+### Development & Build Tools
+- **[Vite](https://vitejs.dev/)** - Fast build tool and development server
+- **[ESLint](https://eslint.org/)** - JavaScript/TypeScript linting
+- **[Vitest](https://vitest.dev/)** - Unit testing framework
+- **[Playwright](https://playwright.dev/)** - End-to-end testing
+- **[Bun](https://bun.sh/)** - JavaScript runtime and package manager
+
+### External APIs & Services
+- **[CS:GO API](https://bymykel.github.io/CSGO-API/)** - CS2 item data and images
+- **[Steam Web API](https://steamcommunity.com/dev)** - Steam user data and authentication
+- **[GlobalOffensive Node.js](https://github.com/DoctorMcKay/node-globaloffensive)** - CS2 game coordinator integration
+
+### Additional Libraries
+- **[Axios](https://axios-http.com/)** - HTTP client for API requests
+- **[Node Cache](https://github.com/node-cache/node-cache)** - In-memory caching
+- **[Auto-animate](https://auto-animate.formkit.com/)** - Smooth animations
+- **[Class Variance Authority](https://cva.style/docs)** - CSS class management
+- **[Date-fns](https://date-fns.org/)** - Date utility library
+
+## 📁 Project Structure
+
+```
+cs2inspect-web/
+├── 📁 assets/                    # Static assets (CSS, JS, SVG)
+│   ├── css/                      # Stylesheets (Sass/CSS)
+│   ├── js/                       # JavaScript utilities
+│   └── svg/                      # SVG icons and graphics
+├── 📁 components/                # Vue components
+│   ├── AgentTabs.vue            # Agent selection interface
+│   ├── *SkinModal.vue           # Weapon/knife/glove customization modals
+│   ├── *Tabs.vue                # Tab navigation components
+│   └── ...                      # Other reusable components
+├── 📁 composables/               # Vue composables
+│   ├── useInspectItem.ts        # Inspect link handling
+│   └── useItems.ts              # Item management utilities
+├── 📁 layouts/                   # Nuxt layouts
+│   └── default.vue              # Main application layout
+├── 📁 locales/                   # Internationalization files
+│   ├── en.json                  # English translations
+│   ├── de.json                  # German translations
+│   └── ru.json                  # Russian translations
+├── 📁 middleware/                # Route middleware
+│   └── validate-weapon-url.ts   # URL validation
+├── 📁 pages/                     # Nuxt pages (file-based routing)
+│   ├── agents/                  # Agent selection page
+│   ├── auth/                    # Authentication pages
+│   ├── gloves/                  # Glove customization
+│   ├── knifes/                  # Knife customization
+│   ├── music-kits/              # Music kit selection
+│   ├── pins/                    # Pin selection
+│   ├── weapons/                 # Weapon customization
+│   └── index.vue                # Home page
+├── 📁 server/                    # Server-side code
+│   ├── api/                     # API endpoints
+│   ├── database/                # Database configuration and schemas
+│   ├── middleware/              # Server middleware (auth, CORS, etc.)
+│   ├── plugins/                 # Server plugins (initialization)
+│   └── utils/                   # Server utilities and constants
+├── 📁 services/                  # Service layer
+│   └── steamAuth.ts             # Steam authentication service
+├── 📁 storage/                   # File storage
+│   └── csgo-api/                # Cached CS2 API data
+├── 📁 stores/                    # Pinia stores
+│   └── loadoutStore.ts          # Loadout state management
+├── 📁 utils/                     # Client-side utilities
+│   ├── colors.ts                # Color utilities
+│   └── menuConfig.ts            # Menu configuration
+├── nuxt.config.ts               # Nuxt configuration
+├── package.json                 # Dependencies and scripts
+├── tailwind.config.ts           # Tailwind CSS configuration
+└── tsconfig.json                # TypeScript configuration
+```
 
 ## 🔄 Application Flow
 
@@ -769,58 +870,316 @@ Saves or updates a weapon configuration.
 }
 ```
 
+## 🔧 Environment Configuration
+
+The application requires several environment variables to function properly. Create a `.env` file in the root directory:
+
+```bash
+# Server Configuration
+PORT=3000
+HOST=127.0.0.1
+
+# JWT Configuration (Required)
+JWT_TOKEN=your-super-secret-jwt-key-here
+JWT_EXPIRY=7d
+
+# Database Configuration (Required)
+DATABASE_HOST=localhost
+DATABASE_PORT=3306
+DATABASE_USER=your-db-user
+DATABASE_PASSWORD=your-db-password
+DATABASE_NAME=cs2inspect
+DATABASE_CONNECTION_LIMIT=5
+
+# Steam API (Optional - for enhanced features)
+STEAM_API_KEY=your-steam-api-key
+```
+
+### Environment Variables Explained
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `PORT` | Server port | No | 3000 |
+| `HOST` | Server host | No | 127.0.0.1 |
+| `JWT_TOKEN` | Secret key for JWT tokens | Yes | - |
+| `JWT_EXPIRY` | JWT token expiration time | No | 7d |
+| `DATABASE_HOST` | Database server host | Yes | - |
+| `DATABASE_PORT` | Database server port | No | 3306 |
+| `DATABASE_USER` | Database username | Yes | - |
+| `DATABASE_PASSWORD` | Database password | Yes | - |
+| `DATABASE_NAME` | Database name | Yes | - |
+| `DATABASE_CONNECTION_LIMIT` | Max database connections | No | 5 |
+| `STEAM_API_KEY` | Steam Web API key | No | - |
+
+## 🔐 Authentication & Security
+
+### Steam OpenID Authentication
+
+The application uses Steam's OpenID 2.0 authentication system:
+
+1. **Login Flow**: Users click "Login with Steam" → Redirected to Steam → Steam validates → Redirected back with identity
+2. **JWT Tokens**: Upon successful authentication, a JWT token is issued and stored as an HTTP-only cookie
+3. **Session Management**: JWT tokens are validated on each API request to protected endpoints
+4. **Automatic Logout**: Invalid or expired tokens trigger automatic logout
+
+### Security Features
+
+- **HTTP-Only Cookies**: JWT tokens stored securely to prevent XSS attacks
+- **CORS Protection**: Configured for specific origins in production
+- **Input Validation**: All API inputs are validated and sanitized
+- **SQL Injection Prevention**: Parameterized queries used throughout
+- **Rate Limiting**: Built-in protection against abuse (via Nitro)
+
+## 🚀 Performance & Caching
+
+### API Data Caching
+
+- **CS2 Item Data**: Cached locally in `/storage/csgo-api/` to reduce external API calls
+- **Automatic Updates**: Data refreshed periodically to stay current with game updates
+- **Memory Caching**: Frequently accessed data cached in memory using `node-cache`
+
+### Frontend Optimizations
+
+- **Server-Side Rendering**: Initial page loads are server-rendered for better SEO and performance
+- **Code Splitting**: Automatic code splitting by Nuxt for optimal bundle sizes
+- **Image Optimization**: Lazy loading and optimized image delivery
+- **Prefetching**: Critical resources prefetched for smooth navigation
+
 ## 🛠️ Setup and Development
 
 ### Prerequisites
-- Node.js (v16+)
-- MySQL/MariaDB database
+
+- **Node.js** (v18+ recommended)
+- **MariaDB/MySQL** (v10.3+ / v8.0+)
+- **Bun** (recommended) or npm/yarn/pnpm
 
 ### Installation
 
 ```bash
-# Install dependencies
-npm install
-# or
-yarn install
-# or
-pnpm install
-# or
+# Clone the repository
+git clone https://github.com/your-username/cs2inspect-web.git
+cd cs2inspect-web
+
+# Install dependencies (using Bun - recommended)
 bun install
+
+# Or using other package managers
+npm install
+# yarn install
+# pnpm install
 ```
+
+### Database Setup
+
+1. **Create Database**:
+   ```sql
+   CREATE DATABASE cs2inspect CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+   ```
+
+2. **Import Schema**:
+   ```bash
+   mysql -u your-username -p cs2inspect < server/database/init.sql
+   ```
+
+3. **Configure Environment**: Copy `.env.example` to `.env` and update database credentials
 
 ### Development Server
 
 ```bash
-# Start development server on http://localhost:3000
-npm run dev
-# or
-yarn dev
-# or
-pnpm run dev
-# or
+# Start development server
 bun run dev
-# or
-nuxt dev
+# or npm run dev
+
+# Server will start on http://localhost:3000
 ```
 
 ### Production Build
 
 ```bash
 # Build for production
-npm run build
-# or
-yarn build
-# or
-pnpm run build
+bun run build
 
 # Preview production build
-npm run preview
-# or
-yarn preview
-# or
-pnpm run preview
+bun run preview
+
+# Start production server
+node .output/server/index.mjs
 ```
 
-## 📚 Documentation
+## 🧪 Testing
+
+### Unit Testing
+
+```bash
+# Run unit tests
+bun run test
+# or npm run test
+
+# Run tests in watch mode
+bun run test:watch
+
+# Generate coverage report
+bun run test:coverage
+```
+
+### End-to-End Testing
+
+```bash
+# Run E2E tests
+bun run test:e2e
+
+# Run E2E tests in headed mode
+bun run test:e2e:headed
+```
+
+### Linting
+
+```bash
+# Run ESLint
+bun run lint
+
+# Fix linting issues
+bun run lint:fix
+```
+
+## 🚢 Deployment
+
+### Production Deployment
+
+1. **Build the Application**:
+   ```bash
+   bun run build
+   ```
+
+2. **Database Migration**: Ensure your production database has the latest schema from `server/database/init.sql`
+
+3. **Environment Variables**: Set all required environment variables in your production environment
+
+4. **Start the Server**:
+   ```bash
+   node .output/server/index.mjs
+   ```
+
+### Docker Deployment (Optional)
+
+```dockerfile
+FROM node:18-alpine
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+EXPOSE 3000
+CMD ["node", ".output/server/index.mjs"]
+```
+
+### Reverse Proxy Configuration
+
+For production, use a reverse proxy like Nginx:
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+## 🤝 Contributing
+
+We welcome contributions to CS2 Loadout Manager! Here's how you can help:
+
+### Development Workflow
+
+1. **Fork the Repository**
+2. **Create a Feature Branch**:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+3. **Make Your Changes**
+4. **Run Tests**:
+   ```bash
+   bun run test
+   bun run lint
+   ```
+5. **Commit Your Changes**:
+   ```bash
+   git commit -m "feat: add your feature description"
+   ```
+6. **Push to Your Fork**:
+   ```bash
+   git push origin feature/your-feature-name
+   ```
+7. **Create a Pull Request**
+
+### Coding Standards
+
+- **TypeScript**: Use TypeScript for all new code
+- **ESLint**: Follow the project's ESLint configuration
+- **Conventional Commits**: Use conventional commit messages
+- **Component Structure**: Follow Vue 3 Composition API patterns
+- **Testing**: Write tests for new features and bug fixes
+
+### Areas for Contribution
+
+- 🐛 **Bug Fixes**: Report and fix bugs
+- ✨ **New Features**: Implement new functionality
+- 🌐 **Translations**: Add support for new languages
+- 📚 **Documentation**: Improve documentation and examples
+- 🎨 **UI/UX**: Enhance user interface and experience
+- ⚡ **Performance**: Optimize application performance
+
+## 📚 Documentation & Resources
+
+### Official Documentation
 - [Nuxt 3 Documentation](https://nuxt.com/docs/getting-started/introduction)
+- [Vue 3 Documentation](https://vuejs.org/guide/)
+- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [Naive UI Documentation](https://www.naiveui.com/en-US/os-theme)
+
+### External APIs
 - [CS:GO API Documentation](https://bymykel.github.io/CSGO-API/)
+- [Steam Web API Documentation](https://steamcommunity.com/dev)
+
+### Community Resources
+- [Counter-Strike 2 Developer Community](https://developer.valvesoftware.com/wiki/Counter-Strike_2)
+- [CS2 Item Database](https://csgostash.com/)
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Valve Corporation** - For Counter-Strike 2 and Steam APIs
+- **CSGO-API Contributors** - For maintaining the comprehensive CS2 item database
+- **Nuxt Team** - For the excellent full-stack framework
+- **Vue.js Team** - For the progressive JavaScript framework
+- **Open Source Community** - For all the amazing libraries and tools
+
+## 📞 Support
+
+If you encounter any issues or have questions:
+
+1. **Check the Documentation** - Most common issues are covered here
+2. **Search Issues** - Look through existing GitHub issues
+3. **Create an Issue** - If you can't find a solution, create a new issue
+4. **Join Discussions** - Participate in GitHub Discussions for general questions
+
+---
+
+**Made with ❤️ for the Counter-Strike 2 community**
