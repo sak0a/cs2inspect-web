@@ -5,6 +5,7 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import GloveSkinModal from '~/components/GloveSkinModal.vue'
+import GloveTabs from '~/components/GloveTabs.vue'
 import { IEnhancedItem, GloveCustomization } from "~/server/utils/interfaces"
 
 const user = ref<SteamUser | null>(null)
@@ -252,7 +253,7 @@ watch(() => showSkinModal.value, (isVisible) => {
         </div>
         <!-- Skins Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
-          <WeaponTabs
+          <GloveTabs
               v-for="(gloveData, gloveName) in groupedGloves"
               :key="gloveName"
               :weapon-data="{

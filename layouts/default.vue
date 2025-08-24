@@ -5,6 +5,7 @@ import { steamAuth, type SteamUser } from '@/services/steamAuth'
 import { homeMenuOptions, weaponMenuOptions, equipmentMenuOptions, extrasMenuOptions } from '@/utils/menuConfig'
 import LoadoutSelector from "~/components/LoadoutSelector.vue";
 import LanguageSwitcher from "~/components/LanguageSwitcher.vue";
+import {layoutThemeOverrides} from "~/server/utils/themeCustomization";
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
@@ -121,10 +122,11 @@ onMounted(async () => {
   <NSpace vertical>
     <NLayout has-sider >
       <NLayoutSider
+          v-if="user"
           :width="200"
           bordered
           class="flex flex-col"
-          v-if="user"
+          :theme-overrides="layoutThemeOverrides"
       >
         <div class="grid grid-rows-[auto_1fr_auto] h-full">
           <!-- Steam Account Menu Section -->
@@ -270,18 +272,8 @@ onMounted(async () => {
         <div v-else class="h-full bg-[#181818] p-0">
           <!-- Secondary Menu -->
           <div class="bg-[#242424] p-2 mb-4 sticky top-0 z-10">
-            <div class="flex justify-between items-center">
-              <div class="flex items-center gap-6">
-                <!-- Dark/Light Mode Toggle (Example) -->
-                <div class="menu-item group">
-                  <button class="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </button>
-                  <span class="menu-label">{{ t('navigation.theme') }}</span>
-                </div>
-              </div>
+            <div class="flex justify-end items-end">
+
               <div class="flex items-center gap-6">
                 <div class="menu-item group">
                   <LanguageSwitcher />

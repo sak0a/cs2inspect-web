@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import {darkTheme, GlobalThemeOverrides, NConfigProvider} from 'naive-ui'
 
-
 const myThemeOverrides: GlobalThemeOverrides = {
   common: {
-    //primaryColor: '#34c4b3',
-    //primaryColorHover: '#34c4b3',
-    //primaryColorPressed: '#34c4b3',
-    //primaryColorSuppl: '#34c4b3',
+
   },
   Button: {
     borderRadiusMedium: '200px',
@@ -28,10 +24,24 @@ const myThemeOverrides: GlobalThemeOverrides = {
       },
     }
   },
+  Pagination: {
+    itemSize: 32,
+    itemBorderRadius: '200px',
+    jumperButtonBorderRadius: '200px',
+    jumperInputBorderRadius: '200px',
+  },
   Modal: {
+    color: '#121212',
+    textColor: '#ffffff',
     peers: {
       Card: {
         borderRadius: '20px',
+        color: '#121212',
+        textColor: '#ffffff',
+        titleTextColor: '#ffffff',
+        closeIconColor: '#ffffff',
+        closeColorHover: '#333333',
+        closeColorPressed: '#444444'
       }
     }
   },

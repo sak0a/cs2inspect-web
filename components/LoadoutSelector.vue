@@ -17,7 +17,8 @@ const showModal = ref({
 
 const formInputs = ref({
   newName: '',
-  renameName: ''
+  renameName: '',
+  deleteConfirm: ''
 })
 
 
@@ -52,6 +53,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
     }
     formInputs.value.newName = ''
     formInputs.value.renameName = ''
+    formInputs.value.deleteConfirm = ''
     showModal.value[action] = false
     message.success(t('modals.loadout.successMessage', { action: action }) as string, { duration: 2 })
   } catch (error: any) {
@@ -87,7 +89,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
         </NButton>
       </template>
 
-      <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="primary" :secondary="loadoutStore.hasLoadouts" @click="showModal.create = true" :loading="loadoutStore.isLoading">
+      <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="success" :secondary="loadoutStore.hasLoadouts" @click="showModal.create = true" :loading="loadoutStore.isLoading">
         <template #icon v-if="loadoutStore.hasLoadouts">
           <NIcon><NewIcon /></NIcon>
         </template>
@@ -101,22 +103,27 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
   <!-- Create Modal -->
   <NModal
       v-model:show="showModal.create"
-      preset="dialog"
+      preset="card"
+      :bordered="false"
+      style="width: 500px"
       :title="t('modals.loadout.create.title') as string"
-      :positive-text="t('modals.loadout.create.confirm') as string"
-      :negative-text="t('modals.loadout.create.cancel') as string"
-      :positive-button-props="{
-        type: 'success',
-        secondary: true,
-        disabled: formInputs.newName === '' || formInputs.newName.length > 20
-      }"
-      @positive-click="handleLoadoutAction('create')"
-      @negative-click="() => { showModal.create = false; formInputs.newName = '' }"
+      @afterLeave="formInputs.newName = ''"
   >
     <NInput
+        :minlength="1"
         v-model:value="formInputs.newName"
         :placeholder="t('modals.loadout.create.formPlaceholder') as string"
     />
+    <template #footer>
+      <div class="flex justify-end gap-4">
+        <NButton @click="() => { showModal.create = false; formInputs.newName = '' }" type="error" secondary>
+          {{ t('modals.loadout.create.cancel') }}
+        </NButton>
+        <NButton type="success" secondary :disabled="formInputs.newName === '' || formInputs.newName.length > 20" @click="handleLoadoutAction('create')">
+          {{ t('modals.loadout.create.confirm') }}
+        </NButton>
+      </div>
+    </template>
   </NModal>
 
   <!-- Rename Modal -->
@@ -148,19 +155,37 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
   <!-- Delete Modal -->
   <NModal
       v-model:show="showModal.delete"
-      preset="dialog"
+      preset="card"
+      :bordered="false"
+      style="width: 500px"
       :title="t('modals.loadout.delete.title') as string"
-      :positive-text="t('modals.loadout.delete.confirm') as string"
-      :negative-text="t('modals.loadout.delete.cancel') as string"
-      :positive-button-props="{
-        type: 'error',
-        secondary: true
-      }"
-      @positive-click="handleLoadoutAction('delete')"
-      @negative-click="() => showModal.delete = false"
+      @afterLeave="formInputs.deleteConfirm = ''"
   >
     <p>{{ t('modals.loadout.delete.question') }}</p>
     <p class="font-bold">{{ t('modals.loadout.delete.warning') }}</p>
+    <div class="mt-4">
+      <p class="mb-2">{{ t('modals.loadout.delete.confirmText', { name: loadoutStore.selectedLoadout?.name }) }}</p>
+      <NInput
+          :minlength="1"
+          v-model:value="formInputs.deleteConfirm"
+          :placeholder="t('modals.loadout.delete.confirmPlaceholder') as string"
+      />
+    </div>
+    <template #footer>
+      <div class="flex justify-end gap-4">
+        <NButton @click="() => { showModal.delete = false; formInputs.deleteConfirm = '' }" type="error" secondary>
+          {{ t('modals.loadout.delete.cancel') }}
+        </NButton>
+        <NButton
+            type="error"
+            secondary
+            :disabled="formInputs.deleteConfirm !== loadoutStore.selectedLoadout?.name"
+            @click="handleLoadoutAction('delete')"
+        >
+          {{ t('modals.loadout.delete.confirm') }}
+        </NButton>
+      </div>
+    </template>
   </NModal>
 </template>
 <style lang="sass" scoped>

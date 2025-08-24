@@ -99,6 +99,21 @@ export interface APIKeychain {
     image: string;
 }
 
+export interface APICollectible {
+    id: string;
+    name: string;
+    description?: string;
+    rarity: {
+        id: string;
+        name: string;
+        color: string;
+    }
+    type?: string;
+    genuine?: boolean;
+    market_hash_name?: string;
+    image: string;
+}
+
 
 export enum CsTeam {
     /**
@@ -394,6 +409,7 @@ export interface DBLoadout {
     selected_agent_t: number | null;
     selected_agent_ct: number | null;
     selected_music: number | null;
+    selected_pin: number | null;
     created_at: string;
     updated_at: string;
 }

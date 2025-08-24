@@ -3,7 +3,7 @@ import { executeQuery } from '~/server/database/database'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import {VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES} from "~/server/utils/constants";
 
-type SelectionType = 'knife' | 'glove' | 'agent' | 'music'
+type SelectionType = 'knife' | 'glove' | 'agent' | 'music' | 'pin'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     const type = query.type as SelectionType
     validateRequiredRequestData(type, 'Type')
 
-    if (type != 'knife' && type != 'glove' && type != 'agent' && type != 'music') {
+    if (type != 'knife' && type != 'glove' && type != 'agent' && type != 'music' && type != 'pin') {
         Logger.error(`Invalid selection type: ${type}`)
         throw createError({
             statusCode: 400,
@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
 
     const body = await readBody(event)
 
-    // Music kits don't require team selection
+    // Music kits and pins don't require team selection
     if (type === 'music') {
         const musicid: number | null = body.musicid
 
@@ -42,6 +42,20 @@ export default defineEventHandler(async (event) => {
 
         Logger.success(`Updated music kit selection for loadout ${loadoutId}`)
         return { message: `Updated music kit selection for loadout ${loadoutId}` }
+    }
+
+    if (type === 'pin') {
+        const pinid: number | null = body.pinid
+
+        // For pins, we directly update the loadout table
+        await executeQuery<void>(
+            'UPDATE wp_player_loadouts SET selected_pin = ? WHERE id = ? AND steamid = ?',
+            [pinid, loadoutId, steamId],
+            'Failed to update pin'
+        )
+
+        Logger.success(`Updated pin selection for loadout ${loadoutId}`)
+        return { message: `Updated pin selection for loadout ${loadoutId}` }
     }
 
     // For other types (knife, glove, agent), continue with team-based selection

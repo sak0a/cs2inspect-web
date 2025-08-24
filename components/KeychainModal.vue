@@ -2,6 +2,7 @@
 import { ref, computed, watch } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
 import { APIKeychain } from "~/server/utils/interfaces";
+import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
@@ -43,6 +44,11 @@ const paginatedItems = computed(() => {
 })
 const totalPages = computed(() => Math.ceil(filteredItems.value.length / PAGE_SIZE))
 
+// Check if seed input should be disabled for Austin 2025 Highlight charms
+const isSeedDisabled = computed(() => {
+  return state.value.selectedItem?.name?.includes('Souvenir Charm | Austin 2025 Highlight') || false
+})
+
 const fetchItems = async () => {
   try {
     state.value.isLoading = true
@@ -66,6 +72,11 @@ const handleSelect = (item: APIKeychain) => {
       z: 0,
       seed: 0
     }
+  }
+
+  // Reset seed to 0 for Austin 2025 Highlight charms
+  if (item.name?.includes('Souvenir Charm | Austin 2025 Highlight')) {
+    state.value.customization.seed = 0
   }
 }
 
@@ -152,6 +163,13 @@ watch(() => props.visible, (newValue) => {
     resetAllState()
   }
 })
+
+// Watch for seed changes and reset to 0 for Austin 2025 Highlight charms
+watch(() => state.value.customization.seed, (newSeed) => {
+  if (isSeedDisabled.value && newSeed !== 0) {
+    state.value.customization.seed = 0
+  }
+})
 </script>
 
 <template>
@@ -163,6 +181,7 @@ watch(() => props.visible, (newValue) => {
       :bordered="false"
       size="huge"
       @update:show="handleClose"
+      :theme-overrides="weaponAttachmentModalThemeOverrides"
   >
     <template #header-extra>
       <NInput
@@ -231,6 +250,7 @@ watch(() => props.visible, (newValue) => {
                     :min="0"
                     :max="100000"
                     :step="1"
+                    :disabled="isSeedDisabled"
                     class="w-full"
                 />
               </div>

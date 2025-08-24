@@ -42,21 +42,9 @@ const getMusicKitBaseId = (musicKit: APIMusicKit) => {
   return parseInt(musicKit.id.replace('music_kit-', '').replace('_st', ''))
 }
 
-// Group music kits into rows (2 rows)
-const musicKitRows = computed(() => {
-  const kits = filteredMusicKits.value
-  const rows = []
-  const itemsPerRow = Math.ceil(kits.length / 2) // Divide into 2 rows
-
-  for (let i = 0; i < 2; i++) {
-    const startIndex = i * itemsPerRow
-    const endIndex = Math.min(startIndex + itemsPerRow, kits.length)
-    if (startIndex < kits.length) {
-      rows.push(kits.slice(startIndex, endIndex))
-    }
-  }
-
-  return rows
+// Return all music kits for vertical grid display
+const musicKitGrid = computed(() => {
+  return filteredMusicKits.value
 })
 
 // Create options for the dropdown
@@ -167,46 +155,25 @@ const fetchMusicKits = async () => {
   }
 }
 
-// Setup horizontal scrolling for music kits
-const setupHorizontalScroll = () => {
-  // Get all horizontal scroll containers
-  const containers = document.querySelectorAll('.horizontal-scroll')
+// No longer need horizontal scrolling setup as we're using vertical scrolling
 
-  // Add wheel event listener to each container
-  containers.forEach(container => {
-    // First remove any existing listeners to prevent duplicates
-    container.removeEventListener('wheel', wheelHandler)
-
-    // Then add the new listener
-    container.addEventListener('wheel', wheelHandler, { passive: false })
-  })
-}
-
-// Wheel event handler for horizontal scrolling
-function wheelHandler(e: WheelEvent) {
-  // Prevent the default vertical scroll
-  e.preventDefault()
-
-  // Get the container
-  const container = e.currentTarget as HTMLElement
-
-  // Scroll horizontally by the vertical scroll amount
-  container.scrollLeft += e.deltaY
-}
-
-// Setup fade-in animation for scrolling
+// Setup fade-in animation for vertical scrolling
 const setupFadeInAnimation = () => {
   nextTick(() => {
     // Use Intersection Observer to detect when music kit cards are visible
     const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
+      entries.forEach((entry, index) => {
         if (entry.isIntersecting) {
-          entry.target.classList.add('visible')
+          // Add a small delay based on the index for a staggered effect
+          setTimeout(() => {
+            entry.target.classList.add('visible')
+          }, index * 50) // 50ms delay between each item
+
           // Once the animation is applied, we don't need to observe this element anymore
           observer.unobserve(entry.target)
         }
       })
-    }, { threshold: 0.1 }) // Trigger when at least 10% of the element is visible
+    }, { threshold: 0.1, rootMargin: '0px 0px 50px 0px' }) // Trigger when at least 10% of the element is visible and add bottom margin
 
     // Observe all music kit cards
     document.querySelectorAll('.fade-in-item').forEach(card => {
@@ -216,21 +183,14 @@ const setupFadeInAnimation = () => {
 }
 
 onMounted(async () => {
-  // Setup horizontal scrolling immediately
-  setupHorizontalScroll()
-
-  // Add window resize event listener
-  window.addEventListener('resize', setupHorizontalScroll)
-
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
     try {
       await loadoutStore.fetchLoadouts(user.value.steamId)
       await fetchMusicKits()
 
-      // Setup horizontal scrolling and animations after DOM is updated
+      // Setup animations after DOM is updated
       nextTick(() => {
-        setupHorizontalScroll()
         setupFadeInAnimation()
       })
     } catch (error) {
@@ -238,17 +198,11 @@ onMounted(async () => {
       message.error('Failed to initialize page')
     }
   }
-
-  // Clean up event listeners when component is unmounted
-  onUnmounted(() => {
-    window.removeEventListener('resize', setupHorizontalScroll)
-  })
 })
 
-// Update horizontal scrolling when music kits are loaded or changed
+// Update animations when music kits are loaded or changed
 watch([() => musicKits.value, () => filteredMusicKits.value], () => {
   nextTick(() => {
-    setupHorizontalScroll()
     setupFadeInAnimation()
   })
 })
@@ -262,7 +216,6 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 // Update when search query changes
 watch(() => searchQuery.value, () => {
   nextTick(() => {
-    setupHorizontalScroll()
     setupFadeInAnimation()
   })
 })
@@ -316,23 +269,22 @@ watch(() => searchQuery.value, () => {
             </NInput>
           </div>
 
-          <!-- Music Kits Grid in Multiple Rows -->
+          <!-- Music Kits Vertical Grid -->
           <div class="overflow-visible">
-            <!-- Display each row of music kits -->
-            <div v-for="(row, rowIndex) in musicKitRows" :key="rowIndex" class="mb-6">
-              <div class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll" style="min-width: max-content;">
-                <template v-if="row.length > 0">
-                  <MusicKitTabs
-                      v-for="musicKit in row"
-                      :key="musicKit.id"
-                      :music-kit="musicKit"
-                      @select="handleMusicKitSelect"
-                      class="fade-in-item"
-                      :class="{ 'selected-music-kit': getMusicKitBaseId(musicKit) === selectedMusicKit }"
-                      ref="musicKitRefs"
-                  />
-                </template>
-              </div>
+            <!-- Display music kits in a grid -->
+            <div class="music-kit-grid">
+              <MusicKitTabs
+                  v-for="musicKit in musicKitGrid"
+                  :key="musicKit.id"
+                  :music-kit="musicKit"
+                  :is-selected="getMusicKitBaseId(musicKit) === selectedMusicKit"
+                  @select="handleMusicKitSelect"
+                  :class="[
+                    'fade-in-item',
+                    getMusicKitBaseId(musicKit) === selectedMusicKit ? 'selected-music-kit' : ''
+                  ]"
+                  ref="musicKitRefs"
+              />
             </div>
 
             <!-- No results message -->
@@ -350,38 +302,20 @@ watch(() => searchQuery.value, () => {
   border: 1px solid #313030;
 }
 
-.horizontal-scroll {
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #666 #333;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-.horizontal-scroll::-webkit-scrollbar {
-  height: 8px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-track {
-  background: #333;
-  border-radius: 4px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-thumb {
-  background: #666;
-  border-radius: 4px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-thumb:hover {
-  background: #888;
+/* Vertical grid layout for music kits */
+.music-kit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
 /* Fade-in animation */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
+    transform: translateY(15px) scale(0.98);
     filter: blur(2px);
   }
   to {
@@ -402,33 +336,27 @@ watch(() => searchQuery.value, () => {
   animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-.fade-in-item:hover {
+.fade-in-item:hover:not(.selected-music-kit) {
   transform: scale(1.05);
   z-index: 10;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transition: all 0.5s ease;
+  transition: all 0.3s ease;
 }
 
 .content-fade-in {
   animation: fadeIn 0.5s ease-in-out;
 }
 
-.selected-music-kit {
-  border: 2px solid #4b69ff !important;
-  box-shadow: 0 0 15px rgba(75, 105, 255, 0.7);
-  transform: scale(1.05);
-  z-index: 20;
+/* Selected items are handled by the ring class in the component */
+.fade-in-item.visible {
   opacity: 1 !important;
   visibility: visible !important;
-  transition: all 0.5s ease;
-  position: relative;
 }
 
-.fade-in-item:not(.selected-music-kit) {
-  border: 1px solid #313030;
-  box-shadow: none;
-  transform: none;
-  transition: all 0.5s ease;
+/* Ensure selected music kits maintain their styling */
+.selected-music-kit {
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 @keyframes fadeIn {

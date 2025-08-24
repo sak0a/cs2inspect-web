@@ -1,4 +1,4 @@
-import { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit } from "~/server/utils/interfaces";
+import { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible } from "~/server/utils/interfaces";
 import fs from 'fs';
 import path from 'path';
 
@@ -7,6 +7,7 @@ let stickerData: APISticker[];
 let agentData: APIAgent[];
 let keychainData: APIKeychain[];
 let musicKitData: APIMusicKit[];
+let collectibleData: APICollectible[];
 
 // Define storage directory and file paths
 const STORAGE_DIR = path.resolve('./storage/csgo-api');
@@ -40,6 +41,10 @@ const API_FILES: Record<string, ApiFileConfig> = {
     music_kits: {
         url: 'https://bymykel.github.io/CSGO-API/api/en/music_kits.json',
         path: path.join(STORAGE_DIR, 'music_kits.json')
+    },
+    collectibles: {
+        url: 'https://bymykel.github.io/CSGO-API/api/en/collectibles.json',
+        path: path.join(STORAGE_DIR, 'collectibles.json')
     }
 };
 
@@ -94,6 +99,10 @@ export function getAgentData(): APIAgent[] {
     return agentData;
 }
 
+export function getCollectibleData(): APICollectible[] {
+    return collectibleData;
+}
+
 /**
  * Ensures the storage directory exists
  */
@@ -114,8 +123,8 @@ function isFileValid(filePath: string): boolean {
 
     const stats = fs.statSync(filePath);
     const fileAge = Date.now() - stats.mtimeMs;
-    //return fileAge < CACHE_VALIDITY_PERIOD;
-    return true;
+    return fileAge < CACHE_VALIDITY_PERIOD;
+    //return true;
 }
 
 /**
@@ -194,12 +203,13 @@ export async function initCSGOApiData() {
         ensureStorageDirectoryExists();
 
         // Load all data types in parallel
-        const [skins, stickers, keychains, agents, musicKits] = await Promise.all([
+        const [skins, stickers, keychains, agents, musicKits, collectibles] = await Promise.all([
             loadData<APISkin>('skins'),
             loadData<APISticker>('stickers'),
             loadData<APIKeychain>('keychains'),
             loadData<APIAgent>('agents'),
-            loadData<APIMusicKit>('music_kits')
+            loadData<APIMusicKit>('music_kits'),
+            loadData<APICollectible>('collectibles')
         ]);
 
         // Assign to global variables
@@ -208,6 +218,7 @@ export async function initCSGOApiData() {
         keychainData = keychains;
         agentData = agents;
         musicKitData = musicKits;
+        collectibleData = collectibles;
 
         console.log('CSGO API data loaded successfully');
     } catch (error) {

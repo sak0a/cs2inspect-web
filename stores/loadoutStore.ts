@@ -137,6 +137,32 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
+        async fetchLoadoutPins(steamId: string) {
+            this.isLoading = true;
+            await fetch(`/api/pins?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            }).then(async (response) => {
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        navigateTo('/')
+                        return
+                    }
+                    throw new Error('Failed to fetch loadout pins; Authentication / Response failed')
+                }
+                const data = await response.json();
+                this.currentSkins = data.pins;
+                console.info(`Fetched ${data.meta.rows} pins for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
+                console.log("Fetched pins: ", data.pins)
+            }).catch((error) => {
+                console.error(error)
+                throw error
+            }).finally(() => this.isLoading = false);
+        },
+
         /**
          * Fetch loadouts for the given Steam ID
          * @param steamId

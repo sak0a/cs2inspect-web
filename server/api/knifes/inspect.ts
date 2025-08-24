@@ -63,6 +63,7 @@ export default defineEventHandler(async (event) => {
                 }
 
                 const itemInfo = await client.inspectItem(analyzeResult);
+                console.log('Item info:', itemInfo);
                 Logger.success('Fetched knife info for inspect URL');
                 return {
                     ...itemInfo,

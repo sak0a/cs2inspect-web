@@ -38,6 +38,30 @@
       "cancel": "Abbrechen",
       "confirm": "Abmelden"
     },
+    "loadout": {
+      "successMessage": "Loadout erfolgreich {action}t",
+      "create": {
+        "title": "Neues Loadout erstellen",
+        "confirm": "Erstellen",
+        "cancel": "Abbrechen",
+        "formPlaceholder": "Gib einen Namen für dein neues Loadout ein"
+      },
+      "rename": {
+        "title": "Loadout umbenennen",
+        "confirm": "Umbenennen",
+        "cancel": "Abbrechen",
+        "formPlaceholder": "Gib einen neuen Namen für dein Loadout ein"
+      },
+      "delete": {
+        "title": "Loadout löschen",
+        "confirm": "Löschen",
+        "cancel": "Abbrechen",
+        "question": "Bist du sicher, dass du dieses Loadout löschen möchtest?",
+        "warning": "Alle Skins dieses Loadouts werden gelöscht und können nicht wiederhergestellt werden",
+        "confirmText": "Gib '{name}' ein, um das Löschen zu bestätigen:",
+        "confirmPlaceholder": "Loadout-Namen zur Bestätigung eingeben"
+      }
+    },
     "inspectUrl": {
       "title": "Aus Inspect-URL importieren",
       "inputPlaceholder": "Inspect-URL hier einfügen...",

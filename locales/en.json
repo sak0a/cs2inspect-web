@@ -187,7 +187,9 @@
         "confirm": "Delete",
         "cancel": "Cancel",
         "question": "Are you sure you want to delete this loadout?",
-        "warning": "All Skins from this Loadout will be deleted and can't be restored"
+        "warning": "All Skins from this Loadout will be deleted and can't be restored",
+        "confirmText": "Type '{name}' to confirm deletion:",
+        "confirmPlaceholder": "Enter loadout name to confirm"
       }
     },
     "weaponSkin": {

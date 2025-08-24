@@ -5,7 +5,7 @@ import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, 
 import { steamAuth } from "~/services/steamAuth";
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
 import ResetModal from "~/components/ResetModal.vue";
-import {setElectronClientContext} from "@vue/devtools-kit";
+import {skinModalThemeOverrides} from "~/server/utils/themeCustomization";
 const props = defineProps<{
   visible: boolean
   weapon: IEnhancedWeapon | null
@@ -528,13 +528,18 @@ watch(() => props.weapon, () => {
       :bordered="false"
       size="huge"
       class="duration-500 ease-in-out transition-all"
+      :theme-overrides="skinModalThemeOverrides"
       @update:show="handleClose"
   >
     <template #header-extra>
       <!-- Reset Weapon Configuration -->
-      <NButton :loading="state.isResetting" secondary type="default" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
+      <NButton :loading="state.isResetting" secondary type="error" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
         <template #icon>
-          <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-restore"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3.06 13a9 9 0 1 0 .49 -4.087" /><path d="M3 4.001v5h5" /><path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+          </svg>
         </template>
         {{ t('modals.weaponSkin.buttons.reset') }}
       </NButton>

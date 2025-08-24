@@ -28,7 +28,8 @@ export default defineNuxtConfig({
   },
   css: [
     '~/assets/css/tailwind.sass',
-    '~/assets/css/transitions.css',
+    '~/assets/css/transitions.sass',
+    '~/assets/css/theme-variables.css',
   ],
   router: {
     options: {

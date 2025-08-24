@@ -5,7 +5,7 @@ import {APISkin, IEnhancedItem, IMappedDBWeapon, KnifeCustomization} from "~/ser
 import { SteamUser } from "~/services/steamAuth"
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
 import ResetModal from "~/components/ResetModal.vue";
-import {def} from "@vue/shared";
+import {skinModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
@@ -314,10 +314,11 @@ watch(() => props.weapon, () => {
       :bordered="false"
       size="huge"
       @update:show="handleClose"
+      :theme-overrides="skinModalThemeOverrides"
   >
     <template #header-extra>
       <!-- Reset Button -->
-      <NButton secondary type="default" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
+      <NButton secondary type="error" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>

@@ -2,6 +2,7 @@
 import { ref, computed, watch, watchEffect } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
 import { APISticker } from "~/server/utils/interfaces";
+import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
@@ -176,6 +177,7 @@ watch(() => props.visible, (newValue) => {
       :bordered="false"
       size="huge"
       @update:show="handleClose"
+      :theme-overrides="weaponAttachmentModalThemeOverrides"
   >
     <template #header-extra>
       <NInput

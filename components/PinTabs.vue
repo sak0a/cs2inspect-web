@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { NCard } from 'naive-ui'
-import { APIMusicKit } from "~/server/utils/interfaces";
+import { APICollectible } from "~/server/utils/interfaces";
 
 const props = defineProps({
-  musicKit: {
-    type: Object as () => APIMusicKit,
+  collectible: {
+    type: Object as () => APICollectible,
     required: true
   },
   isSelected: {
@@ -18,7 +18,7 @@ const emit = defineEmits(['select'])
 const { t } = useI18n()
 
 const handleSelect = () => {
-  emit('select', props.musicKit)
+  emit('select', props.collectible)
 }
 
 const hexToRgba = (hex: string, opacity: string) => {
@@ -29,38 +29,46 @@ const hexToRgba = (hex: string, opacity: string) => {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
 
-// Extract the base music kit ID (without _st suffix for StatTrak)
-const getMusicKitBaseId = computed(() => {
-  return parseInt(props.musicKit.id.replace('music_kit-', '').replace('_st', ''))
+// Extract the base collectible ID
+const getCollectibleBaseId = computed(() => {
+  return parseInt(props.collectible.id.replace('collectible-', ''))
+})
+
+// Check if the collectible is a pin
+const isPin = computed(() => {
+  return props.collectible.type === 'Pin'
 })
 </script>
 
 <template>
   <NCard
       :style="{
-        borderColor: musicKit.rarity?.color || '#313030',
-        background: musicKit.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
-          hexToRgba(musicKit.rarity?.color, '0.15') + ')': '#242424'
+        borderColor: collectible.rarity?.color || '#313030',
+        background: collectible.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
+          hexToRgba(collectible.rarity?.color, '0.15') + ')': '#242424'
       }"
       :class="[
-        'cursor-pointer rounded-xl bg-[#242424] music-kit-card',
-        isSelected ? 'selected-music-kit ring-2 ring-[#80E6C4] !border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
+        'cursor-pointer rounded-xl bg-[#242424] pin-card',
+        isSelected ? 'selected-pin ring-2 ring-[#80E6C4] !border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
       ]"
       @click="handleSelect"
   >
     <div class="flex flex-col items-center h-full">
       <img
-          :src="musicKit.image"
-          :alt="musicKit.name"
+          :src="collectible.image"
+          :alt="collectible.name"
           class="w-full h-32 object-contain mb-2"
           loading="lazy"
       >
       <div class="w-full flex-grow flex flex-col">
         <div>
-          <p class="text-sm text-white line-clamp-2 h-10 music-kit-name">{{ musicKit.name }}</p>
-          <p v-if="musicKit.description" class="text-xs text-gray-400 line-clamp-4 h-16 music-kit-desc">{{ musicKit.description }}</p>
+          <p class="text-sm text-white line-clamp-2 h-10 pin-name">
+            {{ collectible.name }}
+            <span v-if="collectible.genuine" class="text-[#4D7455]">(Genuine)</span>
+          </p>
+          <p v-if="collectible.description" class="text-xs text-gray-400 line-clamp-4 h-16 pin-desc">{{ collectible.description }}</p>
         </div>
-        <div class="h-1 mt-auto" :style="{ background: musicKit.rarity?.color || '#313030' }" />
+        <div class="h-1 mt-auto" :style="{ background: collectible.rarity?.color || '#313030' }" />
       </div>
     </div>
   </NCard>
@@ -77,7 +85,7 @@ const getMusicKitBaseId = computed(() => {
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.music-kit-name {
+.pin-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -85,7 +93,7 @@ const getMusicKitBaseId = computed(() => {
   text-overflow: ellipsis;
 }
 
-.music-kit-desc {
+.pin-desc {
   display: -webkit-box;
   -webkit-line-clamp: 4;
   -webkit-box-orient: vertical;
@@ -94,8 +102,8 @@ const getMusicKitBaseId = computed(() => {
   margin-bottom: 0;
 }
 
-/* Ring styling for selected music kits */
-.selected-music-kit {
+/* Ring styling for selected pins */
+.selected-pin {
   transform: scale(1.05) !important;
   z-index: 20 !important;
   transition: none !important; /* Make the change instant */

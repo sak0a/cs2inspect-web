@@ -1,0 +1,91 @@
+/* Theme CSS Variables */
+
+:root {
+  /* Base colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
+
+  /* Gray scale */
+  --color-gray-50: #fafafa;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+  --color-gray-950: #0a0a0a;
+
+  /* Background colors */
+  --bg-primary: #121212;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #242424;
+  --bg-quaternary: #2c2c2c;
+
+  /* Component backgrounds */
+  --card-bg: #242424;
+  --modal-bg: #121212;
+  --dropdown-bg: #242424;
+  --tab-bg: #1a1a1a;
+  --tab-active-bg: #2c2c2c;
+
+  /* Text colors */
+  --text-primary: #ffffff;
+  --text-secondary: #d4d4d4;
+  --text-tertiary: #a3a3a3;
+  --text-inverted: #000000;
+
+  /* Border colors */
+  --border-color: #333333;
+  --border-light: #444444;
+
+  /* UI element colors */
+  --tab-indicator: #80E6C4;
+  --selection-ring: #80E6C4;
+  --hover-overlay: rgba(255, 255, 255, 0.05);
+  --shadow-color: rgba(0, 0, 0, 0.5);
+
+  /* Skin card backgrounds */
+  --skin-card-bg: #242424;
+  --skin-card-gradient-start: #1a1a1a;
+  --skin-card-gradient-end: #2c2c2c;
+}
+
+/* Light theme overrides */
+.light-theme {
+  /* Background colors */
+  --bg-primary: #f8f8f8;
+  --bg-secondary: #f0f0f0;
+  --bg-tertiary: #e5e5e5;
+  --bg-quaternary: #d8d8d8;
+
+  /* Component backgrounds */
+  --card-bg: #ffffff;
+  --modal-bg: #ffffff;
+  --dropdown-bg: #ffffff;
+  --tab-bg: #f0f0f0;
+  --tab-active-bg: #ffffff;
+
+  /* Text colors */
+  --text-primary: #000000;
+  --text-secondary: #404040;
+  --text-tertiary: #737373;
+  --text-inverted: #ffffff;
+
+  /* Border colors */
+  --border-color: #d4d4d4;
+  --border-light: #e5e5e5;
+
+  /* UI element colors */
+  --tab-indicator: #80E6C4;
+  --selection-ring: #80E6C4;
+  --hover-overlay: rgba(0, 0, 0, 0.05);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Skin card backgrounds */
+  --skin-card-bg: #ffffff;
+  --skin-card-gradient-start: #f5f5f5;
+  --skin-card-gradient-end: #e5e5e5;
+}

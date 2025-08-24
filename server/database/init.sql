@@ -10,6 +10,8 @@ create table wp_player_loadouts
     selected_glove_ct smallint unsigned                     null comment 'DEFINDEX of selected glove for ct',
     selected_agent_t  smallint unsigned                     null comment 'DEFINDEX of selected agent for t',
     selected_agent_ct smallint unsigned                     null comment 'DEFINDEX of selected agent for ct',
+    selected_music    smallint unsigned                     null comment 'ID of selected music kit',
+    selected_pin      smallint unsigned                     null comment 'ID of selected pin',
     created_at        timestamp default current_timestamp() not null,
     updated_at        timestamp default current_timestamp() not null on update current_timestamp()
 );

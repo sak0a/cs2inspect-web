@@ -5,6 +5,7 @@ import {APISkin, IEnhancedItem, IMappedDBWeapon, GloveCustomization} from "~/ser
 import { SteamUser } from "~/services/steamAuth"
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
 import ResetModal from "~/components/ResetModal.vue";
+import {skinModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
@@ -329,6 +330,7 @@ watch(() => props.weapon, () => {
       :bordered="false"
       size="huge"
       @update:show="handleClose"
+      :theme-overrides="skinModalThemeOverrides"
   >
     <template #header-extra>
       <!-- Reset Button -->

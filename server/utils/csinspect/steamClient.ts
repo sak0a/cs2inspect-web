@@ -55,6 +55,11 @@ class SteamClient extends EventEmitter {
 
         this.csgoClient.on('connectedToGC', () => {
             this.isReady = true;
+            console.log('[CS2 Client] Connected to CS2 Game Coordinator');
+
+            // Connect to the specified server
+            this.connectToServer('212.87.215.43:27016');
+
             this.emit('ready');
             this.processQueue();
         });
@@ -69,6 +74,15 @@ class SteamClient extends EventEmitter {
             console.log('[CS2 Client] Received item info:', item);
         });
 
+        // Add event handlers for server connection
+        this.csgoClient.on('connectionStatus', (status: any) => {
+            console.log(`[CS2 Client] Server connection status: ${JSON.stringify(status)}`);
+            this.emit('serverConnectionStatus', status);
+        });
+
+        this.steamClient.on('playingState', (blocked: boolean, playingApp: any) => {
+            console.log(`[Steam Client] Playing state changed: blocked=${blocked}, playingApp=${playingApp}`);
+        });
     }
 
     public async connect(): Promise<void> {
@@ -214,6 +228,43 @@ class SteamClient extends EventEmitter {
 
     public getQueueLength(): number {
         return this.queue.length;
+    }
+
+    /**
+     * Connect to a specific CS2 server
+     * @param serverAddress Server address in format "ip:port" or "ip" (default port 27015)
+     * @returns Promise that resolves when connected or rejects on error
+     */
+    public connectToServer(serverAddress: string): Promise<void> {
+        return new Promise((resolve, reject) => {
+            if (!this.isReady) {
+                reject(new Error('CS2 client is not ready'));
+                return;
+            }
+
+            console.log(`[CS2 Client] Attempting to connect to server: ${serverAddress}`);
+
+            try {
+                // Parse server address
+                let ip = serverAddress;
+                let port = 27015; // Default CS2 port
+
+                if (serverAddress.includes(':')) {
+                    const parts = serverAddress.split(':');
+                    ip = parts[0];
+                    port = parseInt(parts[1], 10);
+                }
+
+                // Connect to the server
+                this.csgoClient.requestGame(ip, port);
+
+                console.log(`[CS2 Client] Connection request sent to ${ip}:${port}`);
+                resolve();
+            } catch (error) {
+                console.error('[CS2 Client] Error connecting to server:', error);
+                reject(error);
+            }
+        });
     }
 }
 
