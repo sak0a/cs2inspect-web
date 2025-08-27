@@ -34,7 +34,7 @@ const {
 // Create a new item from scratch
 const createNewItem = async (type: 'weapon' | 'knife' | 'glove') => {
   if (!user.value?.steamId) {
-    message.error(t('auth.loginRequired'))
+    message.error(t('auth.loginRequired') as string)
     return
   }
 

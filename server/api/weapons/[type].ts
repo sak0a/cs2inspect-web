@@ -11,6 +11,11 @@ import { getSkinsData, getStickerData } from '~/server/utils/csgoAPI';
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { executeQuery } from "~/server/database/database";
 import { defineEventHandler } from "h3";
+import {
+    createCollectionResponse,
+    createResponseMeta,
+    withErrorHandling
+} from '~/server/utils/apiResponseHelpers';
 
 
 function parseStickers(databaseResult: DBWeapon, stickerData: APISticker[]): (IEnhancedWeaponSticker | null)[] {
@@ -24,12 +29,13 @@ function parseStickers(databaseResult: DBWeapon, stickerData: APISticker[]): (IE
             continue;
         }
 
-        stickers.push(EnhancedWeaponSticker.fromStringAndAPI(stickerDatabaseData, stickerData).toInterface());
+        stickers.push(EnhancedWeaponSticker.fromStringAndAPI(stickerDatabaseData, stickerData, i).toInterface());
     }
     return stickers;
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(withErrorHandling(async (event) => {
+    const startTime = Date.now();
     const query = getQuery(event);
 
     Logger.header(`Weapons API request: ${event.method} ${event.req.url}`);
@@ -44,8 +50,6 @@ export default defineEventHandler(async (event) => {
     validateRequiredRequestData(loadoutId, 'Loadout ID');
 
     const table = validateWeaponDatabaseTable(type);
-
-    try {
         // Get all available skins data
         const skinData = getSkinsData();
         if (!skinData) {
@@ -147,24 +151,25 @@ export default defineEventHandler(async (event) => {
             return data;
         });
 
-        /**
-         * Return the data with additional meta information
-         */
-        Logger.success(`Fetched ${rows.length} weapons for Steam ID: ${steamId}`);
-        return {
-            skins: enhancedWeapons,
-            meta: {
-                rows: rows.length,
-                steamId,
-                loadoutId,
-                type
-            }
-        };
-    } catch (error: any) {
-        Logger.error('Failed to fetch weapons: ' + error.message);
-        throw createError({
-            statusCode: 500,
-            message: error.message || 'Failed to fetch weapons'
-        });
-    }
-});
+    /**
+     * Return the data with standardized response format
+     */
+    Logger.success(`Fetched ${rows.length} weapons for Steam ID: ${steamId}`);
+
+    const meta = createResponseMeta(startTime, {
+        steamId,
+        loadoutId,
+        type,
+        databaseRows: rows.length,
+        weaponsReturned: enhancedWeapons.length
+    });
+
+    return createCollectionResponse(
+        enhancedWeapons,
+        enhancedWeapons.length,
+        meta,
+        [type],
+        undefined,
+        `Successfully fetched ${enhancedWeapons.length} weapons of type '${type}'`
+    );
+}, 'WEAPONS_FETCH_ERROR'));

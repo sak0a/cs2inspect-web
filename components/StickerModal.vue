@@ -2,7 +2,7 @@
 import { ref, computed, watch, watchEffect } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
 import { APISticker } from "~/server/utils/interfaces";
-import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
+import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
@@ -52,7 +52,9 @@ const fetchItems = async () => {
     state.value.isLoading = true
     const response = await fetch('/api/data/stickers')
     const data = await response.json()
-    state.value.items = data.stickers
+    // Handle both old and new API response formats
+    const stickers = data.data || data.stickers || []
+    state.value.items = stickers
   } catch (error) {
     message.error(t('modals.sticker.errorFetching') as string)
     console.error('Error fetching stickers:', error)

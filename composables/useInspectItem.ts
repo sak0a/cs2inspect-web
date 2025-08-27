@@ -63,7 +63,7 @@ export function useInspectItem() {
 
     try {
       // First try as weapon
-      const response = await fetch(`/api/weapons/inspect?url=decode-link&steamId=${steamId}`, {
+      const response = await fetch(`/api/weapons/inspect?action=inspect-item&steamId=${steamId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -76,7 +76,8 @@ export function useInspectItem() {
         throw new Error('Failed to decode inspect link')
       }
 
-      const data = await response.json()
+      const responseData = await response.json()
+      const data = responseData.item
 
       console.log('Inspect link decoded data:', data)
 
@@ -288,23 +289,18 @@ export function useInspectItem() {
     isLoading.value = true
 
     try {
-      const endpoint = itemType.value === 'weapon'
-        ? '/api/weapons/inspect'
-        : itemType.value === 'knife'
-          ? '/api/knifes/inspect'
-          : '/api/gloves/inspect'
-
-      const response = await fetch(`${endpoint}?url=create-link&steamId=${steamId}`, {
+      const response = await fetch(`/api/inspect?action=create-url&steamId=${steamId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'credentials': 'include'
         },
         body: JSON.stringify({
+          itemType: itemType.value,
           defindex: inspectedItem.value.weapon_defindex,
-          paintIndex: customization.value.paintIndex,
-          pattern: customization.value.pattern,
-          wear: customization.value.wear,
+          paintindex: customization.value.paintIndex,
+          paintseed: customization.value.pattern,
+          paintwear: customization.value.wear,
           rarity: 0,
           // Add type-specific properties
           ...(itemType.value === 'weapon' || itemType.value === 'knife' ? {

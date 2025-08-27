@@ -74,10 +74,12 @@ const fetchSkinsForGlove = async () => {
     state.value.isLoadingSkins = true
     const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
     const data = await response.json()
-    state.value.skins = data.skins
+    // Handle both old and new API response formats
+    const skins = data.data || data.skins || []
+    state.value.skins = skins
 
     // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(data.skins.filter(skin =>
+    const newTotalPages = Math.ceil(skins.filter(skin =>
       skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
     ).length / PAGE_SIZE.value)
 
@@ -167,13 +169,13 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
   try {
     state.value.isImporting = true
-    const response = await fetch(`/api/gloves/inspect?url=decode-link&steamId=${props.user.steamId}`, {
+    const response = await fetch(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'credentials': 'include'
       },
-      body: JSON.stringify({ inspectUrl })
+      body: JSON.stringify({ inspectUrl, itemType: 'glove' })
     })
 
     const data = await response.json()
@@ -182,21 +184,21 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       throw new Error(data.message)
     }
 
-    if (data.defindex !== props.weapon.weapon_defindex) {
+    if (data.item.defindex !== props.weapon.weapon_defindex) {
       throw new Error(t('modals.gloveSkin.invalidInspectLink') as string)
     }
 
     customization.value = {
       active: true,
-      paintIndex: data.paintindex,
+      paintIndex: data.item.paintindex,
       paintIndexOverride: false,
-      pattern: data.paintseed,
-      wear: data.paintwear,
+      pattern: data.item.paintseed,
+      wear: data.item.paintwear,
       team: props.weapon.databaseInfo?.team || 0
     } as GloveCustomization
 
     const matchingSkin = state.value.skins.find(skin =>
-        Number(skin.paint_index) === data.paintindex
+        Number(skin.paint_index) === data.item.paintindex
     )
 
     if (matchingSkin) {
@@ -227,14 +229,15 @@ const handleCreateInspectLink = async () => {
 
   try {
     state.value.isLoadingInspect = true
-    const response = await fetch(`/api/gloves/inspect?url=create-link&steamId=${props.user.steamId}`, {
+    const response = await fetch(`/api/inspect?action=create-url&steamId=${props.user.steamId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'credentials': 'include'},
       body: JSON.stringify({
+        itemType: 'glove',
         defindex: props.weapon.weapon_defindex,
-        paintIndex: customization.value.paintIndex,
-        pattern: customization.value.pattern,
-        wear: customization.value.wear,
+        paintindex: customization.value.paintIndex,
+        paintseed: customization.value.pattern,
+        paintwear: customization.value.wear,
         rarity: 0
       })
     })

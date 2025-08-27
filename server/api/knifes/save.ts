@@ -15,8 +15,6 @@ export default defineEventHandler(async (event) => {
     const body = await readBody(event)
     validateRequiredRequestData(body, 'Body')
 
-
-
     try {
         // Validate fields
         validateCommonFields(body)

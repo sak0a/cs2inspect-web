@@ -138,7 +138,9 @@ const fetchMusicKits = async () => {
       throw new Error('Failed to fetch music kits')
     }
     const data = await response.json()
-    musicKits.value = data.musickits || []
+    // Handle both old and new API response formats
+    const musickits = data.data || data.musickits || []
+    musicKits.value = musickits
 
     // Get the selected music kit from the loadout
     if (loadoutStore.selectedLoadout) {

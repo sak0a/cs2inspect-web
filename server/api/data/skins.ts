@@ -1,5 +1,13 @@
-import { getSkinsData } from '~/server/utils/csgoAPI';
+import { getSkinsData, getDataFreshness } from '~/server/utils/csgoAPI';
 import { APISkin } from "~/server/utils/interfaces";
+import {
+    createPaginatedResponse,
+    createResponseMeta,
+    createPaginationMeta,
+    calculatePagination,
+    extractFilterOptions,
+    withErrorHandling
+} from '~/server/utils/apiResponseHelpers';
 
 interface QueryFilters {
     search?: string;        // Search term for name
@@ -7,103 +15,92 @@ interface QueryFilters {
     rarity?: string;       // Rarity filter
 }
 
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(withErrorHandling(async (event) => {
+    const startTime = Date.now();
     const query = getQuery(event);
 
     const weapon = query.weapon as string;
     validateRequiredRequestData(weapon, "Weapon");
 
-    try {
-        const skinData = getSkinsData();
+    const skinData = getSkinsData();
 
-        if (!skinData) {
-            return {
-                skins: [],
-                meta: {
-                    availableRarities: [],
-                    availableWeapons: []
-                }
-            };
+    if (!skinData) {
+        const meta = createResponseMeta(startTime, { weapon });
+        return createPaginatedResponse(
+            [],
+            createPaginationMeta(1, 0, 50, 0),
+            meta,
+            { weapon },
+            { rarities: [], weapons: [] }
+        );
+    }
+
+    // Parse query parameters with proper type handling
+    const filters: QueryFilters = {
+        search: typeof query.search === 'string' ? query.search.toLowerCase() : undefined,
+        weapon: weapon.toLowerCase(),
+        rarity: typeof query.rarity === 'string' ? query.rarity : undefined,
+    };
+
+    // Get pagination parameters with safe defaults
+    const { page, limit, offset } = calculatePagination(query, 50, 100);
+
+    // Apply filters
+    let filteredSkins = skinData.filter((skin: APISkin) => {
+        // Search term filter (checks name and description)
+        if (filters.search &&
+            !skin.name.toLowerCase().includes(filters.search) &&
+            !skin.description?.toLowerCase().includes(filters.search)) {
+            return false;
         }
 
-        // Parse query parameters with proper type handling
-        const filters: QueryFilters = {
-            search: typeof query.search === 'string' ? query.search.toLowerCase() : undefined,
-            weapon: weapon.toLowerCase(),
-            rarity: typeof query.rarity === 'string' ? query.rarity : undefined,
-        };
+        // Weapon type filter
+        if (filters.weapon &&
+            !skin.weapon?.id.toLowerCase().includes(filters.weapon)) {
+            return false;
+        }
 
-        // Get pagination parameters with safe defaults
-        const page = Math.max(1, Number(query.page) || 1);
-        const limit = Math.min(Math.max(1, Number(query.limit) || 50), 100); // Between 1 and 100, default 50
+        // Rarity filter
+        if (filters.rarity &&
+            skin.rarity?.name.toLowerCase() !== filters.rarity.toLowerCase()) {
+            return false;
+        }
 
-        // Apply filters
-        let filteredSkins = skinData.filter((skin: APISkin) => {
-            // Search term filter (checks name and description)
-            if (filters.search &&
-                !skin.name.toLowerCase().includes(filters.search) &&
-                !skin.description?.toLowerCase().includes(filters.search)) {
-                return false;
-            }
+        return true;
+    });
 
-            // Weapon type filter
-            if (filters.weapon &&
-                !skin.weapon?.id.toLowerCase().includes(filters.weapon)) {
-                return false;
-            }
+    // Calculate pagination values
+    const totalItems = filteredSkins.length;
+    const currentPage = Math.min(page, Math.ceil(totalItems / limit) || 1);
+    const actualOffset = (currentPage - 1) * limit;
 
-            // Rarity filter
-            if (filters.rarity &&
-                skin.rarity?.name.toLowerCase() !== filters.rarity.toLowerCase()) {
-                return false;
-            }
+    // Apply pagination
+    const paginatedSkins = filteredSkins.slice(actualOffset, actualOffset + limit);
 
-            return true;
-        });
+    // Extract available filter options
+    const availableFilters = extractFilterOptions(skinData, {
+        rarities: 'rarity.name',
+        weapons: 'weapon.name'
+    });
 
-        // Calculate pagination values
-        const totalItems = filteredSkins.length;
-        const totalPages = Math.ceil(totalItems / limit);
-        const currentPage = Math.min(page, totalPages);
-        const offset = (currentPage - 1) * limit;
+    // Create response metadata with data freshness
+    const dataFreshness = getDataFreshness();
+    const meta = createResponseMeta(startTime, {
+        weapon,
+        filtersApplied: Object.keys(filters).filter(key => filters[key as keyof QueryFilters]),
+        dataFreshness
+    });
 
-        // Apply pagination
-        const paginatedSkins = filteredSkins.slice(offset, offset + limit);
+    // Create pagination metadata
+    const pagination = createPaginationMeta(currentPage, totalItems, limit, paginatedSkins.length);
 
-        // Get unique values for metadata
-        const availableRarities = Array.from(new Set(
-            skinData
-                .map(skin => skin.rarity?.name)
-                .filter((name): name is string => !!name)
-        ));
-
-        const availableWeapons = Array.from(new Set(
-            skinData
-                .map(skin => skin.weapon?.name)
-                .filter((name): name is string => !!name)
-        ));
-
-        // Return paginated results with metadata
-        return {
-            skins: paginatedSkins,
-            pagination: {
-                currentPage,
-                totalPages,
-                totalItems,
-                limit
-            },
-            meta: {
-                availableRarities,
-                availableWeapons
-            },
-            appliedFilters: filters
-        };
-
-    } catch (error: any) {
-        console.error('Error processing skins query:', error);
-        throw createError({
-            statusCode: 500,
-            message: error.message || 'Failed to process skins query',
-        });
-    }
-});
+    // Return standardized paginated response
+    return createPaginatedResponse(
+        paginatedSkins,
+        pagination,
+        meta,
+        filters,
+        availableFilters,
+        `Found ${totalItems} skins matching criteria`
+    );
+}, 'SKINS_FETCH_ERROR'));

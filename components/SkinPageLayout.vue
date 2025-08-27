@@ -10,10 +10,11 @@ const props = defineProps({
   },
   user: {
     type: Object as () => SteamUser | null,
-    required: true
+    required: false,
+    default: null
   },
   error: {
-    type: String || null,
+    type: String,
     default: null
   },
   isLoading: {

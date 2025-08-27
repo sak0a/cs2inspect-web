@@ -1,3 +1,15 @@
+// ============================================================================
+// API CONFIGURATION CONSTANTS
+// ============================================================================
+
+/**
+ * API version for response metadata
+ */
+export const API_VERSION = '1.0.0';
+
+/**
+ * Protected API paths that require authentication
+ */
 export const PROTECTED_API_PATHS = [
     '/api/weapons',
     '/api/loadouts',
@@ -7,8 +19,115 @@ export const PROTECTED_API_PATHS = [
     '/api/weapons/inspect',
     '/api/weapons/[type]',
     '/api/auth/'
-]
+];
 
+/**
+ * External API URLs for CS2 data
+ */
+export const EXTERNAL_API_URLS = {
+    SKINS: 'https://bymykel.github.io/CSGO-API/api/en/skins.json',
+    STICKERS: 'https://bymykel.github.io/CSGO-API/api/en/stickers.json',
+    KEYCHAINS: 'https://bymykel.github.io/CSGO-API/api/en/keychains.json',
+    AGENTS: 'https://bymykel.github.io/CSGO-API/api/en/agents.json',
+    MUSIC_KITS: 'https://bymykel.github.io/CSGO-API/api/en/music_kits.json',
+    COLLECTIBLES: 'https://bymykel.github.io/CSGO-API/api/en/collectibles.json'
+};
+
+// ============================================================================
+// PAGINATION AND LIMITS
+// ============================================================================
+
+/**
+ * Default pagination settings
+ */
+export const PAGINATION_DEFAULTS = {
+    /** Default number of items per page */
+    DEFAULT_LIMIT: 50,
+    /** Maximum number of items per page */
+    MAX_LIMIT: 100,
+    /** Minimum number of items per page */
+    MIN_LIMIT: 1,
+    /** Default page number */
+    DEFAULT_PAGE: 1
+};
+
+// ============================================================================
+// CACHE AND TIMING CONSTANTS
+// ============================================================================
+
+/**
+ * Cache validity periods in milliseconds
+ */
+export const CACHE_PERIODS = {
+    /** 24 hours for API data cache */
+    API_DATA: 24 * 60 * 60 * 1000,
+    /** 1 hour for response cache */
+    RESPONSE_CACHE: 60 * 60 * 1000,
+    /** 5 minutes for temporary cache */
+    TEMP_CACHE: 5 * 60 * 1000
+};
+
+/**
+ * Data staleness threshold (24 hours)
+ */
+export const DATA_STALENESS_THRESHOLD = CACHE_PERIODS.API_DATA;
+
+// ============================================================================
+// ITEM TYPE DETECTION CONSTANTS
+// ============================================================================
+
+/**
+ * Definition index ranges for different item types
+ */
+export const DEFINDEX_RANGES = {
+    /** Knife definition index ranges */
+    KNIVES: {
+        MIN: 500,
+        MAX: 525,
+        ADDITIONAL: [42, 59] // weapon_knife, weapon_knifegg
+    },
+    /** Glove definition index ranges */
+    GLOVES: {
+        MIN: 5000,
+        MAX: 5035
+    },
+    /** Weapon definition index ranges (everything else) */
+    WEAPONS: {
+        MIN: 1,
+        MAX: 64
+    }
+};
+
+/**
+ * Sticker slot configuration
+ */
+export const STICKER_CONFIG = {
+    /** Maximum number of sticker slots per weapon */
+    MAX_SLOTS: 5,
+    /** Default sticker slot index */
+    DEFAULT_SLOT: 0,
+    /** Empty sticker database format */
+    EMPTY_STICKER: '0;0;0;0;0;0'
+};
+
+/**
+ * Keychain configuration
+ */
+export const KEYCHAIN_CONFIG = {
+    /** Default keychain slot index */
+    DEFAULT_SLOT: 0,
+    /** Empty keychain database format */
+    EMPTY_KEYCHAIN: '0;0;0;0;0'
+};
+
+// ============================================================================
+// DEFAULT ITEM DEFINITIONS
+// ============================================================================
+
+/**
+ * Default weapon configurations
+ * Contains all available weapons with their base properties
+ */
 export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 1,

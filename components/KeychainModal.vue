@@ -54,7 +54,9 @@ const fetchItems = async () => {
     state.value.isLoading = true
     const response = await fetch('/api/data/keychains')
     const data = await response.json()
-    state.value.items = data.keychains
+    // Handle both old and new API response formats
+    const keychains = data.data || data.keychains || []
+    state.value.items = keychains
   } catch (error) {
     message.error(t('modals.keychain.errorFetching') as string)
     console.error('Error fetching keychains:', error)

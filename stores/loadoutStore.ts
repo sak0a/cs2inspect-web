@@ -50,9 +50,11 @@ export const useLoadoutStore = defineStore('loadout', {
                 }
 
                 const data = await response.json();
-                console.info(`Fetched ${data.meta.rows} skins for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
-                this.currentSkins = data.skins;
-                console.log("Fetched skins: ", data.skins)
+                // Handle both old and new API response formats
+                const skins = data.data || data.skins;
+                console.info(`Fetched ${skins?.length || 0} skins for loadout ${data.meta?.loadoutId || 'unknown'} from ${data.meta?.steamId || 'unknown'}`)
+                this.currentSkins = skins;
+                console.log("Fetched skins: ", skins)
             }).catch((error) => {
                 console.error(error)
                 throw error
@@ -76,9 +78,11 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to fetch loadout weapon skin; Authentication / Response failed')
                 }
                 const data = await response.json();
-                this.currentSkins = data.knifes;
-                console.info(`Fetched ${data.meta.rows} knifes for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
-                console.log("Fetched knifes: ", data.knifes)
+                // Handle both old and new API response formats
+                const knifes = data.data || data.knifes;
+                this.currentSkins = knifes;
+                console.info(`Fetched ${knifes?.length || 0} knifes for loadout ${data.meta?.loadoutId || 'unknown'} from ${data.meta?.steamId || 'unknown'}`)
+                console.log("Fetched knifes: ", knifes)
             }).catch((error) => {
                 console.error(error)
                 throw error
@@ -102,9 +106,11 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to fetch loadout gloves; Authentication / Response failed')
                 }
                 const data = await response.json();
-                this.currentSkins = data.gloves;
-                console.info(`Fetched ${data.meta.rows} gloves for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
-                console.log("Fetched gloves: ", data.gloves)
+                // Handle both old and new API response formats
+                const gloves = data.data || data.gloves;
+                this.currentSkins = gloves;
+                console.info(`Fetched ${gloves?.length || 0} gloves for loadout ${data.meta?.loadoutId || 'unknown'} from ${data.meta?.steamId || 'unknown'}`)
+                console.log("Fetched gloves: ", gloves)
             }).catch((error) => {
                 console.error(error)
                 throw error
@@ -154,9 +160,11 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to fetch loadout pins; Authentication / Response failed')
                 }
                 const data = await response.json();
-                this.currentSkins = data.pins;
-                console.info(`Fetched ${data.meta.rows} pins for loadout ${data.meta.loadoutId} from ${data.meta.steamId}`)
-                console.log("Fetched pins: ", data.pins)
+                // Handle both old and new API response formats
+                const pins = data.data || data.pins;
+                this.currentSkins = pins;
+                console.info(`Fetched ${pins?.length || 0} pins for loadout ${data.meta?.loadoutId || 'unknown'} from ${data.meta?.steamId || 'unknown'}`)
+                console.log("Fetched pins: ", pins)
             }).catch((error) => {
                 console.error(error)
                 throw error
@@ -185,12 +193,14 @@ export const useLoadoutStore = defineStore('loadout', {
 
                 const data = await response.json();
 
-                if (!data.loadouts) {
+                // Handle both old and new API response formats
+                const loadouts = data.data || data.loadouts;
+                if (!loadouts) {
                     this.error = 'Failed to fetch loadouts API data';
                     return;
                 }
 
-                this.loadouts = data.loadouts;
+                this.loadouts = loadouts;
                 if (!this.selectedLoadoutId && this.loadouts.length > 0) {
                     this.selectedLoadoutId = this.loadouts[0].id;
                 }

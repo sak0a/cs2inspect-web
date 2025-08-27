@@ -1,4 +1,6 @@
 import { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible } from "~/server/utils/interfaces";
+import { EXTERNAL_API_URLS, CACHE_PERIODS, DATA_STALENESS_THRESHOLD } from './constants';
+import { processSkinData } from './skinUtils';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,6 +10,10 @@ let agentData: APIAgent[];
 let keychainData: APIKeychain[];
 let musicKitData: APIMusicKit[];
 let collectibleData: APICollectible[];
+
+// Data freshness tracking
+let dataLoadTimestamp: string | null = null;
+let dataLoadDuration: number | null = null;
 
 // Define storage directory and file paths
 const STORAGE_DIR = path.resolve('./storage/csgo-api');
@@ -22,62 +28,33 @@ type ApiFileConfig = {
 // Define the API files with their configurations
 const API_FILES: Record<string, ApiFileConfig> = {
     skins: {
-        url: 'https://bymykel.github.io/CSGO-API/api/en/skins.json',
+        url: EXTERNAL_API_URLS.SKINS,
         path: path.join(STORAGE_DIR, 'skins.json'),
         processor: processSkinData
     },
     stickers: {
-        url: 'https://bymykel.github.io/CSGO-API/api/en/stickers.json',
+        url: EXTERNAL_API_URLS.STICKERS,
         path: path.join(STORAGE_DIR, 'stickers.json')
     },
     keychains: {
-        url: 'https://bymykel.github.io/CSGO-API/api/en/keychains.json',
+        url: EXTERNAL_API_URLS.KEYCHAINS,
         path: path.join(STORAGE_DIR, 'keychains.json')
     },
     agents: {
-        url: 'https://bymykel.github.io/CSGO-API/api/en/agents.json',
+        url: EXTERNAL_API_URLS.AGENTS,
         path: path.join(STORAGE_DIR, 'agents.json')
     },
     music_kits: {
-        url: 'https://bymykel.github.io/CSGO-API/api/en/music_kits.json',
+        url: EXTERNAL_API_URLS.MUSIC_KITS,
         path: path.join(STORAGE_DIR, 'music_kits.json')
     },
     collectibles: {
-        url: 'https://bymykel.github.io/CSGO-API/api/en/collectibles.json',
+        url: EXTERNAL_API_URLS.COLLECTIBLES,
         path: path.join(STORAGE_DIR, 'collectibles.json')
     }
 };
 
-// Cache validation - check once per day (86400000 ms)
-const CACHE_VALIDITY_PERIOD = 86400000;
-
-const detectDopplerPattern = (skin: APISkin) => {
-    if (!skin.pattern?.id) return skin;
-
-    const patterns: Record<string, string> = {
-        'emerald_marbleized': 'Emerald',
-        'ruby_marbleized': 'Ruby',
-        'sapphire_marbleized': 'Sapphire',
-        'blackpearl_marbleized': 'Black Pearl',
-        'phase1': 'Phase 1',
-        'phase2': 'Phase 2',
-        'phase3': 'Phase 3',
-        'phase4': 'Phase 4'
-    };
-
-    for (const [key, value] of Object.entries(patterns)) {
-        if (skin.pattern.id.includes(key)) {
-            skin.name += ` (${value})`;
-            break;
-        }
-    }
-
-    return skin;
-}
-
-function processSkinData(data: APISkin[]): APISkin[] {
-    return data.map((skin: APISkin) => detectDopplerPattern(skin));
-}
+// Skin processing is now handled by skinUtils module
 
 export function getKeychainData(): APIKeychain[] {
     return keychainData;
@@ -123,8 +100,7 @@ function isFileValid(filePath: string): boolean {
 
     const stats = fs.statSync(filePath);
     const fileAge = Date.now() - stats.mtimeMs;
-    return fileAge < CACHE_VALIDITY_PERIOD;
-    //return true;
+    return fileAge < CACHE_PERIODS.API_DATA;
 }
 
 /**
@@ -199,6 +175,8 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
 }
 
 export async function initCSGOApiData() {
+    const startTime = Date.now();
+
     try {
         ensureStorageDirectoryExists();
 
@@ -220,9 +198,27 @@ export async function initCSGOApiData() {
         musicKitData = musicKits;
         collectibleData = collectibles;
 
+        // Track data freshness
+        dataLoadTimestamp = new Date().toISOString();
+        dataLoadDuration = Date.now() - startTime;
+
         console.log('CSGO API data loaded successfully');
     } catch (error) {
         console.error('Failed to initialize CSGO API data:', error);
         throw error;
     }
+}
+
+/**
+ * Gets data freshness information
+ * @returns Object containing data load timestamp and duration
+ */
+export function getDataFreshness() {
+    return {
+        lastUpdated: dataLoadTimestamp,
+        loadDuration: dataLoadDuration,
+        isStale: dataLoadTimestamp ?
+            (Date.now() - new Date(dataLoadTimestamp).getTime()) > DATA_STALENESS_THRESHOLD :
+            true
+    };
 }

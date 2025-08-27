@@ -34,7 +34,6 @@ const state = ref({
   showKeychainModal: false,
   showImportModal: false,
   showDetails: false,
-
   currentStickerPosition: 0,
   showResetConfirm: false,
   showDuplicateConfirm: false,
@@ -81,10 +80,12 @@ const fetchAvailableSkinsForWeapon = async () => {
     state.value.isLoadingSkins = true
     const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
     const data = await response.json()
-    state.value.skins = data.skins
+    // Handle both old and new API response formats
+    const skins = data.data || data.skins || []
+    state.value.skins = skins
 
     // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(data.skins.filter(skin =>
+    const newTotalPages = Math.ceil(skins.filter(skin =>
       skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
     ).length / PAGE_SIZE.value)
 
@@ -105,13 +106,13 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
   try {
     state.value.isImporting = true
-    const response = await fetch(`/api/weapons/inspect?url=decode-link&steamId=${user.value.steamId}`, {
+    const response = await fetch(`/api/inspect?action=inspect-item&steamId=${user.value.steamId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'credentials': 'include'
       },
-      body: JSON.stringify({ inspectUrl })
+      body: JSON.stringify({ inspectUrl, itemType: 'weapon' })
     })
 
     const data = await response.json()
@@ -120,16 +121,16 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       throw new Error(data.message)
     }
 
-    if (data.defindex !== props.weapon.weapon_defindex) {
+    if (data.item.defindex !== props.weapon.weapon_defindex) {
       throw new Error(t('modals.weaponSkin.importFailedNoMatchingWeapon') as string)
     }
 
     // Fetch sticker data in parallel
-    const stickerPromises = data.stickers?.map(async (sticker: any, index: number) => {
+    const stickerPromises = data.item.stickers?.map(async (sticker: any, index: number) => {
       if (!sticker) return null
       const response = await fetch(`/api/data/stickers?id=sticker-${sticker.sticker_id}`)
-      const data = await response.json()
-      const stickerData = data.stickers[0]
+      const stickerResponse = await response.json()
+      const stickerData = stickerResponse.stickers[0]
 
       if (!stickerData) return null
 
@@ -155,19 +156,21 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     // Fetch keychain data if exists
     let keychainPromise
-    if (data.keychains?.[0]) {
-      keychainPromise = await fetch(`/api/data/keychains?id=keychain-${data.keychains[0].sticker_id}`)
+    if (data.item.keychains?.[0]) {
+      keychainPromise = await fetch(`/api/data/keychains?id=keychain-${data.item.keychains[0].sticker_id}`)
           .then(res => res.json())
           .then(keychainData => {
-            const keychain = keychainData.keychains[0]
+            // Handle both old and new API response formats
+            const keychains = keychainData.data || keychainData.keychains || []
+            const keychain = keychains[0]
             if (!keychain) return null
 
             return {
-              id: data.keychains[0].sticker_id,
-              x: data.keychains[0].offset_x || 0,
-              y: data.keychains[0].offset_y || 0,
-              z: data.keychains[0].offset_z || 0,
-              seed: data.keychains[0].pattern || 0,
+              id: data.item.keychains[0].sticker_id,
+              x: data.item.keychains[0].offset_x || 0,
+              y: data.item.keychains[0].offset_y || 0,
+              z: data.item.keychains[0].offset_z || 0,
+              seed: data.item.keychains[0].pattern || 0,
               api: {
                 name: keychain.name,
                 image: keychain.image,
@@ -201,13 +204,13 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     // Update customization with complete data
     customization.value = {
       active: true,
-      statTrak: data.killeaterscoretype !== null,
-      statTrakCount: data.killeatervalue || 0,
-      paintIndex: data.paintindex,
+      statTrak: data.item.killeaterscoretype !== null,
+      statTrakCount: data.item.killeatervalue || 0,
+      paintIndex: data.item.paintindex,
       paintIndexOverride: false,
-      pattern: data.paintseed,
-      wear: data.paintwear,
-      nameTag: data.customname || '',
+      pattern: data.item.paintseed,
+      wear: data.item.paintwear,
+      nameTag: data.item.customname || '',
       stickers,
       keychain: keychainData,
       team: props.weapon.databaseInfo?.team || 0
@@ -215,7 +218,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     // Update selected skin based on paint index
     const matchingSkin = state.value.skins.find(skin =>
-        Number(skin.paint_index) === data.paintindex
+        Number(skin.paint_index) === data.item.paintindex
     )
 
     if (matchingSkin) {
@@ -246,17 +249,18 @@ const handleCreateInspectLink = async () => {
 
   try {
     state.value.isLoadingInspect = true
-    const response = await fetch(`/api/weapons/inspect?url=create-link&steamId=${user.value.steamId}`, {
+    const response = await fetch(`/api/inspect?action=create-url&steamId=${user.value.steamId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'credentials': 'include'
       },
       body: JSON.stringify({
+        itemType: 'weapon',
         defindex: props.weapon.weapon_defindex,
-        paintIndex: customization.value.paintIndex,
-        pattern: customization.value.pattern,
-        wear: customization.value.wear,
+        paintindex: customization.value.paintIndex,
+        paintseed: customization.value.pattern,
+        paintwear: customization.value.wear,
         rarity: 0,
         statTrak: customization.value.statTrak,
         statTrakCount: customization.value.statTrakCount,

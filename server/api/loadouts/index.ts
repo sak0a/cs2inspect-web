@@ -7,13 +7,20 @@ import {
     getLoadoutsBySteamId,
     updateLoadout, getLoadout, deleteLoadout, getLoadoutByName
 } from "~/server/database/loadoutHelpers";
+import {
+    createSuccessResponse,
+    createCollectionResponse,
+    createResponseMeta,
+    withErrorHandling
+} from '~/server/utils/apiResponseHelpers';
 
 
 /**
  * Client uses the loadoutStore on the client side to interact with the loadouts API
  * loadout API fetches with the loadoutHelpers the data from the database
  */
-export default defineEventHandler(async (event) => {
+export default defineEventHandler(withErrorHandling(async (event) => {
+    const startTime = Date.now();
     const method = event.method
     const query = getQuery(event)
 
@@ -25,7 +32,16 @@ export default defineEventHandler(async (event) => {
     if (method === 'GET') {
         const data: DBLoadout[] = await getLoadoutsBySteamId(steamId)
         Logger.success(`Loadouts fetched successfully.`)
-        return { loadouts: data, message: 'Loadouts fetched successfully!' }
+
+        const meta = createResponseMeta(startTime, { steamId, method });
+        return createCollectionResponse(
+            data,
+            data.length,
+            meta,
+            undefined,
+            undefined,
+            'Loadouts fetched successfully!'
+        );
     }
 
     if (method === 'POST') {
@@ -38,7 +54,8 @@ export default defineEventHandler(async (event) => {
         const data: DBLoadout = await getLoadoutByName(steamId, body.name)
         Logger.success(`Loadout ${data.id} retrieved successfully for response`)
 
-        return { loadout: data, message: 'Loadout created successfully' }
+        const meta = createResponseMeta(startTime, { steamId, method, loadoutName: body.name });
+        return createSuccessResponse(data, meta, 'Loadout created successfully');
     }
 
     if (method === 'PUT') {
@@ -54,7 +71,8 @@ export default defineEventHandler(async (event) => {
         const data = await getLoadout(id, steamId)
         Logger.success(`Loadout ${id} retrieved successfully for response`)
 
-        return { loadout: data, message: 'Loadout updated successfully' }
+        const meta = createResponseMeta(startTime, { steamId, method, loadoutId: id });
+        return createSuccessResponse(data, meta, 'Loadout updated successfully');
     }
 
     if (method === 'DELETE') {
@@ -64,7 +82,8 @@ export default defineEventHandler(async (event) => {
         await deleteLoadout(id, steamId)
         Logger.success(`Loadout ${id} deleted successfully!`)
 
-        return { message: 'Loadout deleted successfully' }
+        const meta = createResponseMeta(startTime, { steamId, method, loadoutId: id });
+        return createSuccessResponse(null, meta, 'Loadout deleted successfully');
     }
 
     Logger.error('Method not allowed')
@@ -72,4 +91,4 @@ export default defineEventHandler(async (event) => {
         statusCode: 405,
         message: 'Method not allowed'
     })
-})
+}, 'LOADOUTS_ERROR'))
