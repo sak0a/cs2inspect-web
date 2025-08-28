@@ -1,147 +1,285 @@
 <script setup lang="ts">
+// New type system imports
+import type {
+  KnifeModalProps,
+  KnifeModalState,
+  KnifeModalEvents,
+  KnifeItemData,
+  KnifeConfiguration,
+  APIWeaponSkin,
+  UserProfile
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type { IEnhancedKnife, IEnhancedItem, IMappedDBWeapon } from '~/server/utils/interfaces'
+import type { DBKnife } from '~/types'
+
 import { ref, computed } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitch, NButton, useMessage } from 'naive-ui'
-import { APISkin, IEnhancedItem, IMappedDBWeapon, KnifeCustomization } from "~/server/utils/interfaces"
-import { SteamUser } from "~/services/steamAuth"
-import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
-import ResetModal from "~/components/ResetModal.vue";
-import {skinModalThemeOverrides} from "~/server/utils/themeCustomization";
+import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
+import ResetModal from "~/components/ResetModal.vue"
+import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
 
-const props = defineProps<{
-  visible: boolean
+/**
+ * Props interface using new type system with backward compatibility
+ */
+interface Props extends Omit<KnifeModalProps, 'weapon' | 'user'> {
+  // Maintain backward compatibility with existing prop names
   weapon: IEnhancedKnife | null
   isLoading?: boolean
-  otherTeamHasSkin: boolean
   pageSize?: number
-  user: SteamUser
-}>()
+  user: UserProfile
+}
 
+const props = defineProps<Props>()
+
+/**
+ * Events interface using new type system with backward compatibility
+ */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'save', skin: IEnhancedItem, customization: KnifeCustomization): void
-  (e: 'duplicate', skin: IEnhancedItem, customization: KnifeCustomization): void
+  (e: 'save', skin: IEnhancedItem, customization: KnifeConfiguration): void
+  (e: 'duplicate', skin: IEnhancedItem, customization: KnifeConfiguration): void
+  (e: 'error', error: string): void
 }>()
 
 const message = useMessage()
 const { t } = useI18n()
 
-const state = ref({
+/**
+ * Modal state using new KnifeModalState interface
+ */
+const state = ref<KnifeModalState>({
+  // Base modal state
+  isLoadingSkins: false,
   searchQuery: '',
   currentPage: 1,
-  skins: [] as APISkin[],
-  isLoadingSkins: false,
+  error: null,
+
+  // Base item modal state
   showImportModal: false,
-  showDetails: false,
   showDuplicateConfirm: false,
   showResetConfirm: false,
   isImporting: false,
   isLoadingInspect: false,
-  isDuplicating: false,
-  isResetting: false
+  isResetting: false,
+  isDuplicating: false
+
+  // Note: KnifeModalState doesn't have additional weapon-specific state like WeaponModalState
+})
+
+/**
+ * Additional state for API data (not part of the modal state interface)
+ */
+const apiState = ref({
+  skins: [] as APIWeaponSkin[],
+  showDetails: false
 })
 
 const inheritedWeapon = ref<IEnhancedItem | null>()
 const selectedSkin = ref<IEnhancedItem | null>()
 
-const defaultCustomization: KnifeCustomization = {
+/**
+ * Default knife configuration using new KnifeConfiguration interface
+ */
+const defaultCustomization: KnifeConfiguration = {
   active: false,
-  statTrak: false,
-  statTrakCount: 0,
+  team: 1, // Default to Terrorist team
+  defindex: 0,
   paintIndex: 0,
   paintIndexOverride: false,
   pattern: 0,
   wear: 0,
-  nameTag: '',
-  team: 0,
-  reset: false
+  statTrak: false,
+  statTrakCount: 0,
+  nameTag: ''
 }
-const customization = ref<KnifeCustomization>({ ...defaultCustomization })
 
+const customization = ref<KnifeConfiguration>({ ...defaultCustomization })
+
+/**
+ * Utility functions
+ */
+const oppositeTeam = (team: number): number => team === 1 ? 2 : 1
+
+/**
+ * Pagination and filtering computed properties
+ */
 const PAGE_SIZE = ref(props.pageSize || 10)
 
 const filteredSkins = computed(() => {
-  return state.value.skins.filter(skin =>
-      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
+  return apiState.value.skins.filter(skin =>
+    skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
+
 const paginatedSkins = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE.value
   const end = start + PAGE_SIZE.value
   return filteredSkins.value.slice(start, end)
 })
+
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
+/**
+ * Fetch available skins for the current knife
+ * Updated to use new state structure and error handling
+ */
 const fetchAvailableSkinsForKnife = async () => {
   if (!props.weapon) return
-  state.value.isLoadingSkins = true
-  await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
-      .then(async (response) => {
-        const data = await response.json()
-        // Handle both old and new API response formats
-        const skins = data.data || data.skins || []
-        state.value.skins = skins
 
-        // Check if current page is above available pages and adjust if needed
-        const newTotalPages = Math.ceil(skins.filter(skin =>
-          skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-        ).length / PAGE_SIZE.value)
+  try {
+    state.value.isLoadingSkins = true
+    state.value.error = null
 
-        if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-          state.value.currentPage = newTotalPages
-        }
-      }).catch((error) => {
-        console.error('Error fetching skins:', error)
-      })
-      .finally(() => state.value.isLoadingSkins = false)
+    const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch skins: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.json()
+
+    // Handle both old and new API response formats
+    const skins = data.data || data.skins || []
+    apiState.value.skins = skins
+
+    // Check if current page is above available pages and adjust if needed
+    const newTotalPages = Math.ceil(skins.filter((skin: APIWeaponSkin) =>
+      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
+    ).length / PAGE_SIZE.value)
+
+    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+      state.value.currentPage = newTotalPages
+    }
+  } catch (error) {
+    console.error('Error fetching skins:', error)
+    state.value.error = error instanceof Error ? error.message : 'Failed to fetch skins'
+    emit('error', state.value.error)
+  } finally {
+    state.value.isLoadingSkins = false
+  }
 }
 
+/**
+ * Handle knife reset with improved error handling
+ */
 const handleReset = () => {
-  if (!props.weapon || !props.user) return
+  if (!props.weapon || !props.user) {
+    state.value.error = 'Missing weapon or user data for reset'
+    emit('error', state.value.error)
+    return
+  }
 
-  customization.value.reset = true
-  emit('save', props.weapon, customization.value)
-  state.value.showResetConfirm = false
+  try {
+    state.value.error = null
+    state.value.isResetting = true
+
+    // Create reset configuration
+    const resetConfig: KnifeConfiguration = {
+      ...customization.value,
+      reset: true
+    }
+
+    emit('save', props.weapon, resetConfig)
+    state.value.showResetConfirm = false
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to reset knife'
+    state.value.error = errorMessage
+    emit('error', errorMessage)
+    console.error('Error resetting knife:', error)
+  } finally {
+    state.value.isResetting = false
+  }
 }
 
+/**
+ * Handle knife duplication with improved error handling
+ */
 const handleDuplicate = async () => {
-  if (!selectedSkin.value) return
+  if (!selectedSkin.value) {
+    state.value.error = 'No knife selected for duplication'
+    emit('error', state.value.error)
+    return
+  }
 
   state.value.isDuplicating = true
-  const duplicateData = {
-    ...customization.value,
-    team: oppositeTeam(props.weapon?.databaseInfo?.team || 1)
-  }
+  try {
+    state.value.error = null
 
-  emit('duplicate', selectedSkin.value, duplicateData)
+    // Calculate the other team number (if current is 1, other is 2 and vice versa)
+    const otherTeam = props.weapon?.databaseInfo?.team === 1 ? 2 : 1
 
-  state.value.showDuplicateConfirm = false
-  state.value.isDuplicating = false
-}
-const handleSkinSelect = (skin: APISkin) => {
-  selectedSkin.value = {
-    ...props.weapon!,
-    name: skin.name,
-    defaultName: skin.name,
-    image: skin.image,
-    defaultImage: skin.image,
-    minFloat: skin.min_float ?? 0,
-    maxFloat: skin.max_float ?? 1,
-    paintIndex: Number(skin.paint_index),
-    rarity: skin.rarity,
-    availableTeams: 'both',
-  }
-  customization.value = {
-    ...customization.value,
-    paintIndex: Number(skin.paint_index),
-    wear: Number(skin.min_float ?? 0),
+    const duplicateData: KnifeConfiguration = {
+      ...customization.value,
+      team: otherTeam
+    }
+
+    emit('duplicate', selectedSkin.value, duplicateData)
+    state.value.showDuplicateConfirm = false
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to duplicate knife'
+    state.value.error = errorMessage
+    emit('error', errorMessage)
+    console.error('Error duplicating knife:', error)
+  } finally {
+    state.value.isDuplicating = false
   }
 }
 
+/**
+ * Handle skin selection with type safety
+ */
+const handleSkinSelect = (skin: APIWeaponSkin) => {
+  if (!props.weapon) {
+    state.value.error = 'No weapon available for skin selection'
+    emit('error', state.value.error)
+    return
+  }
+
+  try {
+    state.value.error = null
+
+    selectedSkin.value = {
+      ...props.weapon,
+      name: skin.name,
+      defaultName: skin.name,
+      image: skin.image,
+      defaultImage: skin.image,
+      minFloat: skin.min_float ?? 0,
+      maxFloat: skin.max_float ?? 1,
+      paintIndex: Number(skin.paint_index),
+      rarity: skin.rarity,
+      availableTeams: 'both',
+    }
+
+    customization.value = {
+      ...customization.value,
+      paintIndex: Number(skin.paint_index),
+      wear: Number(skin.min_float ?? 0),
+    }
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to select skin'
+    state.value.error = errorMessage
+    emit('error', errorMessage)
+    console.error('Error selecting skin:', error)
+  }
+}
+
+/**
+ * Handle inspect link import with improved error handling and type safety
+ */
 const handleImportInspectLink = async (inspectUrl: string) => {
-  if (!props.weapon || !props.user) return
+  if (!props.weapon || !props.user) {
+    state.value.error = 'Missing weapon or user data'
+    emit('error', state.value.error)
+    return
+  }
 
   try {
     state.value.isImporting = true
+    state.value.error = null
+
     const response = await fetch(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
       method: 'POST',
       headers: {
@@ -154,32 +292,35 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message)
+      throw new Error(data.message || 'Failed to import inspect link')
     }
 
     if (data.item.defindex !== props.weapon.weapon_defindex) {
       throw new Error(t('modals.knifeSkin.invalidInspectLink') as string)
     }
 
+    // Update customization with complete data using new KnifeConfiguration interface
     customization.value = {
       active: true,
-      statTrak: data.item.killeaterscoretype !== null,
-      statTrakCount: data.item.killeatervalue || 0,
+      team: props.weapon.databaseInfo?.team || 1, // Default to Terrorist team
+      defindex: data.item.defindex,
       paintIndex: data.item.paintindex,
       paintIndexOverride: false,
       pattern: data.item.paintseed,
       wear: data.item.paintwear,
-      nameTag: data.item.customname || '',
-      team: props.weapon.databaseInfo?.team || 0
+      statTrak: data.item.killeaterscoretype !== null,
+      statTrakCount: data.item.killeatervalue || 0,
+      nameTag: data.item.customname || ''
     }
 
-    const matchingSkin = state.value.skins.find(skin =>
-        Number(skin.paint_index) === data.item.paintindex
+    // Update selected skin based on paint index
+    const matchingSkin = apiState.value.skins.find(skin =>
+      Number(skin.paint_index) === data.item.paintindex
     )
 
     if (matchingSkin) {
       selectedSkin.value = {
-        ...props.weapon!,
+        ...props.weapon,
         name: matchingSkin.name,
         defaultName: matchingSkin.name,
         image: matchingSkin.image,
@@ -195,16 +336,28 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     message.success(t('modals.knifeSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
   } catch (error: any) {
-    message.error(error.message || t('modals.knifeSkin.importFailed') as string, { duration: 3000 })
+    const errorMessage = error.message || t('modals.knifeSkin.importFailed') as string
+    state.value.error = errorMessage
+    message.error(errorMessage, { duration: 3000 })
+    emit('error', errorMessage)
   } finally {
     state.value.isImporting = false
   }
 }
+/**
+ * Handle inspect link creation with improved error handling
+ */
 const handleCreateInspectLink = async () => {
-  if (!props.weapon || !selectedSkin || !props.user) return
+  if (!props.weapon || !selectedSkin.value || !props.user) {
+    state.value.error = 'Missing required data for inspect link creation'
+    emit('error', state.value.error)
+    return
+  }
 
   try {
     state.value.isLoadingInspect = true
+    state.value.error = null
+
     const response = await fetch(`/api/inspect?action=create-url&steamId=${props.user.steamId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'credentials': 'include'},
@@ -220,16 +373,22 @@ const handleCreateInspectLink = async () => {
         nameTag: customization.value.nameTag
       })
     })
+
     const data = await response.json()
+
     if (!response.ok) {
-      throw new Error(data.message)
+      throw new Error(data.message || 'Failed to create inspect link')
     }
+
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
     message.success(t('modals.knifeSkin.generateInspectUrlSuccess') as string, { duration: 3000 })
-  } catch (error) {
-    message.error(t('modals.knifeSkin.generateInspectUrlFailed') as string, { duration: 3000 })
-    console.log('Error generating inspect link:', error)
+  } catch (error: any) {
+    const errorMessage = error.message || t('modals.knifeSkin.generateInspectUrlFailed') as string
+    state.value.error = errorMessage
+    message.error(errorMessage, { duration: 3000 })
+    emit('error', errorMessage)
+    console.error('Error generating inspect link:', error)
   } finally {
     state.value.isLoadingInspect = false
   }
@@ -281,29 +440,49 @@ watch(() => props.visible, (isVisible) => {
   }
 })
 
+/**
+ * Watch for changes to props.weapon to initialize state when a knife is selected
+ * Updated to use new KnifeConfiguration interface
+ */
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
-    console.log('KnifeSkinModal - watch props.weapon:', props.weapon)
-    inheritedWeapon.value = props.weapon
-    customization.value.team = props.weapon.team || 1
-    fetchAvailableSkinsForKnife()
+    try {
+      state.value.error = null
 
-    const dbInfo = props.weapon.databaseInfo as DBKnife
-    if (dbInfo) {
-      customization.value = {
-        active: dbInfo.active || false,
-        statTrak: dbInfo.stattrak_enabled || false,
-        statTrakCount: dbInfo.stattrak_count | 0,
-        defindex: dbInfo.defindex | 0,
-        paintIndex: dbInfo.paintindex | 0,
-        paintIndexOverride: false,
-        pattern: parseInt(dbInfo.paintseed) | 0,
-        wear: parseFloat(dbInfo.paintwear),
-        nameTag: dbInfo.nametag || '',
-        team: dbInfo.team || 0
+      console.log('KnifeSkinModal - watch props.weapon:', props.weapon)
+      inheritedWeapon.value = props.weapon
+      fetchAvailableSkinsForKnife()
+
+      // Cast to the correct database interface for knives
+      const dbInfo = props.weapon.databaseInfo as DBKnife
+      if (dbInfo) {
+        customization.value = {
+          active: dbInfo.active || false,
+          team: dbInfo.team || 1,
+          defindex: props.weapon.weapon_defindex,
+          paintIndex: dbInfo.paintindex || 0, // Note: database uses 'paintindex', not 'paintIndex'
+          paintIndexOverride: false,
+          pattern: parseInt(dbInfo.paintseed) || 0, // Note: database uses 'paintseed', not 'pattern'
+          wear: parseFloat(dbInfo.paintwear) || 0, // Note: database uses 'paintwear', not 'paintWear'
+          statTrak: dbInfo.stattrak_enabled || false, // Note: database uses 'stattrak_enabled', not 'statTrak'
+          statTrakCount: dbInfo.stattrak_count || 0, // Note: database uses 'stattrak_count', not 'statTrakCount'
+          nameTag: dbInfo.nametag || '' // Note: database uses 'nametag', not 'nameTag'
+        }
+      } else {
+        customization.value = {
+          ...defaultCustomization,
+          team: props.weapon.team || 1,
+          defindex: props.weapon.weapon_defindex
+        }
       }
+
+      selectedSkin.value = inheritedWeapon.value
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to initialize knife data'
+      state.value.error = errorMessage
+      emit('error', errorMessage)
+      console.error('Error initializing knife:', error)
     }
-    selectedSkin.value = inheritedWeapon.value
   }
 })
 </script>

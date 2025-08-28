@@ -1,21 +1,47 @@
 <script setup lang="ts">
+// New type system imports
+import type {
+  ItemData,
+  ItemConfiguration,
+  WeaponConfiguration,
+  KnifeConfiguration,
+  GloveConfiguration,
+  UserProfile,
+  ItemType
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type { IEnhancedItem } from '~/server/utils/interfaces'
+
 import { ref, computed } from 'vue'
 import { NButton, NCard, NSpace, NTooltip, useMessage } from 'naive-ui'
-import { IEnhancedItem, WeaponCustomization, KnifeCustomization, GloveCustomization } from '~/server/utils/interfaces'
-import { SteamUser } from '~/services/steamAuth'
 
-const props = defineProps<{
+/**
+ * Props interface using new type system with backward compatibility
+ */
+interface Props {
+  /** Item data - supports both new and legacy interfaces */
   item: IEnhancedItem | null
-  itemType: 'weapon' | 'knife' | 'glove' | null
-  customization: WeaponCustomization | KnifeCustomization | GloveCustomization | null
+  /** Item type for proper handling */
+  itemType: ItemType | null
+  /** Item customization configuration */
+  customization: ItemConfiguration | null
+  /** Loading state */
   isLoading?: boolean
-  user: SteamUser | null
-}>()
+  /** User profile information */
+  user: UserProfile | null
+}
 
+const props = defineProps<Props>()
+
+/**
+ * Events interface with enhanced type safety
+ */
 const emit = defineEmits<{
   (e: 'customize'): void
   (e: 'clear'): void
   (e: 'generate-link'): void
+  (e: 'error', error: string): void
 }>()
 
 const message = useMessage()
@@ -23,74 +49,179 @@ const { t } = useI18n()
 
 const isGeneratingLink = ref(false)
 
-// Determine background color based on rarity
+/**
+ * Type guards for safe type checking
+ */
+const isWeaponConfiguration = (config: ItemConfiguration | null): config is WeaponConfiguration => {
+  return config !== null && 'statTrak' in config && 'stickers' in config
+}
+
+const isKnifeConfiguration = (config: ItemConfiguration | null): config is KnifeConfiguration => {
+  return config !== null && 'statTrak' in config && !('stickers' in config)
+}
+
+const isGloveConfiguration = (config: ItemConfiguration | null): config is GloveConfiguration => {
+  return config !== null && !('statTrak' in config)
+}
+
+/**
+ * Determine background color based on rarity
+ */
 const itemBackground = computed(() => {
   if (!props.item?.rarity?.color) return '#242424'
   return `linear-gradient(135deg, #101010, ${hexToRgba(props.item.rarity.color, '0.15')})`
 })
 
-// Format item name for display
+/**
+ * Format item name for display with StatTrak and name tag support
+ */
 const displayName = computed(() => {
   if (!props.item) return ''
 
-  let name = props.item.name
+  try {
+    let name = props.item.name
 
-  // Add StatTrak™ prefix if applicable
-  if (props.itemType === 'weapon' || props.itemType === 'knife') {
-    const customization = props.customization as WeaponCustomization | KnifeCustomization
-    if (customization?.statTrak) {
-      name = `StatTrak™ ${name}`
+    // Add StatTrak™ prefix if applicable (weapons and knives only)
+    if (props.itemType === 'weapon' || props.itemType === 'knife') {
+      if (isWeaponConfiguration(props.customization) || isKnifeConfiguration(props.customization)) {
+        if (props.customization.statTrak) {
+          name = `StatTrak™ ${name}`
+        }
+      }
     }
-  }
 
-  // Add name tag if present
-  if ((props.itemType === 'weapon' || props.itemType === 'knife') &&
-      (props.customization as WeaponCustomization | KnifeCustomization)?.nameTag) {
-    name = `${name} (${(props.customization as WeaponCustomization | KnifeCustomization).nameTag})`
-  }
+    // Add name tag if present (weapons and knives only)
+    if (props.itemType === 'weapon' || props.itemType === 'knife') {
+      if (isWeaponConfiguration(props.customization) || isKnifeConfiguration(props.customization)) {
+        if (props.customization.nameTag) {
+          name = `${name} (${props.customization.nameTag})`
+        }
+      }
+    }
 
-  return name
+    return name
+  } catch (error) {
+    console.error('Error formatting display name:', error)
+    return props.item.name || 'Unknown Item'
+  }
 })
 
-// Get item type display name
+/**
+ * Get item type display name with proper localization
+ */
 const itemTypeDisplay = computed(() => {
-  switch (props.itemType) {
-    case 'weapon': return t('common.weapon')
-    case 'knife': return t('common.knife')
-    case 'glove': return t('common.glove')
-    default: return ''
+  try {
+    switch (props.itemType) {
+      case 'weapon': return t('common.weapon')
+      case 'knife': return t('common.knife')
+      case 'glove': return t('common.glove')
+      case 'agent': return t('common.agent')
+      case 'musickit': return t('common.musickit')
+      case 'pin': return t('common.pin')
+      default: return ''
+    }
+  } catch (error) {
+    console.error('Error getting item type display name:', error)
+    return props.itemType || ''
   }
 })
 
-// Format float value for display
-const formatFloat = (value: number) => {
-  return value.toFixed(8).replace(/0+$/, '').replace(/\.$/, '')
+/**
+ * Get customization details for display
+ */
+const customizationDetails = computed(() => {
+  if (!props.customization) return null
+
+  try {
+    const details: Record<string, any> = {}
+
+    // Common properties for all items
+    details.wear = props.customization.wear
+    details.pattern = props.customization.pattern
+    details.paintIndex = props.customization.paintIndex
+
+    // StatTrak for weapons and knives
+    if (isWeaponConfiguration(props.customization) || isKnifeConfiguration(props.customization)) {
+      details.statTrak = props.customization.statTrak
+      details.statTrakCount = props.customization.statTrakCount
+      details.nameTag = props.customization.nameTag
+    }
+
+    // Stickers for weapons only
+    if (isWeaponConfiguration(props.customization)) {
+      details.stickers = props.customization.stickers
+      details.keychain = props.customization.keychain
+    }
+
+    return details
+  } catch (error) {
+    console.error('Error getting customization details:', error)
+    return null
+  }
+})
+
+/**
+ * Utility functions
+ */
+
+/** Format float value for display */
+const formatFloat = (value: number): string => {
+  try {
+    return value.toFixed(8).replace(/0+$/, '').replace(/\.$/, '')
+  } catch (error) {
+    console.error('Error formatting float:', error)
+    return '0'
+  }
 }
 
-// Convert hex color to rgba
+/** Convert hex color to rgba */
 function hexToRgba(hex: string, alpha: string = '1'): string {
-  if (!hex) return `rgba(0, 0, 0, ${alpha})`
+  try {
+    if (!hex) return `rgba(0, 0, 0, ${alpha})`
 
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
+    const r = parseInt(hex.slice(1, 3), 16)
+    const g = parseInt(hex.slice(3, 5), 16)
+    const b = parseInt(hex.slice(5, 7), 16)
 
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`
+  } catch (error) {
+    console.error('Error converting hex to rgba:', error)
+    return `rgba(0, 0, 0, ${alpha})`
+  }
 }
 
-// Handle customize button click
+/**
+ * Event handlers with error handling
+ */
+
+/** Handle customize button click */
 const handleCustomize = () => {
-  emit('customize')
+  try {
+    emit('customize')
+  } catch (error) {
+    console.error('Error handling customize:', error)
+    emit('error', 'Failed to open customization')
+  }
 }
 
-// Handle clear button click
+/** Handle clear button click */
 const handleClear = () => {
-  emit('clear')
+  try {
+    emit('clear')
+  } catch (error) {
+    console.error('Error handling clear:', error)
+    emit('error', 'Failed to clear item')
+  }
 }
 
-// Handle generate link button click
+/** Handle generate link button click */
 const handleGenerateLink = () => {
-  emit('generate-link')
+  try {
+    emit('generate-link')
+  } catch (error) {
+    console.error('Error handling generate link:', error)
+    emit('error', 'Failed to generate inspect link')
+  }
 }
 </script>
 

@@ -1,38 +1,101 @@
 <script setup lang="ts">
+// New type system imports
+import type {
+  KnifeItemData,
+  KnifeConfiguration
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type { IEnhancedItem, IEnhancedKnife } from "~/server/utils/interfaces"
+
 import { NTabs, NTabPane, NCard } from 'naive-ui'
-import {IEnhancedItem} from "~/server/utils/interfaces";
 
-const props = defineProps({
+/**
+ * Props interface for KnifeTabs component
+ */
+interface Props {
+  /** Knife data containing categories and knives */
   weaponData: {
-    type: Object,
-    required: true
+    weapons: IEnhancedKnife[]
+    defaultName: string
+    availableTeams: string
+    [key: string]: any
   }
-})
-
-const emit = defineEmits(['weaponClick'])
-const { t } = useI18n()
-
-const handleDefaultWeaponClick = (team: number) => {
-  const defaultWeapon = {
-    weapon_name: props.weaponData.weapons[0].weapon_name,
-    weapon_defindex: props.weaponData.weapons[0].weapon_defindex,
-    name: props.weaponData.defaultName,
-    defaultName: props.weaponData.defaultName,
-    image: props.weaponData.weapons[0].defaultImage,
-    defaultImage: props.weaponData.weapons[0].defaultImage,
-    category: props.weaponData.weapons[0].category,
-    minFloat: props.weaponData.weapons[0].minFloat,
-    maxFloat: props.weaponData.weapons[0].maxFloat,
-    paintIndex: 0,
-    team: team
-  } as IEnhancedKnife
-  //console.log("WeaponTabs - default weapon clicked: ", defaultWeapon)
-  emit('weaponClick', defaultWeapon)
 }
 
-const handleSkinClick = (weapon: IEnhancedKnife) => {
-  //console.log("WeaponTabs - skin clicked: ", weapon)
-  emit('weaponClick', weapon)
+const props = defineProps<Props>()
+
+/**
+ * Events interface with enhanced type safety
+ */
+const emit = defineEmits<{
+  (e: 'weaponClick', knife: IEnhancedKnife): void
+  (e: 'error', error: string): void
+}>()
+
+const { t } = useI18n()
+
+/**
+ * Handle default knife click with enhanced error handling
+ *
+ * @param team - Team number (1 for Terrorist, 2 for Counter-Terrorist)
+ */
+const handleDefaultWeaponClick = (team: number): void => {
+  try {
+    // Validate input
+    if (!team || (team !== 1 && team !== 2)) {
+      throw new Error('Invalid team number provided')
+    }
+
+    // Validate knife data
+    if (!props.weaponData?.weapons?.[0]) {
+      throw new Error('No knife data available')
+    }
+
+    const firstKnife = props.weaponData.weapons[0]
+
+    // Create default knife with proper type safety
+    const defaultWeapon: IEnhancedKnife = {
+      weapon_name: firstKnife.weapon_name,
+      weapon_defindex: firstKnife.weapon_defindex,
+      name: props.weaponData.defaultName,
+      defaultName: props.weaponData.defaultName,
+      image: firstKnife.defaultImage,
+      defaultImage: firstKnife.defaultImage,
+      category: firstKnife.category,
+      minFloat: firstKnife.minFloat || 0,
+      maxFloat: firstKnife.maxFloat || 1,
+      paintIndex: 0,
+      availableTeams: firstKnife.availableTeams || 'both',
+      rarity: firstKnife.rarity,
+      team: team
+    }
+
+    console.log("KnifeTabs - default knife clicked for team:", team)
+    emit('weaponClick', defaultWeapon)
+  } catch (error: any) {
+    console.error('Error handling default knife click:', error)
+    emit('error', error.message || 'Failed to select default knife')
+  }
+}
+
+/**
+ * Handle skin click with error handling
+ *
+ * @param weapon - Selected knife data
+ */
+const handleSkinClick = (weapon: IEnhancedKnife): void => {
+  try {
+    if (!weapon) {
+      throw new Error('Invalid knife data provided')
+    }
+
+    console.log("KnifeTabs - skin clicked:", weapon.name)
+    emit('weaponClick', weapon)
+  } catch (error: any) {
+    console.error('Error handling knife skin click:', error)
+    emit('error', error.message || 'Failed to select knife skin')
+  }
 }
 </script>
 

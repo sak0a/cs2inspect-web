@@ -1,85 +1,148 @@
 <script setup lang="ts">
+// New type system imports
+import type {
+  GloveModalProps,
+  GloveModalState,
+  GloveModalEvents,
+  GloveItemData,
+  GloveConfiguration,
+  APIWeaponSkin,
+  UserProfile
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type { IEnhancedGlove, IEnhancedItem, IMappedDBWeapon } from '~/server/utils/interfaces'
+import type { DBGlove } from '~/types'
+
 import { ref, computed } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitch, NButton, useMessage } from 'naive-ui'
-import {APISkin, IEnhancedItem, IMappedDBWeapon, GloveCustomization} from "~/server/utils/interfaces"
-import { SteamUser } from "~/services/steamAuth"
-import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
-import ResetModal from "~/components/ResetModal.vue";
-import {skinModalThemeOverrides} from "~/server/utils/themeCustomization";
+import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
+import ResetModal from "~/components/ResetModal.vue"
+import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
 
-const props = defineProps<{
-  visible: boolean
-  weapon: IEnhancedItem | null
+/**
+ * Props interface using new type system with backward compatibility
+ */
+interface Props extends Omit<GloveModalProps, 'weapon' | 'user'> {
+  // Maintain backward compatibility with existing prop names
+  weapon: IEnhancedGlove | null
   isLoading?: boolean
-  otherTeamHasSkin: boolean
   pageSize?: number
-  user: SteamUser
-}>()
+  user: UserProfile
+}
 
+const props = defineProps<Props>()
+
+/**
+ * Events interface using new type system with backward compatibility
+ */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedItem, customization: GloveCustomization): void
-  (e: 'duplicate', skin: IEnhancedItem, customization: GloveCustomization): void
+  (e: 'select', skin: IEnhancedItem, customization: GloveConfiguration): void
+  (e: 'duplicate', skin: IEnhancedItem, customization: GloveConfiguration): void
+  (e: 'error', error: string): void
 }>()
 
 const message = useMessage()
 const { t } = useI18n()
 
-const state = ref({
+/**
+ * Modal state using new GloveModalState interface
+ */
+const state = ref<GloveModalState>({
+  // Base modal state
+  isLoadingSkins: false,
   searchQuery: '',
   currentPage: 1,
-  skins: [] as APISkin[],
-  isLoadingSkins: false,
+  error: null,
+
+  // Base item modal state
   showImportModal: false,
-  showDetails: false,
   showDuplicateConfirm: false,
   showResetConfirm: false,
   isImporting: false,
   isLoadingInspect: false,
-  isDuplicating: false,
-  isResetting: false
+  isResetting: false,
+  isDuplicating: false
+
+  // Note: GloveModalState doesn't have additional glove-specific state
+})
+
+/**
+ * Additional state for API data (not part of the modal state interface)
+ */
+const apiState = ref({
+  skins: [] as APIWeaponSkin[],
+  showDetails: false
 })
 
 const inheritedWeapon = ref<IEnhancedItem | null>()
 const selectedSkin = ref<IEnhancedItem | null>()
 
-const defaultCustomization: GloveCustomization = {
+/**
+ * Default glove configuration using new GloveConfiguration interface
+ */
+const defaultCustomization: GloveConfiguration = {
   active: false,
+  team: 1, // Default to Terrorist team
+  defindex: 0,
   paintIndex: 0,
   paintIndexOverride: false,
   pattern: 0,
-  wear: 0,
-  team: 0
+  wear: 0
 }
 
-const customization = ref<GloveCustomization>({ ...defaultCustomization })
+const customization = ref<GloveConfiguration>({ ...defaultCustomization })
 
+/**
+ * Utility functions
+ */
+const oppositeTeam = (team: number): number => team === 1 ? 2 : 1
+
+/**
+ * Pagination and filtering computed properties
+ */
 const PAGE_SIZE = ref(props.pageSize || 10)
 
 const filteredSkins = computed(() => {
-  return state.value.skins.filter(skin =>
-      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
+  return apiState.value.skins.filter(skin =>
+    skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
+
 const paginatedSkins = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE.value
   const end = start + PAGE_SIZE.value
   return filteredSkins.value.slice(start, end)
 })
+
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
+/**
+ * Fetch available skins for the current glove
+ * Updated to use new state structure and error handling
+ */
 const fetchSkinsForGlove = async () => {
   if (!props.weapon) return
+
   try {
     state.value.isLoadingSkins = true
+    state.value.error = null
+
     const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch skins: ${response.status} ${response.statusText}`)
+    }
+
     const data = await response.json()
+
     // Handle both old and new API response formats
     const skins = data.data || data.skins || []
-    state.value.skins = skins
+    apiState.value.skins = skins
 
     // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(skins.filter(skin =>
+    const newTotalPages = Math.ceil(skins.filter((skin: APIWeaponSkin) =>
       skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
     ).length / PAGE_SIZE.value)
 
@@ -88,24 +151,36 @@ const fetchSkinsForGlove = async () => {
     }
   } catch (error) {
     console.error('Error fetching skins:', error)
+    state.value.error = error instanceof Error ? error.message : 'Failed to fetch skins'
+    emit('error', state.value.error)
   } finally {
     state.value.isLoadingSkins = false
   }
 }
 
+/**
+ * Handle glove reset with improved error handling
+ */
 const handleReset = () => {
-  if (!props.weapon || !props.user) return
+  if (!props.weapon || !props.user) {
+    state.value.error = 'Missing weapon or user data for reset'
+    emit('error', state.value.error)
+    return
+  }
 
   state.value.isResetting = true
   try {
-    // Create reset customization with default values
-    const resetCustomization: GloveCustomization = {
-      defindex: props.weapon.weapon_defindex,
+    state.value.error = null
+
+    // Create reset customization with default values using new GloveConfiguration interface
+    const resetCustomization: GloveConfiguration = {
       active: true,
-      paintIndex: 0, // Default paint index
-      wear: 0,
-      pattern: 0,
       team: customization.value.team,
+      defindex: props.weapon.weapon_defindex,
+      paintIndex: 0, // Default paint index
+      paintIndexOverride: false,
+      pattern: 0,
+      wear: 0,
       reset: true // Signal to the server this is a reset operation
     }
 
@@ -113,23 +188,35 @@ const handleReset = () => {
     emit('select', props.weapon, resetCustomization)
     state.value.showResetConfirm = false
     handleClose()
-  } catch (error) {
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to reset glove'
+    state.value.error = errorMessage
+    emit('error', errorMessage)
     console.error('Error resetting glove:', error)
   } finally {
     state.value.isResetting = false
   }
 }
 
+/**
+ * Handle glove duplication with improved error handling
+ */
 const handleDuplicate = async () => {
-  if (!selectedSkin.value) return
+  if (!selectedSkin.value) {
+    state.value.error = 'No glove selected for duplication'
+    emit('error', state.value.error)
+    return
+  }
 
   state.value.isDuplicating = true
   try {
+    state.value.error = null
+
     // Calculate the other team number (if current is 1 (T), other is 2 (CT) and vice versa)
     const otherTeam = props.weapon?.databaseInfo?.team === 1 ? 2 : 1
 
     // Create copy of current customization for other team
-    const duplicateData = {
+    const duplicateData: GloveConfiguration = {
       ...customization.value,
       team: otherTeam
     }
@@ -138,29 +225,52 @@ const handleDuplicate = async () => {
     emit('duplicate', selectedSkin.value, duplicateData)
 
     state.value.showDuplicateConfirm = false
-  } catch (error) {
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to duplicate glove'
+    state.value.error = errorMessage
+    emit('error', errorMessage)
     console.error('Error duplicating glove:', error)
   } finally {
     state.value.isDuplicating = false
   }
 }
-const handleSkinSelect = (skin: APISkin) => {
-  selectedSkin.value = {
-    ...props.weapon!,
-    name: skin.name,
-    defaultName: skin.name,
-    image: skin.image,
-    defaultImage: skin.image,
-    minFloat: skin.min_float ?? 0,
-    maxFloat: skin.max_float ?? 1,
-    paintIndex: Number(skin.paint_index),
-    rarity: skin.rarity,
-    availableTeams: 'both',
+
+/**
+ * Handle skin selection with type safety
+ */
+const handleSkinSelect = (skin: APIWeaponSkin) => {
+  if (!props.weapon) {
+    state.value.error = 'No weapon available for skin selection'
+    emit('error', state.value.error)
+    return
   }
-  customization.value = {
-    ...customization.value,
-    paintIndex: Number(skin.paint_index),
-    wear: Number(skin.min_float ?? 0),
+
+  try {
+    state.value.error = null
+
+    selectedSkin.value = {
+      ...props.weapon,
+      name: skin.name,
+      defaultName: skin.name,
+      image: skin.image,
+      defaultImage: skin.image,
+      minFloat: skin.min_float ?? 0,
+      maxFloat: skin.max_float ?? 1,
+      paintIndex: Number(skin.paint_index),
+      rarity: skin.rarity,
+      availableTeams: 'both',
+    }
+
+    customization.value = {
+      ...customization.value,
+      paintIndex: Number(skin.paint_index),
+      wear: Number(skin.min_float ?? 0),
+    }
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to select skin'
+    state.value.error = errorMessage
+    emit('error', errorMessage)
+    console.error('Error selecting skin:', error)
   }
 }
 
@@ -194,8 +304,8 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       paintIndexOverride: false,
       pattern: data.item.paintseed,
       wear: data.item.paintwear,
-      team: props.weapon.databaseInfo?.team || 0
-    } as GloveCustomization
+      team: props.weapon.databaseInfo?.team || 1
+    } as GloveConfiguration
 
     const matchingSkin = state.value.skins.find(skin =>
         Number(skin.paint_index) === data.item.paintindex
@@ -300,26 +410,45 @@ watch(() => props.visible, (isVisible) => {
   }
 })
 
+/**
+ * Watch for changes to props.weapon to initialize state when a glove is selected
+ * Updated to use new GloveConfiguration interface
+ */
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
-    inheritedWeapon.value = props.weapon
-    fetchSkinsForGlove()
+    try {
+      state.value.error = null
 
-    const dbInfo = props.weapon.databaseInfo as DBGlove
-    if (dbInfo) {
-      customization.value = {
-        active: dbInfo.active || false,
-        defindex: dbInfo.defindex | 0,
-        paintIndex: dbInfo.paintindex | 0,
-        paintIndexOverride: false,
-        pattern: parseInt(dbInfo.paintseed) | 0,
-        wear: parseFloat(dbInfo.paintwear),
-        team: dbInfo.team || 0
-      } as GloveCustomization
-    } else {
-      customization.value.team = 0
+      inheritedWeapon.value = props.weapon
+      fetchSkinsForGlove()
+
+      // Cast to the correct database interface for gloves
+      const dbInfo = props.weapon.databaseInfo as DBGlove
+      if (dbInfo) {
+        customization.value = {
+          active: dbInfo.active || false,
+          team: dbInfo.team || 1,
+          defindex: props.weapon.weapon_defindex,
+          paintIndex: dbInfo.paintindex || 0, // Note: database uses 'paintindex', not 'paintIndex'
+          paintIndexOverride: false,
+          pattern: parseInt(dbInfo.paintseed) || 0, // Note: database uses 'paintseed', not 'pattern'
+          wear: parseFloat(dbInfo.paintwear) || 0 // Note: database uses 'paintwear', not 'paintWear'
+        }
+      } else {
+        customization.value = {
+          ...defaultCustomization,
+          team: props.weapon.team || 1,
+          defindex: props.weapon.weapon_defindex
+        }
+      }
+
+      selectedSkin.value = inheritedWeapon.value
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to initialize glove data'
+      state.value.error = errorMessage
+      emit('error', errorMessage)
+      console.error('Error initializing glove:', error)
     }
-    selectedSkin.value = inheritedWeapon.value
   }
 })
 </script>

@@ -1,43 +1,78 @@
-import type { 
-  APISkin, 
-  WeaponCustomization, 
-  KnifeCustomization, 
+/**
+ * @fileoverview Legacy type definitions for item modals
+ * @deprecated This file is deprecated. Use the new type system from ~/types instead.
+ *
+ * This file provides backward compatibility during the migration to the new type system.
+ * All types here are now available in the main ~/types module with improved structure.
+ *
+ * Migration guide:
+ * - ItemType -> ItemType (from ~/types)
+ * - EnhancedItem -> ItemData (from ~/types)
+ * - ItemCustomization -> ItemConfiguration (from ~/types)
+ * - WeaponCustomization -> WeaponConfiguration (from ~/types)
+ * - KnifeCustomization -> KnifeConfiguration (from ~/types)
+ * - GloveCustomization -> GloveConfiguration (from ~/types)
+ * - APISkin -> APIWeaponSkin (from ~/types)
+ * - SteamUser -> UserProfile (from ~/types)
+ */
+
+// New type system imports
+import type {
+  ItemType as NewItemType,
+  ItemData,
+  ItemConfiguration,
+  WeaponConfiguration,
+  KnifeConfiguration,
+  GloveConfiguration,
+  APIWeaponSkin,
+  UserProfile
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type {
+  APISkin,
+  WeaponCustomization,
+  KnifeCustomization,
   GloveCustomization,
   IEnhancedWeapon,
   IEnhancedKnife,
-  IEnhancedGlove,
-  SteamUser
+  IEnhancedGlove
 } from '~/server/utils/interfaces'
 
 // ============================================================================
-// CORE TYPE DEFINITIONS
+// DEPRECATED TYPE DEFINITIONS (Use ~/types instead)
 // ============================================================================
 
 /**
+ * @deprecated Use ItemType from ~/types instead
  * Union type for all item types
  */
-export type ItemType = 'weapon' | 'knife' | 'glove'
+export type ItemType = NewItemType
 
 /**
+ * @deprecated Use ItemData from ~/types instead
  * Union type for all enhanced item interfaces
  */
 export type EnhancedItem = IEnhancedWeapon | IEnhancedKnife | IEnhancedGlove
 
 /**
+ * @deprecated Use ItemConfiguration from ~/types instead
  * Union type for all customization interfaces
  */
-export type ItemCustomization = WeaponCustomization | KnifeCustomization | GloveCustomization
+export type ItemCustomization = ItemConfiguration
 
 /**
+ * @deprecated Use ItemConfigurationMap from ~/types instead
  * Type-safe customization mapping
  */
 export type ItemCustomizationMap = {
-  weapon: WeaponCustomization
-  knife: KnifeCustomization
-  glove: GloveCustomization
+  weapon: WeaponConfiguration
+  knife: KnifeConfiguration
+  glove: GloveConfiguration
 }
 
 /**
+ * @deprecated Use ItemDataMap from ~/types instead
  * Type-safe enhanced item mapping
  */
 export type EnhancedItemMap = {
@@ -47,18 +82,20 @@ export type EnhancedItemMap = {
 }
 
 // ============================================================================
-// MODAL COMPONENT PROPS
+// DEPRECATED MODAL COMPONENT PROPS (Use ~/types/components/modals instead)
 // ============================================================================
 
 /**
+ * @deprecated Use BaseModalProps from ~/types/components/modals instead
  * Base props for all item modal components
  */
 export interface BaseItemModalProps {
   visible: boolean
-  user: SteamUser | null
+  user: UserProfile | null
 }
 
 /**
+ * @deprecated Use WeaponModalProps from ~/types/components/modals instead
  * Props for weapon modal component
  */
 export interface WeaponModalProps extends BaseItemModalProps {
@@ -66,6 +103,7 @@ export interface WeaponModalProps extends BaseItemModalProps {
 }
 
 /**
+ * @deprecated Use KnifeModalProps from ~/types/components/modals instead
  * Props for knife modal component
  */
 export interface KnifeModalProps extends BaseItemModalProps {
@@ -73,6 +111,7 @@ export interface KnifeModalProps extends BaseItemModalProps {
 }
 
 /**
+ * @deprecated Use GloveModalProps from ~/types/components/modals instead
  * Props for glove modal component
  */
 export interface GloveModalProps extends BaseItemModalProps {
@@ -80,15 +119,17 @@ export interface GloveModalProps extends BaseItemModalProps {
 }
 
 /**
+ * @deprecated Use modal-specific props from ~/types/components/modals instead
  * Union type for all modal props
  */
 export type ItemModalProps = WeaponModalProps | KnifeModalProps | GloveModalProps
 
 // ============================================================================
-// MODAL COMPONENT EMITS
+// DEPRECATED MODAL COMPONENT EMITS (Use ~/types/components/modals instead)
 // ============================================================================
 
 /**
+ * @deprecated Use BaseModalEvents from ~/types/components/modals instead
  * Base emits for all item modal components
  */
 export interface BaseItemModalEmits {
@@ -96,82 +137,91 @@ export interface BaseItemModalEmits {
 }
 
 /**
+ * @deprecated Use WeaponModalEvents from ~/types/components/modals instead
  * Emits for weapon modal component
  */
 export interface WeaponModalEmits extends BaseItemModalEmits {
-  select: [weapon: IEnhancedWeapon, customization: WeaponCustomization]
-  duplicate: [weapon: IEnhancedWeapon, customization: WeaponCustomization]
+  select: [weapon: IEnhancedWeapon, customization: WeaponConfiguration]
+  duplicate: [weapon: IEnhancedWeapon, customization: WeaponConfiguration]
 }
 
 /**
+ * @deprecated Use KnifeModalEvents from ~/types/components/modals instead
  * Emits for knife modal component
  */
 export interface KnifeModalEmits extends BaseItemModalEmits {
-  save: [weapon: IEnhancedKnife, customization: KnifeCustomization]
-  duplicate: [weapon: IEnhancedKnife, customization: KnifeCustomization]
+  save: [weapon: IEnhancedKnife, customization: KnifeConfiguration]
+  duplicate: [weapon: IEnhancedKnife, customization: KnifeConfiguration]
 }
 
 /**
+ * @deprecated Use GloveModalEvents from ~/types/components/modals instead
  * Emits for glove modal component
  */
 export interface GloveModalEmits extends BaseItemModalEmits {
-  select: [weapon: IEnhancedGlove, customization: GloveCustomization]
-  duplicate: [weapon: IEnhancedGlove, customization: GloveCustomization]
+  select: [weapon: IEnhancedGlove, customization: GloveConfiguration]
+  duplicate: [weapon: IEnhancedGlove, customization: GloveConfiguration]
 }
 
 // ============================================================================
-// ACTION HANDLER TYPES
+// DEPRECATED ACTION HANDLER TYPES (Use event handlers from components instead)
 // ============================================================================
 
 /**
+ * @deprecated Use component event handlers instead
  * Type for duplicate action handler
  */
-export type DuplicateHandler<T extends EnhancedItem, C extends ItemCustomization> = (
+export type DuplicateHandler<T extends EnhancedItem, C extends ItemConfiguration> = (
   item: T,
   customization: C
 ) => void
 
 /**
+ * @deprecated Use component event handlers instead
  * Type for reset action handler
  */
-export type ResetHandler<T extends EnhancedItem, C extends ItemCustomization> = (
+export type ResetHandler<T extends EnhancedItem, C extends ItemConfiguration> = (
   item: T,
   customization: C
 ) => void
 
 /**
+ * @deprecated Use component event handlers instead
  * Type for save action handler
  */
-export type SaveHandler<T extends EnhancedItem, C extends ItemCustomization> = (
+export type SaveHandler<T extends EnhancedItem, C extends ItemConfiguration> = (
   item: T,
   customization: C
 ) => void
 
 /**
+ * @deprecated Use component event handlers instead
  * Type-safe duplicate handler mapping
  */
 export type DuplicateHandlerMap = {
-  weapon: DuplicateHandler<IEnhancedWeapon, WeaponCustomization>
-  knife: DuplicateHandler<IEnhancedKnife, KnifeCustomization>
-  glove: DuplicateHandler<IEnhancedGlove, GloveCustomization>
+  weapon: DuplicateHandler<IEnhancedWeapon, WeaponConfiguration>
+  knife: DuplicateHandler<IEnhancedKnife, KnifeConfiguration>
+  glove: DuplicateHandler<IEnhancedGlove, GloveConfiguration>
 }
 
 /**
+ * @deprecated Use component event handlers instead
  * Type-safe reset handler mapping
  */
 export type ResetHandlerMap = {
-  weapon: ResetHandler<IEnhancedWeapon, WeaponCustomization>
-  knife: ResetHandler<IEnhancedKnife, KnifeCustomization>
-  glove: ResetHandler<IEnhancedGlove, GloveCustomization>
+  weapon: ResetHandler<IEnhancedWeapon, WeaponConfiguration>
+  knife: ResetHandler<IEnhancedKnife, KnifeConfiguration>
+  glove: ResetHandler<IEnhancedGlove, GloveConfiguration>
 }
 
 /**
+ * @deprecated Use component event handlers instead
  * Type-safe save handler mapping
  */
 export type SaveHandlerMap = {
-  weapon: SaveHandler<IEnhancedWeapon, WeaponCustomization>
-  knife: SaveHandler<IEnhancedKnife, KnifeCustomization>
-  glove: SaveHandler<IEnhancedGlove, GloveCustomization>
+  weapon: SaveHandler<IEnhancedWeapon, WeaponConfiguration>
+  knife: SaveHandler<IEnhancedKnife, KnifeConfiguration>
+  glove: SaveHandler<IEnhancedGlove, GloveConfiguration>
 }
 
 // ============================================================================
@@ -316,20 +366,67 @@ export function isGloveItem(item: EnhancedItem): item is IEnhancedGlove {
 /**
  * Type guard for weapon customization
  */
-export function isWeaponCustomization(customization: ItemCustomization): customization is WeaponCustomization {
+export function isWeaponCustomization(customization: ItemCustomization): customization is WeaponConfiguration {
   return 'stickers' in customization || 'keychain' in customization
 }
 
 /**
  * Type guard for knife customization
  */
-export function isKnifeCustomization(customization: ItemCustomization): customization is KnifeCustomization {
+export function isKnifeCustomization(customization: ItemCustomization): customization is KnifeConfiguration {
   return 'statTrak' in customization && !('stickers' in customization)
 }
 
 /**
+ * @deprecated Use isGloveConfiguration from ~/types instead
  * Type guard for glove customization
  */
-export function isGloveCustomization(customization: ItemCustomization): customization is GloveCustomization {
+export function isGloveCustomization(customization: ItemConfiguration): customization is GloveConfiguration {
   return !('statTrak' in customization) && !('stickers' in customization)
 }
+
+// ============================================================================
+// MIGRATION NOTICE
+// ============================================================================
+
+/**
+ * @fileoverview MIGRATION NOTICE
+ *
+ * This file is deprecated and will be removed in a future version.
+ * Please migrate to the new type system located in ~/types.
+ *
+ * Key migration paths:
+ *
+ * OLD (this file)                    NEW (~/types)
+ * ==================                 =============
+ * ItemType                    ->     ItemType
+ * EnhancedItem               ->     ItemData
+ * ItemCustomization          ->     ItemConfiguration
+ * WeaponCustomization        ->     WeaponConfiguration
+ * KnifeCustomization         ->     KnifeConfiguration
+ * GloveCustomization         ->     GloveConfiguration
+ * WeaponModalProps           ->     WeaponModalProps (from ~/types/components/modals)
+ * KnifeModalProps            ->     KnifeModalProps (from ~/types/components/modals)
+ * GloveModalProps            ->     GloveModalProps (from ~/types/components/modals)
+ * WeaponModalEmits           ->     WeaponModalEvents (from ~/types/components/modals)
+ * KnifeModalEmits            ->     KnifeModalEvents (from ~/types/components/modals)
+ * GloveModalEmits            ->     GloveModalEvents (from ~/types/components/modals)
+ * APISkin                    ->     APIWeaponSkin
+ * SteamUser                  ->     UserProfile
+ *
+ * Benefits of the new type system:
+ * - Better organization and structure
+ * - Comprehensive JSDoc documentation
+ * - Enhanced type safety with proper validation
+ * - Consistent naming conventions
+ * - Better error handling interfaces
+ * - Future-proof extensible architecture
+ *
+ * To migrate your code:
+ * 1. Replace imports from this file with imports from ~/types
+ * 2. Update type names according to the mapping above
+ * 3. Use the new interfaces for better type safety
+ * 4. Remove references to this file once migration is complete
+ *
+ * For detailed migration examples, see ~/types/README.md
+ */

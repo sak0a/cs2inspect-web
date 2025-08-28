@@ -1,50 +1,114 @@
 <script setup lang="ts">
+// New type system imports
+import type {
+  WeaponItemData,
+  WeaponConfiguration,
+  UserProfile
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type { IEnhancedItem, IEnhancedWeapon, IMappedDBWeapon } from "~/server/utils/interfaces"
+
 import { NTabs, NTabPane, NCard } from 'naive-ui'
-import {IEnhancedItem, IEnhancedWeapon, IMappedDBWeapon} from "~/server/utils/interfaces";
 
-const props = defineProps({
+/**
+ * Props interface for WeaponTabs component
+ */
+interface Props {
+  /** Weapon data containing categories and weapons */
   weaponData: {
-    type: Object,
-    required: true
+    weapons: IEnhancedWeapon[]
+    defaultName: string
+    [key: string]: any
   }
-})
-
-const emit = defineEmits(['weaponClick'])
-const { t } = useI18n()
-
-const handleDefaultWeaponClick = (team: number) => {
-  const defaultWeapon = {
-    weapon_name: props.weaponData.weapons[0].weapon_name,
-    weapon_defindex: props.weaponData.weapons[0].weapon_defindex,
-    name: props.weaponData.defaultName,
-    defaultName: props.weaponData.defaultName,
-    image: props.weaponData.weapons[0].defaultImage,
-    defaultImage: props.weaponData.weapons[0].defaultImage,
-    category: props.weaponData.weapons[0].category,
-    minFloat: props.weaponData.weapons[0].minFloat,
-    maxFloat: props.weaponData.weapons[0].maxFloat,
-    paintIndex: 0,
-    databaseInfo: {
-      team: team,
-      active: false,
-      defindex: 0,
-      paintIndex: 0,
-      paintWear: 0,
-      pattern: 0,
-      statTrak: false,
-      statTrakCount: 0,
-      nameTag: '',
-      stickers: [null, null, null, null, null],
-      keychain: null,
-    } as IMappedDBWeapon
-  } as IEnhancedWeapon
-  //console.log("WeaponTabs - default weapon clicked: ", defaultWeapon)
-  emit('weaponClick', defaultWeapon)
 }
 
-const handleSkinClick = (weapon: IEnhancedWeapon) => {
-  //console.log("WeaponTabs - skin clicked: ", weapon)
-  emit('weaponClick', weapon)
+const props = defineProps<Props>()
+
+/**
+ * Events interface with enhanced type safety
+ */
+const emit = defineEmits<{
+  (e: 'weaponClick', weapon: IEnhancedWeapon): void
+  (e: 'error', error: string): void
+}>()
+
+const { t } = useI18n()
+
+/**
+ * Handle default weapon click with enhanced error handling
+ *
+ * @param team - Team number (1 for Terrorist, 2 for Counter-Terrorist)
+ */
+const handleDefaultWeaponClick = (team: number): void => {
+  try {
+    // Validate input
+    if (!team || (team !== 1 && team !== 2)) {
+      throw new Error('Invalid team number provided')
+    }
+
+    // Validate weapon data
+    if (!props.weaponData?.weapons?.[0]) {
+      throw new Error('No weapon data available')
+    }
+
+    const firstWeapon = props.weaponData.weapons[0]
+
+    // Create default weapon with proper type safety
+    const defaultWeapon: IEnhancedWeapon = {
+      weapon_name: firstWeapon.weapon_name,
+      weapon_defindex: firstWeapon.weapon_defindex,
+      name: props.weaponData.defaultName,
+      defaultName: props.weaponData.defaultName,
+      image: firstWeapon.defaultImage,
+      defaultImage: firstWeapon.defaultImage,
+      category: firstWeapon.category,
+      minFloat: firstWeapon.minFloat || 0,
+      maxFloat: firstWeapon.maxFloat || 1,
+      paintIndex: 0,
+      availableTeams: firstWeapon.availableTeams || 'both',
+      rarity: firstWeapon.rarity,
+      team: team,
+      databaseInfo: {
+        team: team,
+        active: false,
+        defindex: firstWeapon.weapon_defindex,
+        paintIndex: 0,
+        paintWear: 0,
+        pattern: 0,
+        statTrak: false,
+        statTrakCount: 0,
+        nameTag: '',
+        stickers: [null, null, null, null, null],
+        keychain: null,
+      } as IMappedDBWeapon
+    }
+
+    console.log("WeaponTabs - default weapon clicked for team:", team)
+    emit('weaponClick', defaultWeapon)
+  } catch (error: any) {
+    console.error('Error handling default weapon click:', error)
+    emit('error', error.message || 'Failed to select default weapon')
+  }
+}
+
+/**
+ * Handle skin click with error handling
+ *
+ * @param weapon - Selected weapon data
+ */
+const handleSkinClick = (weapon: IEnhancedWeapon): void => {
+  try {
+    if (!weapon) {
+      throw new Error('Invalid weapon data provided')
+    }
+
+    console.log("WeaponTabs - skin clicked:", weapon.name)
+    emit('weaponClick', weapon)
+  } catch (error: any) {
+    console.error('Error handling skin click:', error)
+    emit('error', error.message || 'Failed to select weapon skin')
+  }
 }
 </script>
 

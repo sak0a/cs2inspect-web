@@ -1,36 +1,101 @@
 <script setup lang="ts">
+// New type system imports
+import type {
+  GloveItemData,
+  GloveConfiguration
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type { IEnhancedItem, IEnhancedGlove } from "~/server/utils/interfaces"
+
 import { NTabs, NTabPane, NCard } from 'naive-ui'
-import { IEnhancedItem, IEnhancedGlove } from "~/server/utils/interfaces";
 
-const props = defineProps({
+/**
+ * Props interface for GloveTabs component
+ */
+interface Props {
+  /** Glove data containing categories and gloves */
   weaponData: {
-    type: Object,
-    required: true
+    weapons: IEnhancedGlove[]
+    defaultName: string
+    availableTeams: string
+    [key: string]: any
   }
-})
-
-const emit = defineEmits(['weaponClick'])
-const { t } = useI18n()
-
-const handleDefaultWeaponClick = (team: number) => {
-  const defaultWeapon = {
-    weapon_name: props.weaponData.weapons[0].weapon_name,
-    weapon_defindex: props.weaponData.weapons[0].weapon_defindex,
-    name: props.weaponData.defaultName,
-    defaultName: props.weaponData.defaultName,
-    image: props.weaponData.weapons[0].defaultImage,
-    defaultImage: props.weaponData.weapons[0].defaultImage,
-    category: props.weaponData.weapons[0].category,
-    minFloat: props.weaponData.weapons[0].minFloat,
-    maxFloat: props.weaponData.weapons[0].maxFloat,
-    paintIndex: 0,
-    team: team
-  } as IEnhancedGlove
-  emit('weaponClick', defaultWeapon)
 }
 
-const handleSkinClick = (weapon: IEnhancedGlove) => {
-  emit('weaponClick', weapon)
+const props = defineProps<Props>()
+
+/**
+ * Events interface with enhanced type safety
+ */
+const emit = defineEmits<{
+  (e: 'weaponClick', glove: IEnhancedGlove): void
+  (e: 'error', error: string): void
+}>()
+
+const { t } = useI18n()
+
+/**
+ * Handle default glove click with enhanced error handling
+ *
+ * @param team - Team number (1 for Terrorist, 2 for Counter-Terrorist)
+ */
+const handleDefaultWeaponClick = (team: number): void => {
+  try {
+    // Validate input
+    if (!team || (team !== 1 && team !== 2)) {
+      throw new Error('Invalid team number provided')
+    }
+
+    // Validate glove data
+    if (!props.weaponData?.weapons?.[0]) {
+      throw new Error('No glove data available')
+    }
+
+    const firstGlove = props.weaponData.weapons[0]
+
+    // Create default glove with proper type safety
+    const defaultWeapon: IEnhancedGlove = {
+      weapon_name: firstGlove.weapon_name,
+      weapon_defindex: firstGlove.weapon_defindex,
+      name: props.weaponData.defaultName,
+      defaultName: props.weaponData.defaultName,
+      image: firstGlove.defaultImage,
+      defaultImage: firstGlove.defaultImage,
+      category: firstGlove.category,
+      minFloat: firstGlove.minFloat || 0,
+      maxFloat: firstGlove.maxFloat || 1,
+      paintIndex: 0,
+      availableTeams: firstGlove.availableTeams || 'both',
+      rarity: firstGlove.rarity,
+      team: team
+    }
+
+    console.log("GloveTabs - default glove clicked for team:", team)
+    emit('weaponClick', defaultWeapon)
+  } catch (error: any) {
+    console.error('Error handling default glove click:', error)
+    emit('error', error.message || 'Failed to select default glove')
+  }
+}
+
+/**
+ * Handle skin click with error handling
+ *
+ * @param weapon - Selected glove data
+ */
+const handleSkinClick = (weapon: IEnhancedGlove): void => {
+  try {
+    if (!weapon) {
+      throw new Error('Invalid glove data provided')
+    }
+
+    console.log("GloveTabs - skin clicked:", weapon.name)
+    emit('weaponClick', weapon)
+  } catch (error: any) {
+    console.error('Error handling glove skin click:', error)
+    emit('error', error.message || 'Failed to select glove skin')
+  }
 }
 </script>
 

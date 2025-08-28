@@ -1,91 +1,163 @@
 <script setup lang="ts">
-import {APISkin, WeaponCustomization, IEnhancedItem, IMappedDBWeapon} from '~/server/utils/interfaces'
+// New type system imports
+import type {
+  WeaponModalProps,
+  WeaponModalState,
+  WeaponModalEvents,
+  WeaponItemData,
+  WeaponConfiguration,
+  APIWeaponSkin,
+  UserProfile
+} from '~/types'
+
+// Legacy imports for backward compatibility
+import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
+
 import { ref, computed } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, NInputNumber, NSwitch, NButton } from 'naive-ui'
-import { steamAuth } from "~/services/steamAuth";
-import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue";
-import ResetModal from "~/components/ResetModal.vue";
-import {skinModalThemeOverrides} from "~/server/utils/themeCustomization";
-const props = defineProps<{
-  visible: boolean
+import { steamAuth } from "~/services/steamAuth"
+import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
+import ResetModal from "~/components/ResetModal.vue"
+import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
+
+/**
+ * Props interface using new type system with backward compatibility
+ */
+interface Props extends Omit<WeaponModalProps, 'weapon' | 'user'> {
+  // Maintain backward compatibility with existing prop names
   weapon: IEnhancedWeapon | null
   isLoading?: boolean
-  otherTeamHasSkin: boolean
   pageSize?: number
-}>()
+}
 
+const props = defineProps<Props>()
+
+/**
+ * Events interface using new type system with backward compatibility
+ */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedWeapon, customization: WeaponCustomization): void
-  (e: 'duplicate', skin: IEnhancedWeapon, customization: WeaponCustomization): void
+  (e: 'select', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
+  (e: 'duplicate', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
+  (e: 'error', error: string): void
 }>()
 
 const { t } = useI18n()
 const message = useMessage()
 
-// Basic state
-// APISkin because we are only fetching from the API with the same structure (images/name/rarity)
-const state = ref({
+/**
+ * Modal state using new WeaponModalState interface
+ */
+const state = ref<WeaponModalState>({
+  // Base modal state
+  isLoadingSkins: false,
   searchQuery: '',
   currentPage: 1,
-  skins: [] as APISkin[],
-  isLoadingSkins: false,
-  showStickerModal: false,
-  showKeychainModal: false,
+  error: null,
+
+  // Base item modal state
   showImportModal: false,
-  showDetails: false,
-  currentStickerPosition: 0,
-  showResetConfirm: false,
   showDuplicateConfirm: false,
-  isResetting: false,
+  showResetConfirm: false,
   isImporting: false,
   isLoadingInspect: false,
-  isDuplicating: false
+  isResetting: false,
+  isDuplicating: false,
+
+  // Weapon-specific modal state
+  showStickerModal: false,
+  showKeychainModal: false,
+  currentStickerPosition: 0
+})
+
+/**
+ * Additional state for API data (not part of the modal state interface)
+ */
+const apiState = ref({
+  skins: [] as APIWeaponSkin[],
+  showDetails: false
 })
 
 const selectedSkin = ref<IEnhancedWeapon | null>()
 
-const defaultCustomization: WeaponCustomization = {
+/**
+ * Default weapon configuration using new WeaponConfiguration interface
+ */
+const defaultCustomization: WeaponConfiguration = {
   active: false,
-  statTrak: false,
-  statTrakCount: 0,
+  team: 1, // Default to Terrorist team
+  defindex: 0,
   paintIndex: 0,
   paintIndexOverride: false,
   pattern: 0,
   wear: 0,
+  statTrak: false,
+  statTrakCount: 0,
   nameTag: '',
   stickers: [null, null, null, null, null],
-  keychain: null,
-  team: 0
+  keychain: null
 }
-const customization = ref<WeaponCustomization>({ ...defaultCustomization })
 
-const user = computed(() => steamAuth.getSavedUser())
+const customization = ref<WeaponConfiguration>({ ...defaultCustomization })
+
+/**
+ * User profile using new UserProfile interface
+ */
+const user = computed((): UserProfile | null => {
+  const steamUser = steamAuth.getSavedUser()
+  if (!steamUser) return null
+
+  return {
+    steamId: steamUser.steamId,
+    displayName: steamUser.displayName,
+    avatar: steamUser.avatar,
+    profileUrl: steamUser.profileUrl
+  }
+})
+/**
+ * Pagination and filtering computed properties
+ */
 const PAGE_SIZE = ref(props.pageSize || 10)
+
 const filteredSkins = computed(() => {
-  return state.value.skins.filter(skin =>
-      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
+  return apiState.value.skins.filter(skin =>
+    skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
   )
 })
+
 const paginatedSkins = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE.value
   const end = start + PAGE_SIZE.value
   return filteredSkins.value.slice(start, end)
 })
+
 const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
 
+/**
+ * Fetch available skins for the current weapon
+ * Updated to use new state structure and error handling
+ */
 const fetchAvailableSkinsForWeapon = async () => {
   if (!props.weapon) return
+
   try {
     state.value.isLoadingSkins = true
+    state.value.error = null
+
     const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch skins: ${response.status} ${response.statusText}`)
+    }
+
     const data = await response.json()
+
     // Handle both old and new API response formats
     const skins = data.data || data.skins || []
-    state.value.skins = skins
+    apiState.value.skins = skins
 
     // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(skins.filter(skin =>
+    const newTotalPages = Math.ceil(skins.filter((skin: APIWeaponSkin) =>
       skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
     ).length / PAGE_SIZE.value)
 
@@ -94,6 +166,8 @@ const fetchAvailableSkinsForWeapon = async () => {
     }
   } catch (error) {
     console.error('Error fetching skins:', error)
+    state.value.error = error instanceof Error ? error.message : 'Failed to fetch skins'
+    emit('error', state.value.error)
   } finally {
     state.value.isLoadingSkins = false
   }
@@ -101,11 +175,20 @@ const fetchAvailableSkinsForWeapon = async () => {
 
 // mapCustomizationToRepresentation has been moved to the backend
 
+/**
+ * Handle inspect link import with improved error handling and type safety
+ */
 const handleImportInspectLink = async (inspectUrl: string) => {
-  if (!props.weapon || !user.value) return
+  if (!props.weapon || !user.value) {
+    state.value.error = 'Missing weapon or user data'
+    emit('error', state.value.error)
+    return
+  }
 
   try {
     state.value.isImporting = true
+    state.value.error = null
+
     const response = await fetch(`/api/inspect?action=inspect-item&steamId=${user.value.steamId}`, {
       method: 'POST',
       headers: {
@@ -118,7 +201,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     const data = await response.json()
 
     if (!response.ok) {
-      throw new Error(data.message)
+      throw new Error(data.message || 'Failed to import inspect link')
     }
 
     if (data.item.defindex !== props.weapon.weapon_defindex) {
@@ -201,24 +284,25 @@ const handleImportInspectLink = async (inspectUrl: string) => {
           }
         })
 
-    // Update customization with complete data
+    // Update customization with complete data using new WeaponConfiguration interface
     customization.value = {
       active: true,
-      statTrak: data.item.killeaterscoretype !== null,
-      statTrakCount: data.item.killeatervalue || 0,
+      team: props.weapon.databaseInfo?.team || 1, // Default to Terrorist team
+      defindex: data.item.defindex,
       paintIndex: data.item.paintindex,
       paintIndexOverride: false,
       pattern: data.item.paintseed,
       wear: data.item.paintwear,
+      statTrak: data.item.killeaterscoretype !== null,
+      statTrakCount: data.item.killeatervalue || 0,
       nameTag: data.item.customname || '',
       stickers,
-      keychain: keychainData,
-      team: props.weapon.databaseInfo?.team || 0
+      keychain: keychainData
     }
 
     // Update selected skin based on paint index
-    const matchingSkin = state.value.skins.find(skin =>
-        Number(skin.paint_index) === data.item.paintindex
+    const matchingSkin = apiState.value.skins.find(skin =>
+      Number(skin.paint_index) === data.item.paintindex
     )
 
     if (matchingSkin) {
@@ -239,16 +323,28 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     message.success(t('modals.weaponSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
   } catch (error: any) {
-    message.error(error.message || t('modals.weaponSkin.importFailedDefault') as string, { duration: 3000 })
+    const errorMessage = error.message || t('modals.weaponSkin.importFailedDefault') as string
+    state.value.error = errorMessage
+    message.error(errorMessage, { duration: 3000 })
+    emit('error', errorMessage)
   } finally {
     state.value.isImporting = false
   }
 }
+/**
+ * Handle inspect link creation with improved error handling
+ */
 const handleCreateInspectLink = async () => {
-  if (!props.weapon || !selectedSkin || !user.value) return
+  if (!props.weapon || !selectedSkin.value || !user.value) {
+    state.value.error = 'Missing required data for inspect link creation'
+    emit('error', state.value.error)
+    return
+  }
 
   try {
     state.value.isLoadingInspect = true
+    state.value.error = null
+
     const response = await fetch(`/api/inspect?action=create-url&steamId=${user.value.steamId}`, {
       method: 'POST',
       headers: {
@@ -268,47 +364,73 @@ const handleCreateInspectLink = async () => {
         customization: customization.value
       })
     })
+
     const data = await response.json()
+
     if (!response.ok) {
-      throw new Error(data.message)
+      throw new Error(data.message || 'Failed to create inspect link')
     }
+
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
     message.success(t('modals.weaponSkin.generateInspectUrlSuccess') as string, { duration: 3000 })
-  } catch (error) {
-    message.error(t('modals.weaponSkin.generateInspectUrlFailed') as string)
+  } catch (error: any) {
+    const errorMessage = error.message || t('modals.weaponSkin.generateInspectUrlFailed') as string
+    state.value.error = errorMessage
+    message.error(errorMessage)
+    emit('error', errorMessage)
     console.error('Error creating inspect link:', error)
   } finally {
     state.value.isLoadingInspect = false
   }
 }
 
+/**
+ * Handle weapon reset with improved error handling
+ */
 const handleReset = async () => {
-  if (!selectedSkin.value) return
+  if (!selectedSkin.value) {
+    state.value.error = 'No weapon selected for reset'
+    emit('error', state.value.error)
+    return
+  }
 
   state.value.isResetting = true
   try {
+    state.value.error = null
     customization.value.reset = true
     state.value.showResetConfirm = false
-    handleSave();
-  } catch (error) {
-    message.error(t('modals.weaponSkin.resetFailed') as string)
+    handleSave()
+  } catch (error: any) {
+    const errorMessage = error.message || t('modals.weaponSkin.resetFailed') as string
+    state.value.error = errorMessage
+    message.error(errorMessage)
+    emit('error', errorMessage)
     console.error('Error resetting weapon:', error)
   } finally {
     state.value.isResetting = false
   }
 }
 
+/**
+ * Handle weapon duplication with improved error handling
+ */
 const handleDuplicate = async () => {
-  if (!selectedSkin.value) return
+  if (!selectedSkin.value) {
+    state.value.error = 'No weapon selected for duplication'
+    emit('error', state.value.error)
+    return
+  }
 
   state.value.isDuplicating = true
   try {
+    state.value.error = null
+
     // Calculate the other team number (if current is 1, other is 2 and vice versa)
     const otherTeam = props.weapon?.databaseInfo?.team === 1 ? 2 : 1
 
     // Create copy of current customization for other team
-    const duplicateData = {
+    const duplicateData: WeaponConfiguration = {
       ...customization.value,
       team: otherTeam
     }
@@ -318,30 +440,52 @@ const handleDuplicate = async () => {
 
     state.value.showDuplicateConfirm = false
     console.log('handleDuplicate', selectedSkin.value, duplicateData)
-  } catch (error) {
-    message.error(t('modals.weaponSkin.duplicateFailed') as string)
+  } catch (error: any) {
+    const errorMessage = error.message || t('modals.weaponSkin.duplicateFailed') as string
+    state.value.error = errorMessage
+    message.error(errorMessage)
+    emit('error', errorMessage)
     console.error('Error duplicating weapon:', error)
   } finally {
     state.value.isDuplicating = false
   }
 }
-const handleSkinSelect = (skin: APISkin) => {
-  selectedSkin.value = {
-    ...props.weapon!,
-    name: skin.name,
-    defaultName: skin.name,
-    image: skin.image,
-    defaultImage: skin.image,
-    minFloat: skin.min_float ?? 0,
-    maxFloat: skin.max_float ?? 1,
-    paintIndex: Number(skin.paint_index),
-    rarity: skin.rarity,
-    availableTeams: skin.team?.id ?? 'both',
+/**
+ * Handle skin selection with type safety
+ */
+const handleSkinSelect = (skin: APIWeaponSkin) => {
+  if (!props.weapon) {
+    state.value.error = 'No weapon available for skin selection'
+    emit('error', state.value.error)
+    return
   }
-  customization.value = {
-    ...customization.value,
-    paintIndex: Number(skin.paint_index),
-    wear: Number(skin.min_float ?? 0),
+
+  try {
+    state.value.error = null
+
+    selectedSkin.value = {
+      ...props.weapon,
+      name: skin.name,
+      defaultName: skin.name,
+      image: skin.image,
+      defaultImage: skin.image,
+      minFloat: skin.min_float ?? 0,
+      maxFloat: skin.max_float ?? 1,
+      paintIndex: Number(skin.paint_index),
+      rarity: skin.rarity,
+      availableTeams: skin.team?.id ?? 'both',
+    }
+
+    customization.value = {
+      ...customization.value,
+      paintIndex: Number(skin.paint_index),
+      wear: Number(skin.min_float ?? 0),
+    }
+  } catch (error: any) {
+    const errorMessage = error.message || 'Failed to select skin'
+    state.value.error = errorMessage
+    emit('error', errorMessage)
+    console.error('Error selecting skin:', error)
   }
 }
 // Deactivating this skin will remain it's configuration but will no longer be used on the server
@@ -436,7 +580,7 @@ const resetAllState = () => {
     nameTag: '',
     stickers: [null, null, null, null, null],
     keychain: null,
-    team: 0
+    team: 1
   }
 
   // Reset all other state
@@ -491,33 +635,50 @@ watch(() => state.value.searchQuery, () => {
   }
 })
 
-// Watch for changes to props.weapon to initialize state when a weapon is selected
+/**
+ * Watch for changes to props.weapon to initialize state when a weapon is selected
+ * Updated to use new WeaponConfiguration interface
+ */
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
-    // First reset all state to ensure no previous data persists
-    resetAllState()
+    try {
+      state.value.error = null
 
-    // Then fetch new data and initialize state
-    fetchAvailableSkinsForWeapon()
-    selectedSkin.value = props.weapon
+      // First reset all state to ensure no previous data persists
+      resetAllState()
 
-    const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
-    if (dbInfo) {
-      customization.value = {
-        active: dbInfo.active || false,
-        statTrak: dbInfo.statTrak || false,
-        statTrakCount: dbInfo.statTrakCount | 0,
-        paintIndex: dbInfo.paintIndex | 0,
-        paintIndexOverride: false,
-        pattern: dbInfo.pattern | 0,
-        wear: dbInfo.paintWear,
-        nameTag: dbInfo.nameTag || '',
-        stickers: Array.isArray(dbInfo.stickers) ? [...dbInfo.stickers] : [null, null, null, null, null],
-        keychain: dbInfo.keychain ? {...dbInfo.keychain} : null,
-        team: dbInfo.team
+      // Then fetch new data and initialize state
+      fetchAvailableSkinsForWeapon()
+      selectedSkin.value = props.weapon
+
+      const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
+      if (dbInfo) {
+        customization.value = {
+          active: dbInfo.active || false,
+          team: dbInfo.team || 1,
+          defindex: props.weapon.weapon_defindex,
+          paintIndex: dbInfo.paintIndex || 0,
+          paintIndexOverride: false,
+          pattern: dbInfo.pattern || 0,
+          wear: dbInfo.paintWear || 0,
+          statTrak: dbInfo.statTrak || false,
+          statTrakCount: dbInfo.statTrakCount || 0,
+          nameTag: dbInfo.nameTag || '',
+          stickers: Array.isArray(dbInfo.stickers) ? [...dbInfo.stickers] : [null, null, null, null, null],
+          keychain: dbInfo.keychain ? {...dbInfo.keychain} : null
+        }
+      } else {
+        customization.value = {
+          ...defaultCustomization,
+          team: props.weapon.availableTeams === 'terrorists' ? 1 : 2,
+          defindex: props.weapon.weapon_defindex
+        }
       }
-    } else {
-      customization.value.team = props.weapon.availableTeams === 'terrorists' ? 1 : 2
+    } catch (error: any) {
+      const errorMessage = error.message || 'Failed to initialize weapon data'
+      state.value.error = errorMessage
+      emit('error', errorMessage)
+      console.error('Error initializing weapon:', error)
     }
   }
 })
