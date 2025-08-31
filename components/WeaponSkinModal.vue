@@ -138,12 +138,16 @@ const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SI
  * Updated to use new state structure and error handling
  */
 const fetchAvailableSkinsForWeapon = async () => {
-  if (!props.weapon) return
+  if (!props.weapon) {
+    console.warn('WeaponSkinModal: No weapon provided for skin fetching')
+    return
+  }
 
   try {
     state.value.isLoadingSkins = true
     state.value.error = null
 
+    console.log('WeaponSkinModal: Fetching skins for weapon:', props.weapon.weapon_name)
     const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
 
     if (!response.ok) {
@@ -151,10 +155,22 @@ const fetchAvailableSkinsForWeapon = async () => {
     }
 
     const data = await response.json()
+    console.log('WeaponSkinModal: API response:', {
+      success: data.success,
+      dataLength: data.data?.length || 0,
+      weapon: props.weapon.weapon_name
+    })
 
     // Handle both old and new API response formats
     const skins = data.data || data.skins || []
     apiState.value.skins = skins
+
+    if (skins.length === 0) {
+      console.warn('WeaponSkinModal: No skins found for weapon:', props.weapon.weapon_name)
+      state.value.error = `No skins available for ${props.weapon.defaultName || props.weapon.weapon_name}`
+    } else {
+      console.log('WeaponSkinModal: Successfully loaded', skins.length, 'skins')
+    }
 
     // Check if current page is above available pages and adjust if needed
     const newTotalPages = Math.ceil(skins.filter((skin: APIWeaponSkin) =>
@@ -165,7 +181,11 @@ const fetchAvailableSkinsForWeapon = async () => {
       state.value.currentPage = newTotalPages
     }
   } catch (error) {
-    console.error('Error fetching skins:', error)
+    console.error('WeaponSkinModal: Error fetching weapon skins:', {
+      error,
+      weapon: props.weapon?.weapon_name,
+      weaponData: props.weapon
+    })
     state.value.error = error instanceof Error ? error.message : 'Failed to fetch skins'
     emit('error', state.value.error)
   } finally {

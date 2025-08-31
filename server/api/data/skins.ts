@@ -8,6 +8,7 @@ import {
     extractFilterOptions,
     withErrorHandling
 } from '~/server/utils/apiResponseHelpers';
+import { isWeaponMatch } from '~/server/utils/weaponNameMapping';
 
 interface QueryFilters {
     search?: string;        // Search term for name
@@ -54,10 +55,11 @@ export default defineEventHandler(withErrorHandling(async (event) => {
             return false;
         }
 
-        // Weapon type filter
-        if (filters.weapon &&
-            !skin.weapon?.id.toLowerCase().includes(filters.weapon)) {
-            return false;
+        // Weapon type filter using improved matching utility
+        if (filters.weapon && skin.weapon?.id) {
+            if (!isWeaponMatch(filters.weapon, skin.weapon.id)) {
+                return false;
+            }
         }
 
         // Rarity filter

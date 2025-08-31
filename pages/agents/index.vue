@@ -5,7 +5,7 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import AgentTabs from "~/components/AgentTabs.vue";
-import { APIAgent } from "~/server/utils/interfaces";
+import type { APIAgent } from "~/types";
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)

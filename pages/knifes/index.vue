@@ -5,7 +5,7 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import KnifeSkinModal from '~/components/KnifeSkinModal.vue'
-import { KnifeCustomization } from "~/server/utils/interfaces"
+import type { IEnhancedKnife, KnifeConfiguration } from "~/types"
 import KnifeTabs from "~/components/KnifeTabs.vue";
 
 const user = ref<SteamUser | null>(null)
@@ -118,7 +118,7 @@ const handleKnifeClick = (knife: IEnhancedKnife) => {
   showSkinModal.value = true
 }
 
-const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeCustomization) => {
+const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     return
   }
@@ -153,7 +153,7 @@ const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeCustomi
   })
 }
 
-const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeCustomization) => {
+const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     return
   }

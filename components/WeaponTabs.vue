@@ -6,8 +6,8 @@ import type {
   UserProfile
 } from '~/types'
 
-// Legacy imports for backward compatibility
-import type { IEnhancedItem, IEnhancedWeapon, IMappedDBWeapon } from "~/server/utils/interfaces"
+// Modern type imports
+import type { DBWeapon } from "~/types"
 
 import { NTabs, NTabPane, NCard } from 'naive-ui'
 
@@ -17,7 +17,7 @@ import { NTabs, NTabPane, NCard } from 'naive-ui'
 interface Props {
   /** Weapon data containing categories and weapons */
   weaponData: {
-    weapons: IEnhancedWeapon[]
+    weapons: WeaponItemData[]
     defaultName: string
     [key: string]: any
   }
@@ -29,7 +29,7 @@ const props = defineProps<Props>()
  * Events interface with enhanced type safety
  */
 const emit = defineEmits<{
-  (e: 'weaponClick', weapon: IEnhancedWeapon): void
+  (e: 'weaponClick', weapon: WeaponItemData): void
   (e: 'error', error: string): void
 }>()
 
@@ -54,34 +54,45 @@ const handleDefaultWeaponClick = (team: number): void => {
 
     const firstWeapon = props.weaponData.weapons[0]
 
-    // Create default weapon with proper type safety
-    const defaultWeapon: IEnhancedWeapon = {
-      weapon_name: firstWeapon.weapon_name,
-      weapon_defindex: firstWeapon.weapon_defindex,
+    // Create default weapon with proper type safety and weapon_name
+    const defaultWeapon: WeaponItemData = {
+      type: 'weapon',
+      id: `default-${firstWeapon.id || 'weapon'}`,
       name: props.weaponData.defaultName,
       defaultName: props.weaponData.defaultName,
       image: firstWeapon.defaultImage,
       defaultImage: firstWeapon.defaultImage,
+      itemName: firstWeapon.itemName,
       category: firstWeapon.category,
       minFloat: firstWeapon.minFloat || 0,
       maxFloat: firstWeapon.maxFloat || 1,
-      paintIndex: 0,
       availableTeams: firstWeapon.availableTeams || 'both',
       rarity: firstWeapon.rarity,
-      team: team,
+      // Add the missing weapon_name field from the first weapon
+      weapon_name: firstWeapon.weapon_name,
+      weapon_defindex: firstWeapon.weapon_defindex || firstWeapon.databaseInfo?.defindex || 0,
       databaseInfo: {
-        team: team,
+        id: `default-db-${firstWeapon.id || 'weapon'}`,
+        steamid: '',
+        loadoutid: '',
         active: false,
-        defindex: firstWeapon.weapon_defindex,
-        paintIndex: 0,
-        paintWear: 0,
-        pattern: 0,
-        statTrak: false,
-        statTrakCount: 0,
-        nameTag: '',
-        stickers: [null, null, null, null, null],
-        keychain: null,
-      } as IMappedDBWeapon
+        team: team,
+        defindex: firstWeapon.databaseInfo?.defindex || 0,
+        paintindex: 0,
+        paintseed: '0',
+        paintwear: '0.01',
+        stattrak_enabled: false,
+        stattrak_count: 0,
+        nametag: '',
+        sticker_0: '',
+        sticker_1: '',
+        sticker_2: '',
+        sticker_3: '',
+        sticker_4: '',
+        keychain: '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as DBWeapon
     }
 
     console.log("WeaponTabs - default weapon clicked for team:", team)

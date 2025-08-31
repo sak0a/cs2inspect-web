@@ -6,19 +6,19 @@ import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import GloveSkinModal from '~/components/GloveSkinModal.vue'
 import GloveTabs from '~/components/GloveTabs.vue'
-import { IEnhancedItem, GloveCustomization } from "~/server/utils/interfaces"
+import type { IEnhancedGlove, GloveConfiguration } from "~/types"
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<any[]>([])
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const showSkinModal = ref<boolean>(false)
-const selectedGlove = ref<IEnhancedItem | null>(null)
+const selectedGlove = ref<IEnhancedGlove | null>(null)
 const tGloveType = ref<number | null>(null)
 const ctGloveType = ref<number | null>(null)
 const selectedTeamGloves = ref({
-  terrorists: null as IEnhancedItem | null,
-  counterTerrorists: null as IEnhancedItem | null
+  terrorists: null as IEnhancedGlove | null,
+  counterTerrorists: null as IEnhancedGlove | null
 })
 
 const loadoutStore = useLoadoutStore()
@@ -112,12 +112,12 @@ const updateSelectedGloves = () => {
   ctGloveType.value = selectedTeamGloves.value.counterTerrorists?.weapon_defindex || -1;
 }
 
-const handleGloveClick = (glove: IEnhancedItem) => {
+const handleGloveClick = (glove: IEnhancedGlove) => {
   selectedGlove.value = glove
   showSkinModal.value = true
 }
 
-const handleSkinSelect = async (glove: IEnhancedItem, customization: GloveCustomization) => {
+const handleSkinSelect = async (glove: IEnhancedGlove, customization: GloveConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return
@@ -155,7 +155,7 @@ const handleSkinSelect = async (glove: IEnhancedItem, customization: GloveCustom
   }
 }
 
-const handleGloveDuplicate = async (glove: IEnhancedItem, customization: GloveCustomization) => {
+const handleGloveDuplicate = async (glove: IEnhancedGlove, customization: GloveConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
     return

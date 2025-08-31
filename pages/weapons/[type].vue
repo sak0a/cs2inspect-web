@@ -4,7 +4,7 @@ import { onMounted, ref, nextTick, watch } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import { IEnhancedItem, WeaponCustomization } from "~/server/utils/interfaces";
+import type { IEnhancedWeapon, WeaponConfiguration } from "~/types";
 import { useMessage } from "naive-ui";
 
 definePageMeta({
@@ -23,17 +23,17 @@ const loadoutStore = useLoadoutStore()
 const message = useMessage()
 
 const showSkinModal = ref<boolean>(false)
-const selectedWeapon = ref<IEnhancedItem | null>(null)
+const selectedWeapon = ref<IEnhancedWeapon | null>(null)
 
 const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
 const groupedWeapons = useGroupedWeapons(skins)
 
-const handleWeaponClick = (weapon: IEnhancedItem) => {
+const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   selectedWeapon.value = weapon
   showSkinModal.value = true
 }
 
-const handleSkinSave = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
+const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error(t('loadout.selectLoadoutFirst') as string)
     return
@@ -77,7 +77,7 @@ const handleSkinSave = async (skin: IEnhancedItem, customization: WeaponCustomiz
   })
 }
 
-const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponCustomization) => {
+const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: WeaponConfiguration) => {
   if (!loadoutStore.selectedLoadoutId) {
     message.error(t('loadout.selectLoadoutFirst') as string)
     return
@@ -106,7 +106,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedItem, customization: WeaponC
       seed: customization.keychain.seed || 0
     } : null
     console.log("DUPLICATE CUSTOM TEAM: ", customization.team)
-    const response = await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+    const response = await fetch(`/api/weapons/save?steamId=${user.value?.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

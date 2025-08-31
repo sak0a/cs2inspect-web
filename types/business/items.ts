@@ -72,7 +72,7 @@ export interface BaseItemConfiguration {
 
 /**
  * Base item data interface
- * 
+ *
  * @description Common properties for all item data structures
  */
 export interface BaseItemData {
@@ -94,6 +94,10 @@ export interface BaseItemData {
   category: string
   /** Teams that can use this item */
   availableTeams: TeamAvailability
+  /** Internal weapon name identifier used for API calls */
+  weapon_name: string
+  /** Weapon definition index */
+  weapon_defindex: number
 }
 
 // ============================================================================

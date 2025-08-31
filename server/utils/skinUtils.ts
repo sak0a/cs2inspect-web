@@ -19,10 +19,30 @@ export function findMatchingSkin<T extends { weapon_name: string }, U extends { 
 ): APISkin | undefined {
     if (!databaseItem) return undefined;
 
-    return skinsData.find(skin =>
-        skin.weapon?.id === baseItem.weapon_name &&
-        skin.paint_index === databaseItem.paintindex.toString()
-    );
+    // Convert paintindex to string for consistent comparison
+    const paintIndexStr = databaseItem.paintindex.toString();
+
+    console.log('findMatchingSkin: Looking for skin with weapon_name:', baseItem.weapon_name, 'paintindex:', paintIndexStr);
+
+    const matchingSkin = skinsData.find(skin => {
+        const weaponMatch = skin.weapon?.id === baseItem.weapon_name;
+        const paintMatch = skin.paint_index === paintIndexStr;
+
+        if (weaponMatch && paintMatch) {
+            console.log('findMatchingSkin: Found matching skin:', skin.name, 'for weapon:', baseItem.weapon_name);
+        }
+
+        return weaponMatch && paintMatch;
+    });
+
+    if (!matchingSkin) {
+        console.warn('findMatchingSkin: No matching skin found for weapon:', baseItem.weapon_name, 'paintindex:', paintIndexStr);
+        // Log available skins for this weapon to help debug
+        const weaponSkins = skinsData.filter(skin => skin.weapon?.id === baseItem.weapon_name);
+        console.log('findMatchingSkin: Available skins for', baseItem.weapon_name, ':', weaponSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
+    }
+
+    return matchingSkin;
 }
 
 /**

@@ -4,6 +4,7 @@ create table wp_player_loadouts
         primary key,
     steamid           varchar(64)                           not null,
     name              varchar(25)                           not null,
+    active            tinyint(1)   default 0                not null comment 'Whether this loadout is currently active',
     selected_knife_t  smallint unsigned                     null comment 'DEFINDEX of selected knife',
     selected_knife_ct smallint unsigned                     null comment 'DEFINDEX of selected knife for ct',
     selected_glove_t  smallint unsigned                     null comment 'DEFINDEX of selected glove for t',

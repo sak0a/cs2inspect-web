@@ -5,8 +5,8 @@ import type {
   GloveConfiguration
 } from '~/types'
 
-// Legacy imports for backward compatibility
-import type { IEnhancedItem, IEnhancedGlove } from "~/server/utils/interfaces"
+// Modern type imports
+import type { DBGlove } from "~/types"
 
 import { NTabs, NTabPane, NCard } from 'naive-ui'
 
@@ -16,7 +16,7 @@ import { NTabs, NTabPane, NCard } from 'naive-ui'
 interface Props {
   /** Glove data containing categories and gloves */
   weaponData: {
-    weapons: IEnhancedGlove[]
+    weapons: GloveItemData[]
     defaultName: string
     availableTeams: string
     [key: string]: any
@@ -29,7 +29,7 @@ const props = defineProps<Props>()
  * Events interface with enhanced type safety
  */
 const emit = defineEmits<{
-  (e: 'weaponClick', glove: IEnhancedGlove): void
+  (e: 'weaponClick', glove: GloveItemData): void
   (e: 'error', error: string): void
 }>()
 
@@ -54,21 +54,36 @@ const handleDefaultWeaponClick = (team: number): void => {
 
     const firstGlove = props.weaponData.weapons[0]
 
-    // Create default glove with proper type safety
-    const defaultWeapon: IEnhancedGlove = {
-      weapon_name: firstGlove.weapon_name,
-      weapon_defindex: firstGlove.weapon_defindex,
+    // Create default glove with proper type safety and weapon_name
+    const defaultWeapon: GloveItemData = {
+      type: 'glove',
+      id: `default-${firstGlove.id || 'glove'}`,
       name: props.weaponData.defaultName,
       defaultName: props.weaponData.defaultName,
       image: firstGlove.defaultImage,
       defaultImage: firstGlove.defaultImage,
+      itemName: firstGlove.itemName,
       category: firstGlove.category,
       minFloat: firstGlove.minFloat || 0,
       maxFloat: firstGlove.maxFloat || 1,
-      paintIndex: 0,
       availableTeams: firstGlove.availableTeams || 'both',
       rarity: firstGlove.rarity,
-      team: team
+      // Add the missing weapon_name field from the first glove
+      weapon_name: firstGlove.weapon_name,
+      weapon_defindex: firstGlove.weapon_defindex || firstGlove.databaseInfo?.defindex || 0,
+      databaseInfo: {
+        id: `default-db-${firstGlove.id || 'glove'}`,
+        steamid: '',
+        loadoutid: '',
+        active: false,
+        team: team,
+        defindex: firstGlove.databaseInfo?.defindex || 0,
+        paintindex: 0,
+        paintseed: '0',
+        paintwear: '0.01',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as DBGlove
     }
 
     console.log("GloveTabs - default glove clicked for team:", team)

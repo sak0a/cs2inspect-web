@@ -1,18 +1,28 @@
+import type { WeaponItemData, KnifeItemData, GloveItemData } from "~/types"
+
+/**
+ * Helper function to get the defindex from modern item data
+ */
+function getItemDefindex(item: WeaponItemData | KnifeItemData | GloveItemData): number {
+    return item.databaseInfo?.defindex || 0
+}
+
 /**
  * Checks if the selected weapon/knife has a skin configured for the other team
  */
 export function useOtherTeamSkin(
-    selectedItem: Ref<IEnhancedItem | IEnhancedKnife | null> | ComputedRef<IEnhancedItem | IEnhancedKnife | null>,
+    selectedItem: Ref<WeaponItemData | KnifeItemData | GloveItemData | null> | ComputedRef<WeaponItemData | KnifeItemData | GloveItemData | null>,
     skins: Ref<any[]> | ComputedRef<any[]>
 ): ComputedRef<boolean> {
     return computed(() => {
         if (!selectedItem.value) return false
 
         const currentTeam = selectedItem.value.databaseInfo?.team || 0
+        const selectedDefindex = getItemDefindex(selectedItem.value)
 
         return skins.value.some(weaponGroup =>
-            weaponGroup.some((weapon: IEnhancedItem | IEnhancedKnife) =>
-                weapon.weapon_defindex === selectedItem.value?.weapon_defindex &&
+            weaponGroup.some((weapon: WeaponItemData | KnifeItemData | GloveItemData) =>
+                getItemDefindex(weapon) === selectedDefindex &&
                 weapon.databaseInfo?.team === oppositeTeam(currentTeam)
             )
         )

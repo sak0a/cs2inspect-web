@@ -83,6 +83,8 @@ export interface DBLoadoutRecord extends DBUserRecord {
 export interface DBLoadout extends DBUserRecord {
   /** Loadout display name */
   name: string
+  /** Whether this loadout is currently active for the player */
+  active: boolean
   /** Selected knife defindex for Terrorist team */
   selected_knife_t: number | null
   /** Selected knife defindex for Counter-Terrorist team */

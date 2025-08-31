@@ -308,7 +308,7 @@ export const saveWeapon = async (
                     steamId,
                     loadoutId,
                     body.defindex,
-                    body.active,
+                    true, // Always set new weapons to active
                     body.team,
                     body.paintIndex,
                     body.wear,
@@ -397,7 +397,7 @@ export const saveKnife = async (
                 [
                     steamId,
                     loadoutId,
-                    body.active,
+                    true, // Always set new knives to active
                     body.team,
                     body.defindex,
                     body.paintIndex,
@@ -434,20 +434,28 @@ export const saveGlove = async (
     body: GloveCustomization
 ) => {
     try {
+        Logger.info(`saveGlove: Starting save process for steamId: ${steamId}, loadoutId: ${loadoutId}`);
+        Logger.info(`saveGlove: Body data:`, JSON.stringify(body, null, 2));
+
         // Handle reset case
         if (body.reset) {
+            Logger.info('saveGlove: Processing reset request');
             return handleItemReset('wp_player_gloves', steamId, loadoutId, body, 'glove');
         }
 
         // Check for existing glove
+        Logger.info(`saveGlove: Checking for existing glove with defindex: ${body.defindex}, team: ${body.team}`);
         const existingGlove = await executeQuery<DBGlove[]>(
             'SELECT * FROM wp_player_gloves WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?',
             [steamId, loadoutId, body.team, body.defindex],
             'Failed to check if glove exists'
         );
 
+        Logger.info(`saveGlove: Found ${existingGlove.length} existing glove entries:`, existingGlove);
+
         // Update or insert glove
         if (existingGlove.length > 0) {
+            Logger.info(`saveGlove: Updating existing glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
             await executeQuery<void>(
                 `UPDATE wp_player_gloves SET
                     active = ?,
@@ -469,6 +477,7 @@ export const saveGlove = async (
             );
             Logger.success('Glove updated successfully')
         } else {
+            Logger.info(`saveGlove: Inserting new glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
             await executeQuery<void>(
                 `INSERT INTO wp_player_gloves (
                     steamid, loadoutid, active, team, defindex, paintindex, paintseed,
@@ -477,7 +486,7 @@ export const saveGlove = async (
                 [
                     steamId,
                     loadoutId,
-                    body.active,
+                    true, // Always set new gloves to active
                     body.team,
                     body.defindex,
                     body.paintIndex,

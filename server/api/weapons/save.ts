@@ -1,5 +1,6 @@
 import { defineEventHandler, createError } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
@@ -21,7 +22,25 @@ export default defineEventHandler(async (event) => {
     validateRequiredRequestData(body, 'Body')
 
     try {
-        // Validate fields
+        // Handle reset case first, before validation
+        if (body.reset) {
+            // For reset, we only need defindex and team, skip other validations
+            validateRequiredRequestData(body.defindex, 'Defindex')
+            validateRequiredRequestData(body.team, 'Team')
+            if (body.team !== 1 && body.team !== 2) {
+                Logger.error('Invalid team')
+                throw createError({
+                    statusCode: 400,
+                    message: `Invalid team: ${body.team}`
+                })
+            }
+
+            // Map the body and save (reset will be handled in saveWeapon)
+            const weaponData = { ...body }
+            return await saveWeapon(table, steamId, loadoutId, weaponData)
+        }
+
+        // For non-reset cases, validate all fields
         validateCommonFields(body)
         validateWeaponFields(body)
 

@@ -5,8 +5,8 @@ import type {
   KnifeConfiguration
 } from '~/types'
 
-// Legacy imports for backward compatibility
-import type { IEnhancedItem, IEnhancedKnife } from "~/server/utils/interfaces"
+// Modern type imports
+import type { DBKnife } from "~/types"
 
 import { NTabs, NTabPane, NCard } from 'naive-ui'
 
@@ -16,7 +16,7 @@ import { NTabs, NTabPane, NCard } from 'naive-ui'
 interface Props {
   /** Knife data containing categories and knives */
   weaponData: {
-    weapons: IEnhancedKnife[]
+    weapons: KnifeItemData[]
     defaultName: string
     availableTeams: string
     [key: string]: any
@@ -29,7 +29,7 @@ const props = defineProps<Props>()
  * Events interface with enhanced type safety
  */
 const emit = defineEmits<{
-  (e: 'weaponClick', knife: IEnhancedKnife): void
+  (e: 'weaponClick', knife: KnifeItemData): void
   (e: 'error', error: string): void
 }>()
 
@@ -54,21 +54,39 @@ const handleDefaultWeaponClick = (team: number): void => {
 
     const firstKnife = props.weaponData.weapons[0]
 
-    // Create default knife with proper type safety
-    const defaultWeapon: IEnhancedKnife = {
-      weapon_name: firstKnife.weapon_name,
-      weapon_defindex: firstKnife.weapon_defindex,
+    // Create default knife with proper type safety and weapon_name
+    const defaultWeapon: KnifeItemData = {
+      type: 'knife',
+      id: `default-${firstKnife.id || 'knife'}`,
       name: props.weaponData.defaultName,
       defaultName: props.weaponData.defaultName,
       image: firstKnife.defaultImage,
       defaultImage: firstKnife.defaultImage,
+      itemName: firstKnife.itemName,
       category: firstKnife.category,
       minFloat: firstKnife.minFloat || 0,
       maxFloat: firstKnife.maxFloat || 1,
-      paintIndex: 0,
       availableTeams: firstKnife.availableTeams || 'both',
       rarity: firstKnife.rarity,
-      team: team
+      // Add the missing weapon_name field from the first knife
+      weapon_name: firstKnife.weapon_name,
+      weapon_defindex: firstKnife.weapon_defindex || firstKnife.databaseInfo?.defindex || 0,
+      databaseInfo: {
+        id: `default-db-${firstKnife.id || 'knife'}`,
+        steamid: '',
+        loadoutid: '',
+        active: false,
+        team: team,
+        defindex: firstKnife.databaseInfo?.defindex || 0,
+        paintindex: 0,
+        paintseed: '0',
+        paintwear: '0.01',
+        stattrak_enabled: false,
+        stattrak_count: 0,
+        nametag: '',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      } as DBKnife
     }
 
     console.log("KnifeTabs - default knife clicked for team:", team)
@@ -129,8 +147,8 @@ const handleSkinClick = (weapon: IEnhancedKnife): void => {
         </NCard>
         <!-- CT skins -->
         <NCard
-            v-for="weapon in weaponData.weapons.filter((w: IEnhancedItem) => w.databaseInfo?.team === 2)"
-            :key="weapon.paintIndex"
+            v-for="weapon in weaponData.weapons.filter((w: KnifeItemData) => w.databaseInfo?.team === 2)"
+            :key="`${weapon.id}-${weapon.databaseInfo?.paintindex || 0}`"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
@@ -180,8 +198,8 @@ const handleSkinClick = (weapon: IEnhancedKnife): void => {
         </NCard>
         <!-- T skins -->
         <NCard
-            v-for="weapon in weaponData.weapons.filter((w: IEnhancedItem) => w.databaseInfo?.team === 1)"
-            :key="weapon.paintIndex"
+            v-for="weapon in weaponData.weapons.filter((w: KnifeItemData) => w.databaseInfo?.team === 1)"
+            :key="`${weapon.id}-${weapon.databaseInfo?.paintindex || 0}`"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
@@ -241,7 +259,7 @@ const handleSkinClick = (weapon: IEnhancedKnife): void => {
         <!-- Team-specific skins -->
         <NCard
             v-for="weapon in weaponData.weapons"
-            :key="weapon.paintIndex"
+            :key="`${weapon.id}-${weapon.databaseInfo?.paintindex || 0}`"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
