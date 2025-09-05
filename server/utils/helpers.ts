@@ -43,9 +43,6 @@ export const validateWeaponDatabaseTable = (type: string) => {
     return tableMap[type]
 }
 
-// Re-export from skinUtils for backward compatibility
-export { findMatchingSkin } from './skinUtils';
-
 export function createDefaultEnhancedKnife<T>(baseItem: IDefaultItem): T[] {
     return [{
         weapon_defindex: baseItem.weapon_defindex,
@@ -62,4 +59,3 @@ export function createDefaultEnhancedKnife<T>(baseItem: IDefaultItem): T[] {
     } as T];
 }
 // Re-export from skinUtils for backward compatibility
-export { createDefaultItem, hasStickers, getStickerNames } from './skinUtils';

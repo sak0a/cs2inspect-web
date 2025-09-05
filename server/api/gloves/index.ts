@@ -4,7 +4,7 @@ import {DBGlove, IEnhancedItem, APISkin, IDefaultItem, IEnhancedGlove} from "~/s
 import { getSkinsData } from '~/server/utils/csgoAPI'
 import { executeQuery } from '~/server/database/database'
 import { DEFAULT_GLOVES, VALID_GLOVE_DEFINDEXES } from '~/server/utils/constants'
-import { findMatchingSkin, validateRequiredRequestData } from "~/server/utils/helpers";
+import { validateRequiredRequestData } from "~/server/utils/helpers";
 import {
     createCollectionResponse,
     createResponseMeta,
