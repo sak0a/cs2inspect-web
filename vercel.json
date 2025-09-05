@@ -1,22 +1,13 @@
 {
-  "builds": [
-    {
-      "src": "nuxt.config.ts",
-      "use": "@nuxtjs/vercel-builder"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    }
-  ],
   "functions": {
     "server/api/**/*.ts": {
       "maxDuration": 30
     }
   },
-  "env": {
-    "NUXT_SSR": "true"
-  }
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    }
+  ]
 }
