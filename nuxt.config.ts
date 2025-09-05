@@ -14,7 +14,8 @@ export default defineNuxtConfig({
       options: {
         target: 'esnext'
       }
-    }
+    },
+    minify: false
   },
   devServer: {
     port: Number(process.env.PORT),  // default: 3000
@@ -47,6 +48,9 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    optimizeDeps: {
+      exclude: ['oxc-parser']
+    },
     ssr: {
       noExternal: ['naive-ui']
     },
@@ -92,15 +96,12 @@ export default defineNuxtConfig({
     localeCookie: 'i18n_locale',
     strategy: 'no_prefix'
   },
-  hooks: {
-    'close': () => {
-      // Fallback hook for when Nuxt is closing
-      if (process.env.NODE_ENV === 'production') {
-        console.log('Nuxt closing, forcing exit...')
+    hooks: {
+    'close': async () => {
         setTimeout(() => {
-          process.exit(0)
+            console.log("Closing...")
+            process.exit(0)
         }, 1000)
-      }
     }
   },
   compatibilityDate: '2024-10-12'
