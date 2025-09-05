@@ -8,7 +8,7 @@ export default defineNuxtConfig({
   ssr: true,
   devServer: {
     port: Number(process.env.PORT),  // default: 3000
-    host: process.env.HOST,  // default: localhost
+    host: process.env.HOST,
   },
   devtools: {
     enabled: true,
