@@ -224,6 +224,9 @@
         "title": "Keychain",
         "add": "Add Keychain"
       },
+      "visualCustomizer": {
+        "button": "Visual Customizer"
+      },
       "importFailedDefault": "Failed to import weapon configuration",
       "importFailedNoMatchingWeapon": "Inspect URL does not match selected weapon",
       "importSuccess": "Successfully imported knife configuration",
@@ -239,6 +242,38 @@
       "question": "Are you sure you want to delete the skin configuration?",
       "cancel": "Cancel",
       "confirm": "Reset"
+    },
+    "visualCustomizer": {
+      "title": "Visual Sticker & Keychain Customizer",
+      "save": "Save Changes",
+      "cancel": "Cancel",
+      "instructions": {
+        "title": "Instructions",
+        "addAssets": "Click on stickers or keychains in the asset browser to add them to your weapon",
+        "selectElements": "Click on elements in the canvas to select and edit them",
+        "useProperties": "Use the property panel to fine-tune position, scale, rotation, and wear",
+        "dragElements": "Drag elements directly on the canvas to reposition them"
+      },
+      "assetBrowser": {
+        "title": "Asset Browser",
+        "stickers": "Stickers",
+        "keychains": "Keychains",
+        "searchPlaceholder": "Search assets..."
+      },
+      "properties": {
+        "title": "Properties",
+        "positionX": "Position X",
+        "positionY": "Position Y",
+        "scale": "Scale",
+        "rotation": "Rotation (degrees)",
+        "wear": "Wear",
+        "remove": "Remove"
+      },
+      "messages": {
+        "maxStickers": "Maximum 5 stickers allowed",
+        "selectSkinFirst": "Please select a weapon skin first",
+        "saveSuccess": "Visual customization applied successfully"
+      }
     }
   },
 

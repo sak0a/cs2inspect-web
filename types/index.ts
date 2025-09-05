@@ -398,6 +398,22 @@ export function isConfigurationOfType<T extends ItemData['type']>(
 }
 
 // ============================================================================
+// CANVAS TYPES
+// ============================================================================
+
+export type {
+  Point,
+  Size,
+  CanvasElement,
+  CanvasState,
+  CoordinateTransform,
+  AssetBrowserItem,
+  VisualCustomizerProps,
+  VisualCustomizerEvents,
+  CustomizationResult
+} from './canvas'
+
+// ============================================================================
 // VERSION INFORMATION
 // ============================================================================
 
