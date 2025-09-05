@@ -1,13 +1,3 @@
 {
-  "functions": {
-    "server/api/**/*.ts": {
-      "maxDuration": 30
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/$1"
-    }
-  ]
+  "framework": "nuxtjs"
 }
