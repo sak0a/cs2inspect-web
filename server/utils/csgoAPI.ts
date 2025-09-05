@@ -15,8 +15,16 @@ let collectibleData: APICollectible[];
 let dataLoadTimestamp: string | null = null;
 let dataLoadDuration: number | null = null;
 
+// In-memory cache for serverless environments
+let isDataInitialized = false;
+const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
+let lastCacheTime = 0;
+
 // Define storage directory and file paths
-const STORAGE_DIR = path.resolve('./storage/csgo-api');
+// Use /tmp in serverless environments (like Vercel), fallback to local storage
+const STORAGE_DIR = process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME
+    ? path.resolve('/tmp/csgo-api')
+    : path.resolve('./storage/csgo-api');
 
 // Define the type for API file configuration
 type ApiFileConfig = {
@@ -82,11 +90,18 @@ export function getCollectibleData(): APICollectible[] {
 
 /**
  * Ensures the storage directory exists
+ * Returns true if successful, false if filesystem is read-only
  */
-function ensureStorageDirectoryExists(): void {
-    if (!fs.existsSync(STORAGE_DIR)) {
-        fs.mkdirSync(STORAGE_DIR, { recursive: true });
-        console.log(`Created storage directory: ${STORAGE_DIR}`);
+function ensureStorageDirectoryExists(): boolean {
+    try {
+        if (!fs.existsSync(STORAGE_DIR)) {
+            fs.mkdirSync(STORAGE_DIR, { recursive: true });
+            console.log(`Created storage directory: ${STORAGE_DIR}`);
+        }
+        return true;
+    } catch (error) {
+        console.warn(`Cannot create storage directory (read-only filesystem): ${STORAGE_DIR}`);
+        return false;
     }
 }
 
@@ -116,8 +131,15 @@ async function fetchAndSaveData(url: string, filePath: string): Promise<any> {
         }
 
         const data = await response.json();
-        fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-        console.log(`Saved data to ${filePath}`);
+
+        // Try to save to file, but don't fail if we can't (serverless environment)
+        try {
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+            console.log(`Saved data to ${filePath}`);
+        } catch (writeError) {
+            console.warn(`Cannot save data to ${filePath} (read-only filesystem), using in-memory cache`);
+        }
+
         return data;
     } catch (error) {
         console.error(`Error fetching data from ${url}:`, error);
@@ -147,7 +169,10 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
     try {
         let data: T[];
 
-        if (isFileValid(config.path)) {
+        // In serverless environments, we might not have cached files, so always fetch fresh
+        const isServerless = process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME;
+
+        if (!isServerless && isFileValid(config.path)) {
             console.log(`Using cached ${type} data from ${config.path}`);
             data = readDataFromFile(config.path);
         } else {
@@ -178,7 +203,17 @@ export async function initCSGOApiData() {
     const startTime = Date.now();
 
     try {
-        ensureStorageDirectoryExists();
+        // Check if we already have fresh data in memory (for serverless environments)
+        const now = Date.now();
+        if (isDataInitialized && (now - lastCacheTime) < CACHE_DURATION) {
+            console.log('Using cached data from memory');
+            return;
+        }
+
+        const canWriteToStorage = ensureStorageDirectoryExists();
+        if (!canWriteToStorage) {
+            console.log('Running in serverless environment - using in-memory caching only');
+        }
 
         // Load all data types in parallel
         const [skins, stickers, keychains, agents, musicKits, collectibles] = await Promise.all([
@@ -201,6 +236,10 @@ export async function initCSGOApiData() {
         // Track data freshness
         dataLoadTimestamp = new Date().toISOString();
         dataLoadDuration = Date.now() - startTime;
+
+        // Update cache flags for serverless environments
+        isDataInitialized = true;
+        lastCacheTime = Date.now();
 
         console.log('CSGO API data loaded successfully');
     } catch (error) {
