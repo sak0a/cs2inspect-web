@@ -6,6 +6,16 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
+  nitro: {
+    experimental: {
+      wasm: true
+    },
+    esbuild: {
+      options: {
+        target: 'esnext'
+      }
+    }
+  },
   devServer: {
     port: Number(process.env.PORT),  // default: 3000
     host: process.env.HOST,
@@ -81,6 +91,17 @@ export default defineNuxtConfig({
     meta: true,
     localeCookie: 'i18n_locale',
     strategy: 'no_prefix'
+  },
+  hooks: {
+    'close': () => {
+      // Fallback hook for when Nuxt is closing
+      if (process.env.NODE_ENV === 'production') {
+        console.log('Nuxt closing, forcing exit...')
+        setTimeout(() => {
+          process.exit(0)
+        }, 1000)
+      }
+    }
   },
   compatibilityDate: '2024-10-12'
 })

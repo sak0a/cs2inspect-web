@@ -6,8 +6,27 @@ export const pool = mariadb.createPool({
     password: process.env.DATABASE_PASSWORD || 'root',
     database: process.env.DATABASE_NAME || 'cs2inspect',
     connectionLimit: process.env.DATABASE_CONNECTION_LIMIT ? parseInt(process.env.DATABASE_CONNECTION_LIMIT) : 5,
-    port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT) : 3306
+    port: process.env.DATABASE_PORT ? parseInt(process.env.DATABASE_PORT) : 3306,
+    acquireTimeout: 60000,
+    timeout: 60000
 })
+
+// Cleanup function for graceful shutdown
+export async function closePool() {
+    try {
+        await pool.end()
+        console.log('Database pool closed')
+    } catch (error) {
+        console.error('Error closing database pool:', error)
+    }
+}
+
+// Handle process termination
+if (typeof process !== 'undefined') {
+    process.on('SIGTERM', closePool)
+    process.on('SIGINT', closePool)
+    process.on('exit', closePool)
+}
 
 export async function executeQuery<T>(
     query: string,
