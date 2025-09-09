@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { NModal, NButton, NInput, NCard, NSpin, NSpace, NInputNumber, NSlider, useMessage } from 'naive-ui'
+import { NModal, NButton, NInput, NSpin, NSpace, NInputNumber, NSlider, NSelect, useMessage } from 'naive-ui'
 import WearSlider from '~/components/WearSlider.vue'
 import type { VisualCustomizerProps, VisualCustomizerEvents, CanvasElement, CanvasState } from '~/types/canvas'
 import {
   stickerToCanvasElement,
   keychainToCanvasElement,
-  canvasElementToSticker,
   canvasElementToKeychain,
   generateFlatImageUrl,
   generateFallbackWeaponImageUrl,
   createCoordinateTransform,
-  DEFAULT_STICKER_SLOT_POSITIONS,
-  DEFAULT_KEYCHAIN_POSITION
+  getDefaultStickerPosition,
+  DEFAULT_KEYCHAIN_POSITION,
+  getExternalNormalizationRefs
 } from '~/utils/canvasCoordinates'
 import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
 
@@ -35,22 +35,29 @@ const videoManager = ref<VideoCanvasManager | null>(null)
 const canvasState = ref<CanvasState>({
   elements: [],
   selectedElementId: null,
-  canvasSize: { width: 800, height: 600 },
+  canvasSize: { width: 1200, height: 800 },  // Much larger default canvas
   weaponImage: '',
   isDragging: false,
   isEditing: true
 })
 
+// Debug overlay state
+const showCoordinateOverlay = ref(false)
+const mousePosition = ref({ x: 0, y: 0 })
+
 // Asset browser state
-const showAssetBrowser = ref(true)
 const assetSearchQuery = ref('')
-const selectedAssetType = ref<'sticker' | 'keychain'>('sticker')
 const availableStickers = ref<any[]>([])
 const availableKeychains = ref<any[]>([])
 const isLoadingAssets = ref(false)
 
-// Property panel state
-const showPropertyPanel = ref(true)
+// Slot selection state
+const selectedStickerSlot = ref<number | null>(null)
+const selectedKeychainSlot = ref(false)
+
+// Sticker and keychain slots (like WeaponSkinModal)
+const stickerSlots = ref<(any | null)[]>([null, null, null, null, null])
+const keychainSlot = ref<any | null>(null)
 
 // Current weapon wear value
 const currentWear = ref(0)
@@ -60,13 +67,153 @@ const isVideoMode = ref(false)
 const videoUrl = ref('')
 const isVideoLoading = ref(false)
 
-// Zoom state
-const zoomLevel = ref(1)
-const minZoom = 0.5
-const maxZoom = 3
+// Zoom removed - canvas is now full size
 
 // Coordinate transformer
 const coordinateTransform = createCoordinateTransform()
+
+
+// Drawn background rect (image/video) used for coordinate transforms
+const backgroundDrawRect = ref<{ x: number; y: number; width: number; height: number }>({ x: 0, y: 0, width: 0, height: 0 })
+
+// Offset units and external normalization refs (approximate, configurable)
+const offsetUnits = ref<'px' | 'ext'>('px')
+const weaponNameForRefs = computed(() => props.weaponSkin?.name.split(' | ')[0] || 'unknown')
+const initialExtRefs = getExternalNormalizationRefs(weaponNameForRefs.value)
+const extXRef = ref(initialExtRefs.x)
+const extYRef = ref(initialExtRefs.y)
+const REF_WIDTH = 1328
+const REF_HEIGHT = 384
+
+
+// Default max sticker width in pixels (applies at initial draw and hit-testing)
+const STICKER_MAX_WIDTH_PX = 120
+
+// Default max sticker height in pixels (applies at initial draw and hit-testing)
+const STICKER_MAX_HEIGHT_PX = 80
+
+// Helpers to map coordinates within the drawn image/video rect
+const normalizedToCanvasInImage = (p: { x: number; y: number }) => {
+  const r = backgroundDrawRect.value
+  if (r.width > 0 && r.height > 0) {
+    return { x: r.x + p.x * r.width, y: r.y + p.y * r.height }
+  }
+  // Fallback to full canvas
+  return coordinateTransform.normalizedToCanvas(p, canvasState.value.canvasSize)
+}
+
+const canvasToNormalizedInImage = (pt: { x: number; y: number }) => {
+  const r = backgroundDrawRect.value
+  if (r.width > 0 && r.height > 0) {
+    const nx = (pt.x - r.x) / r.width
+    const ny = (pt.y - r.y) / r.height
+    return {
+      x: Math.max(0, Math.min(1, nx)),
+      y: Math.max(0, Math.min(1, ny))
+    }
+  }
+  // Fallback to full canvas
+  return coordinateTransform.canvasToNormalized(pt, canvasState.value.canvasSize)
+}
+
+// Compute default canvas position for a sticker's slot (inside drawn image rect)
+const getStickerDefaultCanvasPos = (el: CanvasElement) => {
+  const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
+  const slot = typeof el.slotIndex === 'number' ? el.slotIndex : 0
+  const defNorm = getDefaultStickerPosition(slot, weaponName)
+  return normalizedToCanvasInImage(defNorm)
+}
+
+// Get element offset in canvas pixels relative to its default slot position
+const getElementOffsetCanvasPx = (el: CanvasElement) => {
+  const cur = normalizedToCanvasInImage(el.position)
+  if (el.type === 'sticker') {
+    const def = getStickerDefaultCanvasPos(el)
+    return { x: Math.round(cur.x - def.x), y: Math.round(cur.y - def.y) }
+  }
+  return { x: 0, y: 0 }
+}
+
+// External normalized offsets (to match other sites)
+const getElementOffsetExternalNorm = (el: CanvasElement) => {
+  const r = backgroundDrawRect.value
+  const cur = normalizedToCanvasInImage(el.position)
+  const def = el.type === 'sticker' ? getStickerDefaultCanvasPos(el) : cur
+  const dx = cur.x - def.x
+  const dy = cur.y - def.y
+  if (!r.width || !r.height) return { x: 0, y: 0 }
+  return {
+    x: (dx / r.width) * (REF_WIDTH / (extXRef.value || 1)),
+    y: (dy / r.height) * (REF_HEIGHT / (extYRef.value || 1))
+  }
+}
+
+// Update by external normalized offset
+const updateSelectedElementOffsetExternal = (axis: 'x' | 'y', value: number | null) => {
+  if (!selectedElement.value) return
+  const el = selectedElement.value
+  const r = backgroundDrawRect.value
+  if (!r.width || !r.height) return
+  const v = typeof value === 'number' ? value : 0
+  const def = el.type === 'sticker' ? getStickerDefaultCanvasPos(el) : normalizedToCanvasInImage(el.position)
+  const curExt = getElementOffsetExternalNorm(el)
+  const targetExt = { x: axis === 'x' ? v : curExt.x, y: axis === 'y' ? v : curExt.y }
+  const dx = targetExt.x * r.width * (extXRef.value || 1) / REF_WIDTH
+  const dy = targetExt.y * r.height * (extYRef.value || 1) / REF_HEIGHT
+  const targetCanvas = { x: def.x + dx, y: def.y + dy }
+  el.position = canvasToNormalizedInImage(targetCanvas)
+  renderCanvas()
+}
+
+// Update selected element's offset by axis in canvas pixel units
+const updateSelectedElementOffset = (axis: 'x' | 'y', value: number | null) => {
+  if (!selectedElement.value) return
+  const el = selectedElement.value
+  const v = typeof value === 'number' ? value : 0
+  let def = normalizedToCanvasInImage(el.position)
+  if (el.type === 'sticker') {
+    def = getStickerDefaultCanvasPos(el)
+  }
+  const curOffset = getElementOffsetCanvasPx(el)
+  const newOffset = { x: axis === 'x' ? v : curOffset.x, y: axis === 'y' ? v : curOffset.y }
+  const targetCanvas = { x: def.x + newOffset.x, y: def.y + newOffset.y }
+  const newNorm = canvasToNormalizedInImage(targetCanvas)
+  el.position = newNorm
+  renderCanvas()
+}
+
+
+// Image cache for loaded images
+const imageCache = new Map<string, HTMLImageElement>()
+
+// Load image with caching
+const loadImage = (url: string): Promise<HTMLImageElement> => {
+  return new Promise((resolve, reject) => {
+    // Check cache first
+    if (imageCache.has(url)) {
+      const cachedImg = imageCache.get(url)!
+      if (cachedImg.complete && cachedImg.naturalWidth > 0) {
+        resolve(cachedImg)
+        return
+      }
+    }
+
+    // Create new image
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+
+    img.onload = () => {
+      imageCache.set(url, img)
+      resolve(img)
+    }
+
+    img.onerror = () => {
+      reject(new Error(`Failed to load image: ${url}`))
+    }
+
+    img.src = url
+  })
+}
 
 // Computed properties
 const selectedElement = computed(() => {
@@ -76,7 +223,7 @@ const selectedElement = computed(() => {
 const filteredStickers = computed(() => {
   if (!assetSearchQuery.value) return availableStickers.value
   const query = assetSearchQuery.value.toLowerCase()
-  return availableStickers.value.filter(sticker => 
+  return availableStickers.value.filter(sticker =>
     sticker.name.toLowerCase().includes(query)
   )
 })
@@ -84,7 +231,7 @@ const filteredStickers = computed(() => {
 const filteredKeychains = computed(() => {
   if (!assetSearchQuery.value) return availableKeychains.value
   const query = assetSearchQuery.value.toLowerCase()
-  return availableKeychains.value.filter(keychain => 
+  return availableKeychains.value.filter(keychain =>
     keychain.name.toLowerCase().includes(query)
   )
 })
@@ -92,10 +239,65 @@ const filteredKeychains = computed(() => {
 // Initialize canvas when modal opens
 watch(() => props.visible, (visible) => {
   if (visible) {
-    initializeCanvas()
-    loadAssets()
+    // Use nextTick to ensure DOM is ready
+    nextTick(() => {
+      initializeCanvas()
+      loadAssets()
+
+      // Force video to load and fix sizing after a short delay
+      setTimeout(() => {
+        forceVideoLoad()
+        // Force a resize to fix sticker sizing
+        handleResize()
+      }, 300)
+    })
   }
 })
+
+// Force video to load and render
+const forceVideoLoad = async () => {
+  console.log('🎬 Forcing video load...')
+
+  // First, try to initialize video if not already done
+  if (!isVideoMode.value && props.weaponSkin) {
+    console.log('🎬 Initializing video mode...')
+    await initializeWeaponBackground()
+  }
+
+  if (isVideoMode.value && videoManager.value) {
+    // Trigger video rendering by slightly adjusting wear
+    const originalWear = currentWear.value
+
+    // Small wear adjustment to trigger video frame update
+    currentWear.value = Math.min(1, originalWear + 0.001)
+
+    // Force immediate render
+    renderCanvas()
+
+    // Reset to original wear after a short delay
+    setTimeout(() => {
+      currentWear.value = originalWear
+      renderCanvas()
+      console.log('🎬 Video load complete')
+
+      // Force a resize to ensure proper sticker sizing
+      setTimeout(() => {
+        handleResize()
+        console.log('🔧 Forced resize to fix sticker sizing')
+      }, 100)
+    }, 150)
+  } else {
+    // For static mode, just render
+    renderCanvas()
+    console.log('🖼️ Static render complete')
+
+    // Force a resize for static mode too
+    setTimeout(() => {
+      handleResize()
+      console.log('🔧 Forced resize for static mode')
+    }, 100)
+  }
+}
 
 // Initialize canvas
 const initializeCanvas = async () => {
@@ -105,12 +307,31 @@ const initializeCanvas = async () => {
 
   // Set canvas size to use the complete available space
   const containerRect = canvasContainer.value.getBoundingClientRect()
-  const availableWidth = containerRect.width - 40 // Account for padding
-  const availableHeight = containerRect.height - 40 // Account for padding
+  const availableWidth = containerRect.width - 16 // Account for 8px padding on each side (p-2 = 8px)
+  const availableHeight = containerRect.height - 16 // Account for 8px padding on each side
 
-  // Ensure minimum size and use the full available space
-  const canvasWidth = Math.max(800, availableWidth) // Minimum 800px width
-  const canvasHeight = Math.max(600, availableHeight) // Minimum 600px height
+  // If we have video dimensions, size canvas to match video aspect ratio
+  let canvasWidth, canvasHeight
+
+  /*if (video.value.videoWidth > 0 && video.value.videoHeight > 0) {
+    const videoAspect = video.value.videoWidth / video.value.videoHeight
+    const containerAspect = availableWidth / availableHeight
+
+    if (videoAspect > containerAspect) {
+      // Video is wider - fit to width
+      canvasWidth = availableWidth
+      canvasHeight = availableWidth / videoAspect
+    } else {
+      // Video is taller - fit to height
+      canvasHeight = availableHeight
+      canvasWidth = availableHeight * videoAspect
+    }
+  } else {
+    // Fallback to container size if no video dimensions yet
+
+  }*/
+    canvasWidth = availableWidth
+    canvasHeight = availableHeight
 
   canvasState.value.canvasSize = {
     width: canvasWidth,
@@ -135,6 +356,12 @@ const initializeCanvas = async () => {
 
   // Start render loop
   renderCanvas()
+
+  // Force a resize immediately to ensure proper sizing
+  nextTick(() => {
+    handleResize()
+    console.log('🔧 Initial resize after canvas initialization')
+  })
 }
 
 // Initialize weapon background (video or static image)
@@ -163,6 +390,12 @@ const initializeWeaponBackground = async () => {
         maxWear: props.maxWear || 1,
         videoDuration: 140 // Default duration
       })
+
+      // Set up callback to resize canvas when video metadata loads
+      /*video.value.addEventListener('loadedmetadata', () => {
+        // Reinitialize canvas with video dimensions
+        initializeCanvas()
+      })*/
 
       // Set render callback to redraw elements after video frame changes
       videoManager.value.setRenderCallback(() => {
@@ -202,11 +435,19 @@ const initializeStaticBackground = () => {
 const convertExistingCustomizations = () => {
   const elements: CanvasElement[] = []
 
+  console.log('Converting existing customizations:', { stickers: props.stickers, keychain: props.keychain })
+
+  // Get weapon name for slot positioning
+  const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
+  console.log(`🔫 Converting stickers for weapon: ${weaponName}`)
+
   // Convert stickers - the conversion function now handles default positioning
   props.stickers.forEach((sticker, index) => {
     if (sticker) {
-      const element = stickerToCanvasElement(sticker, index, 10 + index)
+      console.log(`Converting sticker ${index}:`, sticker)
+      const element = stickerToCanvasElement(sticker, index, 10 + index, weaponName)
       if (element) {
+        console.log(`Created canvas element for sticker ${index}:`, element)
         elements.push(element)
       }
     }
@@ -214,19 +455,22 @@ const convertExistingCustomizations = () => {
 
   // Convert keychain - the conversion function now handles default positioning
   if (props.keychain) {
+    console.log('Converting keychain:', props.keychain)
     const element = keychainToCanvasElement(props.keychain, 5)
     if (element) {
+      console.log('Created canvas element for keychain:', element)
       elements.push(element)
     }
   }
 
+  console.log('Final canvas elements:', elements)
   canvasState.value.elements = elements
 }
 
 // Load available stickers and keychains
 const loadAssets = async () => {
   isLoadingAssets.value = true
-  
+
   try {
     // Load stickers
     const stickerResponse = await fetch('/api/data/stickers')
@@ -234,13 +478,26 @@ const loadAssets = async () => {
       const stickerData = await stickerResponse.json()
       availableStickers.value = stickerData.data || []
     }
-    
+
     // Load keychains
     const keychainResponse = await fetch('/api/data/keychains')
     if (keychainResponse.ok) {
       const keychainData = await keychainResponse.json()
       availableKeychains.value = keychainData.data || []
     }
+
+    // Convert existing customizations after assets are loaded
+    convertExistingCustomizations()
+
+    // Ensure canvas is rendered and properly sized after assets load
+    nextTick(() => {
+      renderCanvas()
+      // Force resize to ensure proper sticker sizing
+      setTimeout(() => {
+        handleResize()
+        console.log('🔧 Resize after asset loading')
+      }, 50)
+    })
   } catch (error) {
     console.error('Error loading assets:', error)
     message.error('Failed to load stickers and keychains')
@@ -253,14 +510,71 @@ const loadAssets = async () => {
 const renderCanvas = () => {
   if (!ctx.value || !canvas.value) return
 
-  if (isVideoMode.value && videoManager.value) {
-    // Video mode: render video frame
+  if (isVideoMode.value && videoManager.value && canvas.value) {
+    // Video mode: render video frame and compute draw rect for element placement
     videoManager.value.renderFrame()
+
+    const meta = videoManager.value.getMetadata()
+    const cw = canvas.value.width
+    const ch = canvas.value.height
+
+    if (meta.width > 0 && meta.height > 0) {
+      const videoAspect = meta.width / meta.height
+      const canvasAspect = cw / ch
+      let drawWidth: number, drawHeight: number, drawX: number, drawY: number
+      if (videoAspect > canvasAspect) {
+        drawWidth = cw
+        drawHeight = cw / videoAspect
+        drawX = 0
+        drawY = (ch - drawHeight) / 2
+      } else {
+        drawHeight = ch
+        drawWidth = ch * videoAspect
+        drawX = (cw - drawWidth) / 2
+        drawY = 0
+      }
+      backgroundDrawRect.value = { x: drawX, y: drawY, width: drawWidth, height: drawHeight }
+    } else {
+      backgroundDrawRect.value = { x: 0, y: 0, width: cw, height: ch }
+    }
+
     drawElements()
   } else {
     // Static image mode: render static background
     renderStaticBackground()
   }
+}
+
+// Helper function to draw image with proper aspect ratio scaling
+const drawImageWithAspectRatio = (img: HTMLImageElement, ctx: CanvasRenderingContext2D, canvasWidth: number, canvasHeight: number) => {
+  const imgAspect = img.naturalWidth / img.naturalHeight
+  const canvasAspect = canvasWidth / canvasHeight
+
+  let drawWidth, drawHeight, drawX, drawY
+
+  if (imgAspect > canvasAspect) {
+    // Image is wider - fit to width
+    drawWidth = canvasWidth
+    drawHeight = canvasWidth / imgAspect
+    drawX = 0
+    drawY = (canvasHeight - drawHeight) / 2
+  } else {
+    // Image is taller - fit to height
+    drawHeight = canvasHeight
+    drawWidth = canvasHeight * imgAspect
+    drawX = (canvasWidth - drawWidth) / 2
+    drawY = 0
+  }
+
+  // Update background draw rect used for coordinate transforms
+  backgroundDrawRect.value = { x: drawX, y: drawY, width: drawWidth, height: drawHeight }
+
+  // Fill background with dark color first
+  ctx.fillStyle = '#1a1a1a'
+  ctx.fillRect(0, 0, canvasWidth, canvasHeight)
+
+  // Draw the image centered and scaled
+  ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight)
 }
 
 // Render static background
@@ -274,15 +588,19 @@ const renderStaticBackground = () => {
   if (canvasState.value.weaponImage) {
     const img = new Image()
     img.onload = () => {
-      ctx.value?.drawImage(img, 0, 0, canvas.value!.width, canvas.value!.height)
-      drawElements()
+      if (ctx.value && canvas.value) {
+        drawImageWithAspectRatio(img, ctx.value, canvas.value.width, canvas.value.height)
+        drawElements()
+      }
     }
     img.onerror = () => {
       // Try fallback weapon image
       const fallbackImg = new Image()
       fallbackImg.onload = () => {
-        ctx.value?.drawImage(fallbackImg, 0, 0, canvas.value!.width, canvas.value!.height)
-        drawElements()
+        if (ctx.value && canvas.value) {
+          drawImageWithAspectRatio(fallbackImg, ctx.value, canvas.value.width, canvas.value.height)
+          drawElements()
+        }
       }
       fallbackImg.onerror = () => {
         // Final fallback: draw a placeholder background
@@ -294,12 +612,14 @@ const renderStaticBackground = () => {
           ctx.value.textAlign = 'center'
           ctx.value.fillText('Weapon Preview', canvas.value!.width / 2, canvas.value!.height / 2)
         }
+        backgroundDrawRect.value = { x: 0, y: 0, width: canvas.value!.width, height: canvas.value!.height }
         drawElements()
       }
       fallbackImg.src = generateFallbackWeaponImageUrl(props.weaponSkin?.name.split(' | ')[0] || 'ak-47')
     }
     img.src = canvasState.value.weaponImage
   } else {
+    backgroundDrawRect.value = { x: 0, y: 0, width: canvas.value!.width, height: canvas.value!.height }
     drawElements()
   }
 }
@@ -318,10 +638,10 @@ const drawSlotIndicators = () => {
   // Draw indicators for empty slots
   for (let slot = 0; slot < 5; slot++) {
     if (!occupiedSlots.has(slot)) {
-      const pos = coordinateTransform.normalizedToCanvas(
-        DEFAULT_STICKER_SLOT_POSITIONS[slot],
-        canvasState.value.canvasSize
-      )
+      // Get weapon-specific position for empty slot indicator
+      const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
+      const slotPosition = getDefaultStickerPosition(slot, weaponName)
+      const pos = normalizedToCanvasInImage(slotPosition)
 
       ctx.value.save()
       ctx.value.globalAlpha = 0.3
@@ -347,10 +667,7 @@ const drawSlotIndicators = () => {
   // Draw keychain indicator if no keychain is present
   const hasKeychain = canvasState.value.elements.some(el => el.type === 'keychain')
   if (!hasKeychain) {
-    const pos = coordinateTransform.normalizedToCanvas(
-      DEFAULT_KEYCHAIN_POSITION,
-      canvasState.value.canvasSize
-    )
+    const pos = normalizedToCanvasInImage(DEFAULT_KEYCHAIN_POSITION)
 
     ctx.value.save()
     ctx.value.globalAlpha = 0.3
@@ -371,6 +688,59 @@ const drawSlotIndicators = () => {
   }
 }
 
+// Draw coordinate overlay for debugging
+const drawCoordinateOverlay = () => {
+  if (!ctx.value || !canvas.value) return
+
+  ctx.value.save()
+
+  // Draw grid lines every 100px
+  ctx.value.strokeStyle = '#00ff00'
+  ctx.value.lineWidth = 1
+  ctx.value.globalAlpha = 0.5
+
+  // Vertical lines
+  for (let x = 0; x <= canvas.value.width; x += 100) {
+    ctx.value.beginPath()
+    ctx.value.moveTo(x, 0)
+    ctx.value.lineTo(x, canvas.value.height)
+    ctx.value.stroke()
+  }
+
+  // Horizontal lines
+  for (let y = 0; y <= canvas.value.height; y += 100) {
+    ctx.value.beginPath()
+    ctx.value.moveTo(0, y)
+    ctx.value.lineTo(canvas.value.width, y)
+    ctx.value.stroke()
+  }
+
+  // Draw coordinate labels
+  ctx.value.fillStyle = '#00ff00'
+  ctx.value.font = '12px monospace'
+  ctx.value.globalAlpha = 0.8
+
+  // X-axis labels (every 100px)
+  for (let x = 0; x <= canvas.value.width; x += 100) {
+    ctx.value.fillText(x.toString(), x + 2, 15)
+  }
+
+  // Y-axis labels (every 100px)
+  for (let y = 0; y <= canvas.value.height; y += 100) {
+    if (y > 0) { // Skip 0,0 to avoid overlap
+      ctx.value.fillText(y.toString(), 2, y - 2)
+    }
+  }
+
+  // Draw mouse position
+  ctx.value.fillStyle = '#ffff00'
+  ctx.value.font = '14px monospace'
+  ctx.value.fillText(`Mouse: (${mousePosition.value.x}, ${mousePosition.value.y})`, 10, canvas.value.height - 40)
+  ctx.value.fillText('Coordinate Overlay Active - Hover to see positions', 10, canvas.value.height - 20)
+
+  ctx.value.restore()
+}
+
 // Draw canvas elements
 const drawElements = () => {
   if (!ctx.value) return
@@ -384,45 +754,53 @@ const drawElements = () => {
   sortedElements.forEach(element => {
     drawElement(element)
   })
+
+  // Draw coordinate overlay if enabled (on top of everything)
+  if (showCoordinateOverlay.value) {
+    drawCoordinateOverlay()
+  }
 }
 
 // Draw individual element
 const drawElement = (element: CanvasElement) => {
   if (!ctx.value) return
-  
-  const pos = coordinateTransform.normalizedToCanvas(element.position, canvasState.value.canvasSize)
-  
+
+  const pos = normalizedToCanvasInImage(element.position)
+
+  // Debug: Log element drawing
+  console.log(`🎨 Drawing ${element.type} at:`, {
+    normalized: element.position,
+    canvas: pos,
+    canvasSize: canvasState.value.canvasSize
+  })
+
   ctx.value.save()
-  
+
   // Apply transformations
   ctx.value.translate(pos.x, pos.y)
   ctx.value.rotate((element.rotation * Math.PI) / 180)
   ctx.value.scale(element.scale, element.scale)
-  
-  // Draw element image with larger, more visible sizes
-  const img = new Image()
-  img.onload = () => {
-    // Much larger sizes for better visibility and manipulation
-    const baseSize = element.type === 'sticker' ? 80 : 60
-    const size = baseSize * element.scale
 
-    ctx.value?.drawImage(img, -size/2, -size/2, size, size)
+  // Draw actual sticker/keychain images at native size
+  // No base size cap - use native image dimensions scaled by user scale factor
+  const size = 100 * element.scale  // Base multiplier for scaling, but actual size determined by image
 
-    // Draw selection indicator with better visibility
+  // Function to draw selection indicator
+  const drawSelection = () => {
     if (element.selected) {
       ctx.value!.strokeStyle = '#80E6C4'
-      ctx.value!.lineWidth = 3
-      ctx.value!.setLineDash([5, 5])
-      ctx.value!.strokeRect(-size/2 - 4, -size/2 - 4, size + 8, size + 8)
-      ctx.value!.setLineDash([]) // Reset line dash
+      ctx.value!.lineWidth = 2
+      ctx.value!.setLineDash([4, 4])
+      ctx.value!.strokeRect(-size/2 - 3, -size/2 - 3, size + 6, size + 6)
+      ctx.value!.setLineDash([])
 
-      // Draw corner handles for resizing
+      // Draw corner handles
       const handleSize = 8
       const corners = [
-        [-size/2 - 4, -size/2 - 4], // Top-left
-        [size/2 + 4, -size/2 - 4],  // Top-right
-        [size/2 + 4, size/2 + 4],   // Bottom-right
-        [-size/2 - 4, size/2 + 4]   // Bottom-left
+        [-size/2 - 3, -size/2 - 3], // Top-left
+        [size/2 + 3, -size/2 - 3],  // Top-right
+        [size/2 + 3, size/2 + 3],   // Bottom-right
+        [-size/2 - 3, size/2 + 3]   // Bottom-left
       ]
 
       ctx.value!.fillStyle = '#80E6C4'
@@ -431,30 +809,92 @@ const drawElement = (element: CanvasElement) => {
       })
     }
   }
-  img.src = element.apiData.image
-  
+
+  // Function to draw fallback rectangle
+  const drawFallback = (reason = 'NO IMAGE') => {
+    ctx.value!.fillStyle = element.type === 'sticker' ? '#FF6B6B' : '#4ECDC4'
+    ctx.value!.fillRect(-size/2, -size/2, size, size)
+
+    // Draw text label
+    ctx.value!.fillStyle = '#FFFFFF'
+    ctx.value!.font = '12px Arial'
+    ctx.value!.textAlign = 'center'
+    ctx.value!.fillText(reason, 0, -5)
+    ctx.value!.fillText(element.apiData?.name?.slice(0, 15) || element.type.toUpperCase(), 0, 10)
+
+    drawSelection()
+  }
+
+  // Try to draw image if available
+  if (element.apiData?.image) {
+    // Check if image is already cached
+    const cachedImg = imageCache.get(element.apiData.image)
+
+    if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
+      // Log original sticker dimensions
+      console.log(`📏 Sticker "${element.apiData.name || 'Unknown'}" original size: ${cachedImg.naturalWidth}x${cachedImg.naturalHeight}px`)
+
+      // Calculate size with width/height caps so stickers have consistent default size
+      const widthScale = STICKER_MAX_WIDTH_PX / cachedImg.naturalWidth
+      const heightScale = STICKER_MAX_HEIGHT_PX / cachedImg.naturalHeight
+      const baseScale = Math.min(widthScale, heightScale, 1)
+      const baseWidth = cachedImg.naturalWidth * baseScale
+      const baseHeight = cachedImg.naturalHeight * baseScale
+
+      // Apply user scale on top of the capped size
+      const drawWidth = baseWidth * element.scale
+      const drawHeight = baseHeight * element.scale
+
+      console.log(`🎯 Sticker "${element.apiData.name || 'Unknown'}" final size: ${drawWidth.toFixed(1)}x${drawHeight.toFixed(1)}px (scale: ${element.scale})`)
+
+      // Draw cached image with capped size and scaling
+      ctx.value!.drawImage(cachedImg, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight)
+      drawSelection()
+    } else {
+      // Load image asynchronously
+      loadImage(element.apiData.image)
+        .then(() => {
+          // Image loaded successfully, re-render canvas
+          renderCanvas()
+        })
+        .catch((error) => {
+          console.warn(`Failed to load image for ${element.type}:`, error)
+          // Re-render with fallback
+          renderCanvas()
+        })
+
+      // Draw fallback while loading
+      drawFallback('LOADING...')
+    }
+  } else {
+    // No image URL, draw fallback immediately
+    drawFallback()
+  }
+
   ctx.value.restore()
 }
 
 // Handle canvas click
 const handleCanvasClick = (event: MouseEvent) => {
   if (!canvas.value) return
-  
+
   const rect = canvas.value.getBoundingClientRect()
   const canvasPos = {
     x: event.clientX - rect.left,
     y: event.clientY - rect.top
   }
-  
+
+  console.log('Canvas clicked at:', canvasPos)
+
   // Find clicked element
   const clickedElement = findElementAtPosition(canvasPos)
-  
+
   if (clickedElement) {
     selectElement(clickedElement.id)
   } else {
     selectElement(null)
   }
-  
+
   renderCanvas()
 }
 
@@ -462,29 +902,82 @@ const handleCanvasClick = (event: MouseEvent) => {
 const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
   // Check elements in reverse z-order (top to bottom)
   const sortedElements = [...canvasState.value.elements].sort((a, b) => b.zIndex - a.zIndex)
-  
-  for (const element of sortedElements) {
-    const pos = coordinateTransform.normalizedToCanvas(element.position, canvasState.value.canvasSize)
-    const baseSize = element.type === 'sticker' ? 80 : 60
-    const scaledSize = baseSize * element.scale
 
-    if (canvasPos.x >= pos.x - scaledSize/2 &&
-        canvasPos.x <= pos.x + scaledSize/2 &&
-        canvasPos.y >= pos.y - scaledSize/2 &&
-        canvasPos.y <= pos.y + scaledSize/2) {
+  console.log(`🔍 Searching for element at ${canvasPos.x}, ${canvasPos.y} among ${sortedElements.length} elements`)
+
+  for (const element of sortedElements) {
+    const pos = normalizedToCanvasInImage(element.position)
+
+    // Calculate bounds using the same logic as drawing (with 128px cap)
+    let bounds
+    if (element.apiData?.image) {
+      const cachedImg = imageCache.get(element.apiData.image)
+      if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
+        // Use same width/height cap logic as drawing
+        const widthScale = STICKER_MAX_WIDTH_PX / cachedImg.naturalWidth
+        const heightScale = STICKER_MAX_HEIGHT_PX / cachedImg.naturalHeight
+        const baseScale = Math.min(widthScale, heightScale, 1)
+        const baseWidth = cachedImg.naturalWidth * baseScale
+        const baseHeight = cachedImg.naturalHeight * baseScale
+
+        const drawWidth = baseWidth * element.scale
+        const drawHeight = baseHeight * element.scale
+
+        bounds = {
+          left: pos.x - drawWidth/2,
+          right: pos.x + drawWidth/2,
+          top: pos.y - drawHeight/2,
+          bottom: pos.y + drawHeight/2
+        }
+      } else {
+        // Fallback to default size if image not loaded
+        const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX : 80) * element.scale
+        const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX : 80) * element.scale
+        bounds = {
+          left: pos.x - fallbackWidth/2,
+          right: pos.x + fallbackWidth/2,
+          top: pos.y - fallbackHeight/2,
+          bottom: pos.y + fallbackHeight/2
+        }
+      }
+    } else {
+      // Fallback to default size
+      const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX : 80) * element.scale
+      const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX : 80) * element.scale
+      bounds = {
+        left: pos.x - fallbackWidth/2,
+        right: pos.x + fallbackWidth/2,
+        top: pos.y - fallbackHeight/2,
+        bottom: pos.y + fallbackHeight/2
+      }
+    }
+
+    console.log(`🎯 Checking ${element.type} "${element.id}":`, {
+      elementPos: pos,
+      bounds,
+      isInside: canvasPos.x >= bounds.left && canvasPos.x <= bounds.right &&
+                canvasPos.y >= bounds.top && canvasPos.y <= bounds.bottom
+    })
+
+    if (canvasPos.x >= bounds.left && canvasPos.x <= bounds.right &&
+        canvasPos.y >= bounds.top && canvasPos.y <= bounds.bottom) {
+      console.log(`✅ Hit detected on ${element.type}:`, element.id)
       return element
     }
   }
-  
+
+  console.log('❌ No element found at position')
   return null
 }
 
 // Select element
 const selectElement = (elementId: string | null) => {
+  console.log('Selecting element:', elementId)
   canvasState.value.elements.forEach(el => {
     el.selected = el.id === elementId
   })
   canvasState.value.selectedElementId = elementId
+  renderCanvas()
 }
 
 // Handle save
@@ -492,15 +985,35 @@ const handleSave = () => {
   // Convert canvas elements back to sticker/keychain format
   const stickers: (any | null)[] = new Array(5).fill(null)
   let keychain: any | null = null
-  
+
+
   canvasState.value.elements.forEach(element => {
-    if (element.type === 'sticker' && element.slotIndex !== null) {
-      stickers[element.slotIndex] = canvasElementToSticker(element)
+    if (element.type === 'sticker' && typeof element.slotIndex === 'number') {
+      // Compute external normalized offsets for persistence
+      const ext = getElementOffsetExternalNorm(element)
+
+      // Persist ext-normalized into DB x/y, and include explicit ext fields in client state
+      stickers[element.slotIndex] = {
+        id: parseInt(element.assetId),
+        slot: element.slotIndex,
+        // Persist ext-normalized directly into DB x/y
+        x: Number(ext.x.toFixed(12)),
+        y: Number(ext.y.toFixed(12)),
+        // Keep explicit ext fields in client state for clarity (not used by DB)
+        ext_norm_x: Number(ext.x.toFixed(12)),
+        ext_norm_y: Number(ext.y.toFixed(12)),
+        ext_ref_x: extXRef,
+        ext_ref_y: extYRef,
+        wear: element.wear || 0,
+        scale: element.scale,
+        rotation: element.rotation,
+        api: element.apiData
+      }
     } else if (element.type === 'keychain') {
       keychain = canvasElementToKeychain(element)
     }
   })
-  
+
   emit('save', { stickers, keychain, weaponWear: currentWear.value })
   handleClose()
 }
@@ -607,12 +1120,6 @@ const updateWeaponWear = async (wearValue: number) => {
   }
 }
 
-// Update wear range when weapon changes
-const updateWearRange = (minWear: number, maxWear: number) => {
-  if (videoManager.value) {
-    videoManager.value.updateWearRange(minWear, maxWear)
-  }
-}
 
 // Remove selected element
 const removeSelectedElement = () => {
@@ -627,12 +1134,9 @@ const removeSelectedElement = () => {
 
 // Canvas mouse handlers
 const handleCanvasMouseDown = (event: MouseEvent) => {
-  // Implementation for drag start
-  canvasState.value.isDragging = true
-}
+  if (!canvas.value) return
 
-const handleCanvasMouseMove = (event: MouseEvent) => {
-  if (!canvasState.value.isDragging || !selectedElement.value || !canvas.value) return
+  event.preventDefault()
 
   const rect = canvas.value.getBoundingClientRect()
   const canvasPos = {
@@ -640,26 +1144,81 @@ const handleCanvasMouseMove = (event: MouseEvent) => {
     y: event.clientY - rect.top
   }
 
-  const normalizedPos = coordinateTransform.canvasToNormalized(canvasPos, canvasState.value.canvasSize)
+  console.log('🖱️ Mouse down at:', canvasPos)
+  console.log('🔍 Available elements:', canvasState.value.elements.length)
+
+  // Find element at click position
+  const clickedElement = findElementAtPosition(canvasPos)
+
+  if (clickedElement) {
+    // Select the element and start dragging
+    canvasState.value.selectedElementId = clickedElement.id
+    canvasState.value.isDragging = true
+    console.log('✅ Started dragging element:', clickedElement.id, clickedElement.type)
+  } else {
+    // Deselect if clicking empty space
+    canvasState.value.selectedElementId = null
+    canvasState.value.isDragging = false
+    console.log('❌ No element found at position, deselecting')
+  }
+
+  renderCanvas()
+}
+
+const handleCanvasMouseMove = (event: MouseEvent) => {
+  if (!canvas.value) return
+
+  const rect = canvas.value.getBoundingClientRect()
+  const canvasPos = {
+    x: Math.round(event.clientX - rect.left),
+    y: Math.round(event.clientY - rect.top)
+  }
+
+  // Update mouse position for coordinate overlay
+  mousePosition.value = canvasPos
+
+  // Re-render if coordinate overlay is active to update mouse position display
+  if (showCoordinateOverlay.value) {
+    renderCanvas()
+  }
+
+  // Only log occasionally to avoid spam
+  if (Math.random() < 0.1) {
+    console.log('🖱️ Mouse move state:', {
+      isDragging: canvasState.value.isDragging,
+      selectedElementId: canvasState.value.selectedElementId,
+      selectedElement: !!selectedElement.value,
+      hasCanvas: !!canvas.value,
+      mousePos: canvasPos
+    })
+  }
+
+  if (!canvasState.value.isDragging || !selectedElement.value) return
+
+  event.preventDefault()
+
+  const normalizedPos = canvasToNormalizedInImage(canvasPos)
+
+  console.log('🎯 Dragging to position:', { canvasPos, normalizedPos })
 
   if (coordinateTransform.validateCoordinates(normalizedPos)) {
     selectedElement.value.position = normalizedPos
     renderCanvas()
+  } else {
+    console.warn('❌ Invalid coordinates:', normalizedPos)
   }
 }
 
 const handleCanvasMouseUp = () => {
-  canvasState.value.isDragging = false
+  if (canvasState.value.isDragging) {
+    console.log('🛑 Stopped dragging')
+    canvasState.value.isDragging = false
+  } else {
+    console.log('🖱️ Mouse up (was not dragging)')
+  }
 }
 
-// Handle mouse wheel for zooming
-const handleCanvasWheel = (event: WheelEvent) => {
-  event.preventDefault()
-
-  const delta = event.deltaY > 0 ? -0.1 : 0.1
-  const newZoom = Math.max(minZoom, Math.min(maxZoom, zoomLevel.value + delta))
-  zoomLevel.value = newZoom
-}
+// Mouse wheel handler removed - no zoom functionality
 
 // Handle close
 const handleClose = () => {
@@ -677,11 +1236,12 @@ const handleResize = () => {
   if (!props.visible || !canvas.value || !canvasContainer.value) return
 
   const containerRect = canvasContainer.value.getBoundingClientRect()
-  const availableWidth = containerRect.width - 40
-  const availableHeight = containerRect.height - 40
+  const availableWidth = containerRect.width - 16 // Account for 8px padding on each side (p-2 = 8px)
+  const availableHeight = containerRect.height - 16 // Account for 8px padding on each side
 
-  const canvasWidth = Math.max(800, availableWidth)
-  const canvasHeight = Math.max(600, availableHeight)
+  // Use the full available container space (same as initializeCanvas)
+  const canvasWidth = availableWidth
+  const canvasHeight = availableHeight
 
   canvasState.value.canvasSize = {
     width: canvasWidth,
@@ -697,10 +1257,40 @@ const handleResize = () => {
   }
 
   renderCanvas()
+  console.log('🔧 Canvas resized to:', canvasWidth, 'x', canvasHeight)
 }
+
+// Watch for changes in stickers prop to update slots
+watch(() => props.stickers, (newStickers) => {
+  if (newStickers) {
+    initializeSlotsFromProps()
+  }
+}, { deep: true })
+
+// Watch for changes in keychain prop to update slot
+watch(() => props.keychain, (newKeychain) => {
+  if (newKeychain) {
+    keychainSlot.value = newKeychain
+  }
+})
+
+// Watch for modal visibility to initialize when opened
+watch(() => props.visible, (isVisible) => {
+  if (isVisible) {
+    // Re-initialize slots when modal opens
+    initializeSlotsFromProps()
+    nextTick(() => {
+      initializeCanvas()
+      loadAssets()
+    })
+  }
+})
 
 // Lifecycle
 onMounted(() => {
+  // Always initialize slots from props, regardless of visibility
+  initializeSlotsFromProps()
+
   if (props.visible) {
     initializeCanvas()
     loadAssets()
@@ -720,6 +1310,104 @@ onUnmounted(() => {
   // Remove resize listener
   window.removeEventListener('resize', handleResize)
 })
+
+// Slot management functions
+const handleStickerSlotClick = (index: number) => {
+  selectedStickerSlot.value = index
+  selectedKeychainSlot.value = false
+  assetSearchQuery.value = ''
+}
+
+const handleKeychainSlotClick = () => {
+  selectedKeychainSlot.value = true
+  selectedStickerSlot.value = null
+  assetSearchQuery.value = ''
+}
+
+const clearSelection = () => {
+  selectedStickerSlot.value = null
+  selectedKeychainSlot.value = false
+  assetSearchQuery.value = ''
+}
+
+const selectStickerForSlot = (sticker: any) => {
+  if (selectedStickerSlot.value === null) return
+
+  // Create sticker data in the format expected by WeaponSkinModal
+  const stickerData = {
+    id: sticker.id,
+    slot: selectedStickerSlot.value, // Add slot information
+    x: 0.5, // Default center position
+    y: 0.5,
+    wear: 0,
+    scale: 1,
+    rotation: 0,
+    api: {
+      name: sticker.name,
+      image: sticker.image,
+      type: sticker.type,
+      effect: sticker.effect,
+      tournament_event: sticker.tournament_event,
+      tournament_team: sticker.tournament_team,
+      rarity: sticker.rarity,
+    }
+  }
+
+  // Update the slot
+  stickerSlots.value[selectedStickerSlot.value] = stickerData
+
+  // Also add to canvas
+  addStickerToCanvas(sticker)
+
+  clearSelection()
+}
+
+const selectKeychainForSlot = (keychain: any) => {
+  if (!selectedKeychainSlot.value) return
+
+  // Create keychain data in the format expected by WeaponSkinModal
+  const keychainData = {
+    id: keychain.id,
+    x: 0.5, // Default center position
+    y: 0.5,
+    wear: 0,
+    scale: 1,
+    rotation: 0,
+    api: {
+      name: keychain.name,
+      image: keychain.image,
+      type: keychain.type,
+      rarity: keychain.rarity,
+    }
+  }
+
+  keychainSlot.value = keychainData
+
+  // Also add to canvas
+  addKeychainToCanvas(keychain)
+
+  clearSelection()
+}
+
+// Initialize slots from props
+const initializeSlotsFromProps = () => {
+  // Initialize sticker slots from props.stickers array
+  if (props.stickers && Array.isArray(props.stickers)) {
+    // Create a new array with 5 slots, filling with stickers from props
+    const newStickerSlots = [null, null, null, null, null]
+    props.stickers.forEach((sticker, index) => {
+      if (sticker && index < 5) {
+        newStickerSlots[index] = sticker
+      }
+    })
+    stickerSlots.value = newStickerSlots
+  }
+
+  // Initialize keychain slot
+  if (props.keychain) {
+    keychainSlot.value = props.keychain
+  }
+}
 </script>
 
 <template>
@@ -727,7 +1415,7 @@ onUnmounted(() => {
     :show="visible"
     style="width: 98vw; height: 95vh"
     preset="card"
-    :title="t('modals.visualCustomizer.title')"
+    :title="props.weaponSkin?.name ? `${props.weaponSkin.name} - Visual Customizer` : String(t('modals.visualCustomizer.title'))"
     :bordered="false"
     size="huge"
     @update:show="handleClose"
@@ -744,58 +1432,13 @@ onUnmounted(() => {
       </NSpace>
     </template>
 
-    <div class="visual-customizer-container h-full flex">
-      <!-- Main Canvas Area -->
-      <div class="canvas-area flex-1 flex flex-col">
-        <div class="canvas-header mb-4 flex items-center justify-between">
-          <h3 class="text-lg font-semibold text-white">
-            {{ props.weaponSkin?.name || 'Weapon Customizer' }}
-          </h3>
-
-          <!-- Zoom Controls -->
-          <div class="zoom-controls flex items-center space-x-2">
-            <NButton
-              size="small"
-              @click="zoomLevel = Math.max(minZoom, zoomLevel - 0.25)"
-              :disabled="zoomLevel <= minZoom"
-            >
-              <template #icon>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
-                </svg>
-              </template>
-            </NButton>
-
-            <span class="text-sm text-gray-300 min-w-16 text-center">
-              {{ Math.round(zoomLevel * 100) }}%
-            </span>
-
-            <NButton
-              size="small"
-              @click="zoomLevel = Math.min(maxZoom, zoomLevel + 0.25)"
-              :disabled="zoomLevel >= maxZoom"
-            >
-              <template #icon>
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-              </template>
-            </NButton>
-
-            <NButton
-              size="small"
-              @click="zoomLevel = 1"
-              type="tertiary"
-            >
-              Reset
-            </NButton>
-          </div>
-        </div>
-
-        <div
-          ref="canvasContainer"
-          class="canvas-container flex-1 flex items-center justify-center bg-gray-900 rounded-lg p-4"
-        >
+    <div class="visual-customizer-container h-full flex flex-col">
+      <!-- Main Canvas Area - Optimized Height -->
+      <div
+        ref="canvasContainer"
+        class="canvas-container bg-gray-900 rounded-xl overflow-hidden"
+        style="height: 400px;"
+      >
           <!-- Hidden video element for video mode -->
           <video
             ref="video"
@@ -806,102 +1449,155 @@ onUnmounted(() => {
 
           <canvas
             ref="canvas"
-            class="border border-gray-600 rounded transition-transform duration-200"
+            class="w-full h-full"
             :class="{
               'cursor-crosshair': !canvasState.isDragging && !selectedElement,
               'cursor-move': canvasState.isDragging,
               'cursor-pointer': selectedElement && !canvasState.isDragging
             }"
-            :style="{ transform: `scale(${zoomLevel})` }"
             @click="handleCanvasClick"
             @mousedown="handleCanvasMouseDown"
             @mousemove="handleCanvasMouseMove"
             @mouseup="handleCanvasMouseUp"
             @mouseleave="handleCanvasMouseUp"
-            @wheel="handleCanvasWheel"
+
           />
         </div>
 
-        <div class="canvas-footer mt-4 text-sm text-gray-400 text-center space-y-1">
-          <div>Click elements to select • Drag to move • Use property panel to fine-tune • Scroll to zoom</div>
-          <div class="text-xs">
-            Canvas: {{ canvasState.canvasSize.width }}×{{ canvasState.canvasSize.height }}px
-            • Zoom: {{ Math.round(zoomLevel * 100) }}%
-            <span v-if="isVideoMode" class="text-green-400 ml-2">• Video Mode Active</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Sidebar -->
-      <div class="sidebar w-80 ml-4 flex flex-col space-y-4">
-        <!-- Weapon Wear Control (only show in video mode) -->
-        <div v-if="isVideoMode" class="wear-control-compact bg-gray-800 rounded-lg p-3">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-sm font-medium text-gray-300">Weapon Wear</span>
-            <span class="text-xs font-mono text-white">{{ currentWear.toFixed(3) }}</span>
-          </div>
-
-          <WearSlider
-            v-model="currentWear"
-            :min="props.minWear || 0"
-            :max="props.maxWear || 1"
-            @update:model-value="updateWeaponWear"
-          />
-        </div>
-        <!-- Asset Browser -->
-        <NCard
-          v-if="showAssetBrowser"
-          title="Asset Browser"
-          class="flex-1"
-          :bordered="false"
-          style="background: #242424"
-        >
-          <template #header-extra>
-            <NSpace>
-              <NButton
-                size="small"
-                :type="selectedAssetType === 'sticker' ? 'primary' : 'default'"
-                @click="selectedAssetType = 'sticker'"
+      <!-- Footer with Sticker Slots and Controls -->
+      <div class="footer-panel mt-4 bg-[#1a1a1a] rounded-lg p-4">
+        <div class="flex gap-4 h-64">
+          <!-- When keychain is selected, show keychain container with fixed width -->
+          <div v-if="selectedKeychainSlot" class="w-48">
+            <div class="mt-4">
+              <h4 class="font-bold mb-1 text-white">Keychain</h4>
+              <div
+                class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
+                :class="{
+                  'border-2 border-dashed border-gray-600': !keychainSlot,
+                  'border-2 border-solid border-[#80E6C4]': keychainSlot,
+                  'ring-2 ring-[#80E6C4]': selectedKeychainSlot
+                }"
+                @click="handleKeychainSlotClick"
               >
-                Stickers
-              </NButton>
-              <NButton
-                size="small"
-                :type="selectedAssetType === 'keychain' ? 'primary' : 'default'"
-                @click="selectedAssetType = 'keychain'"
-              >
-                Keychains
-              </NButton>
-            </NSpace>
-          </template>
+                <div v-if="keychainSlot" class="relative group h-30">
+                  <img
+                    :src="keychainSlot.api.image"
+                    :alt="keychainSlot.api.name"
+                    class="w-full h-full object-contain"
+                  >
+                  <p class="text-sm text-center text-gray-400 mt-1">{{ keychainSlot.api.name.replace('Charm | ', '') }}</p>
+                </div>
+                <div v-else class="h-30 flex items-center justify-center">
+                  <span class="text-gray-400 text-sm">Add</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
-          <div class="asset-browser-content">
-            <NInput
-              v-model:value="assetSearchQuery"
-              placeholder="Search assets..."
-              class="mb-4"
-              clearable
-            />
+          <!-- Left Side: Stickers and Keychain in One Row (like WeaponSkinModal) when not selecting keychain -->
+          <div v-else class="flex-1">
+
+            <!-- Normal layout when nothing selected or sticker selected -->
+            <div class="grid gap-4 auto-rows-fr" :class="selectedStickerSlot !== null ? 'grid-cols-5' : 'grid-cols-6'">
+              <!-- Stickers (completely hide when keychain is being selected) -->
+              <div class="mt-4" :class="selectedStickerSlot !== null ? 'col-span-5' : 'col-span-5'">
+                <h4 class="font-bold mb-1 text-white">Stickers</h4>
+                <div class="grid grid-cols-5 gap-x-2 min-h-36 max-h-36">
+                  <div
+                    v-for="(sticker, index) in stickerSlots"
+                    :key="index"
+                    class="sticker-slot flex items-center justify-center bg-[#242424] p-2 rounded cursor-pointer transition-all relative hover:bg-[#2a2a2a]"
+                    :class="{
+                      'border-2 border-dashed border-gray-600': !sticker,
+                      'border-2 border-solid border-[#80E6C4]': sticker,
+                      'ring-2 ring-[#80E6C4]': selectedStickerSlot === index
+                    }"
+                    @click="handleStickerSlotClick(index)"
+                  >
+                    <div v-if="sticker" class="h-28 relative group">
+                      <img
+                        :src="sticker.api.image"
+                        :alt="sticker.api.name"
+                        class="w-full h-full object-contain"
+                      >
+                      <div class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <span class="text-white text-xs">Edit</span>
+                      </div>
+                    </div>
+                    <div v-else class="h-28 flex items-center justify-center">
+                      <span class="text-gray-400 text-sm">Add</span>
+                    </div>
+                    <div class="mt-1 absolute top-0 left-1 text-xs text-gray-400">
+                      #{{ index + 1 }}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Keychain (completely hide when sticker is being selected) -->
+              <div v-if="selectedStickerSlot === null" class="col-span-1 mt-4">
+                <h4 class="font-bold mb-1 text-white">Keychain</h4>
+                <div
+                  class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
+                  :class="{
+                    'border-2 border-dashed border-gray-600': !keychainSlot,
+                    'border-2 border-solid border-[#80E6C4]': keychainSlot,
+                    'ring-2 ring-[#80E6C4]': selectedKeychainSlot
+                  }"
+                  @click="handleKeychainSlotClick"
+                >
+                  <div v-if="keychainSlot" class="relative group h-30">
+                    <img
+                      :src="keychainSlot.api.image"
+                      :alt="keychainSlot.api.name"
+                      class="w-full h-full object-contain"
+                    >
+                    <p class="text-sm text-center text-gray-400 mt-1">{{ keychainSlot.api.name.replace('Charm | ', '') }}</p>
+                  </div>
+                  <div v-else class="h-30 flex items-center justify-center">
+                    <span class="text-gray-400 text-sm">Add</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center: Search Panel (when slot is selected) -->
+          <div v-if="selectedStickerSlot !== null || selectedKeychainSlot" class="bg-[#242424] rounded-lg p-4" :class="selectedKeychainSlot ? 'flex-1' : 'flex-1'">
+            <div class="flex items-center justify-between mb-4 gap-4">
+              <h4 class="font-bold text-white">
+                {{ selectedStickerSlot !== null ? 'Select Sticker' : 'Select Keychain' }}
+              </h4>
+              <div class="flex items-center gap-3 flex-1">
+                <NInput
+                  v-model:value="assetSearchQuery"
+                  placeholder="Search..."
+                  class="flex-1"
+                  clearable
+                />
+                <NButton size="small" @click="clearSelection">Cancel</NButton>
+              </div>
+            </div>
 
             <div v-if="isLoadingAssets" class="flex justify-center py-8">
               <NSpin size="medium" />
             </div>
 
-            <div v-else class="asset-grid grid grid-cols-3 gap-2 max-h-60 overflow-y-auto">
+            <div v-else class="asset-grid grid grid-cols-6 gap-2 max-h-40 overflow-y-auto">
               <!-- Stickers -->
-              <template v-if="selectedAssetType === 'sticker'">
+              <template v-if="selectedStickerSlot !== null">
                 <div
                   v-for="sticker in filteredStickers.slice(0, 50)"
                   :key="sticker.id"
-                  class="asset-item p-2 bg-gray-800 rounded cursor-pointer hover:bg-gray-700 transition-colors"
+                  class="asset-item p-2 bg-[#2a2a2a] rounded cursor-pointer hover:bg-[#333333] transition-colors"
                   :title="sticker.name"
-                  @click="addStickerToCanvas(sticker)"
+                  @click="selectStickerForSlot(sticker)"
                 >
                   <img
                     :src="sticker.image"
                     :alt="sticker.name"
-                    class="w-full h-12 object-contain mb-1"
-                  />
+                    class="w-full h-8 object-contain mb-1"
+                  >
                   <p class="text-xs text-gray-300 truncate">
                     {{ sticker.name.replace('Sticker | ', '') }}
                   </p>
@@ -909,19 +1605,19 @@ onUnmounted(() => {
               </template>
 
               <!-- Keychains -->
-              <template v-if="selectedAssetType === 'keychain'">
+              <template v-if="selectedKeychainSlot">
                 <div
                   v-for="keychain in filteredKeychains.slice(0, 50)"
                   :key="keychain.id"
-                  class="asset-item p-2 bg-gray-800 rounded cursor-pointer hover:bg-gray-700 transition-colors"
+                  class="asset-item p-2 bg-[#2a2a2a] rounded cursor-pointer hover:bg-[#333333] transition-colors"
                   :title="keychain.name"
-                  @click="addKeychainToCanvas(keychain)"
+                  @click="selectKeychainForSlot(keychain)"
                 >
                   <img
                     :src="keychain.image"
                     :alt="keychain.name"
-                    class="w-full h-12 object-contain mb-1"
-                  />
+                    class="w-full h-8 object-contain mb-1"
+                  >
                   <p class="text-xs text-gray-300 truncate">
                     {{ keychain.name.replace('Charm | ', '') }}
                   </p>
@@ -929,128 +1625,204 @@ onUnmounted(() => {
               </template>
             </div>
           </div>
-        </NCard>
 
-        <!-- Property Panel -->
-        <NCard
-          v-if="showPropertyPanel && selectedElement"
-          title="Properties"
-          :bordered="false"
-          style="background: #242424"
-        >
-          <div class="property-panel space-y-4">
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Position X</label>
-              <NInputNumber
-                :value="selectedElement.position.x"
-                :min="0"
-                :max="1"
-                :step="0.01"
-                :precision="3"
-                class="w-full"
-                @update:value="updateElementProperty('position.x', $event)"
+          <!-- Right Side: Wear Control and Settings Panel -->
+          <div class="w-80 space-y-4">
+            <!-- Wear Control (only show in video mode) -->
+            <div v-if="isVideoMode" class="bg-[#242424] rounded-lg p-3">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-medium text-gray-300">Weapon Wear</span>
+                <span class="text-xs font-mono text-white">{{ currentWear.toFixed(3) }}</span>
+              </div>
+              <WearSlider
+                v-model="currentWear"
+                :min="props.minWear || 0"
+                :max="props.maxWear || 1"
+                @update:model-value="updateWeaponWear"
               />
             </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Position Y</label>
-              <NInputNumber
-                :value="selectedElement.position.y"
-                :min="0"
-                :max="1"
-                :step="0.01"
-                :precision="3"
-                class="w-full"
-                @update:value="updateElementProperty('position.y', $event)"
-              />
-            </div>
+            <!-- Settings Panel -->
+            <div class="bg-[#242424] rounded-lg p-4">
+              <h4 class="font-bold mb-4 text-white">Settings <span v-if="selectedElement">| {{ selectedElement.type === 'sticker' ? 'Sticker' : 'Keychain' }}</span> </h4>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Scale</label>
-              <NSlider
-                :value="selectedElement.scale"
-                :min="0.1"
-                :max="3"
-                :step="0.1"
-                @update:value="updateElementProperty('scale', $event)"
-              />
-              <NInputNumber
-                :value="selectedElement.scale"
-                :min="0.1"
-                :max="3"
-                :step="0.1"
-                :precision="1"
-                class="w-full mt-2"
-                @update:value="updateElementProperty('scale', $event)"
-              />
-            </div>
+              <!-- Debug Tools -->
+              <div class="mb-4 p-3 bg-[#1a1a1a] rounded border border-yellow-600">
+                <h5 class="text-yellow-400 font-semibold mb-2">🛠️ Debug Tools</h5>
+                <div class="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    id="coordinateOverlay"
+                    v-model="showCoordinateOverlay"
+                    class="w-4 h-4"
+                  />
+                  <label for="coordinateOverlay" class="text-sm text-gray-300">
+                    Show Coordinate Grid (X/Y positions)
+                  </label>
+                </div>
+                <p class="text-xs text-gray-400 mt-1">
+                  Toggle to see pixel coordinates for precise sticker positioning
+                </p>
+              </div>
 
-            <div>
-              <label class="block text-sm font-medium text-gray-300 mb-2">Rotation (degrees)</label>
-              <NSlider
-                :value="selectedElement.rotation"
-                :min="0"
-                :max="360"
-                :step="1"
-                @update:value="updateElementProperty('rotation', $event)"
-              />
-              <NInputNumber
-                :value="selectedElement.rotation"
-                :min="0"
-                :max="360"
-                :step="1"
-                class="w-full mt-2"
-                @update:value="updateElementProperty('rotation', $event)"
-              />
-            </div>
+              <!-- Element Properties (when element is selected) -->
+              <div v-if="selectedElement" class="space-y-4">
+              <!---<div class="text-sm text-gray-300 mb-3">
+                Editing: {{ selectedElement.type === 'sticker' ? 'Sticker' : 'Keychain' }}
+              </div>-->
 
-            <div v-if="selectedElement.type === 'sticker'">
-              <label class="block text-sm font-medium text-gray-300 mb-2">Wear</label>
-              <NSlider
-                :value="selectedElement.wear || 0"
-                :min="0"
-                :max="1"
-                :step="0.01"
-                @update:value="updateElementProperty('wear', $event)"
-              />
-              <NInputNumber
-                :value="selectedElement.wear || 0"
-                :min="0"
-                :max="1"
-                :step="0.01"
-                :precision="2"
-                class="w-full mt-2"
-                @update:value="updateElementProperty('wear', $event)"
-              />
-            </div>
 
-            <div class="pt-4 border-t border-gray-600">
+              <div v-if="selectedElement && selectedElement.type === 'sticker'" class="space-y-3">
+                <div>
+                  <label class="block text-xs font-medium text-gray-300 mb-1">Offset Units</label>
+                  <NSelect
+                    v-model:value="offsetUnits"
+                    size="small"
+                    :options="[
+                      { label: 'Pixels', value: 'px' },
+                      { label: 'Normalized (ext)', value: 'ext' }
+                    ]"
+                  />
+                </div>
+
+                <div v-if="offsetUnits === 'px'" class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset X (px)</label>
+                    <NInputNumber
+                      :value="getElementOffsetCanvasPx(selectedElement).x"
+                      :min="-5000"
+                      :max="5000"
+                      :step="1"
+                      :precision="0"
+                      size="small"
+                      class="w-full"
+                      @update:value="v => updateSelectedElementOffset('x', v)"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset Y (px)</label>
+                    <NInputNumber
+                      :value="getElementOffsetCanvasPx(selectedElement).y"
+                      :min="-5000"
+                      :max="5000"
+                      :step="1"
+                      :precision="0"
+                      size="small"
+                      class="w-full"
+                      @update:value="v => updateSelectedElementOffset('y', v)"
+                    />
+                  </div>
+                </div>
+
+                <div v-else class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset X (norm)</label>
+                    <NInputNumber
+                      :value="getElementOffsetExternalNorm(selectedElement).x"
+                      :min="-2"
+                      :max="2"
+                      :step="0.000001"
+                      :precision="12"
+                      size="small"
+                      class="w-full"
+                      @update:value="v => updateSelectedElementOffsetExternal('x', v)"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset Y (norm)</label>
+                    <NInputNumber
+                      :value="getElementOffsetExternalNorm(selectedElement).y"
+                      :min="-2"
+                      :max="2"
+                      :step="0.000001"
+                      :precision="12"
+                      size="small"
+                      class="w-full"
+                      @update:value="v => updateSelectedElementOffsetExternal('y', v)"
+                    />
+                  </div>
+                </div>
+
+                <div v-if="offsetUnits === 'ext'" class="grid grid-cols-2 gap-2">
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">External Ref Width</label>
+                    <NInputNumber v-model:value="extXRef" :min="100" :max="5000" :step="1" size="small" class="w-full" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">External Ref Height</label>
+                    <NInputNumber v-model:value="extYRef" :min="100" :max="5000" :step="1" size="small" class="w-full" />
+                  </div>
+                </div>
+
+                <div class="text-[11px] text-gray-400">
+                  <template v-if="offsetUnits === 'px'">
+                    ext norm ≈ (
+                    {{ (getElementOffsetCanvasPx(selectedElement).x / backgroundDrawRect.width * (REF_WIDTH / extXRef)).toFixed(12) }},
+                    {{ (getElementOffsetCanvasPx(selectedElement).y / backgroundDrawRect.height * (REF_HEIGHT / extYRef)).toFixed(12) }}
+                    )
+                  </template>
+                  <template v-else>
+                    px ≈ (
+                    {{ Math.round(getElementOffsetExternalNorm(selectedElement).x * backgroundDrawRect.width * (extXRef / REF_WIDTH)) }},
+                    {{ Math.round(getElementOffsetExternalNorm(selectedElement).y * backgroundDrawRect.height * (extYRef / REF_HEIGHT)) }}
+                    )
+                  </template>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1">Scale</label>
+                <NSlider
+                  :value="selectedElement.scale"
+                  :min="0.1"
+                  :max="3"
+                  :step="0.1"
+                  @update:value="updateElementProperty('scale', $event)"
+                />
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-gray-300 mb-1">Rotation</label>
+                <NSlider
+                  :value="selectedElement.rotation"
+                  :min="0"
+                  :max="360"
+                  :step="1"
+                  @update:value="updateElementProperty('rotation', $event)"
+                />
+              </div>
+
+              <div v-if="selectedElement.type === 'sticker'">
+                <label class="block text-xs font-medium text-gray-300 mb-1">Wear</label>
+                <NSlider
+                  :value="selectedElement.wear || 0"
+                  :min="0"
+                  :max="1"
+                  :step="0.01"
+                  @update:value="updateElementProperty('wear', $event)"
+                />
+              </div>
+
               <NButton
-                @click="removeSelectedElement"
                 type="error"
                 size="small"
                 class="w-full"
+                @click="removeSelectedElement"
               >
                 Remove {{ selectedElement.type === 'sticker' ? 'Sticker' : 'Keychain' }}
               </NButton>
             </div>
-          </div>
-        </NCard>
 
-        <!-- Instructions when no element selected -->
-        <NCard
-          v-if="!selectedElement"
-          title="Instructions"
-          :bordered="false"
-          style="background: #242424"
-        >
-          <div class="text-sm text-gray-300 space-y-2">
-            <p>• Click on stickers or keychains in the asset browser to add them to your weapon</p>
-            <p>• Click on elements in the canvas to select and edit them</p>
-            <p>• Use the property panel to fine-tune position, scale, rotation, and wear</p>
-            <p>• Drag elements directly on the canvas to reposition them</p>
+              <!-- Instructions when no element selected -->
+              <div v-else class="text-sm text-gray-300 space-y-2">
+                <p>• Click sticker/keychain slots to add items</p>
+                <p>• Click elements on canvas to select and edit</p>
+                <p>• Drag elements to reposition them</p>
+                <p>• Use sliders to fine-tune properties</p>
+              </div>
+            </div>
           </div>
-        </NCard>
+        </div>
       </div>
     </div>
   </NModal>
@@ -1062,9 +1834,13 @@ onUnmounted(() => {
 }
 
 .canvas-container {
-  min-height: 700px;
-  height: 100%;
-  flex: 1;
+  /* Remove min-height to allow inline height style to work */
+  flex: 0 0 auto; /* Don't flex, use fixed height */
+}
+
+.footer-panel {
+  height: 280px;
+  flex-shrink: 0;
 }
 
 .canvas-area {

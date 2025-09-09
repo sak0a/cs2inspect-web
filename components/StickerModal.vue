@@ -33,6 +33,19 @@ const state = ref({
   }
 })
 
+// External normalized offsets from VisualCustomizer (if present)
+const extNormX = computed(() => {
+  const val = (props.currentSticker as any)?.ext_norm_x
+  return typeof val === 'number' && !isNaN(val) ? val : null
+})
+const extNormY = computed(() => {
+  const val = (props.currentSticker as any)?.ext_norm_y
+  return typeof val === 'number' && !isNaN(val) ? val : null
+})
+const extNormXStr = computed(() => (extNormX.value !== null ? extNormX.value.toFixed(12) : ''))
+const extNormYStr = computed(() => (extNormY.value !== null ? extNormY.value.toFixed(12) : ''))
+
+
 const PAGE_SIZE = 10
 
 const filteredItems = computed(() => {
@@ -227,6 +240,11 @@ watch(() => props.visible, (newValue) => {
                     class="w-full"
                 />
               </div>
+            </div>
+
+            <!-- External normalized offsets (read-only, if available) -->
+            <div v-if="currentSticker && (extNormX !== null || extNormY !== null)" class="text-xs text-gray-400 -mt-2 mb-2">
+              <div><span class="opacity-70">Ext normalized</span>: X {{ extNormXStr }} | Y {{ extNormYStr }}</div>
             </div>
 
             <!-- Scale and Rotation -->

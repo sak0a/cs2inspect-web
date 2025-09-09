@@ -165,27 +165,32 @@ export class VideoCanvasManager {
     try {
       // Clear canvas
       this.ctx.clearRect(0, 0, this.canvasSize.width, this.canvasSize.height)
-      
-      // Calculate aspect ratio and positioning
+
+      // Calculate aspect ratio scaling
       const videoAspect = this.video.videoWidth / this.video.videoHeight
       const canvasAspect = this.canvasSize.width / this.canvasSize.height
-      
-      let drawWidth = this.canvasSize.width
-      let drawHeight = this.canvasSize.height
-      let drawX = 0
-      let drawY = 0
+
+      let drawWidth, drawHeight, drawX, drawY
 
       if (videoAspect > canvasAspect) {
-        // Video is wider than canvas
+        // Video is wider - fit to width
+        drawWidth = this.canvasSize.width
         drawHeight = this.canvasSize.width / videoAspect
+        drawX = 0
         drawY = (this.canvasSize.height - drawHeight) / 2
       } else {
-        // Video is taller than canvas
+        // Video is taller - fit to height
+        drawHeight = this.canvasSize.height
         drawWidth = this.canvasSize.height * videoAspect
         drawX = (this.canvasSize.width - drawWidth) / 2
+        drawY = 0
       }
 
-      // Draw video frame to canvas
+      // Fill background with dark color first
+      this.ctx.fillStyle = '#1a1a1a'
+      this.ctx.fillRect(0, 0, this.canvasSize.width, this.canvasSize.height)
+
+      // Draw video frame to canvas with proper aspect ratio
       this.ctx.drawImage(
         this.video,
         drawX, drawY,
