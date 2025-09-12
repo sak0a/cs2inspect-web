@@ -276,7 +276,7 @@ watch(() => state.value.customization.seed, (newSeed) => {
             :key="item.id"
             :class="[
             'cursor-pointer transition-all hover:shadow-lg',
-            state.selectedItem?.id === item.id.replace('keychain-', '') ? 'ring-2 ring-[#80E6C4] !border-0 opacity-65' : ''
+            state.selectedItem?.id === item.id.replace('keychain-', '') ? 'ring-2 ring-[var(--selection-ring)] !border-0 opacity-65' : ''
           ]"
             :style="{
             borderColor: item.rarity?.color || '#313030',

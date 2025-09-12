@@ -3,7 +3,10 @@ import {darkTheme, GlobalThemeOverrides, NConfigProvider} from 'naive-ui'
 
 const myThemeOverrides: GlobalThemeOverrides = {
   common: {
-
+    primaryColor: '#FACC15',
+    primaryColorHover: '#F59E0B',
+    primaryColorPressed: '#CA8A04',
+    primaryColorSuppl: '#EAB308'
   },
   Button: {
     borderRadiusMedium: '200px',
@@ -11,6 +14,8 @@ const myThemeOverrides: GlobalThemeOverrides = {
   },
   Tooltip: {
     borderRadius: '12px',
+    color: '#121212',
+    textColor: '#ffffff'
   },
   Input: {
     borderRadius: '200px',
@@ -53,10 +58,12 @@ const myThemeOverrides: GlobalThemeOverrides = {
       InternalSelection: {
         paddingSingle: '0 0 0 16px',
         borderRadius: '200px',
+        color: '#121212'
       },
       InternalSelectMenu: {
         borderRadius: '12px',
         paddingMedium: '4px 0 0 24px',
+        color: '#121212',
         peers: {
           Scrollbar: {
 

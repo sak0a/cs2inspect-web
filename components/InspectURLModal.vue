@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { NModal, NInput, NButton, NSpace } from 'naive-ui'
+import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
+
 
 const props = defineProps<{
   visible: boolean
@@ -45,6 +47,7 @@ const handleClose = () => {
       preset="card"
       :title="t('modals.inspectUrl.title') as string"
       :bordered="false"
+      :theme-overrides="skinModalThemeOverrides"
       :mask-closable="!loading"
       :closable="!loading"
       @update:show="handleClose"

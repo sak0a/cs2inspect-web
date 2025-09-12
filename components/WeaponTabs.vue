@@ -10,6 +10,7 @@ import type {
 import type { DBWeapon } from "~/types"
 
 import { NTabs, NTabPane, NCard } from 'naive-ui'
+import { ref, onMounted, computed } from 'vue'
 
 /**
  * Props interface for WeaponTabs component
@@ -32,6 +33,38 @@ const emit = defineEmits<{
   (e: 'weaponClick', weapon: WeaponItemData): void
   (e: 'error', error: string): void
 }>()
+
+
+// Persist last selected team tab in a cookie (client-side)
+const currentTeamTab = ref<'ct' | 't'>('ct')
+const cookieName = computed(() => {
+  const first = props.weaponData?.weapons?.[0]
+  const id = (first?.weapon_defindex ?? first?.weapon_name ?? props.weaponData?.defaultName ?? 'unknown') as string | number
+  return `lastTeamTab_weapon_${id}`
+})
+
+function setCookie(name: string, val: string) {
+  try {
+    document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=15552000`
+  } catch (e) {}
+}
+function getCookie(name: string): string | null {
+  try {
+    const part = document.cookie.split('; ').find(row => row.startsWith(name + '='))
+    return part ? decodeURIComponent(part.split('=')[1]) : null
+  } catch (e) { return null }
+}
+
+function setTeamCookie(val: 'ct' | 't') { setCookie(cookieName.value, val) }
+function getTeamCookie(): 'ct' | 't' | null {
+  const v = getCookie(cookieName.value)
+  return v === 'ct' || v === 't' ? v : null
+}
+
+onMounted(() => {
+  const v = getTeamCookie()
+  if (v) currentTeamTab.value = v
+})
 
 const { t } = useI18n()
 
@@ -126,7 +159,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon): void => {
 <template>
   <!-- For weapons that both teams can use (like AWP) -->
   <div v-if="weaponData.availableTeams === 'both'" >
-    <NTabs type="line" animated size="small">
+    <NTabs v-model:value="currentTeamTab" @update:value="(v) => setTeamCookie(v as 'ct' | 't')" type="line" animated size="small">
       <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
         <!-- Default weapon if no skin selected -->
         <NCard

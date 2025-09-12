@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { NModal, NButton, NInput, NSpin, NSpace, NInputNumber, NSlider, NSelect, useMessage } from 'naive-ui'
+import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
+
 import WearSlider from '~/components/WearSlider.vue'
 import type { VisualCustomizerProps, VisualCustomizerEvents, CanvasElement, CanvasState } from '~/types/canvas'
 import {
@@ -90,7 +92,7 @@ const REF_HEIGHT = 384
 const STICKER_MAX_WIDTH_PX = 120
 
 // Default max sticker height in pixels (applies at initial draw and hit-testing)
-const STICKER_MAX_HEIGHT_PX = 80
+const STICKER_MAX_HEIGHT_PX = 70
 
 // Helpers to map coordinates within the drawn image/video rect
 const normalizedToCanvasInImage = (p: { x: number; y: number }) => {
@@ -788,7 +790,9 @@ const drawElement = (element: CanvasElement) => {
   // Function to draw selection indicator
   const drawSelection = () => {
     if (element.selected) {
-      ctx.value!.strokeStyle = '#80E6C4'
+      const accent = getComputedStyle(document.documentElement)
+        .getPropertyValue('--selection-ring').trim() || '#FACC15'
+      ctx.value!.strokeStyle = accent
       ctx.value!.lineWidth = 2
       ctx.value!.setLineDash([4, 4])
       ctx.value!.strokeRect(-size/2 - 3, -size/2 - 3, size + 6, size + 6)
@@ -803,7 +807,7 @@ const drawElement = (element: CanvasElement) => {
         [-size/2 - 3, size/2 + 3]   // Bottom-left
       ]
 
-      ctx.value!.fillStyle = '#80E6C4'
+      ctx.value!.fillStyle = accent
       corners.forEach(([x, y]) => {
         ctx.value!.fillRect(x - handleSize/2, y - handleSize/2, handleSize, handleSize)
       })
@@ -1417,9 +1421,10 @@ const initializeSlotsFromProps = () => {
     preset="card"
     :title="props.weaponSkin?.name ? `${props.weaponSkin.name} - Visual Customizer` : String(t('modals.visualCustomizer.title'))"
     :bordered="false"
+    :theme-overrides="skinModalThemeOverrides"
     size="huge"
-    @update:show="handleClose"
     :mask-closable="false"
+    @update:show="handleClose"
   >
     <template #header-extra>
       <NSpace>
@@ -1475,8 +1480,8 @@ const initializeSlotsFromProps = () => {
                 class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
                 :class="{
                   'border-2 border-dashed border-gray-600': !keychainSlot,
-                  'border-2 border-solid border-[#80E6C4]': keychainSlot,
-                  'ring-2 ring-[#80E6C4]': selectedKeychainSlot
+                  'border-2 border-solid border-[var(--selection-ring)]': keychainSlot,
+                  'ring-2 ring-[var(--selection-ring)]': selectedKeychainSlot
                 }"
                 @click="handleKeychainSlotClick"
               >
@@ -1510,8 +1515,8 @@ const initializeSlotsFromProps = () => {
                     class="sticker-slot flex items-center justify-center bg-[#242424] p-2 rounded cursor-pointer transition-all relative hover:bg-[#2a2a2a]"
                     :class="{
                       'border-2 border-dashed border-gray-600': !sticker,
-                      'border-2 border-solid border-[#80E6C4]': sticker,
-                      'ring-2 ring-[#80E6C4]': selectedStickerSlot === index
+                      'border-2 border-solid border-[var(--selection-ring)]': sticker,
+                      'ring-2 ring-[var(--selection-ring)]': selectedStickerSlot === index
                     }"
                     @click="handleStickerSlotClick(index)"
                   >
@@ -1541,8 +1546,8 @@ const initializeSlotsFromProps = () => {
                   class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
                   :class="{
                     'border-2 border-dashed border-gray-600': !keychainSlot,
-                    'border-2 border-solid border-[#80E6C4]': keychainSlot,
-                    'ring-2 ring-[#80E6C4]': selectedKeychainSlot
+                    'border-2 border-solid border-[var(--selection-ring)]': keychainSlot,
+                    'ring-2 ring-[var(--selection-ring)]': selectedKeychainSlot
                   }"
                   @click="handleKeychainSlotClick"
                 >

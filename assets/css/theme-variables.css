@@ -42,8 +42,8 @@
   --border-light: #444444;
 
   /* UI element colors */
-  --tab-indicator: #80E6C4;
-  --selection-ring: #80E6C4;
+  --tab-indicator: #FACC15;
+  --selection-ring: #FACC15;
   --hover-overlay: rgba(255, 255, 255, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.5);
 
@@ -79,8 +79,8 @@
   --border-light: #e5e5e5;
 
   /* UI element colors */
-  --tab-indicator: #80E6C4;
-  --selection-ring: #80E6C4;
+  --tab-indicator: #FACC15;
+  --selection-ring: #FACC15;
   --hover-overlay: rgba(0, 0, 0, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.1);
 

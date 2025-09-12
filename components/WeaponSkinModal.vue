@@ -917,7 +917,7 @@ watch(() => props.weapon, () => {
             type="primary"
             size="large"
             class="w-full"
-            style="background: linear-gradient(135deg, #80E6C4, #4FD1C7); border: none;"
+            style="background: linear-gradient(135deg, var(--selection-ring), #F59E0B); border: none;"
           >
             <template #icon>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1002,7 +1002,7 @@ watch(() => props.weapon, () => {
               ', ' + (hexToRgba(skin.rarity?.color, '0.15') || '#313030') + ')'}"
             :class="[
             'hover:shadow-lg cursor-pointer transition-all rounded-xl',
-            selectedSkin?.name === skin.name ? 'ring-2 ring-[#80E6C4] !border-0 opacity-85' : ''
+            selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] !border-0 opacity-85' : ''
           ]"
             @click="handleSkinSelect(skin)"
         >
@@ -1099,7 +1099,7 @@ watch(() => props.weapon, () => {
 </template>
 <style scoped lang="sass">
 .active-item
-  @apply border-2 border-solid border-[#80E6C4]
+  @apply border-2 border-solid border-[var(--selection-ring)]
 .inactive-item
   @apply border-2 border-dashed border-gray-600
 .sticker-slot

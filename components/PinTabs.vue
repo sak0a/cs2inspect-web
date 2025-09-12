@@ -49,7 +49,7 @@ const isPin = computed(() => {
       }"
       :class="[
         'cursor-pointer rounded-xl bg-[#242424] pin-card',
-        isSelected ? 'selected-pin ring-2 ring-[#80E6C4] !border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
+        isSelected ? 'selected-pin ring-2 ring-[var(--selection-ring)] !border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
       ]"
       @click="handleSelect"
   >
