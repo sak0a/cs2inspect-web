@@ -1,0 +1,319 @@
+/* Glassmorphism Effects for Modals */
+
+/* Main modal glassmorphism styling - only for the main modal card, not grid cards */
+.n-modal > .n-card {
+  backdrop-filter: var(--glass-blur-strong) var(--glass-saturation) !important;
+  -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation) !important;
+  background: var(--glass-bg-primary) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow:
+    0 32px 64px rgba(0, 0, 0, 0.9),
+    0 16px 32px rgba(0, 0, 0, 0.7),
+    0 8px 16px rgba(0, 0, 0, 0.5),
+    0 0 0 1px var(--glass-border),
+    inset 0 1px 0 var(--glass-border) !important;
+  border-radius: 24px !important;
+}
+
+/* Modal header glassmorphism enhancement */
+.n-modal .n-card .n-card-header {
+  background: rgba(255, 255, 255, 0.02) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+}
+
+/* Modal body enhancement */
+.n-modal .n-card .n-card__content {
+  background: transparent !important;
+}
+
+/* Enhanced backdrop for modal overlay */
+.n-modal-mask {
+  backdrop-filter: blur(8px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(8px) saturate(120%) !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Smaller modals (attachment modals) with lighter glassmorphism */
+.n-modal[style*="width: 600px"] .n-card,
+.n-modal[style*="width: 700px"] .n-card {
+  backdrop-filter: var(--glass-blur-medium) saturate(160%) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) saturate(160%) !important;
+  background: rgba(16, 16, 16, 0.9) !important;
+  border: 1px solid var(--glass-border-light) !important;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.8),
+    0 12px 24px rgba(0, 0, 0, 0.6),
+    0 0 0 1px var(--glass-border-light),
+    inset 0 1px 0 var(--glass-border-light) !important;
+  border-radius: 20px !important;
+}
+
+/* Skin/Sticker/Keychain grid cards - minimal glassmorphism, preserve rarity backgrounds */
+.n-modal .grid .n-card {
+  /* DO NOT override background - let the original rarity gradients show */
+  /* Original styling: background: linear-gradient(135deg, #101010, rgba(rarity-color, 0.15)) */
+
+  /* Only enhance with subtle glass effects */
+  border-radius: 12px !important; /* Keep original rounded-xl */
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Hover effects for grid cards - enhance without overriding background */
+.n-modal .grid .n-card:hover {
+  /* DO NOT override background - preserve rarity gradients */
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Selected state for grid cards - preserve selection ring and background */
+.n-modal .grid .n-card.ring-2,
+.n-modal .grid .n-card[class*="ring-2"] {
+  /* DO NOT override background - preserve rarity gradients */
+  /* Ensure the selection ring is visible - use outline to avoid border conflicts */
+  outline: 2px solid var(--selection-ring) !important;
+  outline-offset: -2px !important;
+  border: 0 !important; /* Remove border when selected as per original design */
+  opacity: 0.85 !important; /* Match original opacity */
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Other cards within modals (non-grid) - subtle glassmorphism */
+.n-modal .n-card:not(.grid .n-card):not(.n-modal > .n-card) {
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  background: var(--glass-bg-secondary) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Input fields within glassmorphism modals - properly rounded glass effects */
+.n-modal .n-input .n-input-wrapper,
+.n-modal .n-input-number .n-input-wrapper {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 200px !important; /* Match the original rounded design */
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.n-modal .n-input:focus-within .n-input-wrapper,
+.n-modal .n-input-number:focus-within .n-input-wrapper {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(250, 204, 21, 0.3) !important;
+  border-radius: 200px !important; /* Maintain rounded design on focus */
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.1),
+    0 4px 8px rgba(250, 204, 21, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Ensure the input element itself doesn't have conflicting styles */
+.n-modal .n-input .n-input__input-el,
+.n-modal .n-input-number .n-input__input-el {
+  background: transparent !important;
+  border: none !important;
+  border-radius: 200px !important;
+}
+
+/* Buttons within glassmorphism modals - preserve original colors with glass effect */
+.n-modal .n-button {
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Secondary buttons - enhance with glassmorphism but keep original styling */
+.n-modal .n-button:not(.n-button--primary) {
+  /* Don't override background - let Naive UI handle the colors */
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.n-modal .n-button:not(.n-button--primary):hover {
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Pagination within glassmorphism modals - preserve original styling */
+.n-modal .n-pagination .n-pagination-item {
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.n-modal .n-pagination .n-pagination-item:hover {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  transform: translateY(-1px) !important;
+}
+
+.n-modal .n-pagination .n-pagination-item--active {
+  /* Keep original active styling but add glassmorphism */
+  border: 1px solid rgba(250, 204, 21, 0.3) !important;
+  box-shadow:
+    0 4px 8px rgba(250, 204, 21, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Smooth animations for grid items */
+.n-modal .grid .n-card {
+  animation: gridItemFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+.n-modal .grid .n-card:nth-child(1) { animation-delay: 0.05s; }
+.n-modal .grid .n-card:nth-child(2) { animation-delay: 0.1s; }
+.n-modal .grid .n-card:nth-child(3) { animation-delay: 0.15s; }
+.n-modal .grid .n-card:nth-child(4) { animation-delay: 0.2s; }
+.n-modal .grid .n-card:nth-child(5) { animation-delay: 0.25s; }
+.n-modal .grid .n-card:nth-child(6) { animation-delay: 0.3s; }
+.n-modal .grid .n-card:nth-child(7) { animation-delay: 0.35s; }
+.n-modal .grid .n-card:nth-child(8) { animation-delay: 0.4s; }
+.n-modal .grid .n-card:nth-child(9) { animation-delay: 0.45s; }
+.n-modal .grid .n-card:nth-child(10) { animation-delay: 0.5s; }
+
+@keyframes gridItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Scrollbar styling for glassmorphism */
+.n-modal .n-scrollbar-rail {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.n-modal .n-scrollbar-rail .n-scrollbar {
+  background: rgba(255, 255, 255, 0.2) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+}
+
+/* Animation for glassmorphism modals */
+.n-modal {
+  animation: glassmorphismFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.n-modal > .n-card {
+  animation: glassmorphismCardIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes glassmorphismFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: var(--glass-blur-light);
+  }
+}
+
+@keyframes glassmorphismCardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(30px);
+    backdrop-filter: blur(0px);
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.98) translateY(10px);
+    backdrop-filter: blur(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    backdrop-filter: var(--glass-blur-strong) var(--glass-saturation);
+    box-shadow:
+      0 32px 64px rgba(0, 0, 0, 0.9),
+      0 16px 32px rgba(0, 0, 0, 0.7),
+      0 8px 16px rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Responsive adjustments for glassmorphism */
+@media (max-width: 768px) {
+  .n-modal > .n-card {
+    backdrop-filter: blur(16px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
+  }
+
+  .n-modal-mask {
+    backdrop-filter: blur(6px) saturate(110%) !important;
+    -webkit-backdrop-filter: blur(6px) saturate(110%) !important;
+  }
+}
+
+/* Interactive glassmorphism effects - only for main modal card */
+.n-modal > .n-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Don't add hover effects to the main modal card to avoid interfering with grid items */
+
+/* Focus effects are handled in the input wrapper styling above */
+
+/* Enhanced glassmorphism for primary buttons - preserve original yellow color */
+.n-modal .n-button--primary {
+  /* Keep the original primary color but add glassmorphism effects */
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  border: 1px solid rgba(250, 204, 21, 0.3) !important;
+  box-shadow:
+    0 4px 8px rgba(250, 204, 21, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.n-modal .n-button--primary:hover {
+  box-shadow:
+    0 6px 12px rgba(250, 204, 21, 0.3),
+    0 3px 6px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Dark theme specific glassmorphism adjustments */
+@media (prefers-color-scheme: dark) {
+  .n-modal > .n-card {
+    background: rgba(16, 16, 16, 0.9) !important;
+  }
+
+  .n-modal .n-card:not(.grid .n-card):not(.n-modal > .n-card) {
+    background: rgba(36, 36, 36, 0.85) !important;
+  }
+}

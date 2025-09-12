@@ -47,6 +47,16 @@
   --hover-overlay: rgba(255, 255, 255, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.5);
 
+  /* Glassmorphism variables */
+  --glass-bg-primary: rgba(16, 16, 16, 0.85);
+  --glass-bg-secondary: rgba(36, 36, 36, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-light: rgba(255, 255, 255, 0.08);
+  --glass-blur-strong: blur(20px);
+  --glass-blur-medium: blur(16px);
+  --glass-blur-light: blur(8px);
+  --glass-saturation: saturate(180%);
+
   /* Skin card backgrounds */
   --skin-card-bg: #242424;
   --skin-card-gradient-start: #1a1a1a;
@@ -83,6 +93,16 @@
   --selection-ring: #FACC15;
   --hover-overlay: rgba(0, 0, 0, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Glassmorphism variables for light theme */
+  --glass-bg-primary: rgba(255, 255, 255, 0.85);
+  --glass-bg-secondary: rgba(240, 240, 240, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-border-light: rgba(0, 0, 0, 0.08);
+  --glass-blur-strong: blur(20px);
+  --glass-blur-medium: blur(16px);
+  --glass-blur-light: blur(8px);
+  --glass-saturation: saturate(180%);
 
   /* Skin card backgrounds */
   --skin-card-bg: #ffffff;

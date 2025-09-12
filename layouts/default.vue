@@ -5,7 +5,7 @@ import { steamAuth, type SteamUser } from '@/services/steamAuth'
 import { homeMenuOptions, weaponMenuOptions, equipmentMenuOptions, extrasMenuOptions } from '@/utils/menuConfig'
 import LoadoutSelector from "~/components/LoadoutSelector.vue";
 import LanguageSwitcher from "~/components/LanguageSwitcher.vue";
-import {layoutThemeOverrides} from "~/server/utils/themeCustomization";
+import { layoutThemeOverrides, skinModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
@@ -221,19 +221,20 @@ onMounted(async () => {
                 </template>
                 {{ t('auth.logoutButton') }}
               </NButton>
-              <NModal :show="showLogoutModal">
-                <NCard
-                    :title="t('modals.logout.title') as string"
-                    :bordered="false"
-                    size="small"
-                    aria-modal="true"
-                    :closable="false"
-                    :mask-closable="false"
-                    style="width: 400px"
-                >
-                  <div class="mb-3">
-                    <p>{{ t('modals.logout.question') }}</p>
-                  </div>
+              <NModal
+                :show="showLogoutModal"
+                preset="card"
+                :bordered="false"
+                :closable="false"
+                :mask-closable="false"
+                :theme-overrides="skinModalThemeOverrides"
+                style="width: 400px"
+                :title="t('modals.logout.title') as string"
+              >
+                <div class="mb-3">
+                  <p>{{ t('modals.logout.question') }}</p>
+                </div>
+                <template #footer>
                   <div class="flex justify-end gap-2">
                     <NButton @click="showLogoutModal = false" secondary type="default">
                       {{ t('modals.logout.cancel') }}
@@ -242,7 +243,7 @@ onMounted(async () => {
                       {{ t('modals.logout.confirm') }}
                     </NButton>
                   </div>
-                </NCard>
+                </template>
               </NModal>
             </div>
           </div>

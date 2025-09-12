@@ -41,6 +41,7 @@ export default defineNuxtConfig({
     '~/assets/css/tailwind.sass',
     '~/assets/css/transitions.sass',
     '~/assets/css/theme-variables.css',
+    '~/assets/css/glassmorphism.css',
   ],
   router: {
     options: {
