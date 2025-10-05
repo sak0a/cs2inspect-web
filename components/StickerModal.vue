@@ -33,6 +33,12 @@ const state = ref({
   }
 })
 
+const digitOnlyInputProps = {
+  inputmode: 'numeric', pattern: '\\d*',
+  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
+  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
+}
+
 // External normalized offsets from VisualCustomizer (if present)
 const extNormX = computed(() => {
   const val = (props.currentSticker as any)?.ext_norm_x
@@ -228,6 +234,7 @@ watch(() => props.visible, (newValue) => {
                     :max="100"
                     :step="0.01"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
               <div>
@@ -238,6 +245,7 @@ watch(() => props.visible, (newValue) => {
                     :max="100"
                     :step="0.01"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
             </div>
@@ -257,6 +265,7 @@ watch(() => props.visible, (newValue) => {
                     :max="1"
                     :step="0.01"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
               <div>
@@ -267,6 +276,7 @@ watch(() => props.visible, (newValue) => {
                     :max="360"
                     :step="1"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
             </div>

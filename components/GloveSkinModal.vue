@@ -33,6 +33,12 @@ interface Props extends Omit<GloveModalProps, 'weapon' | 'user'> {
 
 const props = defineProps<Props>()
 
+const digitOnlyInputProps = {
+  inputmode: 'numeric', pattern: '\\d*',
+  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
+  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
+}
+
 /**
  * Events interface using new type system with backward compatibility
  */
@@ -572,7 +578,9 @@ watch(() => props.weapon, () => {
                     :min="0"
                     :max="10100"
                     :disabled="!customization.paintIndexOverride"
+                    :input-props="digitOnlyInputProps"
                 />
+                
               </div>
 
               <div class="space-y-2">
@@ -581,6 +589,7 @@ watch(() => props.weapon, () => {
                     v-model:value="customization.pattern"
                     :min="0"
                     :max="10100"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
             </div>

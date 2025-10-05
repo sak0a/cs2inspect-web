@@ -47,6 +47,11 @@
   --hover-overlay: rgba(255, 255, 255, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.5);
 
+  /* Primary colors */
+  --primary-color: #FACC15;
+  --primary-color-hover: #F59E0B;
+  --primary-color-pressed: #CA8A04;
+
   /* Glassmorphism variables */
   --glass-bg-primary: rgba(16, 16, 16, 0.85);
   --glass-bg-secondary: rgba(36, 36, 36, 0.8);
@@ -93,6 +98,11 @@
   --selection-ring: #FACC15;
   --hover-overlay: rgba(0, 0, 0, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Primary colors */
+  --primary-color: #FACC15;
+  --primary-color-hover: #F59E0B;
+  --primary-color-pressed: #CA8A04;
 
   /* Glassmorphism variables for light theme */
   --glass-bg-primary: rgba(255, 255, 255, 0.85);

@@ -1,9 +1,9 @@
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
-import {DBGlove, IEnhancedItem, APISkin, IDefaultItem, IEnhancedGlove} from "~/server/utils/interfaces"
+import type { DBGlove, APISkin, IDefaultItem, IEnhancedGlove} from "~/server/utils/interfaces"
 import { getSkinsData } from '~/server/utils/csgoAPI'
 import { executeQuery } from '~/server/database/database'
-import { DEFAULT_GLOVES, VALID_GLOVE_DEFINDEXES } from '~/server/utils/constants'
+import { DEFAULT_GLOVES } from '~/server/utils/constants'
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import {
     createCollectionResponse,
@@ -34,7 +34,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         'Failed to fetch gloves'
     );
 
-    Logger.info(`Found ${gloves.length} glove entries in database:`, JSON.stringify(gloves, null, 2));
+    Logger.info(`Found ${gloves.length} glove entries in database:` + JSON.stringify(gloves, null, 2));
 
     // Fetch all glove skins from the skin data
     // Include all glove types: those with 'glove' in the name AND handwraps
@@ -47,7 +47,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
 
     // Log handwraps specifically
     const handwrapsSkins = gloveSkins.filter(skin => skin.weapon?.id === 'leather_handwraps');
-    Logger.info(`Found ${handwrapsSkins.length} handwraps skins:`, handwrapsSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
+    Logger.info(`Found ${handwrapsSkins.length} handwraps skins:` + handwrapsSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
 
     // Map through default gloves and enhance them with skin data
     const enhancedGloves = DEFAULT_GLOVES.map((baseGlove: IDefaultItem) => {
@@ -58,7 +58,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
             (glove: DBGlove) => glove.defindex === baseGlove.weapon_defindex
         );
 
-        Logger.info(`Found ${matchingDatabaseResults.length} database entries for ${baseGlove.defaultName}:`, matchingDatabaseResults);
+        Logger.info(`Found ${matchingDatabaseResults.length} database entries for ${baseGlove.defaultName}:` + matchingDatabaseResults);
 
         // If no custom skins found, return the default glove
         if (matchingDatabaseResults.length === 0) {
@@ -66,17 +66,17 @@ export default defineEventHandler(withErrorHandling(async (event) => {
             return createDefaultItem<IEnhancedGlove>(baseGlove);
         }
 
-        let data: IEnhancedGlove[] = [];
+        const data: IEnhancedGlove[] = [];
         // Get for each matching database result the API Skin info
         for (const databaseResult of matchingDatabaseResults) {
-            Logger.info(`Processing database result for ${baseGlove.defaultName}:`, databaseResult);
+            Logger.info(`Processing database result for ${baseGlove.defaultName}:` + databaseResult);
 
             const skinInfo = findMatchingSkin(baseGlove, databaseResult, gloveSkins);
 
             if (skinInfo) {
-                Logger.info(`Found matching skin for ${baseGlove.defaultName}:`, { name: skinInfo.name, image: skinInfo.image, paint_index: skinInfo.paint_index });
+                Logger.info(`Found matching skin for ${baseGlove.defaultName}:` + { name: skinInfo.name, image: skinInfo.image, paint_index: skinInfo.paint_index });
             } else {
-                Logger.warn(`No matching skin found for ${baseGlove.defaultName} with paintindex ${databaseResult.paintindex}`);
+                Logger.info(`No matching skin found for ${baseGlove.defaultName} with paintindex ${databaseResult.paintindex}`);
             }
 
             databaseResult.active = !!databaseResult.active
@@ -97,7 +97,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 databaseInfo: databaseResult
             } as IEnhancedGlove;
 
-            Logger.info(`Created enhanced glove for ${baseGlove.defaultName}:`, {
+            Logger.info(`Created enhanced glove for ${baseGlove.defaultName}:` + {
                 name: enhancedGlove.name,
                 image: enhancedGlove.image,
                 paintIndex: enhancedGlove.paintIndex,

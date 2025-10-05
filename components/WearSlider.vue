@@ -218,10 +218,18 @@ onBeforeUnmount(() => {
 
 .progress-bar {
   position: relative;
-  height: 8px;
-  border-radius: 4px;
+  height: 10px;
+  border-radius: 9999px;
   cursor: pointer;
   overflow: visible;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .progress-background {
@@ -256,11 +264,24 @@ onBeforeUnmount(() => {
   top: 50%;
   width: 20px;
   height: 20px;
-  background: white;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.7);
   border-radius: 50%;
   transform: translate(-50%, -50%);
   cursor: grab;
   z-index: 2;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: box-shadow 0.2s ease, transform 0.1s ease, border-color 0.2s ease;
+}
+
+.slider-handle:hover {
+
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.45),
+    0 0 0 4px rgba(250, 204, 21, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .slider-handle:active {
@@ -269,18 +290,24 @@ onBeforeUnmount(() => {
 
 .tooltip {
   position: absolute;
-  top: -35px;
+  top: -38px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(70, 70, 70, 0.9);
+  background: rgba(18, 18, 18, 0.85);
   color: white;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 12px;
   font-size: 14px;
   white-space: nowrap;
   min-width: max-content;
   opacity: 0;
   visibility: hidden;
+  
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: opacity 0.2s, visibility 0.2s;
 }
 
@@ -292,12 +319,12 @@ onBeforeUnmount(() => {
 .tooltip:after {
   content: '';
   position: absolute;
-  bottom: -5px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
-  border-left: 5px solid transparent;
-  border-right: 5px solid transparent;
-  border-top: 5px solid rgba(70, 70, 70, 0.9);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(18, 18, 18, 0.85);
 }
 
 .wear-labels {
@@ -331,18 +358,31 @@ onBeforeUnmount(() => {
   border-radius: 20px;
   font-size: 14px;
   text-align: center;
-  background: #313131;
+  background: rgba(49, 49, 49, 0.85);
   color: white;
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
   transition: all 0.15s ease-in-out;
 }
 
 .custom-number-input input:hover {
-  border-color: #80E6C4;
+  border-color: var(--primary-color);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.30),
+    0 0 0 2px rgba(250, 204, 21, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
 .custom-number-input input:focus {
   outline: none;
-  background: #232E2A;
-  border-color: #80E6C4;
+  background: rgba(35, 46, 42, 0.95);
+  border-color: var(--primary-color);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.35),
+    0 0 0 3px rgba(250, 204, 21, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 </style>

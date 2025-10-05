@@ -1,6 +1,7 @@
 // server/middleware/steam-auth.ts
 import { defineEventHandler, readBody, getQuery } from 'h3'
-import jwt, {SignOptions} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
+import type { SignOptions } from 'jsonwebtoken';
 import axios from 'axios'
 
 

@@ -1,7 +1,7 @@
 import { defineEventHandler, createError } from 'h3'
 import { executeQuery } from '~/server/database/database'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
-import { DBPin } from '~/server/utils/interfaces'
+import type { DBPin } from '~/server/utils/interfaces'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import {
     createCollectionResponse,

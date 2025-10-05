@@ -1,7 +1,8 @@
 import {
     initCSGOApiData,
 } from '../utils/csgoAPI';
-import { CS2Inspect, SteamClientConfig } from 'cs2-inspect-lib';
+import type { SteamClientConfig } from 'cs2-inspect-lib';
+import { CS2Inspect } from 'cs2-inspect-lib';
 
 let cs2InspectInstance: CS2Inspect | null = null;
 

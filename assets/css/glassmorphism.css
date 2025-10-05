@@ -134,6 +134,11 @@
   border-radius: 200px !important;
 }
 
+.n-base-icon {
+  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.35));
+}
+
+
 /* Buttons within glassmorphism modals - preserve original colors with glass effect */
 .n-modal .n-button {
   backdrop-filter: var(--glass-blur-light) !important;
@@ -147,7 +152,7 @@
 /* Secondary buttons - enhance with glassmorphism but keep original styling */
 .n-modal .n-button:not(.n-button--primary) {
   /* Don't override background - let Naive UI handle the colors */
-  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border: none !important;
 }
 
 .n-modal .n-button:not(.n-button--primary):hover {
@@ -317,3 +322,510 @@
     background: rgba(36, 36, 36, 0.85) !important;
   }
 }
+
+
+/* --- Global Buttons (outside modals) - Glassmorphism Enhancements --- */
+.n-button {
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  border: 1px solid rgba(255, 255, 255, 0.10) !important;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.n-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+.n-button--primary {
+  border: 1px solid rgba(250, 204, 21, 0.35) !important;
+  box-shadow:
+    0 4px 10px rgba(250, 204, 21, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25) !important;
+}
+
+.n-button--primary:hover {
+  box-shadow:
+    0 8px 16px rgba(250, 204, 21, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.30) !important;
+}
+
+/* --- Select Input (trigger) - Glassmorphism --- */
+.n-select .n-base-selection,
+.n-base-selection {
+  background: rgba(18, 18, 18, 0.70) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 200px !important;
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.n-select .n-base-selection:hover,
+.n-base-selection:hover,
+.n-base-selection--active,
+.n-base-selection:focus-within {
+  border-color: var(--primary-color) !important;
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+/* --- Select Menu (dropdown) - Glassmorphism --- */
+.n-base-select-menu {
+  background: var(--glass-bg-secondary) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  border-radius: 16px !important;
+}
+
+.n-base-select-option {
+  background: transparent !important;
+  border-radius: 12px !important;
+  transition: background 0.2s ease, transform 0.1s ease !important;
+}
+
+.n-base-select-option:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  transform: translateX(2px) !important;
+}
+
+.n-base-select-option--selected {
+  background: rgba(250, 204, 21, 0.12) !important;
+  border: 1px solid rgba(250, 204, 21, 0.25) !important;
+}
+
+
+/* --- Modal-specific refinements for consistency (inputs, selects, buttons) --- */
+/* Inputs (NInput + NInputNumber) */
+.n-modal .n-input .n-input-wrapper,
+.n-modal .n-input-number .n-input-wrapper {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 200px !important;
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.n-modal .n-input:focus-within .n-input-wrapper,
+.n-modal .n-input-number:focus-within .n-input-wrapper {
+  background: rgba(255, 255, 255, 0.07) !important;
+  border: 1px solid rgba(250, 204, 21, 0.25) !important;
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.10),
+    0 6px 12px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Placeholder subtleness */
+.n-modal .n-input .n-input__input-el::placeholder,
+.n-modal .n-input-number .n-input__input-el::placeholder {
+  color: rgba(255, 255, 255, 0.45) !important;
+}
+
+/* Select trigger inside modal - softer than global */
+.n-modal .n-select .n-base-selection {
+  background: rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 200px !important;
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
+.n-modal .n-select .n-base-selection:hover {
+  border-color: rgba(255, 255, 255, 0.14) !important;
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+.n-modal .n-select .n-base-selection--active,
+.n-modal .n-select .n-base-selection:focus-within {
+  border-color: rgba(250, 204, 21, 0.25) !important;
+  box-shadow:
+    0 0 0 2px rgba(250, 204, 21, 0.10),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Select menu inside modal */
+.n-modal .n-base-select-menu {
+  background: var(--glass-bg-secondary) !important;
+  border: 1px solid var(--glass-border) !important;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) !important;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+  border-radius: 16px !important;
+}
+
+.n-modal .n-base-select-option {
+  background: transparent !important;
+  border-radius: 12px !important;
+}
+
+.n-modal .n-base-select-option:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+}
+
+.n-modal .n-base-select-option--selected {
+  background: rgba(250, 204, 21, 0.10) !important;
+  border: 1px solid rgba(250, 204, 21, 0.22) !important;
+}
+
+/* Buttons in modal - unify elevation and pressed state */
+.n-modal .n-button {
+  backdrop-filter: var(--glass-blur-light) !important;
+  -webkit-backdrop-filter: var(--glass-blur-light) !important;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+.n-modal .n-button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow:
+    0 6px 12px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+
+.n-modal .n-button:active {
+  transform: translateY(0) scale(0.99) !important;
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+.n-modal .n-button--primary {
+  border: 1px solid rgba(250, 204, 21, 0.28) !important;
+  box-shadow:
+    0 4px 10px rgba(250, 204, 21, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
+.n-modal .n-button--primary:hover {
+  box-shadow:
+    0 8px 16px rgba(250, 204, 21, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
+}
+
+
+/* --- Modern Glass Buttons v2: sleeker visuals + hover sheen animation --- */
+/* Apply both globally and inside modals to keep consistency */
+.n-button,
+.n-modal .n-button {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: blur(10px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(10px) saturate(160%) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)),
+    rgba(16, 16, 16, 0.55) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+  transition:
+    transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    border-color 0.25s cubic-bezier(0.2, 0.8, 0.2, 1),
+    background 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+
+/* Sheen highlight */
+.n-button::before,
+.n-modal .n-button::before {
+  content: "";
+  position: absolute;
+  top: -60%;
+  left: -150%;
+  width: 50%;
+  height: 220%;
+  background: linear-gradient(
+    60deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.18) 40%,
+    rgba(255, 255, 255, 0.28) 50%,
+    rgba(255, 255, 255, 0.18) 60%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(20deg) translateX(0);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.3s ease;
+}
+
+.n-button:hover::before,
+.n-modal .n-button:hover::before {
+  transform: rotate(20deg) translateX(420%);
+  opacity: 0.85;
+}
+
+/* Hover and active motion */
+.n-button:hover,
+.n-modal .n-button:hover {
+  transform: translateY(-2px) scale(1.01) !important;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.40),
+    0 0 0 2px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16) !important;
+}
+
+.n-button:active,
+.n-modal .n-button:active {
+  transform: translateY(0) scale(0.995) !important;
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Primary variant with subtle color tint and glow */
+.n-button--primary,
+.n-modal .n-button--primary {
+  border: 1px solid rgba(250, 204, 21, 0.35) !important;
+  background:
+    linear-gradient(180deg, rgba(250, 204, 21, 0.18), rgba(250, 204, 21, 0.06)),
+    rgba(16, 16, 16, 0.55) !important;
+  box-shadow:
+    0 10px 24px rgba(250, 204, 21, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.20) !important;
+}
+
+.n-button--primary:hover,
+.n-modal .n-button--primary:hover {
+  box-shadow:
+    0 14px 32px rgba(250, 204, 21, 0.30),
+    0 0 0 4px rgba(250, 204, 21, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.26) !important;
+}
+
+/* Disabled state polish */
+.n-button.n-button--disabled,
+.n-modal .n-button.n-button--disabled,
+.n-button[disabled],
+.n-modal .n-button[disabled] {
+  opacity: 0.65 !important;
+  transform: none !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+
+
+/* --- Modern Glass Buttons v3: color-preserving, clean borders, simple motion --- */
+/* Goal: keep Naive UI button colors (primary/success/info/warning/error), remove sheen, refine motion */
+.n-button,
+.n-modal .n-button {
+  /* Preserve original button color from Naive UI */
+  background: var(--n-color) !important;
+  /* Remove heavy borders from v2 */
+  border: none !important;
+  /* Subtle inner highlight for glass feel without changing hue */
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+  transition:
+    transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1) !important;
+}
+
+/* Remove sheen animation */
+.n-button::before,
+.n-modal .n-button::before {
+  content: none !important;
+}
+
+/* Keep type colors intact explicitly for safety */
+.n-button--primary,
+.n-button--success,
+.n-button--info,
+.n-button--warning,
+.n-button--error,
+.n-modal .n-button--primary,
+.n-modal .n-button--success,
+.n-modal .n-button--info,
+.n-modal .n-button--warning,
+.n-modal .n-button--error {
+  background: var(--n-color) !important;
+}
+
+/* Hover/active motion only (no color overrides) */
+.n-button:hover,
+.n-modal .n-button:hover {
+  transform: translateY(-1px) scale(1.01) !important;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+.n-button:active,
+.n-modal .n-button:active {
+  transform: translateY(0) scale(0.995) !important;
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.30),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Focus-visible ring, neutral to avoid color corruption */
+.n-button:focus-visible,
+.n-modal .n-button:focus-visible {
+  outline: none !important;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.1),
+    0 8px 20px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .n-button,
+  .n-modal .n-button {
+    transition: none !important;
+  }
+  .n-button:hover,
+  .n-modal .n-button:hover {
+    transform: none !important;
+  }
+}
+
+/* --- Glassy Pop-ups (Messages, Notifications, Dialogs) --- */
+/* Messages (NMessageProvider) */
+.n-message {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) !important;
+  background: var(--glass-bg-secondary) !important; /* glassier base */
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    0 10px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+  color: var(--n-text-color) !important;
+}
+
+/* Type tint overlay using element opacity to avoid color corruption */
+.n-message::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--n-color), transparent);
+  opacity: 0.12;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.n-message .n-message__content { color: inherit !important; }
+.n-message .n-base-icon { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.35)); }
+
+/* Optional: slight hover polish on interactive messages */
+.n-message:hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow:
+    0 12px 26px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Notifications (if used) */
+.n-notification {
+  position: relative;
+  overflow: hidden;
+  backdrop-filter: var(--glass-blur-medium) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) !important;
+  background: var(--glass-bg-secondary) !important; /* glassier base */
+  border: 1px solid rgba(255, 255, 255, 0.16) !important;
+  border-radius: 16px !important;
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10) !important;
+  color: var(--n-text-color) !important;
+}
+
+.n-notification::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--n-color), transparent);
+  opacity: 0.10;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+/* --- Skin Grid Cards: smoother hover animation inside modals --- */
+.n-modal .grid.grid-cols-5 .n-card {
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  will-change: transform, box-shadow, filter;
+  transition:
+    transform 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    box-shadow 240ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    filter 240ms ease;
+}
+
+.n-modal .grid.grid-cols-5 .n-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(120% 60% at 50% 0%, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0) 60%);
+  opacity: 0;
+  transition: opacity 240ms ease;
+  pointer-events: none;
+}
+
+.n-modal .grid.grid-cols-5 .n-card:hover {
+  transform: translateY(-2px) scale(1.012);
+  box-shadow:
+    0 12px 28px rgba(0, 0, 0, 0.38),
+    inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+
+.n-modal .grid.grid-cols-5 .n-card:hover::after { opacity: 1; }
+
+.n-modal .grid.grid-cols-5 .n-card:active { transform: translateY(0) scale(0.998); }
+
+/* Image micro-zoom */
+.n-modal .grid.grid-cols-5 .n-card img {
+  transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 320ms ease;
+}
+.n-modal .grid.grid-cols-5 .n-card:hover img {
+  transform: scale(1.045) translateY(-2px);
+  filter: saturate(110%);
+}
+
+/* Keyboard focus */
+.n-modal .grid.grid-cols-5 .n-card:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.14),
+    0 12px 24px rgba(0, 0, 0, 0.34);
+}
+
+/* Dialogs (NDialogProvider) */
+.n-dialog {
+  backdrop-filter: var(--glass-blur-medium) !important;
+  -webkit-backdrop-filter: var(--glass-blur-medium) !important;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+    var(--glass-bg-secondary) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    0 24px 48px rgba(0, 0, 0, 0.50),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
+}
+
