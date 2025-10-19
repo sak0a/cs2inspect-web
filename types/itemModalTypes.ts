@@ -19,18 +19,15 @@
 // New type system imports
 import type {
   ItemType as NewItemType,
-  ItemData,
   ItemConfiguration,
   WeaponConfiguration,
   KnifeConfiguration,
   GloveConfiguration,
-  APIWeaponSkin,
   UserProfile
 } from '~/types'
 
 // Legacy imports for backward compatibility
 import type {
-  APISkin,
   WeaponCustomization,
   KnifeCustomization,
   GloveCustomization,

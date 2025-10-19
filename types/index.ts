@@ -19,6 +19,28 @@
  * ```
  */
 
+// Import the types we need for legacy compatibility
+import type {
+  WeaponItemData,
+  KnifeItemData,
+  GloveItemData,
+  ItemData,
+  WeaponConfiguration,
+  KnifeConfiguration,
+  GloveConfiguration,
+  ItemConfiguration,
+  ItemConfigurationMap
+} from './business/items'
+
+import type { APIWeaponSkin } from './api/items'
+import type { DBWeapon, DBKnife, DBGlove } from './database/records'
+import type { UserProfile } from './core/common'
+import {
+  isWeaponConfiguration,
+  isKnifeConfiguration,
+  isGloveConfiguration
+} from './business/items'
+
 // ============================================================================
 // CORE TYPES
 // ============================================================================
@@ -269,27 +291,7 @@ export type {
 // LEGACY COMPATIBILITY
 // ============================================================================
 
-// Import the types we need for legacy compatibility
-import type {
-  WeaponItemData,
-  KnifeItemData,
-  GloveItemData,
-  ItemData,
-  WeaponConfiguration,
-  KnifeConfiguration,
-  GloveConfiguration,
-  ItemConfiguration,
-  ItemConfigurationMap
-} from './business/items'
 
-import type { APIWeaponSkin } from './api/items'
-import type { DBWeapon, DBKnife, DBGlove } from './database/records'
-import type { UserProfile } from './core/common'
-import {
-  isWeaponConfiguration,
-  isKnifeConfiguration,
-  isGloveConfiguration
-} from './business/items'
 
 /**
  * @deprecated Use WeaponItemData instead

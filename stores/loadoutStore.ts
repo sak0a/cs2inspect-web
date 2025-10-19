@@ -280,7 +280,7 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to update loadout; Authentication / Response failed');
                 }
                 const data = await response.json();
-                const index = this.loadouts.findIndex(l => l.id === id);
+                const index = this.loadouts.findIndex((l: DBLoadout) => l.id === id);
                 if (index !== -1) {
                     this.loadouts[index] = data.loadout
                 }
@@ -312,7 +312,7 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to delete loadout; Authentication / Response failed');
                 }
 
-                this.loadouts = this.loadouts.filter(l => l.id !== id);
+                this.loadouts = this.loadouts.filter((l: DBLoadout) => l.id !== id);
                 this.selectedLoadoutId = this.loadouts.length > 0 ? this.loadouts[0].id : '0';
             }).catch(error => {
                 console.error(error);

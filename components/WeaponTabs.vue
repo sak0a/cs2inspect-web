@@ -1,13 +1,8 @@
 <script setup lang="ts">
 // New type system imports
-import type {
-  WeaponItemData,
-  WeaponConfiguration,
-  UserProfile
-} from '~/types'
 
 // Modern type imports
-import type { DBWeapon } from "~/types"
+import type { DBWeapon, WeaponItemData } from "~/types"
 
 import { NTabs, NTabPane, NCard } from 'naive-ui'
 import { ref, onMounted, computed } from 'vue'

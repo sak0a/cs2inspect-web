@@ -5,7 +5,7 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import PinTabs from "~/components/PinTabs.vue";
-import { APICollectible } from "~/server/utils/interfaces";
+import type { APICollectible } from "~/server/utils/interfaces";
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)
