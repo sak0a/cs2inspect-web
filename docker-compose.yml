@@ -6,7 +6,7 @@ services:
     working_dir: /app
     volumes:
       - .:/app
-    command: sh -c "npm ci && npm run build && node .output/server/index.mjs"
+    command: sh -c "npm i && npm run build && node .output/server/index.mjs"
     container_name: cs2inspect-app
     ports:
       - "${PORT:-3000}:${PORT:-3000}"
