@@ -33,6 +33,25 @@ const state = ref({
   }
 })
 
+const digitOnlyInputProps = {
+  inputmode: 'numeric', pattern: '\\d*',
+  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
+  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
+}
+
+// External normalized offsets from VisualCustomizer (if present)
+const extNormX = computed(() => {
+  const val = (props.currentSticker as any)?.ext_norm_x
+  return typeof val === 'number' && !isNaN(val) ? val : null
+})
+const extNormY = computed(() => {
+  const val = (props.currentSticker as any)?.ext_norm_y
+  return typeof val === 'number' && !isNaN(val) ? val : null
+})
+const extNormXStr = computed(() => (extNormX.value !== null ? extNormX.value.toFixed(12) : ''))
+const extNormYStr = computed(() => (extNormY.value !== null ? extNormY.value.toFixed(12) : ''))
+
+
 const PAGE_SIZE = 10
 
 const filteredItems = computed(() => {
@@ -215,6 +234,7 @@ watch(() => props.visible, (newValue) => {
                     :max="100"
                     :step="0.01"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
               <div>
@@ -225,8 +245,14 @@ watch(() => props.visible, (newValue) => {
                     :max="100"
                     :step="0.01"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
+            </div>
+
+            <!-- External normalized offsets (read-only, if available) -->
+            <div v-if="currentSticker && (extNormX !== null || extNormY !== null)" class="text-xs text-gray-400 -mt-2 mb-2">
+              <div><span class="opacity-70">Ext normalized</span>: X {{ extNormXStr }} | Y {{ extNormYStr }}</div>
             </div>
 
             <!-- Scale and Rotation -->
@@ -239,6 +265,7 @@ watch(() => props.visible, (newValue) => {
                     :max="1"
                     :step="0.01"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
               <div>
@@ -249,6 +276,7 @@ watch(() => props.visible, (newValue) => {
                     :max="360"
                     :step="1"
                     class="w-full"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
             </div>
@@ -298,7 +326,7 @@ watch(() => props.visible, (newValue) => {
             :key="item.id"
             :class="[
             'cursor-pointer transition-all hover:shadow-lg',
-            state.selectedItem?.id === item.id ? 'ring-2 ring-[#80E6C4] !border-0 opacity-65' : ''
+            state.selectedItem?.id === item.id ? 'ring-2 ring-[var(--selection-ring)] !border-0 opacity-65' : ''
           ]"
             :style="{
             borderColor: item.rarity?.color || '#313030',

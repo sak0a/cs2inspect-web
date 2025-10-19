@@ -17,12 +17,6 @@ import type {
 } from '../core/common'
 
 import type { 
-  APIWeaponSkin, 
-  APISticker, 
-  APIKeychain 
-} from '../api/items'
-
-import type { 
   DBWeapon, 
   DBKnife, 
   DBGlove 

@@ -27,10 +27,10 @@ export class SteamAuthService {
 
     constructor() {
         this.apiKey = process.env.STEAM_API_KEY || 'defaultKey=323'
-        this.returnUrl = `${process.client ? window.location.origin : ''}/auth/callback`
+        this.returnUrl = `${import.meta.client ? window.location.origin : ''}/auth/callback`
         this.apiBase = 'https://api.steampowered.com'
 
-        if (process.client) {
+        if (import.meta.client) {
             this.setupAxiosInterceptors()
         }
     }
@@ -58,7 +58,7 @@ export class SteamAuthService {
     }
 
     async login(): Promise<void> {
-        if (!process.client) return
+        if (!import.meta.client) return
 
         const openIdParams = new URLSearchParams({
             'openid.ns': 'http://specs.openid.net/auth/2.0',
@@ -109,7 +109,7 @@ export class SteamAuthService {
     }
 
     logout(): void {
-        if (process.client) {
+        if (import.meta.client) {
             localStorage.removeItem('steamUser')
             // Send logout request to clear the auth cookie
             axios.post('/api/auth/logout')
@@ -118,13 +118,13 @@ export class SteamAuthService {
     }
 
     getSavedUser(): SteamUser | null {
-        if (!process.client) return null
+        if (!import.meta.client) return null
         const savedUser = localStorage.getItem('steamUser')
         return savedUser ? JSON.parse(savedUser) : null
     }
 
     saveUser(user: SteamUser): void {
-        if (process.client) {
+        if (import.meta.client) {
             localStorage.setItem('steamUser', JSON.stringify(user))
         }
     }

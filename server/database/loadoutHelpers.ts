@@ -1,4 +1,4 @@
-import { DBLoadout } from '~/server/utils/interfaces'
+import type { DBLoadout } from '~/server/utils/interfaces'
 import { executeQuery } from './database'
 
 export const getLoadoutsBySteamId = async (steamId: string): Promise<DBLoadout[]> =>

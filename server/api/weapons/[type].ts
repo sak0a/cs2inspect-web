@@ -1,16 +1,17 @@
 import { DEFAULT_WEAPONS } from "~/server/utils/constants"
-import {
+import type {
     DBWeapon,
     APISkin,
     IDefaultItem,
-    APISticker,
-    EnhancedWeaponSticker,
-    EnhancedWeaponKeychain, IMappedDBWeapon, IEnhancedWeapon
+    APISticker, IMappedDBWeapon, IEnhancedWeapon
 } from "~/server/utils/interfaces";
-import { getSkinsData, getStickerData } from '~/server/utils/csgoAPI';
+import { EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/types/classes';
+import { getSkinsData, getStickerData, getKeychainData } from '~/server/utils/csgoAPI';
+import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils';
+import { validateWeaponDatabaseTable, validateRequiredRequestData } from '~/server/utils/helpers';
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { executeQuery } from "~/server/database/database";
-import { defineEventHandler } from "h3";
+import { defineEventHandler, createError, getQuery } from "h3";
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -100,7 +101,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 return createDefaultItem<IEnhancedWeapon>(baseWeapon);
             }
 
-            let data: IEnhancedWeapon[] = [];
+            const data: IEnhancedWeapon[] = [];
             /**
              * Iterate through all matching database results for this weapon_defindex
              */
@@ -112,6 +113,47 @@ export default defineEventHandler(withErrorHandling(async (event) => {
 
                 databaseResult.active = !!databaseResult.active;
                 databaseResult.stattrak_enabled = !!databaseResult.stattrak_enabled;
+
+                // Check if we have a custom paint index but no matching skin (invalid paint index for this weapon)
+                const hasCustomPaintIndex = databaseResult.paintindex && databaseResult.paintindex > 0;
+                const isInvalidPaintIndex = hasCustomPaintIndex && !skinInfo;
+
+                let displayName: string;
+                let displayImage: string;
+                let paintIndexToUse: string | number;
+                let rarityToUse: any;
+
+                if (isInvalidPaintIndex) {
+                    // Invalid paint index: show default weapon image but custom name
+                    displayImage = baseWeapon.defaultImage;
+                    paintIndexToUse = databaseResult.paintindex;
+
+                    // Try to find the skin name by paint index from any weapon
+                    const paintIndexSkin = findSkinByPaintIndex(databaseResult.paintindex, skinData);
+                    if (paintIndexSkin) {
+                        // Format: "Weapon Name | Skin Name" (e.g., "AK-47 | Dragon Lore")
+                        displayName = `${baseWeapon.defaultName} | ${paintIndexSkin.name.replace(/^.*?\|\s*/, '')}`;
+                        // Use the rarity from the original weapon that has this paint index
+                        rarityToUse = paintIndexSkin.rarity;
+                    } else {
+                        // Fallback if we can't find the skin name
+                        displayName = `${baseWeapon.defaultName} | Unknown Skin (${databaseResult.paintindex})`;
+                        rarityToUse = undefined;
+                    }
+                } else if (skinInfo) {
+                    // Valid skin found
+                    displayImage = skinInfo.image;
+                    displayName = skinInfo.name;
+                    paintIndexToUse = skinInfo.paint_index;
+                    rarityToUse = skinInfo.rarity;
+                } else {
+                    // Default weapon (paint index 0 or no custom skin)
+                    displayImage = baseWeapon.defaultImage;
+                    displayName = baseWeapon.defaultName;
+                    paintIndexToUse = 0;
+                    rarityToUse = undefined;
+                }
+
                 /**
                  * Push the enhanced weapon to the returned data array
                  */
@@ -122,12 +164,12 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                     defaultImage: baseWeapon.defaultImage,
                     category: baseWeapon.category,
 
-                    image: skinInfo?.image || undefined,
-                    name: skinInfo?.name || undefined,
+                    image: displayImage,
+                    name: displayName,
                     minFloat: skinInfo?.min_float || 0.0,
                     maxFloat: skinInfo?.max_float || 1.0,
-                    paintIndex: skinInfo?.paint_index || 0,
-                    rarity: skinInfo?.rarity,
+                    paintIndex: paintIndexToUse,
+                    rarity: rarityToUse,
                     availableTeams: baseWeapon.availableTeams,
                     team: databaseResult.team,
 

@@ -68,6 +68,12 @@ const state = ref<KnifeModalState>({
   // Note: KnifeModalState doesn't have additional weapon-specific state like WeaponModalState
 })
 
+const digitOnlyInputProps = {
+  inputmode: 'numeric', pattern: '\\d*',
+  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
+  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
+}
+
 /**
  * Additional state for API data (not part of the modal state interface)
  */
@@ -596,11 +602,10 @@ watch(() => props.weapon, () => {
                 <NSwitch v-model:value="customization.statTrak" />
                 <span>{{ t('modals.knifeSkin.labels.stattrak') }}</span>
                 <NInputNumber
-                    :disabled="!customization.statTrak"
-                    v-model:value="customization.statTrakCount"
-                    :min="0"
-                    :max="99999"
-                    class="w-28"
+                  :disabled="!customization.statTrak"
+                  v-model:value="customization.statTrakCount"
+                  :min="0" :max="999999" :precision="0" :show-button="false" class="w-28"
+                  :input-props="digitOnlyInputProps"
                 />
               </div>
               <NInput
@@ -625,6 +630,7 @@ watch(() => props.weapon, () => {
                     :min="0"
                     :max="9999"
                     :disabled="!customization.paintIndexOverride"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
 
@@ -634,6 +640,7 @@ watch(() => props.weapon, () => {
                     v-model:value="customization.pattern"
                     :min="0"
                     :max="1000"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
             </div>
@@ -698,7 +705,7 @@ watch(() => props.weapon, () => {
           }"
             :class="[
             'hover:shadow-lg cursor-pointer transition-all rounded-xl',
-            selectedSkin?.name === skin.name ? 'ring-2 ring-[#80E6C4] !border-0 opacity-85' : ''
+            selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] !border-0 opacity-85' : ''
           ]"
             @click="handleSkinSelect(skin)"
         >

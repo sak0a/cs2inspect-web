@@ -1,4 +1,4 @@
-import { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible } from "~/server/utils/interfaces";
+import type { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible } from "~/server/utils/interfaces";
 import { EXTERNAL_API_URLS, CACHE_PERIODS, DATA_STALENESS_THRESHOLD } from './constants';
 import { processSkinData } from './skinUtils';
 import fs from 'fs';

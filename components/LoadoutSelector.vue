@@ -4,6 +4,8 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import { NButton, useMessage} from 'naive-ui'
 import { steamAuth } from '~/services/steamAuth'
 import { Trash as DeleteIcon, Edit as RenameIcon, Plus as NewIcon } from '@vicons/tabler'
+import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
+
 
 const loadoutStore = useLoadoutStore()
 const { t } = useI18n()
@@ -107,6 +109,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
       :bordered="false"
       style="width: 500px"
       :title="t('modals.loadout.create.title') as string"
+      :theme-overrides="skinModalThemeOverrides"
       @afterLeave="formInputs.newName = ''"
   >
     <NInput
@@ -133,6 +136,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
       preset="card"
       style="width: 500px"
       :title="t('modals.loadout.rename.title') as string"
+      :theme-overrides="skinModalThemeOverrides"
       @afterLeave = "formInputs.renameName = ''"
   >
     <NInput
@@ -159,6 +163,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
       :bordered="false"
       style="width: 500px"
       :title="t('modals.loadout.delete.title') as string"
+      :theme-overrides="skinModalThemeOverrides"
       @afterLeave="formInputs.deleteConfirm = ''"
   >
     <p>{{ t('modals.loadout.delete.question') }}</p>

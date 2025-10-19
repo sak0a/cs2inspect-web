@@ -5,7 +5,7 @@ import { steamAuth, type SteamUser } from '@/services/steamAuth'
 import { homeMenuOptions, weaponMenuOptions, equipmentMenuOptions, extrasMenuOptions } from '@/utils/menuConfig'
 import LoadoutSelector from "~/components/LoadoutSelector.vue";
 import LanguageSwitcher from "~/components/LanguageSwitcher.vue";
-import {layoutThemeOverrides} from "~/server/utils/themeCustomization";
+import { layoutThemeOverrides, skinModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
@@ -153,8 +153,8 @@ onMounted(async () => {
                   :indent="28"
                   :options="translatedHomeMenuOptions"
                   :value="selectedKey"
-                  @update:value="handleSelect"
                   class="text-[15px]"
+                  @update:value="handleSelect"
               />
             </div>
 
@@ -168,8 +168,8 @@ onMounted(async () => {
                   :indent="24"
                   :options="translatedWeaponMenuOptions"
                   :value="selectedKey"
+                   class="text-[15px]"
                   @update:value="handleSelect"
-                  class="text-[15px]"
               />
             </div>
 
@@ -183,8 +183,9 @@ onMounted(async () => {
                   :indent="24"
                   :options="translatedEquipmentMenuOptions"
                   :value="selectedKey"
-                  @update:value="handleSelect"
                   class="text-[15px]"
+                  @update:value="handleSelect"
+                
               />
             </div>
 
@@ -198,8 +199,8 @@ onMounted(async () => {
                   :indent="24"
                   :options="translatedExtrasMenuOptions"
                   :value="selectedKey"
-                  @update:value="handleSelect"
                   class="text-[15px]"
+                  @update:value="handleSelect"
               />
             </div>
           </div>
@@ -221,28 +222,29 @@ onMounted(async () => {
                 </template>
                 {{ t('auth.logoutButton') }}
               </NButton>
-              <NModal :show="showLogoutModal">
-                <NCard
-                    :title="t('modals.logout.title') as string"
-                    :bordered="false"
-                    size="small"
-                    aria-modal="true"
-                    :closable="false"
-                    :mask-closable="false"
-                    style="width: 400px"
-                >
-                  <div class="mb-3">
-                    <p>{{ t('modals.logout.question') }}</p>
-                  </div>
+              <NModal
+                :show="showLogoutModal"
+                preset="card"
+                :bordered="false"
+                :closable="false"
+                :mask-closable="false"
+                :theme-overrides="skinModalThemeOverrides"
+                style="width: 400px"
+                :title="t('modals.logout.title') as string"
+              >
+                <div class="mb-3">
+                  <p>{{ t('modals.logout.question') }}</p>
+                </div>
+                <template #footer>
                   <div class="flex justify-end gap-2">
-                    <NButton @click="showLogoutModal = false" secondary type="default">
+                    <NButton secondary type="default" @click="showLogoutModal = false">
                       {{ t('modals.logout.cancel') }}
                     </NButton>
-                    <NButton type="error" @click="handleLogout" secondary>
+                    <NButton secondary type="error" @click="handleLogout" >
                       {{ t('modals.logout.confirm') }}
                     </NButton>
                   </div>
-                </NCard>
+                </template>
               </NModal>
             </div>
           </div>
@@ -257,7 +259,7 @@ onMounted(async () => {
           </div>
 
           {{ t('auth.loginRequired') }}
-          <NButton size="large" @click="handleLogin" class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md">
+          <NButton size="large" class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md" @click="handleLogin">
             <template #icon >
               <SteamLogoIcon/>
             </template>
@@ -279,7 +281,7 @@ onMounted(async () => {
                   <LanguageSwitcher />
                   <span class="menu-label">{{ t('navigation.language') }}</span>
                 </div>
-                <div class="menu-item group" v-if="user">
+                <div v-if="user" class="menu-item group" >
                   <LoadoutSelector />
                   <span class="menu-label">{{ t('navigation.loadout') }}</span>
                 </div>

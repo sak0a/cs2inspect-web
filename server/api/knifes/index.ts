@@ -1,6 +1,8 @@
-import { defineEventHandler, createError } from 'h3'
+import { defineEventHandler, createError, getQuery } from 'h3'
 import {DBKnife, IEnhancedItem, APISkin, IDefaultItem, IEnhancedKnife} from "~/server/utils/interfaces"
 import { getSkinsData } from '~/server/utils/csgoAPI'
+import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { executeQuery } from '~/server/database/database'
 import { DEFAULT_KNIFES } from '~/server/utils/constants'
 import {
@@ -76,60 +78,60 @@ export default defineEventHandler(withErrorHandling(async (event) => {
             const skinInfo = findMatchingSkin(baseKnife, databaseResult, knifeSkins);
             databaseResult.active = !!databaseResult.active
             databaseResult.stattrak_enabled = !!databaseResult.stattrak_enabled
-                //LOG: Logger.info(`Found Skin info for DBResult ${databaseResult.defindex} (${baseKnife.weapon_name}): ${skinInfo?.name}`)
-                //LOG: Logger.info(`Team: ${databaseResult.team === 1 ? 'T' : 'CT'}`)
-                /**
-                 * Example of a database result:
-                 * {
-                 *      weapon_defindex: 523,
-                 *      weapon_name: 'weapon_knife_widowmaker',
-                 *      name: '★ Talon Knife | Doppler (Sapphire)',
-                 *      defaultName: 'Talon Knife',
-                 *      image:
-                 *              'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/default_generated/weapon_knife_widowmaker_am_sapphire_marbleized_light_png.png',
-                 *      defaultImage:
-                 *              'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_widowmaker_png.png',
-                 *      category: 'knife',
-                 *      minFloat: 0,
-                 *      maxFloat: 0.08,
-                 *      paintIndex: '416',
-                 *      rarity: {
-                 *          id: 'rarity_ancient_weapon',
-                 *          name: 'Covert',
-                 *          color: '#eb4b4b'
-             *          },
-                 *      availableTeams: 'both',
-                 *      databaseInfo: {
-                 *          id: 7,
-                 *          steamid: '76561198117084164',
-                 *          loadoutid: 1,
-                 *          active: 1,
-                 *          team: 2,
-                 *          defindex: 523,
-                 *          paintindex: 416,
-                 *          paintseed: 0,
-                 *          paintwear: 0,
-                 *          stattrak_enabled: 0,
-                 *          stattrak_count: 0,
-                 *          nametag: '',
-                 *          created_at: 2025-02-24T23:52:37.000Z,
-                 *          updated_at: 2025-02-24T23:52:37.000Z
-                 *       }
-                 *  }
-                 *
-                 */
+
+            // Check if we have a custom paint index but no matching skin (invalid paint index for this knife)
+            const hasCustomPaintIndex = databaseResult.paintindex && databaseResult.paintindex > 0;
+            const isInvalidPaintIndex = hasCustomPaintIndex && !skinInfo;
+
+            let displayName: string;
+            let displayImage: string;
+            let paintIndexToUse: string | number;
+            let rarityToUse: any;
+
+            if (isInvalidPaintIndex) {
+                // Invalid paint index: show default knife image but custom name
+                displayImage = baseKnife.defaultImage;
+                paintIndexToUse = databaseResult.paintindex;
+
+                // Try to find the skin name by paint index from any weapon/knife (search all skins, not just knives)
+                const paintIndexSkin = findSkinByPaintIndex(databaseResult.paintindex, skinData);
+                if (paintIndexSkin) {
+                    // Format: "Knife Name | Skin Name" (e.g., "★ Karambit | Dragon Lore")
+                    const skinNameOnly = paintIndexSkin.name.replace(/^★?\s*.*?\|\s*/, '');
+                    displayName = `★ ${baseKnife.defaultName} | ${skinNameOnly}`;
+                    // Use the rarity from the original weapon/knife that has this paint index
+                    rarityToUse = paintIndexSkin.rarity;
+                } else {
+                    // Fallback if we can't find the skin name
+                    displayName = `★ ${baseKnife.defaultName} | Unknown Skin (${databaseResult.paintindex})`;
+                    rarityToUse = undefined;
+                }
+            } else if (skinInfo) {
+                // Valid skin found
+                displayImage = skinInfo.image;
+                displayName = skinInfo.name;
+                paintIndexToUse = skinInfo.paint_index;
+                rarityToUse = skinInfo.rarity;
+            } else {
+                // Default knife (paint index 0 or no custom skin)
+                displayImage = baseKnife.defaultImage;
+                displayName = baseKnife.defaultName;
+                paintIndexToUse = baseKnife.paintIndex;
+                rarityToUse = undefined;
+            }
+
             data.push({
                 weapon_defindex: baseKnife.weapon_defindex,
                 weapon_name: baseKnife.weapon_name,
-                name: skinInfo?.name || baseKnife.defaultName,
+                name: displayName,
                 defaultName: baseKnife.defaultName,
-                image: skinInfo?.image || baseKnife.defaultImage,
+                image: displayImage,
                 defaultImage: baseKnife.defaultImage,
                 category: 'knife',
                 minFloat: skinInfo?.min_float || 0,
                 maxFloat: skinInfo?.max_float || 1,
-                paintIndex: skinInfo?.paint_index || baseKnife.paintIndex,
-                rarity: skinInfo?.rarity,
+                paintIndex: paintIndexToUse,
+                rarity: rarityToUse,
                 availableTeams: 'both',
                 databaseInfo: databaseResult
             } as IEnhancedKnife);

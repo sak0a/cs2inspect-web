@@ -42,10 +42,25 @@
   --border-light: #444444;
 
   /* UI element colors */
-  --tab-indicator: #80E6C4;
-  --selection-ring: #80E6C4;
+  --tab-indicator: #FACC15;
+  --selection-ring: #FACC15;
   --hover-overlay: rgba(255, 255, 255, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.5);
+
+  /* Primary colors */
+  --primary-color: #FACC15;
+  --primary-color-hover: #F59E0B;
+  --primary-color-pressed: #CA8A04;
+
+  /* Glassmorphism variables */
+  --glass-bg-primary: rgba(16, 16, 16, 0.85);
+  --glass-bg-secondary: rgba(36, 36, 36, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-border-light: rgba(255, 255, 255, 0.08);
+  --glass-blur-strong: blur(20px);
+  --glass-blur-medium: blur(16px);
+  --glass-blur-light: blur(8px);
+  --glass-saturation: saturate(180%);
 
   /* Skin card backgrounds */
   --skin-card-bg: #242424;
@@ -79,10 +94,25 @@
   --border-light: #e5e5e5;
 
   /* UI element colors */
-  --tab-indicator: #80E6C4;
-  --selection-ring: #80E6C4;
+  --tab-indicator: #FACC15;
+  --selection-ring: #FACC15;
   --hover-overlay: rgba(0, 0, 0, 0.05);
   --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Primary colors */
+  --primary-color: #FACC15;
+  --primary-color-hover: #F59E0B;
+  --primary-color-pressed: #CA8A04;
+
+  /* Glassmorphism variables for light theme */
+  --glass-bg-primary: rgba(255, 255, 255, 0.85);
+  --glass-bg-secondary: rgba(240, 240, 240, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-border-light: rgba(0, 0, 0, 0.08);
+  --glass-blur-strong: blur(20px);
+  --glass-blur-medium: blur(16px);
+  --glass-blur-light: blur(8px);
+  --glass-saturation: saturate(180%);
 
   /* Skin card backgrounds */
   --skin-card-bg: #ffffff;

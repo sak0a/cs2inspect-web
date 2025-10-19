@@ -9,7 +9,7 @@
  * @since 2.0.0
  */
 
-import type { EntityId, ItemRarity, TeamAvailability } from '../core/common'
+import type { EntityId, ItemRarity } from '../core/common'
 
 // ============================================================================
 // BASE ITEM INTERFACES

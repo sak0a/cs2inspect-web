@@ -1,0 +1,39 @@
+{
+  "inspectItem": {
+    "title": "CS2 Inspect Tool",
+    "description": "Erstelle, passe an und generiere Inspect-Links für CS2-Items, ohne sie in deinem Loadout zu speichern.",
+    "controlsSection": "Item-Steuerung",
+    "createNewItem": "Neues Item erstellen",
+    "createNewItemDesc": "Beginne mit einem Standard-Item und passe es nach deinen Wünschen an.",
+    "importSection": "Item importieren",
+    "importDesc": "Importiere ein bestehendes Item über einen CS2 Inspect-Link.",
+    "instructions": "So verwendest du dieses Tool:",
+    "instructionStep1": "Erstelle ein neues Item oder füge einen CS2 Inspect-Link ein, um eines zu importieren",
+    "instructionStep2": "Passe das Item mit den gleichen Tools wie in deinem Loadout an",
+    "instructionStep3": "Generiere einen neuen Inspect-Link, um dein angepasstes Item zu teilen",
+    "importButton": "Von Inspect-Link importieren",
+    "importSuccess": "Item erfolgreich importiert",
+    "importFailed": "Fehler beim Importieren des Items",
+    "itemCreated": "Item erfolgreich erstellt",
+    "createFailed": "Fehler beim Erstellen des Items",
+    "customizationSaved": "Item-Anpassung gespeichert",
+    "linkCopied": "Inspect-Link in die Zwischenablage kopiert",
+    "generateLinkFailed": "Fehler beim Generieren des Inspect-Links",
+    "noItemImported": "Noch kein Item erstellt oder importiert",
+    "useImportButton": "Verwende die Schaltflächen oben, um zu beginnen",
+    "noImageAvailable": "Kein Bild verfügbar"
+  },
+  "common": {
+    "weapon": "Waffe",
+    "knife": "Messer",
+    "glove": "Handschuhe",
+    "paintIndex": "Skin-Index",
+    "pattern": "Muster",
+    "wear": "Abnutzung",
+    "statTrak": "StatTrak",
+    "disabled": "Deaktiviert",
+    "customize": "Anpassen",
+    "generateLink": "Link generieren",
+    "clear": "Löschen"
+  }
+}

@@ -18,6 +18,7 @@ import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, 
 import { steamAuth } from "~/services/steamAuth"
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
 import ResetModal from "~/components/ResetModal.vue"
+import VisualCustomizerModal from "~/components/VisualCustomizerModal.vue"
 import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
 
 /**
@@ -67,6 +68,7 @@ const state = ref<WeaponModalState>({
   // Weapon-specific modal state
   showStickerModal: false,
   showKeychainModal: false,
+  showVisualCustomizer: false,
   currentStickerPosition: 0
 })
 
@@ -564,6 +566,37 @@ const handleKeychainSelect = (keychainData: any) => {
   customization.value.keychain = keychainData
 }
 
+const handleOpenVisualCustomizer = () => {
+  if (!selectedSkin.value) {
+    message.warning('Please select a weapon skin first')
+    return
+  }
+  state.value.showVisualCustomizer = true
+}
+
+const handleVisualCustomizerSave = (data: { stickers: (any | null)[], keychain: any | null, weaponWear?: number }) => {
+  customization.value.stickers = data.stickers
+  customization.value.keychain = data.keychain
+
+  // Update weapon wear if provided
+  if (typeof data.weaponWear === 'number') {
+    customization.value.wear = data.weaponWear
+  }
+
+  state.value.showVisualCustomizer = false
+  message.success('Visual customization applied successfully')
+}
+
+const handleVisualCustomizerWearUpdate = (wearValue: number) => {
+  customization.value.wear = wearValue
+}
+
+const digitOnlyInputProps = {
+  inputmode: 'numeric', pattern: '\\d*',
+  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
+  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
+}
+
 const handleSave = () => {
   if (!selectedSkin.value) return
   emit('select', selectedSkin.value, customization.value)
@@ -783,6 +816,7 @@ watch(() => props.weapon, () => {
                     :min="0"
                     :max="99999"
                     class="w-28"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
               <NInput
@@ -807,6 +841,7 @@ watch(() => props.weapon, () => {
                     :min="0"
                     :max="9999"
                     :disabled="!customization.paintIndexOverride"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
 
@@ -816,6 +851,7 @@ watch(() => props.weapon, () => {
                     v-model:value="customization.pattern"
                     :min="0"
                     :max="1000"
+                    :input-props="digitOnlyInputProps"
                 />
               </div>
             </div>
@@ -882,6 +918,25 @@ watch(() => props.weapon, () => {
             </div>-->
           </div>
         </div>
+        <!-- Visual Customizer Button -->
+        <div class="mt-4 mb-4">
+          <NButton
+            @click="handleOpenVisualCustomizer"
+            :disabled="!selectedSkin"
+            type="primary"
+            size="large"
+            class="w-full"
+            style="background: linear-gradient(135deg, var(--selection-ring), #F59E0B); border: none;"
+          >
+            <template #icon>
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+            </template>
+            {{ t('modals.weaponSkin.visualCustomizer.button') || 'Visual Customizer' }}
+          </NButton>
+        </div>
+
         <!-- Sticker and Keychain customization-->
         <div class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': state.showDetails }">
           <!-- Stickers -->
@@ -956,7 +1011,7 @@ watch(() => props.weapon, () => {
               ', ' + (hexToRgba(skin.rarity?.color, '0.15') || '#313030') + ')'}"
             :class="[
             'hover:shadow-lg cursor-pointer transition-all rounded-xl',
-            selectedSkin?.name === skin.name ? 'ring-2 ring-[#80E6C4] !border-0 opacity-85' : ''
+            selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] !border-0 opacity-85' : ''
           ]"
             @click="handleSkinSelect(skin)"
         >
@@ -1031,11 +1086,29 @@ watch(() => props.weapon, () => {
         :loading="state.isResetting"
         @confirm="handleReset"
     />
+
+    <!-- Visual Customizer Modal -->
+    <VisualCustomizerModal
+        :visible="state.showVisualCustomizer"
+        :weapon-skin="{
+          name: selectedSkin?.name || '',
+          image: selectedSkin?.image || '',
+          defindex: selectedSkin?.weapon_defindex || 0
+        }"
+        :stickers="customization.stickers"
+        :keychain="customization.keychain"
+        :weapon-wear="customization.wear"
+        :min-wear="selectedSkin?.minFloat || 0"
+        :max-wear="selectedSkin?.maxFloat || 1"
+        @update:visible="state.showVisualCustomizer = $event"
+        @save="handleVisualCustomizerSave"
+        @update-wear="handleVisualCustomizerWearUpdate"
+    />
   </NModal>
 </template>
 <style scoped lang="sass">
 .active-item
-  @apply border-2 border-solid border-[#80E6C4]
+  @apply border-2 border-solid border-[var(--selection-ring)]
 .inactive-item
   @apply border-2 border-dashed border-gray-600
 .sticker-slot

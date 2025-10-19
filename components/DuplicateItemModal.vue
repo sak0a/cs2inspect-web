@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { NModal, NCard, NButton } from 'naive-ui'
+import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 const props = defineProps<{
   visible: boolean
@@ -31,7 +32,8 @@ const handleConfirm = () => {
       :title="t('modals.duplicateItem.header', { itemType: itemType }) as string"
       :mask-closable="!loading"
       :closable="!loading"
-      preset="card">
+      preset="card"
+      :theme-overrides="skinModalThemeOverrides">
     <NSpace vertical>
       <div class="py-2">
         <p v-if="otherTeamHasSkin" class="text-warning mb-4">

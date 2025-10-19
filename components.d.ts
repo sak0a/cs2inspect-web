@@ -9,7 +9,6 @@ declare module 'vue' {
   export interface GlobalComponents {
     NAvatar: typeof import('naive-ui')['NAvatar']
     NButton: typeof import('naive-ui')['NButton']
-    NCard: typeof import('naive-ui')['NCard']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']
     NDivider: typeof import('naive-ui')['NDivider']
     NEmpty: typeof import('naive-ui')['NEmpty']

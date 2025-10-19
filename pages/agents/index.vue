@@ -71,8 +71,7 @@ const handleAgentTypeChange = async (team: 't' | 'ct', agentDefindex: number) =>
           defindex: agentDefindex === -1 ? null : agentDefindex
         })
       }
-  ).then(async (response) => {
-    const data = await response.json()
+  ).then(async () => {
     if (!loadoutStore.selectedLoadout) {
       return
     }

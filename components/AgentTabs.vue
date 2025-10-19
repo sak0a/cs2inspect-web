@@ -44,7 +44,7 @@ const teamLabel = computed(() => {
 
       :class="[
         'hover:shadow-lg transition-all cursor-pointer rounded-xl mt-2 mx-2 bg-[#242424] w-[300px] agent-card',
-        isSelected ? 'ring-2 ring-[#80E6C4] !border-0 visible' : ''
+        isSelected ? 'ring-2 ring-[var(--selection-ring)] !border-0 visible' : ''
       ]"
       @click="handleSelect"
   >

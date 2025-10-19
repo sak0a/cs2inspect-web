@@ -10,10 +10,7 @@
  */
 
 import type { 
-  EntityId, 
-  UserProfile, 
-  AsyncResult, 
-  LoadingState 
+  UserProfile
 } from '../core/common'
 
 import type { 

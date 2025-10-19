@@ -1,5 +1,5 @@
 import { getSkinsData, getDataFreshness } from '~/server/utils/csgoAPI';
-import { APISkin } from "~/server/utils/interfaces";
+import type { APISkin } from "~/server/utils/interfaces";
 import {
     createPaginatedResponse,
     createResponseMeta,
@@ -47,7 +47,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const { page, limit, offset } = calculatePagination(query, 50, 100);
 
     // Apply filters
-    let filteredSkins = skinData.filter((skin: APISkin) => {
+    const filteredSkins = skinData.filter((skin: APISkin) => {
         // Search term filter (checks name and description)
         if (filters.search &&
             !skin.name.toLowerCase().includes(filters.search) &&
