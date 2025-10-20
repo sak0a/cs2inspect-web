@@ -1,54 +1,42 @@
-version: '3.8'
+version: "3.9"
 
 services:
-  app:
-    image: node:18-alpine
-    working_dir: /app
-    volumes:
-      - .:/app
-    command: sh -c "npm i && npm run build && node .output/server/index.mjs"
-    container_name: cs2inspect-app
-    ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+  web:
+    container_name: cs2inspect-web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cs2inspect-web:latest
+    restart: unless-stopped
     environment:
+      # Core
       - NODE_ENV=production
       - PORT=${PORT:-3000}
-      - HOST=${HOST:-127.0.0.1}
+      - HOST=${HOST:-0.0.0.0}
+
+      # JWT / Auth
       - JWT_TOKEN=${JWT_TOKEN}
-      - JWT_EXPIRY=${JWT_EXPIRY:-7d}
-      - DATABASE_HOST=db
-      - DATABASE_PORT=3306
+      - JWT_EXPIRY=${JWT_EXPIRY}
+
+      # Database (handled separately; only passing through connection envs)
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_PORT=${DATABASE_PORT}
       - DATABASE_USER=${DATABASE_USER}
       - DATABASE_PASSWORD=${DATABASE_PASSWORD}
       - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_CONNECTION_LIMIT=${DATABASE_CONNECTION_LIMIT:-5}
+      - DATABASE_CONNECTION_LIMIT=${DATABASE_CONNECTION_LIMIT}
+
+      # Steam
       - STEAM_API_KEY=${STEAM_API_KEY}
       - STEAM_USERNAME=${STEAM_USERNAME}
       - STEAM_PASSWORD=${STEAM_PASSWORD}
-      - LOG_API_REQUESTS=${LOG_API_REQUESTS:-true}
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: unless-stopped
 
-  db:
-    image: mariadb:10.11
-    container_name: cs2inspect-db
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_PASSWORD}
-      - MYSQL_DATABASE=${DATABASE_NAME}
-      - MYSQL_USER=${DATABASE_USER}
-      - MYSQL_PASSWORD=${DATABASE_PASSWORD}
-    volumes:
-      - db_data:/var/lib/mysql
+      # Misc
+      - LOG_API_REQUESTS=${LOG_API_REQUESTS}
+
     ports:
-      - "3306:3306"
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    restart: unless-stopped
+      # Map host:container ports, defaulting to 3000 if not set in Coolify
+      - "${PORT:-3000}:${PORT:-3000}"
 
-volumes:
-  db_data:
+    # No database service here; Coolify manages DB separately
+
