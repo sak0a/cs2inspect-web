@@ -1,13 +1,11 @@
 <template>
-  <NCard :bordered="false" class="history-chart-card">
-    <template #header>
-      <div class="flex justify-between items-center gap-4 chart-header">
-        <h3 class="text-lg font-semibold capitalize flex-shrink-0">
-          {{ displayName }}
-        </h3>
-      </div>
-    </template>
-    
+  <div class="history-chart">
+    <div class="flex justify-between items-center gap-4 chart-header">
+      <h3 class="text-lg font-semibold capitalize flex-shrink-0">
+        {{ displayName }}
+      </h3>
+    </div>
+
     <!-- Full chart view (always visible, not collapsible) -->
     <div class="chart-container glass-container p-4 relative">
       <!-- Chart.js chart -->
@@ -23,12 +21,12 @@
         No data available for this period
       </div>
     </div>
-  </NCard>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { NCard } from 'naive-ui';
+// Removed NCard import since we're no longer wrapping with a card
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -208,16 +206,11 @@ const chartOptions = computed<ChartJSOptions<'line'>>(() => ({
 </script>
 
 <style scoped lang="sass">
-.history-chart-card
-  backdrop-filter: var(--glass-blur-medium) saturate(160%)
-  background: rgba(10, 10, 10, 0.7) !important
-  border: 1px solid var(--glass-border)
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-  border-radius: 16px !important
-
+// Removed .history-chart-card since we no longer use a card wrapper
 .chart-header
   padding: 0
   min-height: 32px
+  margin-bottom: 0.25rem
 
 .glass-container
   backdrop-filter: var(--glass-blur-light)

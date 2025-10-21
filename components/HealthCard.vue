@@ -24,6 +24,7 @@
         <NProgress 
           type="line"
           :percentage="envVarPercentage"
+          :show-indicator="false"
           :color="envVarColor"
           :rail-color="'rgba(255, 255, 255, 0.05)'"
           :height="8"
@@ -41,6 +42,7 @@
           type="line"
           :percentage="uptimePercentage"
           :color="uptimeColor"
+          :show-indicator="false"
           :rail-color="'rgba(255, 255, 255, 0.05)'"
           :height="8"
           :border-radius="4"
@@ -61,6 +63,7 @@
           type="line"
           :percentage="uptimePercentage"
           :color="uptimeColor"
+          :show-indicator="false"
           :rail-color="'rgba(255, 255, 255, 0.05)'"
           :height="8"
           :border-radius="4"
@@ -154,7 +157,7 @@ const uptimePercentage = computed(() => {
 const uptimeColor = computed(() => {
   const percentage = uptimePercentage.value;
   if (percentage >= 99) return '#10b981'; // green
-  if (percentage >= 95) return '#f59e0b'; // yellow
+  if (percentage >= 90) return '#f59e0b'; // yellow
   return '#ef4444'; // red
 });
 

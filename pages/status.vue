@@ -21,7 +21,7 @@
       </NSpace>
 
       <!-- Overall Status Banner -->
-      <NCard 
+      <!--<NCard
         :bordered="false"
         class="glass-card status-banner"
         :class="overallStatusClass"
@@ -46,7 +46,7 @@
             {{ loading ? t('refreshing') : t('refresh') }}
           </NButton>
         </div>
-      </NCard>
+      </NCard>-->
 
       <!-- Health Check Cards -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

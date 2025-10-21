@@ -13,8 +13,8 @@ async function calculateUptimePercentage(checkName: string, minutes: number = 60
         const { executeQuery } = await import('~/server/database/database');
         
         interface UptimeRow {
-            total_checks: number;
-            ok_checks: number;
+            total_checks: number | string | bigint;
+            ok_checks: number | string | bigint;
         }
         
         const rows = await executeQuery<UptimeRow[]>(
@@ -28,8 +28,20 @@ async function calculateUptimePercentage(checkName: string, minutes: number = 60
             'Failed to calculate uptime'
         );
 
-        if (rows.length > 0 && rows[0].total_checks > 0) {
-            return (rows[0].ok_checks / rows[0].total_checks) * 100;
+        if (rows.length > 0) {
+            const toNumber = (v: unknown): number => {
+                if (typeof v === 'number') return v;
+                if (typeof v === 'bigint') return Number(v);
+                if (typeof v === 'string') return Number(v);
+                return Number(v as any);
+            };
+
+            const total = toNumber(rows[0].total_checks);
+            const ok = toNumber(rows[0].ok_checks);
+
+            if (Number.isFinite(total) && total > 0) {
+                return (ok / total) * 100;
+            }
         }
         
         return 100; // Default to 100% if no historical data
