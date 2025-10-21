@@ -57,6 +57,95 @@ async function markMigrationExecuted(filename: string): Promise<void> {
 }
 
 /**
+ * Split SQL into statements, respecting string literals and comments
+ * This properly handles semicolons inside quoted strings like DEFAULT '0;0;0;0;0;0'
+ */
+function splitSQLStatements(sql: string): string[] {
+    const statements: string[] = [];
+    let currentStatement = '';
+    let inSingleQuote = false;
+    let inDoubleQuote = false;
+    let inLineComment = false;
+    let inBlockComment = false;
+    
+    for (let i = 0; i < sql.length; i++) {
+        const char = sql[i];
+        const nextChar = sql[i + 1];
+        const prevChar = i > 0 ? sql[i - 1] : '';
+        
+        // Handle line comments (-- comment)
+        if (!inSingleQuote && !inDoubleQuote && !inBlockComment && char === '-' && nextChar === '-') {
+            inLineComment = true;
+            currentStatement += char;
+            continue;
+        }
+        
+        // End line comment at newline
+        if (inLineComment && char === '\n') {
+            inLineComment = false;
+            currentStatement += char;
+            continue;
+        }
+        
+        // Handle block comments (/* comment */)
+        if (!inSingleQuote && !inDoubleQuote && !inLineComment && char === '/' && nextChar === '*') {
+            inBlockComment = true;
+            currentStatement += char;
+            continue;
+        }
+        
+        // End block comment
+        if (inBlockComment && char === '*' && nextChar === '/') {
+            inBlockComment = false;
+            currentStatement += char + nextChar;
+            i++; // Skip next character
+            continue;
+        }
+        
+        // Skip processing if in comment
+        if (inLineComment || inBlockComment) {
+            currentStatement += char;
+            continue;
+        }
+        
+        // Handle single quotes (with escape sequences)
+        if (char === "'" && prevChar !== '\\' && !inDoubleQuote) {
+            inSingleQuote = !inSingleQuote;
+            currentStatement += char;
+            continue;
+        }
+        
+        // Handle double quotes (with escape sequences)
+        if (char === '"' && prevChar !== '\\' && !inSingleQuote) {
+            inDoubleQuote = !inDoubleQuote;
+            currentStatement += char;
+            continue;
+        }
+        
+        // Handle semicolon as statement terminator (only if not in string or comment)
+        if (char === ';' && !inSingleQuote && !inDoubleQuote) {
+            currentStatement += char;
+            const trimmed = currentStatement.trim();
+            if (trimmed.length > 0) {
+                statements.push(trimmed);
+            }
+            currentStatement = '';
+            continue;
+        }
+        
+        currentStatement += char;
+    }
+    
+    // Add any remaining statement
+    const trimmed = currentStatement.trim();
+    if (trimmed.length > 0 && !trimmed.startsWith('--')) {
+        statements.push(trimmed);
+    }
+    
+    return statements;
+}
+
+/**
  * Execute a single migration file
  */
 async function executeMigration(filepath: string, filename: string): Promise<void> {
@@ -64,11 +153,8 @@ async function executeMigration(filepath: string, filename: string): Promise<voi
     
     const sql = await readFile(filepath, 'utf-8');
     
-    // Split by semicolon but respect strings and comments
-    const statements = sql
-        .split(';')
-        .map(s => s.trim())
-        .filter(s => s.length > 0 && !s.startsWith('--'));
+    // Split SQL into statements, properly handling strings and comments
+    const statements = splitSQLStatements(sql);
     
     const conn = await pool.getConnection();
     
