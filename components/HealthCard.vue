@@ -1,40 +1,43 @@
 <template>
-  <div 
-    class="health-card rounded-lg p-6 shadow-xl transition-all hover:shadow-2xl"
+  <NCard 
+    :bordered="false"
+    class="health-card"
     :class="cardClass"
   >
-    <div class="flex items-start justify-between mb-4">
-      <div class="flex items-center space-x-3">
-        <div class="text-3xl">{{ statusIcon }}</div>
-        <div>
-          <h3 class="text-lg font-semibold text-white capitalize">{{ displayName }}</h3>
-          <p class="text-sm opacity-90">{{ statusText }}</p>
-        </div>
-      </div>
-    </div>
+    <NSpace vertical :size="12">
+      <NSpace align="center" :size="12">
+        <div class="status-icon text-3xl">{{ statusIcon }}</div>
+        <NSpace vertical :size="2">
+          <h3 class="text-lg font-semibold capitalize">{{ displayName }}</h3>
+          <NBadge :type="badgeType" :value="statusText" />
+        </NSpace>
+      </NSpace>
 
-    <div v-if="check.latency_ms !== undefined" class="mb-3">
-      <div class="flex justify-between items-center mb-1">
-        <span class="text-sm opacity-75">Latency</span>
-        <span class="font-mono font-bold">{{ check.latency_ms }}ms</span>
-      </div>
-      <div class="w-full bg-gray-900 bg-opacity-30 rounded-full h-2 overflow-hidden">
-        <div 
-          class="h-full transition-all duration-300"
-          :class="latencyBarClass"
-          :style="{ width: latencyBarWidth }"
+      <div v-if="check.latency_ms !== undefined">
+        <NSpace justify="space-between" class="mb-2">
+          <span class="text-sm opacity-75">Latency</span>
+          <span class="font-mono font-bold">{{ check.latency_ms }}ms</span>
+        </NSpace>
+        <NProgress 
+          type="line"
+          :percentage="latencyPercentage"
+          :color="latencyColor"
+          :rail-color="'rgba(255, 255, 255, 0.05)'"
+          :height="8"
+          :border-radius="4"
         />
       </div>
-    </div>
 
-    <div v-if="check.message" class="text-sm opacity-80 mt-2">
-      {{ check.message }}
-    </div>
-  </div>
+      <div v-if="check.message" class="text-sm opacity-80 mt-2">
+        {{ check.message }}
+      </div>
+    </NSpace>
+  </NCard>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import { NCard, NSpace, NBadge, NProgress } from 'naive-ui';
 
 interface Props {
   check: {
@@ -75,39 +78,67 @@ const statusText = computed(() => {
   return 'Unknown';
 });
 
-// Card background class
+// Badge type for NaiveUI
+const badgeType = computed(() => {
+  if (props.check.status === 'ok') return 'success';
+  if (props.check.status === 'degraded') return 'warning';
+  if (props.check.status === 'fail') return 'error';
+  return 'default';
+});
+
+// Card class with glassmorphism
 const cardClass = computed(() => {
-  if (props.check.status === 'ok') {
-    return 'bg-gradient-to-br from-green-600 to-green-700 text-white';
-  }
-  if (props.check.status === 'degraded') {
-    return 'bg-gradient-to-br from-yellow-600 to-yellow-700 text-white';
-  }
-  if (props.check.status === 'fail') {
-    return 'bg-gradient-to-br from-red-600 to-red-700 text-white';
-  }
-  return 'bg-gradient-to-br from-gray-600 to-gray-700 text-white';
+  if (props.check.status === 'ok') return 'status-ok';
+  if (props.check.status === 'degraded') return 'status-degraded';
+  if (props.check.status === 'fail') return 'status-fail';
+  return 'status-unknown';
 });
 
-// Latency bar
-const latencyBarClass = computed(() => {
+// Latency color for progress bar
+const latencyColor = computed(() => {
   const latency = props.check.latency_ms || 0;
-  if (latency < 50) return 'bg-green-400';
-  if (latency < 200) return 'bg-yellow-400';
-  return 'bg-red-400';
+  if (latency < 50) return '#10b981'; // green
+  if (latency < 200) return '#f59e0b'; // yellow
+  return '#ef4444'; // red
 });
 
-const latencyBarWidth = computed(() => {
+// Latency percentage for progress bar
+const latencyPercentage = computed(() => {
   const latency = props.check.latency_ms || 0;
   // Max latency for bar is 1000ms
-  const percentage = Math.min((latency / 1000) * 100, 100);
-  return `${percentage}%`;
+  return Math.min((latency / 1000) * 100, 100);
 });
 </script>
 
-<style scoped>
-.health-card {
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
+<style scoped lang="sass">
+.health-card
+  backdrop-filter: var(--glass-blur-medium) saturate(160%)
+  background: var(--glass-bg-secondary) !important
+  border: 1px solid var(--glass-border)
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+  
+  &:hover
+    transform: translateY(-2px)
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12)
+  
+  &.status-ok
+    border-left: 3px solid #10b981
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), var(--glass-bg-secondary)) !important
+  
+  &.status-degraded
+    border-left: 3px solid #f59e0b
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), var(--glass-bg-secondary)) !important
+  
+  &.status-fail
+    border-left: 3px solid #ef4444
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), var(--glass-bg-secondary)) !important
+  
+  &.status-unknown
+    border-left: 3px solid #6b7280
+    background: linear-gradient(135deg, rgba(107, 114, 128, 0.08), var(--glass-bg-secondary)) !important
+
+.status-icon
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
 </style>
+

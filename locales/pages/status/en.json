@@ -1,4 +1,18 @@
 {
   "title": "System Status",
-  "description": "Real-time health monitoring for CS2 Inspect services"
+  "description": "Real-time health monitoring for CS2 Inspect services",
+  "navigation": {
+    "backToHome": "Back to Home"
+  },
+  "status": {
+    "allOperational": "All Systems Operational",
+    "partialOutage": "Partial System Outage",
+    "systemOutage": "System Outage",
+    "unknown": "Status Unknown"
+  },
+  "lastUpdated": "Last updated",
+  "refresh": "Refresh",
+  "refreshing": "Refreshing",
+  "performanceHistory": "Performance History",
+  "noHistoricalData": "No historical data available yet. Check back in a few minutes."
 }

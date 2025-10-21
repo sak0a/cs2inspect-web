@@ -284,10 +284,28 @@ Stores configuration for health checks:
 - `warning_threshold_ms` - Latency threshold for degraded status
 - `error_threshold_ms` - Latency threshold for error status
 
-To initialize the schema, run:
+### Database Setup
+
+**For new installations:**
+
+Initialize the database with the base schema:
 ```bash
-mysql -h <host> -u <user> -p <database> < server/database/health_schema.sql
+mysql -h <host> -u <user> -p <database> < server/database/init.sql
 ```
+
+Then apply the health check migration:
+```bash
+mysql -h <host> -u <user> -p <database> < server/database/migrations/001_add_health_checks.sql
+```
+
+**For existing installations:**
+
+Apply only the health check migration:
+```bash
+mysql -h <host> -u <user> -p <database> < server/database/migrations/001_add_health_checks.sql
+```
+
+See `server/database/migrations/README.md` for more details on the migration system.
 
 ---
 

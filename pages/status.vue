@@ -1,44 +1,48 @@
 <template>
-  <div class="status-page min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
-    <div class="max-w-7xl mx-auto">
-      <!-- Back to Home Link -->
-      <div class="mb-4">
-        <a href="/" class="text-blue-400 hover:text-blue-300 transition-colors">
-          ← Back to Home
-        </a>
-      </div>
+  <div class="status-page">
+    <NSpace vertical :size="24" class="max-w-7xl mx-auto p-8">
       <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-4xl font-bold text-white mb-2">System Status</h1>
-        <p class="text-gray-400">Real-time health monitoring for CS2 Inspect services</p>
-      </div>
+      <NSpace vertical :size="8">
+        <NButton text tag="a" href="/" type="primary" class="!p-0">
+          <template #icon>
+            <NIcon :component="ArrowLeftIcon" />
+          </template>
+          {{ t('navigation.backToHome') }}
+        </NButton>
+        <h1 class="text-4xl font-bold" style="color: var(--text-primary)">{{ t('title') }}</h1>
+        <p style="color: var(--text-secondary)">{{ t('description') }}</p>
+      </NSpace>
 
       <!-- Overall Status Banner -->
-      <div 
-        class="rounded-lg p-6 mb-8 shadow-xl"
+      <NCard 
+        :bordered="false"
+        class="glass-card status-banner"
         :class="overallStatusClass"
       >
         <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-4">
-            <div class="text-4xl">{{ overallStatusIcon }}</div>
-            <div>
+          <NSpace align="center" :size="16">
+            <div class="status-icon text-5xl">{{ overallStatusIcon }}</div>
+            <NSpace vertical :size="4">
               <h2 class="text-2xl font-bold">{{ overallStatusText }}</h2>
-              <p class="text-sm opacity-90">Last updated: {{ formatTime(lastUpdate) }}</p>
-            </div>
-          </div>
-          <button 
-            class="px-4 py-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all"
+              <p class="text-sm opacity-80">{{ t('lastUpdated') }}: {{ formatTime(lastUpdate) }}</p>
+            </NSpace>
+          </NSpace>
+          <NButton
+            secondary
+            :loading="loading"
             :disabled="loading"
             @click="refreshStatus"
           >
-            <span v-if="loading">Refreshing...</span>
-            <span v-else>↻ Refresh</span>
-          </button>
+            <template #icon>
+              <NIcon :component="RefreshIcon" />
+            </template>
+            {{ loading ? t('refreshing') : t('refresh') }}
+          </NButton>
         </div>
-      </div>
+      </NCard>
 
       <!-- Health Check Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <HealthCard
           v-for="check in healthChecks"
           :key="check.name"
@@ -47,48 +51,48 @@
       </div>
 
       <!-- Historical Charts -->
-      <div class="bg-gray-800 rounded-lg p-6 shadow-xl">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-2xl font-bold text-white">Performance History</h2>
-          <select 
-            v-model="timeRange"
-            class="px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
-            @change="loadHistory"
-          >
-            <option value="1h">Last Hour</option>
-            <option value="6h">Last 6 Hours</option>
-            <option value="24h">Last 24 Hours</option>
-            <option value="7d">Last 7 Days</option>
-          </select>
-        </div>
+      <NCard :bordered="false" class="glass-card">
+        <template #header>
+          <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold">{{ t('performanceHistory') }}</h2>
+            <NSelect
+              v-model:value="timeRange"
+              :options="timeRangeOptions"
+              style="width: 200px"
+              @update:value="loadHistory"
+            />
+          </div>
+        </template>
 
-        <div v-if="loadingHistory" class="text-center py-12 text-gray-400">
-          Loading historical data...
-        </div>
+        <NSpin :show="loadingHistory">
+          <div v-if="historicalData.length === 0" class="text-center py-12" style="color: var(--text-tertiary)">
+            {{ t('noHistoricalData') }}
+          </div>
 
-        <div v-else-if="historicalData.length === 0" class="text-center py-12 text-gray-400">
-          No historical data available yet. Check back in a few minutes.
-        </div>
-
-        <div v-else class="space-y-8">
-          <HistoryChart
-            v-for="data in historicalData"
-            :key="data.check_name"
-            :data="data"
-          />
-        </div>
-      </div>
-    </div>
+          <NSpace v-else vertical :size="32">
+            <HistoryChart
+              v-for="data in historicalData"
+              :key="data.check_name"
+              :data="data"
+            />
+          </NSpace>
+        </NSpin>
+      </NCard>
+    </NSpace>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { NSpace, NCard, NButton, NIcon, NSelect, NSpin } from 'naive-ui';
+import { ArrowLeft as ArrowLeftIcon, Refresh as RefreshIcon } from '@vicons/tabler';
 
 // Use a simple layout without authentication
 definePageMeta({
   layout: false,
 });
+
+const { t } = useI18n();
 
 interface HealthCheck {
   name: string;
@@ -115,6 +119,14 @@ const lastUpdate = ref(new Date());
 const timeRange = ref('24h');
 let refreshInterval: NodeJS.Timeout | null = null;
 
+// Time range options for NSelect
+const timeRangeOptions = [
+  { label: 'Last Hour', value: '1h' },
+  { label: 'Last 6 Hours', value: '6h' },
+  { label: 'Last 24 Hours', value: '24h' },
+  { label: 'Last 7 Days', value: '7d' },
+];
+
 // Overall status computed properties
 const overallStatus = computed(() => {
   if (healthChecks.value.length === 0) return 'unknown';
@@ -125,10 +137,10 @@ const overallStatus = computed(() => {
 
 const overallStatusClass = computed(() => {
   const status = overallStatus.value;
-  if (status === 'ok') return 'bg-gradient-to-r from-green-600 to-green-700 text-white';
-  if (status === 'degraded') return 'bg-gradient-to-r from-yellow-600 to-yellow-700 text-white';
-  if (status === 'fail') return 'bg-gradient-to-r from-red-600 to-red-700 text-white';
-  return 'bg-gradient-to-r from-gray-600 to-gray-700 text-white';
+  if (status === 'ok') return 'status-ok';
+  if (status === 'degraded') return 'status-degraded';
+  if (status === 'fail') return 'status-fail';
+  return 'status-unknown';
 });
 
 const overallStatusIcon = computed(() => {
@@ -141,10 +153,10 @@ const overallStatusIcon = computed(() => {
 
 const overallStatusText = computed(() => {
   const status = overallStatus.value;
-  if (status === 'ok') return 'All Systems Operational';
-  if (status === 'degraded') return 'Partial System Outage';
-  if (status === 'fail') return 'System Outage';
-  return 'Status Unknown';
+  if (status === 'ok') return t('status.allOperational');
+  if (status === 'degraded') return t('status.partialOutage');
+  if (status === 'fail') return t('status.systemOutage');
+  return t('status.unknown');
 });
 
 // Load current status
@@ -223,8 +235,35 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped>
-.status-page {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-}
+<style scoped lang="sass">
+.status-page
+  min-height: 100vh
+  background: var(--bg-primary)
+  font-family: 'Inter', system-ui, -apple-system, sans-serif
+
+.glass-card
+  backdrop-filter: var(--glass-blur-medium) saturate(160%)
+  background: var(--glass-bg-secondary) !important
+  border: 1px solid var(--glass-border)
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+
+.status-banner
+  &.status-ok
+    border-left: 4px solid #10b981
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), var(--glass-bg-secondary)) !important
+  
+  &.status-degraded
+    border-left: 4px solid #f59e0b
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), var(--glass-bg-secondary)) !important
+  
+  &.status-fail
+    border-left: 4px solid #ef4444
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), var(--glass-bg-secondary)) !important
+  
+  &.status-unknown
+    border-left: 4px solid #6b7280
+    background: linear-gradient(135deg, rgba(107, 114, 128, 0.1), var(--glass-bg-secondary)) !important
+
+.status-icon
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3))
 </style>
