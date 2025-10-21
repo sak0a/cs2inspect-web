@@ -106,7 +106,9 @@ const latencyColor = computed(() => {
 const latencyPercentage = computed(() => {
   const latency = props.check.latency_ms || 0;
   // Max latency for bar is 1000ms
-  return Math.min((latency / 1000) * 100, 100);
+  const percentage = Math.min((latency / 1000) * 100, 100);
+  // Round to 2 decimal places to avoid floating point precision issues
+  return Math.round(percentage * 100) / 100;
 });
 </script>
 

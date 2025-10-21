@@ -69,13 +69,14 @@
             {{ t('noHistoricalData') }}
           </div>
 
-          <NSpace v-else vertical :size="32">
+          <!-- Grid layout for charts - 2 columns on desktop, 1 on mobile -->
+          <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <HistoryChart
               v-for="data in historicalData"
               :key="data.check_name"
               :data="data"
             />
-          </NSpace>
+          </div>
         </NSpin>
       </NCard>
     </NSpace>

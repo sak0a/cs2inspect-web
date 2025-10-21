@@ -1,15 +1,15 @@
 <template>
-  <div class="history-chart">
-    <h3 class="text-xl font-semibold text-white mb-4 capitalize">
+  <NCard :bordered="false" class="history-chart-card">
+    <h3 class="text-xl font-semibold mb-4 capitalize">
       {{ displayName }}
     </h3>
     
-    <div class="chart-container bg-gray-900 rounded-lg p-4 relative overflow-hidden">
+    <div class="chart-container glass-container rounded-lg p-4 relative overflow-hidden">
       <!-- Canvas for drawing chart -->
       <canvas ref="canvasRef" class="w-full" :height="chartHeight" />
       
       <!-- No data message -->
-      <div v-if="!hasData" class="absolute inset-0 flex items-center justify-center text-gray-500">
+      <div v-if="!hasData" class="absolute inset-0 flex items-center justify-center" style="color: var(--text-tertiary)">
         No data available for this period
       </div>
     </div>
@@ -18,22 +18,23 @@
     <div class="flex items-center justify-center space-x-6 mt-3 text-sm">
       <div class="flex items-center space-x-2">
         <div class="w-3 h-3 rounded-full bg-green-500" />
-        <span class="text-gray-400">OK</span>
+        <span style="color: var(--text-secondary)">OK</span>
       </div>
       <div class="flex items-center space-x-2">
         <div class="w-3 h-3 rounded-full bg-yellow-500" />
-        <span class="text-gray-400">Degraded</span>
+        <span style="color: var(--text-secondary)">Degraded</span>
       </div>
       <div class="flex items-center space-x-2">
         <div class="w-3 h-3 rounded-full bg-red-500" />
-        <span class="text-gray-400">Failed</span>
+        <span style="color: var(--text-secondary)">Failed</span>
       </div>
     </div>
-  </div>
+  </NCard>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
+import { NCard } from 'naive-ui';
 
 interface DataPoint {
   timestamp: Date;
@@ -88,8 +89,9 @@ function drawChart() {
   const chartWidth = width - padding.left - padding.right;
   const chartHeight = height - padding.top - padding.bottom;
 
-  // Clear canvas
-  ctx.clearRect(0, 0, width, height);
+  // Clear canvas with dark background matching theme
+  ctx.fillStyle = 'rgba(16, 16, 16, 0.5)'; // var(--glass-bg-primary) equivalent
+  ctx.fillRect(0, 0, width, height);
 
   const points = props.data.data_points;
   if (points.length === 0) return;
@@ -201,8 +203,18 @@ onMounted(() => {
 });
 </script>
 
-<style scoped>
-.chart-container {
-  min-height: 200px;
-}
+<style scoped lang="sass">
+.history-chart-card
+  backdrop-filter: var(--glass-blur-medium) saturate(160%)
+  background: var(--glass-bg-secondary) !important
+  border: 1px solid var(--glass-border)
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+
+.glass-container
+  backdrop-filter: var(--glass-blur-light)
+  background: rgba(0, 0, 0, 0.3) !important
+  border: 1px solid rgba(255, 255, 255, 0.05)
+
+.chart-container
+  min-height: 200px
 </style>
