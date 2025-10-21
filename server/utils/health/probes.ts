@@ -26,6 +26,10 @@ export async function checkDatabase(): Promise<HealthCheckResult> {
             const latency = Date.now() - startTime;
             result.latency_ms = latency;
             
+            // Get average latency from history
+            const { getAverageLatency } = await import('~/server/utils/health/history');
+            const avgLatency = await getAverageLatency('database', 60);
+            
             // Check thresholds
             if (latency > 200) {
                 result.status = 'fail';
@@ -41,6 +45,7 @@ export async function checkDatabase(): Promise<HealthCheckResult> {
                 pool_active_connections: pool.activeConnections(),
                 pool_total_connections: pool.totalConnections(),
                 pool_idle_connections: pool.idleConnections(),
+                avg_latency_ms: avgLatency,
             };
         } finally {
             conn.release();
@@ -122,15 +127,23 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
         result.latency_ms = Date.now() - startTime;
         
         if (!stats.isAvailable) {
-            // Steam client not available is not necessarily a failure if credentials aren't configured
-            const hasCredentials = process.env.STEAM_USERNAME && process.env.STEAM_PASSWORD;
+            // Steam client not available - provide detailed feedback
+            const hasUsername = !!process.env.STEAM_USERNAME;
+            const hasPassword = !!process.env.STEAM_PASSWORD;
             
-            if (hasCredentials) {
-                result.status = 'fail';
-                result.message = 'Steam client configured but not connected';
-            } else {
+            if (!hasUsername && !hasPassword) {
                 result.status = 'degraded';
-                result.message = 'Steam client not configured (credentials missing)';
+                result.message = 'Steam client not configured (missing STEAM_USERNAME and STEAM_PASSWORD)';
+            } else if (!hasUsername) {
+                result.status = 'fail';
+                result.message = 'Steam client missing STEAM_USERNAME environment variable';
+            } else if (!hasPassword) {
+                result.status = 'fail';
+                result.message = 'Steam client missing STEAM_PASSWORD environment variable';
+            } else {
+                // Credentials exist but client isn't connected
+                result.status = 'fail';
+                result.message = `Steam client check failed: ${stats.status || 'Not connected'}. Check credentials or network connection.`;
             }
         } else {
             result.status = 'ok';
@@ -142,6 +155,8 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
             status: stats.status,
             queue_length: stats.queueLength,
             unmasked_support: stats.unmaskedSupport,
+            has_username: !!process.env.STEAM_USERNAME,
+            has_password: !!process.env.STEAM_PASSWORD,
         };
     } catch (error: unknown) {
         result.status = 'fail';
@@ -150,6 +165,8 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
         result.message = `Steam client check failed: ${errorMessage}`;
         result.metadata = {
             error: errorMessage,
+            has_username: !!process.env.STEAM_USERNAME,
+            has_password: !!process.env.STEAM_PASSWORD,
         };
     }
 

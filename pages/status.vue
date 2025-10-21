@@ -4,12 +4,10 @@
       <!-- Header -->
       <NSpace vertical :size="8">
         <NButton 
-          text 
+          secondary 
           tag="a" 
           href="/" 
-          type="primary" 
           class="back-to-home-button"
-          :bordered="true"
           size="large"
         >
           <template #icon>
@@ -73,14 +71,14 @@
         </template>
 
         <NSpin :show="loadingHistory">
-          <div v-if="historicalData.length === 0" class="text-center py-12" style="color: var(--text-tertiary)">
+          <div v-if="filteredHistoricalData.length === 0" class="text-center py-12" style="color: var(--text-tertiary)">
             {{ t('noHistoricalData') }}
           </div>
 
           <!-- Grid layout for charts - 2 columns on desktop, 1 on mobile -->
           <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <HistoryChart
-              v-for="data in historicalData"
+              v-for="data in filteredHistoricalData"
               :key="data.check_name"
               :data="data"
             />
@@ -109,6 +107,7 @@ interface HealthCheck {
   latency_ms?: number;
   message?: string;
   checked_at: Date;
+  metadata?: Record<string, unknown>;
 }
 
 interface HistoricalData {
@@ -135,6 +134,11 @@ const timeRangeOptions = [
   { label: 'Last 24 Hours', value: '24h' },
   { label: 'Last 7 Days', value: '7d' },
 ];
+
+// Filter out environment from historical data (no graph needed)
+const filteredHistoricalData = computed(() => {
+  return historicalData.value.filter(data => data.check_name !== 'environment');
+});
 
 // Overall status computed properties
 const overallStatus = computed(() => {
@@ -250,18 +254,6 @@ onUnmounted(() => {
   background: var(--bg-primary)
   font-family: 'Inter', system-ui, -apple-system, sans-serif
   overflow-y: auto
-
-.back-to-home-button
-  backdrop-filter: var(--glass-blur-light)
-  background: var(--glass-bg-secondary) !important
-  border: 1px solid var(--glass-border) !important
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2)
-  transition: all 0.3s ease
-  
-  &:hover
-    transform: translateX(-4px)
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
-    border-color: rgba(96, 165, 250, 0.5) !important
 
 .glass-card
   backdrop-filter: var(--glass-blur-medium) saturate(160%)

@@ -13,7 +13,45 @@
         </NSpace>
       </NSpace>
 
-      <div v-if="check.latency_ms !== undefined">
+      <!-- Environment card shows variable count instead of latency -->
+      <div v-if="check.name === 'environment' && check.metadata">
+        <NSpace justify="space-between" class="mb-2">
+          <span class="text-sm opacity-75">Environment Variables</span>
+          <span class="font-mono font-bold">
+            {{ check.metadata.present_vars_count }}/{{ check.metadata.required_vars_count }}
+          </span>
+        </NSpace>
+        <NProgress 
+          type="line"
+          :percentage="envVarPercentage"
+          :color="envVarColor"
+          :rail-color="'rgba(255, 255, 255, 0.05)'"
+          :height="8"
+          :border-radius="4"
+        />
+      </div>
+
+      <!-- Database card shows latency and average -->
+      <div v-else-if="check.name === 'database' && check.latency_ms !== undefined">
+        <NSpace justify="space-between" class="mb-2">
+          <span class="text-sm opacity-75">Latency</span>
+          <span class="font-mono font-bold">{{ check.latency_ms }}ms</span>
+        </NSpace>
+        <NProgress 
+          type="line"
+          :percentage="latencyPercentage"
+          :color="latencyColor"
+          :rail-color="'rgba(255, 255, 255, 0.05)'"
+          :height="8"
+          :border-radius="4"
+        />
+        <div v-if="check.metadata && check.metadata.avg_latency_ms" class="text-xs opacity-60 mt-1">
+          Avg: {{ check.metadata.avg_latency_ms }}ms
+        </div>
+      </div>
+
+      <!-- Other cards show latency as before -->
+      <div v-else-if="check.latency_ms !== undefined">
         <NSpace justify="space-between" class="mb-2">
           <span class="text-sm opacity-75">Latency</span>
           <span class="font-mono font-bold">{{ check.latency_ms }}ms</span>
@@ -45,6 +83,7 @@ interface Props {
     status: 'ok' | 'degraded' | 'fail';
     latency_ms?: number;
     message?: string;
+    metadata?: Record<string, unknown>;
   };
 }
 
@@ -109,6 +148,22 @@ const latencyPercentage = computed(() => {
   const percentage = Math.min((latency / 1000) * 100, 100);
   // Round to 2 decimal places to avoid floating point precision issues
   return Math.round(percentage * 100) / 100;
+});
+
+// Environment variable percentage
+const envVarPercentage = computed(() => {
+  if (props.check.name !== 'environment' || !props.check.metadata) return 0;
+  const present = props.check.metadata.present_vars_count || 0;
+  const required = props.check.metadata.required_vars_count || 1;
+  return Math.round((present / required) * 100 * 100) / 100;
+});
+
+// Environment variable color
+const envVarColor = computed(() => {
+  const percentage = envVarPercentage.value;
+  if (percentage === 100) return '#10b981'; // green
+  if (percentage >= 50) return '#f59e0b'; // yellow
+  return '#ef4444'; // red
 });
 </script>
 

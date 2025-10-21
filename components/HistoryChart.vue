@@ -1,29 +1,39 @@
 <template>
   <NCard :bordered="false" class="history-chart-card">
-    <h3 class="text-xl font-semibold mb-4 capitalize">
-      {{ displayName }}
-    </h3>
-    
-    <div class="chart-container glass-container rounded-lg p-4 relative">
-      <!-- Chart.js chart -->
-      <Line 
-        v-if="hasData" 
-        :data="chartData" 
-        :options="chartOptions" 
-        :height="200"
-      />
-      
-      <!-- No data message -->
-      <div v-else class="flex items-center justify-center" style="color: var(--text-tertiary); min-height: 200px;">
-        No data available for this period
+    <template #header>
+      <div class="flex justify-between items-center cursor-pointer" @click="toggleCollapsed">
+        <h3 class="text-xl font-semibold capitalize">
+          {{ displayName }}
+        </h3>
+        <NButton text :class="{ 'rotate-180': !collapsed }" class="transition-transform duration-300">
+          <NIcon :component="ChevronDownIcon" :size="20" />
+        </NButton>
       </div>
-    </div>
+    </template>
+    
+    <NCollapseTransition :show="!collapsed">
+      <div class="chart-container glass-container rounded-lg p-4 relative">
+        <!-- Chart.js chart -->
+        <Line 
+          v-if="hasData" 
+          :data="chartData" 
+          :options="chartOptions" 
+          :height="200"
+        />
+        
+        <!-- No data message -->
+        <div v-else class="flex items-center justify-center" style="color: var(--text-tertiary); min-height: 200px;">
+          No data available for this period
+        </div>
+      </div>
+    </NCollapseTransition>
   </NCard>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import { NCard } from 'naive-ui';
+import { ref, computed } from 'vue';
+import { NCard, NButton, NIcon, NCollapseTransition } from 'naive-ui';
+import { ChevronDown as ChevronDownIcon } from '@vicons/tabler';
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -64,6 +74,13 @@ interface Props {
 }
 
 const props = defineProps<Props>();
+
+// Collapsible state
+const collapsed = ref(false);
+
+function toggleCollapsed() {
+  collapsed.value = !collapsed.value;
+}
 
 // Display name mapping
 const displayNameMap: Record<string, string> = {
@@ -205,4 +222,7 @@ const chartOptions = computed<ChartJSOptions<'line'>>(() => ({
   backdrop-filter: var(--glass-blur-light)
   background: rgba(0, 0, 0, 0.3) !important
   border: 1px solid rgba(255, 255, 255, 0.05)
+
+.rotate-180
+  transform: rotate(180deg)
 </style>

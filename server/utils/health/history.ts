@@ -136,3 +136,34 @@ export async function cleanupHealthCheckHistory(daysToKeep: number = 7): Promise
         return 0;
     }
 }
+
+/**
+ * Get average latency for a specific check over the last N minutes
+ */
+export async function getAverageLatency(checkName: string, minutes: number = 60): Promise<number | null> {
+    try {
+        interface AvgRow {
+            avg_latency: number | null;
+        }
+        
+        const rows = await executeQuery<AvgRow[]>(
+            `SELECT AVG(latency_ms) as avg_latency 
+             FROM health_check_history 
+             WHERE check_name = ? 
+             AND checked_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
+             AND latency_ms IS NOT NULL`,
+            [checkName, minutes],
+            'Failed to calculate average latency'
+        );
+
+        if (rows.length > 0 && rows[0].avg_latency !== null) {
+            return Math.round(rows[0].avg_latency);
+        }
+        
+        return null;
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Failed to calculate average latency:', errorMessage);
+        return null;
+    }
+}
