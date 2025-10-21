@@ -58,34 +58,36 @@
       </div>
 
       <!-- Historical Charts -->
-      <NCard :bordered="false" class="glass-card">
-        <template #header>
-          <div class="flex justify-between items-center">
-            <h2 class="text-2xl font-bold">{{ t('performanceHistory') }}</h2>
-            <NSelect
-              v-model:value="timeRange"
-              :options="timeRangeOptions"
-              style="width: 200px"
-              @update:value="loadHistory"
-            />
-          </div>
-        </template>
+      <div class="chart-outer-container">
+        <NCard :bordered="false" class="glass-card-dark">
+          <template #header>
+            <div class="flex justify-between items-center">
+              <h2 class="text-2xl font-bold">{{ t('performanceHistory') }}</h2>
+              <NSelect
+                v-model:value="timeRange"
+                :options="timeRangeOptions"
+                style="width: 200px"
+                @update:value="loadHistory"
+              />
+            </div>
+          </template>
 
-        <NSpin :show="loadingHistory">
-          <div v-if="filteredHistoricalData.length === 0" class="text-center py-12" style="color: var(--text-tertiary)">
-            {{ t('noHistoricalData') }}
-          </div>
+          <NSpin :show="loadingHistory">
+            <div v-if="filteredHistoricalData.length === 0" class="text-center py-12" style="color: var(--text-tertiary)">
+              {{ t('noHistoricalData') }}
+            </div>
 
-          <!-- Full-width charts - one per row -->
-          <div v-else class="grid grid-cols-1 gap-6">
-            <HistoryChart
-              v-for="data in filteredHistoricalData"
-              :key="data.check_name"
-              :data="data"
-            />
-          </div>
-        </NSpin>
-      </NCard>
+            <!-- Full-width charts - one per row -->
+            <div v-else class="grid grid-cols-1 gap-6">
+              <HistoryChart
+                v-for="data in filteredHistoricalData"
+                :key="data.check_name"
+                :data="data"
+              />
+            </div>
+          </NSpin>
+        </NCard>
+      </div>
     </NSpace>
   </div>
 </template>
@@ -253,7 +255,7 @@ onUnmounted(() => {
 .status-page
   min-height: 100vh
   height: 100vh
-  background: var(--bg-primary)
+  background: #0a0a0a
   font-family: 'Inter', system-ui, -apple-system, sans-serif
   overflow-y: auto !important
   overflow-x: hidden
@@ -263,8 +265,24 @@ onUnmounted(() => {
   background: var(--glass-bg-secondary) !important
   border: 1px solid var(--glass-border)
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  border-radius: 16px !important
+
+.chart-outer-container
+  backdrop-filter: var(--glass-blur-medium)
+  background: rgba(0, 0, 0, 0.6) !important
+  border-radius: 20px
+  padding: 8px
+
+.glass-card-dark
+  backdrop-filter: var(--glass-blur-medium) saturate(160%)
+  background: rgba(15, 15, 15, 0.8) !important
+  border: 1px solid var(--glass-border)
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  border-radius: 16px !important
 
 .status-banner
+  border-radius: 16px !important
+  
   &.status-ok
     border-left: 4px solid #10b981
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), var(--glass-bg-secondary)) !important

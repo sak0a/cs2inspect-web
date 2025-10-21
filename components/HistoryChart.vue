@@ -25,22 +25,20 @@
     </template>
     
     <!-- Full chart view when expanded -->
-    <NCollapseTransition :show="!collapsed">
-      <div class="chart-container glass-container rounded-lg p-4 relative">
-        <!-- Chart.js chart -->
-        <Line 
-          v-if="hasData" 
-          :data="chartData" 
-          :options="chartOptions" 
-          :height="200"
-        />
-        
-        <!-- No data message -->
-        <div v-else class="flex items-center justify-center" style="color: var(--text-tertiary); min-height: 200px;">
-          No data available for this period
-        </div>
+    <div v-show="!collapsed" class="chart-container glass-container p-4 relative">
+      <!-- Chart.js chart -->
+      <Line 
+        v-if="hasData" 
+        :data="chartData" 
+        :options="chartOptions" 
+        :height="200"
+      />
+      
+      <!-- No data message -->
+      <div v-else class="flex items-center justify-center" style="color: var(--text-tertiary); min-height: 200px;">
+        No data available for this period
       </div>
-    </NCollapseTransition>
+    </div>
   </NCard>
 </template>
 
@@ -132,12 +130,20 @@ const chartData = computed(() => {
   // Latency data
   const latencyData = points.map(p => p.latency_ms || 0);
   
-  // Background colors based on status
-  const backgroundColors = points.map(p => {
-    if (p.status === 'ok') return 'rgba(16, 185, 129, 0.1)'; // green
-    if (p.status === 'degraded') return 'rgba(245, 158, 11, 0.1)'; // yellow
-    return 'rgba(239, 68, 68, 0.1)'; // red
-  });
+  // Get dominant status color
+  const okCount = points.filter(p => p.status === 'ok').length;
+  const degradedCount = points.filter(p => p.status === 'degraded').length;
+  const failCount = points.filter(p => p.status === 'fail').length;
+  
+  let dominantColor = 'rgba(16, 185, 129, 0.3)'; // green
+  let dominantBorder = 'rgb(16, 185, 129)';
+  if (failCount > okCount && failCount > degradedCount) {
+    dominantColor = 'rgba(239, 68, 68, 0.3)'; // red
+    dominantBorder = 'rgb(239, 68, 68)';
+  } else if (degradedCount > okCount) {
+    dominantColor = 'rgba(245, 158, 11, 0.3)'; // yellow/orange
+    dominantBorder = 'rgb(245, 158, 11)';
+  }
   
   // Point colors based on status
   const pointColors = points.map(p => {
@@ -152,12 +158,12 @@ const chartData = computed(() => {
       {
         label: 'Latency (ms)',
         data: latencyData,
-        borderColor: 'rgba(96, 165, 250, 0.8)', // blue
-        backgroundColor: 'rgba(96, 165, 250, 0.1)',
+        borderColor: dominantBorder,
+        backgroundColor: dominantColor,
         pointBackgroundColor: pointColors,
         pointBorderColor: pointColors,
-        pointRadius: 4,
-        pointHoverRadius: 6,
+        pointRadius: 2,
+        pointHoverRadius: 4,
         borderWidth: 2,
         fill: true,
         tension: 0.4,
@@ -326,11 +332,13 @@ const miniChartOptions = computed<ChartJSOptions<'line'>>(() => ({
   background: var(--glass-bg-secondary) !important
   border: 1px solid var(--glass-border)
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  border-radius: 16px !important
 
 .glass-container
   backdrop-filter: var(--glass-blur-light)
-  background: rgba(0, 0, 0, 0.3) !important
+  background: rgba(0, 0, 0, 0.5) !important
   border: 1px solid rgba(255, 255, 255, 0.05)
+  border-radius: 12px
 
 .chart-container
   min-height: 200px
@@ -338,7 +346,7 @@ const miniChartOptions = computed<ChartJSOptions<'line'>>(() => ({
 .mini-chart-inline
   height: 32px
   background: rgba(0, 0, 0, 0.2)
-  border-radius: 6px
+  border-radius: 8px
   padding: 4px 8px
   border: 1px solid rgba(255, 255, 255, 0.05)
 

@@ -174,25 +174,26 @@ const envVarColor = computed(() => {
   border: 1px solid var(--glass-border)
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+  border-radius: 16px !important
   
   &:hover
     transform: translateY(-2px)
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12)
   
   &.status-ok
-    border-left: 3px solid #10b981
+    border-left: 4px solid #10b981
     background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), var(--glass-bg-secondary)) !important
   
   &.status-degraded
-    border-left: 3px solid #f59e0b
+    border-left: 4px solid #f59e0b
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), var(--glass-bg-secondary)) !important
   
   &.status-fail
-    border-left: 3px solid #ef4444
+    border-left: 4px solid #ef4444
     background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), var(--glass-bg-secondary)) !important
   
   &.status-unknown
-    border-left: 3px solid #6b7280
+    border-left: 4px solid #6b7280
     background: linear-gradient(135deg, rgba(107, 114, 128, 0.08), var(--glass-bg-secondary)) !important
 
 .status-icon
