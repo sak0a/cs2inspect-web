@@ -252,9 +252,11 @@ onUnmounted(() => {
 <style scoped lang="sass">
 .status-page
   min-height: 100vh
+  height: 100vh
   background: var(--bg-primary)
   font-family: 'Inter', system-ui, -apple-system, sans-serif
-  overflow-y: auto
+  overflow-y: auto !important
+  overflow-x: hidden
 
 .glass-card
   backdrop-filter: var(--glass-blur-medium) saturate(160%)

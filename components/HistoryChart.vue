@@ -1,11 +1,24 @@
 <template>
   <NCard :bordered="false" class="history-chart-card">
     <template #header>
-      <div class="flex justify-between items-center cursor-pointer" @click="toggleCollapsed">
-        <h3 class="text-xl font-semibold capitalize">
+      <div class="flex justify-between items-center gap-4 cursor-pointer" @click="toggleCollapsed">
+        <h3 class="text-xl font-semibold capitalize flex-shrink-0">
           {{ displayName }}
         </h3>
-        <NButton text :class="{ 'rotate-180': !collapsed }" class="transition-transform duration-300">
+        
+        <!-- Mini sparkline in header when collapsed -->
+        <div v-if="collapsed" class="flex-1 min-w-0 px-4" @click.stop>
+          <div class="mini-chart-inline">
+            <Line 
+              v-if="hasData" 
+              :data="miniChartData" 
+              :options="miniChartOptions" 
+              :height="32"
+            />
+          </div>
+        </div>
+        
+        <NButton text :class="{ 'rotate-180': !collapsed }" class="transition-transform duration-300 flex-shrink-0">
           <NIcon :component="ChevronDownIcon" :size="20" />
         </NButton>
       </div>
@@ -25,21 +38,6 @@
         <!-- No data message -->
         <div v-else class="flex items-center justify-center" style="color: var(--text-tertiary); min-height: 200px;">
           No data available for this period
-        </div>
-      </div>
-    </NCollapseTransition>
-    
-    <!-- Mini sparkline view when collapsed -->
-    <NCollapseTransition :show="collapsed">
-      <div class="mini-chart-container glass-container rounded-lg p-2 relative">
-        <Line 
-          v-if="hasData" 
-          :data="miniChartData" 
-          :options="miniChartOptions" 
-          :height="40"
-        />
-        <div v-else class="flex items-center justify-center text-xs" style="color: var(--text-tertiary); min-height: 40px;">
-          No data
         </div>
       </div>
     </NCollapseTransition>
@@ -337,9 +335,12 @@ const miniChartOptions = computed<ChartJSOptions<'line'>>(() => ({
 .chart-container
   min-height: 200px
 
-.mini-chart-container
-  min-height: 44px
-  height: 44px
+.mini-chart-inline
+  height: 32px
+  background: rgba(0, 0, 0, 0.2)
+  border-radius: 6px
+  padding: 4px 8px
+  border: 1px solid rgba(255, 255, 255, 0.05)
 
 .rotate-180
   transform: rotate(180deg)
