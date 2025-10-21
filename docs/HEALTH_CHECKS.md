@@ -286,22 +286,25 @@ Stores configuration for health checks:
 
 ### Database Setup
 
+**Migrations run automatically on server startup!**
+
+When you start the server, it will automatically:
+1. Create the `_migrations` tracking table (if needed)
+2. Check for pending migrations
+3. Execute them in order (000_initial.sql, 001_add_health_checks.sql, etc.)
+4. Skip already-executed migrations
+
 **For new installations:**
-
-Initialize the database with the base schema:
-```bash
-mysql -h <host> -u <user> -p <database> < server/database/init.sql
-```
-
-Then apply the health check migration:
-```bash
-mysql -h <host> -u <user> -p <database> < server/database/migrations/001_add_health_checks.sql
-```
+- Just start the server - all migrations will run automatically
+- The system will create all required tables
 
 **For existing installations:**
+- Start the server - only new migrations will be executed
+- Already-existing tables are safely skipped (thanks to `IF NOT EXISTS`)
 
-Apply only the health check migration:
+**Manual migration (if needed for troubleshooting):**
 ```bash
+# Apply a specific migration manually
 mysql -h <host> -u <user> -p <database> < server/database/migrations/001_add_health_checks.sql
 ```
 

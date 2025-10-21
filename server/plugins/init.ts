@@ -52,6 +52,16 @@ export function getCS2Client(): CS2Inspect {
 }
 
 export default defineNitroPlugin(async () => {
+    // Run database migrations first
+    try {
+        const { runMigrations } = await import('../utils/migrations/runner');
+        await runMigrations();
+    } catch (error) {
+        console.error('Failed to run database migrations:', error);
+        // Don't throw - allow server to start even if migrations fail
+        // This allows manual intervention if needed
+    }
+    
     await initCSGOApiData()
     initializeSteamClient().catch(error => {
         console.error('Failed to initialize CS2 Inspect client', error);
