@@ -31,7 +31,7 @@
         />
       </div>
 
-      <!-- Database card shows latency and average -->
+      <!-- Database card shows latency with uptime percentage in progress bar -->
       <div v-else-if="check.name === 'database' && check.latency_ms !== undefined">
         <NSpace justify="space-between" class="mb-2">
           <span class="text-sm opacity-75">Latency</span>
@@ -39,18 +39,19 @@
         </NSpace>
         <NProgress 
           type="line"
-          :percentage="latencyPercentage"
-          :color="latencyColor"
+          :percentage="uptimePercentage"
+          :color="uptimeColor"
           :rail-color="'rgba(255, 255, 255, 0.05)'"
           :height="8"
           :border-radius="4"
         />
-        <div v-if="check.metadata && check.metadata.avg_latency_ms" class="text-xs opacity-60 mt-1">
-          Avg: {{ check.metadata.avg_latency_ms }}ms
+        <div class="flex justify-between text-xs opacity-60 mt-1">
+          <span v-if="check.metadata && check.metadata.avg_latency_ms">Avg: {{ check.metadata.avg_latency_ms }}ms</span>
+          <span>Uptime: {{ uptimePercentage.toFixed(2) }}%</span>
         </div>
       </div>
 
-      <!-- Other cards show latency as before -->
+      <!-- Other cards show latency with uptime percentage -->
       <div v-else-if="check.latency_ms !== undefined">
         <NSpace justify="space-between" class="mb-2">
           <span class="text-sm opacity-75">Latency</span>
@@ -58,12 +59,15 @@
         </NSpace>
         <NProgress 
           type="line"
-          :percentage="latencyPercentage"
-          :color="latencyColor"
+          :percentage="uptimePercentage"
+          :color="uptimeColor"
           :rail-color="'rgba(255, 255, 255, 0.05)'"
           :height="8"
           :border-radius="4"
         />
+        <div class="text-xs opacity-60 mt-1 text-right">
+          Uptime: {{ uptimePercentage.toFixed(2) }}%
+        </div>
       </div>
 
       <div v-if="check.message" class="text-sm opacity-80 mt-2">
@@ -133,21 +137,25 @@ const cardClass = computed(() => {
   return 'status-unknown';
 });
 
-// Latency color for progress bar
-const latencyColor = computed(() => {
-  const latency = props.check.latency_ms || 0;
-  if (latency < 50) return '#10b981'; // green
-  if (latency < 200) return '#f59e0b'; // yellow
-  return '#ef4444'; // red
+// Uptime percentage for progress bar (calculated from historical data in metadata)
+const uptimePercentage = computed(() => {
+  // Check if uptime_percentage is provided in metadata
+  if (props.check.metadata && typeof props.check.metadata.uptime_percentage === 'number') {
+    return Math.round(props.check.metadata.uptime_percentage * 100) / 100;
+  }
+  
+  // Fallback: estimate from current status (100% if ok, 50% if degraded, 0% if fail)
+  if (props.check.status === 'ok') return 100;
+  if (props.check.status === 'degraded') return 50;
+  return 0;
 });
 
-// Latency percentage for progress bar
-const latencyPercentage = computed(() => {
-  const latency = props.check.latency_ms || 0;
-  // Max latency for bar is 1000ms
-  const percentage = Math.min((latency / 1000) * 100, 100);
-  // Round to 2 decimal places to avoid floating point precision issues
-  return Math.round(percentage * 100) / 100;
+// Uptime color for progress bar
+const uptimeColor = computed(() => {
+  const percentage = uptimePercentage.value;
+  if (percentage >= 99) return '#10b981'; // green
+  if (percentage >= 95) return '#f59e0b'; // yellow
+  return '#ef4444'; // red
 });
 
 // Environment variable percentage

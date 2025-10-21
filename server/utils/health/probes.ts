@@ -6,6 +6,41 @@ import { getCS2Client } from '~/server/plugins/init';
 import type { HealthCheckResult, HealthStatus } from '~/server/types/health';
 
 /**
+ * Calculate uptime percentage for a check based on historical data
+ */
+async function calculateUptimePercentage(checkName: string, minutes: number = 60): Promise<number> {
+    try {
+        const { executeQuery } = await import('~/server/database/database');
+        
+        interface UptimeRow {
+            total_checks: number;
+            ok_checks: number;
+        }
+        
+        const rows = await executeQuery<UptimeRow[]>(
+            `SELECT 
+                COUNT(*) as total_checks,
+                SUM(CASE WHEN status = 'ok' THEN 1 ELSE 0 END) as ok_checks
+             FROM health_check_history 
+             WHERE check_name = ? 
+             AND checked_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)`,
+            [checkName, minutes],
+            'Failed to calculate uptime'
+        );
+
+        if (rows.length > 0 && rows[0].total_checks > 0) {
+            return (rows[0].ok_checks / rows[0].total_checks) * 100;
+        }
+        
+        return 100; // Default to 100% if no historical data
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Failed to calculate uptime:', errorMessage);
+        return 100; // Default to 100% on error
+    }
+}
+
+/**
  * Database connectivity health check
  */
 export async function checkDatabase(): Promise<HealthCheckResult> {
@@ -26,9 +61,10 @@ export async function checkDatabase(): Promise<HealthCheckResult> {
             const latency = Date.now() - startTime;
             result.latency_ms = latency;
             
-            // Get average latency from history
+            // Get average latency and uptime from history
             const { getAverageLatency } = await import('~/server/utils/health/history');
             const avgLatency = await getAverageLatency('database', 60);
+            const uptimePercentage = await calculateUptimePercentage('database', 60);
             
             // Check thresholds
             if (latency > 200) {
@@ -46,6 +82,7 @@ export async function checkDatabase(): Promise<HealthCheckResult> {
                 pool_total_connections: pool.totalConnections(),
                 pool_idle_connections: pool.idleConnections(),
                 avg_latency_ms: avgLatency,
+                uptime_percentage: uptimePercentage,
             };
         } finally {
             conn.release();
@@ -59,6 +96,7 @@ export async function checkDatabase(): Promise<HealthCheckResult> {
         result.metadata = {
             error: errorMessage,
             error_code: errorCode,
+            uptime_percentage: await calculateUptimePercentage('database', 60),
         };
     }
 
@@ -83,6 +121,9 @@ export async function checkSteamAPI(): Promise<HealthCheckResult> {
             result.status = 'fail';
             result.message = 'Steam API key not configured or invalid';
             result.latency_ms = Date.now() - startTime;
+            result.metadata = {
+                uptime_percentage: await calculateUptimePercentage('steam_api', 60),
+            };
             return result;
         }
 
@@ -95,6 +136,7 @@ export async function checkSteamAPI(): Promise<HealthCheckResult> {
             api_key_length: apiKey.length,
             has_steam_username: !!process.env.STEAM_USERNAME,
             has_steam_password: !!process.env.STEAM_PASSWORD,
+            uptime_percentage: await calculateUptimePercentage('steam_api', 60),
         };
     } catch (error: unknown) {
         result.status = 'fail';
@@ -103,6 +145,7 @@ export async function checkSteamAPI(): Promise<HealthCheckResult> {
         result.message = `Steam API check failed: ${errorMessage}`;
         result.metadata = {
             error: errorMessage,
+            uptime_percentage: await calculateUptimePercentage('steam_api', 60),
         };
     }
 
@@ -125,6 +168,7 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
         const stats = client.getSteamClientStats();
         
         result.latency_ms = Date.now() - startTime;
+        const uptimePercentage = await calculateUptimePercentage('steam_client', 60);
         
         if (!stats.isAvailable) {
             // Steam client not available - provide detailed feedback
@@ -157,6 +201,7 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
             unmasked_support: stats.unmaskedSupport,
             has_username: !!process.env.STEAM_USERNAME,
             has_password: !!process.env.STEAM_PASSWORD,
+            uptime_percentage: uptimePercentage,
         };
     } catch (error: unknown) {
         result.status = 'fail';
@@ -167,6 +212,7 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
             error: errorMessage,
             has_username: !!process.env.STEAM_USERNAME,
             has_password: !!process.env.STEAM_PASSWORD,
+            uptime_percentage: await calculateUptimePercentage('steam_client', 60),
         };
     }
 
