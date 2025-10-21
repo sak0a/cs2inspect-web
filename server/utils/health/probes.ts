@@ -1,0 +1,243 @@
+/**
+ * Health check probes for various system dependencies
+ */
+import { pool } from '~/server/database/database';
+import { getCS2Client } from '~/server/plugins/init';
+import type { HealthCheckResult, HealthStatus } from '~/server/types/health';
+
+/**
+ * Database connectivity health check
+ */
+export async function checkDatabase(): Promise<HealthCheckResult> {
+    const startTime = Date.now();
+    const result: HealthCheckResult = {
+        name: 'database',
+        status: 'ok',
+        checked_at: new Date(),
+    };
+
+    try {
+        const conn = await pool.getConnection();
+        
+        try {
+            // Perform a simple query to verify connectivity
+            await conn.query('SELECT 1');
+            
+            const latency = Date.now() - startTime;
+            result.latency_ms = latency;
+            
+            // Check thresholds
+            if (latency > 200) {
+                result.status = 'fail';
+                result.message = `Database latency too high: ${latency}ms`;
+            } else if (latency > 50) {
+                result.status = 'degraded';
+                result.message = `Database latency elevated: ${latency}ms`;
+            } else {
+                result.message = 'Database connection healthy';
+            }
+            
+            result.metadata = {
+                pool_active_connections: pool.activeConnections(),
+                pool_total_connections: pool.totalConnections(),
+                pool_idle_connections: pool.idleConnections(),
+            };
+        } finally {
+            conn.release();
+        }
+    } catch (error: any) {
+        result.status = 'fail';
+        result.latency_ms = Date.now() - startTime;
+        result.message = `Database check failed: ${error.message}`;
+        result.metadata = {
+            error: error.message,
+            error_code: error.code,
+        };
+    }
+
+    return result;
+}
+
+/**
+ * Steam API health check (API key presence and basic validation)
+ */
+export async function checkSteamAPI(): Promise<HealthCheckResult> {
+    const startTime = Date.now();
+    const result: HealthCheckResult = {
+        name: 'steam_api',
+        status: 'ok',
+        checked_at: new Date(),
+    };
+
+    try {
+        const apiKey = process.env.STEAM_API_KEY;
+        
+        if (!apiKey || apiKey.length < 10) {
+            result.status = 'fail';
+            result.message = 'Steam API key not configured or invalid';
+            result.latency_ms = Date.now() - startTime;
+            return result;
+        }
+
+        // Simple check - we can't make actual Steam API calls without implementing rate limiting
+        // and proper request handling, so we just validate the key exists
+        result.status = 'ok';
+        result.message = 'Steam API key configured';
+        result.latency_ms = Date.now() - startTime;
+        result.metadata = {
+            api_key_length: apiKey.length,
+            has_steam_username: !!process.env.STEAM_USERNAME,
+            has_steam_password: !!process.env.STEAM_PASSWORD,
+        };
+    } catch (error: any) {
+        result.status = 'fail';
+        result.latency_ms = Date.now() - startTime;
+        result.message = `Steam API check failed: ${error.message}`;
+        result.metadata = {
+            error: error.message,
+        };
+    }
+
+    return result;
+}
+
+/**
+ * Steam Client health check (CS2 inspect client status)
+ */
+export async function checkSteamClient(): Promise<HealthCheckResult> {
+    const startTime = Date.now();
+    const result: HealthCheckResult = {
+        name: 'steam_client',
+        status: 'ok',
+        checked_at: new Date(),
+    };
+
+    try {
+        const client = getCS2Client();
+        const stats = client.getSteamClientStats();
+        
+        result.latency_ms = Date.now() - startTime;
+        
+        if (!stats.isAvailable) {
+            // Steam client not available is not necessarily a failure if credentials aren't configured
+            const hasCredentials = process.env.STEAM_USERNAME && process.env.STEAM_PASSWORD;
+            
+            if (hasCredentials) {
+                result.status = 'fail';
+                result.message = 'Steam client configured but not connected';
+            } else {
+                result.status = 'degraded';
+                result.message = 'Steam client not configured (credentials missing)';
+            }
+        } else {
+            result.status = 'ok';
+            result.message = `Steam client ready - ${stats.status}`;
+        }
+        
+        result.metadata = {
+            is_ready: stats.isAvailable,
+            status: stats.status,
+            queue_length: stats.queueLength,
+            unmasked_support: stats.unmaskedSupport,
+        };
+    } catch (error: any) {
+        result.status = 'fail';
+        result.latency_ms = Date.now() - startTime;
+        result.message = `Steam client check failed: ${error.message}`;
+        result.metadata = {
+            error: error.message,
+        };
+    }
+
+    return result;
+}
+
+/**
+ * Environment configuration health check
+ */
+export async function checkEnvironment(): Promise<HealthCheckResult> {
+    const startTime = Date.now();
+    const result: HealthCheckResult = {
+        name: 'environment',
+        status: 'ok',
+        checked_at: new Date(),
+    };
+
+    try {
+        const requiredVars = [
+            'DATABASE_HOST',
+            'DATABASE_USER',
+            'DATABASE_PASSWORD',
+            'DATABASE_NAME',
+            'JWT_TOKEN',
+        ];
+
+        const missingVars: string[] = [];
+        const presentVars: string[] = [];
+
+        for (const varName of requiredVars) {
+            if (!process.env[varName]) {
+                missingVars.push(varName);
+            } else {
+                presentVars.push(varName);
+            }
+        }
+
+        result.latency_ms = Date.now() - startTime;
+
+        if (missingVars.length > 0) {
+            result.status = 'fail';
+            result.message = `Missing required environment variables: ${missingVars.join(', ')}`;
+        } else {
+            result.status = 'ok';
+            result.message = 'All required environment variables present';
+        }
+
+        result.metadata = {
+            required_vars_count: requiredVars.length,
+            present_vars_count: presentVars.length,
+            missing_vars: missingVars,
+            node_env: process.env.NODE_ENV || 'unknown',
+            port: process.env.PORT || 'default',
+        };
+    } catch (error: any) {
+        result.status = 'fail';
+        result.latency_ms = Date.now() - startTime;
+        result.message = `Environment check failed: ${error.message}`;
+        result.metadata = {
+            error: error.message,
+        };
+    }
+
+    return result;
+}
+
+/**
+ * Get overall system status from individual check results
+ */
+export function getOverallStatus(checks: HealthCheckResult[]): HealthStatus {
+    // If any check fails, overall status is fail
+    if (checks.some(check => check.status === 'fail')) {
+        return 'fail';
+    }
+    // If any check is degraded, overall status is degraded
+    if (checks.some(check => check.status === 'degraded')) {
+        return 'degraded';
+    }
+    // All checks passed
+    return 'ok';
+}
+
+/**
+ * Run all health checks in parallel
+ */
+export async function runAllHealthChecks(): Promise<HealthCheckResult[]> {
+    const checks = await Promise.all([
+        checkDatabase(),
+        checkSteamAPI(),
+        checkSteamClient(),
+        checkEnvironment(),
+    ]);
+
+    return checks;
+}

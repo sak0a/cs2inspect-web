@@ -56,4 +56,11 @@ export default defineNitroPlugin(async () => {
     initializeSteamClient().catch(error => {
         console.error('Failed to initialize CS2 Inspect client', error);
     });
+    
+    // Import health check sampler dynamically to avoid circular dependencies
+    const { startHealthCheckSampler } = await import('../utils/health/sampler');
+    
+    // Start health check sampler with 60 second interval
+    startHealthCheckSampler(60000);
+    console.log('Health check sampler started');
 });
