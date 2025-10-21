@@ -1,6 +1,12 @@
 <template>
   <div class="status-page min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
     <div class="max-w-7xl mx-auto">
+      <!-- Back to Home Link -->
+      <div class="mb-4">
+        <a href="/" class="text-blue-400 hover:text-blue-300 transition-colors">
+          ← Back to Home
+        </a>
+      </div>
       <!-- Header -->
       <div class="mb-8">
         <h1 class="text-4xl font-bold text-white mb-2">System Status</h1>
@@ -78,6 +84,11 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+
+// Use a simple layout without authentication
+definePageMeta({
+  layout: false,
+});
 
 interface HealthCheck {
   name: string;
