@@ -105,10 +105,20 @@ docker-compose up -d
    EXIT;
    ```
 
-4. **Import Database Schema**:
+4. **Database Schema**:
+   
+   **Note**: The application now uses **automatic database migrations**. You no longer need to manually import the schema. The migrations will run automatically when you start the server for the first time.
+   
+   If you prefer to manually initialize the database:
    ```bash
-   mysql -u csinspect -p csinspect < db_structure.sql
+   mysql -u csinspect -p csinspect < server/database/migrations/000_initial.sql
    ```
+   
+   The migration system will:
+   - Create all required tables automatically
+   - Track applied migrations in the `_migrations` table
+   - Run any new migrations on subsequent starts
+   - Skip already-applied migrations
 
 ### 4. Environment Configuration
 
@@ -187,6 +197,13 @@ npm run dev
 The application will be available at:
 - **Local**: http://localhost:3000
 - **Network**: http://YOUR_IP:3000
+- **Health Status**: http://localhost:3000/status
+
+**First Startup**:
+- Database migrations run automatically
+- Health check sampling starts automatically
+- Check console for migration progress
+- Monitor startup health at `/api/health/details`
 
 ### Production Build
 
@@ -221,14 +238,41 @@ docker-compose down
 
 ## Database Management
 
-### Migrations
+### Automatic Migrations
 
-Currently, the project uses SQL scripts for database schema management.
+The project now uses an **automatic migration system**. Migrations run on server startup.
 
-**Apply schema updates**:
+**How it works**:
+1. Migrations stored in `server/database/migrations/`
+2. Executed sequentially on startup (000_, 001_, 002_, etc.)
+3. Tracked in `_migrations` table
+4. Skips already-applied migrations
+5. Safe to re-run (idempotent operations)
+
+**Available Migrations**:
+- `000_initial.sql` - Initial database schema (base tables)
+- `001_add_health_checks.sql` - Health monitoring tables
+
+**No manual intervention required** - migrations run automatically!
+
+**Manual Migration (if needed)**:
 ```bash
-mysql -u csinspect -p csinspect < db_structure.sql
+# Apply specific migration
+mysql -u csinspect -p csinspect < server/database/migrations/000_initial.sql
+
+# Or apply all in order
+for file in server/database/migrations/*.sql; do
+  echo "Applying: $file"
+  mysql -u csinspect -p csinspect < "$file"
+done
 ```
+
+**Creating New Migrations**:
+1. Create file: `002_your_description.sql`
+2. Use sequential numbering
+3. Use `IF NOT EXISTS` for tables/indexes
+4. Document in `server/database/migrations/README.md`
+5. Restart server - migration runs automatically
 
 **Backup database**:
 ```bash
@@ -245,15 +289,23 @@ mysql -u csinspect -p csinspect < backup_20240101.sql
 The main tables are:
 
 ```
+# Core Application Tables
 wp_player_loadouts      - User loadout configurations
 wp_player_weapons       - Weapon customizations
 wp_player_knifes        - Knife customizations
 wp_player_gloves        - Glove customizations
 wp_player_agents        - Agent selections
 wp_player_pins          - Pin collections
+
+# Health Monitoring Tables (added in 001_add_health_checks.sql)
+health_check_history    - Historical health check data
+health_check_config     - Health check configuration
+
+# System Tables
+_migrations             - Migration tracking
 ```
 
-View the full schema in `db_structure.sql`.
+View migration files in `server/database/migrations/` directory.
 
 ---
 

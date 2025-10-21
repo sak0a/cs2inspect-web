@@ -19,6 +19,7 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 - **[Contributing Guide](contributing.md)** - How to contribute to the project
 
 ### Additional Resources
+- **[Health Checks](../HEALTH_CHECKS.md)** - Comprehensive health monitoring system
 - **[Theme Customization](theme-customization.md)** - UI theming and styling guide
 - **[Sticker Slots](StickerSlots.md)** - Sticker slot configuration
 - **[CS2 Inspect System](../CS2_INSPECT_SYSTEM_README.md)** - In-depth inspect URL processing
@@ -114,6 +115,7 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ### Specialized Topics
 
+- **Health Monitoring**: Comprehensive health check system with real-time monitoring ([HEALTH_CHECKS.md](../HEALTH_CHECKS.md))
 - **Theme Customization**: UI theming, color schemes, and styling ([theme-customization.md](theme-customization.md))
 - **Sticker Configuration**: Weapon sticker slot definitions ([StickerSlots.md](StickerSlots.md))
 - **CS2 Inspect System**: Protobuf encoding/decoding, Steam GC integration ([CS2_INSPECT_SYSTEM_README.md](../CS2_INSPECT_SYSTEM_README.md))
@@ -144,6 +146,9 @@ See the [Architecture Guide](architecture.md) for detailed information.
 - **Type Safety**: Full TypeScript implementation
 - **Internationalization**: Multi-language support (EN, DE, RU)
 - **Responsive Design**: Works on desktop, tablet, and mobile
+- **Health Monitoring**: Built-in health check system with status dashboard
+- **Automatic Migrations**: Database schema migrations run on startup
+- **Docker Ready**: Includes HEALTHCHECK for container orchestration
 
 ---
 
@@ -155,19 +160,22 @@ See the [Architecture Guide](architecture.md) for detailed information.
 - **Styling**: Tailwind CSS + SASS
 - **State**: Pinia
 - **Icons**: Iconify + MDI
+- **Charts**: Chart.js + vue-chartjs
 
 ### Backend
 - **Runtime**: Node.js with Nitro
-- **Database**: MariaDB/MySQL
+- **Database**: MariaDB/MySQL (with automatic migrations)
 - **Authentication**: Steam OpenID + JWT
 - **CS2 Integration**: cs2-inspect-lib, node-cs2
+- **Health Monitoring**: Built-in health check system
 
 ### DevOps
 - **Build**: Vite
 - **Testing**: Vitest + Vue Test Utils
 - **Linting**: ESLint
-- **Container**: Docker + Docker Compose
+- **Container**: Docker + Docker Compose (with HEALTHCHECK)
 - **Deployment**: Vercel compatible
+- **Monitoring**: Health checks + status dashboard
 
 ---
 

@@ -350,6 +350,68 @@ interface InspectItemDisplayProps {
 
 ---
 
+#### HealthCard.vue
+**Purpose**: Display health status for a system component
+
+**Features**:
+- Real-time component health status
+- Status indicators (ok, warn, fail)
+- Latency measurement display
+- Uptime percentage
+- Metadata display (connections, disk space, etc.)
+- Compact mini-chart view
+- Auto-refresh support
+
+**Props**:
+```typescript
+interface HealthCardProps {
+  component: string
+  status: 'ok' | 'warn' | 'fail'
+  latency_ms: number
+  uptime_percentage: number
+  metadata?: Record<string, any>
+  history?: HealthCheckData[]
+}
+```
+
+**Features**:
+- Color-coded status (green/yellow/red)
+- Responsive glassmorphism design
+- Historical data visualization
+- Expandable details panel
+
+---
+
+#### HistoryChart.vue
+**Purpose**: Visualize health check history with Chart.js
+
+**Features**:
+- Line charts for latency trends
+- Uptime visualization
+- Time-series data display
+- Interactive tooltips
+- Responsive canvas sizing
+- Multiple metrics support
+
+**Props**:
+```typescript
+interface HistoryChartProps {
+  data: HealthCheckData[]
+  component: string
+  metric: 'latency' | 'uptime' | 'status'
+  height?: number
+}
+```
+
+**Technical Implementation**:
+- Chart.js integration
+- Real-time data updates
+- Gradient fills
+- Custom tooltips
+- Responsive resizing
+
+---
+
 #### LoadoutSelector.vue
 **Purpose**: Manage multiple loadouts
 
@@ -465,6 +527,40 @@ Standard modal structure:
 </NModal>
 ```
 
+---
+
+## Pages
+
+### status.vue
+**Purpose**: System health status dashboard
+
+**Features**:
+- Real-time health monitoring for all components
+- Visual status indicators (Database, Environment, Steam API, etc.)
+- Historical health data with Chart.js visualizations
+- Uptime percentage tracking
+- Latency trends and performance metrics
+- Auto-refresh every 30 seconds
+- Responsive glassmorphism design
+- Back to home navigation
+
+**Components Used**:
+- `HealthCard.vue` - Individual component health cards
+- `HistoryChart.vue` - Historical data visualization
+- Chart.js for metric visualization
+
+**API Endpoints**:
+- `/api/health/details` - Current health status
+- `/api/health/history` - Historical health data
+
+**Access**: Available at `/status` (public, no authentication required)
+
+**Internationalization**:
+- English, German, Russian translations
+- Localized status messages and labels
+
+---
+
 ## Backend Components
 
 ### API Handlers
@@ -501,6 +597,46 @@ interface AuthResponse {
 - `GET /api/data/collectibles` - Pins and other collectibles
 
 **Caching**: Static data cached in-memory
+
+---
+
+#### Health Check Handlers
+**Directory**: `server/api/health/`
+
+**Purpose**: Provide health monitoring endpoints for system components
+
+**Endpoints**:
+- `GET /api/health/live` - Liveness probe (process running check)
+- `GET /api/health/ready` - Readiness probe (dependencies check)
+- `GET /api/health/details` - Detailed health information
+- `GET /api/health/history` - Historical health data
+
+**Health Probes** (`server/utils/health/probes.ts`):
+- Database connectivity and pool status
+- Environment variables validation
+- Steam API accessibility (optional)
+- Steam Game Coordinator connectivity (optional)
+- Disk space monitoring
+- Memory usage tracking
+- Response time measurement
+
+**Health Sampling** (`server/utils/health/sampler.ts`):
+- Automatic periodic health checks (every 60 seconds)
+- Data persistence to `health_check_history` table
+- Configurable sampling intervals
+- Runs in background on server startup
+
+**Health History** (`server/utils/health/history.ts`):
+- Query historical health data
+- Calculate uptime percentages
+- Aggregate latency statistics
+- Time-series data retrieval
+
+**Types** (`server/types/health.ts`):
+- `HealthCheckResult` - Individual check result
+- `HealthStatus` - Overall health status
+- `HealthProbe` - Probe function type
+- `HealthCheckConfig` - Configuration options
 
 ---
 
@@ -557,6 +693,53 @@ See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for deta
 - Query builders
 - Transaction support
 - Error handling
+
+---
+
+#### Database Migrations
+**Directory**: `server/database/migrations/`
+
+**Purpose**: Automatic database schema management
+
+**Migration System** (`server/utils/migrations/runner.ts`):
+- Runs automatically on server startup
+- Sequential execution (000_, 001_, 002_, etc.)
+- Tracks applied migrations in `_migrations` table
+- Idempotent operations (safe to re-run)
+- Handles SQL string literals with semicolons
+- Error handling and rollback support
+
+**Migration Files**:
+- `000_initial.sql` - Initial database schema (base tables)
+- `001_add_health_checks.sql` - Health monitoring tables
+- `README.md` - Migration system documentation
+
+**Creating New Migrations**:
+1. Create file: `00X_description.sql` (sequential numbering)
+2. Use `IF NOT EXISTS` for idempotency
+3. Use UPPERCASE SQL keywords
+4. Document changes in README
+5. Restart server (migrations run automatically)
+
+**Server Plugin** (`server/plugins/init.ts`):
+- Runs migrations on startup
+- Initializes health check sampling
+- Logs migration progress
+
+---
+
+#### Database Utilities (Legacy)
+**Directory**: `server/database/`
+
+**Purpose**: Database connection and query helpers (pre-migration system)
+
+**Features**:
+- Connection pooling
+- Query builders
+- Transaction support
+- Error handling
+
+**Note**: Now superseded by automatic migration system
 
 ---
 

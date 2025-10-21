@@ -144,6 +144,12 @@ Deploy using Docker containers for full control and portability.
          - STEAM_PASSWORD=${STEAM_PASSWORD}
        depends_on:
          - db
+       healthcheck:
+         test: ["CMD", "curl", "-f", "http://localhost:3000/api/health/ready"]
+         interval: 30s
+         timeout: 5s
+         retries: 3
+         start_period: 30s
        networks:
          - cs2inspect-network
    
@@ -513,6 +519,44 @@ LOG_API_REQUESTS=false
 ---
 
 ## Monitoring and Logging
+
+### Built-in Health Check System
+
+The application includes a comprehensive health monitoring system:
+
+**Health Check Endpoints**:
+- `/api/health/live` - Liveness probe (process running)
+- `/api/health/ready` - Readiness probe (dependencies healthy)
+- `/api/health/details` - Detailed component health
+- `/api/health/history` - Historical health data
+
+**Status Dashboard**:
+- Visual status page at `/status`
+- Real-time component health monitoring
+- Historical charts with Chart.js
+- Uptime percentage tracking
+- Auto-refresh every 30 seconds
+
+**Docker Health Checks**:
+The Dockerfile includes a built-in HEALTHCHECK:
+```dockerfile
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -fsS http://localhost:3000/api/health/ready || exit 1
+```
+
+**Health Check Configuration**:
+- Automatic health sampling every 60 seconds
+- Data stored in `health_check_history` table
+- Configurable via `health_check_config` table
+- Monitors: Database, Environment, Steam API, Disk, Memory
+
+**Using Health Checks**:
+1. **Kubernetes**: Configure liveness and readiness probes
+2. **Docker Compose**: Built-in healthcheck in service definition
+3. **Load Balancers**: Point health checks to `/api/health/ready`
+4. **Monitoring Tools**: Query `/api/health/details` for metrics
+
+See [HEALTH_CHECKS.md](../HEALTH_CHECKS.md) for complete documentation.
 
 ### Application Monitoring
 

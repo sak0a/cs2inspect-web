@@ -13,6 +13,7 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 - **State Management**: Pinia
 - **Internationalization**: nuxt-i18n-micro (English, German, Russian)
 - **Icons**: Iconify + Material Design Icons
+- **Charts**: Chart.js + vue-chartjs (for health monitoring)
 
 ### Backend
 - **Runtime**: Node.js with Nitro server
@@ -28,8 +29,9 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 - **Testing**: Vitest + Vue Test Utils
 - **Linting**: ESLint
 - **Package Manager**: npm
-- **Containerization**: Docker + Docker Compose
+- **Containerization**: Docker + Docker Compose (with HEALTHCHECK)
 - **Deployment**: Vercel (configured)
+- **Health Monitoring**: Built-in health check system with status dashboard
 
 ## High-Level Architecture
 
@@ -91,6 +93,7 @@ graph TB
 ```
 pages/
 ├── index.vue           # Main dashboard/loadout management
+├── status.vue          # System health status dashboard
 ├── weapons/
 │   └── [type].vue     # Dynamic weapon customization pages
 ├── knifes/
@@ -117,6 +120,8 @@ components/
 ├── InspectItemDisplay.vue     # Item preview display
 ├── LoadoutSelector.vue        # Loadout management
 ├── ThemeProvider.vue          # Theme configuration
+├── HealthCard.vue             # Health status card component
+├── HistoryChart.vue           # Health history chart component
 └── [Various Tab Components]   # Item category tabs
 ```
 
@@ -165,7 +170,34 @@ server/api/
 │   └── select.ts            # Switch active loadout
 ├── pins/
 │   └── index.ts             # Pin management
-└── inspect.ts               # CS2 inspect URL processing
+├── inspect.ts               # CS2 inspect URL processing
+└── health/
+    ├── live.ts              # Liveness probe endpoint
+    ├── ready.ts             # Readiness probe endpoint
+    ├── details.ts           # Detailed health information
+    └── history.ts           # Health check history
+```
+
+#### Health Monitoring System
+```
+server/utils/health/
+├── probes.ts                 # Health check probes (DB, env, etc.)
+├── sampler.ts                # Periodic health sampling
+└── history.ts                # Health data persistence
+
+server/types/
+└── health.ts                 # Health check type definitions
+```
+
+#### Database Migrations
+```
+server/database/migrations/
+├── README.md                 # Migration system documentation
+├── 000_initial.sql           # Initial database schema
+└── 001_add_health_checks.sql # Health monitoring tables
+
+server/utils/migrations/
+└── runner.ts                 # Automatic migration runner
 ```
 
 #### CS2 Inspect System
@@ -188,7 +220,18 @@ wp_player_knifes            # Knife customizations per loadout
 wp_player_gloves            # Glove customizations per loadout
 wp_player_agents            # Agent selections per loadout
 wp_player_pins              # Pin collections per loadout
+health_check_history        # Health monitoring data
+health_check_config         # Health check configuration
+_migrations                 # Migration tracking
 ```
+
+#### Automatic Migrations
+
+The application includes an **automatic migration system** that runs on startup:
+- Migrations stored in `server/database/migrations/`
+- Executed sequentially on server start
+- Tracked in `_migrations` table
+- Safe to re-run (idempotent operations)
 
 #### Data Flow
 ```mermaid
@@ -304,11 +347,52 @@ Vercel Platform
 
 ## Monitoring & Logging
 
+### Health Check System
+
+The application includes a **comprehensive health monitoring system**:
+
+**Health Check Endpoints:**
+- `/api/health/live` - Liveness probe (always returns OK if process is running)
+- `/api/health/ready` - Readiness probe (checks critical dependencies)
+- `/api/health/details` - Detailed health information for all components
+- `/api/health/history` - Historical health data with trends
+
+**Monitored Components:**
+- **Database**: Connection pool health, active/idle connections, latency
+- **Environment**: Required environment variables validation
+- **Steam API**: Steam Web API connectivity (if configured)
+- **Steam GC**: Game Coordinator connectivity (if configured)
+- **Disk Space**: Available disk space monitoring
+- **Memory**: Memory usage tracking
+- **Response Time**: API response time measurement
+
+**Health Status Dashboard:**
+- Visual status page at `/status`
+- Real-time health metrics with Chart.js visualizations
+- Historical data with uptime percentages
+- Automatic refresh every 30 seconds
+- Glassmorphism UI design with responsive layout
+
+**Docker Integration:**
+- Built-in `HEALTHCHECK` in Dockerfile
+- Automatic container health monitoring
+- Uses `/api/health/ready` endpoint
+- 30s interval, 5s timeout, 3 retries
+
+**Data Persistence:**
+- Health check results stored in `health_check_history` table
+- Automatic sampling every 60 seconds (configurable)
+- Historical trends for monitoring patterns
+- Configurable retention period
+
+See [HEALTH_CHECKS.md](../HEALTH_CHECKS.md) for complete documentation.
+
 ### Current Logging
 - API request logging (optional via `LOG_API_REQUESTS`)
 - Error logging to console
 - Steam client connection status
 - Database query logging
+- Health check sampling and results
 
 ### Future Monitoring
 - Application Performance Monitoring (APM)
@@ -316,6 +400,7 @@ Vercel Platform
 - User analytics
 - Database query performance
 - Steam API rate limit tracking
+- Alerting system for health check failures
 
 ## Related Documentation
 
@@ -323,3 +408,4 @@ Vercel Platform
 - [API Reference](api.md) - Complete API endpoint documentation
 - [Setup Guide](setup.md) - Local development setup
 - [Deployment Guide](deployment.md) - Production deployment
+- [Health Checks](../HEALTH_CHECKS.md) - Health monitoring system documentation
