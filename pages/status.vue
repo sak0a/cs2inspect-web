@@ -3,7 +3,15 @@
     <NSpace vertical :size="24" class="max-w-7xl mx-auto p-8">
       <!-- Header -->
       <NSpace vertical :size="8">
-        <NButton text tag="a" href="/" type="primary" class="!p-0">
+        <NButton 
+          text 
+          tag="a" 
+          href="/" 
+          type="primary" 
+          class="back-to-home-button"
+          :bordered="true"
+          size="large"
+        >
           <template #icon>
             <NIcon :component="ArrowLeftIcon" />
           </template>
@@ -241,6 +249,19 @@ onUnmounted(() => {
   min-height: 100vh
   background: var(--bg-primary)
   font-family: 'Inter', system-ui, -apple-system, sans-serif
+  overflow-y: auto
+
+.back-to-home-button
+  backdrop-filter: var(--glass-blur-light)
+  background: var(--glass-bg-secondary) !important
+  border: 1px solid var(--glass-border) !important
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2)
+  transition: all 0.3s ease
+  
+  &:hover
+    transform: translateX(-4px)
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3)
+    border-color: rgba(96, 165, 250, 0.5) !important
 
 .glass-card
   backdrop-filter: var(--glass-blur-medium) saturate(160%)
