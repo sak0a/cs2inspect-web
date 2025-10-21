@@ -9,6 +9,7 @@
           href="/" 
           class="back-to-home-button"
           size="large"
+          round
         >
           <template #icon>
             <NIcon :component="ArrowLeftIcon" />
@@ -75,8 +76,8 @@
             {{ t('noHistoricalData') }}
           </div>
 
-          <!-- Grid layout for charts - 2 columns on desktop, 1 on mobile -->
-          <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <!-- Full-width charts - one per row -->
+          <div v-else class="grid grid-cols-1 gap-6">
             <HistoryChart
               v-for="data in filteredHistoricalData"
               :key="data.check_name"

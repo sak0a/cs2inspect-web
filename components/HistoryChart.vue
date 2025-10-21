@@ -11,6 +11,7 @@
       </div>
     </template>
     
+    <!-- Full chart view when expanded -->
     <NCollapseTransition :show="!collapsed">
       <div class="chart-container glass-container rounded-lg p-4 relative">
         <!-- Chart.js chart -->
@@ -24,6 +25,21 @@
         <!-- No data message -->
         <div v-else class="flex items-center justify-center" style="color: var(--text-tertiary); min-height: 200px;">
           No data available for this period
+        </div>
+      </div>
+    </NCollapseTransition>
+    
+    <!-- Mini sparkline view when collapsed -->
+    <NCollapseTransition :show="collapsed">
+      <div class="mini-chart-container glass-container rounded-lg p-2 relative">
+        <Line 
+          v-if="hasData" 
+          :data="miniChartData" 
+          :options="miniChartOptions" 
+          :height="40"
+        />
+        <div v-else class="flex items-center justify-center text-xs" style="color: var(--text-tertiary); min-height: 40px;">
+          No data
         </div>
       </div>
     </NCollapseTransition>
@@ -209,6 +225,101 @@ const chartOptions = computed<ChartJSOptions<'line'>>(() => ({
     mode: 'index'
   }
 }));
+
+// Mini chart data (same as full chart but simplified)
+const miniChartData = computed(() => {
+  if (!hasData.value) {
+    return {
+      labels: [],
+      datasets: []
+    };
+  }
+
+  const points = props.data.data_points;
+  
+  // Sample data points for sparkline (show every nth point to keep it simple)
+  const sampleRate = Math.max(1, Math.floor(points.length / 50));
+  const sampledPoints = points.filter((_, index) => index % sampleRate === 0);
+  
+  // Labels (empty for mini view)
+  const labels = sampledPoints.map(() => '');
+
+  // Latency data
+  const latencyData = sampledPoints.map(p => p.latency_ms || 0);
+  
+  // Point colors based on status
+  const pointColors = sampledPoints.map(p => {
+    if (p.status === 'ok') return 'rgb(16, 185, 129)'; // green
+    if (p.status === 'degraded') return 'rgb(245, 158, 11)'; // yellow
+    return 'rgb(239, 68, 68)'; // red
+  });
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: 'Latency',
+        data: latencyData,
+        borderColor: 'rgba(96, 165, 250, 0.6)',
+        backgroundColor: 'rgba(96, 165, 250, 0.05)',
+        pointBackgroundColor: pointColors,
+        pointBorderColor: pointColors,
+        pointRadius: 2,
+        pointHoverRadius: 3,
+        borderWidth: 1.5,
+        fill: true,
+        tension: 0.4,
+      }
+    ]
+  };
+});
+
+// Mini chart options (simplified, no axes labels)
+const miniChartOptions = computed<ChartJSOptions<'line'>>(() => ({
+  responsive: true,
+  maintainAspectRatio: false,
+  plugins: {
+    legend: {
+      display: false
+    },
+    tooltip: {
+      enabled: true,
+      backgroundColor: 'rgba(0, 0, 0, 0.8)',
+      titleColor: 'rgba(255, 255, 255, 0.9)',
+      bodyColor: 'rgba(255, 255, 255, 0.9)',
+      borderColor: 'rgba(255, 255, 255, 0.1)',
+      borderWidth: 1,
+      padding: 8,
+      displayColors: false,
+      callbacks: {
+        title: () => '',
+        label: (context) => {
+          const value = context.parsed.y;
+          return `${value}ms`;
+        }
+      }
+    }
+  },
+  scales: {
+    x: {
+      display: false,
+      grid: {
+        display: false
+      }
+    },
+    y: {
+      display: false,
+      beginAtZero: true,
+      grid: {
+        display: false
+      }
+    }
+  },
+  interaction: {
+    intersect: false,
+    mode: 'nearest'
+  }
+}));
 </script>
 
 <style scoped lang="sass">
@@ -222,6 +333,13 @@ const chartOptions = computed<ChartJSOptions<'line'>>(() => ({
   backdrop-filter: var(--glass-blur-light)
   background: rgba(0, 0, 0, 0.3) !important
   border: 1px solid rgba(255, 255, 255, 0.05)
+
+.chart-container
+  min-height: 200px
+
+.mini-chart-container
+  min-height: 44px
+  height: 44px
 
 .rotate-180
   transform: rotate(180deg)
