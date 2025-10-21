@@ -6,7 +6,7 @@
     
     <div class="chart-container bg-gray-900 rounded-lg p-4 relative overflow-hidden">
       <!-- Canvas for drawing chart -->
-      <canvas ref="canvasRef" class="w-full" :height="chartHeight"></canvas>
+      <canvas ref="canvasRef" class="w-full" :height="chartHeight" />
       
       <!-- No data message -->
       <div v-if="!hasData" class="absolute inset-0 flex items-center justify-center text-gray-500">
@@ -17,15 +17,15 @@
     <!-- Legend -->
     <div class="flex items-center justify-center space-x-6 mt-3 text-sm">
       <div class="flex items-center space-x-2">
-        <div class="w-3 h-3 rounded-full bg-green-500"></div>
+        <div class="w-3 h-3 rounded-full bg-green-500" />
         <span class="text-gray-400">OK</span>
       </div>
       <div class="flex items-center space-x-2">
-        <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+        <div class="w-3 h-3 rounded-full bg-yellow-500" />
         <span class="text-gray-400">Degraded</span>
       </div>
       <div class="flex items-center space-x-2">
-        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+        <div class="w-3 h-3 rounded-full bg-red-500" />
         <span class="text-gray-400">Failed</span>
       </div>
     </div>

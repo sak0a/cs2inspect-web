@@ -30,8 +30,9 @@ export default defineEventHandler(async (event): Promise<HistoricalHealthData[]>
     try {
         const history = await getHealthCheckHistory(historyQuery);
         return history;
-    } catch (error: any) {
-        console.error('Failed to fetch health check history:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Failed to fetch health check history:', errorMessage);
         return [];
     }
 });

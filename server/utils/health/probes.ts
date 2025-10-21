@@ -45,13 +45,15 @@ export async function checkDatabase(): Promise<HealthCheckResult> {
         } finally {
             conn.release();
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
         result.status = 'fail';
         result.latency_ms = Date.now() - startTime;
-        result.message = `Database check failed: ${error.message}`;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        const errorCode = error && typeof error === 'object' && 'code' in error ? (error as { code: string }).code : undefined;
+        result.message = `Database check failed: ${errorMessage}`;
         result.metadata = {
-            error: error.message,
-            error_code: error.code,
+            error: errorMessage,
+            error_code: errorCode,
         };
     }
 
@@ -89,12 +91,13 @@ export async function checkSteamAPI(): Promise<HealthCheckResult> {
             has_steam_username: !!process.env.STEAM_USERNAME,
             has_steam_password: !!process.env.STEAM_PASSWORD,
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
         result.status = 'fail';
         result.latency_ms = Date.now() - startTime;
-        result.message = `Steam API check failed: ${error.message}`;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        result.message = `Steam API check failed: ${errorMessage}`;
         result.metadata = {
-            error: error.message,
+            error: errorMessage,
         };
     }
 
@@ -140,12 +143,13 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
             queue_length: stats.queueLength,
             unmasked_support: stats.unmaskedSupport,
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
         result.status = 'fail';
         result.latency_ms = Date.now() - startTime;
-        result.message = `Steam client check failed: ${error.message}`;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        result.message = `Steam client check failed: ${errorMessage}`;
         result.metadata = {
-            error: error.message,
+            error: errorMessage,
         };
     }
 
@@ -200,12 +204,13 @@ export async function checkEnvironment(): Promise<HealthCheckResult> {
             node_env: process.env.NODE_ENV || 'unknown',
             port: process.env.PORT || 'default',
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
         result.status = 'fail';
         result.latency_ms = Date.now() - startTime;
-        result.message = `Environment check failed: ${error.message}`;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        result.message = `Environment check failed: ${errorMessage}`;
         result.metadata = {
-            error: error.message,
+            error: errorMessage,
         };
     }
 

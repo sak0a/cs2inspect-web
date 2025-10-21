@@ -65,8 +65,9 @@ async function runHealthCheckSample(): Promise<void> {
         };
         
         console.log(`Health check sample completed: ${statusCounts.ok} ok, ${statusCounts.degraded} degraded, ${statusCounts.fail} fail`);
-    } catch (error: any) {
-        console.error('Health check sample failed:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Health check sample failed:', errorMessage);
     }
 }
 
@@ -81,8 +82,9 @@ function startCleanupJob(): void {
         try {
             const deleted = await cleanupHealthCheckHistory(7); // Keep 7 days
             console.log(`Cleaned up ${deleted} old health check records`);
-        } catch (error: any) {
-            console.error('Health check cleanup failed:', error.message);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            console.error('Health check cleanup failed:', errorMessage);
         }
     }, oneDayMs);
 }

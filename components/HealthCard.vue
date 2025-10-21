@@ -23,7 +23,7 @@
           class="h-full transition-all duration-300"
           :class="latencyBarClass"
           :style="{ width: latencyBarWidth }"
-        ></div>
+        />
       </div>
     </div>
 

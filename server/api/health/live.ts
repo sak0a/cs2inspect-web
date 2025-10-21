@@ -6,7 +6,7 @@
 import { defineEventHandler } from 'h3';
 import type { LivenessResponse } from '~/server/types/health';
 
-export default defineEventHandler(async (event): Promise<LivenessResponse> => {
+export default defineEventHandler(async (): Promise<LivenessResponse> => {
     // Simple liveness check - if we can respond, we're alive
     return {
         status: 'ok',

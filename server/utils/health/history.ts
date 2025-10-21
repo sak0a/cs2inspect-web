@@ -23,9 +23,10 @@ export async function saveHealthCheckResult(result: HealthCheckResult): Promise<
             ],
             'Failed to save health check result'
         );
-    } catch (error: any) {
+    } catch (error: unknown) {
         // Don't throw - health check persistence failures shouldn't break the app
-        console.error('Failed to save health check result:', error.message);
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Failed to save health check result:', errorMessage);
     }
 }
 
@@ -50,7 +51,7 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
     let sql = `SELECT check_name, status, latency_ms, checked_at 
                FROM health_check_history 
                WHERE 1=1`;
-    const params: any[] = [];
+    const params: unknown[] = [];
 
     if (check_name) {
         sql += ' AND check_name = ?';
@@ -71,7 +72,14 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
     params.push(limit);
 
     try {
-        const rows = await executeQuery<any[]>(
+        interface HistoryRow {
+            check_name: string;
+            status: 'ok' | 'degraded' | 'fail';
+            latency_ms: number | null;
+            checked_at: string | Date;
+        }
+        
+        const rows = await executeQuery<HistoryRow[]>(
             sql,
             params,
             'Failed to fetch health check history'
@@ -101,8 +109,9 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
         });
 
         return Array.from(grouped.values());
-    } catch (error: any) {
-        console.error('Failed to fetch health check history:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Failed to fetch health check history:', errorMessage);
         return [];
     }
 }
@@ -113,7 +122,7 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
  */
 export async function cleanupHealthCheckHistory(daysToKeep: number = 7): Promise<number> {
     try {
-        const result = await executeQuery<any>(
+        const result = await executeQuery<{ affectedRows?: number }>(
             `DELETE FROM health_check_history 
              WHERE checked_at < DATE_SUB(NOW(), INTERVAL ? DAY)`,
             [daysToKeep],
@@ -121,8 +130,9 @@ export async function cleanupHealthCheckHistory(daysToKeep: number = 7): Promise
         );
 
         return result.affectedRows || 0;
-    } catch (error: any) {
-        console.error('Failed to cleanup health check history:', error.message);
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        console.error('Failed to cleanup health check history:', errorMessage);
         return 0;
     }
 }

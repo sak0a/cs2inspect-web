@@ -27,9 +27,9 @@
             </div>
           </div>
           <button 
-            @click="refreshStatus"
             class="px-4 py-2 bg-white bg-opacity-20 rounded-lg hover:bg-opacity-30 transition-all"
             :disabled="loading"
+            @click="refreshStatus"
           >
             <span v-if="loading">Refreshing...</span>
             <span v-else>↻ Refresh</span>
@@ -52,8 +52,8 @@
           <h2 class="text-2xl font-bold text-white">Performance History</h2>
           <select 
             v-model="timeRange"
-            @change="loadHistory"
             class="px-4 py-2 bg-gray-700 text-white rounded-lg border border-gray-600 focus:outline-none focus:border-blue-500"
+            @change="loadHistory"
           >
             <option value="1h">Last Hour</option>
             <option value="6h">Last 6 Hours</option>

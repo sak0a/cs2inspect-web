@@ -9,7 +9,7 @@ export interface HealthCheckResult {
     status: HealthStatus;
     latency_ms?: number;
     message?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     checked_at: Date;
 }
 

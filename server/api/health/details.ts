@@ -6,7 +6,7 @@ import { defineEventHandler } from 'h3';
 import { runAllHealthChecks, getOverallStatus } from '~/server/utils/health/probes';
 import type { DetailedHealthResponse } from '~/server/types/health';
 
-export default defineEventHandler(async (event): Promise<DetailedHealthResponse> => {
+export default defineEventHandler(async (): Promise<DetailedHealthResponse> => {
     try {
         const checks = await runAllHealthChecks();
         const overallStatus = getOverallStatus(checks);
@@ -16,8 +16,9 @@ export default defineEventHandler(async (event): Promise<DetailedHealthResponse>
             timestamp: new Date(),
             checks,
         };
-    } catch (error: any) {
+    } catch (error: unknown) {
         // Even if the check fails, try to return some information
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return {
             status: 'fail',
             timestamp: new Date(),
@@ -25,7 +26,7 @@ export default defineEventHandler(async (event): Promise<DetailedHealthResponse>
                 name: 'system',
                 status: 'fail',
                 checked_at: new Date(),
-                message: `Health check failed: ${error.message}`,
+                message: `Health check failed: ${errorMessage}`,
             }],
         };
     }

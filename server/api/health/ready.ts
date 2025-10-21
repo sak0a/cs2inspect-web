@@ -7,7 +7,7 @@ import { defineEventHandler, createError } from 'h3';
 import { checkDatabase, checkEnvironment, getOverallStatus } from '~/server/utils/health/probes';
 import type { ReadinessResponse } from '~/server/types/health';
 
-export default defineEventHandler(async (event): Promise<ReadinessResponse> => {
+export default defineEventHandler(async (): Promise<ReadinessResponse> => {
     try {
         // Run critical checks only (database and environment)
         // Steam checks are optional - app can function without them for basic operations
@@ -40,16 +40,17 @@ export default defineEventHandler(async (event): Promise<ReadinessResponse> => {
         }
 
         return response;
-    } catch (error: any) {
+    } catch (error: unknown) {
         // If it's already an H3 error, rethrow it
-        if (error.statusCode) {
+        if (error && typeof error === 'object' && 'statusCode' in error) {
             throw error;
         }
 
         // Otherwise, create a 503 error
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         throw createError({
             statusCode: 503,
-            message: `Readiness check failed: ${error.message}`,
+            message: `Readiness check failed: ${errorMessage}`,
         });
     }
 });
