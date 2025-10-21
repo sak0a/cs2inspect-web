@@ -11,7 +11,10 @@
     "lint": "eslint .",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "docs:dev": "vitepress dev site",
+    "docs:build": "vitepress build site",
+    "docs:serve": "vitepress serve site"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
@@ -44,6 +47,7 @@
     "ts-node": "^10.9.2",
     "unplugin-vue-components": "^0.27.5",
     "unzipper": "^0.12.3",
+    "vitepress": "^1.6.4",
     "vitest": "^3.2.4"
   },
   "dependencies": {
@@ -67,7 +71,7 @@
     "pinia": "^2.3.1",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-    "typescript": "^5.9.3"
+    "typescript": "^5.0.0"
   },
   "module": "index.ts",
   "peerDependencies": {
