@@ -52,8 +52,25 @@ export function getCS2Client(): CS2Inspect {
 }
 
 export default defineNitroPlugin(async () => {
+    // Run database migrations first
+    try {
+        const { runMigrations } = await import('../utils/migrations/runner');
+        await runMigrations();
+    } catch (error) {
+        console.error('Failed to run database migrations:', error);
+        // Don't throw - allow server to start even if migrations fail
+        // This allows manual intervention if needed
+    }
+    
     await initCSGOApiData()
     initializeSteamClient().catch(error => {
         console.error('Failed to initialize CS2 Inspect client', error);
     });
+    
+    // Import health check sampler dynamically to avoid circular dependencies
+    const { startHealthCheckSampler } = await import('../utils/health/sampler');
+    
+    // Start health check sampler with 60 second interval
+    startHealthCheckSampler(60000);
+    console.log('Health check sampler started');
 });

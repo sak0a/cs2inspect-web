@@ -38,5 +38,12 @@ services:
       # Map host:container ports, defaulting to 3000 if not set in Coolify
       - "${PORT:-3000}:${PORT:-3000}"
 
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/health/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
     # No database service here; Coolify manages DB separately
 
