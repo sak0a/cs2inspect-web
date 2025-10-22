@@ -11,7 +11,10 @@
     "lint": "eslint .",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "docs:dev": "cd site && npm run dev",
+    "docs:build": "cd site && npm run build",
+    "docs:serve": "cd site && npm run serve"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",

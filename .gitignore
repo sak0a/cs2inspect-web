@@ -6,8 +6,13 @@
 .cache
 dist
 
+# VitePress build outputs
+site/.vitepress/dist
+site/.vitepress/cache
+
 # Node dependencies
 node_modules
+site/node_modules
 
 # Logs
 logs
