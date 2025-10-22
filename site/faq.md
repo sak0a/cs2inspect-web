@@ -95,22 +95,11 @@ For most weapons:
 
 ### What is float value?
 
-Float value (paint wear) determines the condition of a skin:
-- **0.00 - 0.07**: Factory New (FN)
-- **0.07 - 0.15**: Minimal Wear (MW)
-- **0.15 - 0.38**: Field-Tested (FT)
-- **0.38 - 0.45**: Well-Worn (WW)
-- **0.45 - 1.00**: Battle-Scarred (BS)
-
-Lower float = less wear = cleaner appearance.
+Float value determines the wear condition of a skin, ranging from 0.00 (Factory New - cleanest) to 1.00 (Battle-Scarred - most worn). Lower float values generally look better.
 
 ### What is pattern seed?
 
-Pattern seed (0-1000) affects how the skin pattern is placed on the weapon. This is especially important for skins like:
-- Case Hardened (blue gem patterns)
-- Fade (fade percentage)
-- Marble Fade (pattern variations)
-- Crimson Web (web placement)
+Pattern seed affects how the skin pattern is placed on the weapon. This is especially important for certain skins like Case Hardened, Fade, and Marble Fade where different patterns can have significantly different appearances.
 
 ### How do StatTrak™ weapons work?
 
@@ -161,16 +150,7 @@ Knives:
 
 ### What are Doppler phases?
 
-Doppler skins have multiple phases:
-- **Phase 1**: Purple/pink dominant
-- **Phase 2**: Pink/magenta dominant  
-- **Phase 3**: Blue/dark dominant
-- **Phase 4**: Blue dominant
-- **Ruby**: Pure red (rare)
-- **Sapphire**: Pure blue (rare)
-- **Black Pearl**: Dark/purple (rare)
-
-The pattern seed determines the phase.
+Doppler skins have different color variations (phases) that are determined by the pattern seed. Some phases (like Ruby, Sapphire, and Black Pearl) are rarer and more valuable than others.
 
 ### How do gloves work?
 
@@ -197,21 +177,11 @@ An inspect link is a special URL from CS2 that contains encoded item data. You c
 
 ### What are masked and unmasked URLs?
 
-**Masked URLs** (hex-encoded):
-```
-steam://rungame/730/.../+csgo_econ_action_preview%20{hex_data}
-```
-- Contains all item data encoded in protobuf
-- Works without Steam account
-- Common on Steam Market
+There are two types of inspect links:
+- **Masked URLs**: Contain all item data encoded directly in the link (common on Steam Market)
+- **Unmasked URLs**: Reference an item in someone's inventory (used for player inventory items)
 
-**Unmasked URLs** (inventory reference):
-```
-steam://rungame/730/.../+csgo_econ_action_preview%20S{steamid}A{assetid}D{classid}
-```
-- References item in someone's inventory
-- Requires Steam account to fetch data
-- Used for player inventory items
+Both types can be imported into CS2Inspect.
 
 ### How do I import an item from an inspect link?
 

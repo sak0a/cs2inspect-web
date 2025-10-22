@@ -2,10 +2,11 @@
 
 Welcome to the comprehensive documentation for CS2Inspect, a web application for Counter-Strike 2 players to customize and manage their in-game item loadouts.
 
-## 📚 Table of Contents
+## Table of Contents
 
 ### Getting Started
-- **[Setup Guide](setup.md)** <Badge type="tip" text="Start Here" /> - Complete development environment setup
+- **[User Guide](user-guide.md)** <Badge type="tip" text="For End Users" /> - How to use the application
+- **[Setup Guide](setup.md)** <Badge type="tip" text="For Developers" /> - Complete development environment setup
 - **[How It Works](how-it-works.md)** <Badge type="info" text="Core Concepts" /> - User flows and core features explained
 - **[FAQ](faq.md)** <Badge type="warning" text="Troubleshooting" /> - Frequently asked questions and troubleshooting
 
@@ -26,7 +27,7 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### For Users
 
@@ -35,6 +36,8 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 3. **Create Loadout**: Set up your first loadout configuration
 4. **Customize Items**: Select weapons, skins, stickers, and more
 5. **Save & Manage**: Your configurations are automatically saved
+
+See the **[User Guide](user-guide.md)** for detailed instructions.
 
 ### For Developers
 
@@ -58,7 +61,7 @@ See the [Setup Guide](setup.md) for detailed instructions.
 
 ---
 
-## 🎯 What is CS2Inspect?
+## What is CS2Inspect?
 
 CS2Inspect is a full-stack web application that allows Counter-Strike 2 players to:
 
@@ -78,7 +81,7 @@ This web application is designed to work with the **CS2Inspect Plugin** (Counter
 
 ---
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```
 Frontend (Nuxt 3 + Vue 3)
@@ -103,12 +106,13 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ---
 
-## 📖 Documentation Structure
+## Documentation Structure
 
 ### Core Guides
 
 | Document | Purpose | Audience |
 |----------|---------|----------|
+| [User Guide](user-guide.md) | Using the application | End users |
 | [Setup](setup.md) | Development environment setup | Developers |
 | [How It Works](how-it-works.md) | Feature explanations and flows | All users |
 | [Architecture](architecture.md) | System design and structure | Developers, DevOps |
@@ -128,7 +132,7 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ---
 
-## 🔑 Key Features
+## Key Features
 
 ### Weapon Customization
 - **Thousands of Skins**: Browse and select from the complete CS2 skin catalog
@@ -157,7 +161,7 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 ### Frontend
 - **Framework**: Nuxt 3 (Vue 3 + TypeScript)
@@ -184,7 +188,7 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 We welcome contributions! Please read the [Contributing Guide](contributing.md) for:
 
@@ -194,15 +198,49 @@ We welcome contributions! Please read the [Contributing Guide](contributing.md) 
 - Issue guidelines
 - Testing requirements
 
+### Internationalization
+
+We especially welcome contributions for **translations**! The application currently supports:
+- English (EN)
+- German (DE)
+- Russian (RU)
+
+To contribute translations:
+1. Check the `locales/` directory for existing language files
+2. Copy the English (`en.json`) file
+3. Translate the strings to your language
+4. Test your translations in the application
+5. Submit a pull request
+
+See the [Contributing Guide](contributing.md) for detailed instructions on adding new languages.
+
 ---
 
-## 📝 License
+## Credits
+
+### Main Author
+- **[@sak0a](https://github.com/sak0a)** - Creator and maintainer
+
+### Dependencies & Libraries
+This project is built with the help of many excellent open-source libraries:
+- **Nuxt 3** - Vue.js framework
+- **Naive UI** - Vue 3 component library
+- **cs2-inspect-lib** - CS2 item inspection
+- **node-cs2** - Steam Game Coordinator integration
+- **And many more** - See `package.json` for the complete list
+
+### Contributors
+All contributors who have submitted pull requests, reported bugs, suggested features, or helped improve documentation.
+
+---
+
+## License
 
 [Add your license information here]
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 - **Repository**: https://github.com/sak0a/cs2inspect-web
 - **Issues**: Report bugs and request features
@@ -210,18 +248,19 @@ We welcome contributions! Please read the [Contributing Guide](contributing.md) 
 
 ---
 
-## 📬 Support
+## Support
 
 Need help? Check these resources:
 
-1. **[FAQ](faq.md)** - Common questions and solutions
-2. **Documentation** - Search this docs directory
-3. **GitHub Issues** - Search existing issues
-4. **GitHub Discussions** - Ask the community
+1. **[User Guide](user-guide.md)** - Step-by-step usage instructions
+2. **[FAQ](faq.md)** - Common questions and solutions
+3. **Documentation** - Search this docs directory
+4. **GitHub Issues** - Search existing issues
+5. **GitHub Discussions** - Ask the community
 
 ---
 
-## 🎮 Related Projects
+## Related Projects
 
 - **cs2-inspect-lib**: CS2 item inspection library
 - **node-cs2**: Steam Game Coordinator integration
@@ -229,7 +268,7 @@ Need help? Check these resources:
 
 ---
 
-## 📅 Documentation Updates
+## Documentation Updates
 
 This documentation is actively maintained. Last major update: January 2025
 
@@ -239,7 +278,7 @@ This documentation is actively maintained. Last major update: January 2025
 
 ## Navigation
 
-**Getting Started** → [Setup Guide](setup.md) → [How It Works](how-it-works.md)
+**Getting Started** → [User Guide](user-guide.md) → [Setup Guide](setup.md) → [How It Works](how-it-works.md)
 
 **Development** → [Architecture](architecture.md) → [Components](components.md) → [API Reference](api.md)
 

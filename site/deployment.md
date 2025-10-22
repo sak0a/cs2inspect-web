@@ -363,6 +363,27 @@ Deploy directly to a VPS using Node.js and PM2 process manager.
 
 ---
 
+### 4. Other Platforms
+
+CS2Inspect is built with **Nuxt 3**, which can be deployed to many different platforms. For detailed deployment options beyond the ones listed above, please refer to the official Nuxt deployment documentation:
+
+**[Nuxt 3 Deployment Documentation](https://nuxt.com/docs/getting-started/deployment)**
+
+The Nuxt docs provide comprehensive guides for deploying to platforms including:
+- **Cloudflare Pages**
+- **Netlify**
+- **AWS (Amplify, Lambda, EC2)**
+- **Azure Static Web Apps**
+- **Digital Ocean App Platform**
+- **Heroku**
+- **Railway**
+- **Render**
+- **And many more...**
+
+Each platform may have specific requirements and configuration. Consult the Nuxt documentation for platform-specific setup instructions.
+
+---
+
 ## Database Deployment
 
 ### Option 1: Managed Database (Recommended)

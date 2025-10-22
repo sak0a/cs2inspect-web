@@ -53,6 +53,7 @@ export default withMermaid(defineConfig({
         text: 'Getting Started',
         items: [
           { text: 'Overview', link: '/docs-overview' },
+          { text: 'User Guide', link: '/user-guide' },
           { text: 'Setup Guide', link: '/setup' },
           { text: 'How It Works', link: '/how-it-works' },
           { text: 'FAQ', link: '/faq' }

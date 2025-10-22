@@ -594,6 +594,70 @@ Link to related documentation:
 
 ---
 
+## Internationalization
+
+We welcome contributions for **translations**! CS2Inspect currently supports:
+- **English (EN)** - Complete
+- **German (DE)** - Complete
+- **Russian (RU)** - Complete
+
+### Adding a New Language
+
+To add a new language translation:
+
+1. **Create Language File**:
+   - Navigate to `locales/` directory in the project root
+   - Copy `en.json` as a template
+   - Name it with the appropriate language code (e.g., `fr.json` for French, `es.json` for Spanish)
+
+2. **Translate Strings**:
+   ```json
+   {
+     "nav": {
+       "home": "Accueil",        // French translation
+       "weapons": "Armes",
+       "loadouts": "Équipements"
+     }
+   }
+   ```
+
+3. **Test Your Translation**:
+   - Change the app language in settings to your new language
+   - Navigate through all pages to verify translations
+   - Check for missing strings or formatting issues
+
+4. **Update Configuration**:
+   - Edit `nuxt.config.ts` to add your language to the `i18n` config
+   - Add your language code to the available locales array
+
+5. **Submit Pull Request**:
+   - Include all translated strings
+   - Note any strings that were intentionally not translated (e.g., proper nouns)
+   - Test that the language switcher includes your new language
+
+### Translation Guidelines
+
+- **Be Consistent**: Use the same terminology throughout
+- **Keep It Natural**: Translate meaning, not just words literally
+- **Preserve Formatting**: Keep placeholders like `{count}` or `{name}` intact
+- **Technical Terms**: Some CS2-specific terms might be better left in English
+- **Test In-Context**: See how translations look in the UI (character limits, line breaks)
+
+### Translation Priority
+
+High priority strings (translate first):
+1. Navigation and menu items
+2. Common actions (Save, Delete, Cancel, etc.)
+3. Form labels and validation messages
+4. Error messages
+
+Lower priority:
+1. Detailed help text
+2. Technical documentation within the app
+3. Long descriptive text
+
+---
+
 ## Testing
 
 ### Writing Tests
