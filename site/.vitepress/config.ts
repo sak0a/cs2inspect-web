@@ -92,12 +92,6 @@ export default withMermaid(defineConfig({
         ]
       },
       {
-        text: 'Integrations',
-        items: [
-          { text: 'CS2Inspect Plugin', link: '/plugin-integration' }
-        ]
-      },
-      {
         text: 'Contributing',
         items: [
           { text: 'Contributing Guide', link: '/contributing' }

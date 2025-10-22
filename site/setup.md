@@ -620,7 +620,6 @@ After setting up your development environment:
 2. Explore the [Components](components.md) guide
 3. Review the [API Reference](api.md)
 4. Check out [How It Works](how-it-works.md)
-5. Learn about [Plugin Integration](plugin-integration.md) for CS:GO servers
 
 ::: tip Production Deployment
 For production environment variables and deployment configurations, see the [Deployment Guide](deployment.md) which includes complete environment variable references for all platforms.
@@ -643,5 +642,4 @@ For production environment variables and deployment configurations, see the [Dep
 - [API Reference](api.md) - API documentation
 - [How It Works](how-it-works.md) - User flows
 - [Deployment](deployment.md) - Production deployment and environment variables
-- [Plugin Integration](plugin-integration.md) - CS:GO server plugin integration
 - [Contributing](contributing.md) - Contribution guidelines

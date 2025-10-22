@@ -14,9 +14,6 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 - **[Components](components.md)** <Badge type="info" text="Reference" /> - Frontend and backend component reference
 - **[API Reference](api.md)** <Badge type="info" text="Endpoints" /> - Complete API endpoint documentation
 
-### Integrations
-- **[CS2Inspect Plugin](plugin-integration.md)** <Badge type="tip" text="CS:GO Integration" /> - SourceMod plugin for in-game loadout usage
-
 ### Deployment & Contributing
 - **[Deployment Guide](deployment.md)** <Badge type="danger" text="Production" /> - Production deployment instructions
 - **[Contributing Guide](contributing.md)** <Badge type="tip" text="Community" /> - How to contribute to the project
@@ -72,6 +69,12 @@ CS2Inspect is a full-stack web application that allows Counter-Strike 2 players 
 - **Select Agents**: Choose agents from all factions for both teams
 - **Import from Inspect URLs**: Parse CS2 inspect links to import item configurations
 - **Generate Inspect Links**: Create masked inspect URLs from your configurations
+
+::: info CS2Inspect Plugin Integration
+This web application is designed to work with the **CS2Inspect Plugin** (CounterStrikeSharp) for CS2 game servers. The plugin reads loadout configurations directly from the shared database and applies them in-game. The web application provides the user interface for players to configure their loadouts, while the plugin handles the in-game application.
+
+**Note**: The CS2Inspect Plugin is currently in a private repository and may be released as open-source or as a paid product in the future. The web application can be set up independently, but it's primarily designed for use with the plugin to provide the complete loadout management experience.
+:::
 
 ---
 
