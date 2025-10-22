@@ -35,6 +35,10 @@ export default withMermaid(defineConfig({
     }
   },
   themeConfig: {
+    outline: {
+      level: [2, 3], // Show H2 and H3 headings in "On this page" sidebar
+      label: 'On this page'
+    },
     search: {
       provider: 'local'
     },
