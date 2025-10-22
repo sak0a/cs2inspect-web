@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - vitepress-site
+      - copilot/vitepress-site
 
 permissions:
   contents: read
