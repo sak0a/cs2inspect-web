@@ -12,9 +12,9 @@
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
-    "docs:dev": "vitepress dev site",
-    "docs:build": "vitepress build site",
-    "docs:serve": "vitepress serve site"
+    "docs:dev": "cd site && npm run dev",
+    "docs:build": "cd site && npm run build",
+    "docs:serve": "cd site && npm run serve"
   },
   "devDependencies": {
     "@nuxt/devtools": "latest",
@@ -47,7 +47,6 @@
     "ts-node": "^10.9.2",
     "unplugin-vue-components": "^0.27.5",
     "unzipper": "^0.12.3",
-    "vitepress": "^1.6.4",
     "vitest": "^3.2.4"
   },
   "dependencies": {

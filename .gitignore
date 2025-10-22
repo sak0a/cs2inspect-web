@@ -12,6 +12,7 @@ site/.vitepress/cache
 
 # Node dependencies
 node_modules
+site/node_modules
 
 # Logs
 logs
