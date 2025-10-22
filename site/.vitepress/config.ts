@@ -56,13 +56,29 @@ export default withMermaid(defineConfig({
           { text: 'User Guide', link: '/user-guide' },
           { text: 'Setup Guide', link: '/setup' },
           { text: 'How It Works', link: '/how-it-works' },
-          { text: 'FAQ', link: '/faq' }
+          { 
+            text: 'FAQ', 
+            link: '/faq',
+            items: [
+              { text: 'General Questions', link: '/faq-general' },
+              { text: 'Customization', link: '/faq-customization' },
+              { text: 'Technical & Troubleshooting', link: '/faq-technical' }
+            ]
+          }
         ]
       },
       {
         text: 'Technical Documentation',
         items: [
-          { text: 'Architecture', link: '/architecture' },
+          { 
+            text: 'Architecture',
+            link: '/architecture',
+            items: [
+              { text: 'Frontend Architecture', link: '/architecture-frontend' },
+              { text: 'Backend & Database', link: '/architecture-backend' },
+              { text: 'Deployment & Security', link: '/architecture-deployment' }
+            ]
+          },
           { text: 'Components', link: '/components' },
           { text: 'API Reference', link: '/api' },
           { text: 'Health Checks', link: '/HEALTH_CHECKS' }
