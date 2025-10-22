@@ -14,6 +14,9 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 - **[Components](components.md)** <Badge type="info" text="Reference" /> - Frontend and backend component reference
 - **[API Reference](api.md)** <Badge type="info" text="Endpoints" /> - Complete API endpoint documentation
 
+### Integrations
+- **[CS2Inspect Plugin](plugin-integration.md)** <Badge type="tip" text="CS:GO Integration" /> - SourceMod plugin for in-game loadout usage
+
 ### Deployment & Contributing
 - **[Deployment Guide](deployment.md)** <Badge type="danger" text="Production" /> - Production deployment instructions
 - **[Contributing Guide](contributing.md)** <Badge type="tip" text="Community" /> - How to contribute to the project

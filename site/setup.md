@@ -612,34 +612,6 @@ Create `.vscode/settings.json`:
 
 ---
 
-## Environment Variables Reference
-
-### Required Variables
-
-| Variable | Description | Example |
-|----------|-------------|---------|
-| `PORT` | Server port | `3000` |
-| `HOST` | Server host | `127.0.0.1` |
-| `JWT_TOKEN` | JWT secret key (min 32 chars) | `K32DJVF...` |
-| `JWT_EXPIRY` | Token expiration | `7d` |
-| `DATABASE_HOST` | Database host | `127.0.0.1` |
-| `DATABASE_PORT` | Database port | `3306` |
-| `DATABASE_USER` | Database user | `csinspect` |
-| `DATABASE_PASSWORD` | Database password | `pass123` |
-| `DATABASE_NAME` | Database name | `csinspect` |
-| `STEAM_API_KEY` | Steam Web API key | `ABC123...` |
-
-### Optional Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_CONNECTION_LIMIT` | Max DB connections | `5` |
-| `STEAM_USERNAME` | Steam bot account username | - |
-| `STEAM_PASSWORD` | Steam bot account password | - |
-| `LOG_API_REQUESTS` | Log API requests | `false` |
-
----
-
 ## Next Steps
 
 After setting up your development environment:
@@ -648,7 +620,11 @@ After setting up your development environment:
 2. Explore the [Components](components.md) guide
 3. Review the [API Reference](api.md)
 4. Check out [How It Works](how-it-works.md)
-5. Read the [Contributing Guide](contributing.md)
+5. Learn about [Plugin Integration](plugin-integration.md) for CS:GO servers
+
+::: tip Production Deployment
+For production environment variables and deployment configurations, see the [Deployment Guide](deployment.md) which includes complete environment variable references for all platforms.
+:::
 
 ---
 
@@ -666,5 +642,6 @@ After setting up your development environment:
 - [Architecture](architecture.md) - System architecture
 - [API Reference](api.md) - API documentation
 - [How It Works](how-it-works.md) - User flows
-- [Deployment](deployment.md) - Production deployment
+- [Deployment](deployment.md) - Production deployment and environment variables
+- [Plugin Integration](plugin-integration.md) - CS:GO server plugin integration
 - [Contributing](contributing.md) - Contribution guidelines

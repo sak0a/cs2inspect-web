@@ -72,10 +72,35 @@ export default withMermaid(defineConfig({
         ]
       },
       {
-        text: 'Deployment & Contributing',
+        text: 'Deployment',
+        collapsed: false,
         items: [
-          { text: 'Deployment Guide', link: '/deployment' },
-          { text: 'Contributing', link: '/contributing' }
+          { text: 'Overview', link: '/deployment' },
+          {
+            text: 'Deployment Options',
+            collapsed: true,
+            items: [
+              { text: 'Vercel (Recommended)', link: '/deployment#_1-vercel-recommended' },
+              { text: 'Docker', link: '/deployment#_2-docker-deployment' },
+              { text: 'Node.js + PM2', link: '/deployment#_3-node-js-pm2' },
+              { text: 'Other Platforms', link: '/deployment#_4-other-platforms' }
+            ]
+          },
+          { text: 'Database Setup', link: '/deployment#database-setup' },
+          { text: 'Health Monitoring', link: '/deployment#health-monitoring' },
+          { text: 'Troubleshooting', link: '/deployment#troubleshooting-deployment-issues' }
+        ]
+      },
+      {
+        text: 'Integrations',
+        items: [
+          { text: 'CS2Inspect Plugin', link: '/plugin-integration' }
+        ]
+      },
+      {
+        text: 'Contributing',
+        items: [
+          { text: 'Contributing Guide', link: '/contributing' }
         ]
       }
     ],
