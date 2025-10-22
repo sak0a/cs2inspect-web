@@ -1,32 +1,34 @@
-# Development Setup
+# Development Setup <Badge type="tip" text="Getting Started" />
 
 ## Prerequisites
 
+::: tip Important
 Before setting up the CS2Inspect development environment, ensure you have the following installed:
+:::
 
 ### Required Software
 
-- **Node.js**: Version 16.x or higher (18.x recommended)
+- **Node.js**: Version 16.x or higher (18.x recommended) <Badge type="warning" text="Required" />
   ```bash
   node --version  # Should be v16.0.0 or higher
   ```
 
-- **npm**: Version 8.x or higher (comes with Node.js)
+- **npm**: Version 8.x or higher (comes with Node.js) <Badge type="warning" text="Required" />
   ```bash
   npm --version
   ```
 
-- **MariaDB/MySQL**: Version 10.x or higher
+- **MariaDB/MySQL**: Version 10.x or higher <Badge type="warning" text="Required" />
   - Alternative: Docker (for containerized database)
 
-- **Git**: Latest version
+- **Git**: Latest version <Badge type="warning" text="Required" />
   ```bash
   git --version
   ```
 
 ### Optional Software
 
-- **Docker & Docker Compose**: For containerized development
+- **Docker & Docker Compose**: For containerized development <Badge type="info" text="Recommended" />
 - **Visual Studio Code**: Recommended IDE with extensions:
   - Volar (Vue Language Features)
   - ESLint
@@ -50,6 +52,7 @@ cd cs2inspect-web
 npm install
 ```
 
+::: details What gets installed?
 This will install all required packages including:
 - Nuxt 3 framework
 - Vue 3 and TypeScript
@@ -58,10 +61,11 @@ This will install all required packages including:
 - Database drivers
 - Testing frameworks
 - And more...
+:::
 
 ### 3. Database Setup
 
-#### Option A: Using Docker (Recommended for Development)
+#### Option A: Using Docker (Recommended for Development) <Badge type="tip" text="Recommended" />
 
 ```bash
 # Start MariaDB container
@@ -107,7 +111,9 @@ docker-compose up -d
 
 4. **Database Schema**:
    
-   **Note**: The application now uses **automatic database migrations**. You no longer need to manually import the schema. The migrations will run automatically when you start the server for the first time.
+   ::: tip Automatic Migrations
+   The application now uses **automatic database migrations**. You no longer need to manually import the schema. The migrations will run automatically when you start the server for the first time.
+   :::
    
    If you prefer to manually initialize the database:
    ```bash
@@ -128,6 +134,10 @@ docker-compose up -d
    ```
 
 2. **Edit `.env` file** with your configuration:
+
+   ::: warning Security Notice
+   Make sure to generate a secure JWT token and use strong passwords for production!
+   :::
 
    ```env
    ########## Server Configuration ##########

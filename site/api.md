@@ -1,8 +1,12 @@
-# API Reference
+# API Reference <Badge type="info" text="REST API" />
 
 ## Overview
 
 The CS2Inspect API provides RESTful endpoints for managing user loadouts, weapon customizations, and CS2 item data. All endpoints return JSON responses and require authentication unless otherwise noted.
+
+::: tip API Version
+This documentation covers API version 1.0
+:::
 
 ## Base URL
 
@@ -11,13 +15,13 @@ Development: http://localhost:3000/api
 Production:  https://your-domain.com/api
 ```
 
-## Authentication
+## Authentication <Badge type="warning" text="Required" />
 
 ### JWT Token Authentication
 
 Most endpoints require authentication via JWT token passed in cookies or Authorization header.
 
-**Cookie-based** (recommended):
+**Cookie-based** (recommended): <Badge type="tip" text="Preferred" />
 ```http
 Cookie: jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
@@ -29,7 +33,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 
 ### Obtaining a Token
 
-**Endpoint**: `POST /api/auth/validate`
+**Endpoint**: `POST /api/auth/validate` <Badge type="tip" text="Public" />
 
 **Request**:
 ```json

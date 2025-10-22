@@ -1,4 +1,4 @@
-# Architecture
+# Architecture <Badge type="info" text="System Design" />
 
 ## System Overview
 
@@ -6,7 +6,7 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 
 ## Technology Stack
 
-### Frontend
+### Frontend <Badge type="tip" text="Modern Stack" />
 - **Framework**: Nuxt 3 (Vue 3 + TypeScript)
 - **UI Library**: Naive UI
 - **Styling**: Tailwind CSS with custom SASS
@@ -15,7 +15,7 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 - **Icons**: Iconify + Material Design Icons
 - **Charts**: Chart.js + vue-chartjs (for health monitoring)
 
-### Backend
+### Backend <Badge type="info" text="Node.js" />
 - **Runtime**: Node.js with Nitro server
 - **Database**: MariaDB (MySQL compatible)
 - **Authentication**: Steam OpenID + JWT
@@ -24,7 +24,7 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
   - `node-cs2` - Steam Game Coordinator integration
   - `csgo-fade-percentage-calculator` - Fade pattern calculations
 
-### DevOps
+### DevOps <Badge type="warning" text="Production Ready" />
 - **Build System**: Vite
 - **Testing**: Vitest + Vue Test Utils
 - **Linting**: ESLint
@@ -83,6 +83,45 @@ graph TB
     style API fill:#48bb78
     style DB fill:#ed8936
     style Steam fill:#667eea
+```
+
+::: tip Architecture Overview
+This diagram shows how the different layers of the application communicate. Data flows from the browser through the Nuxt frontend to the Nitro backend, which then communicates with external services like Steam and the database.
+:::
+
+## Deployment Architecture <Badge type="danger" text="Production" />
+
+```mermaid
+graph LR
+    subgraph "User's Browser"
+        UI[Web UI<br/>Vue/Nuxt App]
+    end
+    
+    subgraph "Hosting Platform"
+        Vercel[Vercel<br/>Static + Serverless]
+        CDN[Global CDN]
+    end
+    
+    subgraph "Database"
+        MariaDB[(MariaDB<br/>Persistent Storage)]
+    end
+    
+    subgraph "External APIs"
+        SteamAPI[Steam Web API]
+        SteamGC[Steam GC]
+    end
+    
+    UI -->|HTTPS| CDN
+    CDN -->|Route| Vercel
+    Vercel -->|Query| MariaDB
+    Vercel -->|Auth/Data| SteamAPI
+    Vercel -->|Item Inspect| SteamGC
+    
+    style UI fill:#4299e1
+    style Vercel fill:#48bb78
+    style MariaDB fill:#ed8936
+    style SteamAPI fill:#667eea
+    style SteamGC fill:#9f7aea
 ```
 
 ## Core Architecture Components

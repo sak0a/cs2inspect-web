@@ -1,12 +1,43 @@
 import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default defineConfig({
+export default withMermaid(defineConfig({
   base: '/cs2inspect-web/',
   title: 'CS2 Inspect Web',
   description: 'Counter-Strike 2 Weapon Inspection Web Application',
-  appearance: 'dark',
+  appearance: 'force-dark', // Force dark mode, disable toggle
   ignoreDeadLinks: true,
+  lastUpdated: true, // Enable last updated timestamps
+  markdown: {
+    theme: {
+      light: 'github-dark',
+      dark: 'github-dark'
+    }
+  },
+  mermaid: {
+    // Mermaid configuration for dark theme
+    theme: 'dark',
+    themeVariables: {
+      primaryColor: '#FACC15',
+      primaryTextColor: '#fff',
+      primaryBorderColor: '#F59E0B',
+      lineColor: '#F59E0B',
+      secondaryColor: '#CA8A04',
+      tertiaryColor: '#1a1a1a',
+      background: '#121212',
+      mainBkg: '#1a1a1a',
+      secondBkg: '#242424',
+      tertiaryBkg: '#2c2c2c',
+      textColor: '#ffffff',
+      border1: '#333333',
+      border2: '#444444',
+      fontSize: '16px'
+    }
+  },
   themeConfig: {
+    search: {
+      provider: 'local'
+    },
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Documentation', link: '/docs-overview' },
@@ -52,4 +83,4 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/sak0a/cs2inspect-web' }
     ]
   }
-})
+}))

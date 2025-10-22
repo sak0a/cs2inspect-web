@@ -1,10 +1,14 @@
-# How It Works
+# How It Works <Badge type="info" text="User Guide" />
 
 ## User Flows and Core Features
 
 This document explains the key user journeys and how the CS2Inspect application works from a user's perspective, with technical implementation details.
 
-## Authentication Flow
+::: tip Learning Path
+Follow this guide to understand how users interact with CS2Inspect and how the application processes their requests.
+:::
+
+## Authentication Flow <Badge type="warning" text="Security" />
 
 ### Steam Login Process
 

@@ -5,25 +5,24 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 ## 📚 Table of Contents
 
 ### Getting Started
-- **[Setup Guide](setup.md)** - Complete development environment setup
-- **[How It Works](how-it-works.md)** - User flows and core features explained
-- **[FAQ](faq.md)** - Frequently asked questions and troubleshooting
+- **[Setup Guide](setup.md)** <Badge type="tip" text="Start Here" /> - Complete development environment setup
+- **[How It Works](how-it-works.md)** <Badge type="info" text="Core Concepts" /> - User flows and core features explained
+- **[FAQ](faq.md)** <Badge type="warning" text="Troubleshooting" /> - Frequently asked questions and troubleshooting
 
 ### Technical Documentation
-- **[Architecture](architecture.md)** - System architecture and technology stack
-- **[Components](components.md)** - Frontend and backend component reference
-- **[API Reference](api.md)** - Complete API endpoint documentation
+- **[Architecture](architecture.md)** <Badge type="info" text="System Design" /> - System architecture and technology stack
+- **[Components](components.md)** <Badge type="info" text="Reference" /> - Frontend and backend component reference
+- **[API Reference](api.md)** <Badge type="info" text="Endpoints" /> - Complete API endpoint documentation
 
 ### Deployment & Contributing
-- **[Deployment Guide](deployment.md)** - Production deployment instructions
-- **[Contributing Guide](contributing.md)** - How to contribute to the project
+- **[Deployment Guide](deployment.md)** <Badge type="danger" text="Production" /> - Production deployment instructions
+- **[Contributing Guide](contributing.md)** <Badge type="tip" text="Community" /> - How to contribute to the project
 
 ### Additional Resources
-- **[Health Checks](../HEALTH_CHECKS.md)** - Comprehensive health monitoring system
-- **[Theme Customization](theme-customization.md)** - UI theming and styling guide
-- **[Sticker Slots](StickerSlots.md)** - Sticker slot configuration
-- **[CS2 Inspect System](../CS2_INSPECT_SYSTEM_README.md)** - In-depth inspect URL processing
-- **[Type System](../types/README.md)** - TypeScript interfaces and types
+- **[Health Checks](HEALTH_CHECKS.md)** <Badge type="info" text="Monitoring" /> - Comprehensive health monitoring system
+- **[Theme Customization](theme-customization.md)** <Badge type="tip" text="Styling" /> - UI theming and styling guide
+- **[Sticker Slots](StickerSlots.md)** <Badge type="info" text="Advanced" /> - Sticker slot configuration
+- **[Glassmorphism](GLASSMORPHISM.md)** <Badge type="tip" text="UI Effects" /> - Glass effect styling guide
 
 ---
 
