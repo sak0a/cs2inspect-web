@@ -3,8 +3,8 @@ name: Deploy VitePress to GH Pages
 on:
   push:
     branches:
-      - vitepress-site
-      - copilot/vitepress-site
+      - vitepress
+      - copilot/vitepress
 
 permissions:
   contents: read
