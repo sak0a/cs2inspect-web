@@ -28,6 +28,9 @@ RUN npm run build
 FROM oven/bun:1 AS runner
 WORKDIR /app
 
+# Install curl for health checks
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 # Copy runtime dependencies and manifests for externalized packages (e.g., vue)
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package*.json ./
@@ -40,6 +43,10 @@ ENV PORT=3000
 ENV HOST=0.0.0.0
 
 EXPOSE 3000
+
+# Health check configuration
+HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
+  CMD curl -fsS http://localhost:3000/api/health/ready || exit 1
 
 # Start Nitro server with Bun runtime
 CMD ["bun", "run", ".output/server/index.mjs"]

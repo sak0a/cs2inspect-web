@@ -1,0 +1,18 @@
+{
+  "title": "Systemstatus",
+  "description": "Echtzeit-Gesundheitsüberwachung für CS2 Inspect-Dienste",
+  "navigation": {
+    "backToHome": "Zurück zur Startseite"
+  },
+  "status": {
+    "allOperational": "Alle Systeme betriebsbereit",
+    "partialOutage": "Teilausfall des Systems",
+    "systemOutage": "Systemausfall",
+    "unknown": "Status unbekannt"
+  },
+  "lastUpdated": "Zuletzt aktualisiert",
+  "refresh": "Aktualisieren",
+  "refreshing": "Wird aktualisiert",
+  "performanceHistory": "Leistungsverlauf",
+  "noHistoricalData": "Noch keine historischen Daten verfügbar. Schauen Sie in ein paar Minuten wieder vorbei."
+}

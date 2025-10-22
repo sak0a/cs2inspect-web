@@ -1,7 +1,7 @@
 <template>
   <ThemeProvider>
       <!--<Preloader />-->
-      <NuxtLayout name="default">
+      <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
   </ThemeProvider>
