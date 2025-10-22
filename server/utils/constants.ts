@@ -25,12 +25,12 @@ export const PROTECTED_API_PATHS = [
  * External API URLs for CS2 data
  */
 export const EXTERNAL_API_URLS = {
-    SKINS: 'https://bymykel.github.io/CSGO-API/api/en/skins.json',
-    STICKERS: 'https://bymykel.github.io/CSGO-API/api/en/stickers.json',
-    KEYCHAINS: 'https://bymykel.github.io/CSGO-API/api/en/keychains.json',
-    AGENTS: 'https://bymykel.github.io/CSGO-API/api/en/agents.json',
-    MUSIC_KITS: 'https://bymykel.github.io/CSGO-API/api/en/music_kits.json',
-    COLLECTIBLES: 'https://bymykel.github.io/CSGO-API/api/en/collectibles.json'
+    SKINS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins.json',
+    STICKERS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/stickers.json',
+    KEYCHAINS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/keychains.json',
+    AGENTS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/agents.json',
+    MUSIC_KITS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/music_kits.json',
+    COLLECTIBLES: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/collectibles.json'
 };
 
 // ============================================================================
