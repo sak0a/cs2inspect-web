@@ -1,5 +1,24 @@
 # Architecture <Badge type="info" text="System Design" />
 
+This page documents the technical architecture of CS2Inspect, a full-stack web application for Counter-Strike 2 loadout customization.
+
+## Quick Navigation
+
+- [System Overview](#system-overview)
+- [Technology Stack](#technology-stack)
+- [High-Level Architecture](#high-level-architecture)
+- [Deployment Architecture](#deployment-architecture)
+- [Frontend Architecture](#frontend-architecture)
+- [Backend Architecture](#backend-architecture)
+- [Database Schema](#database-schema)
+- [Security Architecture](#security-architecture)
+- [Performance Optimizations](#performance-optimizations)
+- [Scalability Considerations](#scalability-considerations)
+- [Integration Points](#integration-points)
+- [Monitoring & Logging](#monitoring-logging)
+
+---
+
 ## System Overview
 
 CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. The application provides a comprehensive interface for weapon skins, knives, gloves, agents, music kits, and pins customization with real-time preview capabilities.
@@ -124,11 +143,13 @@ graph LR
     style SteamGC fill:#9f7aea
 ```
 
-## Core Architecture Components
+---
 
-### 1. Frontend Architecture
+## Frontend Architecture
 
-#### Page Structure
+The frontend is built with Nuxt 3, providing a modern, reactive user interface.
+
+### Page Structure
 ```
 pages/
 ├── index.vue           # Main dashboard/loadout management
@@ -181,9 +202,13 @@ composables/
 └── useItems.ts        # Item data fetching and caching
 ```
 
-### 2. Backend Architecture
+---
 
-#### API Structure
+## Backend Architecture
+
+The backend uses Nitro server (part of Nuxt 3) for API routes and server-side logic.
+
+### API Structure
 ```
 server/api/
 ├── auth/
@@ -249,9 +274,13 @@ server/utils/csinspect/
 └── crc32.ts                 # CRC32 checksum validation
 ```
 
-### 3. Database Schema
+---
 
-#### Core Tables
+## Database Schema
+
+CS2Inspect uses MariaDB (MySQL-compatible) for data storage.
+
+### Core Tables
 ```sql
 wp_player_loadouts          # User loadout configurations
 wp_player_weapons           # Weapon customizations per loadout
