@@ -19,8 +19,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - name: Sparse checkout only `site/` (partial clone to avoid large blobs)
+        # Use raw git to do a partial fetch with blob filtering and a sparse checkout
+        # This reduces bandwidth and disk usage by only downloading `site/` files.
+        run: |
+          git init
+          # Authenticate using the runner token so private repos work
+          git remote add origin "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git"
+          # Enable sparse-checkout before checking out so we don't populate all files
+          git sparse-checkout init --cone
+          git sparse-checkout set site
+          # Fetch the single commit with blob filtering to avoid downloading large files
+          git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 --filter=blob:none origin ${{ github.sha }}
+          git checkout -f FETCH_HEAD
+        shell: bash
 
       - name: Setup Node
         uses: actions/setup-node@v4
