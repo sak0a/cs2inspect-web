@@ -122,7 +122,6 @@ onMounted(async () => {
 <template>
 
   <NSpace vertical>
-    <SpeedInsights />
     <NLayout has-sider >
       <NLayoutSider
           v-if="user"
