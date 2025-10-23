@@ -1,10 +1,10 @@
 <template>
   <ThemeProvider>
-    <SpeedInsights />
       <!-- <Preloader /> -->
-      <NuxtLayout>
-        <NuxtPage />
-      </NuxtLayout>
+    <NuxtLayout>
+      <NuxtPage />
+      <SpeedInsights />
+    </NuxtLayout>
   </ThemeProvider>
 </template>
 <script setup lang="ts">
