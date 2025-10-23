@@ -1,7 +1,7 @@
 <template>
   <ThemeProvider>
     <SpeedInsights />
-      <!--<Preloader />-->
+      <!-- <Preloader /> -->
       <NuxtLayout>
         <NuxtPage />
       </NuxtLayout>
