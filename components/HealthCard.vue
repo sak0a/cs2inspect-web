@@ -13,15 +13,15 @@
         </NSpace>
       </NSpace>
 
-      <!-- Environment card shows variable count instead of latency -->
+      <!-- Environment card shows total variable count -->
       <div v-if="check.name === 'environment' && check.metadata">
         <NSpace justify="space-between" class="mb-2">
           <span class="text-sm opacity-75">Environment Variables</span>
           <span class="font-mono font-bold">
-            {{ check.metadata.present_vars_count }}/{{ check.metadata.required_vars_count }}
+            {{ check.metadata.present_vars_count }} / {{ check.metadata.total_env_vars }}
           </span>
         </NSpace>
-        <NProgress 
+        <NProgress
           type="line"
           :percentage="envVarPercentage"
           :show-indicator="false"
@@ -164,9 +164,9 @@ const uptimeColor = computed(() => {
 // Environment variable percentage
 const envVarPercentage = computed(() => {
   if (props.check.name !== 'environment' || !props.check.metadata) return 0;
-  const present = props.check.metadata.present_vars_count || 0;
-  const required = props.check.metadata.required_vars_count || 1;
-  return Math.round((present / required) * 100 * 100) / 100;
+  const present = Number(props.check.metadata.present_vars_count) || 0;
+  const total = Number(props.check.metadata.total_env_vars) || 1;
+  return Math.round((present / total) * 100 * 100) / 100;
 });
 
 // Environment variable color
