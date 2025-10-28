@@ -1,3 +1,4 @@
+-- Loadouts Table
 CREATE TABLE IF NOT EXISTS wp_player_loadouts
 (
     id                INT UNSIGNED AUTO_INCREMENT
@@ -16,7 +17,12 @@ CREATE TABLE IF NOT EXISTS wp_player_loadouts
     created_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL,
     updated_at        TIMESTAMP DEFAULT CURRENT_TIMESTAMP() NOT NULL ON UPDATE CURRENT_TIMESTAMP()
 );
-
+-- Loadout Index
+CREATE INDEX IF NOT EXISTS idx_steamid
+    on wp_player_loadouts (steamid);
+--
+--
+-- Agent Table
 CREATE TABLE IF NOT EXISTS wp_player_agents
 (
     id         INT UNSIGNED AUTO_INCREMENT
@@ -33,13 +39,15 @@ CREATE TABLE IF NOT EXISTS wp_player_agents
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Agent Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_agents (steamid, loadoutid);
-
+-- Agent Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_agents (loadoutid);
-
+--
+--
+-- Gloves Table
 CREATE TABLE IF NOT EXISTS wp_player_gloves
 (
     id         INT UNSIGNED AUTO_INCREMENT
@@ -58,13 +66,15 @@ CREATE TABLE IF NOT EXISTS wp_player_gloves
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Gloves Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_gloves (steamid, loadoutid);
-
+-- Gloves Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_gloves (loadoutid);
-
+--
+--
+-- Heavy Weapons Table
 CREATE TABLE IF NOT EXISTS wp_player_heavys
 (
     id               INT UNSIGNED AUTO_INCREMENT
@@ -92,13 +102,15 @@ CREATE TABLE IF NOT EXISTS wp_player_heavys
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Heavy Weapons Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_heavys (steamid, loadoutid);
-
+-- Heavy Weapons Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_heavys (loadoutid);
-
+--
+--
+-- Knifes Table
 CREATE TABLE IF NOT EXISTS wp_player_knifes
 (
     id               INT UNSIGNED AUTO_INCREMENT
@@ -120,16 +132,15 @@ CREATE TABLE IF NOT EXISTS wp_player_knifes
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Knifes Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_knifes (steamid, loadoutid);
-
+-- Knifes Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_knifes (loadoutid);
-
-CREATE INDEX IF NOT EXISTS idx_steamid
-    on wp_player_loadouts (steamid);
-
+--
+--
+-- Music Kits Table
 CREATE TABLE IF NOT EXISTS wp_player_music
 (
     id         INT UNSIGNED AUTO_INCREMENT
@@ -145,13 +156,15 @@ CREATE TABLE IF NOT EXISTS wp_player_music
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Music Kits Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_music (steamid, loadoutid);
-
+-- Music Kits Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_music (loadoutid);
-
+--
+--
+-- Pins Table
 CREATE TABLE IF NOT EXISTS wp_player_pins
 (
     id         INT UNSIGNED AUTO_INCREMENT
@@ -167,13 +180,15 @@ CREATE TABLE IF NOT EXISTS wp_player_pins
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Pins Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_pins (steamid, loadoutid);
-
+-- Pins Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_pins (loadoutid);
-
+--
+--
+-- Pistols Table
 CREATE TABLE IF NOT EXISTS wp_player_pistols
 (
     id               INT UNSIGNED AUTO_INCREMENT
@@ -201,13 +216,15 @@ CREATE TABLE IF NOT EXISTS wp_player_pistols
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Pistols Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_pistols (steamid, loadoutid);
-
+-- Pistols Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_pistols (loadoutid);
-
+--
+--
+-- Rifles Table
 CREATE TABLE IF NOT EXISTS wp_player_rifles
 (
     id               INT UNSIGNED AUTO_INCREMENT
@@ -235,13 +252,15 @@ CREATE TABLE IF NOT EXISTS wp_player_rifles
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- Rifles Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_rifles (steamid, loadoutid);
-
+-- Rifles Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_rifles (loadoutid);
-
+--
+--
+-- SMGs Table
 CREATE TABLE IF NOT EXISTS wp_player_smgs
 (
     id               INT UNSIGNED AUTO_INCREMENT
@@ -269,10 +288,10 @@ CREATE TABLE IF NOT EXISTS wp_player_smgs
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
-
+-- SMGs Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_smgs (steamid, loadoutid);
-
+-- SMGs Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_smgs (loadoutid);
 

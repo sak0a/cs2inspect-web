@@ -243,39 +243,76 @@ export async function checkEnvironment(): Promise<HealthCheckResult> {
     };
 
     try {
+        // Required environment variables (minimum)
         const requiredVars = [
             'DATABASE_HOST',
             'DATABASE_USER',
             'DATABASE_PASSWORD',
             'DATABASE_NAME',
             'JWT_TOKEN',
+            'STEAM_API_KEY',
         ];
 
-        const missingVars: string[] = [];
-        const presentVars: string[] = [];
+        // All environment variables from .env.example
+        const allEnvVars = [
+            'PORT',
+            'HOST',
+            'JWT_TOKEN',
+            'JWT_EXPIRY',
+            'DATABASE_HOST',
+            'DATABASE_PORT',
+            'DATABASE_USER',
+            'DATABASE_PASSWORD',
+            'DATABASE_NAME',
+            'DATABASE_CONNECTION_LIMIT',
+            'STEAM_API_KEY',
+            'STEAM_USERNAME',
+            'STEAM_PASSWORD',
+            'LOG_API_REQUESTS',
+        ];
 
+        const missingRequired: string[] = [];
+        const missingAll: string[] = [];
+        const presentAll: string[] = [];
+
+        // Check required variables
         for (const varName of requiredVars) {
             if (!process.env[varName]) {
-                missingVars.push(varName);
+                missingRequired.push(varName);
+            }
+        }
+
+        // Check all variables
+        for (const varName of allEnvVars) {
+            if (!process.env[varName]) {
+                missingAll.push(varName);
             } else {
-                presentVars.push(varName);
+                presentAll.push(varName);
             }
         }
 
         result.latency_ms = Date.now() - startTime;
 
-        if (missingVars.length > 0) {
+        // Set status based on presence
+        if (missingRequired.length > 0) {
             result.status = 'fail';
-            result.message = `Missing required environment variables: ${missingVars.join(', ')}`;
+            result.message = `Missing required environment variables: ${missingRequired.join(', ')}`;
+        } else if (missingAll.length > 0) {
+            result.status = 'degraded';
+            result.message = `Some optional environment variables missing: ${presentAll.length} of ${allEnvVars.length} present`;
         } else {
             result.status = 'ok';
-            result.message = 'All required environment variables present';
+            result.message = 'All environment variables present';
         }
 
+        
+
         result.metadata = {
+            total_env_vars: allEnvVars.length,
             required_vars_count: requiredVars.length,
-            present_vars_count: presentVars.length,
-            missing_vars: missingVars,
+            present_vars_count: presentAll.length,
+            missing_vars: missingAll,
+            missing_required: missingRequired,
             node_env: process.env.NODE_ENV || 'unknown',
             port: process.env.PORT || 'default',
         };
