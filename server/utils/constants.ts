@@ -120,6 +120,12 @@ export const KEYCHAIN_CONFIG = {
     EMPTY_KEYCHAIN: '0;0;0;0;0'
 };
 
+/**
+ * Base URL for images hosted on GitHub or other platforms
+ */
+export const IMAGE_BASE_URL = 'https://github.com/sak0a/cs2inspect-web/raw/refs/heads/master/public/img/defaults/'
+//https://github.com/sak0a/cs2inspect-web/raw/refs/heads/master/public/img/weapons/flat/ak-47-asiimov.webm
+
 // ============================================================================
 // DEFAULT ITEM DEFINITIONS
 // ============================================================================
@@ -134,7 +140,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_deagle",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_deagle.png",
+            IMAGE_BASE_URL + "weapon_deagle.png",
         defaultName: "Desert Eagle",
         category: "pistols",
         availableTeams: "both"
@@ -144,7 +150,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_elite",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_elite.png",
+            IMAGE_BASE_URL + "weapon_elite.png",
         defaultName: "Dual Berettas",
         category: "pistols",
         availableTeams: "both"
@@ -154,7 +160,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_fiveseven",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_fiveseven.png",
+            IMAGE_BASE_URL + "weapon_fiveseven.png",
         defaultName: "Five-SeveN",
         category: "pistols",
         availableTeams: "counter-terrorists"
@@ -164,7 +170,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_glock",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_glock.png",
+            IMAGE_BASE_URL + "weapon_glock.png",
         defaultName: "Glock-18",
         category: "pistols",
         availableTeams: "terrorists"
@@ -174,7 +180,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_ak47",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_ak47.png",
+            IMAGE_BASE_URL + "weapon_ak47.png",
         defaultName: "AK-47",
         category: "rifles",
         availableTeams: "terrorists"
@@ -184,7 +190,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_aug",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_aug.png",
+            IMAGE_BASE_URL + "weapon_aug.png",
         defaultName: "AUG",
         category: "rifles",
         availableTeams: "counter-terrorists"
@@ -194,7 +200,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_awp",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_awp.png",
+            IMAGE_BASE_URL + "weapon_awp.png",
         defaultName: "AWP",
         category: "rifles",
         availableTeams: "both"
@@ -204,7 +210,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_famas",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_famas.png",
+            IMAGE_BASE_URL + "weapon_famas.png",
         defaultName: "FAMAS",
         category: "rifles",
         availableTeams: "counter-terrorists"
@@ -214,7 +220,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_g3sg1",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_g3sg1.png",
+            IMAGE_BASE_URL + "weapon_g3sg1.png",
         defaultName: "G3SG1",
         category: "rifles",
         availableTeams: "terrorists"
@@ -224,7 +230,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_galilar",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_galilar.png",
+            IMAGE_BASE_URL + "weapon_galilar.png",
         defaultName: "Galil AR",
         category: "rifles",
         availableTeams: "terrorists"
@@ -234,7 +240,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_m249",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_m249.png",
+            IMAGE_BASE_URL + "weapon_m249.png",
         defaultName: "M249",
         category: "heavys",
         availableTeams: "both"
@@ -244,7 +250,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_m4a1",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_m4a1.png",
+            IMAGE_BASE_URL + "weapon_m4a1.png",
         defaultName: "M4A4",
         category: "rifles",
         availableTeams: "counter-terrorists"
@@ -254,7 +260,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_mac10",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_mac10.png",
+            IMAGE_BASE_URL + "weapon_mac10.png",
         defaultName: "MAC-10",
         category: "smgs",
         availableTeams: "terrorists"
@@ -264,7 +270,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_p90",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_p90.png",
+            IMAGE_BASE_URL + "weapon_p90.png",
         defaultName: "P90",
         category: "smgs",
         availableTeams: "both"
@@ -274,7 +280,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_mp5sd",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_mp5sd.png",
+            IMAGE_BASE_URL + "weapon_mp5sd.png",
         defaultName: "MP5-SD",
         category: "smgs",
         availableTeams: "both"
@@ -284,7 +290,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_ump45",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_ump45.png",
+            IMAGE_BASE_URL + "weapon_ump45.png",
         defaultName: "UMP-45",
         category: "smgs",
         availableTeams: "both"
@@ -294,7 +300,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_xm1014",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_xm1014.png",
+            IMAGE_BASE_URL + "weapon_xm1014.png",
         defaultName: "XM1014",
         category: "heavys",
         availableTeams: "both"
@@ -304,7 +310,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_bizon",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_bizon.png",
+            IMAGE_BASE_URL + "weapon_bizon.png",
         defaultName: "PP-Bizon",
         category: "smgs",
         availableTeams: "both"
@@ -314,7 +320,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_mag7",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_mag7.png",
+            IMAGE_BASE_URL + "weapon_mag7.png",
         defaultName: "MAG-7",
         category: "heavys",
         availableTeams: "counter-terrorists"
@@ -324,7 +330,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_negev",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_negev.png",
+            IMAGE_BASE_URL + "weapon_negev.png",
         defaultName: "Negev",
         category: "heavys",
         availableTeams: "both"
@@ -334,7 +340,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_sawedoff",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_sawedoff.png",
+            IMAGE_BASE_URL + "weapon_sawedoff.png",
         defaultName: "Sawed-Off",
         category: "heavys",
         availableTeams: "terrorists"
@@ -344,7 +350,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_tec9",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_tec9.png",
+            IMAGE_BASE_URL + "weapon_tec9.png",
         defaultName: "Tec-9",
         category: "pistols",
         availableTeams: "terrorists"
@@ -354,7 +360,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_taser",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_taser.png",
+            IMAGE_BASE_URL + "weapon_taser.png",
         defaultName: "Zeus x27",
         category: "pistols",
         availableTeams: "both"
@@ -364,7 +370,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_hkp2000",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_hkp2000.png",
+            IMAGE_BASE_URL + "weapon_hkp2000.png",
         defaultName: "P2000",
         category: "pistols",
         availableTeams: "counter-terrorists"
@@ -374,7 +380,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_mp7",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_mp7.png",
+            IMAGE_BASE_URL + "weapon_mp7.png",
         defaultName: "MP7",
         category: "smgs",
         availableTeams: "both"
@@ -384,7 +390,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_mp9",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_mp9.png",
+            IMAGE_BASE_URL + "weapon_mp9.png",
         defaultName: "MP9",
         category: "smgs",
         availableTeams: "counter-terrorists"
@@ -394,7 +400,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_nova",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_nova.png",
+            IMAGE_BASE_URL + "weapon_nova.png",
         defaultName: "Nova",
         category: "heavys",
         availableTeams: "both"
@@ -404,7 +410,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_p250",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_p250.png",
+            IMAGE_BASE_URL + "weapon_p250.png",
         defaultName: "P250",
         category: "pistols",
         availableTeams: "both"
@@ -414,7 +420,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_scar20",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_scar20.png",
+            IMAGE_BASE_URL + "weapon_scar20.png",
         defaultName: "SCAR-20",
         category: "rifles",
         availableTeams: "counter-terrorists"
@@ -424,7 +430,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_sg556",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_sg556.png",
+            IMAGE_BASE_URL + "weapon_sg556.png",
         defaultName: "SG 553",
         category: "rifles",
         availableTeams: "terrorists"
@@ -434,7 +440,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_ssg08",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_ssg08.png",
+            IMAGE_BASE_URL + "weapon_ssg08.png",
         defaultName: "SSG 08",
         category: "rifles",
         availableTeams: "both"
@@ -444,7 +450,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_m4a1_silencer",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_m4a1_silencer.png",
+            IMAGE_BASE_URL + "weapon_m4a1_silencer.png",
         defaultName: "M4A1-S",
         category: "rifles",
         availableTeams: "counter-terrorists"
@@ -454,7 +460,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_usp_silencer",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_usp_silencer.png",
+            IMAGE_BASE_URL + "weapon_usp_silencer.png",
         defaultName: "USP-S",
         category: "pistols",
         availableTeams: "counter-terrorists"
@@ -464,7 +470,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_cz75a",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_cz75a.png",
+            IMAGE_BASE_URL + "weapon_cz75a.png",
         defaultName: "CZ75-Auto",
         category: "pistols",
         availableTeams: "both"
@@ -474,7 +480,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
         weapon_name: "weapon_revolver",
         paintIndex: 0,
         defaultImage:
-            "https://raw.githubusercontent.com/Nereziel/cs2-WeaponPaints/main/website/img/skins/weapon_revolver.png",
+            IMAGE_BASE_URL + "weapon_revolver.png",
         defaultName: "R8 Revolver",
         category: "pistols",
         availableTeams: "both"
@@ -491,7 +497,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 500,
         weapon_name: "weapon_bayonet",
         defaultName: "Bayonet",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_bayonet_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_bayonet.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -500,7 +506,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 503,
         weapon_name: "weapon_knife_css",
         defaultName: "Classic Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_css_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_css.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -509,7 +515,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 505,
         weapon_name: "weapon_knife_flip",
         defaultName: "Flip Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_flip_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_flip.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -518,7 +524,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 506,
         weapon_name: "weapon_knife_gut",
         defaultName: "Gut Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_gut_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_gut.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -527,7 +533,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 507,
         weapon_name: "weapon_knife_karambit",
         defaultName: "Karambit",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_karambit_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_karambit.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -536,7 +542,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 508,
         weapon_name: "weapon_knife_m9_bayonet",
         defaultName: "M9 Bayonet",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_m9_bayonet_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_m9_bayonet.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -545,7 +551,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 509,
         weapon_name: "weapon_knife_tactical",
         defaultName: "Huntsman Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_tactical_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_tactical.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -554,7 +560,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 512,
         weapon_name: "weapon_knife_falchion",
         defaultName: "Falchion Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_falchion_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_falchion.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -563,7 +569,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 514,
         weapon_name: "weapon_knife_survival_bowie",
         defaultName: "Bowie Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_survival_bowie_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_survival_bowie.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -572,7 +578,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 515,
         weapon_name: "weapon_knife_butterfly",
         defaultName: "Butterfly Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_butterfly_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_butterfly.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -581,7 +587,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 516,
         weapon_name: "weapon_knife_push",
         defaultName: "Shadow Daggers",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_push_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_push.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -590,7 +596,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 517,
         weapon_name: "weapon_knife_cord",
         defaultName: "Paracord Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_cord_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_cord.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -599,7 +605,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 518,
         weapon_name: "weapon_knife_canis",
         defaultName: "Survival Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_canis_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_canis.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -608,7 +614,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 519,
         weapon_name: "weapon_knife_ursus",
         defaultName: "Ursus Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_ursus_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_ursus.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -617,7 +623,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 520,
         weapon_name: "weapon_knife_gypsy_jackknife",
         defaultName: "Navaja Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_gypsy_jackknife_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_gypsy_jackknife.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -626,7 +632,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 521,
         weapon_name: "weapon_knife_outdoor",
         defaultName: "Nomad Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_outdoor_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_outdoor.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -635,7 +641,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 522,
         weapon_name: "weapon_knife_stiletto",
         defaultName: "Stiletto Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_stiletto_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_stiletto.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -644,7 +650,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 523,
         weapon_name: "weapon_knife_widowmaker",
         defaultName: "Talon Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_widowmaker_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_widowmaker.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -653,7 +659,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 525,
         weapon_name: "weapon_knife_skeleton",
         defaultName: "Skeleton Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_skeleton_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_skeleton.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
@@ -662,7 +668,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
         weapon_defindex: 526,
         weapon_name: "weapon_knife_kukri",
         defaultName: "Kukri Knife",
-        defaultImage: "https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_kukri_png.png",
+        defaultImage: IMAGE_BASE_URL + "weapon_knife_kukri.png",
         category: "knife",
         paintIndex: 0,
         availableTeams: "both"
