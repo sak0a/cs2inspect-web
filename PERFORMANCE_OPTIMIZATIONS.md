@@ -88,7 +88,7 @@ This document outlines the performance optimizations implemented to reduce the w
 - **Routes Optimized**:
   - `/agents/**`: 1-hour cache with SWR
   - `/gloves/**`: 1-hour cache with SWR
-  - `/knifes/**`: 1-hour cache with SWR
+  - `/knives/**`: 1-hour cache with SWR
   - `/music-kits/**`: 1-hour cache with SWR
   - `/pins/**`: 1-hour cache with SWR
   - `/weapons/**`: 1-hour cache with SWR

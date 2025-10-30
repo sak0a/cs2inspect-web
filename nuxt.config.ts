@@ -76,16 +76,17 @@ export default defineNuxtConfig({
   routeRules: {
     // Prerender static pages at build time
     '/': { prerender: true },
-    '/agents/**': { swr: 3600 }, // Cache for 1 hour with stale-while-revalidate
+    // Page routes with stale-while-revalidate caching (1 hour)
+    '/agents/**': { swr: 3600 },
     '/gloves/**': { swr: 3600 },
-    '/knifes/**': { swr: 3600 },
+    '/knives/**': { swr: 3600 },
     '/music-kits/**': { swr: 3600 },
     '/pins/**': { swr: 3600 },
     '/weapons/**': { swr: 3600 },
-    // API routes with caching
+    // API routes with caching (1 hour)
     '/api/data/**': { 
       cache: { 
-        maxAge: 3600, // 1 hour cache
+        maxAge: 3600,
         swr: true 
       }
     }
