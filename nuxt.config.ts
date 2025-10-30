@@ -67,7 +67,27 @@ export default defineNuxtConfig({
   ],
   router: {
     options: {
-      hashMode: false // Ensure this is set to false for proper URL handling
+      hashMode: false, // Ensure this is set to false for proper URL handling
+      scrollBehaviorType: 'smooth'
+    }
+  },
+  
+  // Route-level optimizations
+  routeRules: {
+    // Prerender static pages at build time
+    '/': { prerender: true },
+    '/agents/**': { swr: 3600 }, // Cache for 1 hour with stale-while-revalidate
+    '/gloves/**': { swr: 3600 },
+    '/knifes/**': { swr: 3600 },
+    '/music-kits/**': { swr: 3600 },
+    '/pins/**': { swr: 3600 },
+    '/weapons/**': { swr: 3600 },
+    // API routes with caching
+    '/api/data/**': { 
+      cache: { 
+        maxAge: 3600, // 1 hour cache
+        swr: true 
+      }
     }
   },
   vite: {

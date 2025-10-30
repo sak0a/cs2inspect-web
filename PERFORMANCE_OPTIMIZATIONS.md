@@ -81,6 +81,26 @@ This document outlines the performance optimizations implemented to reduce the w
 - **Impact**: Instant first paint for prerendered routes
 - **Configuration**: `nitro.prerender.routes`
 
+### 7. Route-Level Caching
+
+#### Stale-While-Revalidate (SWR)
+- **Implemented**: SWR strategy for dynamic routes
+- **Routes Optimized**:
+  - `/agents/**`: 1-hour cache with SWR
+  - `/gloves/**`: 1-hour cache with SWR
+  - `/knifes/**`: 1-hour cache with SWR
+  - `/music-kits/**`: 1-hour cache with SWR
+  - `/pins/**`: 1-hour cache with SWR
+  - `/weapons/**`: 1-hour cache with SWR
+- **Impact**: Instant page loads from cache, background updates
+- **Configuration**: `nuxt.config.ts` → `routeRules`
+
+#### API Response Caching
+- **Implemented**: Server-side caching for data endpoints
+- **Routes**: `/api/data/**` with 1-hour cache
+- **Impact**: Reduced database queries, faster API responses
+- **Configuration**: `routeRules['/api/data/**'].cache`
+
 ## Metrics & Impact
 
 ### Before Optimizations
@@ -92,9 +112,11 @@ This document outlines the performance optimizations implemented to reduce the w
 ### After Optimizations
 - **Total Bundle Size**: 33.7 MB uncompressed (3.2% reduction)
 - **Largest Client Chunk**: 472 KB (reorganized with better splitting)
-- **Compression**: All assets pre-compressed (Brotli + Gzip)
+- **Compression**: All assets pre-compressed (28 Brotli + 28 Gzip files)
 - **CDN Caching**: 1-year cache headers on static assets
 - **Modal Loading**: ~92KB deferred from initial load
+- **Route Caching**: 1-hour SWR cache for all main routes
+- **API Caching**: 1-hour cache for data endpoints
 
 ### Expected Performance Improvements
 1. **First Contentful Paint (FCP)**: 20-30% faster
