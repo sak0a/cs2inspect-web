@@ -39,7 +39,7 @@ export function findMatchingSkin<T extends { weapon_name: string }, U extends { 
         console.warn('findMatchingSkin: No matching skin found for weapon:', baseItem.weapon_name, 'paintindex:', paintIndexStr);
         // Log available skins for this weapon to help debug
         const weaponSkins = skinsData.filter(skin => skin.weapon?.id === baseItem.weapon_name);
-        console.log('findMatchingSkin: Available skins for', baseItem.weapon_name, ':', weaponSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
+        //console.log('findMatchingSkin: Available skins for', baseItem.weapon_name, ':', weaponSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
     }
 
     return matchingSkin;

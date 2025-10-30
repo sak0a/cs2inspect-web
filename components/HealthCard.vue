@@ -102,6 +102,7 @@ const displayNameMap: Record<string, string> = {
   'steam_api': 'Steam API',
   'steam_client': 'Steam Client',
   'environment': 'Environment',
+  'image_proxy': 'Image Proxy',
 };
 
 const displayName = computed(() => {
@@ -210,4 +211,3 @@ const envVarColor = computed(() => {
 .status-icon
   filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3))
 </style>
-

@@ -4,6 +4,8 @@
 import { pool } from '~/server/database/database';
 import { getCS2Client } from '~/server/plugins/init';
 import type { HealthCheckResult, HealthStatus } from '~/server/types/health';
+import { $fetch } from 'ofetch';
+import { useNitroApp } from '#imports'
 
 /**
  * Calculate uptime percentage for a check based on historical data
@@ -330,6 +332,136 @@ export async function checkEnvironment(): Promise<HealthCheckResult> {
 }
 
 /**
+ * Image proxy (CORS bypass) health check
+ */
+export async function checkImageProxy(): Promise<HealthCheckResult> {
+  const startTime = Date.now()
+  const result: HealthCheckResult = {
+    name: 'image_proxy',
+    status: 'ok',
+    checked_at: new Date(),
+  }
+
+  const sampleUrl = 'https://steamcommunity-a.akamaihd.net/public/shared/images/header/logo_steam.svg'
+
+  // Helper to compute baseURL for absolute calls
+  const makeBaseURL = () => {
+    const explicit = process.env.PROXY_HEALTH_BASE_URL
+    if (explicit && /^https?:\/\//i.test(explicit)) return explicit.replace(/\/$/, '')
+    const host = process.env.HOST || '127.0.0.1'
+    const port = Number(process.env.PORT) || 3000
+    const proto = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+    return `${proto}://${host}:${port}`
+  }
+
+  try {
+    // Preferred: use Nitro's internal router without real HTTP
+    const nitro = useNitroApp()
+    const resp = await nitro.localFetch(`/api/proxy/image?url=${encodeURIComponent(sampleUrl)}`, { method: 'GET' })
+
+    const latency = Date.now() - startTime
+    result.latency_ms = latency
+
+    const contentType = resp.headers.get('content-type') || ''
+    const ok = resp.status === 200 && (contentType.startsWith('image/') || contentType.includes('svg'))
+
+    if (!ok) {
+      result.status = 'fail'
+      result.message = `Proxy responded with ${resp.status} (${contentType || 'no content-type'})`
+    } else if (latency > 1000) {
+      result.status = 'degraded'
+      result.message = `Proxy latency elevated: ${latency}ms`
+    } else {
+      result.message = 'Image proxy operational'
+    }
+
+    result.metadata = {
+      content_type: contentType,
+      content_length: resp.headers.get('content-length') || null,
+      upstream_host: new URL(sampleUrl).hostname,
+      uptime_percentage: await (async () => {
+        try {
+          // @ts-ignore - using local private function
+          return await (calculateUptimePercentage?.('image_proxy', 60) ?? 100)
+        } catch { return 100 }
+      })(),
+    }
+  } catch (error1: unknown) {
+    // Fallback 1: absolute HTTP call to our own server
+    try {
+      const baseURL = makeBaseURL()
+      const resp = await $fetch.raw(`${baseURL}/api/proxy/image`, {
+        method: 'GET',
+        params: { url: sampleUrl },
+      })
+
+      const latency = Date.now() - startTime
+      result.latency_ms = latency
+
+      const contentType = resp.headers.get('content-type') || ''
+      const ok = resp.status === 200 && (contentType.startsWith('image/') || contentType.includes('svg'))
+
+      if (!ok) {
+        result.status = 'fail'
+        result.message = `Proxy (absolute) responded with ${resp.status} (${contentType || 'no content-type'})`
+      } else if (latency > 1000) {
+        result.status = 'degraded'
+        result.message = `Proxy (absolute) latency elevated: ${latency}ms`
+      } else {
+        result.message = 'Image proxy operational'
+      }
+
+      result.metadata = {
+        content_type: contentType,
+        content_length: resp.headers.get('content-length') || null,
+        upstream_host: new URL(sampleUrl).hostname,
+        base_url: baseURL,
+        uptime_percentage: await (async () => {
+          try {
+            // @ts-ignore
+            return await (calculateUptimePercentage?.('image_proxy', 60) ?? 100)
+          } catch { return 100 }
+        })(),
+      }
+    } catch (error2: unknown) {
+      // Fallback 2: check upstream directly (degraded), confirms internet/CDN path
+      try {
+        const upstream = await fetch(sampleUrl, { method: 'GET' })
+        const latency = Date.now() - startTime
+        result.latency_ms = latency
+        const contentType = upstream.headers.get('content-type') || ''
+        const ok = upstream.ok && (contentType.startsWith('image/') || contentType.includes('svg'))
+        if (ok) {
+          result.status = 'degraded'
+          result.message = 'Upstream reachable, but local proxy call failed (using direct fetch)'
+        } else {
+          result.status = 'fail'
+          result.message = `Upstream check failed: ${upstream.status} (${contentType || 'no content-type'})`
+        }
+        result.metadata = {
+          upstream_host: new URL(sampleUrl).hostname,
+          error_local: error1 instanceof Error ? error1.message : String(error1),
+          error_absolute: error2 instanceof Error ? error2.message : String(error2),
+        }
+      } catch (error3: unknown) {
+        const latency = Date.now() - startTime
+        result.latency_ms = latency
+        result.status = 'fail'
+        const msg1 = error1 instanceof Error ? error1.message : String(error1)
+        const msg2 = error2 instanceof Error ? error2.message : String(error2)
+        const msg3 = error3 instanceof Error ? error3.message : String(error3)
+        result.message = `Proxy check failed (local, absolute, upstream): ${msg1} | ${msg2} | ${msg3}`
+        result.metadata = {
+          upstream_host: new URL(sampleUrl).hostname,
+        }
+      }
+    }
+  }
+
+  return result
+}
+
+/**
  * Get overall system status from individual check results
  */
 export function getOverallStatus(checks: HealthCheckResult[]): HealthStatus {
@@ -354,6 +486,7 @@ export async function runAllHealthChecks(): Promise<HealthCheckResult[]> {
         checkSteamAPI(),
         checkSteamClient(),
         checkEnvironment(),
+        checkImageProxy(),
     ]);
 
     return checks;

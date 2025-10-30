@@ -188,12 +188,34 @@ const updateSelectedElementOffset = (axis: 'x' | 'y', value: number | null) => {
 // Image cache for loaded images
 const imageCache = new Map<string, HTMLImageElement>()
 
+// Resolve URL to a canvas-safe variant. For cross-origin images, route via our proxy.
+const toCanvasSafeUrl = (url: string): string => {
+  try {
+    const u = new URL(url, window.location.origin)
+    // If already same-origin (relative or same host), use as-is
+    if (u.origin === window.location.origin) return u.toString()
+    // Only proxy http/https external URLs
+    if (u.protocol === 'http:' || u.protocol === 'https:') {
+      return `/api/proxy/image?url=${encodeURIComponent(u.toString())}`
+    }
+    return url
+  } catch {
+    // If invalid URL, try as-is (could be relative)
+    return url
+  }
+}
+
 // Load image with caching
 const loadImage = (url: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
+    // Use original URL as cache key so callers can look it up consistently
+    const cacheKey = url
+    // Choose safe URL for canvas usage for actual network fetch
+    const finalUrl = toCanvasSafeUrl(url)
+
     // Check cache first
-    if (imageCache.has(url)) {
-      const cachedImg = imageCache.get(url)!
+    if (imageCache.has(cacheKey)) {
+      const cachedImg = imageCache.get(cacheKey)!
       if (cachedImg.complete && cachedImg.naturalWidth > 0) {
         resolve(cachedImg)
         return
@@ -202,18 +224,19 @@ const loadImage = (url: string): Promise<HTMLImageElement> => {
 
     // Create new image
     const img = new Image()
+    // Keep anonymous to allow canvas usage; works fine for same-origin/proxied
     img.crossOrigin = 'anonymous'
 
     img.onload = () => {
-      imageCache.set(url, img)
+      imageCache.set(cacheKey, img)
       resolve(img)
     }
 
     img.onerror = () => {
-      reject(new Error(`Failed to load image: ${url}`))
+      reject(new Error(`Failed to load image: ${finalUrl}`))
     }
 
-    img.src = url
+    img.src = finalUrl
   })
 }
 

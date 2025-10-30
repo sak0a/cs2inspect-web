@@ -74,6 +74,7 @@ const displayNameMap: Record<string, string> = {
   'steam_api': 'Steam API',
   'steam_client': 'Steam Client',
   'environment': 'Environment',
+  'image_proxy': 'Image Proxy'
 };
 
 const displayName = computed(() => {
