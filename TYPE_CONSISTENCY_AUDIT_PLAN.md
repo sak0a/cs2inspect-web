@@ -19,7 +19,7 @@ Systematically identify and migrate all remaining files that use legacy type pat
 |------|-------------------|----------|------------------|
 | `pages/agents/index.vue` | `SteamUser`, `APIAgent` | High | 2-3 hours |
 | `pages/weapons/[type].vue` | `WeaponCustomization`, `IEnhancedItem` | High | 3-4 hours |
-| `pages/knifes/index.vue` | `KnifeCustomization` | High | 2-3 hours |
+| `pages/knives/index.vue` | `KnifeCustomization` | High | 2-3 hours |
 | `pages/gloves/index.vue` | Unknown (needs audit) | High | 2-4 hours |
 | `pages/musickits/index.vue` | Unknown (needs audit) | Medium | 2-3 hours |
 | `pages/pins/index.vue` | Unknown (needs audit) | Medium | 2-3 hours |
@@ -37,7 +37,7 @@ Systematically identify and migrate all remaining files that use legacy type pat
 # Primary pages (confirmed issues)
 pages/agents/index.vue          # ✅ Known: SteamUser, APIAgent
 pages/weapons/[type].vue        # ✅ Known: WeaponCustomization, IEnhancedItem
-pages/knifes/index.vue          # ✅ Known: KnifeCustomization
+pages/knives/index.vue          # ✅ Known: KnifeCustomization
 
 # Secondary pages (needs audit)
 pages/gloves/index.vue          # 🔍 Audit needed
@@ -76,7 +76,7 @@ components/ItemDisplay.vue      # 🔍 Check for item types
 ```bash
 # API handlers
 server/api/weapons/            # 🔍 Check for WeaponCustomization
-server/api/knifes/             # 🔍 Check for KnifeCustomization  
+server/api/knives/             # 🔍 Check for KnifeCustomization  
 server/api/gloves/             # 🔍 Check for GloveCustomization
 server/api/agents/             # 🔍 Check for agent types
 server/api/musickits/          # 🔍 Check for music kit types
@@ -92,7 +92,7 @@ server/utils/                  # 🔍 Check for legacy type usage
 #### **Migration Order** (by user impact):
 1. **`pages/agents/index.vue`** - User-facing agent selection
 2. **`pages/weapons/[type].vue`** - Core weapon functionality  
-3. **`pages/knifes/index.vue`** - Knife customization
+3. **`pages/knives/index.vue`** - Knife customization
 4. **`pages/gloves/index.vue`** - Glove customization
 
 #### **Migration Template for Each Page**:

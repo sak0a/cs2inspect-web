@@ -646,9 +646,9 @@ interface AuthResponse {
 - `GET /api/weapons/[type]` - Get weapons by type
 - `POST /api/weapons/save` - Save weapon customization
 
-**Knives**: `server/api/knifes/`
-- `GET /api/knifes` - Get knives for loadout
-- `POST /api/knifes/save` - Save knife customization
+**Knives**: `server/api/knives/`
+- `GET /api/knives` - Get knives for loadout
+- `POST /api/knives/save` - Save knife customization
 
 **Gloves**: `server/api/gloves/`
 - `GET /api/gloves` - Get gloves for loadout

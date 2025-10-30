@@ -4,7 +4,7 @@ import { getSkinsData } from '~/server/utils/csgoAPI'
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { executeQuery } from '~/server/database/database'
-import { DEFAULT_KNIFES } from '~/server/utils/constants'
+import { DEFAULT_KNIVES } from '~/server/utils/constants'
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -26,12 +26,12 @@ export default defineEventHandler(withErrorHandling(async (event) => {
 
     const skinData = getSkinsData();
 
-    //LOG: Logger.info(`Fetching knifes for Steam ID: ${steamId}`);
-    // Fetch all knifes from the database for the given loadout
-    const knifes = await executeQuery<DBKnife[]>(
+    //LOG: Logger.info(`Fetching knives for Steam ID: ${steamId}`);
+    // Fetch all knives from the database for the given loadout
+    const knives = await executeQuery<DBKnife[]>(
         'SELECT * FROM wp_player_knifes WHERE steamid = ? AND loadoutid = ?',
         [steamId, loadoutId],
-        'Failed to fetch knifes'
+        'Failed to fetch knives'
     );
 
     // Fetch all knife skins from the skin data
@@ -41,10 +41,10 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     );
 
     // Map through default knives and enhance them with skin data
-    const enhancedKnifes = DEFAULT_KNIFES.map((baseKnife: IDefaultItem) => {
+    const enhancedKnives = DEFAULT_KNIVES.map((baseKnife: IDefaultItem) => {
         // Find the database entries for this knife defindex if they exist
         //LOG: Logger.info(`Base knife: ${baseKnife.weapon_name}`)
-        const matchingDatabaseResults: DBKnife[] = knifes.filter(
+        const matchingDatabaseResults: DBKnife[] = knives.filter(
             (knife: DBKnife) => knife.defindex === baseKnife.weapon_defindex
         );
 
@@ -148,21 +148,21 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         */
     });
 
-    //LOG: Logger.success(`Fetched ${knifes.length} knifes for Steam ID: ${steamId}`);
+    //LOG: Logger.success(`Fetched ${knives.length} knives for Steam ID: ${steamId}`);
 
     const meta = createResponseMeta(startTime, {
         steamId,
         loadoutId,
-        databaseRows: knifes.length,
-        knifesReturned: enhancedKnifes.length
+        databaseRows: knives.length,
+        knivesReturned: enhancedKnives.length
     });
 
     return createCollectionResponse(
-        enhancedKnifes,
-        enhancedKnifes.length,
+        enhancedKnives,
+        enhancedKnives.length,
         meta,
-        ['knifes'],
+        ['knives'],
         undefined,
-        `Successfully fetched ${enhancedKnifes.length} knifes`
+        `Successfully fetched ${enhancedKnives.length} knives`
     );
-}, 'KNIFES_FETCH_ERROR'));
+}, 'KNIVES_FETCH_ERROR'));

@@ -13,8 +13,8 @@ export const API_VERSION = '1.0.0';
 export const PROTECTED_API_PATHS = [
     '/api/weapons',
     '/api/loadouts',
-    '/api/knifes',
-    '/api/knfies/save',
+    '/api/knives',
+    '/api/knives/save',
     '/api/weapons/save',
     '/api/weapons/inspect',
     '/api/weapons/[type]',
@@ -492,7 +492,7 @@ export const VALID_WEAPON_DEFINDEXES = DEFAULT_WEAPONS.reduce((acc, weapon) => {
     return acc;
 }, {} as Record<number, boolean>);
 
-export const DEFAULT_KNIFES: IDefaultItem[] = [
+export const DEFAULT_KNIVES: IDefaultItem[] = [
     {
         weapon_defindex: 500,
         weapon_name: "weapon_bayonet",
@@ -675,7 +675,7 @@ export const DEFAULT_KNIFES: IDefaultItem[] = [
     }
 ]
 
-export const VALID_KNIFE_DEFINDEXES = DEFAULT_KNIFES.reduce((acc, knife) => {
+export const VALID_KNIFE_DEFINDEXES = DEFAULT_KNIVES.reduce((acc, knife) => {
     acc[knife.weapon_defindex] = true;
     return acc;
 }, {} as Record<number, boolean>);

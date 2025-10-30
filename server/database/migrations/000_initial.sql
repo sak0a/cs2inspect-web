@@ -110,7 +110,7 @@ CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_heavys (loadoutid);
 --
 --
--- Knifes Table
+-- Knives Table
 CREATE TABLE IF NOT EXISTS wp_player_knifes
 (
     id               INT UNSIGNED AUTO_INCREMENT
@@ -132,10 +132,10 @@ CREATE TABLE IF NOT EXISTS wp_player_knifes
         FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
             ON DELETE CASCADE
 );
--- Knifes Index
+-- Knives Index
 CREATE INDEX IF NOT EXISTS idx_steamid_loadout
     on wp_player_knifes (steamid, loadoutid);
--- Knifes Loadout Index
+-- Knives Loadout Index
 CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_knifes (loadoutid);
 --

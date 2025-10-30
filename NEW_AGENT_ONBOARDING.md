@@ -34,7 +34,7 @@ The project has just completed a comprehensive TypeScript interface refactoring 
 1. **Page Component Migration** (High Priority)
    - `pages/agents/index.vue` - Uses legacy `SteamUser`, `APIAgent`
    - `pages/weapons/[type].vue` - Uses legacy `WeaponCustomization`
-   - `pages/knifes/index.vue` - Uses legacy `KnifeCustomization`
+   - `pages/knives/index.vue` - Uses legacy `KnifeCustomization`
    - `pages/gloves/index.vue` - Needs audit and potential migration
 
 2. **Type Consistency Enforcement**

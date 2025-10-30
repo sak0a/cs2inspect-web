@@ -6,7 +6,6 @@ import { homeMenuOptions, weaponMenuOptions, equipmentMenuOptions, extrasMenuOpt
 import LoadoutSelector from "~/components/LoadoutSelector.vue";
 import LanguageSwitcher from "~/components/LanguageSwitcher.vue";
 import { layoutThemeOverrides, skinModalThemeOverrides } from "~/server/utils/themeCustomization";
-import { SpeedInsights } from "@vercel/speed-insights/nuxt"
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)

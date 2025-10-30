@@ -61,9 +61,9 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        async fetchLoadoutKnifes(steamId: string) {
+        async fetchLoadoutKnives(steamId: string) {
             this.isLoading = true;
-            await fetch(`/api/knifes?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
+            await fetch(`/api/knives?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
                 method: 'GET',
                 credentials: 'include',
                 headers: {
@@ -79,10 +79,10 @@ export const useLoadoutStore = defineStore('loadout', {
                 }
                 const data = await response.json();
                 // Handle both old and new API response formats
-                const knifes = data.data || data.knifes;
-                this.currentSkins = knifes;
-                console.info(`Fetched ${knifes?.length || 0} knifes for loadout ${data.meta?.loadoutId || 'unknown'} from ${data.meta?.steamId || 'unknown'}`)
-                console.log("Fetched knifes: ", knifes)
+                const knives = data.data || data.knives;
+                this.currentSkins = knives;
+                console.info(`Fetched ${knives?.length || 0} knives for loadout ${data.meta?.loadoutId || 'unknown'} from ${data.meta?.steamId || 'unknown'}`)
+                console.log("Fetched knives: ", knives)
             }).catch((error) => {
                 console.error(error)
                 throw error

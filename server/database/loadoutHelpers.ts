@@ -81,7 +81,7 @@ export const deleteLoadout = async (id: string, steamId: string): Promise<void> 
         'Failed to delete smgs');
     await executeQuery<void>('DELETE FROM wp_player_knifes WHERE loadoutid = ? AND steamid = ?',
         [id, steamId],
-        'Failed to delete knifes');
+        'Failed to delete knives');
     await executeQuery<void>('DELETE FROM wp_player_gloves WHERE loadoutid = ? AND steamid = ?',
         [id, steamId],
         'Failed to delete gloves');

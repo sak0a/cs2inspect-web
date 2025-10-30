@@ -96,7 +96,7 @@ pages/
 ├── status.vue          # System health status dashboard
 ├── weapons/
 │   └── [type].vue     # Dynamic weapon customization pages
-├── knifes/
+├── knives/
 │   └── index.vue      # Knife customization page
 ├── gloves/
 │   └── index.vue      # Glove customization page
@@ -159,7 +159,7 @@ server/api/
 ├── weapons/
 │   ├── [type].ts            # Get weapons by type
 │   └── save.ts              # Save weapon customization
-├── knifes/
+├── knives/
 │   ├── index.ts             # Get knives
 │   └── save.ts              # Save knife customization
 ├── gloves/

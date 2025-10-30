@@ -1,5 +1,5 @@
 -- @description Add unique indexes to all tables to prevent duplicate entries
--- Knifes: add UNIQUE INDEX
+-- Knives: add UNIQUE INDEX
 CREATE UNIQUE INDEX IF NOT EXISTS uq_wp_player_knifes_unique
 ON wp_player_knifes (steamid, loadoutid, team, defindex);
 

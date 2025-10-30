@@ -667,7 +667,7 @@ Save or update a weapon customization.
 
 Retrieve knives for the authenticated user's active loadout.
 
-**Endpoint**: `GET /api/knifes`
+**Endpoint**: `GET /api/knives`
 
 **Authentication**: Required
 
@@ -705,7 +705,7 @@ Retrieve knives for the authenticated user's active loadout.
 
 Save or update a knife customization.
 
-**Endpoint**: `POST /api/knifes/save`
+**Endpoint**: `POST /api/knives/save`
 
 **Authentication**: Required
 

@@ -60,7 +60,7 @@ This onboarding package provides everything a new AI agent needs to understand t
 ### **Immediate Priorities**
 1. **`pages/agents/index.vue`** - Uses legacy `SteamUser`, `APIAgent`
 2. **`pages/weapons/[type].vue`** - Uses legacy `WeaponCustomization`
-3. **`pages/knifes/index.vue`** - Uses legacy `KnifeCustomization`
+3. **`pages/knives/index.vue`** - Uses legacy `KnifeCustomization`
 4. **`pages/gloves/index.vue`** - Needs audit and potential migration
 
 ### **Essential Knowledge**

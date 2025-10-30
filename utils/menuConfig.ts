@@ -181,8 +181,8 @@ export const weaponMenuOptions = [
 
 export const equipmentMenuOptions = [
     {
-        labelKey: 'melee.knifes',
-        key: '/knifes',
+        labelKey: 'melee.knives',
+        key: '/knives',
         icon: renderIcon(h('div', { style: 'transform: rotate(-15deg)', innerHTML: "<svg version=\"1.1\"\n" +
                 "\t xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" xmlns:a=\"http://ns.adobe.com/AdobeSVGViewerExtensions/3.0/\"\n" +
                 "\t x=\"0px\" y=\"0px\" width=\"88px\" height=\"40px\" viewBox=\"0.77 0 88 40\" enable-background=\"new 0.77 0 88 40\" xml:space=\"preserve\">\n" +

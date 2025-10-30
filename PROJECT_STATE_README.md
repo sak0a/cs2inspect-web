@@ -109,7 +109,7 @@ Based on the audit, these files still use legacy types and need updating:
 #### **High Priority (User-Facing)**
 1. **`pages/agents/index.vue`** - Uses `SteamUser`, `APIAgent` from old imports
 2. **`pages/weapons/[type].vue`** - Uses `WeaponCustomization`, `IEnhancedItem`
-3. **`pages/knifes/index.vue`** - Uses `KnifeCustomization`
+3. **`pages/knives/index.vue`** - Uses `KnifeCustomization`
 4. **`pages/gloves/index.vue`** - Likely uses legacy types (needs audit)
 
 #### **Medium Priority (Internal)**
@@ -123,7 +123,7 @@ Based on the audit, these files still use legacy types and need updating:
 |----------------|-------------|----------------|
 | `SteamUser` | `UserProfile` | pages/agents/index.vue |
 | `WeaponCustomization` | `WeaponConfiguration` | pages/weapons/[type].vue |
-| `KnifeCustomization` | `KnifeConfiguration` | pages/knifes/index.vue |
+| `KnifeCustomization` | `KnifeConfiguration` | pages/knives/index.vue |
 | `APIAgent` | `APIAgent` (from ~/types) | pages/agents/index.vue |
 | `import from ~/server/utils/interfaces` | `import from ~/types` | Multiple files |
 
