@@ -374,18 +374,18 @@ onMounted(() => {
       @submit="handleInspectLinkSubmit"
     />
 
-    <!-- Weapon Skin Modal -->
-    <WeaponSkinModal
-      v-if="itemType === 'weapon'"
+    <!-- Weapon Skin Modal - Lazy loaded -->
+    <LazyWeaponSkinModal
+      v-if="itemType === 'weapon' && showWeaponModal"
       v-model:visible="showWeaponModal"
       :weapon="inspectedItem"
       :other-team-has-skin="otherTeamHasSkin"
       @save="handleWeaponSkinSave"
     />
 
-    <!-- Knife Skin Modal -->
-    <KnifeSkinModal
-      v-if="itemType === 'knife'"
+    <!-- Knife Skin Modal - Lazy loaded -->
+    <LazyKnifeSkinModal
+      v-if="itemType === 'knife' && showKnifeModal"
       v-model:visible="showKnifeModal"
       :weapon="inspectedItem"
       :user="user"
@@ -393,9 +393,9 @@ onMounted(() => {
       @save="handleKnifeSkinSave"
     />
 
-    <!-- Glove Skin Modal -->
-    <GloveSkinModal
-      v-if="itemType === 'glove'"
+    <!-- Glove Skin Modal - Lazy loaded -->
+    <LazyGloveSkinModal
+      v-if="itemType === 'glove' && showGloveModal"
       v-model:visible="showGloveModal"
       :weapon="inspectedItem"
       :user="user"

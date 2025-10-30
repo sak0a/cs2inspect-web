@@ -6,6 +6,13 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
+  
+  // Performance optimizations
+  experimental: {
+    payloadExtraction: true,
+    renderJsonPayloads: true,
+    viewTransition: true
+  },
   nitro: {
     experimental: {
       wasm: true
@@ -15,7 +22,15 @@ export default defineNuxtConfig({
         target: 'esnext'
       }
     },
-    minify: false
+    minify: true,
+    compressPublicAssets: {
+      gzip: true,
+      brotli: true
+    },
+    prerender: {
+      crawlLinks: true,
+      routes: ['/']
+    }
   },
   devServer: {
     port: Number(process.env.PORT),  // default: 3000
@@ -35,6 +50,13 @@ export default defineNuxtConfig({
     layoutTransition: {
       name: 'layout',
       mode: 'out-in'
+    },
+    head: {
+      link: [
+        // Preconnect to critical origins
+        { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+        { rel: 'dns-prefetch', href: 'https://fonts.gstatic.com' }
+      ]
     }
   },
   css: [
@@ -66,7 +88,36 @@ export default defineNuxtConfig({
       Components({
         resolvers: [NaiveUiResolver()]
       })
-    ]
+    ],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: (id) => {
+            // Split vendor chunks for better caching
+            if (id.includes('node_modules')) {
+              if (id.includes('naive-ui')) {
+                return 'naive-ui';
+              }
+              if (id.includes('chart.js') || id.includes('vue-chartjs')) {
+                return 'charts';
+              }
+              if (id.includes('@vueuse')) {
+                return 'vueuse';
+              }
+              if (id.includes('pinia')) {
+                return 'pinia';
+              }
+              return 'vendor';
+            }
+          }
+        }
+      },
+      cssCodeSplit: true,
+      // Enable minification
+      minify: 'esbuild',
+      // Optimize chunk sizes
+      chunkSizeWarningLimit: 600
+    }
   },
   tailwindcss: {
     cssPath: ['~/assets/css/tailwind.sass', { injectPosition: "first" }],
