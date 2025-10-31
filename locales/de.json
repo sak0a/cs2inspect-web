@@ -182,7 +182,8 @@
     "automaticallyLoggedOut": "Du wurdest automatisch abgemeldet",
     "confirmLogout": "Bist du sicher, dass du dich abmelden möchtest?",
     "rejectAction": "Melde dich an, um diese Aktion auszuführen",
-    "authenticating": "Authentifiziere..."
+    "authenticating": "Authentifiziere...",
+    "openSteamProfile": "Steam-Profil öffnen"
   },
   "common": {
     "loading": "Lädt...",

@@ -296,7 +296,8 @@
     "confirmLogout": "Are you sure you want to logout?",
     "rejectAction": "Sign In to execute this action",
 
-    "authenticating": "Authenticating..."
+    "authenticating": "Authenticating...",
+    "openSteamProfile": "Open Steam profile"
   },
   "common": {
     "loading": "Loading...",
