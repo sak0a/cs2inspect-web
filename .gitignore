@@ -25,3 +25,4 @@ logs
 
 # Build artifacts
 server/assets/_locales
+storage/csgo-api
