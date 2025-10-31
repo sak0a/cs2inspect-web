@@ -76,7 +76,7 @@ const myThemeOverrides: GlobalThemeOverrides = {
 </script>
 
 <template>
-  <NConfigProvider :theme="darkTheme" :theme-overrides="myThemeOverrides" inline-theme-disabled>
+  <NConfigProvider :theme="darkTheme" :theme-overrides="myThemeOverrides" inline-theme-disabled preflight-style-disabled>
     <NLoadingBarProvider>
       <NModalProvider>
         <NDialogProvider>
