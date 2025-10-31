@@ -6,7 +6,8 @@ import { describe, it, expect } from 'vitest';
 import jwt from 'jsonwebtoken';
 import { PROTECTED_API_PATHS } from '../../../server/utils/constants';
 
-const JWT_SECRET = process.env.JWT_TOKEN || 'your-secret-key';
+// Use a clearly marked test secret that should never be used in production
+const JWT_SECRET = process.env.JWT_TOKEN || 'test-secret-key-do-not-use-in-production';
 
 describe('Auth Middleware Logic - Unit Tests', () => {
     describe('Protected Path Detection', () => {
@@ -17,17 +18,13 @@ describe('Auth Middleware Logic - Unit Tests', () => {
         });
 
         it('should include expected protected paths', () => {
-            const expectedPaths = [
-                '/api/weapons',
-                '/api/loadouts',
-                '/api/knives',
-                '/api/knives/save',
-                '/api/weapons/save',
-            ];
-
-            expectedPaths.forEach(path => {
-                expect(PROTECTED_API_PATHS.some(p => path.startsWith(p))).toBe(true);
-            });
+            // Verify specific critical paths are protected
+            // These should match what's defined in PROTECTED_API_PATHS constant
+            expect(PROTECTED_API_PATHS).toContain('/api/weapons');
+            expect(PROTECTED_API_PATHS).toContain('/api/loadouts');
+            expect(PROTECTED_API_PATHS).toContain('/api/knives');
+            expect(PROTECTED_API_PATHS.some(p => '/api/knives/save'.startsWith(p))).toBe(true);
+            expect(PROTECTED_API_PATHS.some(p => '/api/weapons/save'.startsWith(p))).toBe(true);
         });
 
         it('should use startsWith logic for path matching', () => {
@@ -36,7 +33,7 @@ describe('Auth Middleware Logic - Unit Tests', () => {
             expect(isProtected).toBe(true);
         });
 
-        it('should not match paths that dont start with protected paths', () => {
+        it('should not match paths that don\'t start with protected paths', () => {
             const testPath = '/api/data/weapons';
             const isProtected = PROTECTED_API_PATHS.some(route => testPath.startsWith(route));
             expect(isProtected).toBe(false);

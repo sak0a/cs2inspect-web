@@ -4,7 +4,8 @@
 import jwt from 'jsonwebtoken';
 import type { SignOptions } from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_TOKEN || 'your-secret-key';
+// Use a clearly marked test secret that should never be used in production
+const JWT_SECRET = process.env.JWT_TOKEN || 'test-secret-key-do-not-use-in-production';
 
 /**
  * Generate a valid JWT token for testing
