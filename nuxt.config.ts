@@ -99,10 +99,13 @@ export default defineNuxtConfig({
   },
     hooks: {
     'close': async () => {
-        setTimeout(() => {
-            console.log("Closing...")
-            process.exit(0)
-        }, 1000)
+        // Only exit in non-test environments
+        if (process.env.NODE_ENV !== 'test' && !process.env.VITEST) {
+            setTimeout(() => {
+                console.log("Closing...")
+                process.exit(0)
+            }, 1000)
+        }
     }
   },
   compatibilityDate: '2024-10-12'
