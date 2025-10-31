@@ -2,7 +2,7 @@
  * Unit tests for authentication middleware logic
  * Tests the middleware behavior without requiring full server setup
  */
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import jwt from 'jsonwebtoken';
 import { PROTECTED_API_PATHS } from '../../../server/utils/constants';
 
@@ -65,7 +65,7 @@ describe('Auth Middleware Logic - Unit Tests', () => {
                 { expiresIn: '1h' }
             );
 
-            const decoded = jwt.verify(token, JWT_SECRET) as any;
+            const decoded = jwt.verify(token, JWT_SECRET) as { steamId: string; type: string };
             expect(decoded.steamId).toBe(testSteamId);
             expect(decoded.type).toBe('steam_auth');
         });
@@ -105,7 +105,7 @@ describe('Auth Middleware Logic - Unit Tests', () => {
                 { expiresIn: '1h' }
             );
 
-            const decoded = jwt.verify(token, JWT_SECRET) as any;
+            const decoded = jwt.verify(token, JWT_SECRET) as { steamId: string; type: string };
             expect(decoded).toHaveProperty('steamId');
             expect(decoded.steamId).toBe(steamId);
         });
@@ -118,7 +118,7 @@ describe('Auth Middleware Logic - Unit Tests', () => {
                 { expiresIn: '1h' }
             );
 
-            const decoded = jwt.verify(token, JWT_SECRET) as any;
+            const decoded = jwt.verify(token, JWT_SECRET) as { steamId: string; type: string };
             expect(decoded).toHaveProperty('type');
             expect(decoded.type).toBe('steam_auth');
         });
@@ -131,7 +131,7 @@ describe('Auth Middleware Logic - Unit Tests', () => {
                 { expiresIn: '1h' }
             );
 
-            const decoded = jwt.verify(token, JWT_SECRET) as any;
+            const decoded = jwt.verify(token, JWT_SECRET) as jwt.JwtPayload;
             expect(decoded).toHaveProperty('iat'); // issued at
             expect(decoded).toHaveProperty('exp'); // expiration
         });
