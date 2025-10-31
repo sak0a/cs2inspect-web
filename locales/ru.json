@@ -155,7 +155,8 @@
     "automaticallyLoggedOut": "Вы были автоматически выведены из системы",
     "confirmLogout": "Вы уверены, что хотите выйти?",
     "rejectAction": "Войдите, чтобы выполнить это действие",
-    "authenticating": "Авторизация..."
+    "authenticating": "Авторизация...",
+    "openSteamProfile": "Открыть профиль Steam"
   },
   "common": {
     "loading": "Загрузка...",

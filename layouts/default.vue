@@ -133,12 +133,21 @@ onMounted(async () => {
           <!-- Steam Account Menu Section -->
           <div class="p-4 flex flex-col items-center">
             <div class="flex items-center flex-col">
-              <NAvatar
-                  round
-                  size="large"
-                  :src="user.avatarFull"
-                  :style="{ width: '100px', height: '100px' }"
-              />
+              <a
+                  :href="user.profileUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  :aria-label="t('auth.openSteamProfile') as string"
+                  :title="t('auth.openSteamProfile') as string"
+                  class="avatar-link"
+              >
+                <NAvatar
+                    round
+                    size="large"
+                    :src="user.avatarFull"
+                    :style="{ width: '100px', height: '100px' }"
+                />
+              </a>
               <div class="mt-3 text-center">
                 <span class="font-bold text-[15px]">{{ user.personaName }}</span>
               </div>
@@ -343,4 +352,13 @@ body
 .group:hover .menu-label
   opacity: 1
   transform: translateY(0)
+
+.avatar-link
+  cursor: pointer
+  transition: opacity 0.2s ease, transform 0.2s ease
+  display: block
+  
+  &:hover
+    opacity: 0.8
+    transform: scale(1.05)
 </style>
