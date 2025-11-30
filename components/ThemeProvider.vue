@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {darkTheme, GlobalThemeOverrides, NConfigProvider} from 'naive-ui'
+import {darkTheme, NConfigProvider, type GlobalThemeOverrides} from 'naive-ui'
 
 const myThemeOverrides: GlobalThemeOverrides = {
   common: {

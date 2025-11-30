@@ -17,7 +17,6 @@ const pinRefs = ref<any[]>([])
 
 const loadoutStore = useLoadoutStore()
 const message = useMessage()
-const { t } = useI18n()
 
 // Initialize collectibles with an empty array to prevent undefined errors
 collectibles.value = []
@@ -85,7 +84,7 @@ const handlePinTypeChange = async (pinId: number) => {
       }
     )
 
-    const data = await response.json()
+    await response.json()
     message.success(isDefault ? 'Reset to default pin' : 'Pin updated')
 
     // Update the loadout store to reflect the change

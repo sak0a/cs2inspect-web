@@ -336,27 +336,25 @@ const initializeCanvas = async () => {
   const availableHeight = containerRect.height - 16 // Account for 8px padding on each side
 
   // If we have video dimensions, size canvas to match video aspect ratio
-  let canvasWidth, canvasHeight
-
   /*if (video.value.videoWidth > 0 && video.value.videoHeight > 0) {
     const videoAspect = video.value.videoWidth / video.value.videoHeight
     const containerAspect = availableWidth / availableHeight
 
     if (videoAspect > containerAspect) {
       // Video is wider - fit to width
-      canvasWidth = availableWidth
-      canvasHeight = availableWidth / videoAspect
+      const canvasWidth = availableWidth
+      const canvasHeight = availableWidth / videoAspect
     } else {
       // Video is taller - fit to height
-      canvasHeight = availableHeight
-      canvasWidth = availableHeight * videoAspect
+      const canvasHeight = availableHeight
+      const canvasWidth = availableHeight * videoAspect
     }
   } else {
     // Fallback to container size if no video dimensions yet
 
   }*/
-    canvasWidth = availableWidth
-    canvasHeight = availableHeight
+  const canvasWidth = availableWidth
+  const canvasHeight = availableHeight
 
   canvasState.value.canvasSize = {
     width: canvasWidth,

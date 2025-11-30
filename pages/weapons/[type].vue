@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { onMounted, ref, nextTick, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"

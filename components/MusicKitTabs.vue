@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { NCard } from 'naive-ui'
-import { APIMusicKit } from "~/server/utils/interfaces";
+import type { APIMusicKit } from "~/server/utils/interfaces";
 
 const props = defineProps({
   musicKit: {
@@ -15,7 +15,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
-const { t } = useI18n()
 
 const handleSelect = () => {
   emit('select', props.musicKit)
@@ -28,11 +27,6 @@ const hexToRgba = (hex: string, opacity: string) => {
   const b = parseInt(hex.slice(5, 7), 16)
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
-
-// Extract the base music kit ID (without _st suffix for StatTrak)
-const getMusicKitBaseId = computed(() => {
-  return parseInt(props.musicKit.id.replace('music_kit-', '').replace('_st', ''))
-})
 </script>
 
 <template>

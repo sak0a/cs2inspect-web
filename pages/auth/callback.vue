@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { steamAuth } from '@/services/steamAuth'
-import { useRouter } from 'vue-router' // Change this import
-
-const router = useRouter()
 
 onMounted(async () => {
   try {

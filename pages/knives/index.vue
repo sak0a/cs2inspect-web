@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, nextTick, watch } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useMessage } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
@@ -55,8 +55,7 @@ const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: number) =>
           defindex: knifeDefindex === -1 ? null : knifeDefindex
         })
       }
-  ).then(async (response) => {
-    const data = await response.json()
+  ).then(async () => {
     if (!loadoutStore.selectedLoadout) {
       return
     }

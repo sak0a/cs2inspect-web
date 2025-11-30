@@ -3,16 +3,14 @@
 import type {
   KnifeModalProps,
   KnifeModalState,
-  KnifeModalEvents,
-  KnifeItemData,
   KnifeConfiguration,
   APIWeaponSkin,
-  UserProfile
+  UserProfile,
+  DBKnife
 } from '~/types'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedKnife, IEnhancedItem, IMappedDBWeapon } from '~/server/utils/interfaces'
-import type { DBKnife } from '~/types'
+import type { IEnhancedKnife, IEnhancedItem } from '~/server/utils/interfaces'
 
 import { ref, computed } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitch, NButton, useMessage } from 'naive-ui'
@@ -38,8 +36,7 @@ const props = defineProps<Props>()
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'save', skin: IEnhancedItem, customization: KnifeConfiguration): void
-  (e: 'duplicate', skin: IEnhancedItem, customization: KnifeConfiguration): void
+  (e: 'save' | 'duplicate', skin: IEnhancedItem, customization: KnifeConfiguration): void
   (e: 'error', error: string): void
 }>()
 
@@ -106,7 +103,7 @@ const customization = ref<KnifeConfiguration>({ ...defaultCustomization })
 /**
  * Utility functions
  */
-const oppositeTeam = (team: number): number => team === 1 ? 2 : 1
+const _oppositeTeam = (team: number): number => team === 1 ? 2 : 1
 
 /**
  * Pagination and filtering computed properties

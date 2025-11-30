@@ -5,7 +5,7 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import MusicKitTabs from "~/components/MusicKitTabs.vue";
-import { APIMusicKit } from "~/server/utils/interfaces";
+import type { APIMusicKit } from "~/server/utils/interfaces";
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)
@@ -17,7 +17,6 @@ const musicKitRefs = ref<any[]>([])
 
 const loadoutStore = useLoadoutStore()
 const message = useMessage()
-const { t } = useI18n()
 
 // Initialize music kits with an empty array to prevent undefined errors
 musicKits.value = []
@@ -96,7 +95,7 @@ const handleMusicKitTypeChange = async (musicKitId: number) => {
       }
     )
 
-    const data = await response.json()
+    await response.json()
     message.success(isDefault ? 'Reset to default music kit' : 'Music kit updated')
 
     // Update the loadout store to reflect the change

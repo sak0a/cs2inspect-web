@@ -277,7 +277,7 @@ export function useInspectItem() {
         console.log(`Detected item type: ${detectedType} for defindex ${data.defindex}`)
 
         // Save item type to storage
-        if (process.client) {
+        if (import.meta.client) {
           try {
             localStorage.setItem(STORAGE_KEY_ITEM_TYPE, detectedType)
           } catch (storageError) {
@@ -403,7 +403,7 @@ export function useInspectItem() {
    * Save current item to localStorage with error handling
    */
   const saveToStorage = (): void => {
-    if (!process.client) return
+    if (!import.meta.client) return
 
     try {
       if (inspectedItem.value && customization.value && itemType.value) {
@@ -422,7 +422,7 @@ export function useInspectItem() {
    * Load item from localStorage with proper type validation
    */
   const loadFromStorage = (): void => {
-    if (!process.client) return
+    if (!import.meta.client) return
 
     try {
       const storedItem = localStorage.getItem(STORAGE_KEY_ITEM)
@@ -466,7 +466,7 @@ export function useInspectItem() {
    * Clear storage data
    */
   const clearStorage = (): void => {
-    if (!process.client) return
+    if (!import.meta.client) return
 
     try {
       localStorage.removeItem(STORAGE_KEY_ITEM)

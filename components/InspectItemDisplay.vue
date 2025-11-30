@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // New type system imports
 import type {
-  ItemData,
   ItemConfiguration,
   WeaponConfiguration,
   KnifeConfiguration,
@@ -13,8 +12,8 @@ import type {
 // Legacy imports for backward compatibility
 import type { IEnhancedItem } from '~/server/utils/interfaces'
 
-import { ref, computed } from 'vue'
-import { NButton, NCard, NSpace, NTooltip, useMessage } from 'naive-ui'
+import { computed } from 'vue'
+import { NButton, NCard } from 'naive-ui'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -38,16 +37,11 @@ const props = defineProps<Props>()
  * Events interface with enhanced type safety
  */
 const emit = defineEmits<{
-  (e: 'customize'): void
-  (e: 'clear'): void
-  (e: 'generate-link'): void
+  (e: 'customize' | 'clear' | 'generate-link'): void
   (e: 'error', error: string): void
 }>()
 
-const message = useMessage()
 const { t } = useI18n()
-
-const isGeneratingLink = ref(false)
 
 /**
  * Type guards for safe type checking
@@ -60,7 +54,7 @@ const isKnifeConfiguration = (config: ItemConfiguration | null): config is Knife
   return config !== null && 'statTrak' in config && !('stickers' in config)
 }
 
-const isGloveConfiguration = (config: ItemConfiguration | null): config is GloveConfiguration => {
+const _isGloveConfiguration = (config: ItemConfiguration | null): config is GloveConfiguration => {
   return config !== null && !('statTrak' in config)
 }
 
@@ -129,7 +123,7 @@ const itemTypeDisplay = computed(() => {
 /**
  * Get customization details for display
  */
-const customizationDetails = computed(() => {
+const _customizationDetails = computed(() => {
   if (!props.customization) return null
 
   try {

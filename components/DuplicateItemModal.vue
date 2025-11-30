@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { NModal, NCard, NButton } from 'naive-ui'
+import { NModal, NButton } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
-const props = defineProps<{
+defineProps<{
   visible: boolean
   loading: boolean
   itemType: string

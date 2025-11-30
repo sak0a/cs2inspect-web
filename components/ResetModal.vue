@@ -2,7 +2,7 @@
 import { NModal, NButton } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
-const props = defineProps<{
+defineProps<{
   visible: boolean
   loading?: boolean
 }>()

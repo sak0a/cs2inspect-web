@@ -3,16 +3,14 @@
 import type {
   GloveModalProps,
   GloveModalState,
-  GloveModalEvents,
-  GloveItemData,
   GloveConfiguration,
   APIWeaponSkin,
-  UserProfile
+  UserProfile,
+  DBGlove
 } from '~/types'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedGlove, IEnhancedItem, IMappedDBWeapon } from '~/server/utils/interfaces'
-import type { DBGlove } from '~/types'
+import type { IEnhancedGlove, IEnhancedItem } from '~/server/utils/interfaces'
 
 import { ref, computed } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitch, NButton, useMessage } from 'naive-ui'
@@ -44,8 +42,7 @@ const digitOnlyInputProps = {
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedItem, customization: GloveConfiguration): void
-  (e: 'duplicate', skin: IEnhancedItem, customization: GloveConfiguration): void
+  (e: 'select' | 'duplicate', skin: IEnhancedItem, customization: GloveConfiguration): void
   (e: 'error', error: string): void
 }>()
 
@@ -103,7 +100,7 @@ const customization = ref<GloveConfiguration>({ ...defaultCustomization })
 /**
  * Utility functions
  */
-const oppositeTeam = (team: number): number => team === 1 ? 2 : 1
+const _oppositeTeam = (team: number): number => team === 1 ? 2 : 1
 
 /**
  * Pagination and filtering computed properties
@@ -361,7 +358,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
   }
 }
 const handleCreateInspectLink = async () => {
-  if (!props.weapon || !selectedSkin || !props.user) return
+  if (!props.weapon || !selectedSkin.value || !props.user) return
 
   try {
     state.value.isLoadingInspect = true

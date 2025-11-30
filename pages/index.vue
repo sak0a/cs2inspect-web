@@ -3,8 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useMessage } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 import { useInspectItem } from '~/composables/useInspectItem'
-import { WeaponCustomization, KnifeCustomization, GloveCustomization } from '~/server/utils/interfaces'
-import LanguageSwitcher from '~/components/LanguageSwitcher.vue'
+import type { WeaponCustomization, KnifeCustomization, GloveCustomization } from '~/server/utils/interfaces'
 
 const user = ref<SteamUser | null>(null)
 const showImportModal = ref(false)

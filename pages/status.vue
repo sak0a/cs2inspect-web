@@ -95,7 +95,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { NSpace, NCard, NButton, NIcon, NSelect, NSpin } from 'naive-ui';
-import { ArrowLeft as ArrowLeftIcon, Refresh as RefreshIcon } from '@vicons/tabler';
+import { ArrowLeft as ArrowLeftIcon } from '@vicons/tabler';
 
 // Use a simple layout without authentication
 definePageMeta({
@@ -151,7 +151,7 @@ const overallStatus = computed(() => {
   return 'ok';
 });
 
-const overallStatusClass = computed(() => {
+const _overallStatusClass = computed(() => {
   const status = overallStatus.value;
   if (status === 'ok') return 'status-ok';
   if (status === 'degraded') return 'status-degraded';
@@ -159,7 +159,7 @@ const overallStatusClass = computed(() => {
   return 'status-unknown';
 });
 
-const overallStatusIcon = computed(() => {
+const _overallStatusIcon = computed(() => {
   const status = overallStatus.value;
   if (status === 'ok') return '✓';
   if (status === 'degraded') return '⚠';
@@ -167,7 +167,7 @@ const overallStatusIcon = computed(() => {
   return '?';
 });
 
-const overallStatusText = computed(() => {
+const _overallStatusText = computed(() => {
   const status = overallStatus.value;
   if (status === 'ok') return t('status.allOperational');
   if (status === 'degraded') return t('status.partialOutage');
@@ -229,7 +229,7 @@ async function refreshStatus() {
 }
 
 // Format time helper
-function formatTime(date: Date): string {
+function _formatTime(date: Date): string {
   return date.toLocaleTimeString();
 }
 

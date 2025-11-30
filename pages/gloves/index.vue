@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, nextTick, watch } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useMessage } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
@@ -56,8 +56,7 @@ const handleGloveTypeChange = async (team: 't' | 'ct', gloveDefindex: number) =>
           defindex: gloveDefindex === -1 ? null : gloveDefindex
         })
       }
-  ).then(async (response) => {
-    const data = await response.json()
+  ).then(async () => {
     if (!loadoutStore.selectedLoadout) {
       return
     }
