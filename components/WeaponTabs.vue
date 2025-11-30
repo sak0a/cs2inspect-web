@@ -41,13 +41,17 @@ const cookieName = computed(() => {
 function setCookie(name: string, val: string) {
   try {
     document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=15552000`
-  } catch (e) {}
+  } catch {
+    // Ignore cookie errors
+  }
 }
 function getCookie(name: string): string | null {
   try {
     const part = document.cookie.split('; ').find(row => row.startsWith(name + '='))
     return part ? decodeURIComponent(part.split('=')[1]) : null
-  } catch (e) { return null }
+  } catch {
+    return null
+  }
 }
 
 function setTeamCookie(val: 'ct' | 't') { setCookie(cookieName.value, val) }

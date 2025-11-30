@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
-import { APISticker } from "~/server/utils/interfaces";
+import type { APISticker } from "~/server/utils/interfaces";
 import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
@@ -82,7 +82,7 @@ const fetchItems = async () => {
   }
 }
 
-const handleSelect = (item: any) => {
+const handleSelect = (item: APISticker) => {
   state.value.selectedItem = item
   // Keep current customization if editing existing sticker
   if (!props.currentSticker) {

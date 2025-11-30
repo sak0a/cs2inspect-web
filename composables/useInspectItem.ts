@@ -1,6 +1,5 @@
 // New type system imports
 import type {
-  ItemData,
   ItemConfiguration,
   WeaponConfiguration,
   KnifeConfiguration,
@@ -12,8 +11,7 @@ import type {
 import {
   LoadingState,
   isWeaponConfiguration,
-  isKnifeConfiguration,
-  isGloveConfiguration
+  isKnifeConfiguration
 } from '~/types'
 
 // Legacy imports for backward compatibility

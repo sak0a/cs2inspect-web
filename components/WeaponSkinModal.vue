@@ -3,8 +3,6 @@
 import type {
   WeaponModalProps,
   WeaponModalState,
-  WeaponModalEvents,
-  WeaponItemData,
   WeaponConfiguration,
   APIWeaponSkin,
   UserProfile

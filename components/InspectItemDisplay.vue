@@ -123,6 +123,15 @@ const itemTypeDisplay = computed(() => {
 /**
  * Get customization details for display
  */
+/**
+ * Get filtered stickers (non-null only)
+ */
+const filteredStickers = computed(() => {
+  if (!props.customization || props.itemType !== 'weapon') return []
+  const weaponCustomization = props.customization as WeaponCustomization
+  return (weaponCustomization.stickers || []).filter((s): s is NonNullable<typeof s> => s !== null)
+})
+
 const _customizationDetails = computed(() => {
   if (!props.customization) return null
 
@@ -283,13 +292,12 @@ const handleGenerateLink = () => {
           <!-- Stickers and Keychain (only for weapons) -->
           <div v-if="itemType === 'weapon' && customization" class="mt-3">
             <!-- Stickers -->
-            <div v-if="(customization as WeaponCustomization)?.stickers?.some(s => s !== null)" class="mb-2">
+            <div v-if="filteredStickers.length > 0" class="mb-2">
               <p class="text-sm text-gray-400 mb-1">{{ t('common.stickers') }}:</p>
               <div class="flex flex-wrap gap-1">
                 <div
-                  v-for="(sticker, index) in (customization as WeaponCustomization)?.stickers"
+                  v-for="(sticker, index) in filteredStickers"
                   :key="index"
-                  v-if="sticker"
                   class="w-10 h-10 rounded bg-gray-800/30 flex items-center justify-center overflow-hidden"
                   :title="sticker.api?.name || 'Sticker'"
                 >
