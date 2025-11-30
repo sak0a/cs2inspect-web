@@ -1,5 +1,9 @@
 # Development Setup <Badge type="tip" text="Getting Started" />
 
+::: warning Self-Hosted Only
+CS2Inspect is a **self-hosted application only**. There is no public hosted version available. You must deploy and host your own instance. This guide will help you set up your own instance.
+:::
+
 ## Prerequisites
 
 ::: tip Important
@@ -8,15 +12,20 @@ Before setting up the CS2Inspect development environment, ensure you have the fo
 
 ### Required Software
 
-- **Node.js**: Version 16.x or higher (18.x recommended) <Badge type="warning" text="Required" />
+- **Node.js**: Version 20.x or higher <Badge type="warning" text="Required" />
   ```bash
-  node --version  # Should be v16.0.0 or higher
+  node --version  # Should be v20.0.0 or higher
   ```
 
-- **npm**: Version 8.x or higher (comes with Node.js) <Badge type="warning" text="Required" />
+- **Bun**: Version 1.x or higher (recommended package manager) <Badge type="tip" text="Recommended" />
   ```bash
-  npm --version
+  bun --version
+  # Install from https://bun.sh
   ```
+  
+  ::: tip Package Manager
+  This project uses **Bun** as the primary package manager for faster installs and better performance. npm is also supported but Bun is recommended.
+  :::
 
 - **MariaDB/MySQL**: Version 10.x or higher <Badge type="warning" text="Required" />
   - Alternative: Docker (for containerized database)
@@ -48,6 +57,12 @@ cd cs2inspect-web
 
 ### 2. Install Dependencies
 
+**Using Bun (Recommended)**:
+```bash
+bun install
+```
+
+**Using npm (Alternative)**:
 ```bash
 npm install
 ```
@@ -200,6 +215,12 @@ mysql -h 127.0.0.1 -u csinspect -p csinspect -e "SHOW TABLES;"
 
 Start the development server with hot-reload:
 
+**Using Bun (Recommended)**:
+```bash
+bun run dev
+```
+
+**Using npm (Alternative)**:
 ```bash
 npm run dev
 ```
@@ -219,6 +240,12 @@ The application will be available at:
 
 Build the application for production:
 
+**Using Bun**:
+```bash
+bun run build
+```
+
+**Using npm**:
 ```bash
 npm run build
 ```
@@ -226,6 +253,8 @@ npm run build
 Preview the production build:
 
 ```bash
+bun run preview
+# or
 npm run preview
 ```
 
@@ -323,6 +352,12 @@ View migration files in `server/database/migrations/` directory.
 
 ### Run All Tests
 
+**Using Bun**:
+```bash
+bun test
+```
+
+**Using npm**:
 ```bash
 npm test
 ```
@@ -330,12 +365,16 @@ npm test
 ### Run Tests in Watch Mode
 
 ```bash
+bun test --watch
+# or
 npm run test:watch
 ```
 
 ### Run Tests with Coverage
 
 ```bash
+bun test --coverage
+# or
 npm run test:coverage
 ```
 
@@ -354,6 +393,12 @@ tests/
 
 ### Run Linter
 
+**Using Bun**:
+```bash
+bun run lint
+```
+
+**Using npm**:
 ```bash
 npm run lint
 ```
@@ -361,6 +406,8 @@ npm run lint
 ### Auto-fix Linting Issues
 
 ```bash
+bun run lint -- --fix
+# or
 npm run lint -- --fix
 ```
 

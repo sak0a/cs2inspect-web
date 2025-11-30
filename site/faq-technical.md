@@ -138,20 +138,21 @@ Technical issues, error messages, and troubleshooting guides.
 
 ## Development & Self-Hosting
 
-### Can I host my own instance?
+### Is CS2Inspect self-hosted only?
 
-Yes! CS2Inspect is open source. See the [Setup Guide](setup.md) and [Deployment Guide](deployment.md) for instructions.
+Yes! CS2Inspect is **self-hosted only** - there is no public hosted version available. You must deploy and host your own instance. The application is open source and free to use. See the [Setup Guide](setup.md) and [Deployment Guide](deployment.md) for instructions.
 
 ### What are the system requirements?
 
 **Minimum**:
-- Node.js 16+
+- Node.js 20+
 - MariaDB/MySQL 10+
 - 1GB RAM
 - 10GB disk space
 
 **Recommended**:
-- Node.js 18+
+- Node.js 20+ (LTS)
+- Bun 1.x (for package management)
 - MariaDB 10.11+
 - 2GB+ RAM
 - 20GB+ disk space

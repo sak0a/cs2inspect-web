@@ -132,23 +132,31 @@ cors: {
 
 ### Environment Variables
 
-**Sensitive Data**:
+::: tip Complete Environment Variable Reference
+For a complete list of all environment variables, their descriptions, and setup instructions, see the [Setup Guide - Environment Configuration](../setup.md#4-environment-configuration).
+:::
+
+**Security Best Practices**:
 - Never commit to repository
 - Use `.env` files (gitignored)
 - Production secrets in platform config
 - Rotate credentials regularly
 
-**Required Variables**:
+**Key Variables** (see [Setup Guide](../setup.md#4-environment-configuration) for complete list):
 ```env
 # Database
-DATABASE_URL=mysql://user:pass@host:3306/dbname
+DATABASE_HOST=127.0.0.1
+DATABASE_PORT=3306
+DATABASE_USER=csinspect
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=csinspect
 
 # Steam API
 STEAM_API_KEY=your_steam_api_key
-STEAM_RETURN_URL=https://your-domain.com/api/auth/steam-callback
 
 # JWT
-JWT_SECRET=your_random_secret_key
+JWT_TOKEN=your_random_secret_key_min_32_chars
+JWT_EXPIRY=7d
 
 # Environment
 NODE_ENV=production

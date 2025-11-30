@@ -286,6 +286,10 @@ Stores configuration for health checks:
 
 ### Database Setup
 
+::: tip Complete Database Setup
+For complete database setup instructions including Docker, local MariaDB installation, and initial configuration, see the [Setup Guide - Database Setup](../setup.md#3-database-setup).
+:::
+
 **Migrations run automatically on server startup!**
 
 When you start the server, it will automatically:
@@ -308,7 +312,7 @@ When you start the server, it will automatically:
 mysql -h <host> -u <user> -p <database> < server/database/migrations/001_add_health_checks.sql
 ```
 
-See `server/database/migrations/README.md` for more details on the migration system.
+See the [Setup Guide - Database Management](../setup.md#database-management) for more details on the migration system.
 
 ---
 

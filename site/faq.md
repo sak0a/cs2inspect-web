@@ -51,7 +51,7 @@ Technical issues, error messages, and troubleshooting guides.
 3. **[How do I create a loadout?](faq-customization.md#how-do-i-create-a-new-loadout)** - Getting started with loadouts
 4. **[What can I customize on weapons?](faq-customization.md#what-can-i-customize-on-weapons)** - Weapon customization options
 5. **[Why isn't my loadout saving?](faq-technical.md#my-loadout-isnt-saving)** - Troubleshooting save issues
-6. **[Can I host my own instance?](faq-technical.md#can-i-host-my-own-instance)** - Self-hosting information
+6. **[Is CS2Inspect self-hosted only?](faq-technical.md#is-cs2inspect-self-hosted-only)** - Self-hosting information
 
 ---
 

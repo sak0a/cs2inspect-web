@@ -31,7 +31,11 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 
 ### For Users
 
-1. **Access the Application**: Navigate to the deployed CS2Inspect instance
+::: warning Self-Hosted Only
+CS2Inspect is a **self-hosted application only**. There is no public hosted version. You or your server administrator must deploy and host your own instance. See the [Deployment Guide](deployment.md) for setup instructions.
+:::
+
+1. **Access Your Instance**: Navigate to your self-hosted CS2Inspect instance (URL provided by your server administrator)
 2. **Login**: Click "Login with Steam" to authenticate
 3. **Create Loadout**: Set up your first loadout configuration
 4. **Customize Items**: Select weapons, skins, stickers, and more
@@ -41,29 +45,47 @@ See the **[User Guide](user-guide.md)** for detailed instructions.
 
 ### For Developers
 
+::: tip Quick Start
+This is a quick overview. For complete setup instructions including database configuration, environment variables, and troubleshooting, see the [Setup Guide](setup.md).
+:::
+
 ```bash
 # Clone the repository
 git clone https://github.com/sak0a/cs2inspect-web.git
 cd cs2inspect-web
 
-# Install dependencies
+# Install dependencies (using Bun - recommended)
+bun install
+
+# Or using npm
 npm install
 
-# Configure environment
+# Configure environment (see setup.md for all required variables)
 cp .env.example .env
 # Edit .env with your settings
 
-# Start development server
+# Start development server (using Bun)
+bun run dev
+
+# Or using npm
 npm run dev
 ```
 
-See the [Setup Guide](setup.md) for detailed instructions.
+**Next Steps**: See the [Setup Guide](setup.md) for:
+- Database setup and configuration
+- Complete environment variable reference
+- Development workflow
+- Troubleshooting common issues
 
 ---
 
 ## What is CS2Inspect?
 
-CS2Inspect is a full-stack web application that allows Counter-Strike 2 players to:
+CS2Inspect is a **self-hosted** full-stack web application that allows Counter-Strike 2 players to:
+
+::: warning Self-Hosted Only
+CS2Inspect is **self-hosted only** - there is no public hosted version available. You must deploy your own instance or use one provided by your server administrator. See the [Deployment Guide](deployment.md) for setup instructions.
+:::
 
 - **Customize Weapon Skins**: Choose from thousands of skins with full float value, pattern seed, and StatTrak™ control
 - **Manage Multiple Loadouts**: Create unlimited loadout configurations and switch between them instantly
@@ -82,6 +104,10 @@ This web application is designed to work with the **CS2Inspect Plugin** (Counter
 ---
 
 ## Architecture Overview
+
+::: tip Detailed Architecture
+For comprehensive architecture documentation including diagrams, component details, and system design, see the [Architecture Guide](architecture.md).
+:::
 
 ```
 Frontend (Nuxt 3 + Vue 3)
@@ -102,7 +128,11 @@ External Services
 └── Steam Game Coordinator
 ```
 
-See the [Architecture Guide](architecture.md) for detailed information.
+See the [Architecture Guide](architecture.md) for:
+- Detailed system architecture diagrams
+- Frontend and backend component breakdown
+- Deployment architecture
+- Security and performance considerations
 
 ---
 
@@ -163,6 +193,10 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ## Technology Stack
 
+::: tip Detailed Architecture
+For comprehensive technology stack information, architecture diagrams, and system design details, see the [Architecture Guide](architecture.md).
+:::
+
 ### Frontend
 - **Framework**: Nuxt 3 (Vue 3 + TypeScript)
 - **UI Library**: Naive UI
@@ -172,7 +206,7 @@ See the [Architecture Guide](architecture.md) for detailed information.
 - **Charts**: Chart.js + vue-chartjs
 
 ### Backend
-- **Runtime**: Node.js with Nitro
+- **Runtime**: Bun (Node.js compatible) with Nitro
 - **Database**: MariaDB/MySQL (with automatic migrations)
 - **Authentication**: Steam OpenID + JWT
 - **CS2 Integration**: cs2-inspect-lib, node-cs2

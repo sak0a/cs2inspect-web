@@ -1,126 +1,103 @@
 import { defineConfig } from 'vitepress'
 import { withMermaid } from 'vitepress-plugin-mermaid'
 
-export default withMermaid(defineConfig({
-  base: '/cs2inspect-web/',
-  title: 'CS2 Inspect Web',
-  description: 'Counter-Strike 2 Weapon Inspection Web Application',
-  appearance: 'force-dark', // Force dark mode, disable toggle
-  ignoreDeadLinks: true,
-  lastUpdated: true, // Enable last updated timestamps
-  markdown: {
-    theme: {
-      light: 'github-dark',
-      dark: 'github-dark'
-    }
-  },
-  mermaid: {
-    // Mermaid configuration for dark theme
-    theme: 'dark',
-    themeVariables: {
-      primaryColor: '#FACC15',
-      primaryTextColor: '#fff',
-      primaryBorderColor: '#F59E0B',
-      lineColor: '#F59E0B',
-      secondaryColor: '#CA8A04',
-      tertiaryColor: '#1a1a1a',
-      background: '#121212',
-      mainBkg: '#1a1a1a',
-      secondBkg: '#242424',
-      tertiaryBkg: '#2c2c2c',
-      textColor: '#ffffff',
-      border1: '#333333',
-      border2: '#444444',
-      fontSize: '16px'
-    }
-  },
+export default withMermaid({
+  title: 'CS2Inspect Documentation',
+  description: 'Comprehensive documentation for CS2Inspect - Counter-Strike 2 weapon inspection and loadout management',
+  base: '/',
+  
+  head: [
+    ['link', { rel: 'icon', href: '/favicon.ico' }],
+    ['meta', { name: 'theme-color', content: '#FACC15' }]
+  ],
+
   themeConfig: {
-    outline: {
-      level: [2, 3], // Show H2 and H3 headings in "On this page" sidebar
-      label: 'On this page'
-    },
-    search: {
-      provider: 'local'
-    },
+    logo: '/logo.svg',
+    
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Documentation', link: '/docs-overview' },
+      { text: 'User Guide', link: '/user-guide' },
       { text: 'Setup', link: '/setup' },
+      { text: 'API', link: '/api' },
       { text: 'GitHub', link: 'https://github.com/sak0a/cs2inspect-web' }
     ],
+
     sidebar: [
       {
         text: 'Getting Started',
         items: [
-          { text: 'Overview', link: '/docs-overview' },
+          { text: 'Overview', link: '/' },
           { text: 'User Guide', link: '/user-guide' },
           { text: 'Setup Guide', link: '/setup' },
           { text: 'How It Works', link: '/how-it-works' },
-          { 
-            text: 'FAQ', 
-            link: '/faq',
-            items: [
-              { text: 'General Questions', link: '/faq-general' },
-              { text: 'Customization', link: '/faq-customization' },
-              { text: 'Technical & Troubleshooting', link: '/faq-technical' }
-            ]
-          }
+          { text: 'FAQ', link: '/faq' }
         ]
       },
       {
         text: 'Technical Documentation',
         items: [
-          { 
-            text: 'Architecture',
-            link: '/architecture',
-            items: [
-              { text: 'Frontend Architecture', link: '/architecture-frontend' },
-              { text: 'Backend & Database', link: '/architecture-backend' },
-              { text: 'Deployment & Security', link: '/architecture-deployment' }
-            ]
-          },
+          { text: 'Architecture', link: '/architecture' },
+          { text: 'Frontend Architecture', link: '/architecture-frontend' },
+          { text: 'Backend Architecture', link: '/architecture-backend' },
+          { text: 'Deployment Architecture', link: '/architecture-deployment' },
           { text: 'Components', link: '/components' },
-          { text: 'API Reference', link: '/api' },
-          { text: 'Health Checks', link: '/HEALTH_CHECKS' }
+          { text: 'API Reference', link: '/api' }
         ]
       },
       {
-        text: 'Customization',
+        text: 'Deployment & Contributing',
         items: [
-          { text: 'Theme Customization', link: '/theme-customization' },
-          { text: 'Glassmorphism', link: '/GLASSMORPHISM' },
-          { text: 'Sticker Slots', link: '/StickerSlots' }
-        ]
-      },
-      {
-        text: 'Deployment',
-        collapsed: false,
-        items: [
-          { text: 'Overview', link: '/deployment' },
-          {
-            text: 'Deployment Options',
-            collapsed: true,
-            items: [
-              { text: 'Vercel (Recommended)', link: '/deployment#_1-vercel-recommended' },
-              { text: 'Docker', link: '/deployment#_2-docker-deployment' },
-              { text: 'Node.js + PM2', link: '/deployment#_3-node-js-pm2' },
-              { text: 'Other Platforms', link: '/deployment#_4-other-platforms' }
-            ]
-          },
-          { text: 'Database Setup', link: '/deployment#database-setup' },
-          { text: 'Health Monitoring', link: '/deployment#health-monitoring' },
-          { text: 'Troubleshooting', link: '/deployment#troubleshooting-deployment-issues' }
-        ]
-      },
-      {
-        text: 'Contributing',
-        items: [
+          { text: 'Deployment Guide', link: '/deployment' },
           { text: 'Contributing Guide', link: '/contributing' }
+        ]
+      },
+      {
+        text: 'Additional Resources',
+        items: [
+          { text: 'Health Checks', link: '/HEALTH_CHECKS' },
+          { text: 'Theme Customization', link: '/theme-customization' },
+          { text: 'Sticker Slots', link: '/StickerSlots' },
+          { text: 'Glassmorphism', link: '/GLASSMORPHISM' }
         ]
       }
     ],
+
     socialLinks: [
       { icon: 'github', link: 'https://github.com/sak0a/cs2inspect-web' }
-    ]
+    ],
+
+    search: {
+      provider: 'local'
+    },
+
+    footer: {
+      message: 'Built with ❤️ by the CS2Inspect community',
+      copyright: 'Copyright © 2025 CS2Inspect'
+    },
+
+    editLink: {
+      pattern: 'https://github.com/sak0a/cs2inspect-web/edit/main/site/:path',
+      text: 'Edit this page on GitHub'
+    },
+
+    lastUpdated: {
+      text: 'Last updated',
+      formatOptions: {
+        dateStyle: 'short',
+        timeStyle: 'medium'
+      }
+    }
+  },
+
+  markdown: {
+    theme: {
+      light: 'github-light',
+      dark: 'github-dark'
+    },
+    lineNumbers: true
+  },
+
+  mermaid: {
+    theme: 'dark'
   }
-}))
+})

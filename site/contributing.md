@@ -42,7 +42,7 @@ Thank you for considering contributing to CS2Inspect! This document provides gui
 
 Before contributing, ensure you have:
 
-1. **Development Environment**: Node.js 16+, MariaDB, Git
+1. **Development Environment**: Node.js 20+, Bun (recommended) or npm, MariaDB, Git
 2. **GitHub Account**: For submitting pull requests
 3. **Local Setup**: Follow the [Setup Guide](setup.md)
 
@@ -71,6 +71,10 @@ If you're new to the project:
 
 ### 1. Fork and Clone
 
+::: tip Complete Setup
+For complete development environment setup including database configuration and environment variables, see the [Setup Guide](../setup.md).
+:::
+
 ```bash
 # Fork the repository on GitHub
 # Then clone your fork
@@ -81,6 +85,12 @@ cd cs2inspect-web
 # Add upstream remote
 git remote add upstream https://github.com/sak0a/cs2inspect-web.git
 ```
+
+**Next Steps**: Follow the [Setup Guide](../setup.md) to:
+- Install dependencies
+- Configure the database
+- Set up environment variables
+- Start the development server
 
 ### 2. Create a Branch
 
@@ -112,17 +122,27 @@ git checkout -b refactor/optimize-loadout-store
 
 Follow the code standards (see below) and make your changes:
 
+::: tip Development Commands
+For complete information on running tests, linting, and other development commands, see the [Setup Guide - Testing](../setup.md#testing) and [Setup Guide - Linting](../setup.md#linting-and-code-quality).
+:::
+
 ```bash
 # Make changes to files
 # ...
 
-# Run tests
+# Run tests (using Bun - recommended)
+bun test
+# or using npm
 npm test
 
 # Run linter
+bun run lint
+# or
 npm run lint
 
 # Fix linting issues
+bun run lint -- --fix
+# or
 npm run lint -- --fix
 ```
 

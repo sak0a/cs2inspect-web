@@ -1,5 +1,9 @@
 # Deployment Guide
 
+::: warning Self-Hosted Only
+CS2Inspect is a **self-hosted application only**. There is no public hosted version available. This guide will help you deploy your own instance to production.
+:::
+
 ## Overview
 
 This guide covers deploying the CS2Inspect application to production environments. The application is a Nuxt 3 server-side rendered (SSR) application with a backend API and requires a MariaDB database and optionally a Steam bot account.
@@ -26,14 +30,20 @@ Vercel provides seamless Nuxt 3 deployment with automatic builds, serverless fun
 2. **Configure Build Settings**:
    ```
    Framework Preset: Nuxt.js
-   Build Command: npm run build
+   Build Command: bun run build
    Output Directory: .output/public
-   Install Command: npm install
+   Install Command: bun install
+   
+   Note: npm is also supported if Bun is not available
    ```
 
 3. **Set Environment Variables**:
    
-   In Vercel project settings → Environment Variables, add:
+   ::: tip Complete Environment Variables
+   For a complete list of all environment variables and their descriptions, see the [Setup Guide - Environment Configuration](../setup.md#4-environment-configuration).
+   :::
+   
+   In Vercel project settings → Environment Variables, add the required variables:
    
    ```
    # Server Configuration
@@ -269,12 +279,16 @@ Deploy using Docker containers for full control and portability.
 Deploy directly to a VPS using Node.js and PM2 process manager.
 
 #### Prerequisites
-- VPS with Node.js 16+ installed
-- PM2 installed globally: `npm install -g pm2`
+- VPS with Node.js 20+ installed
+- PM2 installed globally: `npm install -g pm2` (or `bun install -g pm2`)
 - Nginx for reverse proxy
 - MariaDB database
 
 #### Setup Steps
+
+::: tip Development Setup
+For detailed installation and setup instructions, see the [Setup Guide](../setup.md). The steps below focus on production-specific deployment.
+:::
 
 1. **Clone Repository**:
    ```bash
@@ -284,20 +298,34 @@ Deploy directly to a VPS using Node.js and PM2 process manager.
    ```
 
 2. **Install Dependencies**:
+   
+   See [Setup Guide - Install Dependencies](../setup.md#2-install-dependencies) for details.
+   
    ```bash
+   # Using Bun (recommended)
+   bun install
+   
+   # Or using npm
    npm install
    ```
 
 3. **Build Application**:
    ```bash
+   # Using Bun
+   bun run build
+   
+   # Or using npm
    npm run build
    ```
 
 4. **Configure Environment**:
+   
+   See [Setup Guide - Environment Configuration](../setup.md#4-environment-configuration) for complete environment variable documentation.
+   
    ```bash
    cp .env.example .env
    nano .env
-   # Set production values
+   # Set production values (see setup.md for all required variables)
    ```
 
 5. **PM2 Configuration**:
@@ -404,6 +432,10 @@ Use a managed database service for reliability and automatic backups:
 
 ### Option 2: Self-Hosted Database
 
+::: tip Database Setup
+For detailed database setup instructions including Docker and local MariaDB installation, see the [Setup Guide - Database Setup](../setup.md#3-database-setup).
+:::
+
 Run MariaDB on your own server:
 
 ```bash
@@ -425,10 +457,9 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-```bash
-# Import schema
-mysql -u csinspect -p csinspect < db_structure.sql
-```
+::: info Automatic Migrations
+The application uses automatic database migrations. You don't need to manually import the schema - migrations run automatically on server startup. See [Setup Guide - Database Management](../setup.md#database-management) for details.
+:::
 
 ---
 
@@ -457,16 +488,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: 20
+      
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
       
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
       
       - name: Run tests
-        run: npm test
+        run: bun test
       
       - name: Build application
-        run: npm run build
+        run: bun run build
       
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25
@@ -489,10 +525,15 @@ echo "🚀 Starting deployment..."
 # Pull latest code
 git pull origin main
 
-# Install dependencies
+# Install dependencies (using Bun)
+bun install
+
+# Or using npm
 npm ci
 
 # Build application
+bun run build
+# or
 npm run build
 
 # Restart PM2

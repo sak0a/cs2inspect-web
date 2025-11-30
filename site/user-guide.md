@@ -8,16 +8,21 @@ To use CS2Inspect, you only need:
 - A **Steam account** (for login)
 - A **web browser** (Chrome, Firefox, Edge, or Safari)
 - An **internet connection**
+- **Access to a self-hosted CS2Inspect instance** (deployed by you or your server administrator)
 
-::: tip No Installation Required
-CS2Inspect is a web application - you don't need to install anything! Just visit the website and log in with Steam.
+::: warning Self-Hosted Only
+CS2Inspect is a **self-hosted application only**. There is no public hosted version available. You must deploy your own instance or use an instance provided by your server administrator or community. See the [Deployment Guide](../deployment.md) for setup instructions.
+:::
+
+::: tip No Client Installation Required
+CS2Inspect is a web application - you don't need to install anything on your computer! However, the application itself must be deployed on a server by you or your administrator.
 :::
 
 ## Getting Started
 
-### 1. Access the Application
+### 1. Access Your Instance
 
-Navigate to the CS2Inspect website in your web browser. The URL will be provided by your server administrator or community.
+Navigate to your self-hosted CS2Inspect instance in your web browser. The URL will be provided by your server administrator or community. If you're setting up your own instance, see the [Deployment Guide](../deployment.md).
 
 ### 2. Log In with Steam
 

@@ -77,7 +77,11 @@ Production deployment, security measures, and performance optimization.
 
 ## System Overview
 
-CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. The application provides a comprehensive interface for weapon skins, knives, gloves, agents, music kits, and pins customization with real-time preview capabilities.
+CS2Inspect is a **self-hosted** full-stack web application built with Nuxt 3 that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. The application provides a comprehensive interface for weapon skins, knives, gloves, agents, music kits, and pins customization with real-time preview capabilities.
+
+::: warning Self-Hosted Only
+CS2Inspect is **self-hosted only** - there is no public hosted version available. You must deploy your own instance. See the [Deployment Guide](deployment.md) for setup instructions.
+:::
 
 ## Technology Stack
 
@@ -90,8 +94,8 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 - **Icons**: Iconify + Material Design Icons
 - **Charts**: Chart.js + vue-chartjs (for health monitoring)
 
-### Backend <Badge type="info" text="Node.js" />
-- **Runtime**: Node.js with Nitro server
+### Backend <Badge type="info" text="Node.js/Bun" />
+- **Runtime**: Bun (Node.js compatible) with Nitro server
 - **Database**: MariaDB (MySQL compatible)
 - **Authentication**: Steam OpenID + JWT
 - **CS2 Integration**: 
@@ -103,7 +107,7 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 - **Build System**: Vite
 - **Testing**: Vitest + Vue Test Utils
 - **Linting**: ESLint
-- **Package Manager**: npm
+- **Package Manager**: Bun (npm also supported)
 - **Containerization**: Docker + Docker Compose (with HEALTHCHECK)
 - **Deployment**: Vercel (configured)
 - **Health Monitoring**: Built-in health check system with status dashboard

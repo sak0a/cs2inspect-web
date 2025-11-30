@@ -4,11 +4,15 @@ Common questions about CS2Inspect and getting started.
 
 ## What is CS2Inspect?
 
-CS2Inspect is a web application that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. You can customize weapon skins, knives, gloves, agents, music kits, and pins with full control over float values, StatTrak™, stickers, and more.
+CS2Inspect is a **self-hosted** web application that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. You can customize weapon skins, knives, gloves, agents, music kits, and pins with full control over float values, StatTrak™, stickers, and more.
+
+::: warning Self-Hosted Only
+CS2Inspect is **self-hosted only** - there is no public hosted version. You must deploy your own instance or use one provided by your server administrator. See the [Deployment Guide](../deployment.md) for setup instructions.
+:::
 
 ## Is CS2Inspect free to use?
 
-Yes, the application is open source and free to use. You need a Steam account to log in and save your configurations.
+Yes, the application is open source and free to use. However, you need to deploy and host your own instance (or use one provided by your server administrator). You also need a Steam account to log in and save your configurations.
 
 ## Do I need CS2 to use this application?
 
