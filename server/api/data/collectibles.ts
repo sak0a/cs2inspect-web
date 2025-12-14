@@ -1,4 +1,4 @@
-import { getCollectibleData } from '~/server/utils/csgoAPI';
+import { getCollectibleDataAsync } from '~/server/utils/csgoAPI';
 import { createDataApiHandler } from '~/server/utils/dataFilters';
 
-export default createDataApiHandler(getCollectibleData, 'collectibles');
+export default createDataApiHandler(getCollectibleDataAsync, 'collectibles');

@@ -1,7 +1,7 @@
 import { defineEventHandler } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import type { DBGlove, APISkin, IDefaultItem, IEnhancedGlove} from "~/server/utils/interfaces"
-import { getSkinsData } from '~/server/utils/csgoAPI'
+import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { executeQuery } from '~/server/database/database'
 import { DEFAULT_GLOVES } from '~/server/utils/constants'
 import { validateRequiredRequestData } from "~/server/utils/helpers";
@@ -24,7 +24,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const loadoutId = query.loadoutId as string;
     validateRequiredRequestData(loadoutId, 'Loadout ID');
 
-    const skinData = getSkinsData();
+    const skinData = await getSkinsDataAsync();
 
     Logger.info(`Fetching gloves for Steam ID: ${steamId}`);
     // Fetch all gloves from the database for the given loadout

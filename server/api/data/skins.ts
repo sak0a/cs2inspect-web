@@ -1,4 +1,4 @@
-import { getSkinsData, getDataFreshness } from '~/server/utils/csgoAPI';
+import { getSkinsDataAsync, getDataFreshness } from '~/server/utils/csgoAPI';
 import type { APISkin } from "~/server/utils/interfaces";
 import {
     createPaginatedResponse,
@@ -23,7 +23,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const weapon = query.weapon as string;
     validateRequiredRequestData(weapon, "Weapon");
 
-    const skinData = getSkinsData();
+    const skinData = await getSkinsDataAsync();
 
     if (!skinData) {
         const meta = createResponseMeta(startTime, { weapon });

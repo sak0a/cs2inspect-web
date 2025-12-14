@@ -1,6 +1,6 @@
 import { defineEventHandler, getQuery } from 'h3'
 import type {DBKnife, APISkin, IDefaultItem, IEnhancedKnife} from "~/server/utils/interfaces"
-import { getSkinsData } from '~/server/utils/csgoAPI'
+import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { executeQuery } from '~/server/database/database'
@@ -24,7 +24,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const loadoutId = query.loadoutId as string;
     validateRequiredRequestData(loadoutId, 'Loadout ID');
 
-    const skinData = getSkinsData();
+    const skinData = await getSkinsDataAsync();
 
     //LOG: Logger.info(`Fetching knives for Steam ID: ${steamId}`);
     // Fetch all knives from the database for the given loadout

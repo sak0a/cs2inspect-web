@@ -1,4 +1,4 @@
-import { getAgentData } from '~/server/utils/csgoAPI';
+import { getAgentDataAsync } from '~/server/utils/csgoAPI';
 import { createDataApiHandler } from '~/server/utils/dataFilters';
 
-export default createDataApiHandler(getAgentData, 'agents');
+export default createDataApiHandler(getAgentDataAsync, 'agents');

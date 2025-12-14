@@ -1,6 +1,3 @@
-import {
-    initCSGOApiData,
-} from '../utils/csgoAPI';
 import type { SteamClientConfig } from 'cs2-inspect-lib';
 import { CS2Inspect } from 'cs2-inspect-lib';
 
@@ -62,7 +59,15 @@ export default defineNitroPlugin(async () => {
         // This allows manual intervention if needed
     }
     
-    await initCSGOApiData()
+    // Initialize CSGO API data in the background (non-blocking)
+    // This allows the server to start immediately while data loads
+    // The promise is tracked in csgoAPI.ts so API endpoints can wait for it if needed
+    const { startDataInitialization } = await import('../utils/csgoAPI');
+    startDataInitialization().catch(error => {
+        console.error('Failed to initialize CSGO API data', error);
+    });
+    
+    // Initialize Steam client in the background (non-blocking)
     initializeSteamClient().catch(error => {
         console.error('Failed to initialize CS2 Inspect client', error);
     });

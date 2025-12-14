@@ -33,18 +33,21 @@ export function filterDataByQuery<T>(data: T[], query: Record<string, string>): 
 
 /**
  * Creates a data API handler for a specific data type
- * @param getDataFn Function to get the data
+ * @param getDataFn Function to get the data (can be sync or async)
  * @param responseKey Key to use in the response object (for backward compatibility)
  * @returns Event handler function
  */
 export function createDataApiHandler<T>(
-    getDataFn: () => T[],
+    getDataFn: (() => T[]) | (() => Promise<T[]>),
     responseKey: string
 ) {
     return defineEventHandler(async (event) => {
         const startTime = Date.now();
         const query = getQuery(event);
-        const data = getDataFn();
+        
+        // Support both sync and async data getters
+        const dataResult = getDataFn();
+        const data = dataResult instanceof Promise ? await dataResult : dataResult;
 
         // Convert query to Record<string, string> and remove undefined values
         const cleanQuery: Record<string, string> = {};

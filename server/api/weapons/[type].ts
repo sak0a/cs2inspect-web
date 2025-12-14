@@ -6,7 +6,7 @@ import type {
     APISticker, IMappedDBWeapon, IEnhancedWeapon
 } from "~/server/utils/interfaces";
 import { EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/types/classes';
-import { getSkinsData, getStickerData, getKeychainData } from '~/server/utils/csgoAPI';
+import { getSkinsDataAsync, getStickerDataAsync, getKeychainDataAsync } from '~/server/utils/csgoAPI';
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils';
 import { validateWeaponDatabaseTable, validateRequiredRequestData } from '~/server/utils/helpers';
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
@@ -51,8 +51,8 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     validateRequiredRequestData(loadoutId, 'Loadout ID');
 
     const table = validateWeaponDatabaseTable(type);
-        // Get all available skins data
-        const skinData = getSkinsData();
+        // Get all available skins data (waits for initialization if needed)
+        const skinData = await getSkinsDataAsync();
         if (!skinData) {
             Logger.error('Failed to load skins data');
             throw createError({
@@ -61,7 +61,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
             });
         }
 
-        const stickerData = getStickerData();
+        const stickerData = await getStickerDataAsync();
         if (!stickerData) {
             Logger.error('Failed to load stickers data');
             throw createError({
@@ -70,7 +70,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
             });
         }
 
-        const keychainData = getKeychainData();
+        const keychainData = await getKeychainDataAsync();
         if (!keychainData) {
             Logger.error('Failed to load keychain data');
             throw createError({

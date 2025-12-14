@@ -20,6 +20,9 @@ let isDataInitialized = false;
 const CACHE_DURATION = 30 * 60 * 1000; // 30 minutes
 let lastCacheTime = 0;
 
+// Promise to track initialization status (for non-blocking startup)
+let initializationPromise: Promise<void> | null = null;
+
 // Define storage directory and file paths
 // Use /tmp in serverless environments (like Vercel), fallback to local storage
 const STORAGE_DIR = process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME
@@ -85,6 +88,40 @@ export function getAgentData(): APIAgent[] {
 }
 
 export function getCollectibleData(): APICollectible[] {
+    return collectibleData;
+}
+
+/**
+ * Async getters that wait for initialization if needed
+ * Use these in API endpoints that need the data
+ */
+export async function getKeychainDataAsync(): Promise<APIKeychain[]> {
+    await ensureDataInitialized();
+    return keychainData;
+}
+
+export async function getSkinsDataAsync(): Promise<APISkin[]> {
+    await ensureDataInitialized();
+    return skinsData;
+}
+
+export async function getStickerDataAsync(): Promise<APISticker[]> {
+    await ensureDataInitialized();
+    return stickerData;
+}
+
+export async function getMusicKitDataAsync(): Promise<APIMusicKit[]> {
+    await ensureDataInitialized();
+    return musicKitData;
+}
+
+export async function getAgentDataAsync(): Promise<APIAgent[]> {
+    await ensureDataInitialized();
+    return agentData;
+}
+
+export async function getCollectibleDataAsync(): Promise<APICollectible[]> {
+    await ensureDataInitialized();
     return collectibleData;
 }
 
@@ -244,8 +281,53 @@ export async function initCSGOApiData() {
         console.log('CSGO API data loaded successfully');
     } catch (error) {
         console.error('Failed to initialize CSGO API data:', error);
+        // Reset promise on error so it can be retried
+        initializationPromise = null;
         throw error;
     }
+}
+
+/**
+ * Starts initialization in the background and returns the promise
+ * Use this in server plugins to start initialization non-blocking
+ */
+export function startDataInitialization(): Promise<void> {
+    if (initializationPromise) {
+        return initializationPromise;
+    }
+
+    if (isDataInitialized) {
+        return Promise.resolve();
+    }
+
+    initializationPromise = initCSGOApiData()
+        .catch((error) => {
+            console.error('Data initialization failed:', error);
+            // Reset promise so it can be retried
+            initializationPromise = null;
+            throw error;
+        });
+
+    return initializationPromise;
+}
+
+/**
+ * Ensures data is initialized before accessing it
+ * Waits for initialization if it's in progress
+ */
+export async function ensureDataInitialized(): Promise<void> {
+    if (isDataInitialized) {
+        return;
+    }
+
+    if (initializationPromise) {
+        // Initialization is in progress, wait for it
+        await initializationPromise;
+        return;
+    }
+
+    // Start initialization if not already started
+    await startDataInitialization();
 }
 
 /**
