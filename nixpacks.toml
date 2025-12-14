@@ -1,0 +1,14 @@
+[phases.setup]
+nixPkgs = ["nodejs_20", "bun"]
+
+[phases.install]
+cmds = ["bun install --frozen-lockfile"]
+
+[phases.build]
+cmds = ["bun run build"]
+
+[start]
+cmd = "bun run dist/index.js"
+
+[staticAssets]
+".env.example" = ".env.example"
