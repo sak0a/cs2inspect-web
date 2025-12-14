@@ -38,7 +38,7 @@ export default defineNuxtConfig({
     }
   },
   css: [
-    '~/assets/css/tailwind.sass',
+    '~/assets/css/tailwind.css',
     '~/assets/css/transitions.sass',
     '~/assets/css/theme-variables.css',
     '~/assets/css/glassmorphism.css',
@@ -47,6 +47,12 @@ export default defineNuxtConfig({
     options: {
       hashMode: false // Ensure this is set to false for proper URL handling
     }
+  },
+  postcss: {
+    plugins: {
+      '@tailwindcss/postcss': {},
+      autoprefixer: {},
+    },
   },
   vite: {
     optimizeDeps: {
@@ -75,11 +81,13 @@ export default defineNuxtConfig({
     ]
   },
   tailwindcss: {
-    cssPath: ['~/assets/css/tailwind.sass', { injectPosition: "first" }],
+    cssPath: '~/assets/css/tailwind.css',
     exposeConfig: {
       level: 2
     },
-    config: {},
+    config: {
+      important: true, // Enable !important for all utilities to override component library styles
+    },
     viewer: false,
   },
   modules: [

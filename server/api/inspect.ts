@@ -1,4 +1,5 @@
 import { getCS2Client } from "~/server/plugins/init";
+import { steamServiceClient } from '~/server/utils/steamServiceClient';
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { mapCustomizationToRepresentation } from '~/server/utils/inspectHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
@@ -89,6 +90,9 @@ const ITEM_TYPE_CONFIG: ItemTypeConfigMap = {
     }
 }
 
+// Check if steam service is enabled
+const USE_STEAM_SERVICE = !!process.env.STEAM_SERVICE_URL && !!process.env.STEAM_SERVICE_API_KEY;
+
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const body = await readBody(event) as InspectRequest
@@ -98,7 +102,9 @@ export default defineEventHandler(async (event) => {
     const action = query.action as InspectAction
     validateRequiredRequestData(action, 'Action')
 
-    const client: CS2Inspect = getCS2Client();
+    // Use steam service if configured, otherwise fall back to local client
+    const useService = USE_STEAM_SERVICE;
+    const client: CS2Inspect | null = useService ? null : getCS2Client();
 
     // Determine item type from body or try to infer from context
     const itemType: ItemType = body.itemType || 'weapon' // Default to weapon for backward compatibility
@@ -152,21 +158,41 @@ export default defineEventHandler(async (event) => {
                 const urlBody = body as InspectUrlRequest;
                 validateRequiredRequestData(urlBody.inspectUrl, 'Inspect URL')
 
-                try {
-                    const analyzed = analyzeUrl(urlBody.inspectUrl);
+                if (useService) {
+                    const response = await steamServiceClient.analyzeUrl({
+                        inspectUrl: urlBody.inspectUrl,
+                    });
 
-                    Logger.success(`Analyzed inspect URL`)
+                    if (!response.success) {
+                        throw createError({
+                            statusCode: 400,
+                            message: response.error?.message || 'Failed to analyze URL'
+                        });
+                    }
+
+                    Logger.success(`Analyzed inspect URL via service`)
                     return {
                         success: true,
-                        analysis: analyzed,
+                        analysis: response.data,
                         requiresSteamClient: requiresSteamClient(urlBody.inspectUrl)
                     };
-                } catch (error: unknown) {
-                    const errorMessage = error instanceof Error ? error.message : 'Invalid inspect URL'
-                    throw createError({
-                        statusCode: 400,
-                        message: `Invalid inspect URL: ${errorMessage}`
-                    });
+                } else {
+                    try {
+                        const analyzed = analyzeUrl(urlBody.inspectUrl);
+
+                        Logger.success(`Analyzed inspect URL`)
+                        return {
+                            success: true,
+                            analysis: analyzed,
+                            requiresSteamClient: requiresSteamClient(urlBody.inspectUrl)
+                        };
+                    } catch (error: unknown) {
+                        const errorMessage = error instanceof Error ? error.message : 'Invalid inspect URL'
+                        throw createError({
+                            statusCode: 400,
+                            message: `Invalid inspect URL: ${errorMessage}`
+                        });
+                    }
                 }
             }
 
@@ -178,28 +204,51 @@ export default defineEventHandler(async (event) => {
                 // Use optimized static method to analyze URL
                 const analyzed = analyzeUrl(urlBody.inspectUrl);
 
-                if (analyzed.url_type === 'unmasked' && !client.isSteamClientReady()) {
-                    throw createError({
-                        statusCode: 503,
-                        message: 'Steam client not connected - required for unmasked URLs'
+                if (useService) {
+                    // Use steam service
+                    const response = await steamServiceClient.inspectItem({
+                        inspectUrl: urlBody.inspectUrl,
+                        itemType: body.itemType,
                     });
+
+                    if (!response.success) {
+                        throw createError({
+                            statusCode: response.error?.code === 'STEAM_CLIENT_UNAVAILABLE' ? 503 : 500,
+                            message: response.error?.message || 'Failed to inspect item'
+                        });
+                    }
+
+                    Logger.success(`Inspected ${analyzed.url_type} URL successfully via service`)
+                    return {
+                        success: true,
+                        urlType: analyzed.url_type,
+                        item: response.data,
+                        originalUrl: urlBody.inspectUrl,
+                    };
+                } else {
+                    // Use local client
+                    if (analyzed.url_type === 'unmasked' && !client!.isSteamClientReady()) {
+                        throw createError({
+                            statusCode: 503,
+                            message: 'Steam client not connected - required for unmasked URLs'
+                        });
+                    }
+
+                    const itemInfo = await client!.inspectItem(urlBody.inspectUrl);
+
+                    Logger.success(`Inspected ${analyzed.url_type} URL successfully`)
+                    return {
+                        success: true,
+                        urlType: analyzed.url_type,
+                        item: itemInfo,
+                        originalUrl: urlBody.inspectUrl,
+                        ...(analyzed.url_type === 'unmasked' && {
+                            queueStatus: {
+                                length: client!.getSteamClientStats().queueLength
+                            }
+                        })
+                    };
                 }
-
-                // Use the universal inspectItem method that handles both types
-                const itemInfo = await client.inspectItem(urlBody.inspectUrl);
-
-                Logger.success(`Inspected ${analyzed.url_type} URL successfully`)
-                return {
-                    success: true,
-                    urlType: analyzed.url_type,
-                    item: itemInfo,
-                    originalUrl: urlBody.inspectUrl,
-                    ...(analyzed.url_type === 'unmasked' && {
-                        queueStatus: {
-                            length: client.getSteamClientStats().queueLength
-                        }
-                    })
-                };
             }
 
             case 'decode-masked-only': {
@@ -207,25 +256,48 @@ export default defineEventHandler(async (event) => {
                 const urlBody = body as InspectUrlRequest;
                 validateRequiredRequestData(urlBody.inspectUrl, 'Inspect URL')
 
-                try {
-                    const decodedItem = client.decodeMaskedUrl(urlBody.inspectUrl);
+                if (useService) {
+                    const response = await steamServiceClient.decodeMaskedOnly({
+                        inspectUrl: urlBody.inspectUrl,
+                        itemType: body.itemType,
+                    });
 
-                    Logger.success(`Decoded masked URL offline`)
+                    if (!response.success) {
+                        throw createError({
+                            statusCode: 400,
+                            message: response.error?.message || 'Failed to decode masked URL'
+                        });
+                    }
+
+                    Logger.success(`Decoded masked URL offline via service`)
                     return {
                         success: true,
                         urlType: 'masked',
-                        item: decodedItem,
+                        item: response.data,
                         originalUrl: urlBody.inspectUrl,
                         method: 'offline-decode'
                     };
-                } catch (error: unknown) {
-                    if (error instanceof Error && error.message.includes('unmasked URL')) {
-                        throw createError({
-                            statusCode: 400,
-                            message: 'This URL is unmasked (market/inventory link). Use inspect-item action instead.'
-                        });
+                } else {
+                    try {
+                        const decodedItem = client!.decodeMaskedUrl(urlBody.inspectUrl);
+
+                        Logger.success(`Decoded masked URL offline`)
+                        return {
+                            success: true,
+                            urlType: 'masked',
+                            item: decodedItem,
+                            originalUrl: urlBody.inspectUrl,
+                            method: 'offline-decode'
+                        };
+                    } catch (error: unknown) {
+                        if (error instanceof Error && error.message.includes('unmasked URL')) {
+                            throw createError({
+                                statusCode: 400,
+                                message: 'This URL is unmasked (market/inventory link). Use inspect-item action instead.'
+                            });
+                        }
+                        throw error;
                     }
-                    throw error;
                 }
             }
 
@@ -234,23 +306,44 @@ export default defineEventHandler(async (event) => {
                 const hexBody = body as DecodeHexRequest;
                 validateRequiredRequestData(hexBody.hexData, 'Hex Data')
 
-                try {
-                    // Use optimized static method - no instance creation needed
-                    const decodedItem = decodeMaskedData(hexBody.hexData);
+                if (useService) {
+                    const response = await steamServiceClient.decodeHexData({
+                        hexData: hexBody.hexData,
+                    });
 
-                    Logger.success(`Decoded hex data directly`)
+                    if (!response.success) {
+                        throw createError({
+                            statusCode: 400,
+                            message: response.error?.message || 'Failed to decode hex data'
+                        });
+                    }
+
+                    Logger.success(`Decoded hex data directly via service`)
                     return {
                         success: true,
-                        item: decodedItem,
+                        item: response.data,
                         hexData: hexBody.hexData,
                         method: 'direct-protobuf-decode'
                     };
-                } catch (error: unknown) {
-                    const errorMessage = error instanceof Error ? error.message : 'Invalid hex data'
-                    throw createError({
-                        statusCode: 400,
-                        message: `Invalid hex data: ${errorMessage}`
-                    });
+                } else {
+                    try {
+                        // Use optimized static method - no instance creation needed
+                        const decodedItem = decodeMaskedData(hexBody.hexData);
+
+                        Logger.success(`Decoded hex data directly`)
+                        return {
+                            success: true,
+                            item: decodedItem,
+                            hexData: hexBody.hexData,
+                            method: 'direct-protobuf-decode'
+                        };
+                    } catch (error: unknown) {
+                        const errorMessage = error instanceof Error ? error.message : 'Invalid hex data'
+                        throw createError({
+                            statusCode: 400,
+                            message: `Invalid hex data: ${errorMessage}`
+                        });
+                    }
                 }
             }
 
@@ -259,55 +352,99 @@ export default defineEventHandler(async (event) => {
                 const urlBody = body as InspectUrlRequest;
                 validateRequiredRequestData(urlBody.inspectUrl, 'Inspect URL')
 
-                try {
-                    // Use optimized static methods - no instance creation
-                    const analyzed = analyzeUrl(urlBody.inspectUrl);
-                    const validation = validateUrl(urlBody.inspectUrl);
-                    const needsSteam = requiresSteamClient(urlBody.inspectUrl);
+                if (useService) {
+                    const response = await steamServiceClient.validateUrl({
+                        inspectUrl: urlBody.inspectUrl,
+                    });
 
-                    Logger.info(`URL validation result: valid ${analyzed.url_type} URL`)
+                    if (!response.success) {
+                        throw createError({
+                            statusCode: 400,
+                            message: response.error?.message || 'Failed to validate URL'
+                        });
+                    }
+
+                    Logger.info(`URL validation result via service: ${response.data?.valid ? 'valid' : 'invalid'}`)
                     return {
                         success: true,
-                        isValid: true,
-                        urlType: analyzed.url_type,
-                        requiresSteamClient: needsSteam,
-                        validation: validation,
-                        urlInfo: {
-                            isQuoted: analyzed.is_quoted,
-                            hasHexData: !!analyzed.hex_data,
-                            hexDataLength: analyzed.hex_data?.length || 0
-                        }
+                        isValid: response.data?.valid || false,
+                        urlType: response.data?.urlInfo ? (response.data.urlInfo as { url_type?: string }).url_type : null,
+                        requiresSteamClient: requiresSteamClient(urlBody.inspectUrl),
+                        validation: response.data?.urlInfo,
                     };
-                } catch (error: unknown) {
-                    const validation = validateUrl(urlBody.inspectUrl);
-                    const errorMessage = error instanceof Error ? error.message : 'Invalid URL'
+                } else {
+                    try {
+                        // Use optimized static methods - no instance creation
+                        const analyzed = analyzeUrl(urlBody.inspectUrl);
+                        const validation = validateUrl(urlBody.inspectUrl);
+                        const needsSteam = requiresSteamClient(urlBody.inspectUrl);
 
-                    Logger.info(`URL validation result: invalid`)
-                    return {
-                        success: true,
-                        isValid: false,
-                        urlType: null,
-                        requiresSteamClient: false,
-                        validation: validation,
-                        error: errorMessage
-                    };
+                        Logger.info(`URL validation result: valid ${analyzed.url_type} URL`)
+                        return {
+                            success: true,
+                            isValid: true,
+                            urlType: analyzed.url_type,
+                            requiresSteamClient: needsSteam,
+                            validation: validation,
+                            urlInfo: {
+                                isQuoted: analyzed.is_quoted,
+                                hasHexData: !!analyzed.hex_data,
+                                hexDataLength: analyzed.hex_data?.length || 0
+                            }
+                        };
+                    } catch (error: unknown) {
+                        const validation = validateUrl(urlBody.inspectUrl);
+                        const errorMessage = error instanceof Error ? error.message : 'Invalid URL'
+
+                        Logger.info(`URL validation result: invalid`)
+                        return {
+                            success: true,
+                            isValid: false,
+                            urlType: null,
+                            requiresSteamClient: false,
+                            validation: validation,
+                            error: errorMessage
+                        };
+                    }
                 }
             }
 
             case 'client-status': {
                 // Get Steam client status
-                const stats = client.getSteamClientStats();
-
-                Logger.info(`Steam client status: ${stats.isAvailable ? 'Ready' : 'Not Ready'}`)
-                return {
-                    success: true,
-                    steamClient: {
-                        isReady: stats.isAvailable,
-                        status: stats.status,
-                        queueLength: stats.queueLength,
-                        unmaskedSupport: stats.unmaskedSupport
+                if (useService) {
+                    const response = await steamServiceClient.getStatus();
+                    if (!response.success) {
+                        throw createError({
+                            statusCode: 500,
+                            message: response.error?.message || 'Failed to get service status'
+                        });
                     }
-                };
+
+                    Logger.info(`Steam service status: ${response.data?.steamClient.available ? 'Ready' : 'Not Ready'}`)
+                    return {
+                        success: true,
+                        steamClient: {
+                            isReady: response.data?.steamClient.available || false,
+                            status: response.data?.steamClient.status || 'unknown',
+                            queueLength: response.data?.queue.pending || 0,
+                            unmaskedSupport: response.data?.steamClient.available || false
+                        },
+                        service: response.data
+                    };
+                } else {
+                    const stats = client!.getSteamClientStats();
+
+                    Logger.info(`Steam client status: ${stats.isAvailable ? 'Ready' : 'Not Ready'}`)
+                    return {
+                        success: true,
+                        steamClient: {
+                            isReady: stats.isAvailable,
+                            status: stats.status,
+                            queueLength: stats.queueLength,
+                            unmaskedSupport: stats.unmaskedSupport
+                        }
+                    };
+                }
             }
 
             default:

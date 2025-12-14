@@ -918,12 +918,12 @@ watch(() => props.weapon, () => {
         <!-- Visual Customizer Button -->
         <div class="mt-4 mb-4">
           <NButton
-            @click="handleOpenVisualCustomizer"
-            :disabled="!selectedSkin"
+            class="!rounded-full !w-full"
             type="primary"
             size="large"
-            class="w-full"
+            :disabled="!selectedSkin"
             style="background: linear-gradient(135deg, var(--selection-ring), #F59E0B); border: none;"
+            @click="handleOpenVisualCustomizer"
           >
             <template #icon>
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1103,29 +1103,41 @@ watch(() => props.weapon, () => {
     />
   </NModal>
 </template>
-<style scoped lang="sass">
-.active-item
-  @apply border-2 border-solid border-[var(--selection-ring)]
-.inactive-item
-  @apply border-2 border-dashed border-gray-600
-.sticker-slot
-  touch-action: none
-  transition: all 0.15s ease-in-out
+<style scoped lang="postcss">
+@reference "tailwindcss";
 
-  &.dragging
-    opacity: 0.5
-    transform: scale(0.95)
+.active-item {
+  @apply border-2 border-solid border-[var(--selection-ring)];
+}
 
-  &.drag-over
-    background-color: #2a2a2a
-    transform: scale(1.05)
+.inactive-item {
+  @apply border-2 border-dashed border-gray-600;
+}
 
-  &:empty
-    cursor: default
+.sticker-slot {
+  touch-action: none;
+  transition: all 0.15s ease-in-out;
 
-  &:not(:empty)
-    cursor: grab
+  &.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+  }
 
-    &:active
-      cursor: grabbing
+  &.drag-over {
+    background-color: #2a2a2a;
+    transform: scale(1.05);
+  }
+
+  &:empty {
+    cursor: default;
+  }
+
+  &:not(:empty) {
+    cursor: grab;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+}
 </style>

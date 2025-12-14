@@ -67,10 +67,18 @@ export default defineNitroPlugin(async () => {
         console.error('Failed to initialize CSGO API data', error);
     });
     
-    // Initialize Steam client in the background (non-blocking)
-    initializeSteamClient().catch(error => {
-        console.error('Failed to initialize CS2 Inspect client', error);
-    });
+    // Initialize Steam client only if steam service is not configured
+    // If STEAM_SERVICE_URL is set, we'll use the external service instead
+    const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SERVICE_API_KEY);
+    
+    if (!useSteamService) {
+        // Initialize Steam client in the background (non-blocking)
+        initializeSteamClient().catch(error => {
+            console.error('Failed to initialize CS2 Inspect client', error);
+        });
+    } else {
+        console.log('Steam service configured - using external service instead of local client');
+    }
     
     // Import health check sampler dynamically to avoid circular dependencies
     const { startHealthCheckSampler } = await import('../utils/health/sampler');

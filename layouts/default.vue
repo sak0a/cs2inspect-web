@@ -224,7 +224,7 @@ onMounted(async () => {
               <NButton
                   secondary
                   type="error"
-                  class="w-full"
+                  class="w-full!"
                   @click="showLogoutModal = true"
               >
                 <template #icon>
@@ -269,7 +269,7 @@ onMounted(async () => {
           </div>
 
           {{ t('auth.loginRequired') }}
-          <NButton size="large" class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md" @click="handleLogin">
+          <NButton size="large" class="mt-4! login-button! px-10! py-6! bg-[#18181c]! rounded-md!" @click="handleLogin">
             <template #icon >
               <SteamLogoIcon/>
             </template>

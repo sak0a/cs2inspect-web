@@ -64,6 +64,8 @@ const myThemeOverrides: GlobalThemeOverrides = {
         borderRadius: '12px',
         paddingMedium: '4px 0 0 24px',
         color: '#121212',
+        // Override hover background to prevent double background with glassmorphism CSS
+        optionColorPending: 'rgba(255, 255, 255, 0.06)',
         peers: {
           Scrollbar: {
 

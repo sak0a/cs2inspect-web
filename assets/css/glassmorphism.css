@@ -395,9 +395,21 @@
   transition: background 0.2s ease, transform 0.1s ease !important;
 }
 
+/* Override Naive UI's default hover background to prevent double background */
 .n-base-select-option:hover {
   background: rgba(255, 255, 255, 0.06) !important;
   transform: translateX(2px) !important;
+}
+
+/* Remove any nested background elements that might cause double background */
+.n-base-select-option:hover > * {
+  background: transparent !important;
+}
+
+/* Override any pseudo-elements that might add background */
+.n-base-select-option::before,
+.n-base-select-option::after {
+  display: none !important;
 }
 
 .n-base-select-option--selected {
