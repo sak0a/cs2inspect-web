@@ -31,11 +31,16 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 
 ### For Users
 
-1. **Access the Application**: Navigate to the deployed CS2Inspect instance
+::: tip Plugin Installation Required
+The CS2Inspect web application requires the **CS2Inspect Plugin** to be installed on your CS2 server. The web application and plugin work together - the web app lets you configure loadouts, and the plugin applies them in-game.
+:::
+
+1. **Access the Application**: Navigate to the deployed CS2Inspect web instance
 2. **Login**: Click "Login with Steam" to authenticate
 3. **Create Loadout**: Set up your first loadout configuration
 4. **Customize Items**: Select weapons, skins, stickers, and more
-5. **Save & Manage**: Your configurations are automatically saved
+5. **Save & Manage**: Your configurations are automatically saved to the database
+6. **Join Server**: Connect to a CS2 server with the plugin - your loadout will be applied automatically
 
 ### For Developers
 
@@ -61,7 +66,18 @@ See the [Setup Guide](setup.md) for detailed instructions.
 
 ## 🎯 What is CS2Inspect?
 
-CS2Inspect is a full-stack web application that allows Counter-Strike 2 players to:
+CS2Inspect is a **two-part system** consisting of:
+
+1. **CS2Inspect Web Application** (this repository) - A web interface for players to customize and manage their loadouts
+2. **CS2Inspect Plugin** ([GitHub Repository](https://github.com/sak0a/CS2Inspect-Plugin)) - A CounterStrikeSharp plugin that runs on your CS2 server and applies loadouts in-game
+
+::: warning Important: Plugin Required
+**The CS2Inspect web application requires the CS2Inspect Plugin to be installed on your CS2 server.** The plugin reads loadout configurations from the shared database and applies them to players in-game. Without the plugin, you can configure loadouts through the web interface, but they won't be applied in-game.
+
+**For complete setup instructions, see the [Setup Guide](setup.md) which includes plugin installation.**
+:::
+
+### What CS2Inspect Allows You To Do
 
 - **Customize Weapon Skins**: Choose from thousands of skins with full float value, pattern seed, and StatTrak™ control
 - **Manage Multiple Loadouts**: Create unlimited loadout configurations and switch between them instantly
@@ -70,6 +86,7 @@ CS2Inspect is a full-stack web application that allows Counter-Strike 2 players 
 - **Select Agents**: Choose agents from all factions for both teams
 - **Import from Inspect URLs**: Parse CS2 inspect links to import item configurations
 - **Generate Inspect Links**: Create masked inspect URLs from your configurations
+- **In-Game Application**: Loadouts configured on the web are automatically applied when you join a server with the plugin installed
 
 ---
 
@@ -218,6 +235,7 @@ Need help? Check these resources:
 
 ## 🎮 Related Projects
 
+- **[CS2Inspect Plugin](https://github.com/sak0a/CS2Inspect-Plugin)**: The CounterStrikeSharp plugin that applies loadouts in-game (REQUIRED)
 - **cs2-inspect-lib**: CS2 item inspection library
 - **node-cs2**: Steam Game Coordinator integration
 - **csgo-fade-percentage-calculator**: Fade pattern calculations

@@ -1,7 +1,14 @@
 # Development Setup <Badge type="tip" text="Getting Started" />
 
-::: warning Self-Hosted Only
-CS2Inspect is a **self-hosted application only**. There is no public hosted version available. You must deploy and host your own instance. This guide will help you set up your own instance.
+## Overview
+
+CS2Inspect consists of **two components** that work together:
+
+1. **CS2Inspect Web Application** (this repository) - The web interface for managing loadouts
+2. **CS2Inspect Plugin** ([GitHub Repository](https://github.com/sak0a/CS2Inspect-Plugin)) - The CounterStrikeSharp plugin that applies loadouts in-game
+
+::: warning Plugin Required
+**The CS2Inspect web application requires the CS2Inspect Plugin to be installed on your CS2 server.** Both components share the same database. The web application stores loadout configurations, and the plugin reads from the database to apply them in-game.
 :::
 
 ## Prerequisites
@@ -141,7 +148,60 @@ docker-compose up -d
    - Run any new migrations on subsequent starts
    - Skip already-applied migrations
 
-### 4. Environment Configuration
+### 4. Install CS2Inspect Plugin (Required)
+
+::: warning Plugin Installation Required
+The CS2Inspect web application requires the **CS2Inspect Plugin** to be installed on your CS2 server. The plugin reads loadout configurations from the shared database and applies them in-game.
+
+**Plugin Repository**: https://github.com/sak0a/CS2Inspect-Plugin
+:::
+
+#### Plugin Installation Steps
+
+1. **Clone the Plugin Repository**:
+   ```bash
+   git clone https://github.com/sak0a/CS2Inspect-Plugin.git
+   cd CS2Inspect-Plugin
+   ```
+
+2. **Build the Plugin**:
+   ```bash
+   dotnet build -c Release
+   ```
+
+3. **Install to CS2 Server**:
+   - Copy `bin/Release/net8.0/CS2Inspect.dll` to your CS2 server:
+     ```
+     game/csgo/addons/counterstrikesharp/plugins/CS2Inspect/
+     ```
+   - Copy configuration files to the plugin directory
+
+4. **Configure Plugin Database Connection**:
+   
+   The plugin must use the **same database** as the web application. Update the plugin's `config.json`:
+   ```json
+   {
+     "DatabaseHost": "localhost",
+     "DatabasePort": 3306,
+     "DatabaseUser": "csinspect",
+     "DatabasePassword": "your_database_password",
+     "DatabaseName": "csinspect",
+     "Website": "https://your-website.com"
+   }
+   ```
+
+5. **Verify Plugin Installation**:
+   - Restart your CS2 server
+   - Check server logs for plugin initialization
+   - Connect to the server and test plugin commands (e.g., `!cs2inspect`)
+
+::: tip Plugin Documentation
+For detailed plugin installation, configuration, and usage instructions, see the [CS2Inspect Plugin README](https://github.com/sak0a/CS2Inspect-Plugin/blob/main/README.md).
+:::
+
+---
+
+### 5. Environment Configuration
 
 1. **Copy the example environment file**:
    ```bash
@@ -195,7 +255,7 @@ docker-compose up -d
    openssl rand -hex 32
    ```
 
-### 5. Verify Configuration
+### 6. Verify Configuration
 
 Check that your configuration is correct:
 
@@ -206,6 +266,26 @@ npm run db:test
 # Or manually test:
 mysql -h 127.0.0.1 -u csinspect -p csinspect -e "SHOW TABLES;"
 ```
+
+---
+
+## System Integration
+
+The web application and plugin work together through a **shared database**:
+
+- **Web Application**: Players configure loadouts through the web interface, which saves to the database
+- **Plugin**: When players join the server, the plugin reads their loadout from the database and applies it in-game
+- **Real-Time Sync**: Changes made on the web are immediately available to the plugin
+
+::: warning Database Configuration
+**Both components must use the same database** (same host, port, name, user, and password). The database schema is created automatically by the web application migrations. The plugin reads from these tables:
+- `wp_player_loadouts` - Loadout configurations
+- `wp_player_rifles`, `wp_player_pistols`, `wp_player_smgs`, `wp_player_heavys` - Weapon configurations
+- `wp_player_knifes` - Knife configurations
+- `wp_player_gloves` - Glove configurations
+- `wp_player_agents` - Agent selections
+- `wp_player_pins` - Pin collections
+:::
 
 ---
 

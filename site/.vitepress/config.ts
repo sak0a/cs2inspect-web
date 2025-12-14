@@ -37,7 +37,7 @@ export default withMermaid({
         text: 'Technical Documentation',
         items: [
           { text: 'Architecture', link: '/architecture' },
-          { text: 'Frontend Architecture', link: '/architecture-frontend' },
+              { text: 'Frontend Architecture', link: '/architecture-frontend' },
           { text: 'Backend Architecture', link: '/architecture-backend' },
           { text: 'Deployment Architecture', link: '/architecture-deployment' },
           { text: 'Components', link: '/components' },

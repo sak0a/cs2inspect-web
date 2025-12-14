@@ -1,5 +1,16 @@
 # How It Works <Badge type="info" text="User Guide" />
 
+## System Overview
+
+CS2Inspect is a **two-part system** that works together:
+
+1. **CS2Inspect Web Application** - The web interface where players configure their loadouts
+2. **CS2Inspect Plugin** ([GitHub](https://github.com/sak0a/CS2Inspect-Plugin)) - The CounterStrikeSharp plugin that applies loadouts in-game
+
+::: warning Plugin Required
+**The CS2Inspect web application requires the CS2Inspect Plugin to be installed on your CS2 server.** Both components share the same database. Players configure loadouts on the web, and the plugin automatically applies them when they join the server.
+:::
+
 ## User Flows and Core Features
 
 This document explains the key user journeys and how the CS2Inspect application works from a user's perspective, with technical implementation details.
@@ -468,15 +479,22 @@ graph TD
 - Loadout configurations persisted
 - User preferences stored
 
-**Database Tables**:
+**Database Tables** (Shared with Plugin):
 ```sql
-wp_player_loadouts        -- Loadout metadata
-wp_player_weapons          -- Weapon customizations
-wp_player_knifes           -- Knife customizations
-wp_player_gloves           -- Glove customizations
-wp_player_agents           -- Agent selections
-wp_player_pins             -- Pin collections
+wp_player_loadouts        -- Loadout metadata (read by plugin)
+wp_player_rifles          -- Rifle customizations (read by plugin)
+wp_player_pistols         -- Pistol customizations (read by plugin)
+wp_player_smgs            -- SMG customizations (read by plugin)
+wp_player_heavys         -- Heavy weapon customizations (read by plugin)
+wp_player_knifes         -- Knife customizations (read by plugin)
+wp_player_gloves         -- Glove customizations (read by plugin)
+wp_player_agents         -- Agent selections (read by plugin)
+wp_player_pins           -- Pin collections (read by plugin)
 ```
+
+::: tip Plugin Integration
+The CS2Inspect Plugin reads from these same database tables. When a player joins a server with the plugin installed, the plugin automatically loads their active loadout from the database and applies it in-game.
+:::
 
 ---
 

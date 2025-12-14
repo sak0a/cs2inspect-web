@@ -4,25 +4,23 @@ Welcome to CS2Inspect! This guide will help you get started with using the appli
 
 ## What You Need
 
-To use CS2Inspect, you only need:
+To use CS2Inspect, you need:
 - A **Steam account** (for login)
 - A **web browser** (Chrome, Firefox, Edge, or Safari)
 - An **internet connection**
-- **Access to a self-hosted CS2Inspect instance** (deployed by you or your server administrator)
+- A **CS2 server with CS2Inspect Plugin installed** (required for in-game application)
 
-::: warning Self-Hosted Only
-CS2Inspect is a **self-hosted application only**. There is no public hosted version available. You must deploy your own instance or use an instance provided by your server administrator or community. See the [Deployment Guide](../deployment.md) for setup instructions.
-:::
+::: warning Plugin Required
+**CS2Inspect requires the CS2Inspect Plugin to be installed on your CS2 server.** The web application lets you configure loadouts, but the plugin applies them in-game. Without the plugin, you can configure loadouts on the web, but they won't be applied when you join a server.
 
-::: tip No Client Installation Required
-CS2Inspect is a web application - you don't need to install anything on your computer! However, the application itself must be deployed on a server by you or your administrator.
+**Plugin Repository**: https://github.com/sak0a/CS2Inspect-Plugin
 :::
 
 ## Getting Started
 
-### 1. Access Your Instance
+### 1. Access the Application
 
-Navigate to your self-hosted CS2Inspect instance in your web browser. The URL will be provided by your server administrator or community. If you're setting up your own instance, see the [Deployment Guide](../deployment.md).
+Navigate to the CS2Inspect website in your web browser. The URL will be provided by your server administrator or community.
 
 ### 2. Log In with Steam
 
@@ -46,6 +44,10 @@ Once logged in, you'll start with a default loadout:
 4. Click **"Create"**
 
 Your new loadout is now active and ready to customize!
+
+::: tip In-Game Application
+After configuring your loadout on the web, join a CS2 server with the CS2Inspect Plugin installed. Your loadout will be automatically applied when you spawn. The plugin reads your loadout configuration from the database and applies it in-game.
+:::
 
 ## Customizing Your Loadout
 

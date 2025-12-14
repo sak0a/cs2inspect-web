@@ -1,9 +1,5 @@
 # Deployment Guide
 
-::: warning Self-Hosted Only
-CS2Inspect is a **self-hosted application only**. There is no public hosted version available. This guide will help you deploy your own instance to production.
-:::
-
 ## Overview
 
 This guide covers deploying the CS2Inspect application to production environments. The application is a Nuxt 3 server-side rendered (SSR) application with a backend API and requires a MariaDB database and optionally a Steam bot account.

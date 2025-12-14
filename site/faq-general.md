@@ -4,23 +4,37 @@ Common questions about CS2Inspect and getting started.
 
 ## What is CS2Inspect?
 
-CS2Inspect is a **self-hosted** web application that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. You can customize weapon skins, knives, gloves, agents, music kits, and pins with full control over float values, StatTrak™, stickers, and more.
+CS2Inspect is a **two-part system** for Counter-Strike 2 loadout management:
 
-::: warning Self-Hosted Only
-CS2Inspect is **self-hosted only** - there is no public hosted version. You must deploy your own instance or use one provided by your server administrator. See the [Deployment Guide](../deployment.md) for setup instructions.
-:::
+1. **CS2Inspect Web Application** - A web interface where players customize and manage their loadouts
+2. **CS2Inspect Plugin** ([GitHub](https://github.com/sak0a/CS2Inspect-Plugin)) - A CounterStrikeSharp plugin that runs on CS2 servers and applies loadouts in-game
+
+You can customize weapon skins, knives, gloves, agents, music kits, and pins with full control over float values, StatTrak™, stickers, and more. The web application stores your configurations, and the plugin applies them when you join a server.
 
 ## Is CS2Inspect free to use?
 
-Yes, the application is open source and free to use. However, you need to deploy and host your own instance (or use one provided by your server administrator). You also need a Steam account to log in and save your configurations.
+Yes, the application is open source and free to use. You need a Steam account to log in and save your configurations.
 
 ## Do I need CS2 to use this application?
 
-You don't need CS2 installed to use the application. However, to import items from inspect URLs, the backend needs access to Steam's Game Coordinator, which requires a Steam account configured in the server.
+You don't need CS2 installed to configure loadouts on the web application. However:
+- To **apply loadouts in-game**, you need to join a CS2 server with the **CS2Inspect Plugin** installed
+- To **import items from inspect URLs**, the backend needs access to Steam's Game Coordinator, which requires a Steam account configured in the server
+
+## Do I need the CS2Inspect Plugin?
+
+**Yes, the CS2Inspect Plugin is required for in-game application of loadouts.** 
+
+- **Without the plugin**: You can configure loadouts on the web, but they won't be applied when you join a server
+- **With the plugin**: Your loadouts are automatically applied when you join a server with the plugin installed
+
+The plugin reads your loadout configurations from the shared database and applies them in-game.
+
+**Plugin Repository**: https://github.com/sak0a/CS2Inspect-Plugin
 
 ## Will this modify my actual CS2 inventory?
 
-No, CS2Inspect does not and cannot modify your actual Steam inventory. It only stores your loadout configurations in the database for you to view and manage. To use these configurations in-game, you would need a compatible CS2 server plugin.
+No, CS2Inspect does not and cannot modify your actual Steam inventory. It only stores your loadout configurations in the database. The CS2Inspect Plugin applies these configurations in-game on servers where it's installed, but they don't affect your actual Steam inventory.
 
 ---
 
@@ -105,11 +119,13 @@ Yes! You can import item configurations from inspect URLs found on:
 
 ### Does this work in official matchmaking?
 
-No. These loadouts only work on community servers that have the compatible CS2Inspect plugin installed. Official Valve matchmaking servers do not support custom loadout configurations.
+No. These loadouts only work on community servers that have the **CS2Inspect Plugin** installed. Official Valve matchmaking servers do not support custom loadout configurations.
 
 ### Can I use this on any CS2 server?
 
-Only on servers with the CS2Inspect plugin installed. Ask your server administrator if they support CS2Inspect.
+Only on servers with the **CS2Inspect Plugin** installed. The plugin is a CounterStrikeSharp plugin that must be installed by the server administrator.
+
+**Plugin Repository**: https://github.com/sak0a/CS2Inspect-Plugin
 
 ---
 

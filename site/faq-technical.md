@@ -74,6 +74,39 @@ Technical issues, error messages, and troubleshooting guides.
 - Check server logs if you have access
 - Wait for admin to fix database connection
 
+### My loadout isn't being applied in-game
+
+**Possible reasons**:
+- CS2Inspect Plugin is not installed on the server
+- Plugin is not configured to use the same database
+- Plugin is not running or crashed
+- Your loadout is not set as active
+- Database connection issue between plugin and web app
+
+**Solutions**:
+1. **Verify plugin installation**: Check if the CS2Inspect Plugin is installed on the server
+2. **Check plugin configuration**: Ensure the plugin uses the same database as the web application
+3. **Check server logs**: Look for plugin errors in the CS2 server logs
+4. **Verify active loadout**: Make sure you have an active loadout selected on the web application
+5. **Test plugin commands**: Try using plugin commands in-game (e.g., `!cs2inspect`, `!loadout`)
+6. **Restart server**: Ask admin to restart the CS2 server to reload the plugin
+
+**Plugin Repository**: https://github.com/sak0a/CS2Inspect-Plugin
+
+### Plugin and web app database mismatch
+
+**Error**: Loadouts configured on web don't appear in-game
+
+**Solutions**:
+- Ensure both the plugin and web application use the **same database**:
+  - Same database host
+  - Same database port
+  - Same database name
+  - Same database user and password
+- Check plugin configuration file (`config.json` in plugin directory)
+- Check web application `.env` file
+- Verify database connection from both components
+
 ---
 
 ## Troubleshooting Error Messages
@@ -138,9 +171,9 @@ Technical issues, error messages, and troubleshooting guides.
 
 ## Development & Self-Hosting
 
-### Is CS2Inspect self-hosted only?
+### Can I host my own instance?
 
-Yes! CS2Inspect is **self-hosted only** - there is no public hosted version available. You must deploy and host your own instance. The application is open source and free to use. See the [Setup Guide](setup.md) and [Deployment Guide](deployment.md) for instructions.
+Yes! CS2Inspect is open source. See the [Setup Guide](setup.md) and [Deployment Guide](deployment.md) for instructions.
 
 ### What are the system requirements?
 
