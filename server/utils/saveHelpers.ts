@@ -3,23 +3,24 @@ import { executeQuery } from '~/server/database/database'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
-import {
+import type {
     WeaponCustomization,
     KnifeCustomization,
     GloveCustomization,
     DBWeapon,
     DBKnife,
     DBGlove,
+    IEnhancedWeaponSticker
+} from '~/server/utils/interfaces'
+import {
     EnhancedWeaponSticker,
-    EnhancedWeaponKeychain,
-    IEnhancedWeaponSticker,
-    IEnhancedWeaponKeychain
+    EnhancedWeaponKeychain
 } from '~/server/utils/interfaces'
 
 /**
  * Validates common fields for all item types
  */
-export const validateCommonFields = (body: any) => {
+export const validateCommonFields = (body: Record<string, unknown>) => {
     // Validate defindex
     validateRequiredRequestData(body.defindex, 'Defindex')
 
@@ -76,7 +77,7 @@ export const validateCommonFields = (body: any) => {
 /**
  * Validates weapon-specific fields
  */
-export const validateWeaponFields = (body: any) => {
+export const validateWeaponFields = (body: Record<string, unknown>) => {
     // Validate defindex against valid weapon defindexes
     if (!VALID_WEAPON_DEFINDEXES[body.defindex]) {
         Logger.error('Invalid Weapon Defindex')
@@ -118,7 +119,7 @@ export const validateWeaponFields = (body: any) => {
 /**
  * Validates knife-specific fields
  */
-export const validateKnifeFields = (body: any) => {
+export const validateKnifeFields = (body: Record<string, unknown>) => {
     // Validate defindex against valid knife defindexes
     if (!VALID_KNIFE_DEFINDEXES[body.defindex]) {
         Logger.error('Invalid Knife Defindex')
@@ -160,7 +161,7 @@ export const validateKnifeFields = (body: any) => {
 /**
  * Validates glove-specific fields
  */
-export const validateGloveFields = (body: any) => {
+export const validateGloveFields = (_body: Record<string, unknown>) => {
     // Gloves don't have additional specific validations beyond the common ones
 }
 
@@ -184,7 +185,7 @@ export const formatWeaponStickers = (stickers: IEnhancedWeaponSticker[]) => {
 /**
  * Formats weapon keychain for database storage
  */
-export const formatWeaponKeychain = (keychain: any) => {
+export const formatWeaponKeychain = (keychain: { id?: number; x?: number; y?: number; z?: number; seed?: number } | null) => {
     const defaultKeychain = {
         id: 0,
         x: 0,
@@ -208,12 +209,12 @@ export const handleItemReset = async (
     table: string,
     steamId: string,
     loadoutId: string,
-    body: any,
+    body: Record<string, unknown>,
     itemType: 'weapon' | 'knife' | 'glove'
 ) => {
     // For weapons and knives, we delete the item
     if (itemType === 'weapon' || itemType === 'knife' || itemType === 'glove') {
-        await executeQuery<void>(
+        await executeQuery<unknown[]>(
             `DELETE FROM ${table} WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?`,
             [steamId, loadoutId, body.team, body.defindex],
             `Failed to delete ${itemType}`
@@ -256,7 +257,7 @@ export const saveWeapon = async (
         // Update or insert weapon
         if (existingWeapon.length > 0) {
             console.log("saveWeapon: ", body)
-            await executeQuery<void>(
+            await executeQuery<unknown[]>(
                 `UPDATE ${table} SET
                     active = ?,
                     paintindex = ?,
@@ -297,7 +298,7 @@ export const saveWeapon = async (
             );
             Logger.success('Weapon updated successfully')
         } else {
-            await executeQuery<void>(
+            await executeQuery<unknown[]>(
                 `INSERT INTO ${table} (
                     steamid, loadoutid, defindex, active, team, paintindex, paintwear,
                     paintseed, stattrak_enabled, stattrak_count, nametag,
@@ -330,11 +331,12 @@ export const saveWeapon = async (
             success: true,
             message: existingWeapon.length > 0 ? 'Weapon updated successfully' : 'Weapon created successfully'
         }
-    } catch (error: any) {
-        Logger.error(`Failed to save weapon: ${error.message}`)
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        Logger.error(`Failed to save weapon: ${errorMessage}`)
         throw createError({
             statusCode: 500,
-            message: `Failed to save weapon: ${error.message}`
+            message: `Failed to save weapon: ${errorMessage}`
         })
     }
 }
@@ -362,7 +364,7 @@ export const saveKnife = async (
         // Update or insert knife
         if (existingKnife.length > 0) {
             console.log('Updating existing knife')
-            await executeQuery<void>(
+            await executeQuery<unknown[]>(
                 `UPDATE wp_player_knifes SET
                     active = ?,
                     paintindex = ?,
@@ -389,7 +391,7 @@ export const saveKnife = async (
             );
             Logger.success('Knife updated successfully')
         } else {
-            await executeQuery<void>(
+            await executeQuery<unknown[]>(
                 `INSERT INTO wp_player_knifes (
                     steamid, loadoutid, active, team, defindex, paintindex, paintseed,
                     paintwear, stattrak_enabled, stattrak_count, nametag
@@ -416,11 +418,12 @@ export const saveKnife = async (
             success: true,
             message: existingKnife.length > 0 ? 'Knife updated successfully' : 'Knife created successfully'
         }
-    } catch (error: any) {
-        Logger.error(`Failed to save knife: ${error.message}`)
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        Logger.error(`Failed to save knife: ${errorMessage}`)
         throw createError({
             statusCode: 500,
-            message: `Failed to save knife: ${error.message}`
+            message: `Failed to save knife: ${errorMessage}`
         })
     }
 }
@@ -456,7 +459,7 @@ export const saveGlove = async (
         // Update or insert glove
         if (existingGlove.length > 0) {
             Logger.info(`saveGlove: Updating existing glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
-            await executeQuery<void>(
+            await executeQuery<unknown[]>(
                 `UPDATE wp_player_gloves SET
                     active = ?,
                     paintindex = ?,
@@ -478,7 +481,7 @@ export const saveGlove = async (
             Logger.success('Glove updated successfully')
         } else {
             Logger.info(`saveGlove: Inserting new glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
-            await executeQuery<void>(
+            await executeQuery<unknown[]>(
                 `INSERT INTO wp_player_gloves (
                     steamid, loadoutid, active, team, defindex, paintindex, paintseed,
                     paintwear
@@ -502,11 +505,12 @@ export const saveGlove = async (
             success: true,
             message: existingGlove.length > 0 ? 'Glove updated successfully' : 'Glove created successfully'
         }
-    } catch (error: any) {
-        Logger.error(`Failed to save glove: ${error.message}`)
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error)
+        Logger.error(`Failed to save glove: ${errorMessage}`)
         throw createError({
             statusCode: 500,
-            message: `Failed to save glove: ${error.message}`
+            message: `Failed to save glove: ${errorMessage}`
         })
     }
 }

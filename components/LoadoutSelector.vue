@@ -58,9 +58,10 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
     formInputs.value.deleteConfirm = ''
     showModal.value[action] = false
     message.success(t('modals.loadout.successMessage', { action: action }) as string, { duration: 2 })
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.log(error)
-    message.error(error.message, { duration: 3, closable: true })
+    const errorMessage = error instanceof Error ? error.message : 'An error occurred'
+    message.error(errorMessage, { duration: 3, closable: true })
   }
 }
 

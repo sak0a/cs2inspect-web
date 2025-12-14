@@ -95,7 +95,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { NSpace, NCard, NButton, NIcon, NSelect, NSpin } from 'naive-ui';
-import { ArrowLeft as ArrowLeftIcon, Refresh as RefreshIcon } from '@vicons/tabler';
+import { ArrowLeft as ArrowLeftIcon } from '@vicons/tabler';
 
 // Use a simple layout without authentication
 definePageMeta({
@@ -144,36 +144,14 @@ const filteredHistoricalData = computed(() => {
 });
 
 // Overall status computed properties
-const overallStatus = computed(() => {
+const _overallStatus = computed(() => {
   if (healthChecks.value.length === 0) return 'unknown';
   if (healthChecks.value.some(c => c.status === 'fail')) return 'fail';
   if (healthChecks.value.some(c => c.status === 'degraded')) return 'degraded';
   return 'ok';
 });
 
-const overallStatusClass = computed(() => {
-  const status = overallStatus.value;
-  if (status === 'ok') return 'status-ok';
-  if (status === 'degraded') return 'status-degraded';
-  if (status === 'fail') return 'status-fail';
-  return 'status-unknown';
-});
-
-const overallStatusIcon = computed(() => {
-  const status = overallStatus.value;
-  if (status === 'ok') return '✓';
-  if (status === 'degraded') return '⚠';
-  if (status === 'fail') return '✗';
-  return '?';
-});
-
-const overallStatusText = computed(() => {
-  const status = overallStatus.value;
-  if (status === 'ok') return t('status.allOperational');
-  if (status === 'degraded') return t('status.partialOutage');
-  if (status === 'fail') return t('status.systemOutage');
-  return t('status.unknown');
-});
+// Removed unused computed properties: overallStatusClass, overallStatusIcon, overallStatusText
 
 // Load current status
 async function loadStatus() {
@@ -228,10 +206,7 @@ async function refreshStatus() {
   await Promise.all([loadStatus(), loadHistory()]);
 }
 
-// Format time helper
-function formatTime(date: Date): string {
-  return date.toLocaleTimeString();
-}
+// Removed unused formatTime function
 
 // Lifecycle hooks
 onMounted(() => {

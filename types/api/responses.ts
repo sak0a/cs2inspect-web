@@ -35,7 +35,7 @@ export interface APIResponseMeta {
   /** Request ID for debugging and tracing */
   requestId?: string
   /** Additional metadata specific to the endpoint */
-  [key: string]: any
+  [key: string]: unknown
 }
 
 /**
@@ -57,7 +57,7 @@ export interface APIResponseMeta {
  * }
  * ```
  */
-export interface APIResponse<TData = any> {
+export interface APIResponse<TData = unknown> {
   /** Whether the request was successful */
   success: boolean
   /** The main data payload (present when success is true) */
@@ -94,13 +94,13 @@ export interface APIResponse<TData = any> {
  * }
  * ```
  */
-export interface APIPaginatedResponse<TData = any> extends APIResponse<TData[]> {
+export interface APIPaginatedResponse<TData = unknown> extends APIResponse<TData[]> {
   /** Pagination information (required for paginated responses) */
   pagination: PaginationMeta
   /** Applied filters information */
-  appliedFilters?: Record<string, any>
+  appliedFilters?: Record<string, unknown>
   /** Available filter options for the endpoint */
-  availableFilters?: Record<string, any[]>
+  availableFilters?: Record<string, unknown[]>
 }
 
 /**
@@ -110,7 +110,7 @@ export interface APIPaginatedResponse<TData = any> extends APIResponse<TData[]> 
  * 
  * @description Used for endpoints that return collections with additional metadata
  */
-export interface APICollectionResponse<TData = any> extends APIResponse<TData[]> {
+export interface APICollectionResponse<TData = unknown> extends APIResponse<TData[]> {
   /** Collection-specific metadata */
   collection: {
     /** Total count of items in the collection */
@@ -118,7 +118,7 @@ export interface APICollectionResponse<TData = any> extends APIResponse<TData[]>
     /** Available categories/types in the collection */
     categories?: string[]
     /** Available filters and their options */
-    filters?: Record<string, any[]>
+    filters?: Record<string, unknown[]>
     /** Collection statistics */
     stats?: Record<string, number>
   }
@@ -135,7 +135,7 @@ export interface APICollectionResponse<TData = any> extends APIResponse<TData[]>
  * 
  * @description Used when creating new entities via API
  */
-export interface APICreateResponse<TData = any> extends APIResponse<TData> {
+export interface APICreateResponse<TData = unknown> extends APIResponse<TData> {
   /** ID of the created entity */
   createdId: EntityId
   /** Location header for the created resource */
@@ -149,7 +149,7 @@ export interface APICreateResponse<TData = any> extends APIResponse<TData> {
  * 
  * @description Used when updating existing entities via API
  */
-export interface APIUpdateResponse<TData = any> extends APIResponse<TData> {
+export interface APIUpdateResponse<TData = unknown> extends APIResponse<TData> {
   /** ID of the updated entity */
   updatedId: EntityId
   /** Fields that were modified */
@@ -161,7 +161,7 @@ export interface APIUpdateResponse<TData = any> extends APIResponse<TData> {
  * 
  * @description Used when deleting entities via API
  */
-export interface APIDeleteResponse extends APIResponse<void> {
+export interface APIDeleteResponse extends APIResponse<null> {
   /** ID of the deleted entity */
   deletedId: EntityId
   /** Whether the deletion was soft or hard */
@@ -175,7 +175,7 @@ export interface APIDeleteResponse extends APIResponse<void> {
  * 
  * @description Used for operations that affect multiple entities
  */
-export interface APIBatchResponse<TData = any> extends APIResponse<TData[]> {
+export interface APIBatchResponse<TData = unknown> extends APIResponse<TData[]> {
   /** Batch operation statistics */
   batch: {
     /** Total number of items processed */
@@ -210,7 +210,7 @@ export interface APIValidationErrorResponse extends APIResponse<never> {
       field: string
       message: string
       rule: string
-      value: any
+      value: unknown
     }>
   }
 }
@@ -256,7 +256,7 @@ export interface APIRateLimitErrorResponse extends APIResponse<never> {
  * 
  * @template TData - Type of successful response data
  */
-export type AnyAPIResponse<TData = any> = 
+export type AnyAPIResponse<TData = unknown> = 
   | APIResponse<TData>
   | APIPaginatedResponse<TData>
   | APICollectionResponse<TData>

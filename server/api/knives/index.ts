@@ -1,5 +1,5 @@
-import { defineEventHandler, createError, getQuery } from 'h3'
-import {DBKnife, IEnhancedItem, APISkin, IDefaultItem, IEnhancedKnife} from "~/server/utils/interfaces"
+import { defineEventHandler, getQuery } from 'h3'
+import type {DBKnife, APISkin, IDefaultItem, IEnhancedKnife} from "~/server/utils/interfaces"
 import { getSkinsData } from '~/server/utils/csgoAPI'
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
@@ -72,7 +72,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         }
 
         //LOG: Logger.info(`Found ${matchingDatabaseResults.length} matching database results for ${baseKnife.weapon_name}`)
-        let data: IEnhancedKnife[] = [];
+        const data: IEnhancedKnife[] = [];
         // Get for each matching database result the API Skin info
         for (const databaseResult of matchingDatabaseResults) {
             const skinInfo = findMatchingSkin(baseKnife, databaseResult, knifeSkins);
@@ -86,7 +86,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
             let displayName: string;
             let displayImage: string;
             let paintIndexToUse: string | number;
-            let rarityToUse: any;
+            let rarityToUse: { id: string; name: string; color: string } | undefined;
 
             if (isInvalidPaintIndex) {
                 // Invalid paint index: show default knife image but custom name

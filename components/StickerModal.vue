@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
-import { APISticker } from "~/server/utils/interfaces";
+import type { APISticker } from "~/server/utils/interfaces";
 import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
   position: number
-  currentSticker?: any | null
+  currentSticker?: { id?: number; ext_norm_x?: number; ext_norm_y?: number } | null
 }>()
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', sticker: any): void
+  (e: 'select', sticker: APISticker): void
 }>()
 
 const { t } = useI18n()
@@ -41,11 +41,11 @@ const digitOnlyInputProps = {
 
 // External normalized offsets from VisualCustomizer (if present)
 const extNormX = computed(() => {
-  const val = (props.currentSticker as any)?.ext_norm_x
+  const val = props.currentSticker?.ext_norm_x
   return typeof val === 'number' && !isNaN(val) ? val : null
 })
 const extNormY = computed(() => {
-  const val = (props.currentSticker as any)?.ext_norm_y
+  const val = props.currentSticker?.ext_norm_y
   return typeof val === 'number' && !isNaN(val) ? val : null
 })
 const extNormXStr = computed(() => (extNormX.value !== null ? extNormX.value.toFixed(12) : ''))
@@ -82,7 +82,7 @@ const fetchItems = async () => {
   }
 }
 
-const handleSelect = (item: any) => {
+const handleSelect = (item: APISticker) => {
   state.value.selectedItem = item
   // Keep current customization if editing existing sticker
   if (!props.currentSticker) {

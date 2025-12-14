@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, nextTick, watch } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useMessage } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
@@ -9,7 +9,7 @@ import type { IEnhancedKnife, KnifeConfiguration } from "~/types"
 import KnifeTabs from "~/components/KnifeTabs.vue";
 
 const user = ref<SteamUser | null>(null)
-const skins = ref<any[]>([])
+const skins = ref<IEnhancedKnife[]>([])
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const showSkinModal = ref<boolean>(false)
@@ -56,7 +56,7 @@ const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: number) =>
         })
       }
   ).then(async (response) => {
-    const data = await response.json()
+    await response.json()
     if (!loadoutStore.selectedLoadout) {
       return
     }

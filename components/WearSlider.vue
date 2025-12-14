@@ -119,28 +119,28 @@ function startHideTooltip() {
   }
 }
 
-function clampValue(val: any) {
+function clampValue(val: number | string) {
   const numVal = Number(val)
   if (isNaN(numVal)) return props.min
   return Math.min(Math.max(numVal, props.min), props.max)
 }
 
-function handleCustomInput(event: any) {
-  let value = event.target.value
+function handleCustomInput(event: Event) {
+  const value = (event.target as HTMLInputElement).value
   // Allow only numbers, single decimal point, and minus sign
   if (!/^-?\d*\.?\d*$/.test(value)) {
-    event.target.value = displayValue.value
+    (event.target as HTMLInputElement).value = displayValue.value
     return
   }
 }
 
-function handleBlur(event: any) {
-  const newValue = parseFloat(event.target.value)
+function handleBlur(event: Event) {
+  const newValue = parseFloat((event.target as HTMLInputElement).value)
   if (!isNaN(newValue)) {
     localValue.value = clampValue(newValue)
     emit('update:modelValue', localValue.value)
   }
-  event.target.value = displayValue.value
+  (event.target as HTMLInputElement).value = displayValue.value
 }
 
 function getCurrentWearLabel() {
@@ -153,7 +153,7 @@ function getCurrentWearLabel() {
   return WEARS[0]
 }
 
-function startDragging(event: any) {
+function startDragging(event: MouseEvent) {
   isDragging.value = true
   showTooltip()
   event.preventDefault()
@@ -167,8 +167,8 @@ function stopDragging() {
 function onDrag(event: MouseEvent) {
   if (!isDragging.value || !progressBar.value) return
 
-  const rect = progressBar.value.getBoundingClientRect()
-  let percentage = (event.clientX - rect.left) / rect.width
+  const rect = (progressBar.value as HTMLElement).getBoundingClientRect()
+  const percentage = (event.clientX - rect.left) / rect.width
 
   const newValue = Math.round(percentage * 1000) / 1000
   if (newValue > props.max || newValue < props.min) return

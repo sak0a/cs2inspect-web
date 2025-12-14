@@ -2,6 +2,8 @@
  * Canvas-specific interfaces for the visual sticker/keychain customizer
  */
 
+import type { StickerConfiguration, KeychainConfiguration } from './business/items'
+
 export interface Point {
   x: number
   y: number
@@ -105,9 +107,9 @@ export interface VisualCustomizerProps {
     defindex: number
   }
   /** Current sticker customizations */
-  stickers: (any | null)[]
+  stickers: (StickerConfiguration | null)[]
   /** Current keychain customization */
-  keychain: any | null
+  keychain: KeychainConfiguration | null
   /** Current weapon wear value */
   weaponWear: number
   /** Minimum wear value for this weapon */
@@ -124,8 +126,8 @@ export interface VisualCustomizerEvents {
   'update:visible': [value: boolean]
   /** Save customizations */
   'save': [data: {
-    stickers: (any | null)[]
-    keychain: any | null
+    stickers: (StickerConfiguration | null)[]
+    keychain: KeychainConfiguration | null
     weaponWear?: number
   }]
   /** Update weapon wear value */
@@ -136,6 +138,6 @@ export interface VisualCustomizerEvents {
  * Canvas manipulation result for returning to parent component
  */
 export interface CustomizationResult {
-  stickers: (any | null)[]
-  keychain: any | null
+  stickers: (StickerConfiguration | null)[]
+  keychain: KeychainConfiguration | null
 }

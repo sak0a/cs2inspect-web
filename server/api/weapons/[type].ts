@@ -121,7 +121,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 let displayName: string;
                 let displayImage: string;
                 let paintIndexToUse: string | number;
-                let rarityToUse: any;
+                let rarityToUse: { id: string; name: string; color: string } | undefined;
 
                 if (isInvalidPaintIndex) {
                     // Invalid paint index: show default weapon image but custom name

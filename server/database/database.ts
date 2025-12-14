@@ -11,15 +11,16 @@ export const pool = mariadb.createPool({
 
 export async function executeQuery<T>(
     query: string,
-    params: any[],
+    params: unknown[],
     errorMessage: string
 ): Promise<T> {
     let conn;
     try {
         conn = await pool.getConnection();
         return await conn.query(query, params) as T;
-    } catch (e: Error | any) {
-        throw new Error(errorMessage + ': ' + e.message);
+    } catch (e: unknown) {
+        const errorMessageDetail = e instanceof Error ? e.message : String(e);
+        throw new Error(errorMessage + ': ' + errorMessageDetail);
     } finally {
         if (conn) conn.release();
     }

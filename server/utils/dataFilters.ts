@@ -9,7 +9,7 @@ export function filterDataByQuery<T>(data: T[], query: Record<string, string>): 
         return [];
     }
     
-    return data.filter((item: any) => {
+    return data.filter((item: T) => {
         return Object.keys(query).every((key) => {
             // Check if the item has the property and if it matches the query
             if (key in item) {

@@ -40,7 +40,7 @@ export interface ResponseMeta {
     /** Version of the API */
     apiVersion?: string;
     /** Additional metadata specific to the endpoint */
-    [key: string]: any;
+    [key: string]: unknown;
 }
 
 /**
@@ -53,7 +53,7 @@ export interface ErrorInfo {
     /** Human-readable error message */
     message: string;
     /** Additional error details */
-    details?: any;
+    details?: unknown;
     /** Field-specific validation errors */
     fieldErrors?: Record<string, string[]>;
 }
@@ -62,7 +62,7 @@ export interface ErrorInfo {
  * Base API response interface
  * All API responses should extend this interface
  */
-export interface BaseAPIResponse<T = any> {
+export interface BaseAPIResponse<T = unknown> {
     /** Whether the request was successful */
     success: boolean;
     /** The main data payload */
@@ -81,20 +81,20 @@ export interface BaseAPIResponse<T = any> {
  * Paginated API response interface
  * For endpoints that return paginated data
  */
-export interface PaginatedAPIResponse<T = any> extends BaseAPIResponse<T[]> {
+export interface PaginatedAPIResponse<T = unknown> extends BaseAPIResponse<T[]> {
     /** Pagination information (required for paginated responses) */
     pagination: PaginationMeta;
     /** Applied filters information */
-    appliedFilters?: Record<string, any>;
+    appliedFilters?: Record<string, unknown>;
     /** Available filter options */
-    availableFilters?: Record<string, any[]>;
+    availableFilters?: Record<string, unknown[]>;
 }
 
 /**
  * Collection API response interface
  * For endpoints that return collections of items with metadata
  */
-export interface CollectionAPIResponse<T = any> extends BaseAPIResponse<T[]> {
+export interface CollectionAPIResponse<T = unknown> extends BaseAPIResponse<T[]> {
     /** Collection-specific metadata */
     collection: {
         /** Total count of items in the collection */
@@ -102,7 +102,7 @@ export interface CollectionAPIResponse<T = any> extends BaseAPIResponse<T[]> {
         /** Available categories/types */
         categories?: string[];
         /** Available filters and their options */
-        filters?: Record<string, any[]>;
+        filters?: Record<string, unknown[]>;
     };
 }
 
@@ -189,11 +189,11 @@ export interface APISkin extends BaseAPIItem {
     /** Paint index identifier */
     paint_index: string;
     /** Available wear conditions */
-    wears?: any[];
+    wears?: Array<{ name: string; min: number; max: number }>;
     /** Collections this skin belongs to */
-    collections?: any[];
+    collections?: Array<{ id: string; name: string }>;
     /** Crates this skin can be found in */
-    crates?: any[];
+    crates?: Array<{ id: string; name: string }>;
     /** Team association if applicable */
     team?: ItemTeam;
 }
@@ -204,7 +204,7 @@ export interface APISkin extends BaseAPIItem {
  */
 export interface APISticker extends BaseAPIItem {
     /** Crates this sticker can be found in */
-    crates?: any[];
+    crates?: Array<{ id: string; name: string }>;
     /** Tournament event this sticker is associated with */
     tournament_event: string;
     /** Tournament team this sticker represents */
@@ -221,7 +221,7 @@ export interface APISticker extends BaseAPIItem {
  */
 export interface APIAgent extends BaseAPIItem {
     /** Collections this agent belongs to */
-    collections?: any[];
+    collections?: Array<{ id: string; name: string }>;
     /** Team this agent belongs to */
     team: ItemTeam;
 }
@@ -239,9 +239,7 @@ export interface APIMusicKit extends BaseAPIItem {
  * Represents a keychain from the CS2 API
  * Extends BaseAPIItem with keychain-specific properties
  */
-export interface APIKeychain extends BaseAPIItem {
-    // No additional properties beyond BaseAPIItem
-}
+export type APIKeychain = BaseAPIItem
 
 /**
  * Represents a collectible item from the CS2 API

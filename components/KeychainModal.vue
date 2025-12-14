@@ -1,17 +1,17 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
-import { APIKeychain } from "~/server/utils/interfaces";
+import type { APIKeychain } from "~/server/utils/interfaces";
 import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
-  currentKeychain?: any | null
+  currentKeychain?: { id?: number; x?: number; y?: number; z?: number; seed?: number } | null
 }>()
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', keychain: any): void
+  (e: 'select', keychain: APIKeychain): void
 }>()
 
 const { t } = useI18n()

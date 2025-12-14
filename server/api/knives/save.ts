@@ -47,8 +47,9 @@ export default defineEventHandler(async (event) => {
 
         // Save the knife
         return await saveKnife(steamId, loadoutId, knifeData)
-    } catch (error: any) {
-        Logger.error(`Failed to save knives: ${error.message}`)
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to save knives'
+        Logger.error(`Failed to save knives: ${errorMessage}`)
         throw createError({
             statusCode: 500,
             message: 'Failed to save knives'

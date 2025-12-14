@@ -49,8 +49,8 @@ const mousePosition = ref({ x: 0, y: 0 })
 
 // Asset browser state
 const assetSearchQuery = ref('')
-const availableStickers = ref<any[]>([])
-const availableKeychains = ref<any[]>([])
+const availableStickers = ref<Array<{ id: string; name: string; image: string; rarity?: { id: string; name: string; color: string } }>>([])
+const availableKeychains = ref<Array<{ id: string; name: string; image: string; rarity?: { id: string; name: string; color: string } }>>([])
 const isLoadingAssets = ref(false)
 
 // Slot selection state
@@ -58,8 +58,8 @@ const selectedStickerSlot = ref<number | null>(null)
 const selectedKeychainSlot = ref(false)
 
 // Sticker and keychain slots (like WeaponSkinModal)
-const stickerSlots = ref<(any | null)[]>([null, null, null, null, null])
-const keychainSlot = ref<any | null>(null)
+const stickerSlots = ref<Array<{ id: number; slot: number; x: number; y: number; wear: number; scale: number; rotation: number; api?: Record<string, unknown> } | null>>([null, null, null, null, null])
+const keychainSlot = ref<{ id: number; x: number; y: number; z?: number; seed?: number } | null>(null)
 
 // Current weapon wear value
 const currentWear = ref(0)
@@ -336,7 +336,8 @@ const initializeCanvas = async () => {
   const availableHeight = containerRect.height - 16 // Account for 8px padding on each side
 
   // If we have video dimensions, size canvas to match video aspect ratio
-  let canvasWidth, canvasHeight
+  const canvasWidth = availableWidth
+  const canvasHeight = availableHeight
 
   /*if (video.value.videoWidth > 0 && video.value.videoHeight > 0) {
     const videoAspect = video.value.videoWidth / video.value.videoHeight
@@ -355,8 +356,6 @@ const initializeCanvas = async () => {
     // Fallback to container size if no video dimensions yet
 
   }*/
-    canvasWidth = availableWidth
-    canvasHeight = availableHeight
 
   canvasState.value.canvasSize = {
     width: canvasWidth,
@@ -1010,8 +1009,8 @@ const selectElement = (elementId: string | null) => {
 // Handle save
 const handleSave = () => {
   // Convert canvas elements back to sticker/keychain format
-  const stickers: (any | null)[] = new Array(5).fill(null)
-  let keychain: any | null = null
+  const stickers: Array<{ id: number; slot: number; x: number; y: number; wear: number; scale: number; rotation: number; ext_norm_x?: number; ext_norm_y?: number; ext_ref_x?: number; ext_ref_y?: number; api?: Record<string, unknown> } | null> = new Array(5).fill(null)
+  let keychain: { id: number; x: number; y: number; z?: number; seed?: number } | null = null
 
 
   canvasState.value.elements.forEach(element => {
@@ -1046,7 +1045,7 @@ const handleSave = () => {
 }
 
 // Add sticker to canvas
-const addStickerToCanvas = (sticker: any) => {
+const addStickerToCanvas = (sticker: { id: string; name: string; image: string; rarity?: { id: string; name: string; color: string } }) => {
   // Find next available sticker slot
   const usedSlots = canvasState.value.elements
     .filter(el => el.type === 'sticker')
@@ -1086,7 +1085,7 @@ const addStickerToCanvas = (sticker: any) => {
 }
 
 // Add keychain to canvas
-const addKeychainToCanvas = (keychain: any) => {
+const addKeychainToCanvas = (keychain: { id: string; name: string; image: string; rarity?: { id: string; name: string; color: string } }) => {
   // Remove existing keychain if any
   canvasState.value.elements = canvasState.value.elements.filter(el => el.type !== 'keychain')
 
@@ -1113,7 +1112,7 @@ const addKeychainToCanvas = (keychain: any) => {
 }
 
 // Update element property
-const updateElementProperty = (property: string, value: any) => {
+const updateElementProperty = (property: string, value: number) => {
   if (!selectedElement.value) return
 
   const element = selectedElement.value
@@ -1357,7 +1356,7 @@ const clearSelection = () => {
   assetSearchQuery.value = ''
 }
 
-const selectStickerForSlot = (sticker: any) => {
+const selectStickerForSlot = (sticker: { id: string; name: string; image: string; type?: string; effect?: string; tournament_event?: string; tournament_team?: string; rarity?: { id: string; name: string; color: string } }) => {
   if (selectedStickerSlot.value === null) return
 
   // Create sticker data in the format expected by WeaponSkinModal
@@ -1389,7 +1388,7 @@ const selectStickerForSlot = (sticker: any) => {
   clearSelection()
 }
 
-const selectKeychainForSlot = (keychain: any) => {
+const selectKeychainForSlot = (keychain: { id: string; name: string; image: string; type?: string; rarity?: { id: string; name: string; color: string } }) => {
   if (!selectedKeychainSlot.value) return
 
   // Create keychain data in the format expected by WeaponSkinModal

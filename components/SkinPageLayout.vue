@@ -3,7 +3,7 @@ import { NAlert, NButton, NSpin } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-const props = defineProps({
+const _props = defineProps({
   title: {
     type: String,
     required: true

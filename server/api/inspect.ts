@@ -3,18 +3,19 @@ import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { mapCustomizationToRepresentation } from '~/server/utils/inspectHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { defineEventHandler, createError, getQuery, readBody } from 'h3'
-import {
+import type {
     EconItem,
+    CS2Inspect
+} from "cs2-inspect-lib";
+import {
     WeaponType,
     WeaponPaint,
     ItemRarity,
-    CS2Inspect,
     // Optimized static methods
     analyzeUrl,
     decodeMaskedData,
     createInspectUrl,
     requiresSteamClient,
-    isValidUrl,
     validateUrl
 } from "cs2-inspect-lib";
 
@@ -26,7 +27,6 @@ import type {
     DecodeHexRequest,
     InspectAction,
     ItemType,
-    ItemTypeConfig,
     ItemTypeConfigMap
 } from '~/server/types';
 
@@ -161,10 +161,11 @@ export default defineEventHandler(async (event) => {
                         analysis: analyzed,
                         requiresSteamClient: requiresSteamClient(urlBody.inspectUrl)
                     };
-                } catch (error: any) {
+                } catch (error: unknown) {
+                    const errorMessage = error instanceof Error ? error.message : 'Invalid inspect URL'
                     throw createError({
                         statusCode: 400,
-                        message: `Invalid inspect URL: ${error.message}`
+                        message: `Invalid inspect URL: ${errorMessage}`
                     });
                 }
             }
@@ -217,8 +218,8 @@ export default defineEventHandler(async (event) => {
                         originalUrl: urlBody.inspectUrl,
                         method: 'offline-decode'
                     };
-                } catch (error: any) {
-                    if (error.message.includes('unmasked URL')) {
+                } catch (error: unknown) {
+                    if (error instanceof Error && error.message.includes('unmasked URL')) {
                         throw createError({
                             statusCode: 400,
                             message: 'This URL is unmasked (market/inventory link). Use inspect-item action instead.'
@@ -244,10 +245,11 @@ export default defineEventHandler(async (event) => {
                         hexData: hexBody.hexData,
                         method: 'direct-protobuf-decode'
                     };
-                } catch (error: any) {
+                } catch (error: unknown) {
+                    const errorMessage = error instanceof Error ? error.message : 'Invalid hex data'
                     throw createError({
                         statusCode: 400,
-                        message: `Invalid hex data: ${error.message}`
+                        message: `Invalid hex data: ${errorMessage}`
                     });
                 }
             }
@@ -276,8 +278,9 @@ export default defineEventHandler(async (event) => {
                             hexDataLength: analyzed.hex_data?.length || 0
                         }
                     };
-                } catch (error: any) {
+                } catch (error: unknown) {
                     const validation = validateUrl(urlBody.inspectUrl);
+                    const errorMessage = error instanceof Error ? error.message : 'Invalid URL'
 
                     Logger.info(`URL validation result: invalid`)
                     return {
@@ -286,7 +289,7 @@ export default defineEventHandler(async (event) => {
                         urlType: null,
                         requiresSteamClient: false,
                         validation: validation,
-                        error: error.message
+                        error: errorMessage
                     };
                 }
             }
@@ -313,11 +316,13 @@ export default defineEventHandler(async (event) => {
                     message: `Unknown action: ${action}. Available actions: create-url, analyze-url, inspect-item, decode-masked-only, decode-hex-data, validate-url, client-status`
                 });
         }
-    } catch (error: any) {
-        Logger.error(`Inspect API error: ${error.message}`)
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Inspect API error'
+        const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500
+        Logger.error(`Inspect API error: ${errorMessage}`)
         throw createError({
-            statusCode: error.statusCode || 500,
-            message: error.message || 'Internal server error'
+            statusCode,
+            message: errorMessage || 'Internal server error'
         })
     }
 })

@@ -3,8 +3,6 @@
 import type {
   WeaponModalProps,
   WeaponModalState,
-  WeaponModalEvents,
-  WeaponItemData,
   WeaponConfiguration,
   APIWeaponSkin,
   UserProfile
@@ -38,8 +36,7 @@ const props = defineProps<Props>()
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
-  (e: 'duplicate', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
+  (e: 'select' | 'duplicate', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
   (e: 'error', error: string): void
 }>()
 
@@ -231,7 +228,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     }
 
     // Fetch sticker data in parallel
-    const stickerPromises = data.item.stickers?.map(async (sticker: any, index: number) => {
+    const stickerPromises = data.item.stickers?.map(async (sticker: { sticker_id: number; offset_x?: number; offset_y?: number; wear?: number; scale?: number; rotation?: number }, index: number) => {
       if (!sticker) return null
       const response = await fetch(`/api/data/stickers?id=sticker-${sticker.sticker_id}`)
       const stickerResponse = await response.json()
@@ -344,8 +341,8 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     message.success(t('modals.weaponSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
-  } catch (error: any) {
-    const errorMessage = error.message || t('modals.weaponSkin.importFailedDefault') as string
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (t('modals.weaponSkin.importFailedDefault') as string)
     state.value.error = errorMessage
     message.error(errorMessage, { duration: 3000 })
     emit('error', errorMessage)
@@ -396,8 +393,8 @@ const handleCreateInspectLink = async () => {
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
     message.success(t('modals.weaponSkin.generateInspectUrlSuccess') as string, { duration: 3000 })
-  } catch (error: any) {
-    const errorMessage = error.message || t('modals.weaponSkin.generateInspectUrlFailed') as string
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (t('modals.weaponSkin.generateInspectUrlFailed') as string)
     state.value.error = errorMessage
     message.error(errorMessage)
     emit('error', errorMessage)
@@ -423,8 +420,8 @@ const handleReset = async () => {
     customization.value.reset = true
     state.value.showResetConfirm = false
     handleSave()
-  } catch (error: any) {
-    const errorMessage = error.message || t('modals.weaponSkin.resetFailed') as string
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (t('modals.weaponSkin.resetFailed') as string)
     state.value.error = errorMessage
     message.error(errorMessage)
     emit('error', errorMessage)
@@ -462,8 +459,8 @@ const handleDuplicate = async () => {
 
     state.value.showDuplicateConfirm = false
     console.log('handleDuplicate', selectedSkin.value, duplicateData)
-  } catch (error: any) {
-    const errorMessage = error.message || t('modals.weaponSkin.duplicateFailed') as string
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (t('modals.weaponSkin.duplicateFailed') as string)
     state.value.error = errorMessage
     message.error(errorMessage)
     emit('error', errorMessage)
@@ -503,8 +500,8 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       paintIndex: Number(skin.paint_index),
       wear: Number(skin.min_float ?? 0),
     }
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to select skin'
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
     state.value.error = errorMessage
     emit('error', errorMessage)
     console.error('Error selecting skin:', error)
@@ -555,14 +552,14 @@ const handleAddSticker = (position: number) => {
   state.value.currentStickerPosition = position
   state.value.showStickerModal = true
 }
-const handleStickerSelect = (stickerData: any) => {
+const handleStickerSelect = (stickerData: { id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number; api?: Record<string, unknown> }) => {
   customization.value.stickers[state.value.currentStickerPosition] = stickerData
 }
 
 const handleAddKeychain = () => {
   state.value.showKeychainModal = true
 }
-const handleKeychainSelect = (keychainData: any) => {
+const handleKeychainSelect = (keychainData: { id: number; x?: number; y?: number; z?: number; seed?: number; api?: Record<string, unknown> }) => {
   customization.value.keychain = keychainData
 }
 
@@ -574,7 +571,7 @@ const handleOpenVisualCustomizer = () => {
   state.value.showVisualCustomizer = true
 }
 
-const handleVisualCustomizerSave = (data: { stickers: (any | null)[], keychain: any | null, weaponWear?: number }) => {
+const handleVisualCustomizerSave = (data: { stickers: Array<{ id: number; slot: number; x: number; y: number; wear: number; scale: number; rotation: number; ext_norm_x?: number; ext_norm_y?: number; ext_ref_x?: number; ext_ref_y?: number; api?: Record<string, unknown> } | null>, keychain: { id: number; x: number; y: number; z?: number; seed?: number } | null, weaponWear?: number }) => {
   customization.value.stickers = data.stickers
   customization.value.keychain = data.keychain
 
@@ -727,8 +724,8 @@ watch(() => props.weapon, () => {
           defindex: props.weapon.weapon_defindex
         }
       }
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to initialize weapon data'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initialize weapon data'
       state.value.error = errorMessage
       emit('error', errorMessage)
       console.error('Error initializing weapon:', error)

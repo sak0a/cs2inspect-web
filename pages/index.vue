@@ -3,8 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useMessage } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 import { useInspectItem } from '~/composables/useInspectItem'
-import { WeaponCustomization, KnifeCustomization, GloveCustomization } from '~/server/utils/interfaces'
-import LanguageSwitcher from '~/components/LanguageSwitcher.vue'
+import type { WeaponCustomization, KnifeCustomization, GloveCustomization, IEnhancedWeapon, IEnhancedKnife, IEnhancedGlove } from '~/server/utils/interfaces'
 
 const user = ref<SteamUser | null>(null)
 const showImportModal = ref(false)
@@ -152,9 +151,10 @@ const createNewItem = async (type: 'weapon' | 'knife' | 'glove') => {
     }
 
     message.success(t('inspectItem.itemCreated'))
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error('Error creating item:', err)
-    message.error(err.message || t('inspectItem.createFailed'))
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    message.error(errorMessage || t('inspectItem.createFailed'))
   }
 }
 
@@ -172,8 +172,9 @@ const handleInspectLinkSubmit = async (inspectUrl: string) => {
     if (hasItem.value) {
       message.success(t('inspectItem.importSuccess'))
     }
-  } catch (err: any) {
-    message.error(err.message || t('inspectItem.importFailed'))
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    message.error(errorMessage || t('inspectItem.importFailed'))
   }
 }
 
@@ -195,7 +196,7 @@ const handleCustomize = () => {
 }
 
 // Handle weapon skin save
-const handleWeaponSkinSave = (weapon: any, newCustomization: WeaponCustomization) => {
+const handleWeaponSkinSave = (weapon: IEnhancedWeapon, newCustomization: WeaponCustomization) => {
   updateItem(weapon)
   updateCustomization(newCustomization)
   showWeaponModal.value = false
@@ -203,7 +204,7 @@ const handleWeaponSkinSave = (weapon: any, newCustomization: WeaponCustomization
 }
 
 // Handle knife skin save
-const handleKnifeSkinSave = (knife: any, newCustomization: KnifeCustomization) => {
+const handleKnifeSkinSave = (knife: IEnhancedKnife, newCustomization: KnifeCustomization) => {
   updateItem(knife)
   updateCustomization(newCustomization)
   showKnifeModal.value = false
@@ -211,7 +212,7 @@ const handleKnifeSkinSave = (knife: any, newCustomization: KnifeCustomization) =
 }
 
 // Handle glove skin save
-const handleGloveSkinSave = (glove: any, newCustomization: GloveCustomization) => {
+const handleGloveSkinSave = (glove: IEnhancedGlove, newCustomization: GloveCustomization) => {
   updateItem(glove)
   updateCustomization(newCustomization)
   showGloveModal.value = false
@@ -233,8 +234,9 @@ const handleGenerateLink = async () => {
     } else {
       throw new Error(t('inspectItem.generateLinkFailed'))
     }
-  } catch (err: any) {
-    message.error(err.message || t('inspectItem.generateLinkFailed'))
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : String(err)
+    message.error(errorMessage || t('inspectItem.generateLinkFailed'))
   } finally {
     isGeneratingLink.value = false
   }

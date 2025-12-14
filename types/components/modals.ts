@@ -215,18 +215,14 @@ export interface KnifeModalProps extends BaseItemModalProps {
  * 
  * @description State specific to the knife skin modal
  */
-export interface KnifeModalState extends BaseItemModalState {
-  // Knives don't have additional state beyond base item modal state
-}
+export type KnifeModalState = BaseItemModalState
 
 /**
  * Events emitted by knife modal component
  * 
  * @description Events specific to the knife skin modal
  */
-export interface KnifeModalEvents extends BaseItemModalEvents<KnifeItemData, KnifeConfiguration> {
-  // Knives don't have additional events beyond base item modal events
-}
+export type KnifeModalEvents = BaseItemModalEvents<KnifeItemData, KnifeConfiguration>
 
 // ============================================================================
 // GLOVE MODAL INTERFACES
@@ -258,18 +254,14 @@ export interface GloveModalProps extends BaseItemModalProps {
  * 
  * @description State specific to the glove skin modal
  */
-export interface GloveModalState extends BaseItemModalState {
-  // Gloves don't have additional state beyond base item modal state
-}
+export type GloveModalState = BaseItemModalState
 
 /**
  * Events emitted by glove modal component
  * 
  * @description Events specific to the glove skin modal
  */
-export interface GloveModalEvents extends BaseItemModalEvents<GloveItemData, GloveConfiguration> {
-  // Gloves don't have additional events beyond base item modal events
-}
+export type GloveModalEvents = BaseItemModalEvents<GloveItemData, GloveConfiguration>
 
 // ============================================================================
 // SPECIALIZED MODAL INTERFACES
@@ -322,9 +314,7 @@ export interface KeychainModalEvents extends BaseModalEvents {
  * 
  * @description Properties for the inspect URL input modal
  */
-export interface InspectURLModalProps extends BaseModalProps {
-  // Uses only base modal props
-}
+export type InspectURLModalProps = BaseModalProps
 
 /**
  * Events emitted by inspect URL modal component
@@ -359,9 +349,7 @@ export interface DuplicateConfirmModalEvents extends BaseModalEvents {
  * 
  * @description Properties for the reset item confirmation modal
  */
-export interface ResetConfirmModalProps extends BaseModalProps {
-  // Uses only base modal props
-}
+export type ResetConfirmModalProps = BaseModalProps
 
 /**
  * Events emitted by reset confirmation modal component
@@ -376,19 +364,29 @@ export interface ResetConfirmModalEvents extends BaseModalEvents {
 // ============================================================================
 
 /**
+ * Vue Ref type placeholder (to avoid Vue dependency in types)
+ */
+export type VueRef<T> = { value: T }
+
+/**
+ * Vue ComputedRef type placeholder (to avoid Vue dependency in types)
+ */
+export type VueComputedRef<T> = { value: T }
+
+/**
  * Return type for item modal composables
  *
- * @template TItem - Type of item data
- * @template TConfig - Type of item configuration
+ * @template _TItem - Type of item data (unused but kept for consistency)
+ * @template _TConfig - Type of item configuration (unused but kept for consistency)
  */
 export interface ItemModalComposableReturn<
-  TItem extends ItemData = ItemData,
-  TConfig extends ItemConfiguration = ItemConfiguration
+  _TItem extends ItemData = ItemData,
+  _TConfig extends ItemConfiguration = ItemConfiguration
 > {
   /** Modal state */
-  state: any // Ref<BaseItemModalState> - Vue-specific type
+  state: VueRef<BaseItemModalState>
   /** Handle skin selection */
-  handleSkinSelect: (skin: any) => void
+  handleSkinSelect: (skin: WeaponItemData | KnifeItemData | GloveItemData) => void
   /** Handle inspect link import */
   handleImportInspectLink: (url: string) => Promise<void>
   /** Handle item duplication */
@@ -398,35 +396,35 @@ export interface ItemModalComposableReturn<
   /** Handle inspect link creation */
   handleCreateInspectLink: () => Promise<string | null>
   /** Whether duplication is possible */
-  canDuplicate: any // ComputedRef<boolean> - Vue-specific type
+  canDuplicate: VueComputedRef<boolean>
   /** Whether reset is possible */
-  canReset: any // ComputedRef<boolean> - Vue-specific type
+  canReset: VueComputedRef<boolean>
   /** Whether inspect link creation is possible */
-  canCreateInspectLink: any // ComputedRef<boolean> - Vue-specific type
+  canCreateInspectLink: VueComputedRef<boolean>
   /** Opposite team identifier */
-  oppositeTeam: any // ComputedRef<number> - Vue-specific type
+  oppositeTeam: VueComputedRef<number>
 }
 
 /**
  * Configuration for item modal composables
  *
  * @template TItem - Type of item data
- * @template TConfig - Type of item configuration
+ * @template _TConfig - Type of item configuration (unused but kept for consistency)
  */
 export interface ItemModalComposableConfig<
   TItem extends ItemData = ItemData,
-  TConfig extends ItemConfiguration = ItemConfiguration
+  _TConfig extends ItemConfiguration = ItemConfiguration
 > {
   /** Item type */
   itemType: TItem['type']
   /** User profile */
-  user: any // Ref<UserProfile | null> - Vue-specific type
+  user: VueRef<UserProfile | null>
   /** Item data */
-  item: any // Ref<TItem | null> - Vue-specific type
+  item: VueRef<TItem | null>
   /** Item configuration */
-  configuration: any // Ref<TConfig> - Vue-specific type
+  configuration: VueRef<ItemConfiguration>
   /** Selected skin */
-  selectedSkin: any // Ref<TItem | null> - Vue-specific type
+  selectedSkin: VueRef<TItem | null>
   /** Success callback */
   onSuccess?: (message: string) => void
   /** Error callback */

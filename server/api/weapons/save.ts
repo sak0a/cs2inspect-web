@@ -51,11 +51,12 @@ export default defineEventHandler(async (event) => {
 
         // Save the weapon
         return await saveWeapon(table, steamId, loadoutId, weaponData)
-    } catch (error: any) {
-        Logger.error(`Failed to save weapon: ${error.message}`)
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to save weapon'
+        Logger.error(`Failed to save weapon: ${errorMessage}`)
         throw createError({
             statusCode: 500,
-            message: `Failed to save weapon: ${error.message}`
+            message: `Failed to save weapon: ${errorMessage}`
         })
     }
 })

@@ -12,7 +12,7 @@ function getItemDefindex(item: WeaponItemData | KnifeItemData | GloveItemData): 
  */
 export function useOtherTeamSkin(
     selectedItem: Ref<WeaponItemData | KnifeItemData | GloveItemData | null> | ComputedRef<WeaponItemData | KnifeItemData | GloveItemData | null>,
-    skins: Ref<any[]> | ComputedRef<any[]>
+    skins: Ref<Array<WeaponItemData | KnifeItemData | GloveItemData>> | ComputedRef<Array<WeaponItemData | KnifeItemData | GloveItemData>>
 ): ComputedRef<boolean> {
     return computed(() => {
         if (!selectedItem.value) return false
@@ -40,8 +40,8 @@ export const oppositeTeam = (current: number) => {
  * @returns ComputedRef with grouped weapons
  */
 export function useGroupedWeapons(
-    skins: Ref<any[]> | ComputedRef<any[]>
-): ComputedRef<Record<string, { weapons: any[], availableTeams: string, defaultName: string }>> {
+    skins: Ref<Array<WeaponItemData | KnifeItemData | GloveItemData>> | ComputedRef<Array<WeaponItemData | KnifeItemData | GloveItemData>>
+): ComputedRef<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>> {
     return computed(() => {
         return skins.value.reduce((acc, weaponGroup) => {
             // Skip empty groups

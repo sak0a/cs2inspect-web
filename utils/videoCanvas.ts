@@ -2,7 +2,7 @@
  * Video-based canvas utilities for weapon skin wear progression
  */
 
-import type { Point, Size } from '~/types/canvas'
+import type { Size } from '~/types/canvas'
 
 export interface VideoCanvasOptions {
   /** Video element for the weapon skin */
@@ -102,7 +102,7 @@ export class VideoCanvasManager {
         resolve()
       }
 
-      const handleError = (e: Event) => {
+      const handleError = (_e: Event) => {
         this.video.removeEventListener('loadeddata', handleLoad)
         this.video.removeEventListener('error', handleError)
         reject(new Error('Failed to load video'))

@@ -65,7 +65,7 @@ export function isValidGloveDefindex(defindex: number): boolean {
  * @param defaultValue Default value if parsing fails
  * @returns Parsed number or default value
  */
-export function safeParseNumber(value: any, defaultValue: number = 0): number {
+export function safeParseNumber(value: unknown, defaultValue: number = 0): number {
     if (typeof value === 'number' && !isNaN(value)) {
         return value;
     }
@@ -84,7 +84,7 @@ export function safeParseNumber(value: any, defaultValue: number = 0): number {
  * @param defaultValue Default value if parsing fails
  * @returns Parsed integer or default value
  */
-export function safeParseInt(value: any, defaultValue: number = 0): number {
+export function safeParseInt(value: unknown, defaultValue: number = 0): number {
     if (typeof value === 'number' && !isNaN(value)) {
         return Math.floor(value);
     }
@@ -264,7 +264,7 @@ export function toCamelCase(str: string): string {
  * @param keyFn Function to extract comparison key
  * @returns Array with duplicates removed
  */
-export function uniqueBy<T>(array: T[], keyFn: (item: T) => any): T[] {
+export function uniqueBy<T>(array: T[], keyFn: (item: T) => string | number | symbol): T[] {
     const seen = new Set();
     return array.filter(item => {
         const key = keyFn(item);
@@ -318,6 +318,7 @@ export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
 export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
     const result = { ...obj };
     keys.forEach(key => {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete result[key];
     });
     return result;
@@ -399,7 +400,7 @@ function levenshteinDistance(str1: string, str2: string): number {
  */
 export function multiFilter<T>(
     items: T[],
-    filters: Record<string, any>,
+    filters: Record<string, unknown>,
     options: {
         fuzzySearch?: boolean;
         fuzzyThreshold?: number;
@@ -441,7 +442,7 @@ export function multiFilter<T>(
  * @param path Dot-separated path (e.g., 'rarity.name')
  * @returns Nested value or undefined
  */
-export function getNestedValue(obj: any, path: string): any {
+export function getNestedValue(obj: unknown, path: string): unknown {
     return path.split('.').reduce((current, key) => current?.[key], obj);
 }
 
@@ -451,7 +452,7 @@ export function getNestedValue(obj: any, path: string): any {
  * @param path Dot-separated path
  * @param value Value to set
  */
-export function setNestedValue(obj: any, path: string, value: any): void {
+export function setNestedValue(obj: Record<string, unknown>, path: string, value: unknown): void {
     const keys = path.split('.');
     const lastKey = keys.pop()!;
     const target = keys.reduce((current, key) => {

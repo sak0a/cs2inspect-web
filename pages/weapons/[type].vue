@@ -1,6 +1,6 @@
 
 <script setup lang="ts">
-import { onMounted, ref, nextTick, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
@@ -16,7 +16,7 @@ const route = useRoute()
 const WEAPON_TYPE = route.params.type as string ?? 'rifles'
 
 const user = ref<SteamUser | null>(null)
-const skins = ref<any[]>([])
+const skins = ref<IEnhancedWeapon[]>([])
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const loadoutStore = useLoadoutStore()
@@ -85,7 +85,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
   console.log('Duplicating weapon: ', skin, customization)
   try {
     // Format stickers data
-    const formattedStickers = customization.stickers.map((sticker: any) => {
+    const formattedStickers = customization.stickers.map((sticker: { id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number } | null) => {
       if (!sticker) return null
       return {
         id: sticker.id,

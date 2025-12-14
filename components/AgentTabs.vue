@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { NCard } from 'naive-ui'
-import { APIAgent } from "~/server/utils/interfaces";
+import type { APIAgent } from "~/server/utils/interfaces";
 
 const props = defineProps({
   agent: {

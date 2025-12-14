@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import {DBLoadout, IEnhancedItem, IEnhancedWeapon} from '~/server/utils/interfaces'
+import type {DBLoadout, IEnhancedItem, IEnhancedWeapon} from '~/server/utils/interfaces'
 
 interface LoadoutState {
     loadouts: DBLoadout[];
@@ -204,8 +204,8 @@ export const useLoadoutStore = defineStore('loadout', {
                 if (!this.selectedLoadoutId && this.loadouts.length > 0) {
                     this.selectedLoadoutId = this.loadouts[0].id;
                 }
-            } catch (error: any) {
-                this.error = 'Failed to fetch loadouts: ' + error.message;
+            } catch (error: unknown) {
+                this.error = 'Failed to fetch loadouts: ' + (error instanceof Error ? error.message : String(error));
             } finally {
                 this.isLoading = false;
             }

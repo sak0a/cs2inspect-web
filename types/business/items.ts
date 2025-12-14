@@ -323,10 +323,7 @@ export interface GloveItemData extends BaseItemData {
  * }
  * ```
  */
-export interface GloveConfiguration extends BaseItemConfiguration {
-  // Gloves only use base configuration properties
-  // No StatTrak, name tags, stickers, or keychains
-}
+export type GloveConfiguration = BaseItemConfiguration
 
 // ============================================================================
 // UNION TYPES AND TYPE MAPS

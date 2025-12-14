@@ -1,5 +1,5 @@
 // filepath: /server/api/proxy/image.ts
-import { defineEventHandler, getQuery, setHeader, H3Event } from 'h3'
+import { defineEventHandler, getQuery, setHeader, type H3Event } from 'h3'
 
 // Very small allowlist to reduce abuse surface
 const ALLOWED_HOST_PATTERNS: RegExp[] = [
@@ -84,7 +84,7 @@ export default defineEventHandler(async (event) => {
     if (lastMod) headers['Last-Modified'] = lastMod
 
     return new Response(body, { status: 200, headers })
-  } catch (err) {
+  } catch {
     // Network or other failure
     return new Response(JSON.stringify({ success: false, error: 'Failed to fetch upstream image' }), {
       status: 500,

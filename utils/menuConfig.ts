@@ -1,9 +1,9 @@
 import {Music, Pin, Home} from "@vicons/tabler";
 import {NIcon} from "naive-ui";
-import { h } from "vue";
+import { h, type Component } from "vue";
 
 
-export function renderIcon(icon: any) {
+export function renderIcon(icon: Component) {
     return () => h(NIcon, null, { default: () => h(icon) })
 }
 

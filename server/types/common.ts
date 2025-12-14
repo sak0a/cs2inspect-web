@@ -24,7 +24,7 @@ export interface SteamUser {
 /**
  * Standard API response wrapper
  */
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean
   data?: T
   error?: string
@@ -35,7 +35,7 @@ export interface ApiResponse<T = any> {
 /**
  * Paginated API response
  */
-export interface PaginatedResponse<T = any> extends ApiResponse<T[]> {
+export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
   pagination?: {
     currentPage: number
     totalPages: number
@@ -139,9 +139,7 @@ export interface KnifeCustomization extends BaseCustomization {
 /**
  * Glove customization
  */
-export interface GloveCustomization extends BaseCustomization {
-  // Gloves don't have additional customization options
-}
+export type GloveCustomization = BaseCustomization
 
 // ============================================================================
 // LOADOUT TYPES

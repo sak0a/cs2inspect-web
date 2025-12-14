@@ -15,7 +15,7 @@ import { API_VERSION, PAGINATION_DEFAULTS } from './constants';
  */
 export function createResponseMeta(
     startTime?: number,
-    additionalMeta: Record<string, any> = {}
+    additionalMeta: Record<string, unknown> = {}
 ): ResponseMeta {
     const meta: ResponseMeta = {
         timestamp: new Date().toISOString(),
@@ -88,8 +88,8 @@ export function createPaginatedResponse<T>(
     data: T[],
     pagination: PaginationMeta,
     meta: ResponseMeta,
-    appliedFilters?: Record<string, any>,
-    availableFilters?: Record<string, any[]>,
+    appliedFilters?: Record<string, unknown>,
+    availableFilters?: Record<string, unknown[]>,
     message?: string
 ): PaginatedAPIResponse<T> {
     return {
@@ -117,7 +117,7 @@ export function createCollectionResponse<T>(
     totalCount: number,
     meta: ResponseMeta,
     categories?: string[],
-    filters?: Record<string, any[]>,
+    filters?: Record<string, unknown[]>,
     message?: string
 ): CollectionAPIResponse<T> {
     return {
@@ -168,7 +168,7 @@ export function createErrorResponse(
 export function createErrorInfo(
     code: string,
     message: string,
-    details?: any,
+    details?: unknown,
     fieldErrors?: Record<string, string[]>
 ): ErrorInfo {
     return {
@@ -184,7 +184,7 @@ export function createErrorInfo(
  * @param fn The async function to wrap
  * @param errorCode Default error code for unhandled errors
  */
-export function withErrorHandling<T extends any[], R>(
+export function withErrorHandling<T extends unknown[], R>(
     fn: (...args: T) => Promise<R>,
     errorCode: string = 'INTERNAL_ERROR'
 ) {
@@ -193,7 +193,7 @@ export function withErrorHandling<T extends any[], R>(
         
         try {
             return await fn(...args);
-        } catch (error: any) {
+        } catch (error: unknown) {
             const meta = createResponseMeta(startTime);
             
             // If it's already a structured error, re-throw it
@@ -204,11 +204,12 @@ export function withErrorHandling<T extends any[], R>(
             // Create standardized error response
             const errorInfo = createErrorInfo(
                 errorCode,
-                error.message || 'An unexpected error occurred',
+                (error instanceof Error ? error.message : 'An unexpected error occurred'),
                 error
             );
             
-            createErrorResponse(errorInfo, meta, error.statusCode || 500);
+            const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500;
+            createErrorResponse(errorInfo, meta, statusCode);
         }
     };
 }
@@ -220,7 +221,7 @@ export function withErrorHandling<T extends any[], R>(
  * @param maxLimit Maximum items per page
  */
 export function calculatePagination(
-    query: Record<string, any>,
+    query: Record<string, unknown>,
     defaultLimit: number = PAGINATION_DEFAULTS.DEFAULT_LIMIT,
     maxLimit: number = PAGINATION_DEFAULTS.MAX_LIMIT
 ) {
@@ -242,11 +243,11 @@ export function calculatePagination(
 export function extractFilterOptions<T>(
     data: T[],
     filterFields: Record<string, string>
-): Record<string, any[]> {
-    const filters: Record<string, any[]> = {};
+): Record<string, unknown[]> {
+    const filters: Record<string, unknown[]> = {};
     
     Object.entries(filterFields).forEach(([filterKey, fieldPath]) => {
-        const values = new Set<any>();
+        const values = new Set<unknown>();
         
         data.forEach(item => {
             const value = getNestedValue(item, fieldPath);
@@ -266,6 +267,6 @@ export function extractFilterOptions<T>(
  * @param obj Object to get value from
  * @param path Dot-separated path (e.g., 'rarity.name')
  */
-function getNestedValue(obj: any, path: string): any {
+function getNestedValue(obj: unknown, path: string): unknown {
     return path.split('.').reduce((current, key) => current?.[key], obj);
 }

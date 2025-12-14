@@ -25,7 +25,7 @@ export default defineEventHandler(async (event) => {
         // Verify JWT token
         // Add user info to event context for use in API routes
         event.context.auth = jwt.verify(token, JWT_SECRET)
-    } catch (jwtError) {
+    } catch {
         throw createError({
             statusCode: 401,
             message: 'Invalid token'

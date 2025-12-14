@@ -1,6 +1,5 @@
 // New type system imports
 import type {
-  ItemData,
   ItemConfiguration,
   WeaponConfiguration,
   KnifeConfiguration,
@@ -12,8 +11,7 @@ import type {
 import {
   LoadingState,
   isWeaponConfiguration,
-  isKnifeConfiguration,
-  isGloveConfiguration
+  isKnifeConfiguration
 } from '~/types'
 
 // Legacy imports for backward compatibility
@@ -116,7 +114,7 @@ export function useInspectItem() {
     defindex: number,
     paintindex: number,
     type: ItemType
-  ): Promise<any> => {
+  ): Promise<unknown> => {
     try {
       // Validate input parameters
       if (!Number.isInteger(defindex) || defindex < 0) {
@@ -218,7 +216,7 @@ export function useInspectItem() {
       }
 
       // Normalize and validate numeric data with proper error handling
-      const normalizeNumber = (value: any, fieldName: string, defaultValue: number = 0): number => {
+      const normalizeNumber = (value: unknown, fieldName: string, defaultValue: number = 0): number => {
         if (value === undefined || value === null) {
           console.warn(`No ${fieldName} found in inspect data, defaulting to ${defaultValue}`)
           return defaultValue
@@ -277,7 +275,7 @@ export function useInspectItem() {
         console.log(`Detected item type: ${detectedType} for defindex ${data.defindex}`)
 
         // Save item type to storage
-        if (process.client) {
+        if (import.meta.client) {
           try {
             localStorage.setItem(STORAGE_KEY_ITEM_TYPE, detectedType)
           } catch (storageError) {
@@ -390,9 +388,9 @@ export function useInspectItem() {
         clearItem()
       }
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error analyzing inspect link:', err)
-      error.value = err.message || 'Failed to analyze inspect link'
+      error.value = err instanceof Error ? err.message : 'Failed to analyze inspect link'
       clearItem()
     } finally {
       isLoading.value = false
@@ -403,7 +401,7 @@ export function useInspectItem() {
    * Save current item to localStorage with error handling
    */
   const saveToStorage = (): void => {
-    if (!process.client) return
+    if (!import.meta.client) return
 
     try {
       if (inspectedItem.value && customization.value && itemType.value) {
@@ -422,7 +420,7 @@ export function useInspectItem() {
    * Load item from localStorage with proper type validation
    */
   const loadFromStorage = (): void => {
-    if (!process.client) return
+    if (!import.meta.client) return
 
     try {
       const storedItem = localStorage.getItem(STORAGE_KEY_ITEM)
@@ -466,7 +464,7 @@ export function useInspectItem() {
    * Clear storage data
    */
   const clearStorage = (): void => {
-    if (!process.client) return
+    if (!import.meta.client) return
 
     try {
       localStorage.removeItem(STORAGE_KEY_ITEM)
@@ -618,9 +616,9 @@ export function useInspectItem() {
       console.log('Inspect link generated successfully')
       return data.inspectUrl
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error generating inspect link:', err)
-      error.value = err.message || 'Failed to generate inspect link'
+      error.value = err instanceof Error ? err.message : 'Failed to generate inspect link'
       return null
     } finally {
       isLoading.value = false

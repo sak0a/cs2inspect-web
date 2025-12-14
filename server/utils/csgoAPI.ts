@@ -30,7 +30,7 @@ const STORAGE_DIR = process.env.VERCEL || process.env.NETLIFY || process.env.AWS
 type ApiFileConfig = {
     url: string;
     path: string;
-    processor?: (data: any) => any;
+    processor?: (data: unknown) => unknown;
 };
 
 // Define the API files with their configurations
@@ -99,7 +99,7 @@ function ensureStorageDirectoryExists(): boolean {
             console.log(`Created storage directory: ${STORAGE_DIR}`);
         }
         return true;
-    } catch (error) {
+    } catch {
         console.warn(`Cannot create storage directory (read-only filesystem): ${STORAGE_DIR}`);
         return false;
     }
@@ -121,7 +121,7 @@ function isFileValid(filePath: string): boolean {
 /**
  * Fetches data from API and saves it to a file
  */
-async function fetchAndSaveData(url: string, filePath: string): Promise<any> {
+async function fetchAndSaveData(url: string, filePath: string): Promise<unknown> {
     try {
         console.log(`Fetching data from ${url}`);
         const response = await fetch(url);
@@ -136,7 +136,7 @@ async function fetchAndSaveData(url: string, filePath: string): Promise<any> {
         try {
             fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
             console.log(`Saved data to ${filePath}`);
-        } catch (writeError) {
+        } catch {
             console.warn(`Cannot save data to ${filePath} (read-only filesystem), using in-memory cache`);
         }
 
@@ -150,7 +150,7 @@ async function fetchAndSaveData(url: string, filePath: string): Promise<any> {
 /**
  * Reads data from a file
  */
-function readDataFromFile(filePath: string): any {
+function readDataFromFile(filePath: string): unknown {
     try {
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);

@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         const musicid: number | null = body.musicid
 
         // For music kits, we directly update the loadout table
-        await executeQuery<void>(
+        await executeQuery<unknown[]>(
             'UPDATE wp_player_loadouts SET selected_music = ? WHERE id = ? AND steamid = ?',
             [musicid, loadoutId, steamId],
             'Failed to update music kit'
@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
         const pinid: number | null = body.pinid
 
         // For pins, we directly update the loadout table
-        await executeQuery<void>(
+        await executeQuery<unknown[]>(
             'UPDATE wp_player_loadouts SET selected_pin = ? WHERE id = ? AND steamid = ?',
             [pinid, loadoutId, steamId],
             'Failed to update pin'
@@ -91,7 +91,7 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    await executeQuery<void>(
+    await executeQuery<unknown[]>(
         `UPDATE wp_player_loadouts
              SET ${updateField} = ?
              WHERE id = ? AND steamid = ?`,

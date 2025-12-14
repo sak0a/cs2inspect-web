@@ -3,7 +3,7 @@
  * Moved from server/utils/interfaces.ts for better organization
  */
 
-import type { ItemRarity, ItemTeam } from './api'
+import type { ItemRarity } from './api'
 
 // ============================================================================
 // CUSTOMIZATION INTERFACES
@@ -108,9 +108,7 @@ export interface KnifeCustomization extends BaseCustomization {
  * Represents glove customization data
  * Extends BaseCustomization (gloves don't support StatTrak or name tags)
  */
-export interface GloveCustomization extends BaseCustomization {
-    // No additional properties beyond BaseCustomization
-}
+export type GloveCustomization = BaseCustomization
 
 // ============================================================================
 // DEFAULT AND ENHANCED ITEM INTERFACES
@@ -155,7 +153,7 @@ export interface IEnhancedItem extends IDefaultItem {
     /** Team association (null if available to both teams) */
     team: number | null;
     /** Database information if item is saved */
-    databaseInfo?: any;
+    databaseInfo?: unknown;
 }
 
 /**
@@ -173,7 +171,7 @@ export interface IEnhancedWeapon extends IEnhancedItem {
  */
 export interface IEnhancedKnife extends IEnhancedItem {
     /** Knife-specific database information */
-    databaseInfo?: import('./database').DBKnife;
+    databaseInfo?: import('~/types/database/records').DBKnife;
 }
 
 /**
@@ -182,7 +180,7 @@ export interface IEnhancedKnife extends IEnhancedItem {
  */
 export interface IEnhancedGlove extends IEnhancedItem {
     /** Glove-specific database information */
-    databaseInfo?: import('./database').DBGlove;
+    databaseInfo?: import('~/types/database/records').DBGlove;
 }
 
 /**

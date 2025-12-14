@@ -144,36 +144,28 @@ export interface DBBaseWeapon extends DBLoadoutRecord {
  * 
  * @description Represents rifle configurations in the wp_player_rifles table
  */
-export interface DBRifle extends DBBaseWeapon {
-  // Inherits all fields from DBBaseWeapon
-}
+export type DBRifle = DBBaseWeapon
 
 /**
  * Pistol database record
  * 
  * @description Represents pistol configurations in the wp_player_pistols table
  */
-export interface DBPistol extends DBBaseWeapon {
-  // Inherits all fields from DBBaseWeapon
-}
+export type DBPistol = DBBaseWeapon
 
 /**
  * SMG database record
  * 
  * @description Represents SMG configurations in the wp_player_smgs table
  */
-export interface DBSMG extends DBBaseWeapon {
-  // Inherits all fields from DBBaseWeapon
-}
+export type DBSMG = DBBaseWeapon
 
 /**
  * Heavy weapon database record
  * 
  * @description Represents heavy weapon configurations in the wp_player_heavys table
  */
-export interface DBHeavy extends DBBaseWeapon {
-  // Inherits all fields from DBBaseWeapon
-}
+export type DBHeavy = DBBaseWeapon
 
 /**
  * Union type for all weapon database records

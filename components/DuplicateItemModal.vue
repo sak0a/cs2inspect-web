@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { NModal, NCard, NButton } from 'naive-ui'
+import { NModal, NButton } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
-const props = defineProps<{
+const _props = defineProps<{
   visible: boolean
   loading: boolean
   itemType: string
@@ -29,29 +29,29 @@ const handleConfirm = () => {
       :show="visible"
       style="width: 700px;"
       :bordered="false"
-      :title="t('modals.duplicateItem.header', { itemType: itemType }) as string"
-      :mask-closable="!loading"
-      :closable="!loading"
+      :title="t('modals.duplicateItem.header', { itemType: _props.itemType }) as string"
+      :mask-closable="!_props.loading"
+      :closable="!_props.loading"
       preset="card"
       :theme-overrides="skinModalThemeOverrides">
     <NSpace vertical>
       <div class="py-2">
-        <p v-if="otherTeamHasSkin" class="text-warning mb-4">
-          {{ t('modals.duplicateItem.warning', { itemType: itemType.toLowerCase() }) }}
+        <p v-if="_props.otherTeamHasSkin" class="text-warning mb-4">
+          {{ t('modals.duplicateItem.warning', { itemType: _props.itemType.toLowerCase() }) }}
         </p>
-        <p>{{ t('modals.duplicateItem.question', { itemType: itemType.toLowerCase() }) }}</p>
+        <p>{{ t('modals.duplicateItem.question', { itemType: _props.itemType.toLowerCase() }) }}</p>
       </div>
       <div class="flex justify-end gap-4">
         <NButton
             @click="handleClose"
-            :disabled="loading"
+            :disabled="_props.loading"
             type="error"
             secondary>
           {{ t('modals.duplicateItem.cancel') }}
         </NButton>
         <NButton
             @click="handleConfirm"
-            :loading="loading"
+            :loading="_props.loading"
             type="success"
             secondary>
           {{ t('modals.duplicateItem.confirm') }}

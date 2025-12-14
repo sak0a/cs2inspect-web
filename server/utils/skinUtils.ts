@@ -1,5 +1,5 @@
-import { APISkin, IDefaultItem, IEnhancedItem, WeaponCustomization } from './interfaces';
-import { multiFilter, getNestedValue, hexToRgba } from './commonUtils';
+import type { APISkin, IDefaultItem, IEnhancedItem } from './interfaces';
+import { hexToRgba } from './commonUtils';
 
 // ============================================================================
 // SKIN MATCHING AND FINDING UTILITIES
@@ -38,7 +38,7 @@ export function findMatchingSkin<T extends { weapon_name: string }, U extends { 
     if (!matchingSkin) {
         console.warn('findMatchingSkin: No matching skin found for weapon:', baseItem.weapon_name, 'paintindex:', paintIndexStr);
         // Log available skins for this weapon to help debug
-        const weaponSkins = skinsData.filter(skin => skin.weapon?.id === baseItem.weapon_name);
+        // const weaponSkins = skinsData.filter(skin => skin.weapon?.id === baseItem.weapon_name);
         //console.log('findMatchingSkin: Available skins for', baseItem.weapon_name, ':', weaponSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
     }
 
@@ -290,7 +290,7 @@ export function createEnhancedItemFromSkin<T extends IEnhancedItem>(
  * @param skin Skin object to check
  * @returns True if skin has stickers
  */
-export function hasStickers(skin: any): boolean {
+export function hasStickers(skin: { stickers?: unknown }): boolean {
     return skin.stickers && Array.isArray(skin.stickers) && skin.stickers.length > 0;
 }
 
@@ -299,9 +299,9 @@ export function hasStickers(skin: any): boolean {
  * @param skin Skin object
  * @returns Array of sticker names
  */
-export function getStickerNames(skin: any): string[] {
+export function getStickerNames(skin: { stickers?: Array<{ api?: { name?: string }; name?: string }> }): string[] {
     if (!hasStickers(skin)) return [];
-    return skin.stickers.map((sticker: any) => sticker.api?.name || sticker.name || '').filter(Boolean);
+    return (skin.stickers as Array<{ api?: { name?: string }; name?: string }>).map((sticker) => sticker.api?.name || sticker.name || '').filter(Boolean);
 }
 
 /**
@@ -309,7 +309,7 @@ export function getStickerNames(skin: any): string[] {
  * @param skin Skin object to check
  * @returns True if skin has a keychain
  */
-export function hasKeychain(skin: any): boolean {
+export function hasKeychain(skin: { keychain?: { id?: number } }): boolean {
     return skin.keychain && skin.keychain.id && skin.keychain.id !== 0;
 }
 

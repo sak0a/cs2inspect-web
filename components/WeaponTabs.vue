@@ -2,7 +2,7 @@
 // New type system imports
 
 // Modern type imports
-import type { DBWeapon, WeaponItemData } from "~/types"
+import type { DBWeapon, WeaponItemData, IEnhancedWeapon } from "~/types"
 
 import { NTabs, NTabPane, NCard } from 'naive-ui'
 import { ref, onMounted, computed } from 'vue'
@@ -15,7 +15,7 @@ interface Props {
   weaponData: {
     weapons: WeaponItemData[]
     defaultName: string
-    [key: string]: any
+    [key: string]: unknown
   }
 }
 
@@ -41,13 +41,17 @@ const cookieName = computed(() => {
 function setCookie(name: string, val: string) {
   try {
     document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=15552000`
-  } catch (e) {}
+  } catch {
+    // Ignore cookie errors
+  }
 }
 function getCookie(name: string): string | null {
   try {
     const part = document.cookie.split('; ').find(row => row.startsWith(name + '='))
     return part ? decodeURIComponent(part.split('=')[1]) : null
-  } catch (e) { return null }
+  } catch {
+    return null
+  }
 }
 
 function setTeamCookie(val: 'ct' | 't') { setCookie(cookieName.value, val) }
@@ -125,9 +129,10 @@ const handleDefaultWeaponClick = (team: number): void => {
 
     console.log("WeaponTabs - default weapon clicked for team:", team)
     emit('weaponClick', defaultWeapon)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error handling default weapon click:', error)
-    emit('error', error.message || 'Failed to select default weapon')
+    const errorMessage = error instanceof Error ? error.message : 'Failed to select default weapon'
+    emit('error', errorMessage)
   }
 }
 
@@ -144,9 +149,10 @@ const handleSkinClick = (weapon: IEnhancedWeapon): void => {
 
     console.log("WeaponTabs - skin clicked:", weapon.name)
     emit('weaponClick', weapon)
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error handling skin click:', error)
-    emit('error', error.message || 'Failed to select weapon skin')
+    const errorMessage = error instanceof Error ? error.message : 'Failed to select weapon skin'
+    emit('error', errorMessage)
   }
 }
 </script>

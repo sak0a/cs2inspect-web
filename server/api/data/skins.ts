@@ -44,7 +44,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     };
 
     // Get pagination parameters with safe defaults
-    const { page, limit, offset } = calculatePagination(query, 50, 100);
+    const { page, limit } = calculatePagination(query, 50, 100);
 
     // Apply filters
     const filteredSkins = skinData.filter((skin: APISkin) => {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+// Removed unused computed import
 import { NCard } from 'naive-ui'
-import { APICollectible } from "~/server/utils/interfaces";
+import type { APICollectible } from "~/server/utils/interfaces";
 
 const props = defineProps({
   collectible: {
@@ -15,7 +15,7 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['select'])
-const { t } = useI18n()
+const { t: _t } = useI18n()
 
 const handleSelect = () => {
   emit('select', props.collectible)
@@ -29,15 +29,7 @@ const hexToRgba = (hex: string, opacity: string) => {
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
 
-// Extract the base collectible ID
-const getCollectibleBaseId = computed(() => {
-  return parseInt(props.collectible.id.replace('collectible-', ''))
-})
-
-// Check if the collectible is a pin
-const isPin = computed(() => {
-  return props.collectible.type === 'Pin'
-})
+// Removed unused computed properties: getCollectibleBaseId, isPin
 </script>
 
 <template>

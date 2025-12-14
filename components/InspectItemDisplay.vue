@@ -1,11 +1,9 @@
 <script setup lang="ts">
 // New type system imports
 import type {
-  ItemData,
   ItemConfiguration,
   WeaponConfiguration,
   KnifeConfiguration,
-  GloveConfiguration,
   UserProfile,
   ItemType
 } from '~/types'
@@ -13,8 +11,8 @@ import type {
 // Legacy imports for backward compatibility
 import type { IEnhancedItem } from '~/server/utils/interfaces'
 
-import { ref, computed } from 'vue'
-import { NButton, NCard, NSpace, NTooltip, useMessage } from 'naive-ui'
+import { computed } from 'vue'
+import { NButton, NCard } from 'naive-ui'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -38,16 +36,11 @@ const props = defineProps<Props>()
  * Events interface with enhanced type safety
  */
 const emit = defineEmits<{
-  (e: 'customize'): void
-  (e: 'clear'): void
-  (e: 'generate-link'): void
+  (e: 'customize' | 'clear' | 'generate-link'): void
   (e: 'error', error: string): void
 }>()
 
-const message = useMessage()
 const { t } = useI18n()
-
-const isGeneratingLink = ref(false)
 
 /**
  * Type guards for safe type checking
@@ -60,9 +53,17 @@ const isKnifeConfiguration = (config: ItemConfiguration | null): config is Knife
   return config !== null && 'statTrak' in config && !('stickers' in config)
 }
 
-const isGloveConfiguration = (config: ItemConfiguration | null): config is GloveConfiguration => {
-  return config !== null && !('statTrak' in config)
-}
+// Removed unused isGloveConfiguration function
+
+/**
+ * Filtered stickers for display (non-null only)
+ */
+const filteredStickers = computed(() => {
+  if (props.itemType !== 'weapon' || !isWeaponConfiguration(props.customization)) {
+    return []
+  }
+  return props.customization.stickers.filter((sticker): sticker is NonNullable<typeof sticker> => sticker !== null)
+})
 
 /**
  * Determine background color based on rarity
@@ -123,40 +124,6 @@ const itemTypeDisplay = computed(() => {
   } catch (error) {
     console.error('Error getting item type display name:', error)
     return props.itemType || ''
-  }
-})
-
-/**
- * Get customization details for display
- */
-const customizationDetails = computed(() => {
-  if (!props.customization) return null
-
-  try {
-    const details: Record<string, any> = {}
-
-    // Common properties for all items
-    details.wear = props.customization.wear
-    details.pattern = props.customization.pattern
-    details.paintIndex = props.customization.paintIndex
-
-    // StatTrak for weapons and knives
-    if (isWeaponConfiguration(props.customization) || isKnifeConfiguration(props.customization)) {
-      details.statTrak = props.customization.statTrak
-      details.statTrakCount = props.customization.statTrakCount
-      details.nameTag = props.customization.nameTag
-    }
-
-    // Stickers for weapons only
-    if (isWeaponConfiguration(props.customization)) {
-      details.stickers = props.customization.stickers
-      details.keychain = props.customization.keychain
-    }
-
-    return details
-  } catch (error) {
-    console.error('Error getting customization details:', error)
-    return null
   }
 })
 
@@ -293,9 +260,8 @@ const handleGenerateLink = () => {
               <p class="text-sm text-gray-400 mb-1">{{ t('common.stickers') }}:</p>
               <div class="flex flex-wrap gap-1">
                 <div
-                  v-for="(sticker, index) in (customization as WeaponCustomization)?.stickers"
+                  v-for="(sticker, index) in filteredStickers"
                   :key="index"
-                  v-if="sticker"
                   class="w-10 h-10 rounded bg-gray-800/30 flex items-center justify-center overflow-hidden"
                   :title="sticker.api?.name || 'Sticker'"
                 >

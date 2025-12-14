@@ -39,7 +39,7 @@ async function getExecutedMigrations(): Promise<Set<string>> {
             'Failed to fetch executed migrations'
         );
         return new Set(rows.map(row => row.filename));
-    } catch (error) {
+    } catch {
         // If table doesn't exist yet, return empty set
         return new Set();
     }

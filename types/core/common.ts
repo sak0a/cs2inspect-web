@@ -141,7 +141,7 @@ export interface ErrorInfo {
   /** Human-readable error message */
   message: string
   /** Additional error details */
-  details?: Record<string, any>
+  details?: Record<string, unknown>
   /** Stack trace (development only) */
   stack?: string
 }
@@ -159,7 +159,7 @@ export interface ValidationError {
   /** Validation rule that was violated */
   rule: string
   /** Current field value that failed validation */
-  value: any
+  value: unknown
 }
 
 // ============================================================================
@@ -207,7 +207,7 @@ export interface FilterOptions {
   /** Sort direction */
   sortOrder?: 'asc' | 'desc'
   /** Additional filter criteria */
-  filters?: Record<string, any>
+  filters?: Record<string, unknown>
 }
 
 // ============================================================================
@@ -236,7 +236,7 @@ export enum LoadingState {
  * @template T - Type of successful result data
  * @template E - Type of error data
  */
-export interface AsyncResult<T = any, E = ErrorInfo> {
+export interface AsyncResult<T = unknown, E = ErrorInfo> {
   /** Current state of the operation */
   state: LoadingState
   /** Result data (available when state is Success) */

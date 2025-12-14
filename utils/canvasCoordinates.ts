@@ -2,7 +2,7 @@
  * Coordinate transformation utilities for the visual customizer
  */
 
-import type { Point, Size, CoordinateTransform } from '~/types/canvas'
+import type { Point, Size, CoordinateTransform, CanvasElement } from '~/types/canvas'
 
 /**
  * Weapon-specific sticker slot positions
@@ -73,13 +73,25 @@ export function getDefaultStickerPosition(slotIndex: number, weaponName?: string
     const weaponPositions = WEAPON_STICKER_SLOT_POSITIONS[cleanWeaponName]
 
     if (weaponPositions && weaponPositions[slotIndex]) {
-      console.log(`🎯 Using weapon-specific position for ${cleanWeaponName} slot ${slotIndex}:`, weaponPositions[slotIndex])
-      return weaponPositions[slotIndex]
+      const position = weaponPositions[slotIndex]
+      if (position) {
+        console.log(`🎯 Using weapon-specific position for ${cleanWeaponName} slot ${slotIndex}:`, position)
+        return position
+      }
     }
   }
 
   // Fallback to default positions
-  return DEFAULT_STICKER_SLOT_POSITIONS[slotIndex] || DEFAULT_STICKER_SLOT_POSITIONS[0]
+  const slotPosition = DEFAULT_STICKER_SLOT_POSITIONS[slotIndex]
+  if (slotPosition) {
+    return slotPosition
+  }
+  const fallbackPosition = DEFAULT_STICKER_SLOT_POSITIONS[0]
+  if (fallbackPosition) {
+    return fallbackPosition
+  }
+  // Ultimate fallback (should never happen, but TypeScript needs it)
+  return { x: 0.5, y: 0.5 }
 }
 
 /**
@@ -117,14 +129,41 @@ export function createCoordinateTransform(): CoordinateTransform {
 }
 
 /**
+ * Sticker input data type with all possible properties
+ */
+interface StickerInputData {
+  id: number
+  slot?: number
+  x?: number
+  y?: number
+  offset_x?: number
+  offset_y?: number
+  ext_norm_x?: number
+  ext_norm_y?: number
+  ext_ref_x?: number
+  ext_ref_y?: number
+  scale?: number
+  rotation?: number
+  wear?: number
+  api?: {
+    name?: string
+    image?: string
+    rarity?: {
+      color?: string
+      name?: string
+    }
+  }
+}
+
+/**
  * Convert existing sticker data to canvas element
  */
 export function stickerToCanvasElement(
-  sticker: any,
+  sticker: StickerInputData | null | undefined,
   slotIndex: number,
   zIndex: number = 10,
   weaponName?: string
-): any {
+): CanvasElement | null {
   if (!sticker) return null
 
   // ALWAYS start with the default slot position for this weapon/slot
@@ -145,8 +184,8 @@ export function stickerToCanvasElement(
     const extRefY = typeof sticker.ext_ref_y === 'number' && !isNaN(sticker.ext_ref_y) ? sticker.ext_ref_y : defaultExtRefY
     const REF_WIDTH = 1328
     const REF_HEIGHT = 384
-    const dxNorm = (hasExtNormX ? sticker.ext_norm_x : 0) * (extRefX / REF_WIDTH)
-    const dyNorm = (hasExtNormY ? sticker.ext_norm_y : 0) * (extRefY / REF_HEIGHT)
+    const dxNorm = (hasExtNormX && sticker.ext_norm_x !== undefined ? sticker.ext_norm_x : 0) * (extRefX / REF_WIDTH)
+    const dyNorm = (hasExtNormY && sticker.ext_norm_y !== undefined ? sticker.ext_norm_y : 0) * (extRefY / REF_HEIGHT)
     x += dxNorm
     y += dyNorm
     applied = true
@@ -179,8 +218,8 @@ export function stickerToCanvasElement(
     const hasExplicitOffsets = typeof sticker.offset_x === 'number' && !isNaN(sticker.offset_x) &&
                                typeof sticker.offset_y === 'number' && !isNaN(sticker.offset_y)
     const ref = getWeaponReferenceSize(weaponName)
-    const pxOffsetX = hasExplicitOffsets ? sticker.offset_x : (typeof sticker.x === 'number' ? sticker.x : 0)
-    const pxOffsetY = hasExplicitOffsets ? sticker.offset_y : (typeof sticker.y === 'number' ? sticker.y : 0)
+    const pxOffsetX = hasExplicitOffsets ? (sticker.offset_x ?? 0) : (typeof sticker.x === 'number' ? sticker.x : 0)
+    const pxOffsetY = hasExplicitOffsets ? (sticker.offset_y ?? 0) : (typeof sticker.y === 'number' ? sticker.y : 0)
     if (pxOffsetX || pxOffsetY) {
       x += (pxOffsetX / ref.width)
       y += (pxOffsetY / ref.height)
@@ -215,7 +254,33 @@ export function stickerToCanvasElement(
     apiData: {
       name: sticker.api?.name || 'Unknown Sticker',
       image: sticker.api?.image || '',
-      rarity: sticker.api?.rarity
+      rarity: sticker.api?.rarity && sticker.api.rarity.color && sticker.api.rarity.name
+        ? {
+            color: sticker.api.rarity.color,
+            name: sticker.api.rarity.name
+          }
+        : undefined
+    }
+  }
+}
+
+/**
+ * Keychain input data type with all possible properties
+ */
+interface KeychainInputData {
+  id: number
+  x?: number
+  y?: number
+  z?: number
+  seed?: number
+  scale?: number
+  rotation?: number
+  api?: {
+    name?: string
+    image?: string
+    rarity?: {
+      color?: string
+      name?: string
     }
   }
 }
@@ -224,9 +289,9 @@ export function stickerToCanvasElement(
  * Convert existing keychain data to canvas element
  */
 export function keychainToCanvasElement(
-  keychain: any,
+  keychain: KeychainInputData | null | undefined,
   zIndex: number = 5
-): any {
+): CanvasElement | null {
   if (!keychain) return null
 
   // Ensure coordinates are valid numbers
@@ -259,7 +324,33 @@ export function keychainToCanvasElement(
     apiData: {
       name: keychain.api?.name || 'Unknown Keychain',
       image: keychain.api?.image || '',
-      rarity: keychain.api?.rarity
+      rarity: keychain.api?.rarity && keychain.api.rarity.color && keychain.api.rarity.name
+        ? {
+            color: keychain.api.rarity.color,
+            name: keychain.api.rarity.name
+          }
+        : undefined
+    }
+  }
+}
+
+/**
+ * Sticker output data format
+ */
+interface StickerOutputData {
+  id: number
+  slot: number | null | undefined
+  x: number
+  y: number
+  wear: number
+  scale: number
+  rotation: number
+  api: {
+    name: string
+    image: string
+    rarity?: {
+      color: string
+      name: string
     }
   }
 }
@@ -267,7 +358,7 @@ export function keychainToCanvasElement(
 /**
  * Convert canvas element back to sticker data format
  */
-export function canvasElementToSticker(element: any): any {
+export function canvasElementToSticker(element: CanvasElement | null | undefined): StickerOutputData | null {
   if (!element || element.type !== 'sticker') return null
 
   return {
@@ -283,9 +374,28 @@ export function canvasElementToSticker(element: any): any {
 }
 
 /**
+ * Keychain output data format
+ */
+interface KeychainOutputData {
+  id: number
+  x: number
+  y: number
+  z: number
+  seed: number
+  api: {
+    name: string
+    image: string
+    rarity?: {
+      color: string
+      name: string
+    }
+  }
+}
+
+/**
  * Convert canvas element back to keychain data format
  */
-export function canvasElementToKeychain(element: any): any {
+export function canvasElementToKeychain(element: CanvasElement | null | undefined): KeychainOutputData | null {
   if (!element || element.type !== 'keychain') return null
 
   return {

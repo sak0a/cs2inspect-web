@@ -3,16 +3,14 @@
 import type {
   GloveModalProps,
   GloveModalState,
-  GloveModalEvents,
-  GloveItemData,
   GloveConfiguration,
   APIWeaponSkin,
-  UserProfile
+  UserProfile,
+  DBGlove
 } from '~/types'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedGlove, IEnhancedItem, IMappedDBWeapon } from '~/server/utils/interfaces'
-import type { DBGlove } from '~/types'
+import type { IEnhancedGlove, IEnhancedItem } from '~/server/utils/interfaces'
 
 import { ref, computed } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitch, NButton, useMessage } from 'naive-ui'
@@ -44,8 +42,7 @@ const digitOnlyInputProps = {
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', skin: IEnhancedItem, customization: GloveConfiguration): void
-  (e: 'duplicate', skin: IEnhancedItem, customization: GloveConfiguration): void
+  (e: 'select' | 'duplicate', skin: IEnhancedItem, customization: GloveConfiguration): void
   (e: 'error', error: string): void
 }>()
 
@@ -100,10 +97,7 @@ const defaultCustomization: GloveConfiguration = {
 
 const customization = ref<GloveConfiguration>({ ...defaultCustomization })
 
-/**
- * Utility functions
- */
-const oppositeTeam = (team: number): number => team === 1 ? 2 : 1
+// Removed unused oppositeTeam function
 
 /**
  * Pagination and filtering computed properties
@@ -214,8 +208,8 @@ const handleReset = () => {
     emit('select', props.weapon, resetCustomization)
     state.value.showResetConfirm = false
     handleClose()
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to reset glove'
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to reset glove'
     state.value.error = errorMessage
     emit('error', errorMessage)
     console.error('Error resetting glove:', error)
@@ -251,8 +245,8 @@ const handleDuplicate = async () => {
     emit('duplicate', selectedSkin.value, duplicateData)
 
     state.value.showDuplicateConfirm = false
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to duplicate glove'
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to duplicate glove'
     state.value.error = errorMessage
     emit('error', errorMessage)
     console.error('Error duplicating glove:', error)
@@ -292,8 +286,8 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       paintIndex: Number(skin.paint_index),
       wear: Number(skin.min_float ?? 0),
     }
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to select skin'
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
     state.value.error = errorMessage
     emit('error', errorMessage)
     console.error('Error selecting skin:', error)
@@ -333,7 +327,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       team: props.weapon.databaseInfo?.team || 1
     } as GloveConfiguration
 
-    const matchingSkin = state.value.skins.find(skin =>
+    const matchingSkin = apiState.value.skins.find(skin =>
         Number(skin.paint_index) === data.item.paintindex
     )
 
@@ -354,14 +348,15 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     message.success(t('modals.gloveSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
-  } catch (error: any) {
-    message.error(error.message || t('modals.gloveSkin.importFailed') as string, { duration: 3000 })
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (t('modals.gloveSkin.importFailed') as string)
+    message.error(errorMessage, { duration: 3000 })
   } finally {
     state.value.isImporting = false
   }
 }
 const handleCreateInspectLink = async () => {
-  if (!props.weapon || !selectedSkin || !props.user) return
+  if (!props.weapon || !selectedSkin.value || !props.user) return
 
   try {
     state.value.isLoadingInspect = true
@@ -469,8 +464,8 @@ watch(() => props.weapon, () => {
       }
 
       selectedSkin.value = inheritedWeapon.value
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to initialize glove data'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initialize glove data'
       state.value.error = errorMessage
       emit('error', errorMessage)
       console.error('Error initializing glove:', error)

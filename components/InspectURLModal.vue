@@ -3,7 +3,7 @@ import { NModal, NInput, NButton, NSpace } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 
-const props = defineProps<{
+const _props = defineProps<{
   visible: boolean
   loading?: boolean
 }>()
@@ -28,8 +28,9 @@ const handleSubmit = async () =>  {
     error.value = ''
     emit('submit', inspectUrl.value)
     inspectUrl.value = ''
-  } catch (e: any) {
-    error.value = e.message || t('modals.inspectUrl.defaultError') as string
+  } catch (e: unknown) {
+    const errorMessage = e instanceof Error ? e.message : (t('modals.inspectUrl.defaultError') as string)
+    error.value = errorMessage
   }
 }
 
@@ -42,14 +43,14 @@ const handleClose = () => {
 
 <template>
   <NModal
-      :show="visible"
+      :show="_props.visible"
       style="width: 700px"
       preset="card"
       :title="t('modals.inspectUrl.title') as string"
       :bordered="false"
       :theme-overrides="skinModalThemeOverrides"
-      :mask-closable="!loading"
-      :closable="!loading"
+      :mask-closable="!_props.loading"
+      :closable="!_props.loading"
       @update:show="handleClose"
   >
     <NSpace vertical>
@@ -95,7 +96,7 @@ const handleClose = () => {
       </div>
       <div>
         <NInput
-            :disabled="loading"
+            :disabled="_props.loading"
             v-model:value="inspectUrl"
             type="text"
             :placeholder="t('modals.inspectUrl.inputPlaceholder') as string"
@@ -105,10 +106,10 @@ const handleClose = () => {
       </div>
 
       <div class="flex justify-end gap-4">
-        <NButton @click="handleClose" secondary type="error" :disabled="loading">
+        <NButton @click="handleClose" secondary type="error" :disabled="_props.loading">
           {{ t('modals.inspectUrl.cancel') }}
         </NButton>
-        <NButton :disabled="inspectUrl.length <= 15" secondary type="success" @click="handleSubmit" :loading="loading">
+        <NButton :disabled="inspectUrl.length <= 15" secondary type="success" @click="handleSubmit" :loading="_props.loading">
           {{ t('modals.inspectUrl.confirm') }}
         </NButton>
       </div>

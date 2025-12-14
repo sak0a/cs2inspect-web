@@ -1,10 +1,9 @@
 <script setup>
-import { NDropdown, NButton, NSelect, NIcon } from 'naive-ui'
-import { useNuxtApp, computed, useCookie, ref } from '#imports'
+import { NSelect, NIcon } from 'naive-ui'
+import { computed, useCookie } from '#imports'
 import { Language as LanguageIcon } from '@vicons/ionicons5'
 
-const { getLocale, switchLocale, getLocales, t } = useI18n()
-const showDropdown = ref(false)
+const { getLocale, switchLocale, getLocales } = useI18n()
 
 // Create dropdown options from locales
 const options = computed(() =>

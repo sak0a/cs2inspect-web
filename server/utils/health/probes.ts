@@ -35,7 +35,7 @@ async function calculateUptimePercentage(checkName: string, minutes: number = 60
                 if (typeof v === 'number') return v;
                 if (typeof v === 'bigint') return Number(v);
                 if (typeof v === 'string') return Number(v);
-                return Number(v as any);
+                return Number(v as number | string | bigint);
             };
 
             const total = toNumber(rows[0].total_checks);
@@ -381,7 +381,7 @@ export async function checkImageProxy(): Promise<HealthCheckResult> {
       upstream_host: new URL(sampleUrl).hostname,
       uptime_percentage: await (async () => {
         try {
-          // @ts-ignore - using local private function
+          // @ts-expect-error - using local private function
           return await (calculateUptimePercentage?.('image_proxy', 60) ?? 100)
         } catch { return 100 }
       })(),
@@ -418,7 +418,7 @@ export async function checkImageProxy(): Promise<HealthCheckResult> {
         base_url: baseURL,
         uptime_percentage: await (async () => {
           try {
-            // @ts-ignore
+            // @ts-expect-error - using local private function
             return await (calculateUptimePercentage?.('image_proxy', 60) ?? 100)
           } catch { return 100 }
         })(),

@@ -1,8 +1,7 @@
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { createError } from "h3";
-import {IEnhancedKnife, IEnhancedWeapon} from "~/server/utils/interfaces";
 
-export const validateRequiredRequestData = (param: any, paramName: string, allowZero = false) => {
+export const validateRequiredRequestData = (param: unknown, paramName: string, allowZero = false) => {
     if (allowZero && param === 0) return
     if (!param) {
         Logger.error(`${paramName} is required`)
@@ -13,7 +12,7 @@ export const validateRequiredRequestData = (param: any, paramName: string, allow
     }
 }
 
-export const verifyUserAccess = (steamId: string, event: any) => {
+export const verifyUserAccess = (steamId: string, event: { context?: { auth?: { steamId?: string } } }) => {
     const auth = event.context.auth
     if (!auth || auth.steamId !== steamId) {
         Logger.error('Unauthorized access')

@@ -249,16 +249,12 @@ export interface WeaponModalState extends BaseModalState {
 /**
  * Knife-specific modal state
  */
-export interface KnifeModalState extends BaseModalState {
-  // Knives don't have additional state beyond base
-}
+export type KnifeModalState = BaseModalState
 
 /**
  * Glove-specific modal state
  */
-export interface GloveModalState extends BaseModalState {
-  // Gloves don't have additional state beyond base
-}
+export type GloveModalState = BaseModalState
 
 /**
  * Action state for all modals
@@ -286,14 +282,41 @@ export interface BaseInspectPayload {
 }
 
 /**
+ * Sticker data in inspect payload
+ */
+export interface InspectSticker {
+  slot: number
+  sticker_id: number
+  wear?: number
+  scale?: number
+  rotation?: number
+  offset_x?: number
+  offset_y?: number
+  offset_z?: number
+  pattern?: number
+}
+
+/**
+ * Keychain data in inspect payload
+ */
+export interface InspectKeychain {
+  slot: number
+  sticker_id: number
+  offset_x?: number
+  offset_y?: number
+  offset_z?: number
+  pattern?: number
+}
+
+/**
  * Weapon inspect payload
  */
 export interface WeaponInspectPayload extends BaseInspectPayload {
   statTrak?: boolean
   statTrakCount?: number
   nameTag?: string
-  stickers?: any[]
-  keychain?: any
+  stickers?: InspectSticker[]
+  keychain?: InspectKeychain | null
 }
 
 /**
@@ -308,9 +331,7 @@ export interface KnifeInspectPayload extends BaseInspectPayload {
 /**
  * Glove inspect payload (same as base)
  */
-export interface GloveInspectPayload extends BaseInspectPayload {
-  // Gloves only use base payload
-}
+export type GloveInspectPayload = BaseInspectPayload
 
 /**
  * Union type for all inspect payloads

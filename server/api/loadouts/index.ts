@@ -1,7 +1,7 @@
 // server/api/loadouts.ts
 import { defineEventHandler, createError } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
-import { DBLoadout } from '~/server/utils/interfaces'
+import type { DBLoadout } from '~/server/utils/interfaces'
 import {
     createLoadout,
     getLoadoutsBySteamId,

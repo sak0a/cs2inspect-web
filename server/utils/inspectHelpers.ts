@@ -1,5 +1,5 @@
-import { WeaponCustomization, WeaponStickerCustomization, WeaponKeychainCustomization } from './interfaces';
-import { Sticker } from './csinspect/base';
+import type { WeaponCustomization } from './interfaces';
+import type { Sticker } from './csinspect/base';
 
 /**
  * Maps the customization data from the frontend format to the format required by the inspect URL generator

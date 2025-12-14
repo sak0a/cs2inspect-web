@@ -162,9 +162,9 @@ export interface DBUpdateLoadoutSelectionsQuery extends DBBaseQuery {
 /**
  * Query parameters for item operations
  * 
- * @template T - Type of item record
+ * @template _T - Type of item record (unused but kept for consistency with other query types)
  */
-export interface DBItemQuery<T extends DBItemRecord = DBItemRecord> extends DBBaseQuery {
+export interface DBItemQuery<_T extends DBItemRecord = DBItemRecord> extends DBBaseQuery {
   /** Filter by team */
   team?: TeamSide
   /** Filter by active status */
@@ -285,9 +285,9 @@ export interface DBTransaction {
 /**
  * Query parameters for transactional operations
  * 
- * @template T - Type of database record
+ * @template _T - Type of database record (unused but kept for consistency with other query types)
  */
-export interface DBTransactionalQuery<T extends DBAnyRecord = DBAnyRecord> extends DBBaseQuery {
+export interface DBTransactionalQuery<_T extends DBAnyRecord = DBAnyRecord> extends DBBaseQuery {
   /** Transaction context */
   transaction?: DBTransaction
   /** Isolation level for the operation */
@@ -325,7 +325,7 @@ export interface DBAggregationQuery extends DBBaseQuery {
     alias?: string
   }>
   /** Having conditions for grouped results */
-  having?: Record<string, any>
+  having?: Record<string, unknown>
 }
 
 // ============================================================================
@@ -337,7 +337,7 @@ export interface DBAggregationQuery extends DBBaseQuery {
  * 
  * @template T - Type of returned data
  */
-export interface DBQueryResult<T = any> {
+export interface DBQueryResult<T = unknown> {
   /** Query result data */
   data: T
   /** Number of affected rows */
@@ -345,7 +345,7 @@ export interface DBQueryResult<T = any> {
   /** Query execution time in milliseconds */
   executionTime?: number
   /** Additional metadata */
-  metadata?: Record<string, any>
+  metadata?: Record<string, unknown>
 }
 
 /**
@@ -353,7 +353,7 @@ export interface DBQueryResult<T = any> {
  * 
  * @template T - Type of individual items
  */
-export interface DBPaginatedResult<T = any> extends DBQueryResult<T[]> {
+export interface DBPaginatedResult<T = unknown> extends DBQueryResult<T[]> {
   /** Pagination information */
   pagination: {
     page: number
@@ -372,7 +372,7 @@ export interface DBAggregatedResult extends DBQueryResult {
   /** Aggregation results */
   data: Array<{
     /** Grouped field values */
-    group: Record<string, any>
+    group: Record<string, unknown>
     /** Aggregated values */
     aggregations: Record<string, number>
   }>

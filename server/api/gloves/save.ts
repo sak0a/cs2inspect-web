@@ -57,8 +57,9 @@ export default defineEventHandler(async (event) => {
         const result = await saveGlove(steamId, loadoutId, gloveData)
         Logger.info('Glove save completed successfully')
         return result
-    } catch (error: any) {
-        Logger.error(`Failed to save gloves: ${error.message}`)
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to save gloves'
+        Logger.error(`Failed to save gloves: ${errorMessage}`)
         throw createError({
             statusCode: 500,
             message: 'Failed to save gloves'

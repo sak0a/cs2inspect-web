@@ -62,11 +62,11 @@ export interface CreateUrlRequest extends BaseInspectRequest {
   /** Custom name tag */
   nameTag?: string
   /** Stickers array (weapons only) */
-  stickers?: any[]
+  stickers?: Array<{ id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number }>
   /** Keychain object (weapons only) */
-  keychain?: any
+  keychain?: { id: number; x?: number; y?: number; z?: number; seed?: number } | null
   /** Complete customization object (weapons only) */
-  customization?: any
+  customization?: Record<string, unknown>
 }
 
 /**
@@ -109,7 +109,7 @@ export interface CreateUrlResponse extends BaseInspectResponse {
   /** Generated inspect URL */
   inspectUrl: string
   /** Item data used to create the URL */
-  itemData: any
+  itemData: Record<string, unknown>
   /** Type of item that was processed */
   itemType?: ItemType
 }
@@ -121,7 +121,7 @@ export interface InspectItemResponse extends BaseInspectResponse {
   /** Type of URL that was processed */
   urlType: UrlType
   /** Inspected item data */
-  item: any
+  item: Record<string, unknown>
   /** Original URL that was inspected */
   originalUrl: string
   /** Queue status for unmasked URLs */
@@ -137,7 +137,7 @@ export interface DecodeResponse extends BaseInspectResponse {
   /** Type of URL (for URL-based decoding) */
   urlType?: UrlType
   /** Decoded item data */
-  item: any
+  item: Record<string, unknown>
   /** Original URL (for URL-based decoding) */
   originalUrl?: string
   /** Hex data (for hex-based decoding) */
@@ -226,7 +226,7 @@ export interface InspectErrorResponse {
   /** HTTP status code */
   statusCode: number
   /** Additional error details */
-  details?: any
+  details?: unknown
 }
 
 // ============================================================================

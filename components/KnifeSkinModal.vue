@@ -3,16 +3,14 @@
 import type {
   KnifeModalProps,
   KnifeModalState,
-  KnifeModalEvents,
-  KnifeItemData,
   KnifeConfiguration,
   APIWeaponSkin,
-  UserProfile
+  UserProfile,
+  DBKnife
 } from '~/types'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedKnife, IEnhancedItem, IMappedDBWeapon } from '~/server/utils/interfaces'
-import type { DBKnife } from '~/types'
+import type { IEnhancedKnife, IEnhancedItem } from '~/server/utils/interfaces'
 
 import { ref, computed } from 'vue'
 import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitch, NButton, useMessage } from 'naive-ui'
@@ -38,8 +36,7 @@ const props = defineProps<Props>()
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'save', skin: IEnhancedItem, customization: KnifeConfiguration): void
-  (e: 'duplicate', skin: IEnhancedItem, customization: KnifeConfiguration): void
+  (e: 'save' | 'duplicate', skin: IEnhancedItem, customization: KnifeConfiguration): void
   (e: 'error', error: string): void
 }>()
 
@@ -103,10 +100,7 @@ const defaultCustomization: KnifeConfiguration = {
 
 const customization = ref<KnifeConfiguration>({ ...defaultCustomization })
 
-/**
- * Utility functions
- */
-const oppositeTeam = (team: number): number => team === 1 ? 2 : 1
+// Removed unused oppositeTeam function
 
 /**
  * Pagination and filtering computed properties
@@ -209,8 +203,8 @@ const handleReset = () => {
 
     emit('save', props.weapon, resetConfig)
     state.value.showResetConfirm = false
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to reset knife'
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to reset knife'
     state.value.error = errorMessage
     emit('error', errorMessage)
     console.error('Error resetting knife:', error)
@@ -243,8 +237,8 @@ const handleDuplicate = async () => {
 
     emit('duplicate', selectedSkin.value, duplicateData)
     state.value.showDuplicateConfirm = false
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to duplicate knife'
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to duplicate knife'
     state.value.error = errorMessage
     emit('error', errorMessage)
     console.error('Error duplicating knife:', error)
@@ -284,8 +278,8 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       paintIndex: Number(skin.paint_index),
       wear: Number(skin.min_float ?? 0),
     }
-  } catch (error: any) {
-    const errorMessage = error.message || 'Failed to select skin'
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
     state.value.error = errorMessage
     emit('error', errorMessage)
     console.error('Error selecting skin:', error)
@@ -361,8 +355,8 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     message.success(t('modals.knifeSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
-  } catch (error: any) {
-    const errorMessage = error.message || t('modals.knifeSkin.importFailed') as string
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (t('modals.knifeSkin.importFailed') as string)
     state.value.error = errorMessage
     message.error(errorMessage, { duration: 3000 })
     emit('error', errorMessage)
@@ -409,8 +403,8 @@ const handleCreateInspectLink = async () => {
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
     message.success(t('modals.knifeSkin.generateInspectUrlSuccess') as string, { duration: 3000 })
-  } catch (error: any) {
-    const errorMessage = error.message || t('modals.knifeSkin.generateInspectUrlFailed') as string
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : (t('modals.knifeSkin.generateInspectUrlFailed') as string)
     state.value.error = errorMessage
     message.error(errorMessage, { duration: 3000 })
     emit('error', errorMessage)
@@ -503,8 +497,8 @@ watch(() => props.weapon, () => {
       }
 
       selectedSkin.value = inheritedWeapon.value
-    } catch (error: any) {
-      const errorMessage = error.message || 'Failed to initialize knife data'
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to initialize knife data'
       state.value.error = errorMessage
       emit('error', errorMessage)
       console.error('Error initializing knife:', error)
