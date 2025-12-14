@@ -78,5 +78,9 @@
   "module": "index.ts",
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "overrides": {
+    "esbuild": "0.15.15",
+    "chokidar": "3.6.0"
   }
 }

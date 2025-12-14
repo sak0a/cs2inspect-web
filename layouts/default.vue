@@ -298,7 +298,7 @@ onMounted(async () => {
               </div>
             </div>
           </div>
-          <NuxtPage />
+          <slot />
         </div>
       </NLayoutContent>
     </NLayout>
