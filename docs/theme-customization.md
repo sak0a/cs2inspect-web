@@ -164,5 +164,5 @@ Choose one of the following based on what you want to undo:
 ---
 
 ## Related docs
-- Sticker slot authoring: `docs/StickerSlots.md`
+- Sticker slot authoring: [sticker-slots.md](./sticker-slots.md)
 

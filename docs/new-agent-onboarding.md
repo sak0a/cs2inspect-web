@@ -161,10 +161,10 @@ try {
 ## 📚 Essential Documentation
 
 **Must Read**:
-- `PROJECT_STATE_README.md` - Current project state
+- [project-state.md](./project-state.md) - Current project state
 - `types/README.md` - Complete type system documentation
 - `QUICK_REFERENCE.md` - Developer cheat sheet
-- `TYPESCRIPT_REFACTORING_GUIDE.md` - Migration examples
+- [typescript-refactoring-guide.md](./typescript-refactoring-guide.md) - Migration examples
 
 **Reference Components**:
 - `components/WeaponSkinModal.vue` - Complete migration example

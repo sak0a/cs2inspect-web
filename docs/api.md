@@ -1067,4 +1067,4 @@ ws.send(JSON.stringify({ type: 'subscribe', channel: 'loadout:123' }))
 - [Architecture](architecture.md) - System architecture
 - [How It Works](how-it-works.md) - User flows
 - [Setup Guide](setup.md) - Development setup
-- [CS2 Inspect System](../CS2_INSPECT_SYSTEM_README.md) - Inspect system details
+- [CS2 Inspect System](./cs2-inspect-system.md) - Inspect system details

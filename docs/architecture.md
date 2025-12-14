@@ -385,7 +385,7 @@ The application includes a **comprehensive health monitoring system**:
 - Historical trends for monitoring patterns
 - Configurable retention period
 
-See [HEALTH_CHECKS.md](../HEALTH_CHECKS.md) for complete documentation.
+See [health-checks.md](./health-checks.md) for complete documentation.
 
 ### Current Logging
 - API request logging (optional via `LOG_API_REQUESTS`)
@@ -408,4 +408,4 @@ See [HEALTH_CHECKS.md](../HEALTH_CHECKS.md) for complete documentation.
 - [API Reference](api.md) - Complete API endpoint documentation
 - [Setup Guide](setup.md) - Local development setup
 - [Deployment Guide](deployment.md) - Production deployment
-- [Health Checks](../HEALTH_CHECKS.md) - Health monitoring system documentation
+- [Health Checks](./health-checks.md) - Health monitoring system documentation

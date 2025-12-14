@@ -679,7 +679,7 @@ interface AuthResponse {
 - `protobuf-writer.ts` - Generate inspect URLs
 - `crc32.ts` - Checksum validation
 
-See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for details.
+See [CS2 Inspect System Documentation](./cs2-inspect-system.md) for details.
 
 ---
 

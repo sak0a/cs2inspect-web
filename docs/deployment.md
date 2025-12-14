@@ -556,7 +556,7 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
 3. **Load Balancers**: Point health checks to `/api/health/ready`
 4. **Monitoring Tools**: Query `/api/health/details` for metrics
 
-See [HEALTH_CHECKS.md](../HEALTH_CHECKS.md) for complete documentation.
+See [health-checks.md](./health-checks.md) for complete documentation.
 
 ### Application Monitoring
 

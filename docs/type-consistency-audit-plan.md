@@ -299,4 +299,4 @@ This systematic approach ensures complete type consistency while maintaining the
 
 ---
 
-**Next Document**: See `IMPLEMENTATION_GUIDELINES.md` for detailed technical guidance on executing these migrations.
+**Next Document**: See [implementation-guidelines.md](./implementation-guidelines.md) for detailed technical guidance on executing these migrations.

@@ -8,8 +8,8 @@ This document provides specific technical guidance for implementing the type con
 
 Before starting any migration:
 
-- [ ] Read the `NEW_AGENT_ONBOARDING.md` for context
-- [ ] Review the `TYPE_CONSISTENCY_AUDIT_PLAN.md` for scope
+- [ ] Read the [new-agent-onboarding.md](./new-agent-onboarding.md) for context
+- [ ] Review the [type-consistency-audit-plan.md](./type-consistency-audit-plan.md) for scope
 - [ ] Examine successfully migrated components as examples
 - [ ] Understand the paint index bug fix and database field mappings
 - [ ] Set up proper TypeScript checking in your development environment

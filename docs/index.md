@@ -22,7 +22,7 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 - **[Health Checks](../HEALTH_CHECKS.md)** - Comprehensive health monitoring system
 - **[Theme Customization](theme-customization.md)** - UI theming and styling guide
 - **[Sticker Slots](StickerSlots.md)** - Sticker slot configuration
-- **[CS2 Inspect System](../CS2_INSPECT_SYSTEM_README.md)** - In-depth inspect URL processing
+- **[CS2 Inspect System](./cs2-inspect-system.md)** - In-depth inspect URL processing
 - **[Type System](../types/README.md)** - TypeScript interfaces and types
 
 ---
@@ -115,10 +115,10 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ### Specialized Topics
 
-- **Health Monitoring**: Comprehensive health check system with real-time monitoring ([HEALTH_CHECKS.md](../HEALTH_CHECKS.md))
+- **Health Monitoring**: Comprehensive health check system with real-time monitoring ([health-checks.md](./health-checks.md))
 - **Theme Customization**: UI theming, color schemes, and styling ([theme-customization.md](theme-customization.md))
-- **Sticker Configuration**: Weapon sticker slot definitions ([StickerSlots.md](StickerSlots.md))
-- **CS2 Inspect System**: Protobuf encoding/decoding, Steam GC integration ([CS2_INSPECT_SYSTEM_README.md](../CS2_INSPECT_SYSTEM_README.md))
+- **Sticker Configuration**: Weapon sticker slot definitions ([sticker-slots.md](./sticker-slots.md))
+- **CS2 Inspect System**: Protobuf encoding/decoding, Steam GC integration ([cs2-inspect-system.md](./cs2-inspect-system.md))
 - **Type System**: TypeScript interfaces and data structures ([types/README.md](../types/README.md))
 
 ---

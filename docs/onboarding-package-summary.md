@@ -7,7 +7,7 @@ This onboarding package provides everything a new AI agent needs to understand t
 ## 📚 Documentation Structure
 
 ### **1. Project State Documentation**
-**File**: `PROJECT_STATE_README.md`
+**File**: [project-state.md](./project-state.md)
 - **Purpose**: Comprehensive overview of current project state
 - **Contents**: 
   - Completed TypeScript refactoring work (Phases 1-4)
@@ -18,7 +18,7 @@ This onboarding package provides everything a new AI agent needs to understand t
   - Future enhancement opportunities
 
 ### **2. New Agent Onboarding**
-**File**: `NEW_AGENT_ONBOARDING.md`
+**File**: [new-agent-onboarding.md](./new-agent-onboarding.md)
 - **Purpose**: Detailed introduction and context for new AI agents
 - **Contents**:
   - CS2Inspect application overview and purpose
@@ -29,7 +29,7 @@ This onboarding package provides everything a new AI agent needs to understand t
   - Essential warnings and guidelines
 
 ### **3. Type Consistency Audit Plan**
-**File**: `TYPE_CONSISTENCY_AUDIT_PLAN.md`
+**File**: [type-consistency-audit-plan.md](./type-consistency-audit-plan.md)
 - **Purpose**: Systematic plan for completing type consistency across the project
 - **Contents**:
   - Complete file audit strategy
@@ -39,7 +39,7 @@ This onboarding package provides everything a new AI agent needs to understand t
   - Success metrics and timeline
 
 ### **4. Implementation Guidelines**
-**File**: `IMPLEMENTATION_GUIDELINES.md`
+**File**: [implementation-guidelines.md](./implementation-guidelines.md)
 - **Purpose**: Specific technical guidance for executing migrations
 - **Contents**:
   - Step-by-step migration process
@@ -72,15 +72,15 @@ This onboarding package provides everything a new AI agent needs to understand t
 ## 🔧 Quick Start Guide
 
 ### **For New Agents**
-1. **Read First**: `NEW_AGENT_ONBOARDING.md`
-2. **Understand Context**: `PROJECT_STATE_README.md`
-3. **Plan Work**: `TYPE_CONSISTENCY_AUDIT_PLAN.md`
-4. **Execute**: `IMPLEMENTATION_GUIDELINES.md`
+1. **Read First**: [new-agent-onboarding.md](./new-agent-onboarding.md)
+2. **Understand Context**: [project-state.md](./project-state.md)
+3. **Plan Work**: [type-consistency-audit-plan.md](./type-consistency-audit-plan.md)
+4. **Execute**: [implementation-guidelines.md](./implementation-guidelines.md)
 
 ### **Reference Materials**
 - `types/README.md` - Complete type system documentation
 - `QUICK_REFERENCE.md` - Developer cheat sheet
-- `TYPESCRIPT_REFACTORING_GUIDE.md` - Migration examples
+- [typescript-refactoring-guide.md](./typescript-refactoring-guide.md) - Migration examples
 - Successfully migrated components as templates
 
 ## 🚨 Critical Warnings

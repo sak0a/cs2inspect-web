@@ -144,7 +144,7 @@ Based on the audit, these files still use legacy types and need updating:
 ## 📚 **Key Documentation Files**
 
 - **`types/README.md`** - Comprehensive type system documentation
-- **`TYPESCRIPT_REFACTORING_GUIDE.md`** - Complete migration guide
+- **[typescript-refactoring-guide.md](./typescript-refactoring-guide.md)** - Complete migration guide
 - **`QUICK_REFERENCE.md`** - Developer cheat sheet
 - **`types/itemModalTypes.ts`** - Legacy compatibility layer (deprecated)
 
