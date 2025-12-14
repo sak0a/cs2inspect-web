@@ -1,0 +1,33 @@
+{
+  "name": "steam-service",
+  "version": "1.0.0",
+  "description": "Standalone SteamUser/CS2Inspect service for shared Steam account access",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun run tsc",
+    "start": "bun run dist/index.js",
+    "type-check": "bun run tsc --noEmit",
+    "test": "bun test",
+    "test:unit": "bun test src/**/*.test.ts",
+    "test:integration": "STEAM_TEST_ENABLED=true bun test src/**/*.integration.test.ts",
+    "test:all": "bun test && STEAM_TEST_ENABLED=true bun test src/**/*.integration.test.ts"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "dependencies": {
+    "fastify": "^4.24.3",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "cs2-inspect-lib": "^3.1.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.6",
+    "typescript": "^5.3.3",
+    "@types/bun": "latest",
+    "bun-types": "latest"
+  }
+}
