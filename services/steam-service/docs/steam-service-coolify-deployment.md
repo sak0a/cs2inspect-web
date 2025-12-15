@@ -131,7 +131,51 @@ networks:
 The main Nuxt app can reach the Steam Service via:
 
 - **Same Docker Compose**: `http://steam-service:3001`
-- **Separate Applications**: Use the subdomain or internal IP
+- **Separate Applications (Coolify)**: Use a **Docker network alias** (recommended) or a **subdomain**
+
+#### Important: Don’t use `127.0.0.1` between containers
+
+Inside a Docker container, `127.0.0.1` refers to **that same container**, not another container.
+So from your Nuxt container, `http://127.0.0.1:3655` will *never* reach the steam-service container.
+
+#### Recommended (private, internal): Network alias + internal port
+
+1. In Coolify → **Steam Service** → **Network Aliases**, set something stable like:
+
+   - `steam-service`
+
+2. Ensure the Steam Service listens on a known **internal port** (its `PORT` env).
+3. In Coolify → **Main App** env vars:
+
+```env
+# Use Docker DNS name (network alias) + the steam-service INTERNAL port
+STEAM_SERVICE_URL=http://steam-service:3001
+STEAM_SERVICE_API_KEY=your_secure_api_key_here
+```
+
+> If your steam-service listens internally on a different port (e.g. `PORT=3665`), use that port in the URL.
+> Don’t confuse **Port Mappings** (host:container) with the container’s internal port.
+
+#### Public (optional): subdomain through Traefik
+
+If you want to access the steam-service from outside (for debugging), expose it via a subdomain:
+
+```env
+STEAM_SERVICE_URL=https://steam-api.yourdomain.com
+```
+
+### Traefik / Proxy network note (Coolify)
+
+If you find yourself running commands like:
+
+`docker network connect traefik <container>`
+
+after each redeploy, you’re fighting the platform.
+
+#### Fix
+
+Attach the resource to Traefik via Coolify’s **Proxy/Domains** settings so the network attachment + labels
+are applied automatically on every deploy. Manual `docker network connect` changes will not persist reliably.
 
 ## Environment Variables for Main App
 
@@ -218,8 +262,8 @@ curl -X POST https://steam-api.yourdomain.com/api/inspect/create-url \
 ### Connection Timeouts
 
 1. **Check Service URL**: Verify `STEAM_SERVICE_URL` is correct
-2. **Check Network**: Ensure services can communicate
-3. **Check Firewall**: Ensure port 3001 is accessible
+2. **Check Network**: Ensure both containers share a Docker network and you’re using a network alias (not `127.0.0.1`)
+3. **Check Port**: Ensure the URL uses the steam-service **internal** port (`PORT`), not the host-mapped port
 4. **Check SSL**: If using HTTPS, verify certificates are valid
 
 ### CORS Errors

@@ -62,7 +62,7 @@ bun test:all
 
 ### 4. Coolify/Nixpacks Setup Tutorial ✅
 
-**Created:** `docs/steam-service-coolify-setup.md`
+**Created:** `services/steam-service/docs/steam-service-coolify-setup.md`
 
 **Contents:**
 - Complete step-by-step deployment guide
@@ -167,7 +167,7 @@ keychains: keychain ? [{
 - `src/middleware/auth.test.ts`
 - `src/routes/health.test.ts`
 - `nixpacks.toml`
-- `docs/steam-service-coolify-setup.md`
+- `services/steam-service/docs/steam-service-coolify-setup.md`
 - `IMPLEMENTATION_SUMMARY.md`
 
 ### Modified Files:
@@ -193,7 +193,7 @@ keychains: keychain ? [{
 ## 🚀 Ready for Deployment
 
 The service is now ready to be deployed with Coolify. Follow the guide in:
-`docs/steam-service-coolify-setup.md`
+`services/steam-service/docs/steam-service-coolify-setup.md`
 
 ### Quick Start:
 1. Deploy service in Coolify using Nixpacks
