@@ -101,6 +101,7 @@ const displayNameMap: Record<string, string> = {
   'database': 'Database',
   'steam_api': 'Steam API',
   'steam_client': 'Steam Client',
+  'steam_service': 'Steam Service',
   'environment': 'Environment',
   'image_proxy': 'Image Proxy',
 };

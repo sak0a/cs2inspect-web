@@ -1,9 +1,7 @@
 import type {
   CreateUrlRequest,
-  InspectItemRequest,
+  InspectUrlRequest,
   DecodeHexRequest,
-  ValidateUrlRequest,
-  AnalyzeUrlRequest,
 } from '~/server/types/inspect';
 
 interface SteamServiceConfig {
@@ -35,7 +33,8 @@ class SteamServiceClient {
 
   private async request<T>(
     endpoint: string,
-    options: RequestInit = {}
+    options: RequestInit = {},
+    allowNon2xxJson: boolean = false
   ): Promise<ApiResponse<T>> {
     const url = `${this.baseUrl}${endpoint}`;
     const controller = new AbortController();
@@ -54,25 +53,45 @@ class SteamServiceClient {
 
       clearTimeout(timeoutId);
 
+      // Try to parse JSON body (even on non-2xx if allowNon2xxJson is enabled)
+      const parsed = await response.json().catch(() => undefined);
+
+      // If the upstream already uses our { success, data, error } envelope, pass it through
+      if (parsed && typeof parsed === 'object' && 'success' in parsed) {
+        return parsed as ApiResponse<T>;
+      }
+
+      // Non-2xx handling
       if (!response.ok) {
-        const errorData = await response.json().catch(() => ({
-          error: {
-            code: 'HTTP_ERROR',
-            message: `HTTP ${response.status}: ${response.statusText}`,
-          },
-        }));
+        if (allowNon2xxJson && parsed !== undefined) {
+          // Treat "non-ready" health responses (503 with JSON body) as reachable data,
+          // so callers can interpret status/ready themselves.
+          return {
+            success: true,
+            data: parsed as T,
+            error: {
+              code: 'UPSTREAM_HTTP',
+              message: `HTTP ${response.status}: ${response.statusText}`,
+              details: { status: response.status, statusText: response.statusText },
+            },
+          };
+        }
 
         return {
           success: false,
-          error: errorData.error || {
+          error: {
             code: 'HTTP_ERROR',
             message: `HTTP ${response.status}: ${response.statusText}`,
+            details: parsed,
           },
         };
       }
 
-      const data = await response.json();
-      return data as ApiResponse<T>;
+      // 2xx but no envelope → wrap it
+      return {
+        success: true,
+        data: parsed as T,
+      };
     } catch (error) {
       clearTimeout(timeoutId);
 
@@ -103,14 +122,14 @@ class SteamServiceClient {
     });
   }
 
-  async inspectItem(request: InspectItemRequest): Promise<ApiResponse<unknown>> {
+  async inspectItem(request: InspectUrlRequest): Promise<ApiResponse<unknown>> {
     return this.request('/api/inspect/inspect-item', {
       method: 'POST',
       body: JSON.stringify(request),
     });
   }
 
-  async decodeMaskedOnly(request: InspectItemRequest): Promise<ApiResponse<unknown>> {
+  async decodeMaskedOnly(request: InspectUrlRequest): Promise<ApiResponse<unknown>> {
     return this.request('/api/inspect/decode-masked-only', {
       method: 'POST',
       body: JSON.stringify(request),
@@ -124,14 +143,14 @@ class SteamServiceClient {
     });
   }
 
-  async validateUrl(request: ValidateUrlRequest): Promise<ApiResponse<{ valid: boolean; urlInfo: unknown }>> {
+  async validateUrl(request: InspectUrlRequest): Promise<ApiResponse<{ valid: boolean; urlInfo: unknown }>> {
     return this.request('/api/inspect/validate-url', {
       method: 'POST',
       body: JSON.stringify(request),
     });
   }
 
-  async analyzeUrl(request: AnalyzeUrlRequest): Promise<ApiResponse<unknown>> {
+  async analyzeUrl(request: InspectUrlRequest): Promise<ApiResponse<unknown>> {
     return this.request('/api/inspect/analyze-url', {
       method: 'POST',
       body: JSON.stringify(request),
@@ -143,7 +162,7 @@ class SteamServiceClient {
     queue: { pending: number; processing: number; maxSize: number };
     server: { uptime: number; version: string };
   }>> {
-    return this.request('/api/status');
+    return this.request('/api/status', {}, true);
   }
 
   async getHealth(): Promise<ApiResponse<{
@@ -151,7 +170,15 @@ class SteamServiceClient {
     ready: boolean;
     checks: Record<string, { status: string; message?: string }>;
   }>> {
-    return this.request('/api/health');
+    return this.request('/api/health', {}, true);
+  }
+
+  async getReady(): Promise<ApiResponse<{
+    status: string;
+    ready: boolean;
+    checks: Record<string, { status: string; message?: string }>;
+  }>> {
+    return this.request('/api/health/ready', {}, true);
   }
 }
 

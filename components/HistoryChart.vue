@@ -1,7 +1,7 @@
 <template>
   <div class="history-chart">
     <div class="flex justify-between items-center gap-4 chart-header">
-      <h3 class="text-lg font-semibold capitalize flex-shrink-0">
+      <h3 class="text-lg font-semibold capitalize shrink-0">
         {{ displayName }}
       </h3>
     </div>
@@ -73,6 +73,7 @@ const displayNameMap: Record<string, string> = {
   'database': 'Database',
   'steam_api': 'Steam API',
   'steam_client': 'Steam Client',
+  'steam_service': 'Steam Service',
   'environment': 'Environment',
   'image_proxy': 'Image Proxy'
 };

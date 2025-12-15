@@ -6,6 +6,7 @@ import { getCS2Client } from '~/server/plugins/init';
 import type { HealthCheckResult, HealthStatus } from '~/server/types/health';
 import { $fetch } from 'ofetch';
 import { useNitroApp } from '#imports'
+import { steamServiceClient } from '~/server/utils/steamServiceClient';
 
 /**
  * Calculate uptime percentage for a check based on historical data
@@ -178,6 +179,45 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
     };
 
     try {
+        const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SERVICE_API_KEY);
+
+        // If we're configured to use the external steam-service, report Steam client status from there.
+        if (useSteamService) {
+            const response = await steamServiceClient.getStatus();
+            result.latency_ms = Date.now() - startTime;
+
+            if (!response.success) {
+                result.status = 'fail';
+                result.message = `Steam service unreachable: ${response.error?.message || 'Unknown error'}`;
+                result.metadata = {
+                    source: 'steam-service',
+                    steam_service_url: process.env.STEAM_SERVICE_URL,
+                    error: response.error,
+                    uptime_percentage: await calculateUptimePercentage('steam_client', 60),
+                };
+                return result;
+            }
+
+            const stats = response.data?.steamClient;
+            const available = !!stats?.available;
+            const statusText = stats?.status || 'unknown';
+
+            result.status = available ? 'ok' : 'fail';
+            result.message = available
+                ? `Steam client ready (via steam-service) - ${statusText}`
+                : `Steam client not ready (via steam-service) - ${statusText}`;
+
+            result.metadata = {
+                source: 'steam-service',
+                steam_service_url: process.env.STEAM_SERVICE_URL,
+                is_ready: available,
+                status: statusText,
+                uptime_percentage: await calculateUptimePercentage('steam_client', 60),
+            };
+
+            return result;
+        }
+
         const client = getCS2Client();
         const stats = client.getSteamClientStats();
         
@@ -231,6 +271,90 @@ export async function checkSteamClient(): Promise<HealthCheckResult> {
     }
 
     return result;
+}
+
+/**
+ * Steam Service health check (only when STEAM_SERVICE_URL is configured)
+ */
+export async function checkSteamService(): Promise<HealthCheckResult> {
+    const startTime = Date.now();
+    const result: HealthCheckResult = {
+        name: 'steam_service',
+        status: 'ok',
+        checked_at: new Date(),
+    };
+
+    const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SERVICE_API_KEY);
+
+    // If not configured, this isn't a failure: the app is simply using the local Steam client.
+    if (!useSteamService) {
+        result.status = 'degraded';
+        result.latency_ms = Date.now() - startTime;
+        result.message = 'Steam service not configured (using local Steam client)';
+        result.metadata = {
+            configured: false,
+            steam_service_url: process.env.STEAM_SERVICE_URL,
+        };
+        return result;
+    }
+
+    try {
+        // Prefer readiness probe so we can clearly see whether the service is "ready"
+        const response = await steamServiceClient.getReady();
+        result.latency_ms = Date.now() - startTime;
+
+        if (!response.success || !response.data) {
+            result.status = 'fail';
+            result.message = `Steam service unreachable: ${response.error?.message || 'Unknown error'}`;
+            result.metadata = {
+                configured: true,
+                steam_service_url: process.env.STEAM_SERVICE_URL,
+                error: response.error,
+                uptime_percentage: await calculateUptimePercentage('steam_service', 60),
+            };
+            return result;
+        }
+
+        const serviceStatusRaw = (response.data as { status?: unknown }).status;
+        const ready = !!(response.data as { ready?: unknown }).ready;
+        const checks = (response.data as { checks?: Record<string, unknown> }).checks || {};
+
+        const toHealthStatus = (v: unknown): HealthStatus => {
+            if (v === 'ok' || v === 'degraded' || v === 'fail') return v;
+            // steam-service uses ok/fail; treat unknown as fail to be safe
+            if (v === 'healthy') return 'ok';
+            return 'fail';
+        };
+
+        const serviceStatus = toHealthStatus(serviceStatusRaw);
+        // IMPORTANT: treat "responds but not ready" as degraded (service is up, but Steam client not ready)
+        result.status = ready ? serviceStatus : 'degraded';
+        result.message = ready ? 'Steam service ready' : 'Steam service reachable but not ready';
+
+        result.metadata = {
+            configured: true,
+            steam_service_url: process.env.STEAM_SERVICE_URL,
+            requested: '/api/health/ready',
+            ready,
+            checks,
+            upstream_http: response.error?.code === 'UPSTREAM_HTTP' ? response.error : undefined,
+            uptime_percentage: await calculateUptimePercentage('steam_service', 60),
+        };
+        return result;
+    } catch (error: unknown) {
+        result.status = 'fail';
+        result.latency_ms = Date.now() - startTime;
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        result.message = `Steam service check failed: ${errorMessage}`;
+        result.metadata = {
+            configured: true,
+            steam_service_url: process.env.STEAM_SERVICE_URL,
+            requested: '/api/health/ready',
+            error: errorMessage,
+            uptime_percentage: await calculateUptimePercentage('steam_service', 60),
+        };
+        return result;
+    }
 }
 
 /**
@@ -484,6 +608,7 @@ export async function runAllHealthChecks(): Promise<HealthCheckResult[]> {
     const checks = await Promise.all([
         checkDatabase(),
         checkSteamAPI(),
+        checkSteamService(),
         checkSteamClient(),
         checkEnvironment(),
         checkImageProxy(),
