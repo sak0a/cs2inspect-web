@@ -1,0 +1,317 @@
+{
+  "navigation": {
+    "weapons": "WAPENS",
+    "melee": "NAHGEVECHT",
+    "extras": "EXTRAS",
+    "actions": "ACTIES",
+    "language": "Taal",
+    "loadout": "Loadout",
+    "theme": "Thema"
+  },
+  "weapons": {
+    "rifles": "Geweren",
+    "pistols": "Pistolen",
+    "smgs": "Machinepistolen",
+    "heavys": "Zware wapens"
+  },
+  "melee": {
+    "knives": "Messen",
+    "gloves": "Handschoenen"
+  },
+  "extras": {
+    "agents": "Agenten",
+    "pins": "Pins",
+    "music": "Muzieksets",
+    "inspects": "Inspecties",
+    "home": "Home"
+  },
+  "teams": {
+    "terrorists": "Terroristen",
+    "counterTerrorists": "Anti-terroristen"
+  },
+  "wears": {
+    "factoryNew": "Fabrieksnieuw",
+    "minimalWear": "Minimale slijtage",
+    "fieldTested": "Veldgetest",
+    "wellWorn": "Goed versleten",
+    "battleScarred": "Gevechtssporen"
+  },
+  "skins": {
+    "title": "Skins",
+    "noSkinsAvailable": "Geen skins beschikbaar voor dit loadout",
+    "selectSkin": "Selecteer skin voor {weapon}"
+  },
+
+  "modals": {
+    "logout": {
+      "title": "Afmelden bevestigen",
+      "question": "Weet je zeker dat je wilt afmelden?",
+      "cancel": "Annuleren",
+      "confirm": "Afmelden"
+    },
+    "inspectUrl": {
+      "title": "Importeren vanuit inspectie-URL",
+      "inputPlaceholder": "Plak inspectie-URL hier...",
+      "maskedLinks": "Gemaskerde links (HEX-gegevens)",
+      "maskedLinksDescription": "Deze links worden meestal gegenereerd door websites of andere apps",
+      "maskedLinksExample": "Voorbeeld:",
+      "unmaskedLinks": "Ongemaskerde links (Markt / Inventaris)",
+      "unmaskedLinksDescription": "Deze links worden gebruikt in de Steam-marktplaats en spelersinventarissen",
+      "unmaskedLinksExample": "Voorbeelden:",
+      "noInspectUrl": "Voer een inspectie-URL in",
+      "defaultError": "Fout bij decoderen van inspectie-URL",
+      "cancel": "Annuleren",
+      "confirm": "Importeren"
+    },
+    "duplicateItem": {
+      "header": "Dupliceer {itemType}",
+      "cancel": "Annuleren",
+      "confirm": "Dupliceer",
+      "warning": "Waarschuwing: Het andere team heeft al een skin geconfigureerd voor dit {itemType}. Deze actie overschrijft het.",
+      "question": "Weet je zeker dat je deze {itemType}-configuratie naar het andere team wilt dupliceren?",
+      "type": {
+        "weapon": "Wapen",
+        "knife": "Mes"
+      }
+    },
+    "knifeSkin": {
+      "defaultTitle": "Selecteer skin",
+      "title": "Selecteer skin voor {weaponName}",
+      "buttons": {
+        "importFromLink": "Importeren vanuit link",
+        "generateLink": "Link genereren",
+        "save": "Wijzigingen opslaan",
+        "duplicate": "Dupliceer naar ander team",
+        "reset": "Resetten"
+      },
+      "inputs":{
+        "searchPlaceholder": "Zoek skins...",
+        "nameTagPlaceholder": "Naamlabel"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Verfindex",
+        "paintIndexOverride": "Overschrijven",
+        "pattern": "Verfpatroon (Seed)",
+        "wear": "Slijtage (Float)",
+        "itemActive": "Actief",
+        "itemInactive": "Inactief"
+      },
+      "importFailedDefault": "Fout bij importeren mesconfiguratie",
+      "importFailedNoMatchingWeapon": "Inspectie-URL komt niet overeen met geselecteerd mes",
+      "importSuccess": "Mesconfiguratie succesvol geïmporteerd",
+      "generateInspectUrlSuccess": "Inspectie-URL gekopieerd naar klembord",
+      "generateInspectUrlFailed": "Fout bij genereren inspectie-URL",
+      "noSearchResults": "Geen skins gevonden"
+    },
+    "gloveSkin": {
+      "defaultTitle": "Selecteer skin",
+      "title": "Selecteer skin voor {weaponName}",
+      "buttons": {
+        "importFromLink": "Importeren vanuit link",
+        "generateLink": "Link genereren",
+        "save": "Wijzigingen opslaan",
+        "duplicate": "Dupliceer naar ander team",
+        "reset": "Resetten"
+      },
+      "inputs":{
+        "searchPlaceholder": "Zoek skins...",
+        "nameTagPlaceholder": "Naamlabel"
+      },
+      "labels": {
+        "paintIndex": "Verfindex",
+        "paintIndexOverride": "Overschrijven",
+        "pattern": "Verfpatroon (Seed)",
+        "wear": "Slijtage (Float)",
+        "itemActive": "Actief",
+        "itemInactive": "Inactief"
+      },
+      "importFailedDefault": "Fout bij importeren handschoenconfiguratie",
+      "importFailedNoMatchingWeapon": "Inspectie-URL komt niet overeen met geselecteerde handschoenen",
+      "importSuccess": "Handschoenconfiguratie succesvol geïmporteerd",
+      "generateInspectUrlSuccess": "Inspectie-URL gekopieerd naar klembord",
+      "generateInspectUrlFailed": "Fout bij genereren inspectie-URL",
+      "noSearchResults": "Geen skins gevonden"
+    },
+    "keychain": {
+      "titleEdit": "Sleutelhanger bewerken",
+      "titleAdd": "Sleutelhanger toevoegen",
+      "searchPlaceholder": "Zoek sleutelhangers...",
+      "labels": {
+        "position": "Positie",
+        "seed": "Seed"
+      },
+      "buttons": {
+        "update": "Wijzigingen bijwerken",
+        "create": "Sleutelhanger toepassen",
+        "delete": "Sleutelhanger verwijderen"
+      },
+      "delete": "Sleutelhanger verwijderen",
+      "errorFetching": "Fout bij ophalen sleutelhangergegevens",
+      "noSearchResults": "Geen sleutelhangers gevonden"
+    },
+    "sticker": {
+      "titleEdit": "Sticker bewerken",
+      "titleAdd": "Sticker toevoegen",
+      "searchPlaceholder": "Zoek stickers...",
+      "labels": {
+        "position": "Positie",
+        "scale": "Schaal",
+        "rotation": "Rotatie",
+        "wear": "Slijtage"
+      },
+      "buttons": {
+        "update": "Sticker bijwerken",
+        "create": "Sticker toepassen",
+        "delete": "Sticker verwijderen"
+      },
+      "errorFetching": "Fout bij ophalen stickergegevens",
+      "noSearchResults": "Geen stickers gevonden"
+    },
+    "loadout": {
+      "successMessage": "Loadout {action} succesvol",
+      "create": {
+        "title": "Nieuw loadout maken",
+        "confirm": "Maken",
+        "cancel": "Annuleren",
+        "formPlaceholder": "Voer een naam in voor je nieuwe loadout"
+      },
+      "rename": {
+        "title": "Loadout hernoemen",
+        "confirm": "Hernoemen",
+        "cancel": "Annuleren",
+        "formPlaceholder": "Voer een nieuwe naam in voor je loadout"
+      },
+      "delete": {
+        "title": "Loadout verwijderen",
+        "confirm": "Verwijderen",
+        "cancel": "Annuleren",
+        "question": "Weet je zeker dat je dit loadout wilt verwijderen?",
+        "warning": "Alle skins van dit loadout worden verwijderd en kunnen niet worden hersteld",
+        "confirmText": "Typ '{name}' om verwijdering te bevestigen:",
+        "confirmPlaceholder": "Voer loadoutnaam in om te bevestigen"
+      }
+    },
+    "weaponSkin": {
+      "defaultTitle": "Selecteer skin",
+      "title": "Selecteer skin voor {weaponName}",
+      "buttons": {
+        "reset": "Resetten",
+        "importFromLink": "Importeren vanuit link",
+        "generateLink": "Link genereren",
+        "save": "Wijzigingen opslaan",
+        "duplicate": "Dupliceer naar ander team"
+      },
+      "inputs":{
+        "searchPlaceholder": "Zoek skins...",
+        "nameTagPlaceholder": "Naamlabel"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Verfindex",
+        "paintIndexOverride": "Overschrijven",
+        "pattern": "Verfpatroon (Seed)",
+        "wear": "Slijtage (Float)",
+        "itemActive": "Actief",
+        "itemInactive": "Inactief"
+      },
+      "stickers": {
+        "title": "Stickers",
+        "add": "Sticker toevoegen",
+        "reposition": "Sleep om te herpositioneren"
+      },
+      "keychain": {
+        "title": "Sleutelhanger",
+        "add": "Sleutelhanger toevoegen"
+      },
+      "visualCustomizer": {
+        "button": "Visuele aanpasser"
+      },
+      "importFailedDefault": "Fout bij importeren wapenconfiguratie",
+      "importFailedNoMatchingWeapon": "Inspectie-URL komt niet overeen met geselecteerd wapen",
+      "importSuccess": "Mesconfiguratie succesvol geïmporteerd",
+      "generateInspectUrlSuccess": "Inspectie-URL gekopieerd naar klembord",
+      "generateInspectUrlFailed": "Fout bij genereren inspectie-URL",
+      "noSearchResults": "Geen skins gevonden",
+      "resetSuccess": "Wapenconfiguratie gereset",
+      "resetFailed": "Fout bij resetten wapenconfiguratie",
+      "duplicateFailed": "Fout bij dupliceren wapenconfiguratie"
+    },
+    "reset": {
+      "title": "Skin resetten",
+      "question": "Weet je zeker dat je de skinconfiguratie wilt verwijderen?",
+      "cancel": "Annuleren",
+      "confirm": "Resetten"
+    },
+    "visualCustomizer": {
+      "title": "Visuele sticker- en sleutelhangeraanpasser",
+      "save": "Wijzigingen opslaan",
+      "cancel": "Annuleren",
+      "instructions": {
+        "title": "Instructies",
+        "addAssets": "Klik op stickers of sleutelhangers in de assetbrowser om ze aan je wapen toe te voegen",
+        "selectElements": "Klik op elementen in het canvas om ze te selecteren en te bewerken",
+        "useProperties": "Gebruik het eigenschappenpaneel om positie, schaal, rotatie en slijtage te verfijnen",
+        "dragElements": "Sleep elementen direct op het canvas om ze te herpositioneren"
+      },
+      "assetBrowser": {
+        "title": "Assetbrowser",
+        "stickers": "Stickers",
+        "keychains": "Sleutelhangers",
+        "searchPlaceholder": "Zoek assets..."
+      },
+      "properties": {
+        "title": "Eigenschappen",
+        "positionX": "Positie X",
+        "positionY": "Positie Y",
+        "scale": "Schaal",
+        "rotation": "Rotatie (graden)",
+        "wear": "Slijtage",
+        "remove": "Verwijderen"
+      },
+      "messages": {
+        "maxStickers": "Maximaal 5 stickers toegestaan",
+        "selectSkinFirst": "Selecteer eerst een wapenskin",
+        "saveSuccess": "Visuele aanpassing succesvol toegepast"
+      }
+    }
+  },
+
+  "loadout": {
+    "create": "Loadout maken",
+    "select": "Selecteer een loadout",
+    "createDefault": "Standaard loadout maken",
+    "confirmDelete": "Weet je zeker dat je dit loadout wilt verwijderen?",
+    "confirmDeleteWarning": "Alle skins van dit loadout worden verwijderd en kunnen niet worden hersteld",
+    "nameRequired": "Voer een loadoutnaam in",
+    "nameTooLong": "Loadoutnaam moet minder dan 20 tekens zijn",
+    "selectLoadoutFirst": "Selecteer eerst een loadout"
+  },
+  "auth": {
+    "loginButton": "Inloggen",
+    "logoutButton": "Uitloggen",
+
+    "loginRequired": "Om toegang te krijgen tot deze website, log in met je Steam-account.",
+    "automaticallyLoggedOut": "Je bent automatisch uitgelogd",
+    "confirmLogout": "Weet je zeker dat je wilt uitloggen?",
+    "rejectAction": "Log in om deze actie uit te voeren",
+    "authenticating": "Authenticeren...",
+    "openSteamProfile": "Steam-profiel openen"
+  },
+  "common": {
+    "loading": "Laden...",
+    "error": "Fout",
+    "success": "Succes",
+    "cancel": "Annuleren",
+    "confirm": "Bevestigen",
+    "save": "Opslaan",
+    "update": "Bijwerken",
+    "delete": "Verwijderen",
+    "create": "Maken",
+    "search": "Zoeken",
+    "selectAll": "Alles selecteren",
+    "noResults": "Geen resultaten gevonden",
+    "pleaseSelectLoadout": "Selecteer eerst een loadout"
+  }
+}
+

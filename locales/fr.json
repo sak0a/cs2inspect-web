@@ -1,0 +1,317 @@
+{
+  "navigation": {
+    "weapons": "ARMES",
+    "melee": "MÊLÉE",
+    "extras": "EXTRAS",
+    "actions": "ACTIONS",
+    "language": "Langue",
+    "loadout": "Loadout",
+    "theme": "Thème"
+  },
+  "weapons": {
+    "rifles": "Fusils",
+    "pistols": "Pistolets",
+    "smgs": "Mitraillettes",
+    "heavys": "Armes lourdes"
+  },
+  "melee": {
+    "knives": "Couteaux",
+    "gloves": "Gants"
+  },
+  "extras": {
+    "agents": "Agents",
+    "pins": "Pins",
+    "music": "Kits musicaux",
+    "inspects": "Inspections",
+    "home": "Accueil"
+  },
+  "teams": {
+    "terrorists": "Terroristes",
+    "counterTerrorists": "Contre-terroristes"
+  },
+  "wears": {
+    "factoryNew": "Neuf de fabrique",
+    "minimalWear": "Usure minimale",
+    "fieldTested": "Testé sur le terrain",
+    "wellWorn": "Bien usé",
+    "battleScarred": "Éraflures de combat"
+  },
+  "skins": {
+    "title": "Skins",
+    "noSkinsAvailable": "Aucun skin disponible pour ce loadout",
+    "selectSkin": "Sélectionner un skin pour {weapon}"
+  },
+
+  "modals": {
+    "logout": {
+      "title": "Confirmer la déconnexion",
+      "question": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "cancel": "Annuler",
+      "confirm": "Déconnexion"
+    },
+    "inspectUrl": {
+      "title": "Importer depuis une URL d'inspection",
+      "inputPlaceholder": "Collez l'URL d'inspection ici...",
+      "maskedLinks": "Liens masqués (Données HEX)",
+      "maskedLinksDescription": "Ces liens sont généralement générés par des sites web ou d'autres applications",
+      "maskedLinksExample": "Exemple :",
+      "unmaskedLinks": "Liens non masqués (Marché / Inventaire)",
+      "unmaskedLinksDescription": "Ces liens sont utilisés sur le Marché Steam et dans les inventaires des joueurs",
+      "unmaskedLinksExample": "Exemples :",
+      "noInspectUrl": "Veuillez entrer une URL d'inspection",
+      "defaultError": "Échec du décodage de l'URL d'inspection",
+      "cancel": "Annuler",
+      "confirm": "Importer"
+    },
+    "duplicateItem": {
+      "header": "Dupliquer {itemType}",
+      "cancel": "Annuler",
+      "confirm": "Dupliquer",
+      "warning": "Attention : L'autre équipe a déjà un skin configuré pour ce {itemType}. Cette action l'écrasera.",
+      "question": "Êtes-vous sûr de vouloir dupliquer cette configuration {itemType} vers l'autre équipe ?",
+      "type": {
+        "weapon": "Arme",
+        "knife": "Couteau"
+      }
+    },
+    "knifeSkin": {
+      "defaultTitle": "Sélectionner un skin",
+      "title": "Sélectionner un skin pour {weaponName}",
+      "buttons": {
+        "importFromLink": "Importer depuis un lien",
+        "generateLink": "Générer un lien",
+        "save": "Enregistrer les modifications",
+        "duplicate": "Dupliquer vers l'autre équipe",
+        "reset": "Réinitialiser"
+      },
+      "inputs":{
+        "searchPlaceholder": "Rechercher des skins...",
+        "nameTagPlaceholder": "Étiquette de nom"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Index de peinture",
+        "paintIndexOverride": "Remplacer",
+        "pattern": "Motif de peinture (Graine)",
+        "wear": "Usure (Float)",
+        "itemActive": "Actif",
+        "itemInactive": "Inactif"
+      },
+      "importFailedDefault": "Échec de l'importation de la configuration du couteau",
+      "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas au couteau sélectionné",
+      "importSuccess": "Configuration du couteau importée avec succès",
+      "generateInspectUrlSuccess": "URL d'inspection copiée dans le presse-papiers",
+      "generateInspectUrlFailed": "Échec de la génération de l'URL d'inspection",
+      "noSearchResults": "Aucun skin trouvé"
+    },
+    "gloveSkin": {
+      "defaultTitle": "Sélectionner un skin",
+      "title": "Sélectionner un skin pour {weaponName}",
+      "buttons": {
+        "importFromLink": "Importer depuis un lien",
+        "generateLink": "Générer un lien",
+        "save": "Enregistrer les modifications",
+        "duplicate": "Dupliquer vers l'autre équipe",
+        "reset": "Réinitialiser"
+      },
+      "inputs":{
+        "searchPlaceholder": "Rechercher des skins...",
+        "nameTagPlaceholder": "Étiquette de nom"
+      },
+      "labels": {
+        "paintIndex": "Index de peinture",
+        "paintIndexOverride": "Remplacer",
+        "pattern": "Motif de peinture (Graine)",
+        "wear": "Usure (Float)",
+        "itemActive": "Actif",
+        "itemInactive": "Inactif"
+      },
+      "importFailedDefault": "Échec de l'importation de la configuration des gants",
+      "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas aux gants sélectionnés",
+      "importSuccess": "Configuration des gants importée avec succès",
+      "generateInspectUrlSuccess": "URL d'inspection copiée dans le presse-papiers",
+      "generateInspectUrlFailed": "Échec de la génération de l'URL d'inspection",
+      "noSearchResults": "Aucun skin trouvé"
+    },
+    "keychain": {
+      "titleEdit": "Modifier le porte-clés",
+      "titleAdd": "Ajouter un porte-clés",
+      "searchPlaceholder": "Rechercher des porte-clés...",
+      "labels": {
+        "position": "Position",
+        "seed": "Graine"
+      },
+      "buttons": {
+        "update": "Mettre à jour les modifications",
+        "create": "Appliquer le porte-clés",
+        "delete": "Supprimer le porte-clés"
+      },
+      "delete": "Supprimer le porte-clés",
+      "errorFetching": "Erreur lors de la récupération des données du porte-clés",
+      "noSearchResults": "Aucun porte-clés trouvé"
+    },
+    "sticker": {
+      "titleEdit": "Modifier l'autocollant",
+      "titleAdd": "Ajouter un autocollant",
+      "searchPlaceholder": "Rechercher des autocollants...",
+      "labels": {
+        "position": "Position",
+        "scale": "Échelle",
+        "rotation": "Rotation",
+        "wear": "Usure"
+      },
+      "buttons": {
+        "update": "Mettre à jour l'autocollant",
+        "create": "Appliquer l'autocollant",
+        "delete": "Supprimer l'autocollant"
+      },
+      "errorFetching": "Erreur lors de la récupération des données de l'autocollant",
+      "noSearchResults": "Aucun autocollant trouvé"
+    },
+    "loadout": {
+      "successMessage": "Loadout {action} avec succès",
+      "create": {
+        "title": "Créer un nouveau loadout",
+        "confirm": "Créer",
+        "cancel": "Annuler",
+        "formPlaceholder": "Entrez un nom pour votre nouveau loadout"
+      },
+      "rename": {
+        "title": "Renommer le loadout",
+        "confirm": "Renommer",
+        "cancel": "Annuler",
+        "formPlaceholder": "Entrez un nouveau nom pour votre loadout"
+      },
+      "delete": {
+        "title": "Supprimer le loadout",
+        "confirm": "Supprimer",
+        "cancel": "Annuler",
+        "question": "Êtes-vous sûr de vouloir supprimer ce loadout ?",
+        "warning": "Tous les skins de ce loadout seront supprimés et ne pourront pas être restaurés",
+        "confirmText": "Tapez '{name}' pour confirmer la suppression :",
+        "confirmPlaceholder": "Entrez le nom du loadout pour confirmer"
+      }
+    },
+    "weaponSkin": {
+      "defaultTitle": "Sélectionner un skin",
+      "title": "Sélectionner un skin pour {weaponName}",
+      "buttons": {
+        "reset": "Réinitialiser",
+        "importFromLink": "Importer depuis un lien",
+        "generateLink": "Générer un lien",
+        "save": "Enregistrer les modifications",
+        "duplicate": "Dupliquer vers l'autre équipe"
+      },
+      "inputs":{
+        "searchPlaceholder": "Rechercher des skins...",
+        "nameTagPlaceholder": "Étiquette de nom"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Index de peinture",
+        "paintIndexOverride": "Remplacer",
+        "pattern": "Motif de peinture (Graine)",
+        "wear": "Usure (Float)",
+        "itemActive": "Actif",
+        "itemInactive": "Inactif"
+      },
+      "stickers": {
+        "title": "Autocollants",
+        "add": "Ajouter un autocollant",
+        "reposition": "Glisser pour repositionner"
+      },
+      "keychain": {
+        "title": "Porte-clés",
+        "add": "Ajouter un porte-clés"
+      },
+      "visualCustomizer": {
+        "button": "Personnalisateur visuel"
+      },
+      "importFailedDefault": "Échec de l'importation de la configuration de l'arme",
+      "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas à l'arme sélectionnée",
+      "importSuccess": "Configuration du couteau importée avec succès",
+      "generateInspectUrlSuccess": "URL d'inspection copiée dans le presse-papiers",
+      "generateInspectUrlFailed": "Échec de la génération de l'URL d'inspection",
+      "noSearchResults": "Aucun skin trouvé",
+      "resetSuccess": "Configuration de l'arme réinitialisée",
+      "resetFailed": "Échec de la réinitialisation de la configuration de l'arme",
+      "duplicateFailed": "Échec de la duplication de la configuration de l'arme"
+    },
+    "reset": {
+      "title": "Réinitialiser le skin",
+      "question": "Êtes-vous sûr de vouloir supprimer la configuration du skin ?",
+      "cancel": "Annuler",
+      "confirm": "Réinitialiser"
+    },
+    "visualCustomizer": {
+      "title": "Personnalisateur visuel d'autocollants et de porte-clés",
+      "save": "Enregistrer les modifications",
+      "cancel": "Annuler",
+      "instructions": {
+        "title": "Instructions",
+        "addAssets": "Cliquez sur les autocollants ou les porte-clés dans le navigateur d'actifs pour les ajouter à votre arme",
+        "selectElements": "Cliquez sur les éléments du canevas pour les sélectionner et les modifier",
+        "useProperties": "Utilisez le panneau de propriétés pour affiner la position, l'échelle, la rotation et l'usure",
+        "dragElements": "Glissez les éléments directement sur le canevas pour les repositionner"
+      },
+      "assetBrowser": {
+        "title": "Navigateur d'actifs",
+        "stickers": "Autocollants",
+        "keychains": "Porte-clés",
+        "searchPlaceholder": "Rechercher des actifs..."
+      },
+      "properties": {
+        "title": "Propriétés",
+        "positionX": "Position X",
+        "positionY": "Position Y",
+        "scale": "Échelle",
+        "rotation": "Rotation (degrés)",
+        "wear": "Usure",
+        "remove": "Supprimer"
+      },
+      "messages": {
+        "maxStickers": "Maximum 5 autocollants autorisés",
+        "selectSkinFirst": "Veuillez d'abord sélectionner un skin d'arme",
+        "saveSuccess": "Personnalisation visuelle appliquée avec succès"
+      }
+    }
+  },
+
+  "loadout": {
+    "create": "Créer un loadout",
+    "select": "Sélectionner un loadout",
+    "createDefault": "Créer un loadout par défaut",
+    "confirmDelete": "Êtes-vous sûr de vouloir supprimer ce loadout ?",
+    "confirmDeleteWarning": "Tous les skins de ce loadout seront supprimés et ne pourront pas être restaurés",
+    "nameRequired": "Veuillez entrer un nom de loadout",
+    "nameTooLong": "Le nom du loadout doit contenir moins de 20 caractères",
+    "selectLoadoutFirst": "Veuillez d'abord sélectionner un loadout"
+  },
+  "auth": {
+    "loginButton": "Se connecter",
+    "logoutButton": "Déconnexion",
+
+    "loginRequired": "Pour accéder à ce site web, veuillez vous connecter avec votre compte Steam.",
+    "automaticallyLoggedOut": "Vous avez été automatiquement déconnecté",
+    "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter ?",
+    "rejectAction": "Connectez-vous pour exécuter cette action",
+    "authenticating": "Authentification...",
+    "openSteamProfile": "Ouvrir le profil Steam"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "success": "Succès",
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "save": "Enregistrer",
+    "update": "Mettre à jour",
+    "delete": "Supprimer",
+    "create": "Créer",
+    "search": "Rechercher",
+    "selectAll": "Tout sélectionner",
+    "noResults": "Aucun résultat trouvé",
+    "pleaseSelectLoadout": "Veuillez d'abord sélectionner un loadout"
+  }
+}
+

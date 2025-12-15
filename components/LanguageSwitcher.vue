@@ -25,6 +25,12 @@ const getFlag = (code) => {
       return '🇩🇪'
     case 'ru':
       return '🇷🇺'
+    case 'fr':
+      return '🇫🇷'
+    case 'es':
+      return '🇪🇸'
+    case 'nl':
+      return '🇳🇱'
     default:
       return '🌐'
   }
@@ -44,7 +50,7 @@ const handleSelect = (key) => {
 
   // If we're on a localized URL, we need to reload the current page without the language prefix
   const currentPath = window.location.pathname
-  const localePrefix = /^\/(en|de|ru)/
+  const localePrefix = /^\/(en|de|ru|fr|es|nl)/
 
   if (localePrefix.test(currentPath)) {
     const newPath = currentPath.replace(localePrefix, '')

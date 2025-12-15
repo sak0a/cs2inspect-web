@@ -1,0 +1,13 @@
+{
+  "title": "Pins",
+  "description": "Sélectionnez et personnalisez vos pins",
+  "defaultPin": "Pin par défaut",
+  "selectPin": "Sélectionner un pin",
+  "searchPlaceholder": "Rechercher des pins...",
+  "noResults": "Aucun pin trouvé correspondant à votre recherche",
+  "pinUpdated": "Pin mis à jour",
+  "resetToDefault": "Réinitialiser au pin par défaut",
+  "failedToUpdate": "Échec de la mise à jour du pin",
+  "failedToLoad": "Échec du chargement des pins"
+}
+
