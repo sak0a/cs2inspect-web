@@ -76,9 +76,11 @@ export async function startServer() {
     const server = await createServer();
     
     // Initialize Steam client in the background (only in production/startup, not in tests)
+    // Don't await - let it initialize in background so service can start immediately
     if (process.env.NODE_ENV !== 'test') {
       steamClientService.initialize().catch((error) => {
         logger.error('Failed to initialize Steam client on startup:', error);
+        logger.warn('Service will continue without Steam client. Unmasked URL inspection will not be available.');
       });
     }
 

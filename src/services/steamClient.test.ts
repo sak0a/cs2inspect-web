@@ -1,13 +1,17 @@
-import { describe, it, expect, beforeEach, afterEach, mock } from 'bun:test';
+import { describe, it, expect, beforeEach } from 'bun:test';
 import { steamClientService } from './steamClient.js';
-import { config } from '../utils/config.js';
 
 describe('Steam Client Service', () => {
   beforeEach(() => {
     // Reset service state
-    (steamClientService as any).client = null;
-    (steamClientService as any).isInitialized = false;
-    (steamClientService as any).initPromise = null;
+    const svc = steamClientService as unknown as {
+      client: unknown | null;
+      isInitialized: boolean;
+      initPromise: Promise<void> | null;
+    };
+    svc.client = null;
+    svc.isInitialized = false;
+    svc.initPromise = null;
   });
 
   describe('Initialization', () => {

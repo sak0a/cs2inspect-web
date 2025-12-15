@@ -62,7 +62,7 @@ describe('Request Queue', () => {
 
     it('should clear queue', async () => {
       // Add some requests
-      const promise1 = requestQueue.enqueue(async () => {
+      const _promise1 = requestQueue.enqueue(async () => {
         await new Promise((resolve) => setTimeout(resolve, 100));
         return 'result1';
       });

@@ -44,6 +44,13 @@ bun run build
 bun start
 ```
 
+## Important: Runtime (Node vs Bun)
+
+`cs2-inspect-lib` uses Steam libraries that are significantly more reliable on **Node.js** than on **Bun**.
+
+- This service **uses Bun for package management/build** (`bun install`, `bun run build`)
+- But it **runs on Node.js** (`tsx watch ...` for dev, `node dist/index.js` for production)
+
 ### Testing
 
 **Unit Tests (No Steam Account Required):**

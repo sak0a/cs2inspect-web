@@ -16,18 +16,16 @@ COPY src ./src
 RUN bun run build
 
 # Production stage
-FROM oven/bun:1-alpine
+FROM node:20-alpine
 
 # Install wget for health checks
 RUN apk add --no-cache wget
 
 WORKDIR /app
 
-# Copy package files
-COPY package.json bun.lockb* ./
-
-# Install production dependencies only
-RUN bun install --frozen-lockfile --production
+# Copy package + installed deps from builder (includes prod deps)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
 # Copy built files from builder
 COPY --from=builder /app/dist ./dist
@@ -37,7 +35,7 @@ EXPOSE 3665
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3655/api/health/live || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3665/api/health/live || exit 1
 
 # Start the service
-CMD ["bun", "run", "dist/index.js"]
+CMD ["node", "dist/index.js"]
