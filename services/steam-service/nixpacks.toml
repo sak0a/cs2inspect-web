@@ -8,7 +8,7 @@ cmds = ["bun install --frozen-lockfile"]
 cmds = ["bun run build"]
 
 [start]
-cmd = "bun run dist/index.js"
+cmd = "node dist/index.js"
 
 [staticAssets]
 ".env.example" = ".env.example"

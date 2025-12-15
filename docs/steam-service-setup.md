@@ -4,13 +4,15 @@
 
 The Steam Service is a standalone Node.js application that provides shared Steam account access via REST API. This prevents "LoggedInElsewhere" errors when multiple applications need to use the same Steam account.
 
+> **For Local Testing**: See [Local Testing Guide](./steam-service-local-testing.md) for detailed instructions on running both services locally.
+
 ## Quick Start
 
 ### 1. Install Dependencies
 
 ```bash
 cd services/steam-service
-npm install
+bun install
 ```
 
 ### 2. Configure Environment
@@ -36,13 +38,13 @@ LOG_API_REQUESTS=true
 
 **Development:**
 ```bash
-npm run dev
+bun run dev
 ```
 
 **Production:**
 ```bash
-npm run build
-npm start
+bun run build
+bun start
 ```
 
 ### 4. Configure Main App

@@ -1,5 +1,3 @@
-import type { EconItem } from 'cs2-inspect-lib';
-
 export interface CreateUrlRequest {
   itemType: 'weapon' | 'knife' | 'glove' | 'agent' | 'music-kit';
   defindex?: number;
