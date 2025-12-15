@@ -17,6 +17,46 @@ export async function createServer() {
     disableRequestLogging: !config.logging.apiRequests,
   });
 
+  const maskApiKey = (key?: string | string[]): string => {
+    const v = Array.isArray(key) ? key[0] : key;
+    if (!v) return '-';
+    if (v.length <= 8) return `${v.slice(0, 2)}***${v.slice(-2)}`;
+    return `${v.slice(0, 4)}***${v.slice(-4)}`;
+  };
+
+  const getClientIp = (request: { headers: Record<string, unknown>; ip?: string; socket?: { remoteAddress?: string | null } }): string => {
+    const xff = request.headers['x-forwarded-for'];
+    if (typeof xff === 'string' && xff.length > 0) return xff.split(',')[0].trim();
+    const xRealIp = request.headers['x-real-ip'];
+    if (typeof xRealIp === 'string' && xRealIp.length > 0) return xRealIp.trim();
+    return request.ip || request.socket?.remoteAddress || '-';
+  };
+
+  // Always log health/status requests so we can verify callers
+  fastify.addHook('onRequest', async (request) => {
+    if (
+      request.url.startsWith('/api/health') ||
+      request.url.startsWith('/api/status') ||
+      request.url.startsWith('/health') ||
+      request.url.startsWith('/status')
+    ) {
+      const apiKeyMasked = maskApiKey(request.headers['x-api-key'] as string | string[] | undefined);
+      const clientIp = getClientIp(request as unknown as { headers: Record<string, unknown>; ip?: string; socket?: { remoteAddress?: string | null } });
+      logger.info(`[REQ] ${request.method} ${request.url} ip=${clientIp} apiKey=${apiKeyMasked}`);
+    }
+  });
+
+  fastify.addHook('onResponse', async (request, reply) => {
+    if (
+      request.url.startsWith('/api/health') ||
+      request.url.startsWith('/api/status') ||
+      request.url.startsWith('/health') ||
+      request.url.startsWith('/status')
+    ) {
+      logger.info(`[RES] ${request.method} ${request.url} -> ${reply.statusCode}`);
+    }
+  });
+
   // Error handler
   fastify.setErrorHandler(errorHandler);
 
@@ -42,10 +82,12 @@ export async function createServer() {
   });
 
   // Health routes (no authentication required)
-  await fastify.register(healthRoutes);
+  // IMPORTANT: Expose as /api/health/* (main app expects /api/*)
+  await fastify.register(healthRoutes, { prefix: '/api' });
 
   // Status routes (no authentication required)
-  await fastify.register(statusRoutes);
+  // IMPORTANT: Expose as /api/status/*
+  await fastify.register(statusRoutes, { prefix: '/api' });
 
   // Inspect routes (require authentication)
   await fastify.register(async (fastify) => {
