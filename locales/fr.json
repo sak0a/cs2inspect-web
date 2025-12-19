@@ -247,12 +247,42 @@
       "title": "Personnalisateur visuel d'autocollants et de porte-clés",
       "save": "Enregistrer les modifications",
       "cancel": "Annuler",
+      "labels": {
+        "stickers": "Autocollants",
+        "keychain": "Porte-clés",
+        "add": "Ajouter",
+        "edit": "Modifier",
+        "settings": "Paramètres",
+        "weaponWear": "Usure de l'arme",
+        "selectSticker": "Sélectionner un autocollant",
+        "selectKeychain": "Sélectionner un porte-clés",
+        "search": "Rechercher...",
+        "offsetUnits": "Unités de décalage",
+        "pixels": "Pixels",
+        "normalized": "Normalisé (ext)",
+        "offsetXPx": "Décalage X (px)",
+        "offsetYPx": "Décalage Y (px)",
+        "offsetXNorm": "Décalage X (norm)",
+        "offsetYNorm": "Décalage Y (norm)",
+        "externalRefWidth": "Largeur de référence externe",
+        "externalRefHeight": "Hauteur de référence externe",
+        "scale": "Échelle",
+        "rotation": "Rotation",
+        "wear": "Usure",
+        "removeSticker": "Supprimer l'autocollant",
+        "removeKeychain": "Supprimer le porte-clés"
+      },
+      "debug": {
+        "title": "Outils de débogage",
+        "coordinateGrid": "Afficher la grille de coordonnées (positions X/Y)",
+        "coordinateGridDescription": "Activer pour voir les coordonnées en pixels pour un positionnement précis des autocollants"
+      },
       "instructions": {
         "title": "Instructions",
-        "addAssets": "Cliquez sur les autocollants ou les porte-clés dans le navigateur d'actifs pour les ajouter à votre arme",
-        "selectElements": "Cliquez sur les éléments du canevas pour les sélectionner et les modifier",
-        "useProperties": "Utilisez le panneau de propriétés pour affiner la position, l'échelle, la rotation et l'usure",
-        "dragElements": "Glissez les éléments directement sur le canevas pour les repositionner"
+        "addAssets": "• Cliquez sur les emplacements d'autocollants/porte-clés pour ajouter des éléments",
+        "selectElements": "• Cliquez sur les éléments du canevas pour les sélectionner et les modifier",
+        "dragElements": "• Glissez les éléments pour les repositionner",
+        "useProperties": "• Utilisez les curseurs pour affiner les propriétés"
       },
       "assetBrowser": {
         "title": "Navigateur d'actifs",
@@ -272,7 +302,8 @@
       "messages": {
         "maxStickers": "Maximum 5 autocollants autorisés",
         "selectSkinFirst": "Veuillez d'abord sélectionner un skin d'arme",
-        "saveSuccess": "Personnalisation visuelle appliquée avec succès"
+        "saveSuccess": "Personnalisation visuelle appliquée avec succès",
+        "failedToLoadAssets": "Échec du chargement des autocollants et porte-clés"
       }
     }
   },

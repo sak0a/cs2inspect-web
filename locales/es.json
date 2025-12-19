@@ -247,12 +247,42 @@
       "title": "Personalizador visual de pegatinas y llaveros",
       "save": "Guardar cambios",
       "cancel": "Cancelar",
+      "labels": {
+        "stickers": "Pegatinas",
+        "keychain": "Llavero",
+        "add": "Añadir",
+        "edit": "Editar",
+        "settings": "Configuración",
+        "weaponWear": "Desgaste del arma",
+        "selectSticker": "Seleccionar pegatina",
+        "selectKeychain": "Seleccionar llavero",
+        "search": "Buscar...",
+        "offsetUnits": "Unidades de desplazamiento",
+        "pixels": "Píxeles",
+        "normalized": "Normalizado (ext)",
+        "offsetXPx": "Desplazamiento X (px)",
+        "offsetYPx": "Desplazamiento Y (px)",
+        "offsetXNorm": "Desplazamiento X (norm)",
+        "offsetYNorm": "Desplazamiento Y (norm)",
+        "externalRefWidth": "Ancho de referencia externa",
+        "externalRefHeight": "Alto de referencia externa",
+        "scale": "Escala",
+        "rotation": "Rotación",
+        "wear": "Desgaste",
+        "removeSticker": "Eliminar pegatina",
+        "removeKeychain": "Eliminar llavero"
+      },
+      "debug": {
+        "title": "Herramientas de depuración",
+        "coordinateGrid": "Mostrar cuadrícula de coordenadas (posiciones X/Y)",
+        "coordinateGridDescription": "Activar para ver coordenadas de píxeles para posicionamiento preciso de pegatinas"
+      },
       "instructions": {
         "title": "Instrucciones",
-        "addAssets": "Haz clic en las pegatinas o llaveros en el navegador de recursos para añadirlos a tu arma",
-        "selectElements": "Haz clic en los elementos del lienzo para seleccionarlos y editarlos",
-        "useProperties": "Usa el panel de propiedades para ajustar la posición, escala, rotación y desgaste",
-        "dragElements": "Arrastra los elementos directamente en el lienzo para reposicionarlos"
+        "addAssets": "• Haz clic en las ranuras de pegatinas/llaveros para añadir elementos",
+        "selectElements": "• Haz clic en los elementos del lienzo para seleccionarlos y editarlos",
+        "dragElements": "• Arrastra los elementos para reposicionarlos",
+        "useProperties": "• Usa los controles deslizantes para ajustar las propiedades"
       },
       "assetBrowser": {
         "title": "Navegador de recursos",
@@ -272,7 +302,8 @@
       "messages": {
         "maxStickers": "Máximo 5 pegatinas permitidas",
         "selectSkinFirst": "Por favor, selecciona primero un skin de arma",
-        "saveSuccess": "Personalización visual aplicada correctamente"
+        "saveSuccess": "Personalización visual aplicada correctamente",
+        "failedToLoadAssets": "Error al cargar pegatinas y llaveros"
       }
     }
   },

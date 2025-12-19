@@ -542,7 +542,7 @@ const loadAssets = async () => {
     if (isDevelopment) {
       console.error('Error loading assets:', error)
     }
-    message.error('Failed to load stickers and keychains')
+    message.error(t('modals.visualCustomizer.messages.failedToLoadAssets'))
   } finally {
     isLoadingAssets.value = false
   }
@@ -1075,7 +1075,7 @@ const addStickerToCanvas = (sticker: { id: string; name: string; image: string; 
   }
 
   if (nextSlot >= 5) {
-    message.warning('Maximum 5 stickers allowed')
+    message.warning(t('modals.visualCustomizer.messages.maxStickers'))
     return
   }
 
@@ -1461,7 +1461,7 @@ const initializeSlotsFromProps = () => {
     :show="visible"
     style="width: 98vw; height: 95vh"
     preset="card"
-    :title="props.weaponSkin?.name ? `${props.weaponSkin.name} - Visual Customizer` : String(t('modals.visualCustomizer.title'))"
+    :title="props.weaponSkin?.name ? `${props.weaponSkin.name} - ${t('modals.visualCustomizer.title')}` : String(t('modals.visualCustomizer.title'))"
     :bordered="false"
     :theme-overrides="skinModalThemeOverrides"
     size="huge"
@@ -1517,7 +1517,7 @@ const initializeSlotsFromProps = () => {
           <!-- When keychain is selected, show keychain container with fixed width -->
           <div v-if="selectedKeychainSlot" class="w-48">
             <div class="mt-4">
-              <h4 class="font-bold mb-1 text-white">Keychain</h4>
+              <h4 class="font-bold mb-1 text-white">{{ t('modals.visualCustomizer.labels.keychain') }}</h4>
               <div
                 class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
                 :class="{
@@ -1536,7 +1536,7 @@ const initializeSlotsFromProps = () => {
                   <p class="text-sm text-center text-gray-400 mt-1">{{ keychainSlot.api.name.replace('Charm | ', '') }}</p>
                 </div>
                 <div v-else class="h-30 flex items-center justify-center">
-                  <span class="text-gray-400 text-sm">Add</span>
+                  <span class="text-gray-400 text-sm">{{ t('modals.visualCustomizer.labels.add') }}</span>
                 </div>
               </div>
             </div>
@@ -1549,7 +1549,7 @@ const initializeSlotsFromProps = () => {
             <div class="grid gap-4 auto-rows-fr" :class="selectedStickerSlot !== null ? 'grid-cols-5' : 'grid-cols-6'">
               <!-- Stickers (completely hide when keychain is being selected) -->
               <div class="mt-4" :class="selectedStickerSlot !== null ? 'col-span-5' : 'col-span-5'">
-                <h4 class="font-bold mb-1 text-white">Stickers</h4>
+                <h4 class="font-bold mb-1 text-white">{{ t('modals.visualCustomizer.labels.stickers') }}</h4>
                 <div class="grid grid-cols-5 gap-x-2 min-h-36 max-h-36">
                   <div
                     v-for="(sticker, index) in stickerSlots"
@@ -1569,7 +1569,7 @@ const initializeSlotsFromProps = () => {
                         class="w-full h-full object-contain"
                       >
                       <div class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                        <span class="text-white text-xs">Edit</span>
+                        <span class="text-white text-xs">{{ t('modals.visualCustomizer.labels.edit') }}</span>
                       </div>
                     </div>
                     <div v-else class="h-28 flex items-center justify-center">
@@ -1583,7 +1583,7 @@ const initializeSlotsFromProps = () => {
               </div>
               <!-- Keychain (completely hide when sticker is being selected) -->
               <div v-if="selectedStickerSlot === null" class="col-span-1 mt-4">
-                <h4 class="font-bold mb-1 text-white">Keychain</h4>
+                <h4 class="font-bold mb-1 text-white">{{ t('modals.visualCustomizer.labels.keychain') }}</h4>
                 <div
                   class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
                   :class="{
@@ -1613,16 +1613,16 @@ const initializeSlotsFromProps = () => {
           <div v-if="selectedStickerSlot !== null || selectedKeychainSlot" class="bg-[#242424] rounded-lg p-4" :class="selectedKeychainSlot ? 'flex-1' : 'flex-1'">
             <div class="flex items-center justify-between mb-4 gap-4">
               <h4 class="font-bold text-white">
-                {{ selectedStickerSlot !== null ? 'Select Sticker' : 'Select Keychain' }}
+                {{ selectedStickerSlot !== null ? t('modals.visualCustomizer.labels.selectSticker') : t('modals.visualCustomizer.labels.selectKeychain') }}
               </h4>
               <div class="flex items-center gap-3 flex-1">
                 <NInput
                   v-model:value="assetSearchQuery"
-                  placeholder="Search..."
+                  :placeholder="t('modals.visualCustomizer.labels.search')"
                   class="flex-1"
                   clearable
                 />
-                <NButton size="small" @click="clearSelection">Cancel</NButton>
+                <NButton size="small" @click="clearSelection">{{ t('modals.visualCustomizer.cancel') }}</NButton>
               </div>
             </div>
 
@@ -1678,7 +1678,7 @@ const initializeSlotsFromProps = () => {
             <!-- Wear Control (only show in video mode) -->
             <div v-if="isVideoMode" class="bg-[#242424] rounded-lg p-3">
               <div class="flex items-center justify-between mb-2">
-                <span class="text-sm font-medium text-gray-300">Weapon Wear</span>
+                <span class="text-sm font-medium text-gray-300">{{ t('modals.visualCustomizer.labels.weaponWear') }}</span>
                 <span class="text-xs font-mono text-white">{{ currentWear.toFixed(3) }}</span>
               </div>
               <WearSlider
@@ -1691,11 +1691,14 @@ const initializeSlotsFromProps = () => {
 
             <!-- Settings Panel -->
             <div class="bg-[#242424] rounded-lg p-4">
-              <h4 class="font-bold mb-4 text-white">Settings <span v-if="selectedElement">| {{ selectedElement.type === 'sticker' ? 'Sticker' : 'Keychain' }}</span> </h4>
+              <h4 class="font-bold mb-4 text-white">
+                {{ t('modals.visualCustomizer.labels.settings') }}
+                <span v-if="selectedElement"> | {{ selectedElement.type === 'sticker' ? String(t('modals.visualCustomizer.labels.stickers')).replace(/s$/, '') : t('modals.visualCustomizer.labels.keychain') }}</span>
+              </h4>
 
               <!-- Debug Tools (only shown in development) -->
               <div v-if="isDevelopment" class="mb-4 p-3 bg-[#1a1a1a] rounded border border-yellow-600">
-                <h5 class="text-yellow-400 font-semibold mb-2">🛠️ Debug Tools</h5>
+                <h5 class="text-yellow-400 font-semibold mb-2">🛠️ {{ t('modals.visualCustomizer.debug.title') }}</h5>
                 <div class="flex items-center space-x-2">
                   <input
                     type="checkbox"
@@ -1704,11 +1707,11 @@ const initializeSlotsFromProps = () => {
                     class="w-4 h-4"
                   />
                   <label for="coordinateOverlay" class="text-sm text-gray-300">
-                    Show Coordinate Grid (X/Y positions)
+                    {{ t('modals.visualCustomizer.debug.coordinateGrid') }}
                   </label>
                 </div>
                 <p class="text-xs text-gray-400 mt-1">
-                  Toggle to see pixel coordinates for precise sticker positioning
+                  {{ t('modals.visualCustomizer.debug.coordinateGridDescription') }}
                 </p>
               </div>
 
@@ -1721,20 +1724,20 @@ const initializeSlotsFromProps = () => {
 
               <div v-if="selectedElement && selectedElement.type === 'sticker'" class="space-y-3">
                 <div>
-                  <label class="block text-xs font-medium text-gray-300 mb-1">Offset Units</label>
+                  <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.offsetUnits') }}</label>
                   <NSelect
                     v-model:value="offsetUnits"
                     size="small"
                     :options="[
-                      { label: 'Pixels', value: 'px' },
-                      { label: 'Normalized (ext)', value: 'ext' }
+                      { label: t('modals.visualCustomizer.labels.pixels'), value: 'px' },
+                      { label: t('modals.visualCustomizer.labels.normalized'), value: 'ext' }
                     ]"
                   />
                 </div>
 
                 <div v-if="offsetUnits === 'px'" class="grid grid-cols-2 gap-2">
                   <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset X (px)</label>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.offsetXPx') }}</label>
                     <NInputNumber
                       :value="getElementOffsetCanvasPx(selectedElement).x"
                       :min="-5000"
@@ -1747,7 +1750,7 @@ const initializeSlotsFromProps = () => {
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset Y (px)</label>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.offsetYPx') }}</label>
                     <NInputNumber
                       :value="getElementOffsetCanvasPx(selectedElement).y"
                       :min="-5000"
@@ -1763,7 +1766,7 @@ const initializeSlotsFromProps = () => {
 
                 <div v-else class="grid grid-cols-2 gap-2">
                   <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset X (norm)</label>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.offsetXNorm') }}</label>
                     <NInputNumber
                       :value="getElementOffsetExternalNorm(selectedElement).x"
                       :min="-2"
@@ -1776,7 +1779,7 @@ const initializeSlotsFromProps = () => {
                     />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">Offset Y (norm)</label>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.offsetYNorm') }}</label>
                     <NInputNumber
                       :value="getElementOffsetExternalNorm(selectedElement).y"
                       :min="-2"
@@ -1792,11 +1795,11 @@ const initializeSlotsFromProps = () => {
 
                 <div v-if="offsetUnits === 'ext'" class="grid grid-cols-2 gap-2">
                   <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">External Ref Width</label>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.externalRefWidth') }}</label>
                     <NInputNumber v-model:value="extXRef" :min="100" :max="5000" :step="1" size="small" class="w-full" />
                   </div>
                   <div>
-                    <label class="block text-xs font-medium text-gray-300 mb-1">External Ref Height</label>
+                    <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.externalRefHeight') }}</label>
                     <NInputNumber v-model:value="extYRef" :min="100" :max="5000" :step="1" size="small" class="w-full" />
                   </div>
                 </div>
@@ -1818,7 +1821,7 @@ const initializeSlotsFromProps = () => {
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-gray-300 mb-1">Scale</label>
+                <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.scale') }}</label>
                 <NSlider
                   :value="selectedElement.scale"
                   :min="0.1"
@@ -1829,7 +1832,7 @@ const initializeSlotsFromProps = () => {
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-gray-300 mb-1">Rotation</label>
+                <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.rotation') }}</label>
                 <NSlider
                   :value="selectedElement.rotation"
                   :min="0"
@@ -1840,7 +1843,7 @@ const initializeSlotsFromProps = () => {
               </div>
 
               <div v-if="selectedElement.type === 'sticker'">
-                <label class="block text-xs font-medium text-gray-300 mb-1">Wear</label>
+                <label class="block text-xs font-medium text-gray-300 mb-1">{{ t('modals.visualCustomizer.labels.wear') }}</label>
                 <NSlider
                   :value="selectedElement.wear || 0"
                   :min="0"
@@ -1856,16 +1859,16 @@ const initializeSlotsFromProps = () => {
                 class="w-full"
                 @click="removeSelectedElement"
               >
-                Remove {{ selectedElement.type === 'sticker' ? 'Sticker' : 'Keychain' }}
+                {{ selectedElement.type === 'sticker' ? t('modals.visualCustomizer.labels.removeSticker') : t('modals.visualCustomizer.labels.removeKeychain') }}
               </NButton>
             </div>
 
               <!-- Instructions when no element selected -->
               <div v-else class="text-sm text-gray-300 space-y-2">
-                <p>• Click sticker/keychain slots to add items</p>
-                <p>• Click elements on canvas to select and edit</p>
-                <p>• Drag elements to reposition them</p>
-                <p>• Use sliders to fine-tune properties</p>
+                <p>{{ t('modals.visualCustomizer.instructions.addAssets') }}</p>
+                <p>{{ t('modals.visualCustomizer.instructions.selectElements') }}</p>
+                <p>{{ t('modals.visualCustomizer.instructions.dragElements') }}</p>
+                <p>{{ t('modals.visualCustomizer.instructions.useProperties') }}</p>
               </div>
             </div>
           </div>

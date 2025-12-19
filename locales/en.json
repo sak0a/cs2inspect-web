@@ -247,12 +247,42 @@
       "title": "Visual Sticker & Keychain Customizer",
       "save": "Save Changes",
       "cancel": "Cancel",
+      "labels": {
+        "stickers": "Stickers",
+        "keychain": "Keychain",
+        "add": "Add",
+        "edit": "Edit",
+        "settings": "Settings",
+        "weaponWear": "Weapon Wear",
+        "selectSticker": "Select Sticker",
+        "selectKeychain": "Select Keychain",
+        "search": "Search...",
+        "offsetUnits": "Offset Units",
+        "pixels": "Pixels",
+        "normalized": "Normalized (ext)",
+        "offsetXPx": "Offset X (px)",
+        "offsetYPx": "Offset Y (px)",
+        "offsetXNorm": "Offset X (norm)",
+        "offsetYNorm": "Offset Y (norm)",
+        "externalRefWidth": "External Ref Width",
+        "externalRefHeight": "External Ref Height",
+        "scale": "Scale",
+        "rotation": "Rotation",
+        "wear": "Wear",
+        "removeSticker": "Remove Sticker",
+        "removeKeychain": "Remove Keychain"
+      },
+      "debug": {
+        "title": "Debug Tools",
+        "coordinateGrid": "Show Coordinate Grid (X/Y positions)",
+        "coordinateGridDescription": "Toggle to see pixel coordinates for precise sticker positioning"
+      },
       "instructions": {
         "title": "Instructions",
-        "addAssets": "Click on stickers or keychains in the asset browser to add them to your weapon",
-        "selectElements": "Click on elements in the canvas to select and edit them",
-        "useProperties": "Use the property panel to fine-tune position, scale, rotation, and wear",
-        "dragElements": "Drag elements directly on the canvas to reposition them"
+        "addAssets": "• Click sticker/keychain slots to add items",
+        "selectElements": "• Click elements on canvas to select and edit",
+        "dragElements": "• Drag elements to reposition them",
+        "useProperties": "• Use sliders to fine-tune properties"
       },
       "assetBrowser": {
         "title": "Asset Browser",
@@ -272,7 +302,8 @@
       "messages": {
         "maxStickers": "Maximum 5 stickers allowed",
         "selectSkinFirst": "Please select a weapon skin first",
-        "saveSuccess": "Visual customization applied successfully"
+        "saveSuccess": "Visual customization applied successfully",
+        "failedToLoadAssets": "Failed to load stickers and keychains"
       }
     }
   },

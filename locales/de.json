@@ -236,12 +236,42 @@
       "title": "Visueller Sticker- und Schlüsselanhänger-Anpasser",
       "save": "Änderungen speichern",
       "cancel": "Abbrechen",
+      "labels": {
+        "stickers": "Sticker",
+        "keychain": "Schlüsselanhänger",
+        "add": "Hinzufügen",
+        "edit": "Bearbeiten",
+        "settings": "Einstellungen",
+        "weaponWear": "Waffen-Abnutzung",
+        "selectSticker": "Sticker auswählen",
+        "selectKeychain": "Schlüsselanhänger auswählen",
+        "search": "Suchen...",
+        "offsetUnits": "Versatz-Einheiten",
+        "pixels": "Pixel",
+        "normalized": "Normalisiert (ext)",
+        "offsetXPx": "Versatz X (px)",
+        "offsetYPx": "Versatz Y (px)",
+        "offsetXNorm": "Versatz X (norm)",
+        "offsetYNorm": "Versatz Y (norm)",
+        "externalRefWidth": "Externe Ref-Breite",
+        "externalRefHeight": "Externe Ref-Höhe",
+        "scale": "Skalierung",
+        "rotation": "Rotation",
+        "wear": "Abnutzung",
+        "removeSticker": "Sticker entfernen",
+        "removeKeychain": "Schlüsselanhänger entfernen"
+      },
+      "debug": {
+        "title": "Debug-Tools",
+        "coordinateGrid": "Koordinatengitter anzeigen (X/Y-Positionen)",
+        "coordinateGridDescription": "Aktivieren, um Pixelkoordinaten für präzise Sticker-Positionierung zu sehen"
+      },
       "instructions": {
         "title": "Anweisungen",
-        "addAssets": "Klicke auf Sticker oder Schlüsselanhänger im Asset-Browser, um sie zu deiner Waffe hinzuzufügen",
-        "selectElements": "Klicke auf Elemente im Canvas, um sie auszuwählen und zu bearbeiten",
-        "useProperties": "Verwende das Eigenschaften-Panel, um Position, Skalierung, Rotation und Abnutzung zu verfeinern",
-        "dragElements": "Ziehe Elemente direkt auf dem Canvas, um sie zu repositionieren"
+        "addAssets": "• Klicken Sie auf Sticker/Schlüsselanhänger-Slots, um Elemente hinzuzufügen",
+        "selectElements": "• Klicken Sie auf Elemente auf der Leinwand, um sie auszuwählen und zu bearbeiten",
+        "dragElements": "• Ziehen Sie Elemente, um sie neu zu positionieren",
+        "useProperties": "• Verwenden Sie Schieberegler, um Eigenschaften fein abzustimmen"
       },
       "assetBrowser": {
         "title": "Asset-Browser",
@@ -261,7 +291,8 @@
       "messages": {
         "maxStickers": "Maximal 5 Sticker erlaubt",
         "selectSkinFirst": "Bitte wähle zuerst einen Waffen-Skin aus",
-        "saveSuccess": "Visuelle Anpassung erfolgreich angewendet"
+        "saveSuccess": "Visuelle Anpassung erfolgreich angewendet",
+        "failedToLoadAssets": "Fehler beim Laden von Stickern und Schlüsselanhängern"
       }
     }
   },

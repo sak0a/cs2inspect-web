@@ -247,12 +247,42 @@
       "title": "Visuele sticker- en sleutelhangeraanpasser",
       "save": "Wijzigingen opslaan",
       "cancel": "Annuleren",
+      "labels": {
+        "stickers": "Stickers",
+        "keychain": "Sleutelhanger",
+        "add": "Toevoegen",
+        "edit": "Bewerken",
+        "settings": "Instellingen",
+        "weaponWear": "Wapenslijtage",
+        "selectSticker": "Sticker selecteren",
+        "selectKeychain": "Sleutelhanger selecteren",
+        "search": "Zoeken...",
+        "offsetUnits": "Offset-eenheden",
+        "pixels": "Pixels",
+        "normalized": "Genormaliseerd (ext)",
+        "offsetXPx": "Offset X (px)",
+        "offsetYPx": "Offset Y (px)",
+        "offsetXNorm": "Offset X (norm)",
+        "offsetYNorm": "Offset Y (norm)",
+        "externalRefWidth": "Externe referentiebreedte",
+        "externalRefHeight": "Externe referentiehoogte",
+        "scale": "Schaal",
+        "rotation": "Rotatie",
+        "wear": "Slijtage",
+        "removeSticker": "Sticker verwijderen",
+        "removeKeychain": "Sleutelhanger verwijderen"
+      },
+      "debug": {
+        "title": "Debug-tools",
+        "coordinateGrid": "Coördinatengrid weergeven (X/Y-posities)",
+        "coordinateGridDescription": "Inschakelen om pixelcoördinaten te zien voor nauwkeurige stickerpositionering"
+      },
       "instructions": {
         "title": "Instructies",
-        "addAssets": "Klik op stickers of sleutelhangers in de assetbrowser om ze aan je wapen toe te voegen",
-        "selectElements": "Klik op elementen in het canvas om ze te selecteren en te bewerken",
-        "useProperties": "Gebruik het eigenschappenpaneel om positie, schaal, rotatie en slijtage te verfijnen",
-        "dragElements": "Sleep elementen direct op het canvas om ze te herpositioneren"
+        "addAssets": "• Klik op sticker/sleutelhanger-sleuven om items toe te voegen",
+        "selectElements": "• Klik op elementen op het canvas om ze te selecteren en te bewerken",
+        "dragElements": "• Sleep elementen om ze te herpositioneren",
+        "useProperties": "• Gebruik schuifregelaars om eigenschappen te verfijnen"
       },
       "assetBrowser": {
         "title": "Assetbrowser",
@@ -272,7 +302,8 @@
       "messages": {
         "maxStickers": "Maximaal 5 stickers toegestaan",
         "selectSkinFirst": "Selecteer eerst een wapenskin",
-        "saveSuccess": "Visuele aanpassing succesvol toegepast"
+        "saveSuccess": "Visuele aanpassing succesvol toegepast",
+        "failedToLoadAssets": "Fout bij het laden van stickers en sleutelhangers"
       }
     }
   },
