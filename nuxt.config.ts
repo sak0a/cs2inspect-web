@@ -51,12 +51,6 @@ export default defineNuxtConfig({
       hashMode: false // Ensure this is set to false for proper URL handling
     }
   },
-  postcss: {
-    plugins: {
-      '@tailwindcss/postcss': {},
-      autoprefixer: {},
-    },
-  },
   vite: {
     optimizeDeps: {
       exclude: ['oxc-parser']
@@ -84,13 +78,11 @@ export default defineNuxtConfig({
     ]
   },
   tailwindcss: {
-    cssPath: '~/assets/css/tailwind.css',
+    cssPath: ['~/assets/css/tailwind.css', { injectPosition: "first" }],
     exposeConfig: {
       level: 2
     },
-    config: {
-      important: true, // Enable !important for all utilities to override component library styles
-    },
+    config: {},
     viewer: false,
   },
   modules: [

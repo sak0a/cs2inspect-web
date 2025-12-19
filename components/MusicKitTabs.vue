@@ -41,7 +41,7 @@ const hexToRgba = (hex: string, opacity: string) => {
       }"
       :class="[
         'cursor-pointer rounded-xl bg-[#242424] music-kit-card',
-        isSelected ? 'selected-music-kit ring-2 ring-[var(--selection-ring)] !border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
+        isSelected ? 'selected-music-kit ring-2 ring-[var(--selection-ring)] border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
       ]"
       @click="handleSelect"
   >

@@ -931,7 +931,7 @@ watch(() => props.weapon, () => {
         <!-- Visual Customizer Button -->
         <div class="mt-4 mb-4">
           <NButton
-            class="!rounded-full !w-full"
+            class="rounded-full w-full"
             type="primary"
             size="large"
             :disabled="!selectedSkin"
@@ -956,7 +956,9 @@ watch(() => props.weapon, () => {
               <div
                   v-for="(sticker, index) in customization.stickers"
                   :key="index"
-                  class="sticker-slot flex items-center justify-center bg-[#242424] p-2 rounded cursor-move transition-all relative hover:bg-[#2a2a2a]"
+                  class="
+                  sticker-slot flex items-center justify-center bg-[#242424] p-2 rounded cursor-move 
+                  transition-all relative hover:bg-red-500 "
                   :class="{ 'inactive-item': !sticker, 'active-item': sticker }"
                   draggable="true"
                   @dragstart="handleStickerDragStart($event, index)"
@@ -1021,7 +1023,7 @@ watch(() => props.weapon, () => {
               ', ' + (hexToRgba(skin.rarity?.color, '0.15') || '#313030') + ')'}"
             :class="[
             'hover:shadow-lg cursor-pointer transition-all rounded-xl',
-            selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] !border-0 opacity-85' : ''
+            selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
           ]"
             @click="handleSkinSelect(skin)"
         >

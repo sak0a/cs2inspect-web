@@ -303,7 +303,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 v-model:value="ctAgentType"
                 :options="ctAgentOptions"
                 placeholder="Select agent"
-                class="w-96"
+                class="w-96!"
                 @update:value="(value) => {
                   handleAgentTypeChange('ct', value)
                   // Ensure all agent cards remain visible after dropdown selection
@@ -336,7 +336,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 v-model:value="tAgentType"
                 :options="tAgentOptions"
                 placeholder="Select agent"
-                class="w-96"
+                class="w-96!"
                 @update:value="(value) => {
                   handleAgentTypeChange('t', value)
                   // Ensure all agent cards remain visible after dropdown selection

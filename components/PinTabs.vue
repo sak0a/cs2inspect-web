@@ -40,8 +40,8 @@ const hexToRgba = (hex: string, opacity: string) => {
           hexToRgba(collectible.rarity?.color, '0.15') + ')': '#242424'
       }"
       :class="[
-        'cursor-pointer rounded-xl! bg-[#242424] pin-card',
-        isSelected ? 'selected-pin ring-2 ring-[var(--selection-ring)] !border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
+        'cursor-pointer rounded-xl bg-[#242424] pin-card',
+        isSelected ? 'selected-pin ring-2 ring-[var(--selection-ring)] border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
       ]"
       @click="handleSelect"
   >

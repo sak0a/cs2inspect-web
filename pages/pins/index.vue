@@ -214,7 +214,7 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
                 v-model:value="selectedPin"
                 :options="pinOptions"
                 placeholder="Select pin"
-                class="w-72!"
+                class="w-72"
                 @update:value="handlePinTypeChange($event)"
             />
           </div>

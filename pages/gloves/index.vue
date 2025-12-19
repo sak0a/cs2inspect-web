@@ -234,7 +234,7 @@ watch(() => showSkinModal.value, (isVisible) => {
                 v-model:value="ctGloveType"
                 :options="gloveOptions"
                 placeholder="Select glove type"
-                class="w-48"
+                class="w-48!"
                 @update:value="handleGloveTypeChange('ct', $event)"
             />
           </div>
@@ -246,7 +246,7 @@ watch(() => showSkinModal.value, (isVisible) => {
                 v-model:value="tGloveType"
                 :options="gloveOptions"
                 placeholder="Select glove type"
-                class="w-48"
+                class="w-48!"
                 @update:value="handleGloveTypeChange('t', $event)"
             />
           </div>

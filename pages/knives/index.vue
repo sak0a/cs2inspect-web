@@ -243,7 +243,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 v-model:value="ctKnifeType"
                 :options="knifeOptions"
                 placeholder="Select knife type"
-                class="w-48"
+                class="w-48!"
                 @update:value="handleKnifeTypeChange('ct', $event)"
             />
           </div>
@@ -255,7 +255,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 v-model:value="tKnifeType"
                 :options="knifeOptions"
                 placeholder="Select knife type"
-                class="w-48"
+                class="w-48!"
                 @update:value="handleKnifeTypeChange('t', $event)"
             />
           </div>
