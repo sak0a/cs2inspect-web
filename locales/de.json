@@ -151,6 +151,118 @@
       "question": "Bist du sicher, dass du die Skin-Konfiguration zurücksetzen möchtest?",
       "cancel": "Abbrechen",
       "confirm": "Zurücksetzen"
+    },
+    "weaponSkin": {
+      "defaultTitle": "Skin auswählen",
+      "title": "Skin für {weaponName} auswählen",
+      "buttons": {
+        "reset": "Zurücksetzen",
+        "importFromLink": "Aus Link importieren",
+        "generateLink": "Link generieren",
+        "save": "Änderungen speichern",
+        "duplicate": "Für anderes Team duplizieren"
+      },
+      "inputs":{
+        "searchPlaceholder": "Skins suchen...",
+        "nameTagPlaceholder": "Namensschild"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Farbindex",
+        "paintIndexOverride": "Überschreiben",
+        "pattern": "Farbmuster (Seed)",
+        "wear": "Abnutzung (Float)",
+        "itemActive": "Aktiv",
+        "itemInactive": "Inaktiv"
+      },
+      "stickers": {
+        "title": "Sticker",
+        "add": "Sticker hinzufügen",
+        "reposition": "Ziehen zum Repositionieren"
+      },
+      "keychain": {
+        "title": "Schlüsselanhänger",
+        "add": "Schlüsselanhänger hinzufügen"
+      },
+      "visualCustomizer": {
+        "button": "Visueller Anpasser"
+      },
+      "importFailedDefault": "Fehler beim Import der Waffen-Konfiguration",
+      "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit der ausgewählten Waffe überein",
+      "importSuccess": "Messer-Konfiguration erfolgreich importiert",
+      "generateInspectUrlSuccess": "Inspect-URL in die Zwischenablage kopiert",
+      "generateInspectUrlFailed": "Fehler beim Generieren der Inspect-URL",
+      "noSearchResults": "Keine Skins gefunden",
+      "resetSuccess": "Waffen-Konfiguration zurückgesetzt",
+      "resetFailed": "Fehler beim Zurücksetzen der Waffen-Konfiguration",
+      "duplicateFailed": "Fehler beim Duplizieren der Waffen-Konfiguration"
+    },
+    "keychain": {
+      "titleEdit": "Schlüsselanhänger bearbeiten",
+      "titleAdd": "Schlüsselanhänger hinzufügen",
+      "searchPlaceholder": "Schlüsselanhänger suchen...",
+      "labels": {
+        "position": "Position",
+        "seed": "Seed"
+      },
+      "buttons": {
+        "update": "Änderungen aktualisieren",
+        "create": "Schlüsselanhänger anwenden",
+        "delete": "Schlüsselanhänger löschen"
+      },
+      "delete": "Schlüsselanhänger löschen",
+      "errorFetching": "Fehler beim Abrufen der Schlüsselanhänger-Daten",
+      "noSearchResults": "Keine Schlüsselanhänger gefunden"
+    },
+    "sticker": {
+      "titleEdit": "Sticker bearbeiten",
+      "titleAdd": "Sticker hinzufügen",
+      "searchPlaceholder": "Sticker suchen...",
+      "labels": {
+        "position": "Position",
+        "scale": "Skalierung",
+        "rotation": "Rotation",
+        "wear": "Abnutzung"
+      },
+      "buttons": {
+        "update": "Sticker aktualisieren",
+        "create": "Sticker anwenden",
+        "delete": "Sticker löschen"
+      },
+      "errorFetching": "Fehler beim Abrufen der Sticker-Daten",
+      "noSearchResults": "Keine Sticker gefunden"
+    },
+    "visualCustomizer": {
+      "title": "Visueller Sticker- und Schlüsselanhänger-Anpasser",
+      "save": "Änderungen speichern",
+      "cancel": "Abbrechen",
+      "instructions": {
+        "title": "Anweisungen",
+        "addAssets": "Klicke auf Sticker oder Schlüsselanhänger im Asset-Browser, um sie zu deiner Waffe hinzuzufügen",
+        "selectElements": "Klicke auf Elemente im Canvas, um sie auszuwählen und zu bearbeiten",
+        "useProperties": "Verwende das Eigenschaften-Panel, um Position, Skalierung, Rotation und Abnutzung zu verfeinern",
+        "dragElements": "Ziehe Elemente direkt auf dem Canvas, um sie zu repositionieren"
+      },
+      "assetBrowser": {
+        "title": "Asset-Browser",
+        "stickers": "Sticker",
+        "keychains": "Schlüsselanhänger",
+        "searchPlaceholder": "Assets suchen..."
+      },
+      "properties": {
+        "title": "Eigenschaften",
+        "positionX": "Position X",
+        "positionY": "Position Y",
+        "scale": "Skalierung",
+        "rotation": "Rotation (Grad)",
+        "wear": "Abnutzung",
+        "remove": "Entfernen"
+      },
+      "messages": {
+        "maxStickers": "Maximal 5 Sticker erlaubt",
+        "selectSkinFirst": "Bitte wähle zuerst einen Waffen-Skin aus",
+        "saveSuccess": "Visuelle Anpassung erfolgreich angewendet"
+      }
     }
   },
 
@@ -199,9 +311,5 @@
     "selectAll": "Alles auswählen",
     "noResults": "Keine Ergebnisse gefunden",
     "pleaseSelectLoadout": "Bitte zuerst ein Loadout auswählen"
-  },
-
-  "loadoutStore": {
-
   }
 }

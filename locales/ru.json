@@ -22,7 +22,8 @@
     "agents": "Агенты",
     "pins": "Значки",
     "music": "Музыкальные наборы",
-    "inspects": "Inspects"
+    "inspects": "Inspects",
+    "home": "Главная"
   },
   "skins": {
     "title": "Скины",
@@ -120,11 +121,147 @@
       "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
       "noSearchResults": "Скины не найдены"
     },
+    "keychain": {
+      "titleEdit": "Редактировать брелок",
+      "titleAdd": "Добавить брелок",
+      "searchPlaceholder": "Поиск брелков...",
+      "labels": {
+        "position": "Позиция",
+        "seed": "Seed"
+      },
+      "buttons": {
+        "update": "Обновить изменения",
+        "create": "Применить брелок",
+        "delete": "Удалить брелок"
+      },
+      "delete": "Удалить брелок",
+      "errorFetching": "Ошибка получения данных брелка",
+      "noSearchResults": "Брелки не найдены"
+    },
+    "sticker": {
+      "titleEdit": "Редактировать наклейку",
+      "titleAdd": "Добавить наклейку",
+      "searchPlaceholder": "Поиск наклеек...",
+      "labels": {
+        "position": "Позиция",
+        "scale": "Масштаб",
+        "rotation": "Поворот",
+        "wear": "Износ"
+      },
+      "buttons": {
+        "update": "Обновить наклейку",
+        "create": "Применить наклейку",
+        "delete": "Удалить наклейку"
+      },
+      "errorFetching": "Ошибка получения данных наклейки",
+      "noSearchResults": "Наклейки не найдены"
+    },
+    "loadout": {
+      "successMessage": "Снаряжение {action} успешно",
+      "create": {
+        "title": "Создать новое снаряжение",
+        "confirm": "Создать",
+        "cancel": "Отмена",
+        "formPlaceholder": "Введите название для вашего нового снаряжения"
+      },
+      "rename": {
+        "title": "Переименовать снаряжение",
+        "confirm": "Переименовать",
+        "cancel": "Отмена",
+        "formPlaceholder": "Введите новое название для вашего снаряжения"
+      },
+      "delete": {
+        "title": "Удалить снаряжение",
+        "confirm": "Удалить",
+        "cancel": "Отмена",
+        "question": "Вы уверены, что хотите удалить это снаряжение?",
+        "warning": "Все скины этого снаряжения будут удалены и не подлежат восстановлению",
+        "confirmText": "Введите '{name}' для подтверждения удаления:",
+        "confirmPlaceholder": "Введите название снаряжения для подтверждения"
+      }
+    },
     "reset": {
       "title": "Сброс скина",
       "question": "Вы уверены, что хотите сбросить настройку скина?",
       "cancel": "Отмена",
       "confirm": "Сбросить"
+    },
+    "weaponSkin": {
+      "defaultTitle": "Выбрать скин",
+      "title": "Выбрать скин для {weaponName}",
+      "buttons": {
+        "reset": "Сбросить",
+        "importFromLink": "Импорт из ссылки",
+        "generateLink": "Создать ссылку",
+        "save": "Сохранить изменения",
+        "duplicate": "Дублировать для другой команды"
+      },
+      "inputs":{
+        "searchPlaceholder": "Поиск скинов...",
+        "nameTagPlaceholder": "Именной ярлык"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Индекс покраски",
+        "paintIndexOverride": "Переопределить",
+        "pattern": "Паттерн (Seed)",
+        "wear": "Износ (Float)",
+        "itemActive": "Активно",
+        "itemInactive": "Неактивно"
+      },
+      "stickers": {
+        "title": "Наклейки",
+        "add": "Добавить наклейку",
+        "reposition": "Перетащите для изменения позиции"
+      },
+      "keychain": {
+        "title": "Брелок",
+        "add": "Добавить брелок"
+      },
+      "visualCustomizer": {
+        "button": "Визуальный редактор"
+      },
+      "importFailedDefault": "Ошибка импорта конфигурации оружия",
+      "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному оружию",
+      "importSuccess": "Конфигурация ножа успешно импортирована",
+      "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
+      "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
+      "noSearchResults": "Скины не найдены",
+      "resetSuccess": "Конфигурация оружия сброшена",
+      "resetFailed": "Ошибка сброса конфигурации оружия",
+      "duplicateFailed": "Ошибка дублирования конфигурации оружия"
+    },
+    "visualCustomizer": {
+      "title": "Визуальный редактор наклеек и брелков",
+      "save": "Сохранить изменения",
+      "cancel": "Отмена",
+      "instructions": {
+        "title": "Инструкции",
+        "addAssets": "Нажмите на наклейки или брелки в браузере ресурсов, чтобы добавить их на ваше оружие",
+        "selectElements": "Нажмите на элементы на холсте, чтобы выбрать и отредактировать их",
+        "useProperties": "Используйте панель свойств для точной настройки позиции, масштаба, поворота и износа",
+        "dragElements": "Перетащите элементы прямо на холсте, чтобы изменить их позицию"
+      },
+      "assetBrowser": {
+        "title": "Браузер ресурсов",
+        "stickers": "Наклейки",
+        "keychains": "Брелки",
+        "searchPlaceholder": "Поиск ресурсов..."
+      },
+      "properties": {
+        "title": "Свойства",
+        "positionX": "Позиция X",
+        "positionY": "Позиция Y",
+        "scale": "Масштаб",
+        "rotation": "Поворот (градусы)",
+        "wear": "Износ",
+        "remove": "Удалить"
+      },
+      "messages": {
+        "maxStickers": "Максимум 5 наклеек разрешено",
+        "selectSkinFirst": "Пожалуйста, сначала выберите скин оружия",
+        "saveSuccess": "Визуальная настройка успешно применена"
+      }
     }
   },
   "loadout": {
