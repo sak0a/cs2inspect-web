@@ -4,6 +4,16 @@
 
 import type { Point, Size, CoordinateTransform, CanvasElement } from '~/types/canvas'
 
+// Check if we're in development mode
+const isDevelopment = import.meta.env.DEV
+
+// Debug logging helper
+const debugLog = (...args: unknown[]) => {
+  if (isDevelopment) {
+    console.log(...args)
+  }
+}
+
 /**
  * Weapon-specific sticker slot positions
  * These are normalized coordinates (0-1) based on a 1328x800 canvas
@@ -75,7 +85,7 @@ export function getDefaultStickerPosition(slotIndex: number, weaponName?: string
     if (weaponPositions && weaponPositions[slotIndex]) {
       const position = weaponPositions[slotIndex]
       if (position) {
-        console.log(`🎯 Using weapon-specific position for ${cleanWeaponName} slot ${slotIndex}:`, position)
+        debugLog(`🎯 Using weapon-specific position for ${cleanWeaponName} slot ${slotIndex}:`, position)
         return position
       }
     }
@@ -171,7 +181,7 @@ export function stickerToCanvasElement(
   let x = defaultPos.x
   let y = defaultPos.y
 
-  console.log(`🎯 Starting with default slot position for slot ${slotIndex} on ${weaponName || 'unknown weapon'}:`, { x, y })
+  debugLog(`🎯 Starting with default slot position for slot ${slotIndex} on ${weaponName || 'unknown weapon'}:`, { x, y })
 
   // Then apply any offsets on top of the default position
   // 1) Prefer external-normalized offsets if present (saved by VisualCustomizer)
@@ -189,7 +199,7 @@ export function stickerToCanvasElement(
     x += dxNorm
     y += dyNorm
     applied = true
-    console.log(`📐 Applied ext-normalized offsets for slot ${slotIndex}:`, { dxNorm, dyNorm, final_x: x, final_y: y })
+    debugLog(`📐 Applied ext-normalized offsets for slot ${slotIndex}:`, { dxNorm, dyNorm, final_x: x, final_y: y })
   }
 
   // 2) Otherwise, assume DB x/y are ext-normalized (new format). If values look large, fall back to pixel offsets (legacy).
@@ -209,7 +219,7 @@ export function stickerToCanvasElement(
       x += dxNorm
       y += dyNorm
       applied = true
-      console.log(`📐 Applied DB ext-normalized x/y for slot ${slotIndex}:`, { dxNorm, dyNorm, final_x: x, final_y: y })
+      debugLog(`📐 Applied DB ext-normalized x/y for slot ${slotIndex}:`, { dxNorm, dyNorm, final_x: x, final_y: y })
     }
   }
 
@@ -223,7 +233,7 @@ export function stickerToCanvasElement(
     if (pxOffsetX || pxOffsetY) {
       x += (pxOffsetX / ref.width)
       y += (pxOffsetY / ref.height)
-      console.log(`📍 Applied pixel offsets to default for slot ${slotIndex}:`, {
+      debugLog(`📍 Applied pixel offsets to default for slot ${slotIndex}:`, {
         pxOffsetX,
         pxOffsetY,
         final_x: x,

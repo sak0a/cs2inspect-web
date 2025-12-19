@@ -24,6 +24,9 @@ const emit = defineEmits<VisualCustomizerEvents>()
 const { t } = useI18n()
 const message = useMessage()
 
+// Check if we're in development mode
+const isDevelopment = import.meta.env.DEV
+
 // Canvas refs
 const canvasContainer = ref<HTMLDivElement>()
 const canvas = ref<HTMLCanvasElement>()
@@ -43,9 +46,22 @@ const canvasState = ref<CanvasState>({
   isEditing: true
 })
 
-// Debug overlay state
+// Debug overlay state (only available in development)
 const showCoordinateOverlay = ref(false)
 const mousePosition = ref({ x: 0, y: 0 })
+
+// Debug logging helper
+const debugLog = (...args: unknown[]) => {
+  if (isDevelopment) {
+    console.log(...args)
+  }
+}
+
+const debugWarn = (...args: unknown[]) => {
+  if (isDevelopment) {
+    console.warn(...args)
+  }
+}
 
 // Asset browser state
 const assetSearchQuery = ref('')
@@ -281,11 +297,11 @@ watch(() => props.visible, (visible) => {
 
 // Force video to load and render
 const forceVideoLoad = async () => {
-  console.log('🎬 Forcing video load...')
+  debugLog('🎬 Forcing video load...')
 
   // First, try to initialize video if not already done
   if (!isVideoMode.value && props.weaponSkin) {
-    console.log('🎬 Initializing video mode...')
+    debugLog('🎬 Initializing video mode...')
     await initializeWeaponBackground()
   }
 
@@ -303,23 +319,23 @@ const forceVideoLoad = async () => {
     setTimeout(() => {
       currentWear.value = originalWear
       renderCanvas()
-      console.log('🎬 Video load complete')
+      debugLog('🎬 Video load complete')
 
       // Force a resize to ensure proper sticker sizing
       setTimeout(() => {
         handleResize()
-        console.log('🔧 Forced resize to fix sticker sizing')
+        debugLog('🔧 Forced resize to fix sticker sizing')
       }, 100)
     }, 150)
   } else {
     // For static mode, just render
     renderCanvas()
-    console.log('🖼️ Static render complete')
+    debugLog('🖼️ Static render complete')
 
     // Force a resize for static mode too
     setTimeout(() => {
       handleResize()
-      console.log('🔧 Forced resize for static mode')
+      debugLog('🔧 Forced resize for static mode')
     }, 100)
   }
 }
@@ -384,7 +400,7 @@ const initializeCanvas = async () => {
   // Force a resize immediately to ensure proper sizing
   nextTick(() => {
     handleResize()
-    console.log('🔧 Initial resize after canvas initialization')
+    debugLog('🔧 Initial resize after canvas initialization')
   })
 }
 
@@ -430,14 +446,14 @@ const initializeWeaponBackground = async () => {
       await videoManager.value.loadVideo(videoUrl.value)
       isVideoMode.value = true
 
-      console.log('Video mode enabled for weapon:', weaponName, skinName)
+      debugLog('Video mode enabled for weapon:', weaponName, skinName)
     } catch (error) {
-      console.warn('Failed to load video, falling back to static image:', error)
+      debugWarn('Failed to load video, falling back to static image:', error)
       isVideoMode.value = false
       initializeStaticBackground()
     }
   } else {
-    console.log('Video not found, using static image for:', weaponName, skinName)
+    debugLog('Video not found, using static image for:', weaponName, skinName)
     isVideoMode.value = false
     initializeStaticBackground()
   }
@@ -459,19 +475,19 @@ const initializeStaticBackground = () => {
 const convertExistingCustomizations = () => {
   const elements: CanvasElement[] = []
 
-  console.log('Converting existing customizations:', { stickers: props.stickers, keychain: props.keychain })
+  debugLog('Converting existing customizations:', { stickers: props.stickers, keychain: props.keychain })
 
   // Get weapon name for slot positioning
   const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
-  console.log(`🔫 Converting stickers for weapon: ${weaponName}`)
+  debugLog(`🔫 Converting stickers for weapon: ${weaponName}`)
 
   // Convert stickers - the conversion function now handles default positioning
   props.stickers.forEach((sticker, index) => {
     if (sticker) {
-      console.log(`Converting sticker ${index}:`, sticker)
+      debugLog(`Converting sticker ${index}:`, sticker)
       const element = stickerToCanvasElement(sticker, index, 10 + index, weaponName)
       if (element) {
-        console.log(`Created canvas element for sticker ${index}:`, element)
+        debugLog(`Created canvas element for sticker ${index}:`, element)
         elements.push(element)
       }
     }
@@ -479,15 +495,15 @@ const convertExistingCustomizations = () => {
 
   // Convert keychain - the conversion function now handles default positioning
   if (props.keychain) {
-    console.log('Converting keychain:', props.keychain)
+    debugLog('Converting keychain:', props.keychain)
     const element = keychainToCanvasElement(props.keychain, 5)
     if (element) {
-      console.log('Created canvas element for keychain:', element)
+      debugLog('Created canvas element for keychain:', element)
       elements.push(element)
     }
   }
 
-  console.log('Final canvas elements:', elements)
+  debugLog('Final canvas elements:', elements)
   canvasState.value.elements = elements
 }
 
@@ -519,11 +535,13 @@ const loadAssets = async () => {
       // Force resize to ensure proper sticker sizing
       setTimeout(() => {
         handleResize()
-        console.log('🔧 Resize after asset loading')
+        debugLog('🔧 Resize after asset loading')
       }, 50)
     })
   } catch (error) {
-    console.error('Error loading assets:', error)
+    if (isDevelopment) {
+      console.error('Error loading assets:', error)
+    }
     message.error('Failed to load stickers and keychains')
   } finally {
     isLoadingAssets.value = false
@@ -712,9 +730,9 @@ const drawSlotIndicators = () => {
   }
 }
 
-// Draw coordinate overlay for debugging
+// Draw coordinate overlay for debugging (only in development)
 const drawCoordinateOverlay = () => {
-  if (!ctx.value || !canvas.value) return
+  if (!isDevelopment || !ctx.value || !canvas.value) return
 
   ctx.value.save()
 
@@ -779,8 +797,8 @@ const drawElements = () => {
     drawElement(element)
   })
 
-  // Draw coordinate overlay if enabled (on top of everything)
-  if (showCoordinateOverlay.value) {
+  // Draw coordinate overlay if enabled (on top of everything) - only in development
+  if (isDevelopment && showCoordinateOverlay.value) {
     drawCoordinateOverlay()
   }
 }
@@ -791,8 +809,8 @@ const drawElement = (element: CanvasElement) => {
 
   const pos = normalizedToCanvasInImage(element.position)
 
-  // Debug: Log element drawing
-  console.log(`🎨 Drawing ${element.type} at:`, {
+  // Debug: Log element drawing (only in development)
+  debugLog(`🎨 Drawing ${element.type} at:`, {
     normalized: element.position,
     canvas: pos,
     canvasSize: canvasState.value.canvasSize
@@ -857,8 +875,8 @@ const drawElement = (element: CanvasElement) => {
     const cachedImg = imageCache.get(element.apiData.image)
 
     if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
-      // Log original sticker dimensions
-      console.log(`📏 Sticker "${element.apiData.name || 'Unknown'}" original size: ${cachedImg.naturalWidth}x${cachedImg.naturalHeight}px`)
+      // Log original sticker dimensions (only in development)
+      debugLog(`📏 Sticker "${element.apiData.name || 'Unknown'}" original size: ${cachedImg.naturalWidth}x${cachedImg.naturalHeight}px`)
 
       // Calculate size with width/height caps so stickers have consistent default size
       const widthScale = STICKER_MAX_WIDTH_PX / cachedImg.naturalWidth
@@ -871,7 +889,7 @@ const drawElement = (element: CanvasElement) => {
       const drawWidth = baseWidth * element.scale
       const drawHeight = baseHeight * element.scale
 
-      console.log(`🎯 Sticker "${element.apiData.name || 'Unknown'}" final size: ${drawWidth.toFixed(1)}x${drawHeight.toFixed(1)}px (scale: ${element.scale})`)
+      debugLog(`🎯 Sticker "${element.apiData.name || 'Unknown'}" final size: ${drawWidth.toFixed(1)}x${drawHeight.toFixed(1)}px (scale: ${element.scale})`)
 
       // Draw cached image with capped size and scaling
       ctx.value!.drawImage(cachedImg, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight)
@@ -884,7 +902,7 @@ const drawElement = (element: CanvasElement) => {
           renderCanvas()
         })
         .catch((error) => {
-          console.warn(`Failed to load image for ${element.type}:`, error)
+          debugWarn(`Failed to load image for ${element.type}:`, error)
           // Re-render with fallback
           renderCanvas()
         })
@@ -910,7 +928,7 @@ const handleCanvasClick = (event: MouseEvent) => {
     y: event.clientY - rect.top
   }
 
-  console.log('Canvas clicked at:', canvasPos)
+  debugLog('Canvas clicked at:', canvasPos)
 
   // Find clicked element
   const clickedElement = findElementAtPosition(canvasPos)
@@ -929,7 +947,7 @@ const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
   // Check elements in reverse z-order (top to bottom)
   const sortedElements = [...canvasState.value.elements].sort((a, b) => b.zIndex - a.zIndex)
 
-  console.log(`🔍 Searching for element at ${canvasPos.x}, ${canvasPos.y} among ${sortedElements.length} elements`)
+  debugLog(`🔍 Searching for element at ${canvasPos.x}, ${canvasPos.y} among ${sortedElements.length} elements`)
 
   for (const element of sortedElements) {
     const pos = normalizedToCanvasInImage(element.position)
@@ -978,7 +996,7 @@ const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
       }
     }
 
-    console.log(`🎯 Checking ${element.type} "${element.id}":`, {
+    debugLog(`🎯 Checking ${element.type} "${element.id}":`, {
       elementPos: pos,
       bounds,
       isInside: canvasPos.x >= bounds.left && canvasPos.x <= bounds.right &&
@@ -987,18 +1005,18 @@ const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
 
     if (canvasPos.x >= bounds.left && canvasPos.x <= bounds.right &&
         canvasPos.y >= bounds.top && canvasPos.y <= bounds.bottom) {
-      console.log(`✅ Hit detected on ${element.type}:`, element.id)
+      debugLog(`✅ Hit detected on ${element.type}:`, element.id)
       return element
     }
   }
 
-  console.log('❌ No element found at position')
+  debugLog('❌ No element found at position')
   return null
 }
 
 // Select element
 const selectElement = (elementId: string | null) => {
-  console.log('Selecting element:', elementId)
+  debugLog('Selecting element:', elementId)
   canvasState.value.elements.forEach(el => {
     el.selected = el.id === elementId
   })
@@ -1170,8 +1188,8 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
     y: event.clientY - rect.top
   }
 
-  console.log('🖱️ Mouse down at:', canvasPos)
-  console.log('🔍 Available elements:', canvasState.value.elements.length)
+  debugLog('🖱️ Mouse down at:', canvasPos)
+  debugLog('🔍 Available elements:', canvasState.value.elements.length)
 
   // Find element at click position
   const clickedElement = findElementAtPosition(canvasPos)
@@ -1180,12 +1198,12 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
     // Select the element and start dragging
     canvasState.value.selectedElementId = clickedElement.id
     canvasState.value.isDragging = true
-    console.log('✅ Started dragging element:', clickedElement.id, clickedElement.type)
+    debugLog('✅ Started dragging element:', clickedElement.id, clickedElement.type)
   } else {
     // Deselect if clicking empty space
     canvasState.value.selectedElementId = null
     canvasState.value.isDragging = false
-    console.log('❌ No element found at position, deselecting')
+    debugLog('❌ No element found at position, deselecting')
   }
 
   renderCanvas()
@@ -1200,17 +1218,19 @@ const handleCanvasMouseMove = (event: MouseEvent) => {
     y: Math.round(event.clientY - rect.top)
   }
 
-  // Update mouse position for coordinate overlay
-  mousePosition.value = canvasPos
+  // Update mouse position for coordinate overlay (only in development)
+  if (isDevelopment) {
+    mousePosition.value = canvasPos
 
-  // Re-render if coordinate overlay is active to update mouse position display
-  if (showCoordinateOverlay.value) {
-    renderCanvas()
+    // Re-render if coordinate overlay is active to update mouse position display
+    if (showCoordinateOverlay.value) {
+      renderCanvas()
+    }
   }
 
-  // Only log occasionally to avoid spam
-  if (Math.random() < 0.1) {
-    console.log('🖱️ Mouse move state:', {
+  // Only log occasionally to avoid spam (only in development)
+  if (isDevelopment && Math.random() < 0.1) {
+    debugLog('🖱️ Mouse move state:', {
       isDragging: canvasState.value.isDragging,
       selectedElementId: canvasState.value.selectedElementId,
       selectedElement: !!selectedElement.value,
@@ -1225,22 +1245,22 @@ const handleCanvasMouseMove = (event: MouseEvent) => {
 
   const normalizedPos = canvasToNormalizedInImage(canvasPos)
 
-  console.log('🎯 Dragging to position:', { canvasPos, normalizedPos })
+  debugLog('🎯 Dragging to position:', { canvasPos, normalizedPos })
 
   if (coordinateTransform.validateCoordinates(normalizedPos)) {
     selectedElement.value.position = normalizedPos
     renderCanvas()
   } else {
-    console.warn('❌ Invalid coordinates:', normalizedPos)
+    debugWarn('❌ Invalid coordinates:', normalizedPos)
   }
 }
 
 const handleCanvasMouseUp = () => {
   if (canvasState.value.isDragging) {
-    console.log('🛑 Stopped dragging')
+    debugLog('🛑 Stopped dragging')
     canvasState.value.isDragging = false
   } else {
-    console.log('🖱️ Mouse up (was not dragging)')
+    debugLog('🖱️ Mouse up (was not dragging)')
   }
 }
 
@@ -1283,7 +1303,7 @@ const handleResize = () => {
   }
 
   renderCanvas()
-  console.log('🔧 Canvas resized to:', canvasWidth, 'x', canvasHeight)
+  debugLog('🔧 Canvas resized to:', canvasWidth, 'x', canvasHeight)
 }
 
 // Watch for changes in stickers prop to update slots
@@ -1673,8 +1693,8 @@ const initializeSlotsFromProps = () => {
             <div class="bg-[#242424] rounded-lg p-4">
               <h4 class="font-bold mb-4 text-white">Settings <span v-if="selectedElement">| {{ selectedElement.type === 'sticker' ? 'Sticker' : 'Keychain' }}</span> </h4>
 
-              <!-- Debug Tools -->
-              <div class="mb-4 p-3 bg-[#1a1a1a] rounded border border-yellow-600">
+              <!-- Debug Tools (only shown in development) -->
+              <div v-if="isDevelopment" class="mb-4 p-3 bg-[#1a1a1a] rounded border border-yellow-600">
                 <h5 class="text-yellow-400 font-semibold mb-2">🛠️ Debug Tools</h5>
                 <div class="flex items-center space-x-2">
                   <input
