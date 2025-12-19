@@ -30,7 +30,3 @@ ON wp_player_agents (steamid, loadoutid, team, defindex);
 -- Music Kits: add UNIQUE INDEX
 CREATE UNIQUE INDEX IF NOT EXISTS uq_wp_player_music_unique
 ON wp_player_music (steamid, loadoutid, team, musicid);
-
--- Pins: add UNIQUE INDEX
-CREATE UNIQUE INDEX IF NOT EXISTS uq_wp_player_pins_unique
-ON wp_player_pins (steamid, loadoutid, team, pinid);

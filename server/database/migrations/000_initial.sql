@@ -164,30 +164,6 @@ CREATE INDEX IF NOT EXISTS loadoutid
     on wp_player_music (loadoutid);
 --
 --
--- Pins Table
-CREATE TABLE IF NOT EXISTS wp_player_pins
-(
-    id         INT UNSIGNED AUTO_INCREMENT
-        PRIMARY KEY,
-    steamid    VARCHAR(64)                            NOT NULL,
-    loadoutid  INT UNSIGNED                           NOT NULL,
-    active     TINYINT(1) DEFAULT 1                   NULL,
-    team       TINYINT UNSIGNED                       NOT NULL,
-    pinid      INT UNSIGNED                           NOT NULL,
-    created_at TIMESTAMP  DEFAULT CURRENT_TIMESTAMP() NOT NULL,
-    updated_at TIMESTAMP  DEFAULT CURRENT_TIMESTAMP() NOT NULL ON UPDATE CURRENT_TIMESTAMP(),
-    CONSTRAINT wp_player_pins_ibfk_1
-        FOREIGN KEY (loadoutid) REFERENCES wp_player_loadouts (id)
-            ON DELETE CASCADE
-);
--- Pins Index
-CREATE INDEX IF NOT EXISTS idx_steamid_loadout
-    on wp_player_pins (steamid, loadoutid);
--- Pins Loadout Index
-CREATE INDEX IF NOT EXISTS loadoutid
-    on wp_player_pins (loadoutid);
---
---
 -- Pistols Table
 CREATE TABLE IF NOT EXISTS wp_player_pistols
 (

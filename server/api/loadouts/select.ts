@@ -1,6 +1,7 @@
 import { defineEventHandler, createError } from 'h3'
 import { executeQuery } from '~/server/database/database'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
 import {VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES} from "~/server/utils/constants";
 
 type SelectionType = 'knife' | 'glove' | 'agent' | 'music' | 'pin'
@@ -47,15 +48,29 @@ export default defineEventHandler(async (event) => {
     if (type === 'pin') {
         const pinid: number | null = body.pinid
 
-        // For pins, we directly update the loadout table
-        await executeQuery<unknown[]>(
-            'UPDATE wp_player_loadouts SET selected_pin = ? WHERE id = ? AND steamid = ?',
-            [pinid, loadoutId, steamId],
-            'Failed to update pin'
-        )
+        try {
+            // For pins, we directly update the loadout table
+            await executeQuery<unknown[]>(
+                'UPDATE wp_player_loadouts SET selected_pin = ? WHERE id = ? AND steamid = ?',
+                [pinid, loadoutId, steamId],
+                'Failed to update pin'
+            )
 
-        Logger.success(`Updated pin selection for loadout ${loadoutId}`)
-        return { message: `Updated pin selection for loadout ${loadoutId}` }
+            Logger.success(`Updated pin selection for loadout ${loadoutId}`)
+            return { message: `Updated pin selection for loadout ${loadoutId}` }
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : String(error)
+            // Check if the error is about missing column
+            if (errorMessage.includes('Unknown column') && errorMessage.includes('selected_pin')) {
+                Logger.error(`Database column 'selected_pin' does not exist. Please run migration 003_add_selected_pin.sql`)
+                throw createError({
+                    statusCode: 500,
+                    message: 'Database schema is out of date. Please contact the administrator to run the migration.'
+                })
+            }
+            // Re-throw other errors
+            throw error
+        }
     }
 
     // For other types (knife, glove, agent), continue with team-based selection

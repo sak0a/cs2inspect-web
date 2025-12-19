@@ -99,6 +99,8 @@ export interface DBLoadout extends DBUserRecord {
   selected_agent_ct: number | null
   /** Selected music kit ID */
   selected_music: number | null
+  /** Selected pin ID */
+  selected_pin: number | null
 }
 
 // ============================================================================

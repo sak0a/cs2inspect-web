@@ -3,7 +3,7 @@ import { executeQuery } from './database'
 
 export const getLoadoutsBySteamId = async (steamId: string): Promise<DBLoadout[]> =>
     executeQuery<DBLoadout[]>(
-        'SELECT * FROM wp_player_loadouts WHERE steamid = ?',
+        'SELECT * FROM wp_player_loadouts WHERE steamid = ? ORDER BY active DESC, id ASC',
         [steamId],
         'Failed to fetch loadouts from database'
     );
@@ -26,26 +26,29 @@ export const getLoadoutByName = async (steamId: string, name: string): Promise<D
     return loadout[0];
 };
 
-export const updateLoadout = async (id: string, steamid: string, name: string): Promise<void> =>
-    executeQuery<unknown[]>(
+export const updateLoadout = async (id: string, steamid: string, name: string): Promise<void> => {
+    await executeQuery<unknown[]>(
         'UPDATE wp_player_loadouts SET name = ? WHERE id = ? AND steamid = ?',
         [name, id, steamid],
         'Failed to update loadout'
     );
+};
 
-export const updateLoadoutByName = async (steamId: string, name: string, newName: string): Promise<void> =>
-    executeQuery<unknown[]>(
+export const updateLoadoutByName = async (steamId: string, name: string, newName: string): Promise<void> => {
+    await executeQuery<unknown[]>(
         'UPDATE wp_player_loadouts SET name = ? WHERE steamid = ? AND name = ?',
         [newName, steamId, name.toLowerCase()],
         'Failed to update loadout'
     );
+};
 
-export const createLoadout = async (steamId: string, name: string): Promise<void> =>
-    executeQuery<unknown[]>(
+export const createLoadout = async (steamId: string, name: string): Promise<void> => {
+    await executeQuery<unknown[]>(
         'INSERT INTO wp_player_loadouts (steamid, name) VALUES (?, ?)',
         [steamId, name],
         'Failed to create loadout'
     );
+};
 
 export const loadoutExists = async (steamId: string, name: string): Promise<boolean> => {
     const loadout = await executeQuery<Array<{ id: string }>>(
@@ -85,9 +88,6 @@ export const deleteLoadout = async (id: string, steamId: string): Promise<void> 
     await executeQuery<unknown[]>('DELETE FROM wp_player_gloves WHERE loadoutid = ? AND steamid = ?',
         [id, steamId],
         'Failed to delete gloves');
-    await executeQuery<unknown[]>('DELETE FROM wp_player_pins WHERE loadoutid = ? AND steamid = ?',
-        [id, steamId],
-        'Failed to delete pins');
     await executeQuery<unknown[]>('DELETE FROM wp_player_music WHERE loadoutid = ? AND steamid = ?',
         [id, steamId],
         'Failed to delete music kits');
@@ -101,9 +101,30 @@ export const deleteLoadout = async (id: string, steamId: string): Promise<void> 
     );
 
 }
-export const deleteLoadoutByName = async (steamId: string, name: string): Promise<void> =>
-    executeQuery<unknown[]>(
+export const deleteLoadoutByName = async (steamId: string, name: string): Promise<void> => {
+    await executeQuery<unknown[]>(
         'DELETE FROM wp_player_loadouts WHERE steamid = ? AND name = ?',
         [steamId, name.toLowerCase()],
         'Failed to delete loadout'
     );
+};
+
+/**
+ * Set a loadout as active and deactivate all other loadouts for the user
+ * @param id - The loadout ID to activate
+ * @param steamId - The Steam ID of the user
+ */
+export const setActiveLoadout = async (id: string, steamId: string): Promise<void> => {
+    // First, set all loadouts for this user to inactive
+    await executeQuery<unknown[]>(
+        'UPDATE wp_player_loadouts SET active = 0 WHERE steamid = ?',
+        [steamId],
+        'Failed to deactivate loadouts'
+    );
+    // Then, set the specified loadout as active
+    await executeQuery<unknown[]>(
+        'UPDATE wp_player_loadouts SET active = 1 WHERE id = ? AND steamid = ?',
+        [id, steamId],
+        'Failed to activate loadout'
+    );
+};

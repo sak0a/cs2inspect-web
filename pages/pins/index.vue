@@ -98,8 +98,10 @@ const handlePinTypeChange = async (pinId: number) => {
       setupFadeInAnimation()
     })
   } catch (error) {
-    console.error(error)
-    message.error("Failed to update Pin")
+    console.error('Error updating pin:', error)
+    // Revert the local state on error
+    selectedPin.value = loadoutStore.selectedLoadout?.selected_pin || -1
+    message.error('Failed to update pin. Please try again.')
   }
 }
 
@@ -212,7 +214,7 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
                 v-model:value="selectedPin"
                 :options="pinOptions"
                 placeholder="Select pin"
-                class="w-72"
+                class="w-72!"
                 @update:value="handlePinTypeChange($event)"
             />
           </div>
@@ -240,23 +242,27 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
           <!-- Pins Vertical Grid -->
           <div class="overflow-visible">
             <!-- Display pins in a grid -->
-            <div class="pin-grid">
+            <div v-if="filteredCollectibles.length > 0" class="pin-grid">
               <PinTabs
                   v-for="collectible in pinGrid"
                   :key="collectible.id"
                   :collectible="collectible"
                   :is-selected="getCollectibleBaseId(collectible) === selectedPin"
                   @select="handlePinSelect"
-                  :class="[
-                    'fade-in-item',
-                    getCollectibleBaseId(collectible) === selectedPin ? 'selected-pin' : ''
-                  ]"
+                  class="fade-in-item"
                   ref="pinRefs"
               />
             </div>
 
             <!-- No results message -->
-            <p v-if="searchQuery.value && filteredCollectibles.length === 0" class="text-gray-400 py-4 text-center">No pins found matching your search</p>
+            <div v-else-if="!isLoading" class="text-center py-12">
+              <p v-if="searchQuery" class="text-gray-400 text-lg mb-2">
+                {{ t('pins.noResultsSearch', { query: searchQuery }) || `No pins found matching "${searchQuery}"` }}
+              </p>
+              <p v-else class="text-gray-400 text-lg">
+                {{ t('pins.noPinsAvailable') || 'No pins available' }}
+              </p>
+            </div>
           </div>
         </div>
       </div>
