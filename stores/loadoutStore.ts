@@ -202,7 +202,17 @@ export const useLoadoutStore = defineStore('loadout', {
 
                 this.loadouts = loadouts;
                 if (!this.selectedLoadoutId && this.loadouts.length > 0) {
-                    this.selectedLoadoutId = this.loadouts[0].id;
+                    // Find the active loadout, or fall back to the first one if none is active
+                    const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || loadout.active === 1);
+                    this.selectedLoadoutId = activeLoadout ? activeLoadout.id : this.loadouts[0].id;
+                } else if (this.selectedLoadoutId) {
+                    // If we have a selected loadout ID, verify it still exists in the fetched loadouts
+                    const selectedLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.id === this.selectedLoadoutId);
+                    if (!selectedLoadout) {
+                        // Selected loadout no longer exists, select the active one or first one
+                        const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || loadout.active === 1);
+                        this.selectedLoadoutId = activeLoadout ? activeLoadout.id : (this.loadouts.length > 0 ? this.loadouts[0].id : null);
+                    }
                 }
             } catch (error: unknown) {
                 this.error = 'Failed to fetch loadouts: ' + (error instanceof Error ? error.message : String(error));
@@ -239,8 +249,11 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to create loadout, data not present');
                 }
 
-                this.loadouts.push(data.loadout);
-                this.selectedLoadoutId = data.loadout.id;
+                // Activate the newly created loadout
+                await this.activateLoadout(data.loadout.id, steamId);
+
+                // Refresh loadouts to get the updated active status
+                await this.fetchLoadouts(steamId);
             }).catch((error) => {
                 console.error(error);
                 throw error
@@ -312,8 +325,8 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to delete loadout; Authentication / Response failed');
                 }
 
-                this.loadouts = this.loadouts.filter((l: DBLoadout) => l.id !== id);
-                this.selectedLoadoutId = this.loadouts.length > 0 ? this.loadouts[0].id : '0';
+                // Refresh loadouts to get updated list and active status
+                await this.fetchLoadouts(steamId);
             }).catch(error => {
                 console.error(error);
                 throw error
@@ -322,6 +335,52 @@ export const useLoadoutStore = defineStore('loadout', {
 
         selectLoadout(id: string) {
             this.selectedLoadoutId = id;
+        },
+
+        /**
+         * Activate a loadout (set it as active in the database)
+         * @param id - The loadout ID to activate
+         * @param steamId - The Steam ID of the user
+         */
+        async activateLoadout(id: string, steamId: string) {
+            this.isLoading = true;
+            try {
+                const response = await fetch(`/api/loadouts/activate?steamId=${steamId}&loadoutId=${id}`, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        navigateTo('/')
+                        return
+                    }
+                    throw new Error('Failed to activate loadout; Authentication / Response failed')
+                }
+
+                const data = await response.json();
+                const updatedLoadout = data.data || data.loadout;
+
+                // Update the loadout in the store
+                const index = this.loadouts.findIndex((l: DBLoadout) => l.id === id);
+                if (index !== -1) {
+                    // Update all loadouts: set the selected one as active, others as inactive
+                    this.loadouts = this.loadouts.map((loadout: DBLoadout) => ({
+                        ...loadout,
+                        active: loadout.id === id ? true : false
+                    }));
+                }
+
+                this.selectedLoadoutId = id;
+            } catch (error) {
+                console.error(error);
+                throw error;
+            } finally {
+                this.isLoading = false;
+            }
         }
     }
 });

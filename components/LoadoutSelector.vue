@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import { NButton, useMessage} from 'naive-ui'
 import { steamAuth } from '~/services/steamAuth'
@@ -10,6 +10,9 @@ import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 const loadoutStore = useLoadoutStore()
 const { t } = useI18n()
 const message = useMessage()
+
+// Track the previous loadout ID to avoid activating on initial load
+const previousLoadoutId = ref<string | null>(null)
 
 const showModal = ref({
   create: false,
@@ -40,18 +43,28 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
               throw error
             })
         break
-      case 'rename':
-        await loadoutStore.updateLoadout(loadoutStore.selectedLoadoutId, user.steamId, formInputs.value.renameName)
+      case 'rename': {
+        const loadoutId = loadoutStore.selectedLoadoutId
+        if (!loadoutId) {
+          throw new Error('No loadout selected')
+        }
+        await loadoutStore.updateLoadout(loadoutId, user.steamId, formInputs.value.renameName)
             .catch((error) => {
               throw error
             })
         break
-      case 'delete':
-        await loadoutStore.deleteLoadout(user.steamId, loadoutStore.selectedLoadoutId)
+      }
+      case 'delete': {
+        const loadoutId = loadoutStore.selectedLoadoutId
+        if (!loadoutId) {
+          throw new Error('No loadout selected')
+        }
+        await loadoutStore.deleteLoadout(user.steamId, loadoutId)
             .catch((error) => {
               throw error
             })
         break
+      }
     }
     formInputs.value.newName = ''
     formInputs.value.renameName = ''
@@ -64,6 +77,39 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
     message.error(errorMessage, { duration: 3, closable: true })
   }
 }
+
+// Watch for loadout selection changes and activate the selected loadout
+watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) => {
+  // Skip if this is the initial load (oldLoadoutId is null) or if the ID hasn't actually changed
+  if (!newLoadoutId || newLoadoutId === oldLoadoutId || newLoadoutId === previousLoadoutId.value) {
+    return
+  }
+
+  const user = steamAuth.getSavedUser()
+  if (!user) {
+    return
+  }
+
+  // Check if the selected loadout is already active
+  const selectedLoadout = loadoutStore.loadouts.find(l => l.id === newLoadoutId)
+  if (selectedLoadout && (selectedLoadout.active === true || selectedLoadout.active === 1)) {
+    previousLoadoutId.value = newLoadoutId
+    return
+  }
+
+  try {
+    await loadoutStore.activateLoadout(newLoadoutId, user.steamId)
+    previousLoadoutId.value = newLoadoutId
+  } catch (error: unknown) {
+    console.error('Failed to activate loadout:', error)
+    // Revert to previous loadout on error
+    if (oldLoadoutId) {
+      loadoutStore.selectedLoadoutId = oldLoadoutId
+    }
+    const errorMessage = error instanceof Error ? error.message : 'Failed to activate loadout'
+    message.error(errorMessage, { duration: 3, closable: true })
+  }
+})
 
 </script>
 

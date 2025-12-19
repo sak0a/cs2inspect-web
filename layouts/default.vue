@@ -289,11 +289,11 @@ onMounted(async () => {
               <div class="flex items-center gap-6">
                 <div class="menu-item group">
                   <LanguageSwitcher />
-                  <span class="menu-label">{{ t('navigation.language') }}</span>
+                  <!--<span class="menu-label">{{ t('navigation.language') }}</span>-->
                 </div>
                 <div v-if="user" class="menu-item group" >
                   <LoadoutSelector />
-                  <span class="menu-label">{{ t('navigation.loadout') }}</span>
+                  <!--<span class="menu-label">{{ t('navigation.loadout') }}</span>-->
                 </div>
               </div>
             </div>
