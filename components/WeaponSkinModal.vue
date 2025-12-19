@@ -957,8 +957,8 @@ watch(() => props.weapon, () => {
                   v-for="(sticker, index) in customization.stickers"
                   :key="index"
                   class="
-                  sticker-slot flex items-center justify-center bg-[#242424] p-2 rounded cursor-move 
-                  transition-all relative hover:bg-red-500 "
+                  sticker-slot flex items-center justify-center bg-[#242424] p-2 rounded cursor-move
+ transition-all relative hover:bg-[#2a2a2a]"
                   :class="{ 'inactive-item': !sticker, 'active-item': sticker }"
                   draggable="true"
                   @dragstart="handleStickerDragStart($event, index)"
