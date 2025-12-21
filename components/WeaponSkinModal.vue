@@ -12,7 +12,7 @@ import type {
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
 
 import { ref, computed } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NEmpty, NInputNumber, NSwitch, NButton } from 'naive-ui'
+import { useMessage, NModal, NInput, NPagination, NCard, NSpace, NEmpty, NInputNumber, NSwitch, NButton, NSelect, NSkeleton } from 'naive-ui'
 import { steamAuth } from "~/services/steamAuth"
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
 import ResetModal from "~/components/ResetModal.vue"
@@ -42,6 +42,26 @@ const emit = defineEmits<{
 
 const { t } = useI18n()
 const message = useMessage()
+
+const modalTitle = computed(() => {
+  return props.weapon
+    ? t('modals.weaponSkin.title', { weaponName: props.weapon?.defaultName }) as string
+    : t('modals.weaponSkin.defaultTitle') as string
+})
+
+const teamLabel = computed((): string | null => {
+  const team = props.weapon?.databaseInfo?.team
+  if (team === 1) return t('modals.weaponSkin.team.terrorist') as string
+  if (team === 2) return t('modals.weaponSkin.team.counterTerrorist') as string
+  return null
+})
+
+const teamBadgeClasses = computed(() => {
+  const team = props.weapon?.databaseInfo?.team
+  if (team === 1) return 'border-orange-500/30 bg-orange-500/15 text-orange-300'
+  if (team === 2) return 'border-blue-500/30 bg-blue-500/15 text-blue-300'
+  return ''
+})
 
 /**
  * Modal state using new WeaponModalState interface
@@ -78,6 +98,39 @@ const apiState = ref({
 })
 
 const selectedSkin = ref<IEnhancedWeapon | null>()
+
+const wearBounds = computed(() => {
+  const min = selectedSkin.value?.minFloat ?? 0
+  const max = selectedSkin.value?.maxFloat ?? 1
+  return { min, max }
+})
+
+const wearIndicator = computed((): 'min' | 'max' | 'out' | null => {
+  if (!selectedSkin.value) return null
+  const wear = Number(customization.value.wear)
+  if (Number.isNaN(wear)) return null
+
+  const { min, max } = wearBounds.value
+  const eps = 1e-6
+
+  if (wear < min - eps || wear > max + eps) return 'out'
+  if (Math.abs(wear - min) <= eps) return 'min'
+  if (Math.abs(wear - max) <= eps) return 'max'
+  return null
+})
+
+const wearIndicatorText = computed(() => {
+  if (!wearIndicator.value) return null
+  if (wearIndicator.value === 'out') return t('modals.weaponSkin.wear.outOfRange') as string
+  if (wearIndicator.value === 'min') return t('modals.weaponSkin.wear.atMin') as string
+  return t('modals.weaponSkin.wear.atMax') as string
+})
+
+const wearIndicatorClasses = computed(() => {
+  if (!wearIndicator.value) return ''
+  if (wearIndicator.value === 'out') return 'text-red-300'
+  return 'text-yellow-200'
+})
 
 /**
  * Default weapon configuration using new WeaponConfiguration interface
@@ -118,19 +171,135 @@ const user = computed((): UserProfile | null => {
  */
 const PAGE_SIZE = ref(props.pageSize || 10)
 
+type SkinSortBy = 'name' | 'rarity'
+type SortDir = 'asc' | 'desc'
+
+const ui = ref({
+  sortBy: 'name' as SkinSortBy,
+  sortDir: 'asc' as SortDir,
+  rarityFilterIds: [] as string[],
+})
+
+const RECENT_SKINS_STORAGE_KEY = 'cs2inspect.weaponSkinModal.recentSkins'
+const recentSkinIds = ref<string[]>([])
+
+const loadRecentSkins = () => {
+  if (!import.meta.client) return
+  try {
+    const raw = localStorage.getItem(RECENT_SKINS_STORAGE_KEY)
+    if (!raw) return
+    const parsed = JSON.parse(raw) as unknown
+    if (Array.isArray(parsed) && parsed.every(v => typeof v === 'string')) {
+      recentSkinIds.value = parsed.slice(0, 5)
+    }
+  } catch {
+    // ignore
+  }
+}
+
+const saveRecentSkins = () => {
+  if (!import.meta.client) return
+  try {
+    localStorage.setItem(RECENT_SKINS_STORAGE_KEY, JSON.stringify(recentSkinIds.value.slice(0, 5)))
+  } catch {
+    // ignore
+  }
+}
+
+const trackRecentSkin = (skinId: string) => {
+  const next = [skinId, ...recentSkinIds.value.filter(id => id !== skinId)].slice(0, 5)
+  recentSkinIds.value = next
+  saveRecentSkins()
+}
+
+onMounted(() => {
+  loadRecentSkins()
+})
+
+const rarityRank = (rarityId: string | undefined) => {
+  const id = (rarityId || '').toLowerCase()
+  const rankMap: Record<string, number> = {
+    consumer: 1,
+    industrial: 2,
+    milspec: 3,
+    restricted: 4,
+    classified: 5,
+    covert: 6,
+    extraordinary: 7,
+  }
+  return rankMap[id] ?? 0
+}
+
+const availableRarities = computed(() => {
+  const map = new Map<string, { id: string; name: string; color: string }>()
+  for (const skin of apiState.value.skins) {
+    const id = skin.rarity?.id
+    if (!id) continue
+    if (!map.has(id)) {
+      map.set(id, { id, name: skin.rarity.name, color: skin.rarity.color })
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => rarityRank(a.id) - rarityRank(b.id))
+})
+
+const skinSortOptions = computed(() => [
+  { label: t('modals.weaponSkin.sort.name') as string, value: 'name' },
+  { label: t('modals.weaponSkin.sort.rarity') as string, value: 'rarity' },
+])
+
+const toggleSortDir = () => {
+  ui.value.sortDir = ui.value.sortDir === 'asc' ? 'desc' : 'asc'
+  state.value.currentPage = 1
+}
+
+const toggleRarityFilter = (rarityId: string) => {
+  const set = new Set(ui.value.rarityFilterIds)
+  if (set.has(rarityId)) set.delete(rarityId)
+  else set.add(rarityId)
+  ui.value.rarityFilterIds = Array.from(set)
+  state.value.currentPage = 1
+}
+
 const filteredSkins = computed(() => {
-  return apiState.value.skins.filter(skin =>
-    skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-  )
+  const q = state.value.searchQuery.toLowerCase()
+  const raritySet = new Set(ui.value.rarityFilterIds)
+  const useRarityFilter = raritySet.size > 0
+
+  return apiState.value.skins.filter((skin) => {
+    if (q && !skin.name.toLowerCase().includes(q)) return false
+    if (useRarityFilter && !raritySet.has(skin.rarity?.id)) return false
+    return true
+  })
+})
+
+const sortedSkins = computed(() => {
+  const dir = ui.value.sortDir === 'asc' ? 1 : -1
+  const sortBy = ui.value.sortBy
+
+  return [...filteredSkins.value].sort((a, b) => {
+    if (sortBy === 'rarity') {
+      const diff = rarityRank(a.rarity?.id) - rarityRank(b.rarity?.id)
+      if (diff !== 0) return diff * dir
+    }
+    return a.name.localeCompare(b.name) * dir
+  })
 })
 
 const paginatedSkins = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE.value
   const end = start + PAGE_SIZE.value
-  return filteredSkins.value.slice(start, end)
+  return sortedSkins.value.slice(start, end)
 })
 
-const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
+const totalPages = computed(() => Math.ceil(sortedSkins.value.length / PAGE_SIZE.value))
+
+const recentSkins = computed(() => {
+  if (recentSkinIds.value.length === 0) return []
+  const byId = new Map(apiState.value.skins.map(s => [s.id, s] as const))
+  return recentSkinIds.value
+    .map(id => byId.get(id))
+    .filter((skin): skin is APIWeaponSkin => Boolean(skin))
+})
 
 /**
  * Fetch available skins for the current weapon
@@ -172,9 +341,7 @@ const fetchAvailableSkinsForWeapon = async () => {
     }
 
     // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(skins.filter((skin: APIWeaponSkin) =>
-      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-    ).length / PAGE_SIZE.value)
+    const newTotalPages = Math.ceil(sortedSkins.value.length / PAGE_SIZE.value)
 
     if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
       state.value.currentPage = newTotalPages
@@ -507,6 +674,8 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       paintIndex: Number(skin.paint_index),
       wear: Number(skin.min_float ?? 0),
     }
+
+    trackRecentSkin(skin.id)
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
     state.value.error = errorMessage
@@ -563,11 +732,23 @@ const handleStickerSelect = (stickerData: { id: number; x?: number; y?: number; 
   customization.value.stickers[state.value.currentStickerPosition] = stickerData
 }
 
+const removeSticker = (index: number) => {
+  const stickers = [...customization.value.stickers]
+  if (!stickers[index]) return
+  stickers[index] = null
+  customization.value.stickers = stickers
+}
+
 const handleAddKeychain = () => {
   state.value.showKeychainModal = true
 }
 const handleKeychainSelect = (keychainData: { id: number; x?: number; y?: number; z?: number; seed?: number; api?: Record<string, unknown> }) => {
   customization.value.keychain = keychainData
+}
+
+const removeKeychain = () => {
+  if (!customization.value.keychain) return
+  customization.value.keychain = null
 }
 
 const handleOpenVisualCustomizer = () => {
@@ -576,6 +757,69 @@ const handleOpenVisualCustomizer = () => {
     return
   }
   state.value.showVisualCustomizer = true
+}
+
+const isEditableTarget = (target: EventTarget | null): boolean => {
+  const el = target as HTMLElement | null
+  if (!el) return false
+  if (el.isContentEditable) return true
+  const tag = el.tagName?.toLowerCase()
+  if (tag === 'input' || tag === 'textarea' || tag === 'select') return true
+  return Boolean(el.closest('input, textarea, select, [contenteditable="true"]'))
+}
+
+const handleModalKeydown = (e: KeyboardEvent) => {
+  if (e.isComposing) return
+  if (e.defaultPrevented) return
+  if (e.ctrlKey || e.metaKey || e.altKey) return
+
+  // If any sub-modals are open, don't intercept Enter here.
+  if (
+    state.value.showStickerModal
+    || state.value.showKeychainModal
+    || state.value.showImportModal
+    || state.value.showDuplicateConfirm
+    || state.value.showResetConfirm
+    || state.value.showVisualCustomizer
+  ) {
+    return
+  }
+
+  // Don't trigger shortcuts while typing in an input.
+  if (isEditableTarget(e.target)) return
+
+  const target = e.target as HTMLElement | null
+  // Avoid triggering shortcuts while focus is on interactive controls.
+  if (target?.closest('button, a, [role="button"]')) return
+
+  // Enter → Save
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    handleSave()
+    return
+  }
+
+  // 1-5 → Open sticker slot
+  if (/^[1-5]$/.test(e.key)) {
+    e.preventDefault()
+    handleAddSticker(Number(e.key) - 1)
+    return
+  }
+
+  // R → Reset (with confirmation)
+  if (e.key === 'r' || e.key === 'R') {
+    if (!selectedSkin.value || customization.value.paintIndex === 0) return
+    e.preventDefault()
+    state.value.showResetConfirm = true
+    return
+  }
+
+  // D → Duplicate (with confirmation)
+  if (e.key === 'd' || e.key === 'D') {
+    if (!selectedSkin.value || selectedSkin.value.availableTeams !== 'both') return
+    e.preventDefault()
+    state.value.showDuplicateConfirm = true
+  }
 }
 
 const handleVisualCustomizerSave = (data: { stickers: Array<{ id: number; slot: number; x: number; y: number; wear: number; scale: number; rotation: number; ext_norm_x?: number; ext_norm_y?: number; ext_ref_x?: number; ext_ref_y?: number; api?: Record<string, unknown> } | null>, keychain: { id: number; x: number; y: number; z?: number; seed?: number } | null, weaponWear?: number }) => {
@@ -660,6 +904,12 @@ const resetAllState = () => {
     isDuplicating: false
   }
 
+  ui.value = {
+    sortBy: 'name',
+    sortDir: 'asc',
+    rarityFilterIds: [],
+  }
+
   // Reset selected skin
   selectedSkin.value = null
 }
@@ -671,9 +921,9 @@ watch(() => props.visible, (isVisible) => {
     setTimeout(() => {
       resetAllState()
     }, 300) // Small delay to ensure modal is closed first
-  } else if (filteredSkins.value.length > 0) {
+  } else if (sortedSkins.value.length > 0) {
     // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
+    const newTotalPages = Math.ceil(sortedSkins.value.length / PAGE_SIZE.value)
     if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
       state.value.currentPage = newTotalPages
     }
@@ -683,13 +933,21 @@ watch(() => props.visible, (isVisible) => {
 // Watch for changes to searchQuery to adjust current page if needed
 watch(() => state.value.searchQuery, () => {
   // When search query changes, check if we need to adjust the current page
-  const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
+  const newTotalPages = Math.ceil(sortedSkins.value.length / PAGE_SIZE.value)
   if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
     state.value.currentPage = newTotalPages
   } else if (newTotalPages > 0) {
     // Reset to page 1 when search query changes
     state.value.currentPage = 1
   }
+})
+
+watch(() => ui.value.sortBy, () => {
+  state.value.currentPage = 1
+})
+
+watch(() => ui.value.sortDir, () => {
+  state.value.currentPage = 1
 })
 
 /**
@@ -746,13 +1004,24 @@ watch(() => props.weapon, () => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="weapon ? t('modals.weaponSkin.title', { weaponName: weapon?.defaultName }) as string : t('modals.weaponSkin.defaultTitle') as string"
       :bordered="false"
       size="huge"
       class="duration-500 ease-in-out transition-all"
       :theme-overrides="skinModalThemeOverrides"
       @update:show="handleClose"
   >
+    <template #header>
+      <div class="flex items-center gap-3">
+        <span class="leading-none">{{ modalTitle }}</span>
+        <span
+          v-if="teamLabel"
+          class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold"
+          :class="teamBadgeClasses"
+        >
+          {{ teamLabel }}
+        </span>
+      </div>
+    </template>
     <template #header-extra>
       <!-- Reset Weapon Configuration -->
       <NButton :loading="state.isResetting" secondary type="error" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
@@ -799,71 +1068,74 @@ watch(() => props.weapon, () => {
       />
     </template>
 
-    <NSpace vertical size="large" class="-mt-2">
-      <!-- Selected Skin Preview -->
-      <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg">
-        <div class="grid grid-cols-2 gap-6">
-          <!-- Left side - Image -->
-          <div>
-            <div class="relative">
-              <img
-                  :src="selectedSkin?.image"
-                  :alt="selectedSkin?.name"
-                  class="w-full h-64 object-contain"
-              />
-              <!-- Visual Customizer Overlay Button -->
-              <button
-                class="visual-customizer-overlay"
-                :class="{ 'disabled': !selectedSkin }"
-                :disabled="!selectedSkin"
-                :title="t('modals.weaponSkin.visualCustomizer.button') || 'Visual Customizer'"
-                @click.stop="handleOpenVisualCustomizer"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="20"
-                  height="20"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="magic-wand-icon"
+    <div @keydown="handleModalKeydown">
+      <NSpace vertical size="large" class="-mt-2">
+        <!-- Selected Skin Preview -->
+        <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg">
+          <div class="grid grid-cols-2 gap-6">
+            <!-- Left side - Image -->
+            <div>
+              <div class="relative">
+                <img
+                    :src="selectedSkin?.image"
+                    :alt="selectedSkin?.name"
+                    class="w-full h-64 object-contain"
+                />
+                <!-- Visual Customizer Overlay Button -->
+                <button
+                  class="visual-customizer-overlay"
+                  :class="{ 'disabled': !selectedSkin }"
+                  :disabled="!selectedSkin"
+                  :title="(t('modals.weaponSkin.visualCustomizer.button') as string) || 'Visual Customizer'"
+                  @click.stop="handleOpenVisualCustomizer"
                 >
-                  <!-- Magic Wand Icon (Tabler: wand) -->
-                  <path d="M6 21l15 -15l-3 -3l-15 15l3 3" />
-                  <path d="M15 6l3 3" />
-                  <path d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
-                  <path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
-                </svg>
-              </button>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="magic-wand-icon"
+                  >
+                    <!-- Magic Wand Icon (Tabler: wand) -->
+                    <path d="M6 21l15 -15l-3 -3l-15 15l3 3" />
+                    <path d="M15 6l3 3" />
+                    <path d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
+                    <path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
+                  </svg>
+                </button>
+              </div>
+              <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
             </div>
-            <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
-          </div>
 
-          <!-- Right side - Customization -->
-          <div class="space-y-6 flex flex-col items-center">
-            <!-- StatTrak and Name Tag -->
-            <div class="grid grid-cols-2 gap-4 w-full">
-              <div class="flex items-center space-x-4">
-                <NSwitch v-model:value="customization.statTrak" />
-                <span>{{ t('modals.weaponSkin.labels.stattrak') }}</span>
-                <NInputNumber
-                    :disabled="!customization.statTrak"
-                    v-model:value="customization.statTrakCount"
-                    :min="0"
-                    :max="99999"
-                    class="w-28"
-                    :input-props="digitOnlyInputProps"
+            <!-- Right side - Customization -->
+            <div class="space-y-6 flex flex-col items-center">
+              <!-- StatTrak and Name Tag -->
+              <div class="grid grid-cols-2 gap-4 w-full">
+                <div class="flex items-center space-x-4">
+                  <NSwitch v-model:value="customization.statTrak" />
+                  <span>{{ t('modals.weaponSkin.labels.stattrak') }}</span>
+                  <NInputNumber
+                      :disabled="!customization.statTrak"
+                      v-model:value="customization.statTrakCount"
+                      :min="0"
+                      :max="99999"
+                      class="w-28"
+                      :input-props="digitOnlyInputProps"
+                  />
+                </div>
+                <NInput
+                    v-model:value="customization.nameTag"
+                    :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
+                    class="pl-1"
+                    maxlength="20"
+                    show-count
                 />
               </div>
-              <NInput
-                  v-model:value="customization.nameTag"
-                  :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
-                  class="pl-1"
-              />
-            </div>
 
             <!-- Paint Settings -->
             <div class="grid grid-cols-2 gap-4 w-full">
@@ -905,6 +1177,9 @@ watch(() => props.weapon, () => {
                   :max="selectedSkin?.maxFloat ?? 1"
                   :min="selectedSkin?.minFloat ?? 0"
               />
+              <p v-if="wearIndicatorText" class="mt-1 text-xs" :class="wearIndicatorClasses">
+                {{ wearIndicatorText }}
+              </p>
             </div>
 
             <!-- Save Button & Active Switch-->
@@ -968,8 +1243,8 @@ watch(() => props.weapon, () => {
                   v-for="(sticker, index) in customization.stickers"
                   :key="index"
                   class="
-                  sticker-slot flex items-center justify-center bg-[#242424] p-2 rounded cursor-move
- transition-all relative hover:bg-[#2a2a2a]"
+                  sticker-slot group flex items-center justify-center bg-[#242424] p-2 rounded cursor-move
+ transition-all relative hover:bg-[#2a2a2a] hover:shadow-md active:scale-[0.98]"
                   :class="{ 'inactive-item': !sticker, 'active-item': sticker }"
                   draggable="true"
                   @dragstart="handleStickerDragStart($event, index)"
@@ -979,6 +1254,21 @@ watch(() => props.weapon, () => {
                   @drop="handleStickerDrop($event, index)"
                   @click.stop="handleAddSticker(index)"
               >
+                <button
+                  v-if="sticker"
+                  type="button"
+                  class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200"
+                  :title="t('modals.weaponSkin.stickers.remove') as string"
+                  draggable="false"
+                  @mousedown.stop.prevent
+                  @click.stop.prevent="removeSticker(index)"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                    <path d="M18 6l-12 12" />
+                    <path d="M6 6l12 12" />
+                  </svg>
+                </button>
                 <div v-if="sticker" class="h-28 relative group">
                   <img
                       :src="sticker.api.image"
@@ -1002,10 +1292,25 @@ watch(() => props.weapon, () => {
           <div class="col-span-1 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.keychain.title') }}</h4>
             <div
-                class="items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
+                class="relative group items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
                 :class="{ 'inactive-item': !customization.keychain, 'active-item': customization.keychain }"
                 @click="handleAddKeychain"
             >
+              <button
+                v-if="customization.keychain"
+                type="button"
+                class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200"
+                :title="t('modals.weaponSkin.keychain.remove') as string"
+                draggable="false"
+                @mousedown.stop.prevent
+                @click.stop.prevent="removeKeychain"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                  <path d="M18 6l-12 12" />
+                  <path d="M6 6l12 12" />
+                </svg>
+              </button>
               <div v-if="customization.keychain" class=" relative group h-30">
                 <img
                     :src="customization.keychain.api.image"
@@ -1023,8 +1328,91 @@ watch(() => props.weapon, () => {
         </div>
       </div>
 
+      <!-- Skin list controls (Phase 2) -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.sort.label') }}</span>
+          <NSelect
+            v-model:value="ui.sortBy"
+            size="small"
+            class="w-44"
+            :options="skinSortOptions"
+          />
+          <NButton size="small" secondary type="default" @click="toggleSortDir">
+            {{ ui.sortDir === 'asc' ? '↑' : '↓' }}
+          </NButton>
+        </div>
+
+        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
+          <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.filters.rarity') }}</span>
+          <NButton
+            v-for="rarity in availableRarities"
+            :key="rarity.id"
+            size="small"
+            secondary
+            :type="ui.rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+            :style="ui.rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            @click="toggleRarityFilter(rarity.id)"
+          >
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
+              {{ rarity.name }}
+            </span>
+          </NButton>
+        </div>
+      </div>
+
+      <!-- Recently used skins (Phase 2) -->
+      <div v-if="!state.isLoadingSkins && recentSkins.length > 0" class="mt-2">
+        <h4 class="font-bold mb-2">{{ t('modals.weaponSkin.recent.title') }}</h4>
+        <div class="grid grid-cols-5 gap-4">
+          <NCard
+            v-for="skin in recentSkins"
+            :key="skin.id"
+            :style="{
+              borderColor: skin.rarity?.color || '#313030',
+              background: 'linear-gradient(135deg, ' + ('#101010') +
+              ', ' + (hexToRgba(skin.rarity?.color, '0.15') || '#313030') + ')'}"
+            :class="[
+              'hover:shadow-lg cursor-pointer transition-all rounded-xl',
+              selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
+            ]"
+            @click="handleSkinSelect(skin)"
+          >
+            <div class="flex flex-col items-center">
+              <img
+                :src="skin.image"
+                :alt="skin.name"
+                class="w-full h-24 object-contain mb-2"
+                loading="lazy"
+              >
+              <div class="w-full">
+                <p class="text-sm text-white truncate">{{ skin.name }}</p>
+                <div class="h-1 mt-2" :style="{ background: skin.rarity?.color || '#313030' }" />
+              </div>
+            </div>
+          </NCard>
+        </div>
+      </div>
+
       <!-- Skins Grid -->
-      <div v-if="!state.isLoadingSkins" class="grid grid-cols-5 gap-4">
+      <div v-if="state.isLoadingSkins" class="grid grid-cols-5 gap-4">
+        <div
+          v-for="i in PAGE_SIZE"
+          :key="i"
+          class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+        >
+          <NSkeleton height="128px" />
+          <div class="mt-3">
+            <NSkeleton text :repeat="1" />
+            <div class="mt-2">
+              <NSkeleton height="4px" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="grid grid-cols-5 gap-4">
         <NCard
             v-for="skin in paginatedSkins"
             :key="skin.id"
@@ -1053,13 +1441,8 @@ watch(() => props.weapon, () => {
         </NCard>
       </div>
 
-      <!-- Loading State -->
-      <div v-else class="flex justify-center items-center h-64">
-        <NSpin size="large" />
-      </div>
-
       <!-- No Results -->
-      <div v-if="!state.isLoadingSkins && filteredSkins.length === 0" class="flex justify-center items-center h-64">
+      <div v-if="!state.isLoadingSkins && sortedSkins.length === 0" class="flex justify-center items-center h-64">
         <NEmpty :description="t('modals.weaponSkin.noSearchResults') as string" />
       </div>
 
@@ -1071,62 +1454,63 @@ watch(() => props.weapon, () => {
             :page-slot="5"
         />
       </div>
-    </NSpace>
+      </NSpace>
 
-    <!-- Sticker Modal -->
-    <StickerModal
-        v-model:visible="state.showStickerModal"
-        :position="state.currentStickerPosition"
-        :currentSticker="customization.stickers[state.currentStickerPosition]"
-        @select="handleStickerSelect"
-    />
+      <!-- Sticker Modal -->
+      <StickerModal
+          v-model:visible="state.showStickerModal"
+          :position="state.currentStickerPosition"
+          :currentSticker="customization.stickers[state.currentStickerPosition]"
+          @select="handleStickerSelect"
+      />
 
-    <!-- Keychain Modal -->
-    <KeychainModal
-        v-model:visible="state.showKeychainModal"
-        :currentKeychain="customization.keychain"
-        @select="handleKeychainSelect"
-    />
+      <!-- Keychain Modal -->
+      <KeychainModal
+          v-model:visible="state.showKeychainModal"
+          :currentKeychain="customization.keychain"
+          @select="handleKeychainSelect"
+      />
 
-    <!-- Import via InspectURL Modal -->
-    <InspectURLModal
-        v-model:visible="state.showImportModal"
-        :loading="state.isImporting"
-        @submit="handleImportInspectLink"
-    />
+      <!-- Import via InspectURL Modal -->
+      <InspectURLModal
+          v-model:visible="state.showImportModal"
+          :loading="state.isImporting"
+          @submit="handleImportInspectLink"
+      />
 
-    <!-- Duplicate Modal -->
-    <DuplicateItemConfirmModal
-        v-model:visible="state.showDuplicateConfirm"
-        :loading="state.isDuplicating"
-        :other-team-has-skin="otherTeamHasSkin"
-        :item-type="t('modals.duplicateItem.type.weapon') as string"
-        @confirm="handleDuplicate"
-    />
+      <!-- Duplicate Modal -->
+      <DuplicateItemConfirmModal
+          v-model:visible="state.showDuplicateConfirm"
+          :loading="state.isDuplicating"
+          :other-team-has-skin="otherTeamHasSkin"
+          :item-type="t('modals.duplicateItem.type.weapon') as string"
+          @confirm="handleDuplicate"
+      />
 
-    <ResetModal
-        v-model:visible="state.showResetConfirm"
-        :loading="state.isResetting"
-        @confirm="handleReset"
-    />
+      <ResetModal
+          v-model:visible="state.showResetConfirm"
+          :loading="state.isResetting"
+          @confirm="handleReset"
+      />
 
-    <!-- Visual Customizer Modal -->
-    <VisualCustomizerModal
-        :visible="state.showVisualCustomizer"
-        :weapon-skin="{
-          name: selectedSkin?.name || '',
-          image: selectedSkin?.image || '',
-          defindex: selectedSkin?.weapon_defindex || 0
-        }"
-        :stickers="customization.stickers"
-        :keychain="customization.keychain"
-        :weapon-wear="customization.wear"
-        :min-wear="selectedSkin?.minFloat || 0"
-        :max-wear="selectedSkin?.maxFloat || 1"
-        @update:visible="state.showVisualCustomizer = $event"
-        @save="handleVisualCustomizerSave"
-        @update-wear="handleVisualCustomizerWearUpdate"
-    />
+      <!-- Visual Customizer Modal -->
+      <VisualCustomizerModal
+          :visible="state.showVisualCustomizer"
+          :weapon-skin="{
+            name: selectedSkin?.name || '',
+            image: selectedSkin?.image || '',
+            defindex: selectedSkin?.weapon_defindex || 0
+          }"
+          :stickers="customization.stickers"
+          :keychain="customization.keychain"
+          :weapon-wear="customization.wear"
+          :min-wear="selectedSkin?.minFloat || 0"
+          :max-wear="selectedSkin?.maxFloat || 1"
+          @update:visible="state.showVisualCustomizer = $event"
+          @save="handleVisualCustomizerSave"
+          @update-wear="handleVisualCustomizerWearUpdate"
+      />
+    </div>
   </NModal>
 </template>
 <style scoped lang="postcss">
