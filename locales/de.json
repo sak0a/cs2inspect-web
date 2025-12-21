@@ -218,6 +218,17 @@
       "titleEdit": "Sticker bearbeiten",
       "titleAdd": "Sticker hinzufügen",
       "searchPlaceholder": "Sticker suchen...",
+      "sort": {
+        "label": "Sortieren",
+        "name": "Name",
+        "rarity": "Seltenheit",
+        "effect": "Effekt"
+      },
+      "filters": {
+        "rarity": "Seltenheit",
+        "effect": "Effekt",
+        "clearAll": "Filter zurücksetzen"
+      },
       "labels": {
         "position": "Position",
         "scale": "Skalierung",

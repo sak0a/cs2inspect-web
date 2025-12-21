@@ -142,6 +142,17 @@
       "titleEdit": "Редактировать наклейку",
       "titleAdd": "Добавить наклейку",
       "searchPlaceholder": "Поиск наклеек...",
+      "sort": {
+        "label": "Сортировка",
+        "name": "Название",
+        "rarity": "Редкость",
+        "effect": "Эффект"
+      },
+      "filters": {
+        "rarity": "Редкость",
+        "effect": "Эффект",
+        "clearAll": "Сбросить фильтры"
+      },
       "labels": {
         "position": "Позиция",
         "scale": "Масштаб",

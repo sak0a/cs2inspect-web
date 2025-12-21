@@ -154,6 +154,17 @@
       "titleEdit": "Editar pegatina",
       "titleAdd": "Añadir pegatina",
       "searchPlaceholder": "Buscar pegatinas...",
+      "sort": {
+        "label": "Ordenar",
+        "name": "Nombre",
+        "rarity": "Rareza",
+        "effect": "Efecto"
+      },
+      "filters": {
+        "rarity": "Rareza",
+        "effect": "Efecto",
+        "clearAll": "Restablecer filtros"
+      },
       "labels": {
         "position": "Posición",
         "scale": "Escala",

@@ -154,6 +154,17 @@
       "titleEdit": "Edit Sticker",
       "titleAdd": "Add Sticker",
       "searchPlaceholder": "Search Stickers...",
+      "sort": {
+        "label": "Sort",
+        "name": "Name",
+        "rarity": "Rarity",
+        "effect": "Effect"
+      },
+      "filters": {
+        "rarity": "Rarity",
+        "effect": "Effect",
+        "clearAll": "Clear filters"
+      },
       "labels": {
         "position": "Position",
         "scale": "Scale",

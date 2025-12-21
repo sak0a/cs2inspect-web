@@ -1,13 +1,22 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
+import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton, NSelect } from 'naive-ui'
 import type { APISticker } from "~/server/utils/interfaces";
 import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
   position: number
-  currentSticker?: { id?: number; ext_norm_x?: number; ext_norm_y?: number } | null
+  currentSticker?: {
+    id?: number
+    x?: number
+    y?: number
+    wear?: number
+    scale?: number
+    rotation?: number
+    ext_norm_x?: number
+    ext_norm_y?: number
+  } | null
 }>()
 
 const emit = defineEmits<{
@@ -54,17 +63,169 @@ const extNormYStr = computed(() => (extNormY.value !== null ? extNormY.value.toF
 
 const PAGE_SIZE = 10
 
-const filteredItems = computed(() => {
-  return state.value.items.filter(item =>
-      item.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-  )
+type StickerSortBy = 'name' | 'rarity' | 'effect'
+type SortDir = 'asc' | 'desc'
+
+const ui = ref({
+  sortBy: 'name' as StickerSortBy,
+  sortDir: 'asc' as SortDir,
+  rarityFilterIds: [] as string[],
+  effectFilterIds: [] as string[],
 })
+
+const rarityRank = (rarityId: string | undefined) => {
+  // Sticker dataset uses ids like "rarity_rare", "rarity_mythical", ...
+  const raw = (rarityId || '').toLowerCase()
+  const id = raw.replace(/^rarity_/, '')
+  const rankMap: Record<string, number> = {
+    default: 1,
+    rare: 2,
+    mythical: 3,
+    legendary: 4,
+    ancient: 5,
+    contraband: 6,
+  }
+  return rankMap[id] ?? 0
+}
+
+// Map UI-facing effect labels to actual dataset values.
+// In the dataset, "Other" is effectively the "Paper" / non-special category.
+const EFFECT_VALUE_MAP: Record<string, string[]> = {
+  Paper: ['Paper', 'Other'],
+  Holo: ['Holo'],
+  Foil: ['Foil'],
+  Glitter: ['Glitter'],
+  Gold: ['Gold'],
+  Lenticular: ['Lenticular'],
+}
+
+const EFFECT_ORDER = ['Paper', 'Holo', 'Foil', 'Glitter', 'Gold', 'Lenticular'] as const
+
+const effectLabelForSticker = (effect: string | undefined) => {
+  const v = (effect || 'Other')
+  return v === 'Other' ? 'Paper' : v
+}
+
+const availableRarities = computed(() => {
+  const map = new Map<string, { id: string; name: string; color: string }>()
+  for (const sticker of state.value.items) {
+    const id = sticker.rarity?.id
+    if (!id) continue
+    if (!map.has(id)) {
+      map.set(id, { id, name: sticker.rarity.name, color: sticker.rarity.color })
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => rarityRank(a.id) - rarityRank(b.id))
+})
+
+type EffectOption = { id: string; label: string }
+const availableEffects = computed<EffectOption[]>(() => {
+  const present = new Set<string>()
+  for (const sticker of state.value.items) {
+    present.add(sticker.effect || 'Other')
+  }
+
+  const opts: EffectOption[] = []
+  const mappedValues = new Set<string>()
+  for (const id of EFFECT_ORDER) {
+    const values = EFFECT_VALUE_MAP[id] || [id]
+    for (const v of values) mappedValues.add(v)
+  }
+
+  for (const id of EFFECT_ORDER) {
+    const values = EFFECT_VALUE_MAP[id] || [id]
+    if (values.some(v => present.has(v))) {
+      opts.push({ id, label: id })
+    }
+  }
+
+  // Include any additional effect values present in the dataset (e.g., "Embroidered")
+  const extras = Array.from(present)
+    .filter(v => !mappedValues.has(v))
+    .sort((a, b) => a.localeCompare(b))
+  for (const effect of extras) {
+    opts.push({ id: effect, label: effect })
+  }
+
+  return opts
+})
+
+const stickerSortOptions = computed(() => [
+  { label: t('modals.sticker.sort.name') as string, value: 'name' },
+  { label: t('modals.sticker.sort.rarity') as string, value: 'rarity' },
+  { label: t('modals.sticker.sort.effect') as string, value: 'effect' },
+])
+
+const toggleSortDir = () => {
+  ui.value.sortDir = ui.value.sortDir === 'asc' ? 'desc' : 'asc'
+  state.value.currentPage = 1
+}
+
+const toggleRarityFilter = (rarityId: string) => {
+  const set = new Set(ui.value.rarityFilterIds)
+  if (set.has(rarityId)) set.delete(rarityId)
+  else set.add(rarityId)
+  ui.value.rarityFilterIds = Array.from(set)
+  state.value.currentPage = 1
+}
+
+const toggleEffectFilter = (effectId: string) => {
+  const set = new Set(ui.value.effectFilterIds)
+  if (set.has(effectId)) set.delete(effectId)
+  else set.add(effectId)
+  ui.value.effectFilterIds = Array.from(set)
+  state.value.currentPage = 1
+}
+
+const filteredItems = computed(() => {
+  const q = state.value.searchQuery.toLowerCase()
+  const raritySet = new Set(ui.value.rarityFilterIds)
+  const useRarityFilter = raritySet.size > 0
+
+  const effectSet = new Set(ui.value.effectFilterIds)
+  const useEffectFilter = effectSet.size > 0
+
+  const allowedEffects = new Set<string>()
+  if (useEffectFilter) {
+    for (const id of effectSet) {
+      const values = EFFECT_VALUE_MAP[id] || [id]
+      for (const v of values) allowedEffects.add(v)
+    }
+  }
+
+  return state.value.items.filter((sticker) => {
+    if (q && !sticker.name.toLowerCase().includes(q)) return false
+    if (useRarityFilter && !raritySet.has(sticker.rarity?.id)) return false
+    if (useEffectFilter && !allowedEffects.has(sticker.effect || 'Other')) return false
+    return true
+  })
+})
+
+const sortedItems = computed(() => {
+  const dir = ui.value.sortDir === 'asc' ? 1 : -1
+  const sortBy = ui.value.sortBy
+
+  return [...filteredItems.value].sort((a, b) => {
+    if (sortBy === 'rarity') {
+      const diff = rarityRank(a.rarity?.id) - rarityRank(b.rarity?.id)
+      if (diff !== 0) return diff * dir
+    } else if (sortBy === 'effect') {
+      const effectA = effectLabelForSticker(a.effect)
+      const effectB = effectLabelForSticker(b.effect)
+      const diff = effectA.localeCompare(effectB)
+      if (diff !== 0) return diff * dir
+    }
+    return a.name.localeCompare(b.name) * dir
+  })
+})
+
 const paginatedItems = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE
   const end = start + PAGE_SIZE
-  return filteredItems.value.slice(start, end)
+  return sortedItems.value.slice(start, end)
 })
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / PAGE_SIZE))
+
+const totalPages = computed(() => Math.ceil(sortedItems.value.length / PAGE_SIZE))
 
 const fetchItems = async () => {
   try {
@@ -141,6 +302,13 @@ const resetAllState = () => {
       rotation: 0
     }
   }
+
+  ui.value = {
+    sortBy: 'name',
+    sortDir: 'asc',
+    rarityFilterIds: [],
+    effectFilterIds: [],
+  }
 }
 
 const handleClose = () => {
@@ -187,6 +355,23 @@ watch(() => props.visible, (newValue) => {
     resetAllState()
   }
 })
+
+// Reset pagination to page 1 whenever filters/sort/search change
+watch(() => state.value.searchQuery, () => {
+  state.value.currentPage = 1
+})
+watch(() => ui.value.sortBy, () => {
+  state.value.currentPage = 1
+})
+watch(() => ui.value.sortDir, () => {
+  state.value.currentPage = 1
+})
+watch(() => ui.value.rarityFilterIds, () => {
+  state.value.currentPage = 1
+}, { deep: true })
+watch(() => ui.value.effectFilterIds, () => {
+  state.value.currentPage = 1
+}, { deep: true })
 </script>
 
 <template>
@@ -319,6 +504,64 @@ watch(() => props.visible, (newValue) => {
         </div>
       </div>
 
+      <!-- Sticker list controls (Sort + Filters) -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
+          <NSelect
+            v-model:value="ui.sortBy"
+            size="small"
+            class="w-44"
+            :options="stickerSortOptions"
+          />
+          <NButton
+            size="small"
+            secondary
+            type="default"
+            :aria-label="`Sort ${ui.sortDir === 'asc' ? 'ascending' : 'descending'}`"
+            @click="toggleSortDir"
+          >
+            {{ ui.sortDir === 'asc' ? '↑' : '↓' }}
+          </NButton>
+        </div>
+
+        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
+          <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
+          <NButton
+            v-for="rarity in availableRarities"
+            :key="rarity.id"
+            size="small"
+            secondary
+            :type="ui.rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+            :style="ui.rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :aria-label="`Filter by ${rarity.name} rarity`"
+            :aria-pressed="ui.rarityFilterIds.includes(rarity.id)"
+            @click="toggleRarityFilter(rarity.id)"
+          >
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
+              {{ rarity.name }}
+            </span>
+          </NButton>
+        </div>
+      </div>
+
+      <div v-if="availableEffects.length > 0" class="flex flex-wrap items-center gap-2 -mt-2">
+        <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.effect') }}</span>
+        <NButton
+          v-for="effect in availableEffects"
+          :key="effect.id"
+          size="small"
+          secondary
+          :type="ui.effectFilterIds.includes(effect.id) ? 'primary' : 'default'"
+          :aria-label="`Filter by ${effect.label} effect`"
+          :aria-pressed="ui.effectFilterIds.includes(effect.id)"
+          @click="toggleEffectFilter(effect.id)"
+        >
+          {{ effect.label }}
+        </NButton>
+      </div>
+
       <!-- Stickers Grid -->
       <div v-if="!state.isLoading" class="grid grid-cols-5 gap-4">
         <NCard
@@ -359,7 +602,7 @@ watch(() => props.visible, (newValue) => {
 
       <!-- Empty State -->
       <div
-          v-if="!state.isLoading && filteredItems.length === 0"
+          v-if="!state.isLoading && sortedItems.length === 0"
           class="flex justify-center items-center h-64 text-gray-400"
       >
         {{ t('modals.sticker.noSearchResults') }}

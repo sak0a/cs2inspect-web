@@ -154,6 +154,17 @@
       "titleEdit": "Sticker bewerken",
       "titleAdd": "Sticker toevoegen",
       "searchPlaceholder": "Zoek stickers...",
+      "sort": {
+        "label": "Sorteren",
+        "name": "Naam",
+        "rarity": "Zeldzaamheid",
+        "effect": "Effect"
+      },
+      "filters": {
+        "rarity": "Zeldzaamheid",
+        "effect": "Effect",
+        "clearAll": "Filters resetten"
+      },
       "labels": {
         "position": "Positie",
         "scale": "Schaal",

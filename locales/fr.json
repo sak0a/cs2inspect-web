@@ -154,6 +154,17 @@
       "titleEdit": "Modifier l'autocollant",
       "titleAdd": "Ajouter un autocollant",
       "searchPlaceholder": "Rechercher des autocollants...",
+      "sort": {
+        "label": "Trier",
+        "name": "Nom",
+        "rarity": "Rareté",
+        "effect": "Effet"
+      },
+      "filters": {
+        "rarity": "Rareté",
+        "effect": "Effet",
+        "clearAll": "Réinitialiser les filtres"
+      },
       "labels": {
         "position": "Position",
         "scale": "Échelle",
