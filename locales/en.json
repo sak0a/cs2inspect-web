@@ -239,6 +239,10 @@
       "visualCustomizer": {
         "button": "Visual Customizer"
       },
+      "stickerOverlay": {
+        "toggle": "Show sticker positions",
+        "clickToEdit": "Click to edit in Visual Customizer"
+      },
       "sort": {
         "label": "Sort",
         "name": "Name",

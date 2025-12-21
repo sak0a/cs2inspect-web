@@ -147,7 +147,17 @@ const ui = ref({
   sortBy: 'name' as SkinSortBy,
   sortDir: 'asc' as SortDir,
   rarityFilterIds: [] as string[],
+  showStickerOverlay: true, // Phase 3: Toggle for sticker overlay
 })
+
+// Phase 3: Sticker overlay position mapping
+const stickerOverlayPositions = [
+  { top: '15%', left: '10%' },  // Slot 1
+  { top: '25%', left: '30%' },  // Slot 2
+  { top: '35%', left: '50%' },  // Slot 3
+  { top: '45%', left: '70%' },  // Slot 4
+  { top: '55%', left: '85%' },  // Slot 5
+]
 
 const rarityRank = (rarityId: string | undefined) => {
   const id = (rarityId || '').toLowerCase()
@@ -854,6 +864,7 @@ const resetAllState = () => {
     sortBy: 'name',
     sortDir: 'asc',
     rarityFilterIds: [],
+    showStickerOverlay: true,
   }
 
   // Reset selected skin
@@ -1027,6 +1038,7 @@ watch(() => props.weapon, () => {
                     :alt="selectedSkin?.name"
                     class="w-full h-64 object-contain"
                 />
+                
                 <!-- Visual Customizer Overlay Button -->
                 <button
                   class="visual-customizer-overlay"
@@ -1054,8 +1066,60 @@ watch(() => props.weapon, () => {
                     <path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
                   </svg>
                 </button>
+                
+                <!-- Phase 3: Sticker Preview Overlay -->
+                <div v-if="ui.showStickerOverlay" class="sticker-preview-overlay">
+                  <div
+                    v-for="(sticker, index) in customization.stickers"
+                    :key="`overlay-${index}`"
+                    v-show="sticker"
+                    class="sticker-preview-thumbnail group"
+                    :style="{
+                      top: stickerOverlayPositions[index].top,
+                      left: stickerOverlayPositions[index].left,
+                    }"
+                    :title="t('modals.weaponSkin.stickerOverlay.clickToEdit') as string"
+                    @click.stop="handleOpenVisualCustomizer"
+                  >
+                    <img
+                      :src="sticker?.api?.image"
+                      :alt="sticker?.api?.name"
+                      class="w-full h-full object-contain"
+                    />
+                    <div class="sticker-slot-badge">
+                      #{{ index + 1 }}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
+              
+              <div class="flex items-center justify-between mt-2">
+                <h3 class="text-lg font-bold">{{ selectedSkin?.name }}</h3>
+                <!-- Toggle sticker overlay -->
+                <button
+                  v-if="customization.stickers.some(s => s !== null)"
+                  class="text-xs text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1"
+                  @click="ui.showStickerOverlay = !ui.showStickerOverlay"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path v-if="ui.showStickerOverlay" d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z" />
+                    <circle v-if="ui.showStickerOverlay" cx="12" cy="12" r="3" />
+                    <path v-else d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                    <line v-if="!ui.showStickerOverlay" x1="1" y1="1" x2="23" y2="23" />
+                  </svg>
+                  {{ t('modals.weaponSkin.stickerOverlay.toggle') }}
+                </button>
+              </div>
             </div>
 
             <!-- Right side - Customization -->
@@ -1617,5 +1681,54 @@ watch(() => props.weapon, () => {
 
 .visual-customizer-overlay:hover:not(.disabled) .magic-wand-icon {
   color: #ffffff;
+}
+
+/* Phase 3: Sticker Preview Overlay */
+.sticker-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.sticker-preview-thumbnail {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  border: 1.5px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(2px);
+  padding: 4px;
+}
+
+.sticker-preview-thumbnail:hover {
+  transform: translate(-50%, -50%) scale(1.15);
+  border-color: rgba(250, 204, 21, 0.5);
+  box-shadow: 0 2px 8px rgba(250, 204, 21, 0.3);
+}
+
+.sticker-slot-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  background: var(--selection-ring);
+  color: #000;
+  font-size: 9px;
+  font-weight: bold;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(0, 0, 0, 0.3);
 }
 </style>
