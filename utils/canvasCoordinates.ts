@@ -22,7 +22,8 @@ const debugLog = (...args: unknown[]) => {
 export const WEAPON_STICKER_SLOT_POSITIONS: Record<string, Record<number, Point>> = {
   'awp': {
     // Based on image canvas 1328x384 (not 800). X uses 1328, Y uses 384 as per user-provided reference.
-    0: { x: 0.862, y: 0.573 },  // slot 0: x:1145 y:220 -> 1145/1328=0.862, 220/384=0.5729
+    //0: { x: 0.862, y: 0.573 },  // slot 0: x:1145 y:220 -> 1145/1328=0.862, 220/384=0.5729
+    0: { x: 1140/1328, y: 227/384 },  // slot 0: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
     1: { x: 0.679, y: 0.480 },  // slot 1: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
     2: { x: 0.621, y: 0.521 },  // slot 2: x:825 y:200 -> 825/1328=0.621, 200/384=0.5208
     3: { x: 0.557, y: 0.150 },  // slot 3: x:740 y:100 -> 740/1328=0.557, 100/384=0.2604

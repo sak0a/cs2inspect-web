@@ -105,7 +105,7 @@ const REF_HEIGHT = 384
 
 
 // Default max sticker width in pixels (applies at initial draw and hit-testing)
-const STICKER_MAX_WIDTH_PX = 120
+const STICKER_MAX_WIDTH_PX = 70
 
 // Default max sticker height in pixels (applies at initial draw and hit-testing)
 const STICKER_MAX_HEIGHT_PX = 70
@@ -670,6 +670,9 @@ const renderStaticBackground = () => {
 const drawSlotIndicators = () => {
   if (!ctx.value) return
 
+  const accent = getComputedStyle(document.documentElement)
+    .getPropertyValue('--selection-ring').trim() || '#FACC15'
+
   // Get occupied slot indices
   const occupiedSlots = new Set(
     canvasState.value.elements
@@ -686,21 +689,37 @@ const drawSlotIndicators = () => {
       const pos = normalizedToCanvasInImage(slotPosition)
 
       ctx.value.save()
-      ctx.value.globalAlpha = 0.3
-      ctx.value.strokeStyle = '#666666'
-      ctx.value.setLineDash([4, 4])
+      // Make slot markers clearly visible on any background
+      ctx.value.globalAlpha = 0.9
       ctx.value.lineWidth = 2
+      ctx.value.strokeStyle = accent
+      ctx.value.fillStyle = 'rgba(0, 0, 0, 0.30)'
+      ctx.value.setLineDash([6, 4])
+      ctx.value.shadowColor = 'rgba(0, 0, 0, 0.55)'
+      ctx.value.shadowBlur = 8
+      ctx.value.shadowOffsetX = 0
+      ctx.value.shadowOffsetY = 1
 
       // Draw a dashed circle to indicate slot position
+      const r = 20
       ctx.value.beginPath()
-      ctx.value.arc(pos.x, pos.y, 25, 0, 2 * Math.PI)
+      ctx.value.arc(pos.x, pos.y, r, 0, 2 * Math.PI)
+      ctx.value.fill()
       ctx.value.stroke()
 
+      // Reset shadow for crisp text
+      ctx.value.shadowColor = 'transparent'
+      ctx.value.shadowBlur = 0
+      ctx.value.shadowOffsetX = 0
+      ctx.value.shadowOffsetY = 0
+      ctx.value.setLineDash([])
+
       // Draw slot number
-      ctx.value.fillStyle = '#888888'
-      ctx.value.font = '12px Arial'
+      ctx.value.fillStyle = '#FFFFFF'
+      ctx.value.font = '500 12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial'
       ctx.value.textAlign = 'center'
-      ctx.value.fillText((slot + 1).toString(), pos.x, pos.y + 4)
+      ctx.value.textBaseline = 'middle'
+      ctx.value.fillText((slot + 1).toString(), pos.x, pos.y)
 
       ctx.value.restore()
     }
@@ -712,19 +731,37 @@ const drawSlotIndicators = () => {
     const pos = normalizedToCanvasInImage(DEFAULT_KEYCHAIN_POSITION)
 
     ctx.value.save()
-    ctx.value.globalAlpha = 0.3
-    ctx.value.strokeStyle = '#666666'
-    ctx.value.setLineDash([4, 4])
+    // Make keychain marker clearly visible on any background
+    ctx.value.globalAlpha = 0.9
     ctx.value.lineWidth = 2
+    ctx.value.strokeStyle = accent
+    ctx.value.fillStyle = 'rgba(0, 0, 0, 0.30)'
+    ctx.value.setLineDash([6, 4])
+    ctx.value.shadowColor = 'rgba(0, 0, 0, 0.55)'
+    ctx.value.shadowBlur = 8
+    ctx.value.shadowOffsetX = 0
+    ctx.value.shadowOffsetY = 2
 
-    // Draw a dashed square for keychain
-    ctx.value.strokeRect(pos.x - 20, pos.y - 20, 40, 40)
+    // Draw a dashed circle for keychain
+    const r = 20
+    ctx.value.beginPath()
+    ctx.value.arc(pos.x, pos.y, r, 0, 2 * Math.PI)
+    ctx.value.fill()
+    ctx.value.stroke()
+
+    // Reset shadow for crisp text
+    ctx.value.shadowColor = 'transparent'
+    ctx.value.shadowBlur = 0
+    ctx.value.shadowOffsetX = 0
+    ctx.value.shadowOffsetY = 0
+    ctx.value.setLineDash([])
 
     // Draw "K" for keychain
-    ctx.value.fillStyle = '#888888'
-    ctx.value.font = '14px Arial'
+    ctx.value.fillStyle = '#FFFFFF'
+    ctx.value.font = '500 12px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial'
     ctx.value.textAlign = 'center'
-    ctx.value.fillText('K', pos.x, pos.y + 4)
+    ctx.value.textBaseline = 'middle'
+    ctx.value.fillText('K', pos.x, pos.y)
 
     ctx.value.restore()
   }
@@ -828,23 +865,37 @@ const drawElement = (element: CanvasElement) => {
   const size = 100 * element.scale  // Base multiplier for scaling, but actual size determined by image
 
   // Function to draw selection indicator
-  const drawSelection = () => {
+  const drawSelection = (bounds?: { width: number; height: number }) => {
     if (element.selected) {
       const accent = getComputedStyle(document.documentElement)
         .getPropertyValue('--selection-ring').trim() || '#FACC15'
       ctx.value!.strokeStyle = accent
-      ctx.value!.lineWidth = 2
-      ctx.value!.setLineDash([4, 4])
-      ctx.value!.strokeRect(-size/2 - 3, -size/2 - 3, size + 6, size + 6)
+      // Make the selection box hug the *actual* drawn sticker bounds.
+      // We're inside a scaled canvas context, so compensate by element.scale.
+      const invScale = 1 / Math.max(0.1, element.scale || 1)
+      const ringPadding = 0.75 * invScale
+      const ringLineWidth = 1.1 * invScale
+      const dash = 2.5 * invScale
+      const w = bounds?.width ?? size
+      const h = bounds?.height ?? size
+
+      ctx.value!.lineWidth = ringLineWidth
+      ctx.value!.setLineDash([dash, dash])
+      ctx.value!.strokeRect(
+        -w / 2 - ringPadding,
+        -h / 2 - ringPadding,
+        w + ringPadding * 2,
+        h + ringPadding * 2
+      )
       ctx.value!.setLineDash([])
 
       // Draw corner handles
-      const handleSize = 8
+      const handleSize = 5 * invScale
       const corners = [
-        [-size/2 - 3, -size/2 - 3], // Top-left
-        [size/2 + 3, -size/2 - 3],  // Top-right
-        [size/2 + 3, size/2 + 3],   // Bottom-right
-        [-size/2 - 3, size/2 + 3]   // Bottom-left
+        [-w / 2 - ringPadding, -h / 2 - ringPadding], // Top-left
+        [w / 2 + ringPadding, -h / 2 - ringPadding],  // Top-right
+        [w / 2 + ringPadding, h / 2 + ringPadding],   // Bottom-right
+        [-w / 2 - ringPadding, h / 2 + ringPadding]   // Bottom-left
       ]
 
       ctx.value!.fillStyle = accent
@@ -893,7 +944,7 @@ const drawElement = (element: CanvasElement) => {
 
       // Draw cached image with capped size and scaling
       ctx.value!.drawImage(cachedImg, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight)
-      drawSelection()
+      drawSelection({ width: drawWidth, height: drawHeight })
     } else {
       // Load image asynchronously
       loadImage(element.apiData.image)
