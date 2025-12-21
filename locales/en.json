@@ -241,14 +241,6 @@
       "filters": {
         "rarity": "Rarity"
       },
-      "recent": {
-        "title": "Recently used"
-      },
-      "wear": {
-        "outOfRange": "Wear is outside the allowed range for this skin.",
-        "atMin": "Wear is at the minimum float.",
-        "atMax": "Wear is at the maximum float."
-      },
       "importFailedDefault": "Failed to import weapon configuration",
       "importFailedNoMatchingWeapon": "Inspect URL does not match selected weapon",
       "importSuccess": "Successfully imported knife configuration",

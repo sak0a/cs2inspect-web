@@ -99,39 +99,6 @@ const apiState = ref({
 
 const selectedSkin = ref<IEnhancedWeapon | null>()
 
-const wearBounds = computed(() => {
-  const min = selectedSkin.value?.minFloat ?? 0
-  const max = selectedSkin.value?.maxFloat ?? 1
-  return { min, max }
-})
-
-const wearIndicator = computed((): 'min' | 'max' | 'out' | null => {
-  if (!selectedSkin.value) return null
-  const wear = Number(customization.value.wear)
-  if (Number.isNaN(wear)) return null
-
-  const { min, max } = wearBounds.value
-  const eps = 1e-6
-
-  if (wear < min - eps || wear > max + eps) return 'out'
-  if (Math.abs(wear - min) <= eps) return 'min'
-  if (Math.abs(wear - max) <= eps) return 'max'
-  return null
-})
-
-const wearIndicatorText = computed(() => {
-  if (!wearIndicator.value) return null
-  if (wearIndicator.value === 'out') return t('modals.weaponSkin.wear.outOfRange') as string
-  if (wearIndicator.value === 'min') return t('modals.weaponSkin.wear.atMin') as string
-  return t('modals.weaponSkin.wear.atMax') as string
-})
-
-const wearIndicatorClasses = computed(() => {
-  if (!wearIndicator.value) return ''
-  if (wearIndicator.value === 'out') return 'text-red-300'
-  return 'text-yellow-200'
-})
-
 /**
  * Default weapon configuration using new WeaponConfiguration interface
  */
@@ -178,42 +145,6 @@ const ui = ref({
   sortBy: 'name' as SkinSortBy,
   sortDir: 'asc' as SortDir,
   rarityFilterIds: [] as string[],
-})
-
-const RECENT_SKINS_STORAGE_KEY = 'cs2inspect.weaponSkinModal.recentSkins'
-const recentSkinIds = ref<string[]>([])
-
-const loadRecentSkins = () => {
-  if (!import.meta.client) return
-  try {
-    const raw = localStorage.getItem(RECENT_SKINS_STORAGE_KEY)
-    if (!raw) return
-    const parsed = JSON.parse(raw) as unknown
-    if (Array.isArray(parsed) && parsed.every(v => typeof v === 'string')) {
-      recentSkinIds.value = parsed.slice(0, 5)
-    }
-  } catch {
-    // ignore
-  }
-}
-
-const saveRecentSkins = () => {
-  if (!import.meta.client) return
-  try {
-    localStorage.setItem(RECENT_SKINS_STORAGE_KEY, JSON.stringify(recentSkinIds.value.slice(0, 5)))
-  } catch {
-    // ignore
-  }
-}
-
-const trackRecentSkin = (skinId: string) => {
-  const next = [skinId, ...recentSkinIds.value.filter(id => id !== skinId)].slice(0, 5)
-  recentSkinIds.value = next
-  saveRecentSkins()
-}
-
-onMounted(() => {
-  loadRecentSkins()
 })
 
 const rarityRank = (rarityId: string | undefined) => {
@@ -292,14 +223,6 @@ const paginatedSkins = computed(() => {
 })
 
 const totalPages = computed(() => Math.ceil(sortedSkins.value.length / PAGE_SIZE.value))
-
-const recentSkins = computed(() => {
-  if (recentSkinIds.value.length === 0) return []
-  const byId = new Map(apiState.value.skins.map(s => [s.id, s] as const))
-  return recentSkinIds.value
-    .map(id => byId.get(id))
-    .filter((skin): skin is APIWeaponSkin => Boolean(skin))
-})
 
 /**
  * Fetch available skins for the current weapon
@@ -674,8 +597,6 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       paintIndex: Number(skin.paint_index),
       wear: Number(skin.min_float ?? 0),
     }
-
-    trackRecentSkin(skin.id)
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
     state.value.error = errorMessage
@@ -1177,9 +1098,6 @@ watch(() => props.weapon, () => {
                   :max="selectedSkin?.maxFloat ?? 1"
                   :min="selectedSkin?.minFloat ?? 0"
               />
-              <p v-if="wearIndicatorText" class="mt-1 text-xs" :class="wearIndicatorClasses">
-                {{ wearIndicatorText }}
-              </p>
             </div>
 
             <!-- Save Button & Active Switch-->
@@ -1359,39 +1277,6 @@ watch(() => props.weapon, () => {
               {{ rarity.name }}
             </span>
           </NButton>
-        </div>
-      </div>
-
-      <!-- Recently used skins (Phase 2) -->
-      <div v-if="!state.isLoadingSkins && recentSkins.length > 0" class="mt-2">
-        <h4 class="font-bold mb-2">{{ t('modals.weaponSkin.recent.title') }}</h4>
-        <div class="grid grid-cols-5 gap-4">
-          <NCard
-            v-for="skin in recentSkins"
-            :key="skin.id"
-            :style="{
-              borderColor: skin.rarity?.color || '#313030',
-              background: 'linear-gradient(135deg, ' + ('#101010') +
-              ', ' + (hexToRgba(skin.rarity?.color, '0.15') || '#313030') + ')'}"
-            :class="[
-              'hover:shadow-lg cursor-pointer transition-all rounded-xl',
-              selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
-            ]"
-            @click="handleSkinSelect(skin)"
-          >
-            <div class="flex flex-col items-center">
-              <img
-                :src="skin.image"
-                :alt="skin.name"
-                class="w-full h-24 object-contain mb-2"
-                loading="lazy"
-              >
-              <div class="w-full">
-                <p class="text-sm text-white truncate">{{ skin.name }}</p>
-                <div class="h-1 mt-2" :style="{ background: skin.rarity?.color || '#313030' }" />
-              </div>
-            </div>
-          </NCard>
         </div>
       </div>
 
