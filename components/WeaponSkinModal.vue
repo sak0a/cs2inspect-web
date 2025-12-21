@@ -805,11 +805,40 @@ watch(() => props.weapon, () => {
         <div class="grid grid-cols-2 gap-6">
           <!-- Left side - Image -->
           <div>
-            <img
-                :src="selectedSkin?.image"
-                :alt="selectedSkin?.name"
-                class="w-full h-64 object-contain"
-            />
+            <div class="relative">
+              <img
+                  :src="selectedSkin?.image"
+                  :alt="selectedSkin?.name"
+                  class="w-full h-64 object-contain"
+              />
+              <!-- Visual Customizer Overlay Button -->
+              <button
+                class="visual-customizer-overlay"
+                :class="{ 'disabled': !selectedSkin }"
+                :disabled="!selectedSkin"
+                :title="t('modals.weaponSkin.visualCustomizer.button') || 'Visual Customizer'"
+                @click.stop="handleOpenVisualCustomizer"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="magic-wand-icon"
+                >
+                  <!-- Magic Wand Icon (Tabler: wand) -->
+                  <path d="M6 21l15 -15l-3 -3l-15 15l3 3" />
+                  <path d="M15 6l3 3" />
+                  <path d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
+                  <path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
+                </svg>
+              </button>
+            </div>
             <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
           </div>
 
@@ -927,24 +956,6 @@ watch(() => props.weapon, () => {
               </NButton>
             </div>-->
           </div>
-        </div>
-        <!-- Visual Customizer Button -->
-        <div class="mt-4 mb-4">
-          <NButton
-            class="rounded-full w-full"
-            type="primary"
-            size="large"
-            :disabled="!selectedSkin"
-            style="background: linear-gradient(135deg, var(--selection-ring), #F59E0B); border: none;"
-            @click="handleOpenVisualCustomizer"
-          >
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-              </svg>
-            </template>
-            {{ t('modals.weaponSkin.visualCustomizer.button') || 'Visual Customizer' }}
-          </NButton>
         </div>
 
         <!-- Sticker and Keychain customization-->
@@ -1154,5 +1165,66 @@ watch(() => props.weapon, () => {
       cursor: grabbing;
     }
   }
+}
+
+/* Visual Customizer Overlay Button */
+.visual-customizer-overlay {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.5s ease-in-out, transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
+  z-index: 10;
+  overflow: hidden;
+}
+
+.visual-customizer-overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, var(--selection-ring), #F59E0B);
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: -1;
+}
+
+.visual-customizer-overlay:hover:not(.disabled) {
+  border-color: transparent;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);
+}
+
+.visual-customizer-overlay:hover:not(.disabled)::before {
+  opacity: 1;
+}
+
+.visual-customizer-overlay:active:not(.disabled) {
+  transform: scale(0.95);
+}
+
+.visual-customizer-overlay.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.visual-customizer-overlay .magic-wand-icon {
+  color: rgba(255, 255, 255, 0.8);
+  transition: color 0.5s ease-in-out;
+}
+
+.visual-customizer-overlay:hover:not(.disabled) .magic-wand-icon {
+  color: #ffffff;
 }
 </style>
