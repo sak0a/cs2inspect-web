@@ -223,7 +223,13 @@
         "title": "Stickers",
         "add": "Add Sticker",
         "reposition": "Drag to reposition",
-        "remove": "Remove Sticker"
+        "remove": "Remove Sticker",
+        "inlineEdit": {
+          "wear": "Wear",
+          "scale": "Scale",
+          "rotation": "Rotation",
+          "openCustomizer": "Open in Visual Customizer"
+        }
       },
       "keychain": {
         "title": "Keychain",

@@ -12,7 +12,7 @@ import type {
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
 
 import { ref, computed } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpace, NEmpty, NInputNumber, NSwitch, NButton, NSelect, NSkeleton } from 'naive-ui'
+import { useMessage, NModal, NInput, NPagination, NCard, NSpace, NEmpty, NInputNumber, NSwitch, NButton, NSelect, NSkeleton, NPopover, NSlider } from 'naive-ui'
 import { steamAuth } from "~/services/steamAuth"
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
 import ResetModal from "~/components/ResetModal.vue"
@@ -86,7 +86,9 @@ const state = ref<WeaponModalState>({
   showStickerModal: false,
   showKeychainModal: false,
   showVisualCustomizer: false,
-  currentStickerPosition: 0
+  currentStickerPosition: 0,
+  // Phase 3: Inline sticker editing
+  inlineStickerEditIndex: null as number | null
 })
 
 /**
@@ -647,7 +649,12 @@ const handleStickerDrop = (e: DragEvent, toIndex: number) => {
 }
 const handleAddSticker = (position: number) => {
   state.value.currentStickerPosition = position
-  state.value.showStickerModal = true
+  // If sticker exists, show inline edit; otherwise open sticker modal
+  if (customization.value.stickers[position]) {
+    state.value.inlineStickerEditIndex = position
+  } else {
+    state.value.showStickerModal = true
+  }
 }
 const handleStickerSelect = (stickerData: { id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number; api?: Record<string, unknown> }) => {
   customization.value.stickers[state.value.currentStickerPosition] = stickerData
@@ -657,6 +664,20 @@ const removeSticker = (index: number) => {
   const stickers = [...customization.value.stickers]
   if (!stickers[index]) return
   stickers[index] = null
+  customization.value.stickers = stickers
+  // Close inline edit if it's open for this sticker
+  if (state.value.inlineStickerEditIndex === index) {
+    state.value.inlineStickerEditIndex = null
+  }
+}
+
+const updateStickerProperty = (index: number, property: 'wear' | 'scale' | 'rotation', value: number) => {
+  const sticker = customization.value.stickers[index]
+  if (!sticker) return
+  
+  const updatedSticker = { ...sticker, [property]: value }
+  const stickers = [...customization.value.stickers]
+  stickers[index] = updatedSticker
   customization.value.stickers = stickers
 }
 
@@ -712,6 +733,9 @@ const handleModalKeydown = (e: KeyboardEvent) => {
   const target = e.target as HTMLElement | null
   // Avoid triggering shortcuts while focus is on interactive controls.
   if (target?.closest('button, a, [role="button"]')) return
+
+  // Don't trigger shortcuts when inline sticker edit popover is open
+  if (state.value.inlineStickerEditIndex !== null) return
 
   // Enter → Save
   if (e.key === 'Enter') {
@@ -822,7 +846,8 @@ const resetAllState = () => {
     isResetting: false,
     isImporting: false,
     isLoadingInspect: false,
-    isDuplicating: false
+    isDuplicating: false,
+    inlineStickerEditIndex: null
   }
 
   ui.value = {
@@ -1157,21 +1182,29 @@ watch(() => props.weapon, () => {
           <div class="col-span-5 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.stickers.title') }}</h4>
             <div class="grid grid-cols-5 gap-x-2 min-h-36 max-h-36">
-              <div
+              <NPopover
                   v-for="(sticker, index) in customization.stickers"
                   :key="index"
-                  class="
-                  sticker-slot group flex items-center justify-center bg-[#242424] p-2 rounded cursor-move
- transition-all relative hover:bg-[#2a2a2a] hover:shadow-md active:scale-[0.98]"
-                  :class="{ 'inactive-item': !sticker, 'active-item': sticker }"
-                  draggable="true"
-                  @dragstart="handleStickerDragStart($event, index)"
-                  @dragend="handleStickerDragEnd"
-                  @dragover="handleStickerDragOver"
-                  @dragleave="handleStickerDragLeave"
-                  @drop="handleStickerDrop($event, index)"
-                  @click.stop="handleAddSticker(index)"
+                  :show="state.inlineStickerEditIndex === index"
+                  trigger="manual"
+                  placement="top"
+                  :show-arrow="true"
+                  @update:show="(val) => { if (!val) state.inlineStickerEditIndex = null }"
               >
+                <template #trigger>
+                  <div
+                      class="
+                      sticker-slot group flex items-center justify-center bg-[#242424] p-2 rounded cursor-move
+     transition-all relative hover:bg-[#2a2a2a] hover:shadow-md active:scale-[0.98]"
+                      :class="{ 'inactive-item': !sticker, 'active-item': sticker }"
+                      draggable="true"
+                      @dragstart="handleStickerDragStart($event, index)"
+                      @dragend="handleStickerDragEnd"
+                      @dragover="handleStickerDragOver"
+                      @dragleave="handleStickerDragLeave"
+                      @drop="handleStickerDrop($event, index)"
+                      @click.stop="handleAddSticker(index)"
+                  >
                 <button
                   v-if="sticker"
                   type="button"
@@ -1200,10 +1233,99 @@ watch(() => props.weapon, () => {
                 <div v-else class="h-28 flex items-center justify-center">
                   <span class="text-gray-400 text-sm">{{ t('modals.weaponSkin.stickers.add') }}</span>
                 </div>
-                <div class="mt-1 absolute top-0 left-1 text-xs text-gray-400">
-                  #{{ index + 1 }}
-                </div>
-              </div>
+                    <div class="mt-1 absolute top-0 left-1 text-xs text-gray-400">
+                      #{{ index + 1 }}
+                    </div>
+                  </div>
+                </template>
+                
+                <!-- Inline Edit Popover Content -->
+                <template #default>
+                  <div v-if="sticker" class="inline-sticker-edit-popover w-64 space-y-4 p-2">
+                    <!-- Wear Slider -->
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-medium text-gray-300">
+                          {{ t('modals.weaponSkin.stickers.inlineEdit.wear') }}
+                        </label>
+                        <span class="text-xs text-gray-400">{{ (sticker.wear ?? 0).toFixed(2) }}</span>
+                      </div>
+                      <NSlider
+                          :value="sticker.wear ?? 0"
+                          :min="0"
+                          :max="1"
+                          :step="0.01"
+                          @update:value="(val) => updateStickerProperty(index, 'wear', val)"
+                      />
+                    </div>
+                    
+                    <!-- Scale Slider -->
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-medium text-gray-300">
+                          {{ t('modals.weaponSkin.stickers.inlineEdit.scale') }}
+                        </label>
+                        <span class="text-xs text-gray-400">{{ (sticker.scale ?? 1).toFixed(1) }}</span>
+                      </div>
+                      <NSlider
+                          :value="sticker.scale ?? 1"
+                          :min="0.5"
+                          :max="1.5"
+                          :step="0.1"
+                          @update:value="(val) => updateStickerProperty(index, 'scale', val)"
+                      />
+                    </div>
+                    
+                    <!-- Rotation Slider -->
+                    <div>
+                      <div class="flex items-center justify-between mb-2">
+                        <label class="text-sm font-medium text-gray-300">
+                          {{ t('modals.weaponSkin.stickers.inlineEdit.rotation') }}
+                        </label>
+                        <span class="text-xs text-gray-400">{{ Math.round(sticker.rotation ?? 0) }}°</span>
+                      </div>
+                      <NSlider
+                          :value="sticker.rotation ?? 0"
+                          :min="-180"
+                          :max="180"
+                          :step="1"
+                          @update:value="(val) => updateStickerProperty(index, 'rotation', val)"
+                      />
+                    </div>
+                    
+                    <!-- Open Visual Customizer Link -->
+                    <div class="pt-2 border-t border-gray-700">
+                      <NButton
+                          text
+                          type="primary"
+                          size="small"
+                          class="w-full"
+                          @click="() => { state.inlineStickerEditIndex = null; handleOpenVisualCustomizer() }"
+                      >
+                        <template #icon>
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                          >
+                            <path d="M6 21l15 -15l-3 -3l-15 15l3 3" />
+                            <path d="M15 6l3 3" />
+                            <path d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
+                            <path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
+                          </svg>
+                        </template>
+                        {{ t('modals.weaponSkin.stickers.inlineEdit.openCustomizer') }}
+                      </NButton>
+                    </div>
+                  </div>
+                </template>
+              </NPopover>
             </div>
           </div>
           <!-- Keychain -->
