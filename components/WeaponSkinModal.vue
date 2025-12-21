@@ -1372,6 +1372,8 @@ watch(() => props.weapon, () => {
           v-model:visible="state.showStickerModal"
           :position="state.currentStickerPosition"
           :currentSticker="customization.stickers[state.currentStickerPosition]"
+          :weaponName="selectedSkin?.name || weapon?.defaultName"
+          :team="customization.team"
           @select="handleStickerSelect"
       />
 

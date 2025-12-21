@@ -352,6 +352,7 @@
     "search": "Suchen",
     "selectAll": "Alles auswählen",
     "noResults": "Keine Ergebnisse gefunden",
-    "pleaseSelectLoadout": "Bitte zuerst ein Loadout auswählen"
+    "pleaseSelectLoadout": "Bitte zuerst ein Loadout auswählen",
+    "for": "für"
   }
 }

@@ -7,6 +7,8 @@ import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomi
 const props = defineProps<{
   visible: boolean
   position: number
+  weaponName?: string
+  team?: number
   currentSticker?: {
     id?: number
     x?: number
@@ -40,6 +42,18 @@ const state = ref({
     scale: 1,
     rotation: 0
   }
+})
+
+const teamLabel = computed((): string | null => {
+  if (props.team === 1) return t('modals.weaponSkin.team.terrorist') as string
+  if (props.team === 2) return t('modals.weaponSkin.team.counterTerrorist') as string
+  return null
+})
+
+const teamBadgeClasses = computed(() => {
+  if (props.team === 1) return 'border-orange-500/30 bg-orange-500/15 text-orange-300'
+  if (props.team === 2) return 'border-blue-500/30 bg-blue-500/15 text-blue-300'
+  return ''
 })
 
 const digitOnlyInputProps = {
@@ -377,14 +391,25 @@ watch(() => ui.value.effectFilterIds, () => {
 <template>
   <NModal
       :show="visible"
-      style="width: 1200px"
+      style="max-width: 1200px; width: 95vw"
       preset="card"
-      :title="currentSticker ? t('modals.sticker.titleEdit') as string : t('modals.sticker.titleAdd') as string"
       :bordered="false"
       size="huge"
       @update:show="handleClose"
       :theme-overrides="weaponAttachmentModalThemeOverrides"
   >
+    <template #header>
+      <div class="flex items-center gap-3">
+        <span class="leading-none">{{ currentSticker ? t('modals.sticker.titleEdit') + (weaponName ? ` ${t('common.for')} ${weaponName}` : '') : t('modals.sticker.titleAdd') + (weaponName ? ` ${t('common.for')} ${weaponName}` : '') }}</span>
+        <span
+          v-if="teamLabel"
+          class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold"
+          :class="teamBadgeClasses"
+        >
+          {{ teamLabel }}
+        </span>
+      </div>
+    </template>
     <template #header-extra>
       <NInput
           v-model:value="state.searchQuery"
@@ -395,96 +420,104 @@ watch(() => ui.value.effectFilterIds, () => {
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Sticker Preview -->
-      <div v-if="state.selectedItem" class="bg-[#1a1a1a] p-6 rounded-lg">
-        <div class="grid grid-cols-2 gap-6">
+      <div v-if="state.selectedItem" class="bg-[#1a1a1a] p-4 md:p-6 rounded-lg">
+        <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
           <!-- Left side - Image -->
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center justify-center">
             <img
                 :src="state.selectedItem.image"
                 :alt="state.selectedItem.name"
-                class="h-40 object-top object-cover"
+                class="h-40 w-full object-contain"
             />
-            <h3 class="text-lg font-semibold mt-4 break-words">{{ state.selectedItem.name }}</h3>
           </div>
 
           <!-- Right side - Customization -->
-          <div class="space-y-4">
-            <!-- Position Controls -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <h4 class="font-medium mb-2">X {{ t('modals.sticker.labels.position') }}</h4>
-                <NInputNumber
-                    v-model:value="state.customization.x"
-                    :min="-100"
-                    :max="100"
-                    :step="0.01"
-                    class="w-full"
-                    :input-props="digitOnlyInputProps"
-                />
+          <div class="flex flex-col gap-4">
+            <!-- Main Controls Grid -->
+            <div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                <!-- X Position -->
+                <div>
+                  <h4 class="text-xs font-medium mb-1 text-gray-400">X {{ t('modals.sticker.labels.position') }}</h4>
+                  <NInputNumber
+                      v-model:value="state.customization.x"
+                      :min="-100"
+                      :max="100"
+                      :step="0.01"
+                      size="small"
+                      class="w-full"
+                      :input-props="digitOnlyInputProps"
+                  />
+                </div>
+                <!-- Y Position -->
+                <div>
+                  <h4 class="text-xs font-medium mb-1 text-gray-400">Y {{ t('modals.sticker.labels.position') }}</h4>
+                  <NInputNumber
+                      v-model:value="state.customization.y"
+                      :min="-100"
+                      :max="100"
+                      :step="0.01"
+                      size="small"
+                      class="w-full"
+                      :input-props="digitOnlyInputProps"
+                  />
+                </div>
+                <!-- Scale -->
+                <div>
+                  <h4 class="text-xs font-medium mb-1 text-gray-400">{{ t('modals.sticker.labels.scale') }}</h4>
+                  <NInputNumber
+                      v-model:value="state.customization.scale"
+                      :min="0.01"
+                      :max="1"
+                      :step="0.01"
+                      size="small"
+                      class="w-full"
+                      :input-props="digitOnlyInputProps"
+                  />
+                </div>
+                <!-- Rotation -->
+                <div>
+                  <h4 class="text-xs font-medium mb-1 text-gray-400">{{ t('modals.sticker.labels.rotation') }}</h4>
+                  <NInputNumber
+                      v-model:value="state.customization.rotation"
+                      :min="-360"
+                      :max="360"
+                      :step="1"
+                      size="small"
+                      class="w-full"
+                      :input-props="digitOnlyInputProps"
+                  />
+                </div>
+                <!-- Wear -->
+                <div>
+                  <h4 class="text-xs font-medium mb-1 text-gray-400">{{ t('modals.sticker.labels.wear') }}</h4>
+                  <NInputNumber
+                      v-model:value="state.customization.wear"
+                      :min="0"
+                      :max="1"
+                      :step="0.01"
+                      size="small"
+                      class="w-full"
+                  />
+                </div>
               </div>
-              <div>
-                <h4 class="font-medium mb-2">Y {{ t('modals.sticker.labels.position') }}</h4>
-                <NInputNumber
-                    v-model:value="state.customization.y"
-                    :min="-100"
-                    :max="100"
-                    :step="0.01"
-                    class="w-full"
-                    :input-props="digitOnlyInputProps"
-                />
+
+               <!-- External normalized offsets (read-only, if available) -->
+              <div v-if="currentSticker && (extNormX !== null || extNormY !== null)" class="text-[10px] text-gray-500 whitespace-nowrap mt-2">
+                <span class="opacity-70">Ext normalized</span>: X {{ extNormXStr }} | Y {{ extNormYStr }}
               </div>
             </div>
 
-            <!-- External normalized offsets (read-only, if available) -->
-            <div v-if="currentSticker && (extNormX !== null || extNormY !== null)" class="text-xs text-gray-400 -mt-2 mb-2">
-              <div><span class="opacity-70">Ext normalized</span>: X {{ extNormXStr }} | Y {{ extNormYStr }}</div>
-            </div>
+            <!-- Bottom Section: Title and Buttons -->
+            <div class="border-t border-[#313030] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+              <!-- Sticker Name -->
+              <h3 class="text-lg font-bold text-white">{{ state.selectedItem.name.replace(/^Sticker \| /, '') }}</h3>
 
-            <!-- Scale and Rotation -->
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <h4 class="font-medium mb-2">{{ t('modals.sticker.labels.scale') }}</h4>
-                <NInputNumber
-                    v-model:value="state.customization.scale"
-                    :min="0.01"
-                    :max="1"
-                    :step="0.01"
-                    class="w-full"
-                    :input-props="digitOnlyInputProps"
-                />
-              </div>
-              <div>
-                <h4 class="font-medium mb-2">{{ t('modals.sticker.labels.rotation') }}</h4>
-                <NInputNumber
-                    v-model:value="state.customization.rotation"
-                    :min="-360"
-                    :max="360"
-                    :step="1"
-                    class="w-full"
-                    :input-props="digitOnlyInputProps"
-                />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 justify-start w-full mt-0">
-            <!-- Wear -->
-              <div>
-                <h4 class="font-medium mb-2">{{ t('modals.sticker.labels.wear') }}</h4>
-                <NInputNumber
-                    v-model:value="state.customization.wear"
-                    :min="0"
-                    :max="1"
-                    :step="0.01"
-                    class=""
-                />
-              </div>
-              <div class="grid grid-cols-2 gap-2">
+               <!-- Action Buttons -->
+              <div class="flex gap-3 w-full lg:w-auto justify-end">
                 <NButton
                     type="primary"
-                    class="mt-[30px] w-full "
-                    :class="{
-                      currentSticker: 'col-span-full'
-                    }"
+                    class="flex-1 lg:flex-none lg:w-32"
                     secondary
                     @click="handleSave"
                 >
@@ -492,7 +525,7 @@ watch(() => ui.value.effectFilterIds, () => {
                 </NButton>
                 <NButton v-if="currentSticker"
                     type="error"
-                    class="mt-[30px] w-full"
+                    class="flex-1 lg:flex-none lg:w-32"
                     secondary
                     @click="handleRemove"
                 >
@@ -563,12 +596,12 @@ watch(() => ui.value.effectFilterIds, () => {
       </div>
 
       <!-- Stickers Grid -->
-      <div v-if="!state.isLoading" class="grid grid-cols-5 gap-4">
+      <div v-if="!state.isLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         <NCard
             v-for="item in paginatedItems"
             :key="item.id"
             :class="[
-            'cursor-pointer transition-all hover:shadow-lg',
+            'cursor-pointer transition-all hover:shadow-lg h-full',
             state.selectedItem?.id === item.id ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-65' : ''
           ]"
             :style="{

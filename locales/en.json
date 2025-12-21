@@ -368,6 +368,7 @@
     "search": "Search",
     "selectAll": "Select All",
     "noResults": "No results found",
-    "pleaseSelectLoadout": "Please select a loadout first"
+    "pleaseSelectLoadout": "Please select a loadout first",
+    "for": "for"
   }
 }
