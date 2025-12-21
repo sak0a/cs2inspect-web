@@ -959,7 +959,7 @@ watch(() => props.weapon, () => {
 <template>
   <NModal
       :show="visible"
-      style="width: 1200px"
+      style="max-width: 1200px; width: 95vw"
       preset="card"
       :bordered="false"
       size="huge"
@@ -981,7 +981,14 @@ watch(() => props.weapon, () => {
     </template>
     <template #header-extra>
       <!-- Reset Weapon Configuration -->
-      <NButton :loading="state.isResetting" secondary type="error" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
+      <NButton 
+        :loading="state.isResetting" 
+        secondary 
+        type="error" 
+        :disabled="!selectedSkin || customization.paintIndex == 0" 
+        :aria-label="t('modals.weaponSkin.buttons.reset') as string"
+        @click="state.showResetConfirm = true"
+      >
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -994,7 +1001,14 @@ watch(() => props.weapon, () => {
       <NDivider vertical />
 
       <!-- Import Weapon by Inspect Link -->
-      <NButton :loading="state.isImporting" secondary type="default" :disabled="!selectedSkin"  @click="state.showImportModal = true">
+      <NButton 
+        :loading="state.isImporting" 
+        secondary 
+        type="default" 
+        :disabled="!selectedSkin"
+        :aria-label="t('modals.weaponSkin.buttons.importFromLink') as string"
+        @click="state.showImportModal = true"
+      >
         <template #icon>
           <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
         </template>
@@ -1008,6 +1022,7 @@ watch(() => props.weapon, () => {
         secondary
         type="default"
         :disabled="!selectedSkin || customization.paintIndex === 0"
+        :aria-label="t('modals.weaponSkin.buttons.generateLink') as string"
         @click="handleCreateInspectLink"
       >
         <template #icon>
@@ -1045,6 +1060,7 @@ watch(() => props.weapon, () => {
                   :class="{ 'disabled': !selectedSkin }"
                   :disabled="!selectedSkin"
                   :title="(t('modals.weaponSkin.visualCustomizer.button') as string) || 'Visual Customizer'"
+                  :aria-label="(t('modals.weaponSkin.visualCustomizer.button') as string) || 'Visual Customizer'"
                   @click.stop="handleOpenVisualCustomizer"
                 >
                   <svg
@@ -1098,7 +1114,8 @@ watch(() => props.weapon, () => {
                 <!-- Toggle sticker overlay -->
                 <button
                   v-if="customization.stickers.some(s => s !== null)"
-                  class="text-xs text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1"
+                  class="text-xs text-gray-400 hover:text-gray-200 transition-colors flex items-center gap-1 focus:outline-none focus:ring-2 focus:ring-[var(--selection-ring)] rounded px-1"
+                  :aria-label="t('modals.weaponSkin.stickerOverlay.toggle') as string"
                   @click="ui.showStickerOverlay = !ui.showStickerOverlay"
                 >
                   <svg
@@ -1243,9 +1260,9 @@ watch(() => props.weapon, () => {
         <!-- Sticker and Keychain customization-->
         <div class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': state.showDetails }">
           <!-- Stickers -->
-          <div class="col-span-5 mt-4">
+          <div class="col-span-5 lg:col-span-5 md:col-span-3 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.stickers.title') }}</h4>
-            <div class="grid grid-cols-5 gap-x-2 min-h-36 max-h-36">
+            <div class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-x-2 min-h-36 max-h-36">
               <NPopover
                   v-for="(sticker, index) in customization.stickers"
                   :key="index"
@@ -1272,8 +1289,9 @@ watch(() => props.weapon, () => {
                 <button
                   v-if="sticker"
                   type="button"
-                  class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200"
+                  class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
                   :title="t('modals.weaponSkin.stickers.remove') as string"
+                  :aria-label="`${t('modals.weaponSkin.stickers.remove')} #${index + 1}`"
                   draggable="false"
                   @mousedown.stop.prevent
                   @click.stop.prevent="removeSticker(index)"
@@ -1393,7 +1411,7 @@ watch(() => props.weapon, () => {
             </div>
           </div>
           <!-- Keychain -->
-          <div class="col-span-1 mt-4">
+          <div class="col-span-1 lg:col-span-1 md:col-span-3 sm:col-span-2 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.keychain.title') }}</h4>
             <div
                 class="relative group items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
@@ -1403,8 +1421,9 @@ watch(() => props.weapon, () => {
               <button
                 v-if="customization.keychain"
                 type="button"
-                class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200"
+                class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
                 :title="t('modals.weaponSkin.keychain.remove') as string"
+                :aria-label="t('modals.weaponSkin.keychain.remove') as string"
                 draggable="false"
                 @mousedown.stop.prevent
                 @click.stop.prevent="removeKeychain"
@@ -1442,7 +1461,13 @@ watch(() => props.weapon, () => {
             class="w-44"
             :options="skinSortOptions"
           />
-          <NButton size="small" secondary type="default" @click="toggleSortDir">
+          <NButton 
+            size="small" 
+            secondary 
+            type="default"
+            :aria-label="`Sort ${ui.sortDir === 'asc' ? 'ascending' : 'descending'}`"
+            @click="toggleSortDir"
+          >
             {{ ui.sortDir === 'asc' ? '↑' : '↓' }}
           </NButton>
         </div>
@@ -1456,6 +1481,8 @@ watch(() => props.weapon, () => {
             secondary
             :type="ui.rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
             :style="ui.rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :aria-label="`Filter by ${rarity.name} rarity`"
+            :aria-pressed="ui.rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
           >
             <span class="flex items-center gap-2">
@@ -1483,7 +1510,7 @@ watch(() => props.weapon, () => {
         </div>
       </div>
 
-      <div v-else class="grid grid-cols-5 gap-4">
+      <div v-else class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4">
         <NCard
             v-for="skin in paginatedSkins"
             :key="skin.id"
@@ -1640,6 +1667,11 @@ watch(() => props.weapon, () => {
   transition: border-color 0.5s ease-in-out, transform 0.5s ease-in-out, box-shadow 0.5s ease-in-out;
   z-index: 10;
   overflow: hidden;
+}
+
+.visual-customizer-overlay:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--selection-ring);
 }
 
 .visual-customizer-overlay::before {
