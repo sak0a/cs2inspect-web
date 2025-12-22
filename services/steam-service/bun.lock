@@ -5,18 +5,18 @@
     "": {
       "name": "steam-service",
       "dependencies": {
-        "@fastify/cors": "^8.4.0",
+        "@fastify/cors": "^8.5.0",
         "@fastify/rate-limit": "^9.1.0",
-        "cs2-inspect-lib": "^3.1.0",
-        "dotenv": "^16.3.1",
-        "fastify": "^4.24.3",
+        "cs2-inspect-lib": "^3.2.0",
+        "dotenv": "^16.6.1",
+        "fastify": "^4.29.1",
       },
       "devDependencies": {
         "@types/bun": "latest",
-        "@types/node": "^20.10.6",
+        "@types/node": "^20.19.27",
         "bun-types": "latest",
-        "tsx": "^4.20.5",
-        "typescript": "^5.3.3",
+        "tsx": "^4.21.0",
+        "typescript": "^5.9.3",
       },
     },
   },
@@ -119,7 +119,7 @@
 
     "@protobufjs/utf8": ["@protobufjs/utf8@1.1.0", "", {}, "sha512-Vvn3zZrhQZkkBE8LSuW3em98c0FwgO4nxzv6OdSxPKJIEKY2bGbHn+mhGIPerzI4twdxaP8/0+06HBpwf345Lw=="],
 
-    "@types/bun": ["@types/bun@1.3.4", "", { "dependencies": { "bun-types": "1.3.4" } }, "sha512-EEPTKXHP+zKGPkhRLv+HI0UEX8/o+65hqARxLy8Ov5rIxMBPNTjeZww00CIihrIQGEQBYg+0roO5qOnS/7boGA=="],
+    "@types/bun": ["@types/bun@1.3.5", "", { "dependencies": { "bun-types": "1.3.5" } }, "sha512-RnygCqNrd3srIPEWBd5LFeUYG7plCoH2Yw9WaZGyNmdTEei+gWaHqydbaIRkIkcbXwhBT94q78QljxN0Sk838w=="],
 
     "@types/long": ["@types/long@4.0.2", "", {}, "sha512-MqTGEo5bj5t157U6fA/BiDynNkn0YknVdh48CMPkTSpFTVmvao5UQmm7uEF6xBEo7qIMAlY/JSleYaE6VOdpaA=="],
 
@@ -143,7 +143,7 @@
 
     "binarykvparser": ["binarykvparser@2.3.0", "", { "dependencies": { "long": "^3.2.0" } }, "sha512-B1N5ZxC8I9oSLis7Rg36DxsZJoIikUGU2XwpI0FKFCaPIJIEYi0B9UeIk3QU006axzq0TI9KC3iXelfGGgnWew=="],
 
-    "bun-types": ["bun-types@1.3.4", "", { "dependencies": { "@types/node": "*" } }, "sha512-5ua817+BZPZOlNaRgGBpZJOSAQ9RQ17pkwPD0yR7CfJg+r8DgIILByFifDTa+IPDDxzf5VNhtNlcKqFzDgJvlQ=="],
+    "bun-types": ["bun-types@1.3.5", "", { "dependencies": { "@types/node": "*" } }, "sha512-inmAYe2PFLs0SUbFOWSVD24sg1jFlMPxOjOSSCYqUgn4Hsc3rDc7dFvfVYjFPNHtov6kgUeulV4SxbuIV/stPw=="],
 
     "bytebuffer": ["bytebuffer@5.0.1", "", { "dependencies": { "long": "~3" } }, "sha512-IuzSdmADppkZ6DlpycMkm8l9zeEq16fWtLvunEwFiYciR/BHo4E8/xs5piFquG+Za8OWmMqHF8zuRviz2LHvRQ=="],
 
@@ -151,7 +151,7 @@
 
     "cookie": ["cookie@0.7.2", "", {}, "sha512-yki5XnKuf750l50uGTllt6kKILY4nQ1eNIQatoXEByZ5dWgnKqbnqmTrBE5B4N7lrMJKQ2ytWMiTO2o0v6Ew/w=="],
 
-    "cs2-inspect-lib": ["cs2-inspect-lib@3.1.0", "", { "dependencies": { "commander": "^11.0.0", "node-cs2": "^2.0.0", "steam-user": "^5.2.3" }, "bin": { "cs2inspect": "dist/cli.js" } }, "sha512-HV7A1RNobtuHGLArBf7N3K4sR3m5zCCK8vI82TkValEfzTKlZHtUwiNoZBv+aMnQJIoj4FmIRCC+nxWPZ7lOqg=="],
+    "cs2-inspect-lib": ["cs2-inspect-lib@3.2.0", "", { "dependencies": { "commander": "^11.0.0", "node-cs2": "^2.0.0", "steam-user": "^5.2.3" }, "bin": { "cs2inspect": "dist/cli.js" } }, "sha512-stoB2nTkqppdEex6B+w4+jeEdjtiduuG0pbfbIYs9wZJ3MiCfzDdFPQTPu5JoDDdQ15+/PY+YFuYwo8pWJMpZw=="],
 
     "cuint": ["cuint@0.2.2", "", {}, "sha512-d4ZVpCW31eWwCMe1YT3ur7mUDnTXbgwyzaL320DrcRT45rfjYxkt5QWLrmOJ+/UEAI2+fQgKe/fCjR8l4TpRgw=="],
 
