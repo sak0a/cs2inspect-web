@@ -4,7 +4,11 @@
   "compilerOptions": {
     "module": "ESNext",
     "verbatimModuleSyntax": false,
-    "types": ["node"]
+    "types": [
+      "node"
+    ]
   },
-  "exclude": []
+  "exclude": [
+    "services/steam-service/**"
+  ]
 }
