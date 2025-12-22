@@ -199,13 +199,13 @@
         "success": "Loadout imported successfully"
       },
       "rename": {
-        "title": "Rename Loadout",
+        "title": "Rename Loadout {name}",
         "confirm": "Rename",
         "cancel": "Cancel",
         "formPlaceholder": "Enter a new name for your loadout"
       },
       "delete": {
-        "title": "Delete Loadout",
+        "title": "Delete Loadout {name}",
         "confirm": "Delete",
         "cancel": "Cancel",
         "question": "Are you sure you want to delete this loadout?",
@@ -214,7 +214,7 @@
         "confirmPlaceholder": "Enter loadout name to confirm"
       },
       "clear": {
-        "title": "Clear Loadout Items",
+        "title": "Clear Loadout {name}",
         "question": "Are you sure you want to clear items from this loadout?",
         "selectCategories": "Select categories to clear:",
         "warning": "This action cannot be undone!",
@@ -225,7 +225,7 @@
         "successMessage": "Loadout items cleared successfully"
       },
       "share": {
-        "title": "Share Loadout",
+        "title": "Share Loadout {name}",
         "description": "Copy the code below to share this loadout with others:"
       },
       "duplicate": {

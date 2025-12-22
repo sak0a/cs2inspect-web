@@ -199,7 +199,7 @@ const handleDropdownSelect = (key: string) => {
 
       <template v-if="loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId">
           <NDropdown 
-              trigger="click" 
+              trigger="hover" 
               :options="dropdownOptions" 
               @select="handleDropdownSelect"
               :menu-props="menuProps"
@@ -258,7 +258,7 @@ const handleDropdownSelect = (key: string) => {
       :bordered="false"
       preset="card"
       style="width: 500px"
-      :title="t('modals.loadout.rename.title') as string"
+      :title="t('modals.loadout.rename.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
       :theme-overrides="skinModalThemeOverrides"
       @after-leave = "formInputs.renameName = ''"
   >
@@ -285,7 +285,7 @@ const handleDropdownSelect = (key: string) => {
       preset="card"
       :bordered="false"
       style="width: 500px"
-      :title="t('modals.loadout.delete.title') as string"
+      :title="t('modals.loadout.delete.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
       :theme-overrides="skinModalThemeOverrides"
       @after-leave="formInputs.deleteConfirm = ''"
   >
@@ -322,7 +322,7 @@ const handleDropdownSelect = (key: string) => {
       preset="card"
       :bordered="false"
       style="width: 500px"
-      :title="t('modals.loadout.clear.title') as string"
+      :title="t('modals.loadout.clear.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
       :theme-overrides="skinModalThemeOverrides"
       @after-leave="formInputs.clearConfirm = ''"
   >
@@ -368,7 +368,7 @@ const handleDropdownSelect = (key: string) => {
       preset="card"
       :bordered="false"
       style="width: 400px"
-      :title="t('modals.loadout.share.title') as string"
+      :title="t('modals.loadout.share.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
       :theme-overrides="skinModalThemeOverrides"
   >
       <div class="flex flex-col gap-4">
@@ -404,7 +404,7 @@ const handleDropdownSelect = (key: string) => {
               <NButton type="default" secondary @click="showModal.import = false">
                   {{ t('modals.loadout.import.cancel') }}
               </NButton>
-              <NButton type="success" secondary :disabled="!formInputs.importCode" @click="handleLoadoutAction('import')">
+              <NButton type="success" secondary :disabled="formInputs.importCode.length < 13" @click="handleLoadoutAction('import')">
                   {{ t('modals.loadout.import.confirm') }}
               </NButton>
           </div>
@@ -422,6 +422,11 @@ const handleDropdownSelect = (key: string) => {
 }
 .glassmorphism-dropdown .n-dropdown-option {
     color: white !important;
+    border-radius: 8px !important;
+    margin: 2px 4px !important;
+}
+.glassmorphism-dropdown .n-dropdown-option .n-dropdown-option-body::before {
+    background-color: transparent !important;
 }
 .glassmorphism-dropdown .n-dropdown-option:hover {
     background-color: rgba(255, 255, 255, 0.1) !important;

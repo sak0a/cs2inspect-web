@@ -13,7 +13,7 @@ import {
 const generateShareCode = () => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No I, O, 0, 1
     let code = 'LO-';
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) {
         code += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return code;

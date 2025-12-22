@@ -199,13 +199,13 @@
         "success": "Loadout importado correctamente"
       },
       "rename": {
-        "title": "Renombrar loadout",
+        "title": "Renombrar loadout {name}",
         "confirm": "Renombrar",
         "cancel": "Cancelar",
         "formPlaceholder": "Introduce un nuevo nombre para tu loadout"
       },
       "delete": {
-        "title": "Eliminar loadout",
+        "title": "Eliminar loadout {name}",
         "confirm": "Eliminar",
         "cancel": "Cancelar",
         "question": "¿Estás seguro de que quieres eliminar este loadout?",
@@ -214,7 +214,7 @@
         "confirmPlaceholder": "Introduce el nombre del loadout para confirmar"
       },
       "clear": {
-        "title": "Vaciar items del Loadout",
+        "title": "Vaciar items del Loadout {name}",
         "question": "¿Estás seguro de que quieres vaciar los items de este loadout?",
         "selectCategories": "Selecciona las categorías para vaciar:",
         "warning": "¡Esta acción no se puede deshacer!",
@@ -225,7 +225,7 @@
         "successMessage": "Items del loadout vaciados correctamente"
       },
       "share": {
-        "title": "Compartir Loadout",
+        "title": "Compartir Loadout {name}",
         "description": "Copia el código siguiente para compartir este loadout:"
       },
       "duplicate": {
