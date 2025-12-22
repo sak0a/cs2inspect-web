@@ -9,23 +9,24 @@
           @input="handleCustomInput"
           @blur="handleBlur"
           @keydown.enter="handleBlur"
-      />
+      >
     </div>
 
     <div class="progress-container">
-      <div class="progress-bar" ref="progressBar"
+      <div
+ref="progressBar" class="progress-bar"
            @mouseenter="showTooltip"
            @mouseleave="startHideTooltip">
         <!-- Full gradient background -->
-        <div class="progress-background"></div>
+        <div class="progress-background"/>
 
         <!-- Min-max range indicator -->
-        <div class="valid-range"
+        <div
+class="valid-range"
              :style="{
                left: `${(props.min * 100)}%`,
                width: `${((props.max - props.min) * 100)}%`
-             }">
-        </div>
+             }"/>
 
         <!-- Slider handle and tooltip -->
         <div
@@ -40,11 +41,12 @@
 
         <!-- Wear labels -->
         <div class="wear-labels">
-          <div v-for="(label, value) in WEARS"
+          <div
+v-for="(label, value) in WEARS"
                :key="value"
                class="wear-label"
                :style="{ left: `${value * 100}%` }">
-            <div class="wear-marker"></div>
+            <div class="wear-marker"/>
           </div>
         </div>
       </div>

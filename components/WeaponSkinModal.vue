@@ -1016,7 +1016,7 @@ watch(() => props.weapon, () => {
                     :src="selectedSkin?.image"
                     :alt="selectedSkin?.name"
                     class="w-full h-64 object-contain"
-                />
+                >
                 <!-- Visual Customizer Overlay Button -->
                 <button
                   class="visual-customizer-overlay"
@@ -1057,8 +1057,8 @@ watch(() => props.weapon, () => {
                   <NSwitch v-model:value="customization.statTrak" />
                   <span>{{ t('modals.weaponSkin.labels.stattrak') }}</span>
                   <NInputNumber
-                      :disabled="!customization.statTrak"
                       v-model:value="customization.statTrakCount"
+                      :disabled="!customization.statTrak"
                       :min="0"
                       :max="99999"
                       class="w-28"
@@ -1119,7 +1119,8 @@ watch(() => props.weapon, () => {
             <!-- Save Button & Active Switch-->
             <div class="flex items-center justify-center w-full mt-0 gap-2">
               <!-- Save Weapon -->
-              <NButton type="success" secondary :class="[
+              <NButton
+type="success" secondary :class="[
                 selectedSkin?.availableTeams !== 'both' ? 'w-96' : 'w-40']" @click="handleSave">
                 {{ t('modals.weaponSkin.buttons.save') }}
               </NButton>
@@ -1209,7 +1210,7 @@ watch(() => props.weapon, () => {
                       :src="sticker.api.image"
                       :alt="sticker.api.name"
                       class="w-full h-full object-contain"
-                  />
+                  >
                   <div class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <span class="text-white text-xs">{{ t('modals.weaponSkin.stickers.reposition') }}</span>
                   </div>
@@ -1252,7 +1253,7 @@ watch(() => props.weapon, () => {
                     :src="customization.keychain.api.image"
                     :alt="customization.keychain.api.name"
                     class="w-full h-full object-contain"
-                />
+                >
                 <p class="text-sm text-center text-gray-400 mt-1">{{ customization.keychain.api.name.replace('Charm | ', '') }}</p>
               </div>
               <div v-else class="h-30 flex items-center justify-center">
@@ -1371,8 +1372,8 @@ watch(() => props.weapon, () => {
       <StickerModal
           v-model:visible="state.showStickerModal"
           :position="state.currentStickerPosition"
-          :currentSticker="customization.stickers[state.currentStickerPosition]"
-          :weaponName="selectedSkin?.name || weapon?.defaultName"
+          :current-sticker="customization.stickers[state.currentStickerPosition]"
+          :weapon-name="selectedSkin?.name || weapon?.defaultName"
           :team="customization.team"
           @select="handleStickerSelect"
       />
@@ -1380,8 +1381,8 @@ watch(() => props.weapon, () => {
       <!-- Keychain Modal -->
       <KeychainModal
           v-model:visible="state.showKeychainModal"
-          :currentKeychain="customization.keychain"
-          :weaponName="selectedSkin?.name || weapon?.defaultName"
+          :current-keychain="customization.keychain"
+          :weapon-name="selectedSkin?.name || weapon?.defaultName"
           :team="customization.team"
           @select="handleKeychainSelect"
       />

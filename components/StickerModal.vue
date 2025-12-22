@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton, NSelect } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import type { APISticker } from "~/server/utils/interfaces";
 import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomization";
 
@@ -395,8 +395,8 @@ watch(() => ui.value.effectFilterIds, () => {
       preset="card"
       :bordered="false"
       size="huge"
-      @update:show="handleClose"
       :theme-overrides="weaponAttachmentModalThemeOverrides"
+      @update:show="handleClose"
   >
     <template #header>
       <div class="flex items-center gap-3">
@@ -428,7 +428,7 @@ watch(() => ui.value.effectFilterIds, () => {
                 :src="state.selectedItem.image"
                 :alt="state.selectedItem.name"
                 class="h-40 w-full object-contain"
-            />
+            >
           </div>
 
           <!-- Right side - Customization -->
@@ -523,7 +523,8 @@ watch(() => ui.value.effectFilterIds, () => {
                 >
                   {{ currentSticker ? t('modals.sticker.buttons.update') : t('modals.sticker.buttons.create') }}
                 </NButton>
-                <NButton v-if="currentSticker"
+                <NButton
+v-if="currentSticker"
                     type="error"
                     class="flex-1 lg:flex-none lg:w-32"
                     secondary
@@ -618,7 +619,7 @@ watch(() => ui.value.effectFilterIds, () => {
                 :alt="item.name"
                 class="w-full h-24 object-contain mb-2"
                 loading="lazy"
-            />
+            >
             <p class="text-sm text-center break-words">{{ item.name.replace('Sticker |', '') }}</p>
             <div
                 class="h-1 w-full mt-2"

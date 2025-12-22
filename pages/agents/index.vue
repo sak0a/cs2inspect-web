@@ -278,7 +278,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           title="Agents"
           :user="user"
           :error="error || ''"
-          :isLoading="isLoading"
+          :is-loading="isLoading"
       />
       <!-- Agent Type Groups -->
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">

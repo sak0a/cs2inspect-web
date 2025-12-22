@@ -221,7 +221,7 @@ watch(() => showSkinModal.value, (isVisible) => {
           title="Gloves"
           :user="user"
           :error="error || ''"
-          :isLoading="isLoading"
+          :is-loading="isLoading"
       />
       <!-- Glove Type Groups -->
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">

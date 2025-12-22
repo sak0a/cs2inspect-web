@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NModal, NButton } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 const _props = defineProps<{

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 // Removed unused computed import
-import { NCard } from 'naive-ui'
 import type { APICollectible } from "~/server/utils/interfaces";
 
 const props = defineProps({

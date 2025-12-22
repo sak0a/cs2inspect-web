@@ -13,7 +13,7 @@ import type {
 import type { IEnhancedGlove, IEnhancedItem } from '~/server/utils/interfaces'
 
 import { ref, computed } from 'vue'
-import { NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NSwitch, NButton, useMessage } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
 import ResetModal from "~/components/ResetModal.vue"
 import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
@@ -482,8 +482,8 @@ watch(() => props.weapon, () => {
       :title="weapon ? t('modals.gloveSkin.title', { weaponName: weapon?.defaultName }) as string : t('modals.gloveSkin.defaultTitle') as string"
       :bordered="false"
       size="huge"
-      @update:show="handleClose"
       :theme-overrides="skinModalThemeOverrides"
+      @update:show="handleClose"
   >
     <template #header-extra>
       <!-- Reset Button -->
@@ -551,7 +551,7 @@ watch(() => props.weapon, () => {
                 :src="selectedSkin?.image"
                 :alt="selectedSkin?.name"
                 class="w-full h-64 object-contain"
-            />
+            >
             <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
           </div>
 
@@ -659,7 +659,7 @@ watch(() => props.weapon, () => {
                 :alt="skin.name"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
-            />
+            >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ skin.name.replace('★ ' + skin.weapon.name + ' | ', '') }}</p>
               <div

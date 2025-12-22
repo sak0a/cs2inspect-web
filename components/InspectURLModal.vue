@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NModal, NInput, NButton, NSpace } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 
@@ -96,8 +95,8 @@ const handleClose = () => {
       </div>
       <div>
         <NInput
-            :disabled="_props.loading"
             v-model:value="inspectUrl"
+            :disabled="_props.loading"
             type="text"
             :placeholder="t('modals.inspectUrl.inputPlaceholder') as string"
             class="w-full"
@@ -106,10 +105,10 @@ const handleClose = () => {
       </div>
 
       <div class="flex justify-end gap-4">
-        <NButton @click="handleClose" secondary type="error" :disabled="_props.loading">
+        <NButton secondary type="error" :disabled="_props.loading" @click="handleClose">
           {{ t('modals.inspectUrl.cancel') }}
         </NButton>
-        <NButton :disabled="inspectUrl.length <= 15" secondary type="success" @click="handleSubmit" :loading="_props.loading">
+        <NButton :disabled="inspectUrl.length <= 15" secondary type="success" :loading="_props.loading" @click="handleSubmit">
           {{ t('modals.inspectUrl.confirm') }}
         </NButton>
       </div>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton, NSelect } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import type { APIKeychain } from "~/server/utils/interfaces";
 import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
 
@@ -290,8 +290,8 @@ watch(() => ui.value.rarityFilterIds, () => {
       preset="card"
       :bordered="false"
       size="huge"
-      @update:show="handleClose"
       :theme-overrides="weaponAttachmentModalThemeOverrides"
+      @update:show="handleClose"
   >
     <template #header>
       <div class="flex items-center gap-3">
@@ -323,7 +323,7 @@ watch(() => ui.value.rarityFilterIds, () => {
                 :src="state.selectedItem.image"
                 :alt="state.selectedItem.name"
                 class="scale-125 h-40 object-top object-cover"
-            />
+            >
           </div>
 
           <!-- Right side - Customization -->
@@ -463,7 +463,7 @@ watch(() => ui.value.rarityFilterIds, () => {
                 :alt="item.name"
                 class="w-full h-24 object-contain mb-2"
                 loading="lazy"
-            />
+            >
             <p class="text-sm text-center break-words">{{ item.name.replace(/^Charm \| /, '') }}</p>
             <div
                 class="h-1 w-full mt-2"

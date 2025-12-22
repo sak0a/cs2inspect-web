@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
-import { NButton, useMessage} from 'naive-ui'
+import { useMessage} from 'naive-ui'
 import { steamAuth } from '~/services/steamAuth'
 import { Trash as DeleteIcon, Edit as RenameIcon, Plus as NewIcon } from '@vicons/tabler'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
@@ -130,7 +130,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
       />
 
       <template v-if="loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId">
-        <NButton strong circle type="default" secondary @click="showModal.rename = true" :loading="loadoutStore.isLoading">
+        <NButton strong circle type="default" secondary :loading="loadoutStore.isLoading" @click="showModal.rename = true">
           <template #icon><NIcon><RenameIcon /></NIcon></template>
         </NButton>
         <NButton strong circle type="error" secondary @click="showModal.delete = true">
@@ -138,8 +138,8 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
         </NButton>
       </template>
 
-      <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="success" :secondary="loadoutStore.hasLoadouts" @click="showModal.create = true" :loading="loadoutStore.isLoading">
-        <template #icon v-if="loadoutStore.hasLoadouts">
+      <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="success" :secondary="loadoutStore.hasLoadouts" :loading="loadoutStore.isLoading" @click="showModal.create = true">
+        <template v-if="loadoutStore.hasLoadouts" #icon>
           <NIcon><NewIcon /></NIcon>
         </template>
         <template v-if="!loadoutStore.hasLoadouts">
@@ -157,16 +157,16 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
       style="width: 500px"
       :title="t('modals.loadout.create.title') as string"
       :theme-overrides="skinModalThemeOverrides"
-      @afterLeave="formInputs.newName = ''"
+      @after-leave="formInputs.newName = ''"
   >
     <NInput
-        :minlength="1"
         v-model:value="formInputs.newName"
+        :minlength="1"
         :placeholder="t('modals.loadout.create.formPlaceholder') as string"
     />
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton @click="() => { showModal.create = false; formInputs.newName = '' }" type="error" secondary>
+        <NButton type="error" secondary @click="() => { showModal.create = false; formInputs.newName = '' }">
           {{ t('modals.loadout.create.cancel') }}
         </NButton>
         <NButton type="success" secondary :disabled="formInputs.newName === '' || formInputs.newName.length > 20" @click="handleLoadoutAction('create')">
@@ -184,16 +184,16 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
       style="width: 500px"
       :title="t('modals.loadout.rename.title') as string"
       :theme-overrides="skinModalThemeOverrides"
-      @afterLeave = "formInputs.renameName = ''"
+      @after-leave = "formInputs.renameName = ''"
   >
     <NInput
-        :minlength="1"
         v-model:value="formInputs.renameName"
+        :minlength="1"
         :placeholder="t('modals.loadout.rename.formPlaceholder') as string"
     />
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton @click="() => { showModal.rename = false; formInputs.renameName = '' }" type="error" secondary>
+        <NButton type="error" secondary @click="() => { showModal.rename = false; formInputs.renameName = '' }">
           {{ t('modals.loadout.rename.cancel') }}
         </NButton>
         <NButton type="success" secondary :disabled="formInputs.renameName === '' || formInputs.renameName.length > 20" @click="handleLoadoutAction('rename')">
@@ -211,21 +211,21 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
       style="width: 500px"
       :title="t('modals.loadout.delete.title') as string"
       :theme-overrides="skinModalThemeOverrides"
-      @afterLeave="formInputs.deleteConfirm = ''"
+      @after-leave="formInputs.deleteConfirm = ''"
   >
     <p>{{ t('modals.loadout.delete.question') }}</p>
     <p class="font-bold">{{ t('modals.loadout.delete.warning') }}</p>
     <div class="mt-4">
       <p class="mb-2">{{ t('modals.loadout.delete.confirmText', { name: loadoutStore.selectedLoadout?.name }) }}</p>
       <NInput
-          :minlength="1"
           v-model:value="formInputs.deleteConfirm"
+          :minlength="1"
           :placeholder="t('modals.loadout.delete.confirmPlaceholder') as string"
       />
     </div>
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton @click="() => { showModal.delete = false; formInputs.deleteConfirm = '' }" type="error" secondary>
+        <NButton type="error" secondary @click="() => { showModal.delete = false; formInputs.deleteConfirm = '' }">
           {{ t('modals.loadout.delete.cancel') }}
         </NButton>
         <NButton

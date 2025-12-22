@@ -6,7 +6,6 @@ import type {
   IEnhancedGlove
 } from '~/types'
 
-import { NTabs, NTabPane, NCard } from 'naive-ui'
 import { ref, onMounted, computed } from 'vue'
 
 /**
@@ -154,7 +153,7 @@ const handleSkinClick = (weapon: IEnhancedGlove): void => {
 <template>
   <!-- For gloves that both teams can use -->
   <div v-if="weaponData.availableTeams === 'both'" >
-    <NTabs v-model:value="currentTeamTab" @update:value="(v) => setTeamCookie(v as 'ct' | 't')" type="line" animated size="small">
+    <NTabs v-model:value="currentTeamTab" type="line" animated size="small" @update:value="(v) => setTeamCookie(v as 'ct' | 't')">
       <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
         <!-- Default glove if no skin selected -->
         <NCard

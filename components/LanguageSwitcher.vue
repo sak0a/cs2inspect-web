@@ -1,5 +1,4 @@
 <script setup>
-import { NSelect, NIcon } from 'naive-ui'
 import { computed, useCookie } from '#imports'
 import { Language as LanguageIcon } from '@vicons/ionicons5'
 
@@ -69,9 +68,9 @@ const handleSelect = (key) => {
     <NSelect
       v-model:value="currentLocale"
       :options="options"
-      @update:value="handleSelect"
       size="medium"
       class="language-select"
+      @update:value="handleSelect"
     >
       <template #prefix>
         <NIcon>

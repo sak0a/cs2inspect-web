@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NModal, NButton } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 const _props = defineProps<{
@@ -43,17 +42,17 @@ const handleConfirm = () => {
       </div>
       <div class="flex justify-end gap-4">
         <NButton
-            @click="handleClose"
             :disabled="_props.loading"
             type="error"
-            secondary>
+            secondary
+            @click="handleClose">
           {{ t('modals.duplicateItem.cancel') }}
         </NButton>
         <NButton
-            @click="handleConfirm"
             :loading="_props.loading"
             type="success"
-            secondary>
+            secondary
+            @click="handleConfirm">
           {{ t('modals.duplicateItem.confirm') }}
         </NButton>
       </div>

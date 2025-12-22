@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NAlert, NButton, NSpin } from 'naive-ui'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"

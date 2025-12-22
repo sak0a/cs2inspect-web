@@ -4,7 +4,6 @@
 // Modern type imports
 import type { DBWeapon, WeaponItemData, IEnhancedWeapon } from "~/types"
 
-import { NTabs, NTabPane, NCard } from 'naive-ui'
 import { ref, onMounted, computed } from 'vue'
 
 /**
@@ -160,7 +159,7 @@ const handleSkinClick = (weapon: IEnhancedWeapon): void => {
 <template>
   <!-- For weapons that both teams can use (like AWP) -->
   <div v-if="weaponData.availableTeams === 'both'" >
-    <NTabs v-model:value="currentTeamTab" @update:value="(v) => setTeamCookie(v as 'ct' | 't')" type="line" animated size="small">
+    <NTabs v-model:value="currentTeamTab" type="line" animated size="small" @update:value="(v) => setTeamCookie(v as 'ct' | 't')">
       <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
         <!-- Default weapon if no skin selected -->
         <NCard

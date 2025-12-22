@@ -201,7 +201,7 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
           title="Pins"
           :user="user"
           :error="error || ''"
-          :isLoading="isLoading"
+          :is-loading="isLoading"
       />
       <!-- Pin Selection -->
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
@@ -246,11 +246,11 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
               <PinTabs
                   v-for="collectible in pinGrid"
                   :key="collectible.id"
+                  ref="pinRefs"
                   :collectible="collectible"
                   :is-selected="getCollectibleBaseId(collectible) === selectedPin"
-                  @select="handlePinSelect"
                   class="fade-in-item"
-                  ref="pinRefs"
+                  @select="handlePinSelect"
               />
             </div>
 

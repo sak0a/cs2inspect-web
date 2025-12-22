@@ -191,14 +191,15 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           title="Rifles"
           :user="user"
           :error="error || loadoutStore.error || ''"
-          :isLoading="isLoading"
+          :is-loading="isLoading"
       />
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
         <!-- Skins Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
-          <WeaponTabs class=""
-                      v-for="(weaponData, weaponName) in groupedWeapons"
+          <WeaponTabs
+v-for="(weaponData, weaponName) in groupedWeapons"
                       :key="weaponName"
+                      class=""
                       :weapon-data="weaponData"
                       @weapon-click="handleWeaponClick"
           />

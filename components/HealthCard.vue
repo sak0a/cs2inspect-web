@@ -82,7 +82,6 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { NCard, NSpace, NBadge, NProgress } from 'naive-ui';
 
 interface Props {
   check: {

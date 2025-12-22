@@ -12,8 +12,6 @@ import type {
 import type { IEnhancedItem } from '~/server/utils/interfaces'
 
 import { computed } from 'vue'
-import { NButton, NCard } from 'naive-ui'
-
 /**
  * Props interface using new type system with backward compatibility
  */
@@ -214,9 +212,9 @@ const handleGenerateLink = () => {
           >
           <div v-else class="flex flex-col items-center justify-center h-full w-full bg-gray-800/30 rounded">
             <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 mb-2">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+              <circle cx="8.5" cy="8.5" r="1.5"/>
+              <polyline points="21 15 16 10 5 21"/>
             </svg>
             <span class="text-gray-400 text-sm">{{ t('inspectItem.noImageAvailable') }}</span>
           </div>
@@ -270,7 +268,7 @@ const handleGenerateLink = () => {
                     :src="sticker.api.image"
                     :alt="sticker.api?.name || 'Sticker'"
                     class="w-8 h-8 object-contain"
-                  />
+                  >
                   <span v-else class="text-xs text-gray-400">{{ index + 1 }}</span>
                 </div>
               </div>
@@ -286,7 +284,7 @@ const handleGenerateLink = () => {
                     :src="(customization as WeaponCustomization)?.keychain?.api?.image"
                     :alt="(customization as WeaponCustomization)?.keychain?.api?.name || 'Keychain'"
                     class="w-8 h-8 object-contain"
-                  />
+                  >
                   <span v-else class="text-xs text-gray-400">K</span>
                 </div>
                 <span class="text-sm text-gray-300">
@@ -301,24 +299,24 @@ const handleGenerateLink = () => {
         <div class="mt-4 flex justify-between w-full">
           <NButton
             type="primary"
-            @click="handleCustomize"
             :disabled="isLoading"
+            @click="handleCustomize"
           >
             {{ t('common.customize') }}
           </NButton>
 
           <NButton
             type="info"
-            @click="handleGenerateLink"
             :disabled="isLoading"
+            @click="handleGenerateLink"
           >
             {{ t('common.generateLink') }}
           </NButton>
 
           <NButton
             type="error"
-            @click="handleClear"
             :disabled="isLoading"
+            @click="handleClear"
           >
             {{ t('common.clear') }}
           </NButton>
@@ -330,9 +328,9 @@ const handleGenerateLink = () => {
     <NCard v-else class="empty-card">
       <div class="flex flex-col items-center justify-center py-8">
         <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400 mb-4">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-          <line x1="12" y1="22.08" x2="12" y2="12"></line>
+          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+          <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+          <line x1="12" y1="22.08" x2="12" y2="12"/>
         </svg>
         <p class="text-gray-300 text-lg">{{ t('inspectItem.noItemImported') }}</p>
         <p class="text-gray-400 text-sm mt-2">{{ t('inspectItem.useImportButton') }}</p>

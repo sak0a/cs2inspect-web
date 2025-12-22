@@ -1521,7 +1521,7 @@ const initializeSlotsFromProps = () => {
   >
     <template #header-extra>
       <NSpace>
-        <NButton @click="handleSave" type="primary">
+        <NButton type="primary" @click="handleSave">
           {{ t('modals.visualCustomizer.save') }}
         </NButton>
         <NButton @click="handleClose">
@@ -1752,11 +1752,11 @@ const initializeSlotsFromProps = () => {
                 <h5 class="text-yellow-400 font-semibold mb-2">🛠️ {{ t('modals.visualCustomizer.debug.title') }}</h5>
                 <div class="flex items-center space-x-2">
                   <input
-                    type="checkbox"
                     id="coordinateOverlay"
                     v-model="showCoordinateOverlay"
+                    type="checkbox"
                     class="w-4 h-4"
-                  />
+                  >
                   <label for="coordinateOverlay" class="text-sm text-gray-300">
                     {{ t('modals.visualCustomizer.debug.coordinateGrid') }}
                   </label>

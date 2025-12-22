@@ -230,7 +230,7 @@ watch(() => searchQuery.value, () => {
           title="Music Kits"
           :user="user"
           :error="error || ''"
-          :isLoading="isLoading"
+          :is-loading="isLoading"
       />
       <!-- Music Kit Selection -->
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
@@ -278,14 +278,14 @@ watch(() => searchQuery.value, () => {
               <MusicKitTabs
                   v-for="musicKit in musicKitGrid"
                   :key="musicKit.id"
+                  ref="musicKitRefs"
                   :music-kit="musicKit"
                   :is-selected="getMusicKitBaseId(musicKit) === selectedMusicKit"
-                  @select="handleMusicKitSelect"
                   :class="[
                     'fade-in-item',
                     getMusicKitBaseId(musicKit) === selectedMusicKit ? 'selected-music-kit' : ''
                   ]"
-                  ref="musicKitRefs"
+                  @select="handleMusicKitSelect"
               />
             </div>
 

@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import type {DBLoadout, IEnhancedItem, IEnhancedWeapon} from '~/server/utils/interfaces'
+import type { DBLoadout, IEnhancedItem, IEnhancedWeapon } from '~/server/utils/interfaces'
 
 interface LoadoutState {
     loadouts: DBLoadout[];
@@ -361,8 +361,8 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to activate loadout; Authentication / Response failed')
                 }
 
-                const data = await response.json();
-                const updatedLoadout = data.data || data.loadout;
+                // const data = await response.json();
+                // const updatedLoadout = data.data || data.loadout;
 
                 // Update the loadout in the store
                 const index = this.loadouts.findIndex((l: DBLoadout) => l.id === id);
