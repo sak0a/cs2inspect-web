@@ -9,6 +9,9 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: false,
   },
+  sitemap: {
+    zeroRuntime: true
+  },
   nitro: {
     experimental: {
       wasm: true

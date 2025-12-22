@@ -14,6 +14,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     NAlert: typeof import('naive-ui')['NAlert']
     NAvatar: typeof import('naive-ui')['NAvatar']
+    NBadge: typeof import('naive-ui')['NBadge']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']
@@ -31,6 +32,7 @@ declare module 'vue' {
     NModal: typeof import('naive-ui')['NModal']
     NModalProvider: typeof import('naive-ui')['NModalProvider']
     NPagination: typeof import('naive-ui')['NPagination']
+    NProgress: typeof import('naive-ui')['NProgress']
     NSelect: typeof import('naive-ui')['NSelect']
     NSpace: typeof import('naive-ui')['NSpace']
     NSpin: typeof import('naive-ui')['NSpin']
@@ -47,6 +49,7 @@ declare module 'vue' {
 declare global {
   const NAlert: typeof import('naive-ui')['NAlert']
   const NAvatar: typeof import('naive-ui')['NAvatar']
+  const NBadge: typeof import('naive-ui')['NBadge']
   const NButton: typeof import('naive-ui')['NButton']
   const NCard: typeof import('naive-ui')['NCard']
   const NDialogProvider: typeof import('naive-ui')['NDialogProvider']
@@ -64,6 +67,7 @@ declare global {
   const NModal: typeof import('naive-ui')['NModal']
   const NModalProvider: typeof import('naive-ui')['NModalProvider']
   const NPagination: typeof import('naive-ui')['NPagination']
+  const NProgress: typeof import('naive-ui')['NProgress']
   const NSelect: typeof import('naive-ui')['NSelect']
   const NSpace: typeof import('naive-ui')['NSpace']
   const NSpin: typeof import('naive-ui')['NSpin']
