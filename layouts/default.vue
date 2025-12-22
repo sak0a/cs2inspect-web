@@ -87,6 +87,9 @@ async function handleLogin() {
   }
 }
 
+const route = useRoute()
+const isDevPage = computed(() => route.path === '/dev' && import.meta.env.DEV)
+
 onMounted(async () => {
   if (!selectedKey.value) {
     selectedKey.value = window.location.pathname
@@ -262,7 +265,7 @@ onMounted(async () => {
       </NLayoutSider>
       <NLayoutContent class="h-screen overflow-auto">
 
-        <div v-if="!user" class="flex items-center justify-center flex-col text-xl h-full relative">
+        <div v-if="!user && !isDevPage" class="flex items-center justify-center flex-col text-xl h-full relative">
           <!-- Language Switcher in top-right corner for login screen -->
           <div class="absolute top-4 right-4">
             <LanguageSwitcher />
