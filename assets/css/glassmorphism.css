@@ -1,7 +1,7 @@
 /* Glassmorphism Effects for Modals */
 
 /* Main modal glassmorphism styling - only for the main modal card, not grid cards */
-.n-modal > .n-card {
+.n-modal>.n-card {
   backdrop-filter: var(--glass-blur-strong) var(--glass-saturation) !important;
   -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation) !important;
   background: var(--glass-bg-primary) !important;
@@ -56,7 +56,8 @@
   /* Original styling: background: linear-gradient(135deg, #101010, rgba(rarity-color, 0.15)) */
 
   /* Only enhance with subtle glass effects */
-  border-radius: 12px !important; /* Keep original rounded-xl */
+  border-radius: 12px !important;
+  /* Keep original rounded-xl */
   box-shadow:
     0 4px 8px rgba(0, 0, 0, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.2),
@@ -81,8 +82,10 @@
   /* Ensure the selection ring is visible - use outline to avoid border conflicts */
   outline: 2px solid var(--selection-ring) !important;
   outline-offset: -2px !important;
-  border: 0 !important; /* Remove border when selected as per original design */
-  opacity: 0.85 !important; /* Match original opacity */
+  border: 0 !important;
+  /* Remove border when selected as per original design */
+  opacity: 0.85 !important;
+  /* Match original opacity */
   box-shadow:
     0 8px 16px rgba(0, 0, 0, 0.4),
     0 4px 8px rgba(0, 0, 0, 0.3),
@@ -106,7 +109,8 @@
 .n-modal .n-input-number .n-input-wrapper {
   background: rgba(255, 255, 255, 0.05) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 200px !important; /* Match the original rounded design */
+  border-radius: 200px !important;
+  /* Match the original rounded design */
   backdrop-filter: var(--glass-blur-light) !important;
   -webkit-backdrop-filter: var(--glass-blur-light) !important;
   box-shadow:
@@ -119,7 +123,8 @@
 .n-modal .n-input-number:focus-within .n-input-wrapper {
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(250, 204, 21, 0.3) !important;
-  border-radius: 200px !important; /* Maintain rounded design on focus */
+  border-radius: 200px !important;
+  /* Maintain rounded design on focus */
   box-shadow:
     0 0 0 2px rgba(250, 204, 21, 0.1),
     0 4px 8px rgba(250, 204, 21, 0.1),
@@ -135,9 +140,69 @@
 }
 
 .n-base-icon {
-  filter: drop-shadow(0 2px 2px rgba(0,0,0,0.35));
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
 }
 
+
+
+/* Specific override for InputNumber buttons to remove background and shadow as requested */
+.n-input-number-button,
+.n-modal .n-input-number-button,
+.n-input-number .n-button,
+.n-modal .n-input-number .n-button,
+/* Add high specificity selectors to override global button styles */
+.n-modal .n-input-number .n-input .n-input__suffix .n-button,
+.n-modal .n-input-number .n-input .n-input__prefix .n-button {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transform: none !important;
+}
+
+/* Ensure ALL states (hover, active, focus) are transparent and shadow-free */
+.n-input-number-button:hover,
+.n-modal .n-input-number-button:hover,
+.n-input-number-button:active,
+.n-modal .n-input-number-button:active,
+.n-input-number-button:focus,
+.n-modal .n-input-number-button:focus,
+.n-input-number .n-button:hover,
+.n-modal .n-input-number .n-button:hover,
+.n-input-number .n-button:active,
+.n-modal .n-input-number .n-button:active,
+.n-input-number .n-button:focus,
+.n-modal .n-input-number .n-button:focus,
+/* High specificity hover states */
+.n-modal .n-input-number .n-input .n-input__suffix .n-button:hover,
+.n-modal .n-input-number .n-input .n-input__prefix .n-button:hover,
+.n-modal .n-input-number .n-input .n-input__suffix .n-button:active,
+.n-modal .n-input-number .n-input .n-input__prefix .n-button:active {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  transform: none !important;
+  /* Prevent movement on click */
+}
+
+/* Hide any pseudo-elements that might add effects */
+.n-input-number-button::before,
+.n-modal .n-input-number-button::before,
+.n-input-number-button::after,
+.n-modal .n-input-number-button::after,
+.n-input-number .n-button::before,
+.n-modal .n-input-number .n-button::before,
+.n-input-number .n-button::after,
+.n-modal .n-input-number .n-button::after,
+.n-modal .n-input-number .n-input .n-input__suffix .n-button::before,
+.n-modal .n-input-number .n-input .n-input__suffix .n-button::after {
+  display: none !important;
+  content: none !important;
+  background: transparent !important;
+}
 
 /* Buttons within glassmorphism modals - preserve original colors with glass effect */
 .n-modal .n-button {
@@ -194,22 +259,52 @@
   animation: gridItemFadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.n-modal .grid .n-card:nth-child(1) { animation-delay: 0.05s; }
-.n-modal .grid .n-card:nth-child(2) { animation-delay: 0.1s; }
-.n-modal .grid .n-card:nth-child(3) { animation-delay: 0.15s; }
-.n-modal .grid .n-card:nth-child(4) { animation-delay: 0.2s; }
-.n-modal .grid .n-card:nth-child(5) { animation-delay: 0.25s; }
-.n-modal .grid .n-card:nth-child(6) { animation-delay: 0.3s; }
-.n-modal .grid .n-card:nth-child(7) { animation-delay: 0.35s; }
-.n-modal .grid .n-card:nth-child(8) { animation-delay: 0.4s; }
-.n-modal .grid .n-card:nth-child(9) { animation-delay: 0.45s; }
-.n-modal .grid .n-card:nth-child(10) { animation-delay: 0.5s; }
+.n-modal .grid .n-card:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.n-modal .grid .n-card:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.n-modal .grid .n-card:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.n-modal .grid .n-card:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.n-modal .grid .n-card:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+.n-modal .grid .n-card:nth-child(6) {
+  animation-delay: 0.3s;
+}
+
+.n-modal .grid .n-card:nth-child(7) {
+  animation-delay: 0.35s;
+}
+
+.n-modal .grid .n-card:nth-child(8) {
+  animation-delay: 0.4s;
+}
+
+.n-modal .grid .n-card:nth-child(9) {
+  animation-delay: 0.45s;
+}
+
+.n-modal .grid .n-card:nth-child(10) {
+  animation-delay: 0.5s;
+}
 
 @keyframes gridItemFadeIn {
   from {
     opacity: 0;
     transform: translateY(20px) scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -232,7 +327,7 @@
   animation: glassmorphismFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.n-modal > .n-card {
+.n-modal>.n-card {
   animation: glassmorphismCardIn 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -241,6 +336,7 @@
     opacity: 0;
     backdrop-filter: blur(0px);
   }
+
   to {
     opacity: 1;
     backdrop-filter: var(--glass-blur-light);
@@ -254,11 +350,13 @@
     backdrop-filter: blur(0px);
     box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   }
+
   50% {
     opacity: 0.8;
     transform: scale(0.98) translateY(10px);
     backdrop-filter: blur(10px);
   }
+
   to {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -272,7 +370,7 @@
 
 /* Responsive adjustments for glassmorphism */
 @media (max-width: 768px) {
-  .n-modal > .n-card {
+  .n-modal>.n-card {
     backdrop-filter: blur(16px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(16px) saturate(160%) !important;
   }
@@ -284,7 +382,7 @@
 }
 
 /* Interactive glassmorphism effects - only for main modal card */
-.n-modal > .n-card {
+.n-modal>.n-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -314,7 +412,7 @@
 
 /* Dark theme specific glassmorphism adjustments */
 @media (prefers-color-scheme: dark) {
-  .n-modal > .n-card {
+  .n-modal>.n-card {
     background: rgba(16, 16, 16, 0.9) !important;
   }
 
@@ -402,7 +500,7 @@
 }
 
 /* Remove any nested background elements that might cause double background */
-.n-base-select-option:hover > * {
+.n-base-select-option:hover>* {
   background: transparent !important;
 }
 
@@ -567,14 +665,12 @@
   left: -150%;
   width: 50%;
   height: 220%;
-  background: linear-gradient(
-    60deg,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.18) 40%,
-    rgba(255, 255, 255, 0.28) 50%,
-    rgba(255, 255, 255, 0.18) 60%,
-    rgba(255, 255, 255, 0) 100%
-  );
+  background: linear-gradient(60deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.18) 40%,
+      rgba(255, 255, 255, 0.28) 50%,
+      rgba(255, 255, 255, 0.18) 60%,
+      rgba(255, 255, 255, 0) 100%);
   transform: rotate(20deg) translateX(0);
   opacity: 0;
   pointer-events: none;
@@ -702,10 +798,12 @@
 
 /* Reduce motion for users who prefer it */
 @media (prefers-reduced-motion: reduce) {
+
   .n-button,
   .n-modal .n-button {
     transition: none !important;
   }
+
   .n-button:hover,
   .n-modal .n-button:hover {
     transform: none !important;
@@ -719,7 +817,8 @@
   overflow: hidden;
   backdrop-filter: var(--glass-blur-medium) !important;
   -webkit-backdrop-filter: var(--glass-blur-medium) !important;
-  background: var(--glass-bg-secondary) !important; /* glassier base */
+  background: var(--glass-bg-secondary) !important;
+  /* glassier base */
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-radius: 14px !important;
   box-shadow:
@@ -739,8 +838,13 @@
   border-radius: inherit;
 }
 
-.n-message .n-message__content { color: inherit !important; }
-.n-message .n-base-icon { filter: drop-shadow(0 2px 2px rgba(0,0,0,0.35)); }
+.n-message .n-message__content {
+  color: inherit !important;
+}
+
+.n-message .n-base-icon {
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.35));
+}
 
 /* Optional: slight hover polish on interactive messages */
 .n-message:hover {
@@ -757,7 +861,8 @@
   overflow: hidden;
   backdrop-filter: var(--glass-blur-medium) !important;
   -webkit-backdrop-filter: var(--glass-blur-medium) !important;
-  background: var(--glass-bg-secondary) !important; /* glassier base */
+  background: var(--glass-bg-secondary) !important;
+  /* glassier base */
   border: 1px solid rgba(255, 255, 255, 0.16) !important;
   border-radius: 16px !important;
   box-shadow:
@@ -806,14 +911,19 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.10);
 }
 
-.n-modal .grid.grid-cols-5 .n-card:hover::after { opacity: 1; }
+.n-modal .grid.grid-cols-5 .n-card:hover::after {
+  opacity: 1;
+}
 
-.n-modal .grid.grid-cols-5 .n-card:active { transform: translateY(0) scale(0.998); }
+.n-modal .grid.grid-cols-5 .n-card:active {
+  transform: translateY(0) scale(0.998);
+}
 
 /* Image micro-zoom */
 .n-modal .grid.grid-cols-5 .n-card img {
   transition: transform 320ms cubic-bezier(0.2, 0.8, 0.2, 1), filter 320ms ease;
 }
+
 .n-modal .grid.grid-cols-5 .n-card:hover img {
   transform: scale(1.045) translateY(-2px);
   filter: saturate(110%);
@@ -832,7 +942,7 @@
   backdrop-filter: var(--glass-blur-medium) !important;
   -webkit-backdrop-filter: var(--glass-blur-medium) !important;
   background:
-    linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
     var(--glass-bg-secondary) !important;
   border: 1px solid var(--glass-border) !important;
   border-radius: 18px !important;
@@ -840,4 +950,3 @@
     0 24px 48px rgba(0, 0, 0, 0.50),
     inset 0 1px 0 rgba(255, 255, 255, 0.06) !important;
 }
-
