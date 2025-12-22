@@ -1381,6 +1381,8 @@ watch(() => props.weapon, () => {
       <KeychainModal
           v-model:visible="state.showKeychainModal"
           :currentKeychain="customization.keychain"
+          :weaponName="selectedSkin?.name || weapon?.defaultName"
+          :team="customization.team"
           @select="handleKeychainSelect"
       />
 

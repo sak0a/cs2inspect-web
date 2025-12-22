@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton } from 'naive-ui'
+import { useMessage, NModal, NInput, NPagination, NCard, NSpin, NSpace, NInputNumber, NButton, NSelect } from 'naive-ui'
 import type { APIKeychain } from "~/server/utils/interfaces";
 import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean
+  weaponName?: string
+  team?: number
   currentKeychain?: { id?: number; x?: number; y?: number; z?: number; seed?: number } | null
 }>()
 
@@ -32,21 +34,108 @@ const state = ref({
 })
 
 const PAGE_SIZE = 10
-const filteredItems = computed(() => {
-  return state.value.items.filter(item =>
-      item.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-  )
+
+type KeychainSortBy = 'name' | 'rarity'
+type SortDir = 'asc' | 'desc'
+
+const ui = ref({
+  sortBy: 'name' as KeychainSortBy,
+  sortDir: 'asc' as SortDir,
+  rarityFilterIds: [] as string[],
 })
+
+const rarityRank = (rarityId: string | undefined) => {
+  const raw = (rarityId || '').toLowerCase()
+  const id = raw.replace(/^rarity_/, '')
+  const rankMap: Record<string, number> = {
+    default: 1,
+    rare: 2,
+    mythical: 3,
+    legendary: 4,
+    ancient: 5,
+    contraband: 6,
+  }
+  return rankMap[id] ?? 0
+}
+
+const availableRarities = computed(() => {
+  const map = new Map<string, { id: string; name: string; color: string }>()
+  for (const item of state.value.items) {
+    const id = item.rarity?.id
+    if (!id) continue
+    if (!map.has(id)) {
+      map.set(id, { id, name: item.rarity.name, color: item.rarity.color })
+    }
+  }
+  return Array.from(map.values()).sort((a, b) => rarityRank(a.id) - rarityRank(b.id))
+})
+
+const keychainSortOptions = computed(() => [
+  { label: t('modals.keychain.sort.name') as string, value: 'name' },
+  { label: t('modals.keychain.sort.rarity') as string, value: 'rarity' },
+])
+
+const toggleSortDir = () => {
+  ui.value.sortDir = ui.value.sortDir === 'asc' ? 'desc' : 'asc'
+  state.value.currentPage = 1
+}
+
+const toggleRarityFilter = (rarityId: string) => {
+  const set = new Set(ui.value.rarityFilterIds)
+  if (set.has(rarityId)) set.delete(rarityId)
+  else set.add(rarityId)
+  ui.value.rarityFilterIds = Array.from(set)
+  state.value.currentPage = 1
+}
+
+const filteredItems = computed(() => {
+  const q = state.value.searchQuery.toLowerCase()
+  const raritySet = new Set(ui.value.rarityFilterIds)
+  const useRarityFilter = raritySet.size > 0
+
+  return state.value.items.filter((item) => {
+    if (q && !item.name.toLowerCase().includes(q)) return false
+    if (useRarityFilter && !raritySet.has(item.rarity?.id)) return false
+    return true
+  })
+})
+
+const sortedItems = computed(() => {
+  const dir = ui.value.sortDir === 'asc' ? 1 : -1
+  const sortBy = ui.value.sortBy
+
+  return [...filteredItems.value].sort((a, b) => {
+    if (sortBy === 'rarity') {
+      const diff = rarityRank(a.rarity?.id) - rarityRank(b.rarity?.id)
+      if (diff !== 0) return diff * dir
+    }
+    return a.name.localeCompare(b.name) * dir
+  })
+})
+
 const paginatedItems = computed(() => {
   const start = (state.value.currentPage - 1) * PAGE_SIZE
   const end = start + PAGE_SIZE
-  return filteredItems.value.slice(start, end)
+  return sortedItems.value.slice(start, end)
 })
-const totalPages = computed(() => Math.ceil(filteredItems.value.length / PAGE_SIZE))
+
+const totalPages = computed(() => Math.ceil(sortedItems.value.length / PAGE_SIZE))
 
 // Check if seed input should be disabled for Austin 2025 Highlight charms
 const isSeedDisabled = computed(() => {
   return state.value.selectedItem?.name?.includes('Souvenir Charm | Austin 2025 Highlight') || false
+})
+
+const teamLabel = computed((): string | null => {
+  if (props.team === 1) return t('modals.weaponSkin.team.terrorist') as string
+  if (props.team === 2) return t('modals.weaponSkin.team.counterTerrorist') as string
+  return null
+})
+
+const teamBadgeClasses = computed(() => {
+  if (props.team === 1) return 'border-orange-500/30 bg-orange-500/15 text-orange-300'
+  if (props.team === 2) return 'border-blue-500/30 bg-blue-500/15 text-blue-300'
+  return ''
 })
 
 const fetchItems = async () => {
@@ -178,19 +267,44 @@ watch(() => state.value.customization.seed, (newSeed) => {
     state.value.customization.seed = 0
   }
 })
+
+// Reset pagination to page 1 whenever filters/sort/search change
+watch(() => state.value.searchQuery, () => {
+  state.value.currentPage = 1
+})
+watch(() => ui.value.sortBy, () => {
+  state.value.currentPage = 1
+})
+watch(() => ui.value.sortDir, () => {
+  state.value.currentPage = 1
+})
+watch(() => ui.value.rarityFilterIds, () => {
+  state.value.currentPage = 1
+}, { deep: true })
 </script>
 
 <template>
   <NModal
       :show="visible"
-      style="width: 1000px"
+      style="max-width: 1200px; width: 95vw"
       preset="card"
-      :title="currentKeychain ? t('modals.keychain.titleEdit') as string : t('modals.keychain.titleAdd') as string"
       :bordered="false"
       size="huge"
       @update:show="handleClose"
       :theme-overrides="weaponAttachmentModalThemeOverrides"
   >
+    <template #header>
+      <div class="flex items-center gap-3">
+        <span class="leading-none">{{ currentKeychain ? t('modals.keychain.titleEdit') + (weaponName ? ` ${t('common.for')} ${weaponName}` : '') : t('modals.keychain.titleAdd') + (weaponName ? ` ${t('common.for')} ${weaponName}` : '') }}</span>
+        <span
+          v-if="teamLabel"
+          class="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold"
+          :class="teamBadgeClasses"
+        >
+          {{ teamLabel }}
+        </span>
+      </div>
+    </template>
     <template #header-extra>
       <NInput
           v-model:value="state.searchQuery"
@@ -201,91 +315,138 @@ watch(() => state.value.customization.seed, (newSeed) => {
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Keychain Preview -->
-      <div v-if="state.selectedItem" class="bg-[#1a1a1a] px-6 py-4 rounded-lg">
-        <div class="grid grid-cols-2 gap-4">
+      <div v-if="state.selectedItem" class="bg-[#1a1a1a] p-4 md:p-6 rounded-lg">
+        <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
           <!-- Left side - Image -->
-          <div class="flex flex-col items-center">
+          <div class="flex flex-col items-center justify-center">
             <img
                 :src="state.selectedItem.image"
                 :alt="state.selectedItem.name"
                 class="scale-125 h-40 object-top object-cover"
             />
-            <h3 class="text-lg font-semibold mt-4">{{ state.selectedItem.name }}</h3>
           </div>
 
           <!-- Right side - Customization -->
-          <div class="space-y-4">
+          <div class="flex flex-col gap-4">
             <!-- Position Controls -->
-            <div class="grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <h4 class="font-medium mb-2">X {{ t('modals.keychain.labels.position') }}</h4>
+                <h4 class="text-xs font-medium mb-1 text-gray-400">X {{ t('modals.keychain.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.x"
                     :min="-100"
                     :max="100"
                     :step="0.01"
+                    size="small"
                     class="w-full"
                     :input-props="digitOnlyInputProps"
                 />
               </div>
               <div>
-                <h4 class="font-medium mb-2">Y {{ t('modals.keychain.labels.position') }}</h4>
+                <h4 class="text-xs font-medium mb-1 text-gray-400">Y {{ t('modals.keychain.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.y"
                     :min="-100"
                     :max="100"
                     :step="0.01"
+                    size="small"
                     class="w-full"
                     :input-props="digitOnlyInputProps"
                 />
               </div>
-            </div>
-
-            <!-- Z Position and Seed -->
-            <div class="grid grid-cols-2 gap-4">
               <div>
-                <h4 class="font-medium mb-2">Z {{ t('modals.keychain.labels.position') }}</h4>
+                <h4 class="text-xs font-medium mb-1 text-gray-400">Z {{ t('modals.keychain.labels.position') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.z"
                     :min="-100"
                     :max="100"
                     :step="0.01"
+                    size="small"
                     class="w-full"
                     :input-props="digitOnlyInputProps"
                 />
               </div>
               <div>
-                <h4 class="font-medium mb-2">{{ t('modals.keychain.labels.seed') }}</h4>
+                <h4 class="text-xs font-medium mb-1 text-gray-400">{{ t('modals.keychain.labels.seed') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.seed"
                     :min="0"
                     :max="100000"
                     :step="1"
                     :disabled="isSeedDisabled"
+                    size="small"
                     class="w-full"
                     :input-props="digitOnlyInputProps"
                 />
               </div>
             </div>
-            <div class="grid grid-cols-2 gap-4">
-              <NButton type="primary" class="w-full" secondary @click="handleSave">
-                {{ currentKeychain ? t('modals.keychain.buttons.update') : t('modals.keychain.buttons.create') }}
-              </NButton>
-              <NButton v-if="currentKeychain" type="error" class="w-full" secondary @click="handleRemove">
-                {{ t('modals.keychain.delete') }}
-              </NButton>
+
+            <!-- Bottom Section: Title and Buttons -->
+            <div class="border-t border-[#313030] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+              <h3 class="text-lg font-bold text-white">{{ state.selectedItem.name.replace(/^Charm \| /, '') }}</h3>
+              
+              <div class="flex gap-3 w-full lg:w-auto justify-end">
+                <NButton type="primary" class="flex-1 lg:flex-none lg:w-40" secondary @click="handleSave">
+                  {{ currentKeychain ? t('modals.keychain.buttons.update') : t('modals.keychain.buttons.create') }}
+                </NButton>
+                <NButton v-if="currentKeychain" type="error" class="flex-1 lg:flex-none lg:w-40" secondary @click="handleRemove">
+                  {{ t('modals.keychain.delete') }}
+                </NButton>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
+      <!-- Keychain list controls (Sort + Filters) -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
+          <NSelect
+            v-model:value="ui.sortBy"
+            size="small"
+            class="w-44"
+            :options="keychainSortOptions"
+          />
+          <NButton
+            size="small"
+            secondary
+            type="default"
+            :aria-label="`Sort ${ui.sortDir === 'asc' ? 'ascending' : 'descending'}`"
+            @click="toggleSortDir"
+          >
+            {{ ui.sortDir === 'asc' ? '↑' : '↓' }}
+          </NButton>
+        </div>
+
+        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
+          <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
+          <NButton
+            v-for="rarity in availableRarities"
+            :key="rarity.id"
+            size="small"
+            secondary
+            :type="ui.rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+            :style="ui.rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :aria-label="`Filter by ${rarity.name} rarity`"
+            :aria-pressed="ui.rarityFilterIds.includes(rarity.id)"
+            @click="toggleRarityFilter(rarity.id)"
+          >
+            <span class="flex items-center gap-2">
+              <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
+              {{ rarity.name }}
+            </span>
+          </NButton>
+        </div>
+      </div>
+
       <!-- Keychains Grid -->
-      <div v-if="!state.isLoading" class="grid grid-cols-5 gap-4">
+      <div v-if="!state.isLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
         <NCard
             v-for="item in paginatedItems"
             :key="item.id"
             :class="[
-            'cursor-pointer transition-all hover:shadow-lg',
+            'cursor-pointer transition-all hover:shadow-lg h-full',
             state.selectedItem?.id === item.id.replace('keychain-', '') ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-65' : ''
           ]"
             :style="{
@@ -303,7 +464,7 @@ watch(() => state.value.customization.seed, (newSeed) => {
                 class="w-full h-24 object-contain mb-2"
                 loading="lazy"
             />
-            <p class="text-sm text-center truncate">{{ item.name }}</p>
+            <p class="text-sm text-center break-words">{{ item.name.replace(/^Charm \| /, '') }}</p>
             <div
                 class="h-1 w-full mt-2"
                 :style="{ background: item.rarity?.color || '#313030' }"
@@ -319,7 +480,7 @@ watch(() => state.value.customization.seed, (newSeed) => {
 
       <!-- Empty State -->
       <div
-          v-if="!state.isLoading && filteredItems.length === 0"
+          v-if="!state.isLoading && sortedItems.length === 0"
           class="flex justify-center items-center h-64 text-gray-400"
       >
         {{ t('modals.keychain.noSearchResults') }}
