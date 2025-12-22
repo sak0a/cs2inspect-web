@@ -25,8 +25,6 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-// Removed NCard import since we're no longer wrapping with a card
 import {
   Chart as ChartJS,
   CategoryScale,

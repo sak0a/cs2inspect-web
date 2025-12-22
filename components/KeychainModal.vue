@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
-import { useMessage } from 'naive-ui'
-import type { APIKeychain } from "~/server/utils/interfaces";
+import type { APIKeychain, IEnhancedWeaponKeychain } from "~/server/utils/interfaces";
+import { useMessage } from "naive-ui";
 import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
@@ -13,7 +12,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', keychain: APIKeychain): void
+  (e: 'select', keychain: IEnhancedWeaponKeychain | null): void
 }>()
 
 const { t } = useI18n()
@@ -174,8 +173,8 @@ const handleSelect = (item: APIKeychain) => {
 const handleSave = () => {
   if (!state.value.selectedItem) return
 
-  const emitData = {
-    id: state.value.selectedItem.id.replace('keychain-', ''),
+  const emitData: IEnhancedWeaponKeychain = {
+    id: Number(state.value.selectedItem.id.replace('keychain-', '')),
     x: state.value.customization.x,
     y: state.value.customization.y,
     z: state.value.customization.z,
@@ -191,7 +190,8 @@ const handleSave = () => {
 }
 
 const digitOnlyInputProps = {
-  inputmode: 'numeric', pattern: '\\d*',
+  inputmode: 'numeric' as const, 
+  pattern: '\\d*',
   onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
   onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
 }
@@ -231,10 +231,10 @@ watchEffect(() => {
   if (props.currentKeychain) {
     state.value.selectedItem = state.value.items.find(item => item.id === ("keychain-"+ props.currentKeychain?.id))
     state.value.customization = {
-      x: props.currentKeychain.x,
-      y: props.currentKeychain.y,
-      z: props.currentKeychain.z,
-      seed: props.currentKeychain.seed
+      x: props.currentKeychain.x ?? 0,
+      y: props.currentKeychain.y ?? 0,
+      z: props.currentKeychain.z ?? 0,
+      seed: props.currentKeychain.seed ?? 0
     }
   }
 })
@@ -243,10 +243,10 @@ watchEffect(() => {
 watch(() => props.currentKeychain, (newKeychain) => {
   if (newKeychain) {
     state.value.customization = {
-      x: newKeychain.x,
-      y: newKeychain.y,
-      z: newKeychain.z,
-      seed: newKeychain.seed
+      x: newKeychain.x ?? 0,
+      y: newKeychain.y ?? 0,
+      z: newKeychain.z ?? 0,
+      seed: newKeychain.seed ?? 0
     }
   }
 }, { immediate: true })

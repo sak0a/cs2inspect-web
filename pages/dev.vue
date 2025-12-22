@@ -1,8 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { NInputNumber, NSpace, NCard, NH2, NText } from 'naive-ui'
-import ThemeProvider from '~/components/ThemeProvider.vue'
 
 const router = useRouter()
 const isDev = import.meta.env.DEV

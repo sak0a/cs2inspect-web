@@ -11,12 +11,8 @@ import type {
 // Legacy imports for backward compatibility
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
 
-import { ref, computed } from 'vue'
-import { useMessage, NModal, NInput, NPagination, NCard, NSpace, NEmpty, NInputNumber, NSwitch, NButton, NSelect, NSkeleton } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import { steamAuth } from "~/services/steamAuth"
-import DuplicateItemConfirmModal from "~/components/DuplicateItemModal.vue"
-import ResetModal from "~/components/ResetModal.vue"
-import VisualCustomizerModal from "~/components/VisualCustomizerModal.vue"
 import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
 
 /**
@@ -761,7 +757,8 @@ const handleVisualCustomizerWearUpdate = (wearValue: number) => {
 }
 
 const digitOnlyInputProps = {
-  inputmode: 'numeric', pattern: '\\d*',
+  inputmode: 'numeric' as const, 
+  pattern: '\\d*',
   onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
   onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
 }

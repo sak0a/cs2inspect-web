@@ -6,8 +6,6 @@ import type {
   IEnhancedGlove
 } from '~/types'
 
-import { ref, onMounted, computed } from 'vue'
-
 /**
  * Props interface for GloveTabs component
  */

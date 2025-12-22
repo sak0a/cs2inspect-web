@@ -93,8 +93,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { NSpace, NCard, NButton, NIcon, NSelect, NSpin } from 'naive-ui';
 import { ArrowLeft as ArrowLeftIcon } from '@vicons/tabler';
 
 // Use a simple layout without authentication

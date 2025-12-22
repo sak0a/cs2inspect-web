@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { NModal, NButton, NInput, NSpin, NSpace, NInputNumber, NSlider, NSelect, useMessage } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
-import WearSlider from '~/components/WearSlider.vue'
 import type { VisualCustomizerProps, VisualCustomizerEvents, CanvasElement, CanvasState } from '~/types/canvas'
 import {
   stickerToCanvasElement,
@@ -17,6 +15,7 @@ import {
   getExternalNormalizationRefs
 } from '~/utils/canvasCoordinates'
 import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
+
 
 const props = defineProps<VisualCustomizerProps>()
 const emit = defineEmits<VisualCustomizerEvents>()

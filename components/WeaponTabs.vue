@@ -4,8 +4,6 @@
 // Modern type imports
 import type { DBWeapon, WeaponItemData, IEnhancedWeapon } from "~/types"
 
-import { ref, onMounted, computed } from 'vue'
-
 /**
  * Props interface for WeaponTabs component
  */

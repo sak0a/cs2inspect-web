@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, watchEffect } from 'vue'
 import { useMessage } from 'naive-ui'
-import type { APISticker } from "~/server/utils/interfaces";
+import type { APISticker, IEnhancedWeaponSticker } from "~/server/utils/interfaces";
 import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
@@ -23,7 +23,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select', sticker: APISticker): void
+  (e: 'select', sticker: IEnhancedWeaponSticker | null): void
 }>()
 
 const { t } = useI18n()
@@ -57,7 +57,8 @@ const teamBadgeClasses = computed(() => {
 })
 
 const digitOnlyInputProps = {
-  inputmode: 'numeric', pattern: '\\d*',
+  inputmode: 'numeric' as const, 
+  pattern: '\\d*',
   onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
   onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
 }
@@ -274,8 +275,9 @@ const handleSelect = (item: APISticker) => {
 const handleSave = () => {
   if (!state.value.selectedItem) return
 
-  const emitData = {
-    id: state.value.selectedItem.id.replace('sticker-', ''),
+  const emitData: IEnhancedWeaponSticker = {
+    id: Number(state.value.selectedItem.id.replace('sticker-', '')),
+    slot: props.position,
     x: state.value.customization.x,
     y: state.value.customization.y,
     wear: state.value.customization.wear,
@@ -286,8 +288,8 @@ const handleSave = () => {
       image: state.value.selectedItem.image,
       type: state.value.selectedItem.type,
       effect: state.value.selectedItem.effect,
-      tournament_event: state.value.selectedItem.tournament_event,
-      tournament_team: state.value.selectedItem.tournament_team,
+      tournament_event: state.value.selectedItem.tournament_event || '',
+      tournament_team: state.value.selectedItem.tournament_team || '',
       rarity: state.value.selectedItem.rarity,
     }
   };

@@ -11,7 +11,6 @@ import type {
 // Legacy imports for backward compatibility
 import type { IEnhancedItem } from '~/server/utils/interfaces'
 
-import { computed } from 'vue'
 /**
  * Props interface using new type system with backward compatibility
  */

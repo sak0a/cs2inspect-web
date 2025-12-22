@@ -5,8 +5,6 @@ import type {
   DBKnife
 } from '~/types'
 
-import { ref, onMounted, computed } from 'vue'
-
 /**
  * Props interface for KnifeTabs component
  */

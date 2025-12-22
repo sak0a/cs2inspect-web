@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import { useMessage} from 'naive-ui'
 import { steamAuth } from '~/services/steamAuth'

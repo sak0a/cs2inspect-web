@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
 import { useMessage } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 import { useInspectItem } from '~/composables/useInspectItem'

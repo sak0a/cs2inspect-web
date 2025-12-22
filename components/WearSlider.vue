@@ -57,8 +57,6 @@ v-for="(label, value) in WEARS"
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
-
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void

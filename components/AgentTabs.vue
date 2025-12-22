@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { computed } from 'vue'
 import type { APIAgent } from "~/server/utils/interfaces";
 
 const props = defineProps({
