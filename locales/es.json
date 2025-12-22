@@ -190,6 +190,14 @@
         "cancel": "Cancelar",
         "formPlaceholder": "Introduce un nombre para tu nuevo loadout"
       },
+      "import": {
+        "title": "Importar Loadout",
+        "description": "Introduce un código para importar un loadout.",
+        "placeholder": "Código Compartido",
+        "cancel": "Cancelar",
+        "confirm": "Importar",
+        "success": "Loadout importado correctamente"
+      },
       "rename": {
         "title": "Renombrar loadout",
         "confirm": "Renombrar",
@@ -204,6 +212,27 @@
         "warning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
         "confirmText": "Escribe '{name}' para confirmar la eliminación:",
         "confirmPlaceholder": "Introduce el nombre del loadout para confirmar"
+      },
+      "clear": {
+        "title": "Vaciar items del Loadout",
+        "question": "¿Estás seguro de que quieres vaciar los items de este loadout?",
+        "selectCategories": "Selecciona las categorías para vaciar:",
+        "warning": "¡Esta acción no se puede deshacer!",
+        "confirmText": "Por favor escribe \"{name}\" para confirmar.",
+        "confirmPlaceholder": "Escribe el nombre del loadout para confirmar",
+        "cancel": "Cancelar",
+        "confirm": "Vaciar Items",
+        "successMessage": "Items del loadout vaciados correctamente"
+      },
+      "share": {
+        "title": "Compartir Loadout",
+        "description": "Copia el código siguiente para compartir este loadout:"
+      },
+      "duplicate": {
+        "success": "Loadout duplicado correctamente"
+      },
+      "default": {
+        "success": "Loadout predeterminado establecido correctamente"
       }
     },
     "weaponSkin": {
@@ -343,7 +372,16 @@
     "confirmDeleteWarning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
     "nameRequired": "Por favor, introduce un nombre de loadout",
     "nameTooLong": "El nombre del loadout debe tener menos de 20 caracteres",
-    "selectLoadoutFirst": "Por favor, selecciona primero un loadout"
+    "selectLoadoutFirst": "Por favor, selecciona primero un loadout",
+    "import": "Importar",
+    "actions": {
+      "rename": "Renombrar",
+      "duplicate": "Duplicar",
+      "share": "Compartir",
+      "setDefault": "Marcar como predeterminado",
+      "clear": "Vaciar Loadout",
+      "delete": "Eliminar"
+    }
   },
   "auth": {
     "loginButton": "Iniciar sesión",

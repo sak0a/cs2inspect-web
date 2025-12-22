@@ -381,6 +381,110 @@ export const useLoadoutStore = defineStore('loadout', {
             } finally {
                 this.isLoading = false;
             }
+        },
+
+        async duplicateLoadout(steamId: string, loadoutId: string) {
+            this.isLoading = true;
+            await fetch('/api/loadouts/duplicate', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ steamId, loadoutId })
+            }).then(async (res) => {
+                if (!res.ok) throw new Error('Failed to duplicate loadout');
+                await this.fetchLoadouts(steamId);
+            }).finally(() => this.isLoading = false);
+        },
+
+        async shareLoadout(steamId: string, loadoutId: string): Promise<string> {
+            this.isLoading = true;
+            try {
+                const res = await fetch('/api/loadouts/share', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steamId, loadoutId })
+                });
+                if (!res.ok) throw new Error('Failed to share loadout');
+                const data = await res.json();
+                return data.data.shareCode;
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async setLoadoutAsDefault(steamId: string, loadoutId: string) {
+            this.isLoading = true;
+            await fetch('/api/loadouts/default', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ steamId, loadoutId })
+            }).then(async (res) => {
+                if (!res.ok) throw new Error('Failed to set default loadout');
+                await this.fetchLoadouts(steamId);
+            }).finally(() => this.isLoading = false);
+        },
+
+        async clearLoadout(steamId: string, loadoutId: string, categories: string[] = []) {
+            this.isLoading = true;
+            try {
+                const response = await fetch('/api/loadouts/clear', {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steamId, loadoutId, categories })
+                });
+
+                if (!response.ok) throw new Error('Failed to clear loadout');
+
+                // Refresh current skins if the cleared loadout is selected AND we cleared relevant categories
+                // For simplicity, just refresh if selected
+                if (this.selectedLoadoutId === loadoutId) {
+                    // Logic to clear specific items from store if needed, or just fetch again?
+                    // Fetching again is safer but expensive?
+                    // clearing currentSkins entirely is aggressive if we only cleared "Pistols" and we are viewing "Knives".
+                    // But currentSkins usually holds items of ONE type (e.g. knives). 
+                    // If we clear "Pistols", currentSkins (Knives) should be fine.
+                    // If we clear "Knives" and we are viewing Knives, we should clear currentSkins.
+                    // Let's just trust the user navigation or generic refresh.
+
+                    // Actually, let's keep it simple: if clearing ALL (categories matches nothing?), or clearing the current View's type...
+                    // But store doesn't easily know current "View Type" (it's in component state or URL).
+                    // We can just leave `currentSkins` alone and let the user navigate/refresh, OR clear it if "Clear All".
+                    if (categories.length === 0) {
+                        this.currentSkins = [];
+                    }
+                }
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
+        async importLoadout(steamId: string, shareCode: string) {
+            this.isLoading = true;
+            try {
+                const response = await fetch('/api/loadouts/import', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ steamId, shareCode })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json();
+                    throw new Error(data.message || 'Failed to import loadout');
+                }
+
+                const data = await response.json();
+
+                await this.fetchLoadouts(steamId);
+                // Select the new loadout
+                if (data.data && data.data.id) {
+                    this.selectedLoadoutId = data.data.id;
+                }
+            } finally {
+                this.isLoading = false;
+            }
         }
     }
 });

@@ -1392,7 +1392,7 @@ type="success" secondary :class="[
       />
 
       <!-- Duplicate Modal -->
-      <DuplicateItemConfirmModal
+      <DuplicateItemModal
           v-model:visible="state.showDuplicateConfirm"
           :loading="state.isDuplicating"
           :other-team-has-skin="otherTeamHasSkin"

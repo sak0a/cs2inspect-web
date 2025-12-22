@@ -190,6 +190,14 @@
         "cancel": "Cancel",
         "formPlaceholder": "Enter a name for your new loadout"
       },
+      "import": {
+        "title": "Import Loadout",
+        "description": "Enter a share code to import a loadout.",
+        "placeholder": "Share Code",
+        "cancel": "Cancel",
+        "confirm": "Import",
+        "success": "Loadout imported successfully"
+      },
       "rename": {
         "title": "Rename Loadout",
         "confirm": "Rename",
@@ -204,6 +212,27 @@
         "warning": "All Skins from this Loadout will be deleted and can't be restored",
         "confirmText": "Type '{name}' to confirm deletion:",
         "confirmPlaceholder": "Enter loadout name to confirm"
+      },
+      "clear": {
+        "title": "Clear Loadout Items",
+        "question": "Are you sure you want to clear items from this loadout?",
+        "selectCategories": "Select categories to clear:",
+        "warning": "This action cannot be undone!",
+        "confirmText": "Please type \"{name}\" to confirm.",
+        "confirmPlaceholder": "Enter loadout name to confirm",
+        "cancel": "Cancel",
+        "confirm": "Clear Items",
+        "successMessage": "Loadout items cleared successfully"
+      },
+      "share": {
+        "title": "Share Loadout",
+        "description": "Copy the code below to share this loadout with others:"
+      },
+      "duplicate": {
+        "success": "Loadout duplicated successfully"
+      },
+      "default": {
+        "success": "Default loadout set successfully"
       }
     },
     "weaponSkin": {
@@ -337,13 +366,22 @@
   },
   "loadout": {
     "create": "Create Loadout",
+    "import": "Import",
     "select": "Select a loadout",
     "createDefault": "Create Default Loadout",
     "confirmDelete": "Are you sure you want to delete this loadout?",
     "confirmDeleteWarning": "All Skins from this Loadout will be deleted and can't be restored",
     "nameRequired": "Please enter a loadout name",
     "nameTooLong": "Loadout name must be less than 20 characters",
-    "selectLoadoutFirst": "Please select a loadout first"
+    "selectLoadoutFirst": "Please select a loadout first",
+    "actions": {
+      "rename": "Rename",
+      "duplicate": "Duplicate",
+      "share": "Share",
+      "setDefault": "Set as Default",
+      "clear": "Clear Loadout",
+      "delete": "Delete"
+    }
   },
   "auth": {
     "loginButton": "Sign In",
@@ -354,6 +392,9 @@
     "rejectAction": "Sign In to execute this action",
     "authenticating": "Authenticating...",
     "openSteamProfile": "Open Steam profile"
+  },
+  "general": {
+    "copiedToClipboard": "Copied to clipboard"
   },
   "common": {
     "loading": "Loading...",

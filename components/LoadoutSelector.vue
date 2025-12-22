@@ -1,10 +1,21 @@
 <script setup lang="ts">
 import { useLoadoutStore } from '~/stores/loadoutStore'
-import { useMessage} from 'naive-ui'
+import { useMessage, NIcon } from 'naive-ui'
 import { steamAuth } from '~/services/steamAuth'
-import { Trash as DeleteIcon, Edit as RenameIcon, Plus as NewIcon } from '@vicons/tabler'
+import type { DBLoadout } from '~/server/utils/interfaces'
+import {
+  Trash as DeleteIcon,
+  Edit as RenameIcon,
+  Plus as NewIcon,
+  Copy as DuplicateIcon,
+  Share as ShareIcon,
+  Star as DefaultIcon,
+  Eraser as ClearIcon,
+  Download as ImportIcon,
+  DotsVertical as MenuIcon
+} from '@vicons/tabler'
+import { Star as DefaultFilledIcon } from '@vicons/ionicons5'
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
-
 
 const loadoutStore = useLoadoutStore()
 const { t } = useI18n()
@@ -16,17 +27,25 @@ const previousLoadoutId = ref<string | null>(null)
 const showModal = ref({
   create: false,
   rename: false,
-  delete: false
+  delete: false,
+  share: false,
+  clear: false,
+  import: false
 })
 
 const formInputs = ref({
   newName: '',
   renameName: '',
-  deleteConfirm: ''
+  deleteConfirm: '',
+  shareCode: '',
+  clearConfirm: '',
+  importCode: '',
+  clearCategories: ['Knives', 'Gloves', 'Pistols', 'Rifles', 'SMGs', 'Heavys', 'Agents', 'Music', 'Pins']
 })
 
+const availableCategories = ['Knives', 'Gloves', 'Pistols', 'Rifles', 'SMGs', 'Heavys', 'Agents', 'Music', 'Pins']
 
-const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
+const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete' | 'duplicate' | 'share' | 'default' | 'clear' | 'import') => {
   const user = steamAuth.getSavedUser()
 
   if (!user) {
@@ -34,44 +53,68 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
     return
   }
 
+  const loadoutId = loadoutStore.selectedLoadoutId
+  // Import and Create don't need a selected loadout
+  if (!['create', 'import'].includes(action) && !loadoutId) {
+     message.error(t('common.pleaseSelectLoadout') as string, { duration: 2 })
+     return
+  }
+
   try {
     switch (action) {
       case 'create':
         await loadoutStore.createLoadout(user.steamId, formInputs.value.newName)
-            .catch((error) => {
-              throw error
-            })
         break
-      case 'rename': {
-        const loadoutId = loadoutStore.selectedLoadoutId
-        if (!loadoutId) {
-          throw new Error('No loadout selected')
-        }
-        await loadoutStore.updateLoadout(loadoutId, user.steamId, formInputs.value.renameName)
-            .catch((error) => {
-              throw error
-            })
+      case 'import':
+        await loadoutStore.importLoadout(user.steamId, formInputs.value.importCode)
+        message.success(t('modals.loadout.import.success') as string, { duration: 2 })
         break
+      case 'rename':
+        await loadoutStore.updateLoadout(loadoutId!, user.steamId, formInputs.value.renameName)
+        break
+      case 'delete':
+        await loadoutStore.deleteLoadout(user.steamId, loadoutId!)
+        break
+      case 'duplicate':
+        await loadoutStore.duplicateLoadout(user.steamId, loadoutId!)
+        message.success(t('modals.loadout.duplicate.success') as string, { duration: 2 })
+        return
+      case 'share': {
+        const code = await loadoutStore.shareLoadout(user.steamId, loadoutId!)
+        formInputs.value.shareCode = code
+        showModal.value.share = true
+        return
       }
-      case 'delete': {
-        const loadoutId = loadoutStore.selectedLoadoutId
-        if (!loadoutId) {
-          throw new Error('No loadout selected')
-        }
-        await loadoutStore.deleteLoadout(user.steamId, loadoutId)
-            .catch((error) => {
-              throw error
-            })
+      case 'default':
+        await loadoutStore.setLoadoutAsDefault(user.steamId, loadoutId!)
+        message.success(t('modals.loadout.default.success') as string, { duration: 2 })
+        return
+      case 'clear':
+        await loadoutStore.clearLoadout(user.steamId, loadoutId!, formInputs.value.clearCategories)
         break
-      }
     }
-    formInputs.value.newName = ''
-    formInputs.value.renameName = ''
-    formInputs.value.deleteConfirm = ''
-    showModal.value[action] = false
-    message.success(t('modals.loadout.successMessage', { action: action }) as string, { duration: 2 })
+
+    // Reset forms and close modals
+    if (['create', 'rename', 'delete', 'clear', 'import'].includes(action)) {
+        formInputs.value.newName = ''
+        formInputs.value.renameName = ''
+        formInputs.value.deleteConfirm = ''
+        formInputs.value.clearConfirm = ''
+        formInputs.value.importCode = ''
+        // Reset categories to all checked by default for next time
+        formInputs.value.clearCategories = [...availableCategories]
+        
+        // @ts-ignore - dynamic access
+        showModal.value[action] = false
+        
+        // Success message for non-import/duplicate/share/default (handled above or existing logic)
+        if (!['duplicate', 'share', 'default', 'import'].includes(action)) {
+             message.success(t(`modals.loadout.${action}.successMessage`) as string, { duration: 2 })
+        }
+    }
+
   } catch (error: unknown) {
-    console.log(error)
+    console.error(error)
     const errorMessage = error instanceof Error ? error.message : 'An error occurred'
     message.error(errorMessage, { duration: 3, closable: true })
   }
@@ -79,18 +122,14 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete') => {
 
 // Watch for loadout selection changes and activate the selected loadout
 watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) => {
-  // Skip if this is the initial load (oldLoadoutId is null) or if the ID hasn't actually changed
   if (!newLoadoutId || newLoadoutId === oldLoadoutId || newLoadoutId === previousLoadoutId.value) {
     return
   }
 
   const user = steamAuth.getSavedUser()
-  if (!user) {
-    return
-  }
+  if (!user) return
 
-  // Check if the selected loadout is already active
-  const selectedLoadout = loadoutStore.loadouts.find(l => l.id === newLoadoutId)
+  const selectedLoadout = loadoutStore.loadouts.find((l: DBLoadout) => l.id === newLoadoutId)
   if (selectedLoadout && (selectedLoadout.active === true || selectedLoadout.active === 1)) {
     previousLoadoutId.value = newLoadoutId
     return
@@ -101,7 +140,6 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
     previousLoadoutId.value = newLoadoutId
   } catch (error: unknown) {
     console.error('Failed to activate loadout:', error)
-    // Revert to previous loadout on error
     if (oldLoadoutId) {
       loadoutStore.selectedLoadoutId = oldLoadoutId
     }
@@ -110,17 +148,48 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
   }
 })
 
+const copyToClipboard = () => {
+    navigator.clipboard.writeText(formInputs.value.shareCode)
+    message.success(t('general.copiedToClipboard') as string)
+}
+
+const dropdownOptions = computed(() => {
+    // Check if current loadout is default
+    const isDefault = loadoutStore.selectedLoadout?.is_default === 1 || loadoutStore.selectedLoadout?.is_default === true;
+    
+    return [
+      { label: t('loadout.actions.rename'), key: 'rename', icon: () => h(NIcon, null, { default: () => h(RenameIcon) }) },
+      { label: t('loadout.actions.duplicate'), key: 'duplicate', icon: () => h(NIcon, null, { default: () => h(DuplicateIcon) }) },
+      { label: t('loadout.actions.share'), key: 'share', icon: () => h(NIcon, null, { default: () => h(ShareIcon) }) },
+      { 
+          label: t('loadout.actions.setDefault'), 
+          key: 'default', 
+          icon: () => h(NIcon, { color: '#f59e0b' }, { default: () => h(isDefault ? DefaultFilledIcon : DefaultIcon) }) 
+      },
+      { type: 'divider', key: 'd1' },
+      { label: t('loadout.actions.clear'), key: 'clear', icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(ClearIcon) }) }, // Red
+      { label: t('loadout.actions.delete'), key: 'delete', icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(DeleteIcon) }) } // Red
+    ]
+})
+
+const menuProps = () => ({ class: 'glassmorphism-dropdown' })
+
+const handleDropdownSelect = (key: string) => {
+    if (key === 'rename') showModal.value.rename = true
+    else if (key === 'delete') showModal.value.delete = true
+    else if (key === 'clear') showModal.value.clear = true
+    else handleLoadoutAction(key as any)
+}
 </script>
 
 <template>
-  <!-- Main Loadout Selector -->
   <NSpace vertical>
     <NSpace align="center">
       <NSelect
           v-if="loadoutStore.hasLoadouts"
           v-model:value="loadoutStore.selectedLoadoutId"
-          :options="loadoutStore.loadouts.map(loadout => ({
-            label: loadout.name,
+          :options="loadoutStore.loadouts.map((loadout: DBLoadout) => ({
+            label: loadout.name + (loadout.is_default ? ' (Default)' : ''),
             value: loadout.id
           }))"
           :placeholder="t('loadout.select') as string"
@@ -129,12 +198,16 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
       />
 
       <template v-if="loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId">
-        <NButton strong circle type="default" secondary :loading="loadoutStore.isLoading" @click="showModal.rename = true">
-          <template #icon><NIcon><RenameIcon /></NIcon></template>
-        </NButton>
-        <NButton strong circle type="error" secondary @click="showModal.delete = true">
-          <template #icon><NIcon><DeleteIcon /></NIcon></template>
-        </NButton>
+          <NDropdown 
+              trigger="click" 
+              :options="dropdownOptions" 
+              @select="handleDropdownSelect"
+              :menu-props="menuProps"
+          >
+              <NButton circle strong secondary>
+                  <template #icon><NIcon><MenuIcon /></NIcon></template>
+              </NButton>
+          </NDropdown>
       </template>
 
       <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="success" :secondary="loadoutStore.hasLoadouts" :loading="loadoutStore.isLoading" @click="showModal.create = true">
@@ -145,10 +218,14 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
           {{ t('loadout.create') }}
         </template>
       </NButton>
+
+      <NButton size="medium" circle strong secondary type="info" @click="showModal.import = true" :title="t('loadout.import')">
+          <template #icon><NIcon><ImportIcon /></NIcon></template>
+      </NButton>
     </NSpace>
   </NSpace>
 
-  <!-- Create Modal -->
+  <!-- Create Modal (Existing) -->
   <NModal
       v-model:show="showModal.create"
       preset="card"
@@ -175,7 +252,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
     </template>
   </NModal>
 
-  <!-- Rename Modal -->
+  <!-- Rename Modal (Existing) -->
   <NModal
       v-model:show="showModal.rename"
       :bordered="false"
@@ -202,7 +279,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
     </template>
   </NModal>
 
-  <!-- Delete Modal -->
+  <!-- Delete Modal (Existing) -->
   <NModal
       v-model:show="showModal.delete"
       preset="card"
@@ -215,7 +292,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
     <p>{{ t('modals.loadout.delete.question') }}</p>
     <p class="font-bold">{{ t('modals.loadout.delete.warning') }}</p>
     <div class="mt-4">
-      <p class="mb-2">{{ t('modals.loadout.delete.confirmText', { name: loadoutStore.selectedLoadout?.name }) }}</p>
+      <p class="mb-2">{{ t('modals.loadout.delete.confirmText', { name: loadoutStore.selectedLoadout?.name || '' }) }}</p>
       <NInput
           v-model:value="formInputs.deleteConfirm"
           :minlength="1"
@@ -238,7 +315,118 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
       </div>
     </template>
   </NModal>
+
+  <!-- Clear Modal (Updated) -->
+  <NModal
+      v-model:show="showModal.clear"
+      preset="card"
+      :bordered="false"
+      style="width: 500px"
+      :title="t('modals.loadout.clear.title') as string"
+      :theme-overrides="skinModalThemeOverrides"
+      @after-leave="formInputs.clearConfirm = ''"
+  >
+    <p>{{ t('modals.loadout.clear.question') }}</p>
+    
+    <div class="my-4">
+        <p class="mb-2 font-bold">{{ t('modals.loadout.clear.selectCategories') }}</p>
+        <NCheckboxGroup v-model:value="formInputs.clearCategories">
+            <NSpace item-style="display: flex;">
+                <NCheckbox v-for="cat in availableCategories" :key="cat" :value="cat" :label="cat" />
+            </NSpace>
+        </NCheckboxGroup>
+    </div>
+
+    <p class="font-bold text-red-500">{{ t('modals.loadout.clear.warning') }}</p>
+    <div class="mt-4">
+        <p class="mb-2">{{ t('modals.loadout.clear.confirmText', { name: loadoutStore.selectedLoadout?.name || '' }) }}</p>
+        <NInput
+            v-model:value="formInputs.clearConfirm"
+            :placeholder="t('modals.loadout.clear.confirmPlaceholder') as string"
+        />
+    </div>
+    <template #footer>
+      <div class="flex justify-end gap-4">
+        <NButton type="default" secondary @click="showModal.clear = false">
+          {{ t('modals.loadout.clear.cancel') }}
+        </NButton>
+        <NButton
+            type="error"
+            secondary
+            :disabled="formInputs.clearConfirm !== loadoutStore.selectedLoadout?.name || formInputs.clearCategories.length === 0"
+            @click="handleLoadoutAction('clear')"
+        >
+          {{ t('modals.loadout.clear.confirm') }}
+        </NButton>
+      </div>
+    </template>
+  </NModal>
+
+  <!-- Share Modal (Existing) -->
+  <NModal
+      v-model:show="showModal.share"
+      preset="card"
+      :bordered="false"
+      style="width: 400px"
+      :title="t('modals.loadout.share.title') as string"
+      :theme-overrides="skinModalThemeOverrides"
+  >
+      <div class="flex flex-col gap-4">
+          <p>{{ t('modals.loadout.share.description') }}</p>
+          <NInputGroup>
+              <NInput v-model:value="formInputs.shareCode" readonly />
+              <NButton type="primary" ghost @click="copyToClipboard">
+                  <template #icon><NIcon><DuplicateIcon /></NIcon></template>
+              </NButton>
+          </NInputGroup>
+      </div>
+  </NModal>
+
+  <!-- Import Modal (New) -->
+  <NModal
+      v-model:show="showModal.import"
+      preset="card"
+      :bordered="false"
+      style="width: 500px"
+      :title="t('modals.loadout.import.title') as string"
+      :theme-overrides="skinModalThemeOverrides"
+      @after-leave="formInputs.importCode = ''"
+  >
+      <div class="flex flex-col gap-4">
+          <p>{{ t('modals.loadout.import.description') }}</p>
+          <NInput
+              v-model:value="formInputs.importCode"
+              :placeholder="t('modals.loadout.import.placeholder') as string"
+          />
+      </div>
+      <template #footer>
+          <div class="flex justify-end gap-4">
+              <NButton type="default" secondary @click="showModal.import = false">
+                  {{ t('modals.loadout.import.cancel') }}
+              </NButton>
+              <NButton type="success" secondary :disabled="!formInputs.importCode" @click="handleLoadoutAction('import')">
+                  {{ t('modals.loadout.import.confirm') }}
+              </NButton>
+          </div>
+      </template>
+  </NModal>
 </template>
+<style>
+.glassmorphism-dropdown {
+    background-color: var(--glass-bg-primary, rgba(16, 16, 16, 0.6)) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08)) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+}
+.glassmorphism-dropdown .n-dropdown-option {
+    color: white !important;
+}
+.glassmorphism-dropdown .n-dropdown-option:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+</style>
 <style lang="sass" scoped>
 
 </style>
