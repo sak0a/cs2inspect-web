@@ -38,6 +38,23 @@ export default defineNuxtConfig({
     layoutTransition: {
       name: 'layout',
       mode: 'out-in'
+    },
+    head: {
+      titleTemplate: '%s | CS2 Inspect',
+      title: 'CS2 Inspect',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.' },
+        { name: 'theme-color', content: '#000000' },
+        { property: 'og:title', content: 'CS2 Inspect' },
+        { property: 'og:description', content: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.' },
+        { property: 'og:type', content: 'website' },
+        // { property: 'og:image', content: '/og-image.png' }, // TODO: Add OG Image
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
+      ]
     }
   },
   css: [
@@ -93,7 +110,42 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@pinia/nuxt',
     'nuxt-i18n-micro',
+    '@nuxtjs/seo',
+    '@vite-pwa/nuxt',
   ],
+  site: {
+    url: 'https://cs2inspect.com',
+    name: 'CS2 Inspect',
+    description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
+    defaultLocale: 'en',
+  },
+  pwa: {
+    manifest: {
+      name: 'CS2 Inspect',
+      short_name: 'CS2 Inspect',
+      description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
+      theme_color: '#000000',
+      icons: [
+        {
+          src: 'android-chrome-192x192.png',
+          sizes: '192x192',
+          type: 'image/png',
+        },
+        {
+          src: 'android-chrome-512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ],
+    },
+    workbox: {
+      navigateFallback: '/',
+    },
+    devOptions: {
+      enabled: true,
+      type: 'module',
+    },
+  },
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', displayName: 'English' },
@@ -109,12 +161,12 @@ export default defineNuxtConfig({
     localeCookie: 'i18n_locale',
     strategy: 'no_prefix'
   },
-    hooks: {
+  hooks: {
     'close': async () => {
-        setTimeout(() => {
-            console.log("Closing...")
-            process.exit(0)
-        }, 1000)
+      setTimeout(() => {
+        console.log("Closing...")
+        process.exit(0)
+      }, 1000)
     }
   },
   compatibilityDate: '2024-10-12'
