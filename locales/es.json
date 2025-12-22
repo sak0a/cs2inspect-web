@@ -41,7 +41,6 @@
     "noSkinsAvailable": "No hay skins disponibles para este loadout",
     "selectSkin": "Seleccionar skin para {weapon}"
   },
-
   "modals": {
     "logout": {
       "title": "Confirmar cierre de sesión",
@@ -84,7 +83,7 @@
         "duplicate": "Duplicar al otro equipo",
         "reset": "Restablecer"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Buscar skins...",
         "nameTagPlaceholder": "Etiqueta de nombre"
       },
@@ -114,7 +113,7 @@
         "duplicate": "Duplicar al otro equipo",
         "reset": "Restablecer"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Buscar skins...",
         "nameTagPlaceholder": "Etiqueta de nombre"
       },
@@ -148,7 +147,11 @@
       },
       "delete": "Eliminar llavero",
       "errorFetching": "Error al obtener los datos del llavero",
-      "noSearchResults": "No se encontraron llaveros"
+      "noSearchResults": "No se encontraron llaveros",
+      "sort": {
+        "name": "Nombre",
+        "rarity": "Rareza"
+      }
     },
     "sticker": {
       "titleEdit": "Editar pegatina",
@@ -213,7 +216,11 @@
         "save": "Guardar cambios",
         "duplicate": "Duplicar al otro equipo"
       },
-      "inputs":{
+      "team": {
+        "terrorist": "Terrorista",
+        "counterTerrorist": "Contraterrorista"
+      },
+      "inputs": {
         "searchPlaceholder": "Buscar skins...",
         "nameTagPlaceholder": "Etiqueta de nombre"
       },
@@ -229,14 +236,24 @@
       "stickers": {
         "title": "Pegatinas",
         "add": "Añadir pegatina",
-        "reposition": "Arrastrar para reposicionar"
+        "reposition": "Arrastrar para reposicionar",
+        "remove": "Eliminar pegatina"
       },
       "keychain": {
         "title": "Llavero",
-        "add": "Añadir llavero"
+        "add": "Añadir llavero",
+        "remove": "Eliminar llavero"
       },
       "visualCustomizer": {
         "button": "Personalizador visual"
+      },
+      "sort": {
+        "label": "Ordenar",
+        "name": "Nombre",
+        "rarity": "Rareza"
+      },
+      "filters": {
+        "rarity": "Rareza"
       },
       "importFailedDefault": "Error al importar la configuración del arma",
       "importFailedNoMatchingWeapon": "La URL de inspección no coincide con el arma seleccionada",
@@ -318,7 +335,6 @@
       }
     }
   },
-
   "loadout": {
     "create": "Crear loadout",
     "select": "Seleccionar un loadout",
@@ -332,7 +348,6 @@
   "auth": {
     "loginButton": "Iniciar sesión",
     "logoutButton": "Cerrar sesión",
-
     "loginRequired": "Para acceder a este sitio web, por favor inicia sesión con tu cuenta de Steam.",
     "automaticallyLoggedOut": "Has sido desconectado automáticamente",
     "confirmLogout": "¿Estás seguro de que quieres cerrar sesión?",
@@ -353,7 +368,7 @@
     "search": "Buscar",
     "selectAll": "Seleccionar todo",
     "noResults": "No se encontraron resultados",
-    "pleaseSelectLoadout": "Por favor, selecciona primero un loadout"
+    "pleaseSelectLoadout": "Por favor, selecciona primero un loadout",
+    "for": "por"
   }
 }
-

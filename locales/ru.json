@@ -72,7 +72,7 @@
         "duplicate": "Дублировать для другой команды",
         "reset": "Сбросить"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Поиск скинов...",
         "nameTagPlaceholder": "Именной ярлык"
       },
@@ -102,7 +102,7 @@
         "duplicate": "Дублировать для другой команды",
         "reset": "Сбросить"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Поиск скинов...",
         "nameTagPlaceholder": "Именной ярлык"
       },
@@ -136,7 +136,11 @@
       },
       "delete": "Удалить брелок",
       "errorFetching": "Ошибка получения данных брелка",
-      "noSearchResults": "Брелки не найдены"
+      "noSearchResults": "Брелки не найдены",
+      "sort": {
+        "name": "Название",
+        "rarity": "Редкость"
+      }
     },
     "sticker": {
       "titleEdit": "Редактировать наклейку",
@@ -207,7 +211,11 @@
         "save": "Сохранить изменения",
         "duplicate": "Дублировать для другой команды"
       },
-      "inputs":{
+      "team": {
+        "terrorist": "Террористы",
+        "counterTerrorist": "Контр-террористы"
+      },
+      "inputs": {
         "searchPlaceholder": "Поиск скинов...",
         "nameTagPlaceholder": "Именной ярлык"
       },
@@ -223,14 +231,24 @@
       "stickers": {
         "title": "Наклейки",
         "add": "Добавить наклейку",
-        "reposition": "Перетащите для изменения позиции"
+        "reposition": "Перетащите для изменения позиции",
+        "remove": "Удалить наклейку"
       },
       "keychain": {
         "title": "Брелок",
-        "add": "Добавить брелок"
+        "add": "Добавить брелок",
+        "remove": "Удалить брелок"
       },
       "visualCustomizer": {
         "button": "Визуальный редактор"
+      },
+      "sort": {
+        "label": "Сортировка",
+        "name": "Название",
+        "rarity": "Редкость"
+      },
+      "filters": {
+        "rarity": "Редкость"
       },
       "importFailedDefault": "Ошибка импорта конфигурации оружия",
       "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному оружию",
@@ -350,6 +368,7 @@
     "search": "Поиск",
     "selectAll": "Выбрать всё",
     "noResults": "Результаты не найдены",
-    "pleaseSelectLoadout": "Сначала выберите снаряжение"
+    "pleaseSelectLoadout": "Сначала выберите снаряжение",
+    "for": "для"
   }
 }

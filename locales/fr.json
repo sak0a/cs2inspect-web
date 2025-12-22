@@ -41,7 +41,6 @@
     "noSkinsAvailable": "Aucun skin disponible pour ce loadout",
     "selectSkin": "Sélectionner un skin pour {weapon}"
   },
-
   "modals": {
     "logout": {
       "title": "Confirmer la déconnexion",
@@ -84,7 +83,7 @@
         "duplicate": "Dupliquer vers l'autre équipe",
         "reset": "Réinitialiser"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Rechercher des skins...",
         "nameTagPlaceholder": "Étiquette de nom"
       },
@@ -114,7 +113,7 @@
         "duplicate": "Dupliquer vers l'autre équipe",
         "reset": "Réinitialiser"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Rechercher des skins...",
         "nameTagPlaceholder": "Étiquette de nom"
       },
@@ -148,7 +147,11 @@
       },
       "delete": "Supprimer le porte-clés",
       "errorFetching": "Erreur lors de la récupération des données du porte-clés",
-      "noSearchResults": "Aucun porte-clés trouvé"
+      "noSearchResults": "Aucun porte-clés trouvé",
+      "sort": {
+        "name": "Nom",
+        "rarity": "Rareté"
+      }
     },
     "sticker": {
       "titleEdit": "Modifier l'autocollant",
@@ -213,7 +216,11 @@
         "save": "Enregistrer les modifications",
         "duplicate": "Dupliquer vers l'autre équipe"
       },
-      "inputs":{
+      "team": {
+        "terrorist": "Terroriste",
+        "counterTerrorist": "Contre-terroriste"
+      },
+      "inputs": {
         "searchPlaceholder": "Rechercher des skins...",
         "nameTagPlaceholder": "Étiquette de nom"
       },
@@ -229,14 +236,24 @@
       "stickers": {
         "title": "Autocollants",
         "add": "Ajouter un autocollant",
-        "reposition": "Glisser pour repositionner"
+        "reposition": "Glisser pour repositionner",
+        "remove": "Supprimer l'autocollant"
       },
       "keychain": {
         "title": "Porte-clés",
-        "add": "Ajouter un porte-clés"
+        "add": "Ajouter un porte-clés",
+        "remove": "Supprimer le porte-clés"
       },
       "visualCustomizer": {
         "button": "Personnalisateur visuel"
+      },
+      "sort": {
+        "label": "Trier",
+        "name": "Nom",
+        "rarity": "Rareté"
+      },
+      "filters": {
+        "rarity": "Rareté"
       },
       "importFailedDefault": "Échec de l'importation de la configuration de l'arme",
       "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas à l'arme sélectionnée",
@@ -318,7 +335,6 @@
       }
     }
   },
-
   "loadout": {
     "create": "Créer un loadout",
     "select": "Sélectionner un loadout",
@@ -332,7 +348,6 @@
   "auth": {
     "loginButton": "Se connecter",
     "logoutButton": "Déconnexion",
-
     "loginRequired": "Pour accéder à ce site web, veuillez vous connecter avec votre compte Steam.",
     "automaticallyLoggedOut": "Vous avez été automatiquement déconnecté",
     "confirmLogout": "Êtes-vous sûr de vouloir vous déconnecter ?",
@@ -353,7 +368,7 @@
     "search": "Rechercher",
     "selectAll": "Tout sélectionner",
     "noResults": "Aucun résultat trouvé",
-    "pleaseSelectLoadout": "Veuillez d'abord sélectionner un loadout"
+    "pleaseSelectLoadout": "Veuillez d'abord sélectionner un loadout",
+    "for": "pour"
   }
 }
-

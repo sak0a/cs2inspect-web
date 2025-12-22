@@ -41,7 +41,6 @@
     "noSkinsAvailable": "Geen skins beschikbaar voor dit loadout",
     "selectSkin": "Selecteer skin voor {weapon}"
   },
-
   "modals": {
     "logout": {
       "title": "Afmelden bevestigen",
@@ -84,7 +83,7 @@
         "duplicate": "Dupliceer naar ander team",
         "reset": "Resetten"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Zoek skins...",
         "nameTagPlaceholder": "Naamlabel"
       },
@@ -114,7 +113,7 @@
         "duplicate": "Dupliceer naar ander team",
         "reset": "Resetten"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Zoek skins...",
         "nameTagPlaceholder": "Naamlabel"
       },
@@ -148,7 +147,11 @@
       },
       "delete": "Sleutelhanger verwijderen",
       "errorFetching": "Fout bij ophalen sleutelhangergegevens",
-      "noSearchResults": "Geen sleutelhangers gevonden"
+      "noSearchResults": "Geen sleutelhangers gevonden",
+      "sort": {
+        "name": "Naam",
+        "rarity": "Zeldzaamheid"
+      }
     },
     "sticker": {
       "titleEdit": "Sticker bewerken",
@@ -213,7 +216,11 @@
         "save": "Wijzigingen opslaan",
         "duplicate": "Dupliceer naar ander team"
       },
-      "inputs":{
+      "team": {
+        "terrorist": "Terrorist",
+        "counterTerrorist": "Anti-terrorist"
+      },
+      "inputs": {
         "searchPlaceholder": "Zoek skins...",
         "nameTagPlaceholder": "Naamlabel"
       },
@@ -229,14 +236,24 @@
       "stickers": {
         "title": "Stickers",
         "add": "Sticker toevoegen",
-        "reposition": "Sleep om te herpositioneren"
+        "reposition": "Sleep om te herpositioneren",
+        "remove": "Sticker verwijderen"
       },
       "keychain": {
         "title": "Sleutelhanger",
-        "add": "Sleutelhanger toevoegen"
+        "add": "Sleutelhanger toevoegen",
+        "remove": "Sleutelhanger verwijderen"
       },
       "visualCustomizer": {
         "button": "Visuele aanpasser"
+      },
+      "sort": {
+        "label": "Sorteren",
+        "name": "Naam",
+        "rarity": "Zeldzaamheid"
+      },
+      "filters": {
+        "rarity": "Zeldzaamheid"
       },
       "importFailedDefault": "Fout bij importeren wapenconfiguratie",
       "importFailedNoMatchingWeapon": "Inspectie-URL komt niet overeen met geselecteerd wapen",
@@ -318,7 +335,6 @@
       }
     }
   },
-
   "loadout": {
     "create": "Loadout maken",
     "select": "Selecteer een loadout",
@@ -332,7 +348,6 @@
   "auth": {
     "loginButton": "Inloggen",
     "logoutButton": "Uitloggen",
-
     "loginRequired": "Om toegang te krijgen tot deze website, log in met je Steam-account.",
     "automaticallyLoggedOut": "Je bent automatisch uitgelogd",
     "confirmLogout": "Weet je zeker dat je wilt uitloggen?",
@@ -353,7 +368,7 @@
     "search": "Zoeken",
     "selectAll": "Alles selecteren",
     "noResults": "Geen resultaten gevonden",
-    "pleaseSelectLoadout": "Selecteer eerst een loadout"
+    "pleaseSelectLoadout": "Selecteer eerst een loadout",
+    "for": "voor"
   }
 }
-

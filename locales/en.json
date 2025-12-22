@@ -41,7 +41,6 @@
     "noSkinsAvailable": "No skins available for this loadout",
     "selectSkin": "Select Skin for {weapon}"
   },
-
   "modals": {
     "logout": {
       "title": "Confirm Logout",
@@ -84,7 +83,7 @@
         "duplicate": "Duplicate to Other Team",
         "reset": "Reset"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Search skins...",
         "nameTagPlaceholder": "Name Tag"
       },
@@ -114,7 +113,7 @@
         "duplicate": "Duplicate to Other Team",
         "reset": "Reset"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Search skins...",
         "nameTagPlaceholder": "Name Tag"
       },
@@ -148,7 +147,11 @@
       },
       "delete": "Delete Keychain",
       "errorFetching": "Error fetching keychain data",
-      "noSearchResults": "No Keychains found"
+      "noSearchResults": "No Keychains found",
+      "sort": {
+        "name": "Name",
+        "rarity": "Rarity"
+      }
     },
     "sticker": {
       "titleEdit": "Edit Sticker",
@@ -217,7 +220,7 @@
         "terrorist": "Terrorist",
         "counterTerrorist": "Counter-Terrorist"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Search skins...",
         "nameTagPlaceholder": "Name Tag"
       },
@@ -332,7 +335,6 @@
       }
     }
   },
-
   "loadout": {
     "create": "Create Loadout",
     "select": "Select a loadout",
@@ -346,12 +348,10 @@
   "auth": {
     "loginButton": "Sign In",
     "logoutButton": "Logout",
-
     "loginRequired": "To access this website, please login with your Steam account.",
     "automaticallyLoggedOut": "You have been automatically log out",
     "confirmLogout": "Are you sure you want to logout?",
     "rejectAction": "Sign In to execute this action",
-
     "authenticating": "Authenticating...",
     "openSteamProfile": "Open Steam profile"
   },

@@ -30,7 +30,6 @@
     "noSkinsAvailable": "Keine Skins für dieses Loadout verfügbar",
     "selectSkin": "Skin für {weapon} auswählen"
   },
-
   "modals": {
     "logout": {
       "title": "Abmeldung bestätigen",
@@ -127,7 +126,7 @@
         "duplicate": "Für anderes Team duplizieren",
         "reset": "Zurücksetzen"
       },
-      "inputs":{
+      "inputs": {
         "searchPlaceholder": "Skins suchen...",
         "nameTagPlaceholder": "Namensschild"
       },
@@ -158,11 +157,15 @@
       "buttons": {
         "reset": "Zurücksetzen",
         "importFromLink": "Aus Link importieren",
-        "generateLink": "Link generieren",
+        "generateLink": "Link genereren",
         "save": "Änderungen speichern",
         "duplicate": "Für anderes Team duplizieren"
       },
-      "inputs":{
+      "team": {
+        "terrorist": "Terrorist",
+        "counterTerrorist": "Antiterror-Einheit"
+      },
+      "inputs": {
         "searchPlaceholder": "Skins suchen...",
         "nameTagPlaceholder": "Namensschild"
       },
@@ -178,14 +181,24 @@
       "stickers": {
         "title": "Sticker",
         "add": "Sticker hinzufügen",
-        "reposition": "Ziehen zum Repositionieren"
+        "reposition": "Ziehen zum Repositionieren",
+        "remove": "Sticker entfernen"
       },
       "keychain": {
         "title": "Schlüsselanhänger",
-        "add": "Schlüsselanhänger hinzufügen"
+        "add": "Schlüsselanhänger hinzufügen",
+        "remove": "Schlüsselanhänger entfernen"
       },
       "visualCustomizer": {
         "button": "Visueller Anpasser"
+      },
+      "sort": {
+        "label": "Sortieren",
+        "name": "Name",
+        "rarity": "Seltenheit"
+      },
+      "filters": {
+        "rarity": "Seltenheit"
       },
       "importFailedDefault": "Fehler beim Import der Waffen-Konfiguration",
       "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit der ausgewählten Waffe überein",
@@ -212,7 +225,11 @@
       },
       "delete": "Schlüsselanhänger löschen",
       "errorFetching": "Fehler beim Abrufen der Schlüsselanhänger-Daten",
-      "noSearchResults": "Keine Schlüsselanhänger gefunden"
+      "noSearchResults": "Keine Schlüsselanhänger gefunden",
+      "sort": {
+        "name": "Name",
+        "rarity": "Seltenheit"
+      }
     },
     "sticker": {
       "titleEdit": "Sticker bearbeiten",
@@ -307,7 +324,6 @@
       }
     }
   },
-
   "loadout": {
     "create": "Loadout erstellen",
     "select": "Wähle ein Loadout",
