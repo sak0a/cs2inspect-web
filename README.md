@@ -128,3 +128,14 @@ X-API-Key: your_api_key_here
 ## Environment Variables
 
 See `.env.example` for all available configuration options.
+
+## Deployment
+
+This service is deployed as a standalone container using the `steam-service-only` branch. To push updates from the main monorepo to the deployment branch, run:
+
+```bash
+git subtree push --prefix=services/steam-service origin steam-service-only
+```
+
+Always ensure your changes are committed to the `master` branch before pushing to the deployment branch.
+
