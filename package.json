@@ -18,17 +18,17 @@
     "bun": ">=1.0.0"
   },
   "dependencies": {
-    "fastify": "^4.24.3",
-    "@fastify/cors": "^8.4.0",
+    "fastify": "^4.29.1",
+    "@fastify/cors": "^8.5.0",
     "@fastify/rate-limit": "^9.1.0",
-    "cs2-inspect-lib": "^3.1.0",
-    "dotenv": "^16.3.1"
+    "cs2-inspect-lib": "^3.2.0",
+    "dotenv": "^16.6.1"
   },
   "devDependencies": {
-    "@types/node": "^20.10.6",
-    "typescript": "^5.3.3",
+    "@types/node": "^20.19.27",
+    "typescript": "^5.9.3",
     "@types/bun": "latest",
     "bun-types": "latest",
-    "tsx": "^4.20.5"
+    "tsx": "^4.21.0"
   }
 }
