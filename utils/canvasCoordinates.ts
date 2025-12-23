@@ -23,7 +23,7 @@ export const WEAPON_STICKER_SLOT_POSITIONS: Record<string, Record<number, Point>
   'awp': {
     // Based on image canvas 1328x384 (not 800). X uses 1328, Y uses 384 as per user-provided reference.
     //0: { x: 0.862, y: 0.573 },  // slot 0: x:1145 y:220 -> 1145/1328=0.862, 220/384=0.5729
-    0: { x: 1140/1328, y: 227/384 },  // slot 0: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
+    0: { x: 1140 / 1328, y: 227 / 384 },  // slot 0: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
     1: { x: 0.679, y: 0.480 },  // slot 1: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
     2: { x: 0.621, y: 0.521 },  // slot 2: x:825 y:200 -> 825/1328=0.621, 200/384=0.5208
     3: { x: 0.557, y: 0.150 },  // slot 3: x:740 y:100 -> 740/1328=0.557, 100/384=0.2604
@@ -227,7 +227,7 @@ export function stickerToCanvasElement(
   // 3) Legacy pixel offsets fallthrough
   if (!applied) {
     const hasExplicitOffsets = typeof sticker.offset_x === 'number' && !isNaN(sticker.offset_x) &&
-                               typeof sticker.offset_y === 'number' && !isNaN(sticker.offset_y)
+      typeof sticker.offset_y === 'number' && !isNaN(sticker.offset_y)
     const ref = getWeaponReferenceSize(weaponName)
     const pxOffsetX = hasExplicitOffsets ? (sticker.offset_x ?? 0) : (typeof sticker.x === 'number' ? sticker.x : 0)
     const pxOffsetY = hasExplicitOffsets ? (sticker.offset_y ?? 0) : (typeof sticker.y === 'number' ? sticker.y : 0)
@@ -267,9 +267,9 @@ export function stickerToCanvasElement(
       image: sticker.api?.image || '',
       rarity: sticker.api?.rarity && sticker.api.rarity.color && sticker.api.rarity.name
         ? {
-            color: sticker.api.rarity.color,
-            name: sticker.api.rarity.name
-          }
+          color: sticker.api.rarity.color,
+          name: sticker.api.rarity.name
+        }
         : undefined
     }
   }
@@ -311,7 +311,7 @@ export function keychainToCanvasElement(
 
   // If coordinates are invalid or at origin, use default keychain position
   if (x === null || y === null || (x === 0 && y === 0) ||
-      x < 0.05 || x > 0.95 || y < 0.05 || y > 0.95) {
+    x < 0.05 || x > 0.95 || y < 0.05 || y > 0.95) {
     x = DEFAULT_KEYCHAIN_POSITION.x
     y = DEFAULT_KEYCHAIN_POSITION.y
   }
@@ -337,9 +337,9 @@ export function keychainToCanvasElement(
       image: keychain.api?.image || '',
       rarity: keychain.api?.rarity && keychain.api.rarity.color && keychain.api.rarity.name
         ? {
-            color: keychain.api.rarity.color,
-            name: keychain.api.rarity.name
-          }
+          color: keychain.api.rarity.color,
+          name: keychain.api.rarity.name
+        }
         : undefined
     }
   }
@@ -484,13 +484,6 @@ export function generateFallbackWeaponImageUrl(weaponName: string): string {
 }
 
 /**
- * Clamp a value between min and max
- */
-export function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value))
-}
-
-/**
  * Calculate distance between two points
  */
 export function distance(p1: Point, p2: Point): number {
@@ -503,8 +496,8 @@ export function distance(p1: Point, p2: Point): number {
  * Check if a point is within a rectangular bounds
  */
 export function isPointInBounds(point: Point, bounds: { x: number, y: number, width: number, height: number }): boolean {
-  return point.x >= bounds.x && 
-         point.x <= bounds.x + bounds.width && 
-         point.y >= bounds.y && 
-         point.y <= bounds.y + bounds.height
+  return point.x >= bounds.x &&
+    point.x <= bounds.x + bounds.width &&
+    point.y >= bounds.y &&
+    point.y <= bounds.y + bounds.height
 }
