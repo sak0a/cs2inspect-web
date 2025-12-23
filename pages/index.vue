@@ -261,7 +261,9 @@ onMounted(() => {
 
       <!-- Main Content -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <h1>Coming soon</h1>
         <!-- Left Side: Item Display -->
+      <!--
         <div>
           <InspectItemDisplay
             :item="inspectedItem"
@@ -274,12 +276,14 @@ onMounted(() => {
             @generate-link="handleGenerateLink"
           />
         </div>
-
+      -->
         <!-- Right Side: Controls -->
+         <!--
         <div class="bg-[#242424] p-6 rounded-lg">
           <h2 class="text-xl font-bold text-white mb-4">{{ t('inspectItem.controlsSection') }}</h2>
-
-          <!-- Create New Item Section -->
+        -->
+           <!-- Create New Item Section -->
+            <!--
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-white mb-3">{{ t('inspectItem.createNewItem') }}</h3>
             <p class="text-gray-300 mb-3">{{ t('inspectItem.createNewItemDesc') }}</p>
@@ -310,8 +314,10 @@ onMounted(() => {
               </NButton>
             </div>
           </div>
+        -->
 
           <!-- Import Section -->
+           <!--
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-white mb-3">{{ t('inspectItem.importSection') }}</h3>
             <p class="text-gray-300 mb-3">{{ t('inspectItem.importDesc') }}</p>
@@ -333,8 +339,10 @@ onMounted(() => {
               {{ t('inspectItem.importButton') }}
             </NButton>
           </div>
+        -->
 
           <!-- Instructions -->
+           <!--
           <div class="mb-6">
             <h3 class="text-lg font-semibold text-white mb-3">{{ t('inspectItem.instructions') }}</h3>
             <ul class="list-disc list-inside text-gray-400 space-y-1">
@@ -343,12 +351,13 @@ onMounted(() => {
               <li>{{ t('inspectItem.instructionStep3') }}</li>
             </ul>
           </div>
+        -->
 
           <!-- Error Display -->
           <div v-if="error" class="mt-4 p-3 bg-red-900/30 border border-red-700 rounded text-red-300">
             {{ error }}
           </div>
-        </div>
+        <!-- </div> -->
       </div>
 
       <!-- No User State -->
