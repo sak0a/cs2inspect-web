@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import { useMessage } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
-import { useInspectItem } from '~/composables/useInspectItem'
 import type { WeaponCustomization, KnifeCustomization, GloveCustomization, IEnhancedWeapon, IEnhancedKnife, IEnhancedGlove } from '~/server/utils/interfaces'
 
 const user = ref<SteamUser | null>(null)

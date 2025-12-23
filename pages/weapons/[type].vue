@@ -1,11 +1,8 @@
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
-import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import type { IEnhancedWeapon, WeaponConfiguration } from "~/types";
-import { useMessage } from "naive-ui";
 
 definePageMeta({
   middleware: ['validate-weapon-url']

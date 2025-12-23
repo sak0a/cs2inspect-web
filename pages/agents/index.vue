@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, nextTick } from 'vue'
 import { useMessage, NSpin } from 'naive-ui'
-import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import AgentTabs from "~/components/AgentTabs.vue";
 import type { APIAgent } from "~/types";
 
 const user = ref<SteamUser | null>(null)

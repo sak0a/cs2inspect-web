@@ -1,97 +1,3 @@
-<template>
-  <div class="status-page">
-    <NSpace vertical :size="24" class="max-w-7xl mx-auto p-8">
-      <!-- Header -->
-      <NSpace vertical :size="8">
-        <NButton 
-          secondary 
-          tag="a" 
-          href="/" 
-          class="back-to-home-button"
-          size="large"
-          round
-        >
-          <template #icon>
-            <NIcon :component="ArrowLeftIcon" />
-          </template>
-          {{ t('navigation.backToHome') }}
-        </NButton>
-        <h1 class="text-4xl font-bold" style="color: var(--text-primary)">{{ t('title') }}</h1>
-        <p style="color: var(--text-secondary)">{{ t('description') }}</p>
-      </NSpace>
-
-      <!-- Overall Status Banner -->
-      <!--<NCard
-        :bordered="false"
-        class="glass-card status-banner"
-        :class="overallStatusClass"
-      >
-        <div class="flex items-center justify-between">
-          <NSpace align="center" :size="16">
-            <div class="status-icon text-5xl">{{ overallStatusIcon }}</div>
-            <NSpace vertical :size="4">
-              <h2 class="text-2xl font-bold">{{ overallStatusText }}</h2>
-              <p class="text-sm opacity-80">{{ t('lastUpdated') }}: {{ formatTime(lastUpdate) }}</p>
-            </NSpace>
-          </NSpace>
-          <NButton
-            secondary
-            :loading="loading"
-            :disabled="loading"
-            @click="refreshStatus"
-          >
-            <template #icon>
-              <NIcon :component="RefreshIcon" />
-            </template>
-            {{ loading ? t('refreshing') : t('refresh') }}
-          </NButton>
-        </div>
-      </NCard>-->
-
-      <!-- Health Check Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <HealthCard
-          v-for="check in healthChecks"
-          :key="check.name"
-          :check="check"
-        />
-      </div>
-
-      <!-- Historical Charts -->
-      <div class="chart-outer-container">
-        <NCard :bordered="false" class="glass-card-dark">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <h2 class="text-2xl font-bold">{{ t('performanceHistory') }}</h2>
-              <NSelect
-                v-model:value="timeRange"
-                :options="timeRangeOptions"
-                style="width: 200px"
-                @update:value="loadHistory"
-              />
-            </div>
-          </template>
-
-          <NSpin :show="loadingHistory">
-            <div v-if="filteredHistoricalData.length === 0" class="text-center py-12" style="color: var(--text-tertiary)">
-              {{ t('noHistoricalData') }}
-            </div>
-
-            <!-- Full-width charts - one per row -->
-            <div v-else class="grid grid-cols-1 gap-6">
-              <HistoryChart
-                v-for="data in filteredHistoricalData"
-                :key="data.check_name"
-                :data="data"
-              />
-            </div>
-          </NSpin>
-        </NCard>
-      </div>
-    </NSpace>
-  </div>
-</template>
-
 <script setup lang="ts">
 import { ArrowLeft as ArrowLeftIcon } from '@vicons/tabler';
 
@@ -223,7 +129,99 @@ onUnmounted(() => {
   }
 });
 </script>
+<template>
+  <div class="status-page">
+    <NSpace vertical :size="24" class="max-w-7xl mx-auto p-8">
+      <!-- Header -->
+      <NSpace vertical :size="8">
+        <NButton 
+          secondary 
+          tag="a" 
+          href="/" 
+          class="back-to-home-button"
+          size="large"
+          round
+        >
+          <template #icon>
+            <NIcon :component="ArrowLeftIcon" />
+          </template>
+          {{ t('navigation.backToHome') }}
+        </NButton>
+        <h1 class="text-4xl font-bold" style="color: var(--text-primary)">{{ t('title') }}</h1>
+        <p style="color: var(--text-secondary)">{{ t('description') }}</p>
+      </NSpace>
 
+      <!-- Overall Status Banner -->
+      <!--<NCard
+        :bordered="false"
+        class="glass-card status-banner"
+        :class="overallStatusClass"
+      >
+        <div class="flex items-center justify-between">
+          <NSpace align="center" :size="16">
+            <div class="status-icon text-5xl">{{ overallStatusIcon }}</div>
+            <NSpace vertical :size="4">
+              <h2 class="text-2xl font-bold">{{ overallStatusText }}</h2>
+              <p class="text-sm opacity-80">{{ t('lastUpdated') }}: {{ formatTime(lastUpdate) }}</p>
+            </NSpace>
+          </NSpace>
+          <NButton
+            secondary
+            :loading="loading"
+            :disabled="loading"
+            @click="refreshStatus"
+          >
+            <template #icon>
+              <NIcon :component="RefreshIcon" />
+            </template>
+            {{ loading ? t('refreshing') : t('refresh') }}
+          </NButton>
+        </div>
+      </NCard>-->
+
+      <!-- Health Check Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <HealthCard
+          v-for="check in healthChecks"
+          :key="check.name"
+          :check="check"
+        />
+      </div>
+
+      <!-- Historical Charts -->
+      <div class="chart-outer-container">
+        <NCard :bordered="false" class="glass-card-dark">
+          <template #header>
+            <div class="flex justify-between items-center">
+              <h2 class="text-2xl font-bold">{{ t('performanceHistory') }}</h2>
+              <NSelect
+                v-model:value="timeRange"
+                :options="timeRangeOptions"
+                style="width: 200px"
+                @update:value="loadHistory"
+              />
+            </div>
+          </template>
+
+          <NSpin :show="loadingHistory">
+            <div v-if="filteredHistoricalData.length === 0" class="text-center py-12" style="color: var(--text-tertiary)">
+              {{ t('noHistoricalData') }}
+            </div>
+
+            <!-- Full-width charts - one per row -->
+            <div v-else class="grid grid-cols-1 gap-6">
+              <HistoryChart
+                v-for="data in filteredHistoricalData"
+                :key="data.check_name"
+                :data="data"
+              />
+            </div>
+          </NSpin>
+        </NCard>
+      </div>
+    </NSpace>
+  </div>
+</template>
 <style scoped lang="sass">
 .status-page
   min-height: 100vh

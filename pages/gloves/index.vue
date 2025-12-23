@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from 'vue'
-import { useMessage } from 'naive-ui'
-import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import GloveSkinModal from '~/components/GloveSkinModal.vue'
-import GloveTabs from '~/components/GloveTabs.vue'
 import type { IEnhancedGlove, GloveConfiguration } from "~/types"
 
 const user = ref<SteamUser | null>(null)

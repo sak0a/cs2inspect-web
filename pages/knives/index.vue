@@ -1,12 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, watch } from 'vue'
-import { useMessage } from 'naive-ui'
-import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import KnifeSkinModal from '~/components/KnifeSkinModal.vue'
 import type { IEnhancedKnife, KnifeConfiguration } from "~/types"
-import KnifeTabs from "~/components/KnifeTabs.vue";
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedKnife[]>([])

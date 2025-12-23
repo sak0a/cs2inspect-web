@@ -14,6 +14,7 @@ import {
   DotsVertical as MenuIcon
 } from '@vicons/tabler'
 import { Star as DefaultFilledIcon } from '@vicons/ionicons5'
+import { NIcon } from 'naive-ui'
 
 const loadoutStore = useLoadoutStore()
 const { t } = useI18n()
@@ -171,11 +172,11 @@ const dropdownOptions = computed(() => {
 
 const menuProps = () => ({ class: 'glassmorphism-dropdown' })
 
-const handleDropdownSelect = (key: 'rename' | 'delete' | 'clear' | 'duplicate' | 'share' | 'default' | 'create' | 'import') => {
+const handleDropdownSelect = (key: any) => {
     if (key === 'rename') showModal.value.rename = true
     else if (key === 'delete') showModal.value.delete = true
     else if (key === 'clear') showModal.value.clear = true
-    else handleLoadoutAction(key as 'create' | 'rename' | 'delete' | 'duplicate' | 'share' | 'default' | 'clear' | 'import')
+    else handleLoadoutAction(key as any)
 }
 </script>
 

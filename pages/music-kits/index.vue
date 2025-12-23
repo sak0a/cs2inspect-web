@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, computed, nextTick } from 'vue'
-import { useMessage, NSpin, NSelect, NInput } from 'naive-ui'
-import { useLoadoutStore } from '~/stores/loadoutStore'
+import { NSpin, NSelect, NInput } from 'naive-ui'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import MusicKitTabs from "~/components/MusicKitTabs.vue";
 import type { APIMusicKit } from "~/server/utils/interfaces";
 
 const user = ref<SteamUser | null>(null)
