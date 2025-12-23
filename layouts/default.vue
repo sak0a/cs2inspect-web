@@ -286,7 +286,7 @@ onMounted(async () => {
         </div>
         <div v-else class="h-full bg-[#181818] p-0">
           <!-- Secondary Menu -->
-          <div class="bg-[#242424] p-2 mb-4 sticky top-0 z-10">
+          <div class="p-2 mb-4 sticky top-0 z-10">
             <div class="flex justify-end items-end">
 
               <div class="flex items-center gap-6">
