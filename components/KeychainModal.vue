@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import type { APIKeychain, IEnhancedWeaponKeychain } from "~/server/utils/interfaces";
-import { useMessage } from "naive-ui";
-import {weaponAttachmentModalThemeOverrides} from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean

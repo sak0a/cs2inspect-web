@@ -138,21 +138,6 @@ const formatFloat = (value: number): string => {
   }
 }
 
-/** Convert hex color to rgba */
-function hexToRgba(hex: string, alpha: string = '1'): string {
-  try {
-    if (!hex) return `rgba(0, 0, 0, ${alpha})`
-
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`
-  } catch (error) {
-    console.error('Error converting hex to rgba:', error)
-    return `rgba(0, 0, 0, ${alpha})`
-  }
-}
 
 /**
  * Event handlers with error handling

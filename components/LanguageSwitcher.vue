@@ -1,5 +1,4 @@
 <script setup>
-import { computed, useCookie } from '#imports'
 import { Language as LanguageIcon } from '@vicons/ionicons5'
 
 const { getLocale, switchLocale, getLocales } = useI18n()

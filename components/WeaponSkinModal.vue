@@ -10,10 +10,7 @@ import type {
 
 // Legacy imports for backward compatibility
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
-
-import { useMessage } from 'naive-ui'
 import { steamAuth } from "~/services/steamAuth"
-import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
 
 /**
  * Props interface using new type system with backward compatibility

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useMessage } from 'naive-ui'
-import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 import type { VisualCustomizerProps, VisualCustomizerEvents, CanvasElement, CanvasState } from '~/types/canvas'
 import {
@@ -14,7 +12,6 @@ import {
   DEFAULT_KEYCHAIN_POSITION,
   getExternalNormalizationRefs
 } from '~/utils/canvasCoordinates'
-import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
 
 
 const props = defineProps<VisualCustomizerProps>()

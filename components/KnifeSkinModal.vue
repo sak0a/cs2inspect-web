@@ -12,9 +12,6 @@ import type {
 // Legacy imports for backward compatibility
 import type { IEnhancedKnife, IEnhancedItem } from '~/server/utils/interfaces'
 
-import { useMessage } from 'naive-ui'
-import { skinModalThemeOverrides } from "~/server/utils/themeCustomization"
-
 /**
  * Props interface using new type system with backward compatibility
  */

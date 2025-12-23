@@ -17,8 +17,6 @@ import {
 // Legacy imports for backward compatibility
 import type { IEnhancedItem } from '~/server/utils/interfaces'
 
-import { ref, computed } from 'vue'
-
 /**
  * Storage keys for browser storage
  */

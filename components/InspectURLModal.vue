@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
-
-
 const _props = defineProps<{
   visible: boolean
   loading?: boolean

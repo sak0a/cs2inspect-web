@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { NIcon, useMessage } from 'naive-ui'
+import { NIcon } from 'naive-ui'
 import { LogOut as LogOutIcon, LogoSteam as SteamLogoIcon } from '@vicons/ionicons5'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
-import { homeMenuOptions, weaponMenuOptions, equipmentMenuOptions, extrasMenuOptions } from '@/utils/menuConfig'
-import LoadoutSelector from "~/components/LoadoutSelector.vue";
-import LanguageSwitcher from "~/components/LanguageSwitcher.vue";
-import { layoutThemeOverrides, skinModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)

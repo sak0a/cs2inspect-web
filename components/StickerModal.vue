@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, watchEffect } from 'vue'
-import { useMessage } from 'naive-ui'
 import type { APISticker, IEnhancedWeaponSticker } from "~/server/utils/interfaces";
-import { weaponAttachmentModalThemeOverrides } from "~/server/utils/themeCustomization";
 
 const props = defineProps<{
   visible: boolean

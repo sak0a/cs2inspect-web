@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { APIAgent } from "~/server/utils/interfaces";
-
 const props = defineProps({
   agent: {
     type: Object as () => APIAgent,

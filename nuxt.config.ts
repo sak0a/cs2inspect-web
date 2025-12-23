@@ -6,6 +6,21 @@ import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
+  imports: {
+    dirs: ['stores', 'composables', 'utils', 'server/utils', 'middleware'],
+    presets: [
+      {
+        from: 'naive-ui',
+        imports: [
+          'useMessage',
+          'useNotification',
+          'useDialog',
+          'useTheme',
+          'useLoading'
+        ],
+      }
+    ],
+  },
   typescript: {
     typeCheck: false,
   },

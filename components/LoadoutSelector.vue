@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useLoadoutStore } from '~/stores/loadoutStore'
-import { useMessage, NIcon } from 'naive-ui'
+
 import { steamAuth } from '~/services/steamAuth'
 import type { DBLoadout } from '~/server/utils/interfaces'
 import {
@@ -15,7 +14,6 @@ import {
   DotsVertical as MenuIcon
 } from '@vicons/tabler'
 import { Star as DefaultFilledIcon } from '@vicons/ionicons5'
-import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 const loadoutStore = useLoadoutStore()
 const { t } = useI18n()
@@ -104,7 +102,6 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete' | 'dup
         // Reset categories to all checked by default for next time
         formInputs.value.clearCategories = [...availableCategories]
         
-        // @ts-ignore - dynamic access
         showModal.value[action] = false
         
         // Success message for non-import/duplicate/share/default (handled above or existing logic)
@@ -174,11 +171,11 @@ const dropdownOptions = computed(() => {
 
 const menuProps = () => ({ class: 'glassmorphism-dropdown' })
 
-const handleDropdownSelect = (key: string) => {
+const handleDropdownSelect = (key: 'rename' | 'delete' | 'clear' | 'duplicate' | 'share' | 'default' | 'create' | 'import') => {
     if (key === 'rename') showModal.value.rename = true
     else if (key === 'delete') showModal.value.delete = true
     else if (key === 'clear') showModal.value.clear = true
-    else handleLoadoutAction(key as any)
+    else handleLoadoutAction(key as 'create' | 'rename' | 'delete' | 'duplicate' | 'share' | 'default' | 'clear' | 'import')
 }
 </script>
 
