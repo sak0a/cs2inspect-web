@@ -218,7 +218,7 @@ export interface IMappedDBWeapon {
  */
 export interface IEnhancedWeaponSticker {
     /** Sticker ID */
-    id: number;
+    id: number | string;
     /** Slot index (0-4) where this sticker is placed */
     slot: number;
     /** X-axis position offset */
@@ -231,15 +231,21 @@ export interface IEnhancedWeaponSticker {
     scale: number;
     /** Rotation angle in degrees */
     rotation: number;
+    /** Optional name for compatibility */
+    name?: string;
+    /** Optional image for compatibility */
+    image?: string;
+    /** Optional position index for compatibility */
+    position?: number;
     /** API data for this sticker */
-    api: {
+    api?: {
         name: string;
         image: string;
-        type: string;
-        effect: string;
-        tournament_event: string;
-        tournament_team: string;
-        rarity: ItemRarity;
+        type?: string;
+        effect?: string;
+        tournament_event?: string;
+        tournament_team?: string;
+        rarity?: ItemRarity;
     };
 }
 
@@ -249,7 +255,7 @@ export interface IEnhancedWeaponSticker {
  */
 export interface IEnhancedWeaponKeychain {
     /** Keychain ID */
-    id: number;
+    id: number | string;
     /** X-axis position offset */
     x: number;
     /** Y-axis position offset */
@@ -258,10 +264,14 @@ export interface IEnhancedWeaponKeychain {
     z: number;
     /** Random seed for keychain generation */
     seed: number;
+    /** Optional name for compatibility */
+    name?: string;
+    /** Optional image for compatibility */
+    image?: string;
     /** API data for this keychain */
-    api: {
+    api?: {
         name: string;
         image: string;
-        rarity: ItemRarity;
+        rarity?: ItemRarity;
     };
 }

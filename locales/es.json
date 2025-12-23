@@ -274,7 +274,18 @@
         "remove": "Eliminar llavero"
       },
       "visualCustomizer": {
-        "button": "Personalizador visual"
+        "button": "Personalizador visual",
+        "exit": "Salir del Editor",
+        "modalTitle": "Personalizador Visual para {weaponName}",
+        "inline": {
+          "title": "Editor Visual",
+          "controls": {
+            "scale": "Escala",
+            "rotate": "Rot",
+            "wear": "Desgaste",
+            "remove": "Eliminar"
+          }
+        }
       },
       "sort": {
         "label": "Ordenar",

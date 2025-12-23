@@ -82,7 +82,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
   console.log('Duplicating weapon: ', skin, customization)
   try {
     // Format stickers data
-    const formattedStickers = customization.stickers.map((sticker: { id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number } | null) => {
+    const formattedStickers = customization.stickers.map((sticker: { id: number | string; x?: number; y?: number; wear?: number; scale?: number; rotation?: number } | null) => {
       if (!sticker) return null
       return {
         id: sticker.id,

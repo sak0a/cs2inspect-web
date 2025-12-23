@@ -5,12 +5,15 @@ import type {
   WeaponModalState,
   WeaponConfiguration,
   APIWeaponSkin,
-  UserProfile
+  UserProfile,
+  StickerConfiguration,
+  KeychainConfiguration
 } from '~/types'
 
 // Legacy imports for backward compatibility
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
 import { steamAuth } from "~/services/steamAuth"
+import InlineVisualCustomizer from './InlineVisualCustomizer.vue'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -37,6 +40,13 @@ const { t } = useI18n()
 const message = useMessage()
 
 const modalTitle = computed(() => {
+  // Show visual customizer title when in inline mode
+  if (state.value.inlineVisualCustomizerActive && selectedSkin.value) {
+    return t('modals.weaponSkin.visualCustomizer.modalTitle', { 
+      weaponName: selectedSkin.value.name 
+    }) as string
+  }
+  
   return props.weapon
     ? t('modals.weaponSkin.title', { weaponName: props.weapon?.defaultName }) as string
     : t('modals.weaponSkin.defaultTitle') as string
@@ -79,6 +89,7 @@ const state = ref<WeaponModalState>({
   showStickerModal: false,
   showKeychainModal: false,
   showVisualCustomizer: false,
+  inlineVisualCustomizerActive: false, // NEW - for inline mode
   currentStickerPosition: 0
 })
 
@@ -121,9 +132,9 @@ const user = computed((): UserProfile | null => {
 
   return {
     steamId: steamUser.steamId,
-    displayName: steamUser.displayName,
+    personaname: steamUser.displayName, // Mapping displayName to personaname
     avatar: steamUser.avatar,
-    profileUrl: steamUser.profileUrl
+    profileurl: steamUser.profileUrl // Mapping profileUrl to profileurl
   }
 })
 /**
@@ -642,7 +653,7 @@ const handleAddSticker = (position: number) => {
   state.value.currentStickerPosition = position
   state.value.showStickerModal = true
 }
-const handleStickerSelect = (stickerData: { id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number; api?: Record<string, unknown> }) => {
+const handleStickerSelect = (stickerData: StickerConfiguration | null) => {
   customization.value.stickers[state.value.currentStickerPosition] = stickerData
 }
 
@@ -656,7 +667,7 @@ const removeSticker = (index: number) => {
 const handleAddKeychain = () => {
   state.value.showKeychainModal = true
 }
-const handleKeychainSelect = (keychainData: { id: number; x?: number; y?: number; z?: number; seed?: number; api?: Record<string, unknown> }) => {
+const handleKeychainSelect = (keychainData: KeychainConfiguration | null) => {
   customization.value.keychain = keychainData
 }
 
@@ -670,7 +681,12 @@ const handleOpenVisualCustomizer = () => {
     message.warning('Please select a weapon skin first')
     return
   }
-  state.value.showVisualCustomizer = true
+  // Toggle inline mode instead of modal
+  state.value.inlineVisualCustomizerActive = !state.value.inlineVisualCustomizerActive
+}
+
+const handleExitInlineVisualCustomizer = () => {
+  state.value.inlineVisualCustomizerActive = false
 }
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
@@ -736,7 +752,7 @@ const handleModalKeydown = (e: KeyboardEvent) => {
   }
 }
 
-const handleVisualCustomizerSave = (data: { stickers: Array<{ id: number; slot: number; x: number; y: number; wear: number; scale: number; rotation: number; ext_norm_x?: number; ext_norm_y?: number; ext_ref_x?: number; ext_ref_y?: number; api?: Record<string, unknown> } | null>, keychain: { id: number; x: number; y: number; z?: number; seed?: number } | null, weaponWear?: number }) => {
+const handleVisualCustomizerSave = (data: { stickers: (StickerConfiguration | null)[], keychain: KeychainConfiguration | null, weaponWear?: number }) => {
   customization.value.stickers = data.stickers
   customization.value.keychain = data.keychain
 
@@ -752,6 +768,45 @@ const handleVisualCustomizerSave = (data: { stickers: Array<{ id: number; slot: 
 const handleVisualCustomizerWearUpdate = (wearValue: number) => {
   customization.value.wear = wearValue
 }
+
+// Inline Visual Customizer Handlers
+const handleInlineCustomizerStickerUpdate = (stickers: any[]) => {
+  customization.value.stickers = stickers.map(s => s ? {
+    ...s,
+    id: s.id.toString(),
+    name: s.api?.name || s.name || 'Sticker',
+    image: s.api?.image || s.image || '',
+    position: s.slot
+  } : null)
+}
+
+const handleInlineCustomizerKeychainUpdate = (keychain: any) => {
+  if (keychain) {
+    customization.value.keychain = {
+        ...keychain,
+        id: keychain.id.toString(),
+        name: keychain.api?.name || keychain.name || 'Keychain',
+        image: keychain.api?.image || keychain.image || ''
+    }
+  } else {
+    customization.value.keychain = null
+  }
+}
+
+const handleInlineCustomizerWearUpdate = (wear: number) => {
+  customization.value.wear = wear
+}
+
+const handleInlineStickerSlotSelect = (slotIndex: number) => {
+  handleAddSticker(slotIndex)
+}
+
+const handleInlineCustomizerSave = () => {
+    handleExitInlineVisualCustomizer()
+    message.success((t('modals.visualCustomizer.messages.saved') || 'Visual customization saved'))
+}
+
+
 
 const digitOnlyInputProps = {
   inputmode: 'numeric' as const, 
@@ -785,8 +840,10 @@ watch(() => customization.value.wear, (newWear) => {
 // Function to completely reset all state
 const resetAllState = () => {
   // Reset customization to default values
+  // Reset customization to default values
   customization.value = {
     active: false,
+    defindex: props.weapon?.weapon_defindex || 0,
     statTrak: false,
     statTrakCount: 0,
     paintIndex: 0,
@@ -804,12 +861,12 @@ const resetAllState = () => {
     ...state.value,
     searchQuery: '',
     currentPage: 1,
-    skins: [],
+    // skins: [], // Removed as apiState.value.skins is used
     isLoadingSkins: false,
     showStickerModal: false,
     showKeychainModal: false,
     showImportModal: false,
-    showDetails: false,
+    // showDetails: false, // Removed as it's not in the type
     currentStickerPosition: 0,
     showResetConfirm: false,
     showDuplicateConfirm: false,
@@ -938,68 +995,102 @@ watch(() => props.weapon, () => {
       </div>
     </template>
     <template #header-extra>
-      <!-- Reset Weapon Configuration -->
-      <NButton 
-        :loading="state.isResetting" 
-        secondary 
-        type="error" 
-        :disabled="!selectedSkin || customization.paintIndex == 0" 
-        :aria-label="t('modals.weaponSkin.buttons.reset') as string"
-        @click="state.showResetConfirm = true"
-      >
-        <template #icon>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-          </svg>
-        </template>
-        {{ t('modals.weaponSkin.buttons.reset') }}
-      </NButton>
-      <NDivider vertical />
+      <template v-if="!state.inlineVisualCustomizerActive">
+        <!-- Reset Weapon Configuration -->
+        <NButton 
+          :loading="state.isResetting" 
+          secondary 
+          type="error" 
+          :disabled="!selectedSkin || customization.paintIndex == 0" 
+          :aria-label="t('modals.weaponSkin.buttons.reset') as string"
+          @click="state.showResetConfirm = true"
+        >
+          <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+            </svg>
+          </template>
+          {{ t('modals.weaponSkin.buttons.reset') }}
+        </NButton>
+        <NDivider vertical />
 
-      <!-- Import Weapon by Inspect Link -->
-      <NButton 
-        :loading="state.isImporting" 
-        secondary 
-        type="default" 
-        :disabled="!selectedSkin"
-        :aria-label="t('modals.weaponSkin.buttons.importFromLink') as string"
-        @click="state.showImportModal = true"
-      >
-        <template #icon>
-          <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
-        </template>
-        {{ t('modals.weaponSkin.buttons.importFromLink') }}
-      </NButton>
-      <NDivider vertical />
+        <!-- Import Weapon by Inspect Link -->
+        <NButton 
+          :loading="state.isImporting" 
+          secondary 
+          type="default" 
+          :disabled="!selectedSkin"
+          :aria-label="t('modals.weaponSkin.buttons.importFromLink') as string"
+          @click="state.showImportModal = true"
+        >
+          <template #icon>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
+          </template>
+          {{ t('modals.weaponSkin.buttons.importFromLink') }}
+        </NButton>
+        <NDivider vertical />
 
-      <!-- Generate Weapon Inspect Link by Data -->
-      <NButton
-        :loading="state.isLoadingInspect"
-        secondary
-        type="default"
-        :disabled="!selectedSkin || customization.paintIndex === 0"
-        :aria-label="t('modals.weaponSkin.buttons.generateLink') as string"
-        @click="handleCreateInspectLink"
-      >
-        <template #icon>
-          <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
-        </template>
-        {{ t('modals.weaponSkin.buttons.generateLink') }}
-      </NButton>
-      <NDivider vertical />
+        <!-- Generate Weapon Inspect Link by Data -->
+        <NButton
+          :loading="state.isLoadingInspect"
+          secondary
+          type="default"
+          :disabled="!selectedSkin || customization.paintIndex === 0"
+          :aria-label="t('modals.weaponSkin.buttons.generateLink') as string"
+          @click="handleCreateInspectLink"
+        >
+          <template #icon>
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 8v-2a2 2 0 0 1 2 -2h2" /><path d="M4 16v2a2 2 0 0 0 2 2h2" /><path d="M16 4h2a2 2 0 0 1 2 2v2" /><path d="M16 20h2a2 2 0 0 0 2 -2v-2" /><path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" /><path d="M16 16l-2.5 -2.5" /></svg>
+          </template>
+          {{ t('modals.weaponSkin.buttons.generateLink') }}
+        </NButton>
+        <NDivider vertical />
 
-      <!-- Weapon Search -->
-      <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="t('modals.weaponSkin.inputs.searchPlaceholder') as string"
-          class="pl-1 w-96"
-      />
+        <!-- Weapon Search -->
+        <NInput
+            v-model:value="state.searchQuery"
+            :placeholder="t('modals.weaponSkin.inputs.searchPlaceholder') as string"
+            class="pl-1 w-96"
+        />
+      </template>
+      <template v-else>
+        <!-- Exit Visual Mode Button -->
+        <NButton secondary type="warning" @click="handleExitInlineVisualCustomizer">
+          <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-x"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
+          </template>
+          {{ t('modals.weaponSkin.visualCustomizer.exit') }}
+        </NButton>
+      </template>
     </template>
 
     <div @keydown="handleModalKeydown">
       <NSpace vertical size="large" class="-mt-2">
+        <Transition name="fade" mode="out-in">
+          <div v-if="state.inlineVisualCustomizerActive" key="inline">
+          <!-- Visual Customizer Inline Mode -->
+          <InlineVisualCustomizer
+            :visible="true"
+            :weapon-skin="{
+              name: selectedSkin?.name || '',
+              image: selectedSkin?.image || '',
+              defindex: selectedSkin?.weapon_defindex || 0
+            }"
+            :stickers="customization.stickers"
+            :keychain="customization.keychain"
+            :weapon-wear="customization.wear"
+            :min-wear="selectedSkin?.minFloat || 0"
+            :max-wear="selectedSkin?.maxFloat || 1"
+            @update-stickers="handleInlineCustomizerStickerUpdate"
+            @update-keychain="handleInlineCustomizerKeychainUpdate"
+            @update-wear="handleInlineCustomizerWearUpdate"
+            @select-sticker-slot="handleInlineStickerSlotSelect"
+            @save="handleInlineCustomizerSave"
+          />
+          </div>
+          <div v-else key="normal">
         <!-- Selected Skin Preview -->
         <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg">
           <div class="grid grid-cols-2 gap-6">
@@ -1260,7 +1351,7 @@ type="success" secondary :class="[
       </div>
 
       <!-- Skin list controls (Phase 2) -->
-      <div class="flex flex-wrap items-center justify-between gap-3">
+      <div class="flex flex-wrap items-center justify-between gap-3 my-3">
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.sort.label') }}</span>
           <NSelect
@@ -1360,6 +1451,8 @@ type="success" secondary :class="[
             :page-slot="5"
         />
       </div>
+          </div>
+        </Transition>
       </NSpace>
 
       <!-- Sticker Modal -->
@@ -1404,7 +1497,7 @@ type="success" secondary :class="[
       />
 
       <!-- Visual Customizer Modal -->
-      <VisualCustomizerModal
+      <!--<VisualCustomizerModal
           :visible="state.showVisualCustomizer"
           :weapon-skin="{
             name: selectedSkin?.name || '',
@@ -1419,7 +1512,7 @@ type="success" secondary :class="[
           @update:visible="state.showVisualCustomizer = $event"
           @save="handleVisualCustomizerSave"
           @update-wear="handleVisualCustomizerWearUpdate"
-      />
+      />-->
     </div>
   </NModal>
 </template>
@@ -1525,5 +1618,15 @@ type="success" secondary :class="[
 
 .visual-customizer-overlay:hover:not(.disabled) .magic-wand-icon {
   color: #ffffff;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>

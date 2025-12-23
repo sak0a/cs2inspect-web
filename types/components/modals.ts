@@ -9,18 +9,18 @@
  * @since 2.0.0
  */
 
-import type { 
+import type {
   UserProfile
 } from '../core/common'
 
-import type { 
-  ItemData, 
-  ItemConfiguration, 
-  WeaponItemData, 
-  KnifeItemData, 
+import type {
+  ItemData,
+  ItemConfiguration,
+  WeaponItemData,
+  KnifeItemData,
   GloveItemData,
-  WeaponConfiguration, 
-  KnifeConfiguration, 
+  WeaponConfiguration,
+  KnifeConfiguration,
   GloveConfiguration,
   StickerConfiguration,
   KeychainConfiguration
@@ -165,6 +165,10 @@ export interface WeaponModalState extends BaseItemModalState {
   showStickerModal: boolean
   /** Whether keychain modal is visible */
   showKeychainModal: boolean
+  /** Whether visual customizer modal is visible (legacy) */
+  showVisualCustomizer: boolean
+  /** Whether inline visual customizer is active */
+  inlineVisualCustomizerActive: boolean
   /** Current sticker position being edited */
   currentStickerPosition: number
 }
@@ -438,7 +442,7 @@ export interface ItemModalComposableConfig<
 /**
  * Extract modal props type for a specific item type
  */
-export type ModalPropsForItemType<T extends ItemData['type']> = 
+export type ModalPropsForItemType<T extends ItemData['type']> =
   T extends 'weapon' ? WeaponModalProps :
   T extends 'knife' ? KnifeModalProps :
   T extends 'glove' ? GloveModalProps :
@@ -447,7 +451,7 @@ export type ModalPropsForItemType<T extends ItemData['type']> =
 /**
  * Extract modal state type for a specific item type
  */
-export type ModalStateForItemType<T extends ItemData['type']> = 
+export type ModalStateForItemType<T extends ItemData['type']> =
   T extends 'weapon' ? WeaponModalState :
   T extends 'knife' ? KnifeModalState :
   T extends 'glove' ? GloveModalState :
@@ -456,7 +460,7 @@ export type ModalStateForItemType<T extends ItemData['type']> =
 /**
  * Extract modal events type for a specific item type
  */
-export type ModalEventsForItemType<T extends ItemData['type']> = 
+export type ModalEventsForItemType<T extends ItemData['type']> =
   T extends 'weapon' ? WeaponModalEvents :
   T extends 'knife' ? KnifeModalEvents :
   T extends 'glove' ? GloveModalEvents :

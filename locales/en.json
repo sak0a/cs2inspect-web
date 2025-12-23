@@ -274,7 +274,18 @@
         "remove": "Remove Keychain"
       },
       "visualCustomizer": {
-        "button": "Visual Customizer"
+        "button": "Visual Customizer",
+        "exit": "Exit Visual Editor",
+        "modalTitle": "Visual Customizer for {weaponName}",
+        "inline": {
+          "title": "Visual Editor",
+          "controls": {
+            "scale": "Scale",
+            "rotate": "Rot",
+            "wear": "Wear",
+            "remove": "Destroy"
+          }
+        }
       },
       "sort": {
         "label": "Sort",

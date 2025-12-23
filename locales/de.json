@@ -190,7 +190,18 @@
         "remove": "Schlüsselanhänger entfernen"
       },
       "visualCustomizer": {
-        "button": "Visueller Anpasser"
+        "button": "Visueller Anpasser",
+        "exit": "Editor verlassen",
+        "modalTitle": "Visueller Anpasser für {weaponName}",
+        "inline": {
+          "title": "Visueller Editor",
+          "controls": {
+            "scale": "Skalierung",
+            "rotate": "Rot",
+            "wear": "Abnutzung",
+            "remove": "Entfernen"
+          }
+        }
       },
       "sort": {
         "label": "Sortieren",

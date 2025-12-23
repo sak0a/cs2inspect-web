@@ -9,17 +9,17 @@
  * @since 2.0.0
  */
 
-import type { 
-  EntityId, 
-  TeamSide, 
-  TeamAvailability, 
-  ItemRarity 
+import type {
+  EntityId,
+  TeamSide,
+  TeamAvailability,
+  ItemRarity
 } from '../core/common'
 
-import type { 
-  DBWeapon, 
-  DBKnife, 
-  DBGlove 
+import type {
+  DBWeapon,
+  DBKnife,
+  DBGlove
 } from '../database/records'
 
 // ============================================================================
@@ -120,7 +120,7 @@ export interface BaseItemData {
  */
 export interface StickerConfiguration {
   /** Sticker identifier */
-  id: EntityId
+  id: EntityId | number | string
   /** Sticker name */
   name: string
   /** Sticker image URL */
@@ -137,6 +137,15 @@ export interface StickerConfiguration {
   scale: number
   /** Rotation in degrees */
   rotation: number
+  /** API Data (optional) */
+  api?: {
+    name?: string
+    image?: string
+    rarity?: {
+      color?: string
+      name?: string
+    }
+  }
 }
 
 /**
@@ -159,7 +168,7 @@ export interface StickerConfiguration {
  */
 export interface KeychainConfiguration {
   /** Keychain identifier */
-  id: EntityId
+  id: EntityId | number | string
   /** Keychain name */
   name: string
   /** Keychain image URL */
@@ -172,6 +181,15 @@ export interface KeychainConfiguration {
   z: number
   /** Random seed for positioning */
   seed: number
+  /** API Data (optional) */
+  api?: {
+    name?: string
+    image?: string
+    rarity?: {
+      color?: string
+      name?: string
+    }
+  }
 }
 
 // ============================================================================

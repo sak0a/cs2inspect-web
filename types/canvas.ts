@@ -38,6 +38,10 @@ export interface CanvasElement {
   selected: boolean
   /** Sticker slot index (0-4) for stickers, null for keychain */
   slotIndex?: number | null
+  /** Optional Z coordinate (for keychains) */
+  z?: number
+  /** Optional seed (for keychains) */
+  seed?: number
   /** API data for display */
   apiData: {
     name: string

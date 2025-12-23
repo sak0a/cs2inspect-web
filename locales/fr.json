@@ -245,7 +245,18 @@
         "remove": "Supprimer le porte-clés"
       },
       "visualCustomizer": {
-        "button": "Personnalisateur visuel"
+        "button": "Personnalisateur visuel",
+        "exit": "Quitter l'éditeur",
+        "modalTitle": "Personnalisateur visuel pour {weaponName}",
+        "inline": {
+          "title": "Éditeur visuel",
+          "controls": {
+            "scale": "Échelle",
+            "rotate": "Rot",
+            "wear": "Usure",
+            "remove": "Supprimer"
+          }
+        }
       },
       "sort": {
         "label": "Trier",

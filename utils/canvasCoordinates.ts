@@ -143,7 +143,7 @@ export function createCoordinateTransform(): CoordinateTransform {
  * Sticker input data type with all possible properties
  */
 interface StickerInputData {
-  id: number
+  id: number | string
   slot?: number
   x?: number
   y?: number
@@ -279,7 +279,7 @@ export function stickerToCanvasElement(
  * Keychain input data type with all possible properties
  */
 interface KeychainInputData {
-  id: number
+  id: number | string
   x?: number
   y?: number
   z?: number
@@ -332,6 +332,8 @@ export function keychainToCanvasElement(
     zIndex,
     selected: false,
     slotIndex: null,
+    z: typeof keychain.z === 'number' && !isNaN(keychain.z) ? keychain.z : 0,
+    seed: typeof keychain.seed === 'number' && !isNaN(keychain.seed) ? keychain.seed : 0,
     apiData: {
       name: keychain.api?.name || 'Unknown Keychain',
       image: keychain.api?.image || '',
@@ -349,8 +351,11 @@ export function keychainToCanvasElement(
  * Sticker output data format
  */
 interface StickerOutputData {
-  id: number
+  id: string
   slot: number | null | undefined
+  name: string
+  image: string
+  position: number
   x: number
   y: number
   wear: number
@@ -373,8 +378,11 @@ export function canvasElementToSticker(element: CanvasElement | null | undefined
   if (!element || element.type !== 'sticker') return null
 
   return {
-    id: parseInt(element.assetId),
+    id: element.assetId,
     slot: element.slotIndex,
+    name: element.apiData?.name || 'Unknown Sticker',
+    image: element.apiData?.image || '',
+    position: typeof element.slotIndex === 'number' ? element.slotIndex : 0,
     x: element.position.x,
     y: element.position.y,
     wear: element.wear || 0,
@@ -384,11 +392,14 @@ export function canvasElementToSticker(element: CanvasElement | null | undefined
   }
 }
 
+
 /**
  * Keychain output data format
  */
 interface KeychainOutputData {
-  id: number
+  id: string
+  name: string
+  image: string
   x: number
   y: number
   z: number
@@ -410,14 +421,17 @@ export function canvasElementToKeychain(element: CanvasElement | null | undefine
   if (!element || element.type !== 'keychain') return null
 
   return {
-    id: parseInt(element.assetId),
+    id: element.assetId,
+    name: element.apiData?.name || 'Unknown Keychain',
+    image: element.apiData?.image || '',
     x: element.position.x,
     y: element.position.y,
-    z: 0, // Default Z value
-    seed: 0, // Default seed value
+    z: element.z || 0,
+    seed: element.seed || 0,
     api: element.apiData
   }
 }
+
 
 /**
  * Generate flat weapon skin image URL

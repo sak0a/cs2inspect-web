@@ -245,7 +245,18 @@
         "remove": "Sleutelhanger verwijderen"
       },
       "visualCustomizer": {
-        "button": "Visuele aanpasser"
+        "button": "Visuele aanpasser",
+        "exit": "Editor verlaten",
+        "modalTitle": "Visuele Aanpasser voor {weaponName}",
+        "inline": {
+          "title": "Visuele Editor",
+          "controls": {
+            "scale": "Schaal",
+            "rotate": "Rot",
+            "wear": "Slijtage",
+            "remove": "Verwijderen"
+          }
+        }
       },
       "sort": {
         "label": "Sorteren",
