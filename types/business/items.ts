@@ -179,6 +179,12 @@ export interface KeychainConfiguration {
   y: number
   /** Z coordinate */
   z: number
+  /** External offset X from Steam (optional) */
+  offset_x?: number
+  /** External offset Y from Steam (optional) */
+  offset_y?: number
+  /** External offset Z from Steam (optional) */
+  offset_z?: number
   /** Random seed for positioning */
   seed: number
   /** API Data (optional) */

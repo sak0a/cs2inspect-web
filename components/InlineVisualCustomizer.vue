@@ -7,7 +7,12 @@ import {
   canvasElementToSticker,
   generateFlatImageUrl,
   generateFallbackWeaponImageUrl,
+  getDefaultStickerPosition,
+  createCoordinateTransform,
+  getExternalNormalizationRefs,
 } from '~/utils/canvasCoordinates'
+
+
 
 /**
  * Updates an element's position in the canvas state
@@ -24,7 +29,8 @@ interface InlineVisualCustomizerEvents {
   (e: 'update-stickers', stickers: Array<any>): void
   (e: 'update-keychain', keychain: any): void
   (e: 'update-wear', wear: number): void
-  (e: 'select-sticker-slot', slotIndex: number): void
+  (e: 'select-sticker-slot', slotIndex: number): void // Keep for compat if used elsewhere? 
+  (e: 'open-sticker-modal', slotIndex: number): void
   (e: 'save'): void
 }
 
@@ -191,15 +197,20 @@ const updateElementZ = (value: number | null) => {
 
 // --- Image Loading ---
 
-const toCanvasSafeUrl = (url: string): string => {
+const toCanvasSafeUrl = (url: string) => {
   try {
+    if (!url) {
+        console.warn('toCanvasSafeUrl: Empty URL')
+        return ''
+    }
     const u = new URL(url, window.location.origin)
     if (u.origin === window.location.origin) return u.toString()
     if (u.protocol === 'http:' || u.protocol === 'https:') {
       return `/api/proxy/image?url=${encodeURIComponent(u.toString())}`
     }
     return url
-  } catch {
+  } catch (e) {
+    console.warn('toCanvasSafeUrl: Invalid URL', url, e)
     return url
   }
 }
@@ -208,9 +219,12 @@ const loadImage = (url: string): Promise<HTMLImageElement> => {
   return new Promise((resolve, reject) => {
     const cacheKey = url
     const finalUrl = toCanvasSafeUrl(url)
+    console.log(`[InlineVisualCustomizer] Loading image: ${url} -> ${finalUrl}`)
+    
     if (imageCache.has(cacheKey)) {
       const cachedImg = imageCache.get(cacheKey)!
       if (cachedImg.complete && cachedImg.naturalWidth > 0) {
+        console.log('[InlineVisualCustomizer] Cache hit for', url)
         resolve(cachedImg)
         return
       }
@@ -218,10 +232,12 @@ const loadImage = (url: string): Promise<HTMLImageElement> => {
     const img = new Image()
     img.crossOrigin = 'anonymous'
     img.onload = () => {
+      console.log('[InlineVisualCustomizer] Image loaded successfully:', url)
       imageCache.set(cacheKey, img)
       resolve(img)
     }
-    img.onerror = () => {
+    img.onerror = (e) => {
+      console.error('[InlineVisualCustomizer] Failed to load image:', finalUrl, e)
       reject(new Error(`Failed to load image: ${finalUrl}`))
     }
     img.src = finalUrl
@@ -264,14 +280,20 @@ const initializeCanvas = async () => {
   await nextTick()
   if (!canvas.value || !canvasContainer.value || !video.value) return
 
+  console.log('[InlineVisualCustomizer] initializeCanvas started')
+  
   const containerRect = canvasContainer.value.getBoundingClientRect()
+  console.log('[InlineVisualCustomizer] Container Rect:', containerRect)
+  
   canvasState.value.canvasSize = {
     width: containerRect.width,
     height: containerRect.height || 600 // Fallback height
   }
-
+  
   canvas.value.width = canvasState.value.canvasSize.width
   canvas.value.height = canvasState.value.canvasSize.height
+  console.log('[InlineVisualCustomizer] Canvas Size set to:', canvasState.value.canvasSize)
+
   ctx.value = canvas.value.getContext('2d')
 
   if (!ctx.value) return
@@ -292,59 +314,64 @@ const initializeCanvas = async () => {
 }
 
 const initializeWeaponBackground = async () => {
-  if (!props.weaponSkin || !video.value || !ctx.value) return
+  console.log('[InlineVisualCustomizer] initializeWeaponBackground')
+  if (!props.weaponSkin || !video.value || !ctx.value) {
+    console.warn('[InlineVisualCustomizer] Missing props or refs', { skin: !!props.weaponSkin, video: !!video.value, ctx: !!ctx.value })
+    return
+  }
+  
   const weaponName = props.weaponSkin.name.split(' | ')[0] || 'weapon'
   const skinName = props.weaponSkin.name.split(' | ')[1] || 'skin'
   videoUrl.value = generateVideoUrl(weaponName, skinName)
   isVideoLoading.value = true
-  const videoExists = await checkVideoExists(videoUrl.value)
-  if (videoExists && !isDevelopment) { // Assuming video works, strict DEV check removed for now to allow trying
-     try {
-       videoManager.value = new VideoCanvasManager({
-         video: video.value,
-         ctx: ctx.value,
-         canvasSize: canvasState.value.canvasSize,
-         wearValue: currentWear.value,
-         minWear: props.minWear || 0,
-         maxWear: props.maxWear || 1,
-         videoDuration: 140
-       })
-       videoManager.value.setRenderCallback(() => drawElements())
-       await videoManager.value.loadVideo(videoUrl.value)
-       isVideoMode.value = true
-     } catch (e) {
-       isVideoMode.value = false
-       initializeStaticBackground()
-     }
-  } else {
-    // If strict DEV check or generic fallback
-    if(videoExists) {
-        // Try anyway
-        try {
-            videoManager.value = new VideoCanvasManager({
-                video: video.value,
-                ctx: ctx.value,
-                canvasSize: canvasState.value.canvasSize,
-                wearValue: currentWear.value,
-                minWear: props.minWear || 0,
-                maxWear: props.maxWear || 1,
-                videoDuration: 140
-            })
-            videoManager.value.setRenderCallback(() => drawElements())
-            await videoManager.value.loadVideo(videoUrl.value)
-            isVideoMode.value = true
-        } catch (e) {
-            isVideoMode.value = false
-            initializeStaticBackground()
-        }
-    } else {
-        isVideoMode.value = false
-        initializeStaticBackground()
-    }
+  
+  let videoReady = false
+  
+  // Try video first (if not explicitly disabled or forcing image)
+  try {
+      const videoExists = await checkVideoExists(videoUrl.value)
+      if (videoExists) {
+        videoManager.value = new VideoCanvasManager({
+             video: video.value,
+             ctx: ctx.value,
+             canvasSize: canvasState.value.canvasSize,
+             wearValue: currentWear.value,
+             minWear: props.minWear || 0,
+             maxWear: props.maxWear || 1,
+             videoDuration: 140
+        })
+        videoManager.value.setRenderCallback(() => drawElements())
+        await videoManager.value.loadVideo(videoUrl.value)
+        canvasState.value.weaponImage = ''
+        isVideoMode.value = true
+        videoReady = true
+        console.log('[InlineVisualCustomizer] Video initialized successfully')
+      }
+  } catch (e) {
+      console.warn('[InlineVisualCustomizer] Video initialization failed', e)
+      videoReady = false
+  }
+  
+  // Fallback to static image
+  if (!videoReady) {
+      isVideoMode.value = false
+      console.log('[InlineVisualCustomizer] Fallback to static image')
+      const imageUrl = props.weaponSkin.image
+      if (imageUrl) {
+          canvasState.value.weaponImage = imageUrl
+          try {
+              await loadImage(imageUrl)
+              console.log('[InlineVisualCustomizer] Static image loaded')
+          } catch (e) {
+              console.error('[InlineVisualCustomizer] Static image load failed', e)
+          }
+           renderCanvas()
+      } else {
+          console.error('[InlineVisualCustomizer] No static image available')
+      }
   }
   isVideoLoading.value = false
 }
-
 const initializeStaticBackground = () => {
   if (!props.weaponSkin) return
   const weaponName = props.weaponSkin.name.split(' | ')[0] || 'weapon'
@@ -362,7 +389,7 @@ const convertExistingCustomizations = () => {
     }
   })
   if (props.keychain) {
-    const element = keychainToCanvasElement(props.keychain, 5)
+    const element = keychainToCanvasElement(props.keychain, 5, weaponName)
     if (element) elements.push(element)
   }
   canvasState.value.elements = elements
@@ -387,7 +414,6 @@ const renderCanvas = () => {
         dh = ch; dw = ch * videoAspect; dx = (cw - dw) / 2; dy = 0
       }
       backgroundDrawRect.value = { x: dx, y: dy, width: dw, height: dh }
-    backgroundDrawRect.value = { x: 0, y: 0, width: cw, height: ch }
     }
     drawElements()
   } else {
@@ -422,11 +448,13 @@ const renderStaticBackground = () => {
         const img = new Image()
         img.onload = () => {
             if(ctx.value && canvas.value) {
+                console.log('[InlineVisualCustomizer] Drawing static background image')
                 drawImageWithAspectRatio(img, ctx.value, canvas.value.width, canvas.value.height)
                 drawElements()
             }
         }
-        img.onerror = () => {
+        img.onerror = (e) => {
+             console.error('[InlineVisualCustomizer] Error drawing static background image', e)
              // Fallback logic
              const fallbackImg = new Image()
              fallbackImg.onload = () => {
@@ -698,6 +726,27 @@ const handleCanvasMouseDown = (event: MouseEvent) => {
     quickSettingsPosition.value = { x: event.clientX, y: event.clientY } // Screen coordinates or relative? 
     // We will fix quick settings position in Phase 5
   } else {
+    // Check for empty sticker slot click if weapon is loaded and not currently adding a sticker
+    if (!selectedElement.value && props.weaponSkin) {
+      for (let i = 0; i < 5; i++) {
+        // Skip if slot is occupied
+        if (canvasState.value.elements.some(element => element.type === 'sticker' && element.slotIndex === i)) continue
+
+        const defaultPos = getDefaultStickerPosition(i, props.weaponSkin.name)
+        const canvasSlotPos = normalizedToCanvasInImage(defaultPos)
+        
+        // Calculate distance (hit radius approx 40px)
+        const dx = canvasPos.x - canvasSlotPos.x
+        const dy = canvasPos.y - canvasSlotPos.y
+        const dist = Math.sqrt(dx*dx + dy*dy)
+        
+        if (dist < 40) { // Hit radius
+          emit('open-sticker-modal', i)
+          return
+        }
+      }
+    }
+
     selectElement(null)
     canvasState.value.isDragging = false
     showQuickSettings.value = false
@@ -750,22 +799,27 @@ const handleResize = () => {
   renderCanvas()
 }
 
-const handleSave = () => {
+const handleSave = (arg: boolean | MouseEvent = false) => {
+  const silent = typeof arg === 'boolean' ? arg : false
   // Convert elements back to format for emit
   const stickers: Array<any> = new Array(5).fill(null)
   let keychain: any = null
+  const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
   
   canvasState.value.elements.forEach(element => {
     if (element.type === 'sticker' && typeof element.slotIndex === 'number') {
-      stickers[element.slotIndex] = canvasElementToSticker(element)
+      stickers[element.slotIndex] = canvasElementToSticker(element, weaponName)
     } else if (element.type === 'keychain') {
-      keychain = canvasElementToKeychain(element)
+      keychain = canvasElementToKeychain(element, weaponName)
     }
   })
   
   emit('update-stickers', stickers)
   emit('update-keychain', keychain)
-  emit('save')
+  
+  if (!silent) {
+    emit('save')
+  }
 }
 
 // --- Quick Settings Handlers ---
@@ -821,6 +875,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  handleSave(true) // Auto-save on exit
   window.removeEventListener('resize', handleResize)
   if (videoManager.value) {
     videoManager.value.destroy()
@@ -833,7 +888,8 @@ defineExpose({
   refreshCanvas: () => {
     convertExistingCustomizations()
     renderCanvas()
-  }
+  },
+  save: () => handleSave(true)
 })
 </script>
 
@@ -845,165 +901,159 @@ defineExpose({
         class="canvas-container w-full relative bg-[#101010] rounded-lg overflow-hidden" 
         style="height: 500px;"
     >
-      <!-- Debug Toggle (Dev only) -->
-      <div v-if="isDevelopment" class="absolute top-2 right-2 z-30">
-          <NButton size="tiny" secondary type="warning" @click="showCoordinateOverlay = !showCoordinateOverlay; renderCanvas()">
-              {{ showCoordinateOverlay ? 'Debug: ON' : 'Debug' }}
-          </NButton>
-      </div>
+      <video ref="video" crossorigin="anonymous" playsinline style="display: none;"></video>
       <canvas 
         ref="canvas" 
-        class="w-full h-full cursor-grab active:cursor-grabbing"
+        class="w-full h-full cursor-crosshair select-none touch-none"
         @mousedown="handleCanvasMouseDown"
         @mousemove="handleCanvasMouseMove"
         @mouseup="handleCanvasMouseUp"
         @mouseleave="handleCanvasMouseUp"
       />
-      <video ref="video" class="hidden" muted playsinline />
-      
       <!-- Loading indicator -->
       <div v-if="isVideoLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 pointer-events-none">
         <div class="animate-spin rounded-full h-12 w-12 border-4 border-[var(--selection-ring)] border-t-transparent"></div>
       </div>
-      
-      <!-- Phase 5 Quick Settings (Enhanced with glassmorphism and numeric inputs) -->
-      <div v-if="selectedElement" 
-           class="quick-settings-panel absolute bottom-4 left-1/2 transform -translate-x-1/2 
-                  bg-black/75 backdrop-blur-xl 
-                  border border-white/5 
-                  rounded-xl p-3 
-                  flex flex-col gap-3 
-                  shadow-2xl shadow-black/60 
-                  z-20"
-           @mousedown.stop
-      >
-        <!-- Top Row: Scale & Rotation with numeric inputs -->
-        <div class="flex items-center gap-3">
-          <!-- Scale -->
-          <div class="flex items-center gap-1 border-r border-white/10 pr-3">
-              <span class="text-[10px] text-gray-400 uppercase font-bold px-1">{{ t('modals.weaponSkin.visualCustomizer.inline.controls.scale') }}</span>
-              <NButton size="tiny" secondary circle @click="handleUpdateScale(-0.1)">-</NButton>
-              <NInputNumber 
-                :value="selectedElement.scale" 
-                :min="0.1" :max="3" :step="0.1" :precision="1"
-                size="tiny" 
-                class="w-16"
-                @update:value="handleSetScale"
-              />
-              <NButton size="tiny" secondary circle @click="handleUpdateScale(0.1)">+</NButton>
-          </div>
-          
-          <!-- Rotation -->
-          <div class="flex items-center gap-1 border-r border-white/10 pr-3">
-              <span class="text-[10px] text-gray-400 uppercase font-bold px-1">{{ t('modals.weaponSkin.visualCustomizer.inline.controls.rotate') }}</span>
-              <NButton size="tiny" secondary circle @click="handleUpdateRotation(-15)">↺</NButton>
-              <NInputNumber 
-                :value="selectedElement.rotation" 
-                :min="0" :max="360" :step="1" :precision="0"
-                size="tiny" 
-                class="w-16"
-                @update:value="handleSetRotation"
-              />
-              <NButton size="tiny" secondary circle @click="handleUpdateRotation(15)">↻</NButton>
-          </div>
-          
-          <!-- Wear (Sticker only) -->
-          <div v-if="selectedElement.type === 'sticker'" class="flex items-center gap-1 border-r border-white/10 pr-3">
-               <span class="text-[10px] text-gray-400 uppercase font-bold px-1">{{ t('modals.weaponSkin.visualCustomizer.inline.controls.wear') }}</span>
-               <div class="w-24 px-1">
-                  <NSlider :value="selectedElement.wear || 0" :step="0.05" :min="0" :max="1" @update:value="handleUpdateStickerWear" />
-               </div>
-          </div>
-          
-          <!-- Remove -->
-          <NButton type="error" size="tiny" secondary @click="handleRemoveSelected">
-              {{ t('modals.weaponSkin.visualCustomizer.inline.controls.remove') }}
-          </NButton>
-        </div>
 
-        <!-- Row 2: Coordinates (Sticker only) -->
-        <div v-if="selectedElement.type === 'sticker'" class="flex items-center gap-3 pt-2 border-t border-white/10 mt-1">
-            <!-- Units Toggle -->
-             <div class="flex items-center">
-                <NSelect 
-                    v-model:value="offsetUnits" 
-                    size="tiny" 
-                    :options="[
-                      { label: t('modals.visualCustomizer.labels.pixels') as string, value: 'px' }, 
-                      { label: t('modals.visualCustomizer.labels.normalized') as string, value: 'ext' }
-                    ]" 
-                    class="w-24" 
-                />
-             </div>
-             
-             <!-- X / Y Inputs -->
-             <div class="flex items-center gap-2">
-                 <!-- Px Mode -->
-                 <template v-if="offsetUnits === 'px'">
-                     <div class="flex items-center gap-1">
-                         <span class="text-[10px] text-gray-400 font-bold">X</span>
-                         <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).x" @update:value="v => updateSelectedElementOffset('x', v)" class="w-16" :show-button="false" placeholder="0" />
-                     </div>
-                     <div class="flex items-center gap-1">
-                         <span class="text-[10px] text-gray-400 font-bold">Y</span>
-                         <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).y" @update:value="v => updateSelectedElementOffset('y', v)" class="w-16" :show-button="false" placeholder="0" />
-                     </div>
-                 </template>
-                 
-                 <!-- Ext Mode -->
-                 <template v-else>
-                     <div class="flex items-center gap-1">
-                         <span class="text-[10px] text-gray-400 font-bold">X</span>
-                         <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).x" :precision="4" @update:value="v => updateSelectedElementOffsetExternal('x', v)" class="w-20" :show-button="false" />
-                     </div>
-                     <div class="flex items-center gap-1">
-                         <span class="text-[10px] text-gray-400 font-bold">Y</span>
-                         <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).y" :precision="4" @update:value="v => updateSelectedElementOffsetExternal('y', v)" class="w-20" :show-button="false" />
-                     </div>
-                 </template>
-             </div>
-        </div>
-        
-        <!-- Row 3: External Refs (only if units=ext) -->
-        <div v-if="selectedElement.type === 'sticker' && offsetUnits === 'ext'" class="flex items-center gap-3 pt-1 border-t border-white/10 mt-1">
-            <span class="text-[10px] text-gray-400">Ref:</span>
-            <NInputNumber v-model:value="extXRef" size="tiny" class="w-16" :show-button="false" placeholder="W" />
-            <span class="text-[10px] text-gray-400">x</span>
-            <NInputNumber v-model:value="extYRef" size="tiny" class="w-16" :show-button="false" placeholder="H" />
-        </div>
-
-        <!-- Keychain Controls -->
-        <div v-if="selectedElement.type === 'keychain'" class="flex items-center gap-3 pt-2 border-t border-white/10 mt-1">
-             <div class="flex items-center gap-2">
-                 <div class="flex items-center gap-1">
-                     <span class="text-[10px] text-gray-400 font-bold">X</span>
-                     <NInputNumber size="tiny" :value="selectedElement.position.x" :step="0.01" :min="0" :max="1" :precision="2" @update:value="v => updateElementPosition('x', v)" class="w-16" :show-button="false" />
-                 </div>
-                 <div class="flex items-center gap-1">
-                     <span class="text-[10px] text-gray-400 font-bold">Y</span>
-                     <NInputNumber size="tiny" :value="selectedElement.position.y" :step="0.01" :min="0" :max="1" :precision="2" @update:value="v => updateElementPosition('y', v)" class="w-16" :show-button="false" />
-                 </div>
-                 <div class="flex items-center gap-1">
-                     <span class="text-[10px] text-gray-400 font-bold">Z</span>
-                     <NInputNumber size="tiny" :value="selectedElement.z || 0" :step="0.01" :min="-2" :max="2" :precision="2" @update:value="v => updateElementZ(v)" class="w-16" :show-button="false" />
-                 </div>
-             </div>
-        </div>
+      <!-- Debug Toggle (Dev only) -->
+      <div v-if="isDevelopment" class="absolute top-2 right-2 z-50">
+        <NButton 
+          size="tiny" 
+          secondary
+          circle 
+          @click="showCoordinateOverlay = !showCoordinateOverlay"
+          :type="showCoordinateOverlay ? 'primary' : 'default'"
+          class="opacity-50 hover:opacity-100 transition-opacity"
+          title="Toggle Debug Overlay"
+        >
+          <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
+               <path fill="currentColor" d="M9 3L5 6.99h3V14h2V6.99h3L9 3zm7 14.01V10h-2v7.01h-3L15 21l4-3.99h-3z"/>
+            </svg>
+          </template>
+        </NButton>
       </div>
+      
+      <!-- Phase 5 Quick Settings (Moved to footer) -->
     </div>
 
-    <!-- Footer: Weapon Name + Wear Slider + Save -->
-    <div class="flex items-center justify-between mt-4 px-4 w-full">
-      <!-- Left: Weapon Name -->
-      <div class="w-1/4">
-        <h3 class="text-lg font-bold text-white truncate">
-          {{ props.weaponSkin?.name }}
-        </h3>
-        <p class="text-xs text-gray-400">{{ t('modals.weaponSkin.visualCustomizer.inline.title') }}</p>
+    <!-- Footer: Controls + Wear Slider + Save -->
+    <div class="flex items-center justify-between mt-4 px-4 w-full gap-4">
+      <!-- Left: Controls Panel (Replaces Weapon Name) -->
+      <!-- Use flex-none to fit content, max-w-[70%] to prevent pushing slider too much -->
+      <div class="flex-none flex items-center p-1 max-w-[70%]">
+          <div v-if="selectedElement" 
+               class="flex flex-col gap-1.5
+                      bg-black/40 backdrop-blur-md 
+                      border border-white/5 
+                      rounded-xl p-2 
+                      shadow-sm"
+               @mousedown.stop
+          >
+            <!-- Row 1: Transform & Actions -->
+            <div class="flex items-center gap-2">
+              <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-px">Scale</span>
+              
+              <!-- Scale -->
+              <div class="flex items-center gap-1 border-r border-white/10 pr-2">
+                  <NButton size="tiny" secondary circle @click="handleUpdateScale(-0.1)">-</NButton>
+                  <NInputNumber 
+                    :value="selectedElement.scale" 
+                    :min="0.1" :max="3" :step="0.1" :precision="1"
+                    size="tiny" 
+                    class="w-14"
+                    :show-button="false"
+                    @update:value="handleSetScale"
+                  />
+                  <NButton size="tiny" secondary circle @click="handleUpdateScale(0.1)">+</NButton>
+              </div>
+              
+              <!-- Rotation -->
+              <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-px">Rotation</span>
+              <div class="flex items-center gap-1 border-r border-white/10 pr-2">
+                  <NButton size="tiny" secondary circle @click="handleUpdateRotation(-15)">↺</NButton>
+                  <NInputNumber 
+                    :value="selectedElement.rotation" 
+                    :min="0" :max="360" :step="1" :precision="0"
+                    size="tiny" 
+                    class="w-14"
+                    :show-button="false"
+                    @update:value="handleSetRotation"
+                  />
+                  <NButton size="tiny" secondary circle @click="handleUpdateRotation(15)">↻</NButton>
+              </div>
+              
+              <!-- Wear (Sticker only) -->
+              <div v-if="selectedElement.type === 'sticker'" class="flex items-center gap-1 border-r border-white/10 pr-2">
+                   <span class="text-[9px] text-gray-400">WEAR</span>
+                   <div class="w-16 px-1">
+                      <NSlider :value="selectedElement.wear || 0" :step="0.05" :min="0" :max="1" @update:value="handleUpdateStickerWear" />
+                   </div>
+              </div>
+              
+              <!-- Remove -->
+              <NButton type="error" size="tiny" secondary circle @click="handleRemoveSelected">
+                  <template #icon>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"><path fill="currentColor" d="M19 6.41L17.59 5L12 10.59L6.41 5L5 6.41L10.59 12L5 17.59L6.41 19L12 13.41L17.59 19L19 17.59L13.41 12z"/></svg>
+                  </template>
+              </NButton>
+            </div>
+
+            <!-- Row 2: Position -->
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-px">Position</span>
+
+                <!-- Sticker Position -->
+                <div v-if="selectedElement.type === 'sticker'" class="flex items-center gap-2">
+                     <!-- Units -->
+                     <NSelect 
+                        v-model:value="offsetUnits" 
+                        size="tiny" 
+                        :options="[{ label: 'PX', value: 'px' }, { label: 'EXT', value: 'ext' }]" 
+                        class="w-14" 
+                    />
+                     
+                     <div class="flex items-center gap-1">
+                         <template v-if="offsetUnits === 'px'">
+                             <span class="text-[9px] text-gray-400">X</span>
+                             <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).x" @update:value="v => updateSelectedElementOffset('x', v)" class="w-12" :show-button="false" placeholder="0" />
+                             <span class="text-[9px] text-gray-400 ml-1">Y</span>
+                             <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).y" @update:value="v => updateSelectedElementOffset('y', v)" class="w-12" :show-button="false" placeholder="0" />
+                         </template>
+                         <template v-else>
+                             <span class="text-[9px] text-gray-400">X</span>
+                             <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).x" :precision="4" @update:value="v => updateSelectedElementOffsetExternal('x', v)" class="w-14" :show-button="false" />
+                             <span class="text-[9px] text-gray-400 ml-1">Y</span>
+                             <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).y" :precision="4" @update:value="v => updateSelectedElementOffsetExternal('y', v)" class="w-14" :show-button="false" />
+                             
+                             <div class="flex items-center gap-1 border-l border-white/10 pl-2 ml-1">
+                                <span class="text-[9px] text-gray-500">REF</span>
+                                <NInputNumber v-model:value="extXRef" size="tiny" class="w-10" :show-button="false" />
+                                <NInputNumber v-model:value="extYRef" size="tiny" class="w-10" :show-button="false" />
+                             </div>
+                         </template>
+                     </div>
+                </div>
+
+                <!-- Keychain Position -->
+                <div v-if="selectedElement.type === 'keychain'" class="flex items-center gap-2">
+                     <span class="text-[9px] text-gray-400">X</span>
+                     <NInputNumber size="tiny" :value="selectedElement.position.x" :step="0.01" :min="0" :max="1" :precision="2" @update:value="v => updateElementPosition('x', v)" class="w-12" :show-button="false" />
+                     <span class="text-[9px] text-gray-400 ml-1">Y</span>
+                     <NInputNumber size="tiny" :value="selectedElement.position.y" :step="0.01" :min="0" :max="1" :precision="2" @update:value="v => updateElementPosition('y', v)" class="w-12" :show-button="false" />
+                     <span class="text-[9px] text-gray-400 ml-1">Z</span>
+                     <NInputNumber size="tiny" :value="selectedElement.z || 0" :step="0.01" :min="-2" :max="2" :precision="2" @update:value="v => updateElementZ(v)" class="w-12" :show-button="false" />
+                </div>
+            </div>
+          </div>
+          <div v-else class="text-xs text-gray-500 italic pl-2">
+             {{ t('modals.weaponSkin.visualCustomizer.inline.selectHint', {}, 'Select a sticker/keychain to edit') }}
+          </div>
       </div>
 
       <!-- Center: Wear Slider -->
-      <div class="flex-1 max-w-lg mx-8">
+      <!-- Use flex-1 to fill remaining space, min-w-200px to ensure it's not crushed -->
+      <div class="flex-1 min-w-[200px] px-4 border-l border-r border-white/5">
         <WearSlider
           v-model="currentWear"
           :min="props.minWear || 0"
@@ -1013,11 +1063,11 @@ defineExpose({
       </div>
 
       <!-- Right: Save Button -->
-      <div class="w-1/4 flex justify-end">
-        <NButton type="success" secondary class="w-32" @click="handleSave">
+      <!--<div class="flex-none">
+        <NButton type="success" secondary class="w-28" @click="handleSave">
           {{ t('modals.weaponSkin.buttons.save') }}
         </NButton>
-      </div>
+      </div>-->
     </div>
   </div>
 </template>

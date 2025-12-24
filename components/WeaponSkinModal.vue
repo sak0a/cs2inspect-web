@@ -363,9 +363,14 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
             return {
               id: data.item.keychains[0].sticker_id,
-              x: data.item.keychains[0].offset_x || 0,
-              y: data.item.keychains[0].offset_y || 0,
+              name: keychain.name || 'Unknown Keychain',
+              image: keychain.image || '',
+              x: 0,  // These are not used when offset_x/y are present
+              y: 0,
               z: data.item.keychains[0].offset_z || 0,
+              offset_x: data.item.keychains[0].offset_x || 0,
+              offset_y: data.item.keychains[0].offset_y || 0,
+              offset_z: data.item.keychains[0].offset_z || 0,
               seed: data.item.keychains[0].pattern || 0,
               api: {
                 name: keychain.name,
@@ -689,6 +694,16 @@ const handleExitInlineVisualCustomizer = () => {
   state.value.inlineVisualCustomizerActive = false
 }
 
+const handleInlineOpenStickerModal = (slotIndex: number) => {
+  state.value.currentStickerPosition = slotIndex
+  state.value.showStickerModal = true
+}
+
+const handleInlineSave = () => {
+    handleExitInlineVisualCustomizer()
+    message.success((t('modals.visualCustomizer.messages.saved') || 'Visual customization saved'))
+}
+
 const isEditableTarget = (target: EventTarget | null): boolean => {
   const el = target as HTMLElement | null
   if (!el) return false
@@ -799,11 +814,6 @@ const handleInlineCustomizerWearUpdate = (wear: number) => {
 
 const handleInlineStickerSlotSelect = (slotIndex: number) => {
   handleAddSticker(slotIndex)
-}
-
-const handleInlineCustomizerSave = () => {
-    handleExitInlineVisualCustomizer()
-    message.success((t('modals.visualCustomizer.messages.saved') || 'Visual customization saved'))
 }
 
 
@@ -1083,11 +1093,11 @@ watch(() => props.weapon, () => {
             :weapon-wear="customization.wear"
             :min-wear="selectedSkin?.minFloat || 0"
             :max-wear="selectedSkin?.maxFloat || 1"
-            @update-stickers="handleInlineCustomizerStickerUpdate"
-            @update-keychain="handleInlineCustomizerKeychainUpdate"
-            @update-wear="handleInlineCustomizerWearUpdate"
-            @select-sticker-slot="handleInlineStickerSlotSelect"
-            @save="handleInlineCustomizerSave"
+            @save="handleInlineSave"
+            @update-wear="val => customization.wear = val"
+            @update-stickers="stickers => customization.stickers = stickers"
+            @update-keychain="keychain => customization.keychain = keychain"
+            @open-sticker-modal="handleInlineOpenStickerModal"
           />
           </div>
           <div v-else key="normal">
@@ -1109,7 +1119,7 @@ watch(() => props.weapon, () => {
                   :disabled="!selectedSkin"
                   :title="(t('modals.weaponSkin.visualCustomizer.button') as string) || 'Visual Customizer'"
                   :aria-label="(t('modals.weaponSkin.visualCustomizer.button') as string) || 'Visual Customizer'"
-                  @click.stop="handleOpenVisualCustomizer"
+                  @click.stop="state.inlineVisualCustomizerActive = true"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"

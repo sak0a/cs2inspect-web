@@ -283,6 +283,9 @@ interface KeychainInputData {
   x?: number
   y?: number
   z?: number
+  offset_x?: number  // External offset from Steam
+  offset_y?: number  // External offset from Steam
+  offset_z?: number  // External offset from Steam
   seed?: number
   scale?: number
   rotation?: number
@@ -298,23 +301,64 @@ interface KeychainInputData {
 
 /**
  * Convert existing keychain data to canvas element
+ * 
+ * Keychains can have coordinates in three formats:
+ * 1. Steam Percentage Offsets (offset_x, offset_y): 0-100 range from imports
+ * 2. Raw decimal offsets: x, y values that are small (e.g. 0.07)
+ * 3. Absolute normalized positions: 0-1 range (our internal format)
  */
 export function keychainToCanvasElement(
   keychain: KeychainInputData | null | undefined,
-  zIndex: number = 5
+  zIndex: number = 5,
+  _weaponName?: string  // Reserved for future use if needed
 ): CanvasElement | null {
   if (!keychain) return null
 
-  // Ensure coordinates are valid numbers
-  let x = typeof keychain.x === 'number' && !isNaN(keychain.x) ? keychain.x : null
-  let y = typeof keychain.y === 'number' && !isNaN(keychain.y) ? keychain.y : null
+  // Start with default keychain position (center of the canvas)
+  let x = DEFAULT_KEYCHAIN_POSITION.x // 0.5
+  let y = DEFAULT_KEYCHAIN_POSITION.y // 0.5
 
-  // If coordinates are invalid or at origin, use default keychain position
-  if (x === null || y === null || (x === 0 && y === 0) ||
-    x < 0.05 || x > 0.95 || y < 0.05 || y > 0.95) {
-    x = DEFAULT_KEYCHAIN_POSITION.x
-    y = DEFAULT_KEYCHAIN_POSITION.y
+  // Robustly extract the raw coordinate values
+  const rawX = typeof keychain.offset_x === 'number' ? keychain.offset_x :
+    (typeof keychain.x === 'number' ? keychain.x : null)
+  const rawY = typeof keychain.offset_y === 'number' ? keychain.offset_y :
+    (typeof keychain.y === 'number' ? keychain.y : null)
+
+  if (rawX !== null || rawY !== null) {
+    const vx = rawX || 0
+    const vy = rawY || 0
+
+    // Determine type of input: percentage (0-100) or decimal
+    // High values or presence of 'offset_x' indicate Steam-style percentages
+    const isPercentage = (typeof keychain.offset_x === 'number') ||
+      Math.abs(vx) > 1.5 || Math.abs(vy) > 1.5
+
+    // Check if it's an absolute position (0-1 range) or an offset
+    const isAbsolute = !isPercentage && vx > 0 && vx < 1 && vy > 0 && vy < 1 &&
+      (Math.abs(vx - 0.5) > 0.001 || Math.abs(vy - 0.5) > 0.001)
+
+    if (isAbsolute) {
+      x = vx
+      y = vy
+      debugLog(`📍 Keychain using absolute normalized position:`, { x, y })
+    } else {
+      // It's an offset (percentage). Convert to decimal and add to default position.
+      // Keychain offsets are simple: divide by 100 to get normalized offset
+      const dxNorm = isPercentage ? (vx / 100) : vx
+      const dyNorm = isPercentage ? (vy / 100) : vy
+
+      // Just add to default position - no weapon-specific scaling needed for keychains
+      x += dxNorm
+      y += dyNorm
+
+      debugLog(`📐 Keychain offsets applied [${isPercentage ? 'percentage' : 'decimal'}]:`,
+        { vx, vy, dxNorm, dyNorm, final_x: x, final_y: y })
+    }
   }
+
+  // Clamp to valid range
+  x = Math.max(0, Math.min(1, x))
+  y = Math.max(0, Math.min(1, y))
 
   const scale = typeof keychain.scale === 'number' && !isNaN(keychain.scale) ? keychain.scale : 1.0
   const rotation = typeof keychain.rotation === 'number' && !isNaN(keychain.rotation) ? keychain.rotation : 0
@@ -323,16 +367,13 @@ export function keychainToCanvasElement(
     id: `keychain-${Date.now()}`,
     type: 'keychain' as const,
     assetId: keychain.id.toString(),
-    position: {
-      x: Math.max(0, Math.min(1, x)),
-      y: Math.max(0, Math.min(1, y))
-    },
+    position: { x, y },
     scale: Math.max(0.1, Math.min(3, scale)),
     rotation: rotation % 360,
     zIndex,
     selected: false,
     slotIndex: null,
-    z: typeof keychain.z === 'number' && !isNaN(keychain.z) ? keychain.z : 0,
+    z: typeof keychain.offset_z === 'number' ? keychain.offset_z : (typeof keychain.z === 'number' ? keychain.z : 0),
     seed: typeof keychain.seed === 'number' && !isNaN(keychain.seed) ? keychain.seed : 0,
     apiData: {
       name: keychain.api?.name || 'Unknown Keychain',
@@ -373,9 +414,34 @@ interface StickerOutputData {
 
 /**
  * Convert canvas element back to sticker data format
+ * 
+ * @param element - The canvas element to convert
+ * @param weaponName - The weapon name, used to calculate offset from default slot position
  */
-export function canvasElementToSticker(element: CanvasElement | null | undefined): StickerOutputData | null {
+export function canvasElementToSticker(
+  element: CanvasElement | null | undefined,
+  weaponName?: string
+): StickerOutputData | null {
   if (!element || element.type !== 'sticker') return null
+
+  // Calculate offset from default slot position
+  // The offset must be saved in the same format that stickerToCanvasElement() expects
+  // stickerToCanvasElement() applies: x += sticker.x * (extRefX / REF_WIDTH)
+  // So we need to divide by that factor when saving to get symmetrical behavior
+  const slotIndex = typeof element.slotIndex === 'number' ? element.slotIndex : 0
+  const defaultPos = getDefaultStickerPosition(slotIndex, weaponName)
+
+  const REF_WIDTH = 1328
+  const REF_HEIGHT = 384
+  const { x: extRefX, y: extRefY } = getExternalNormalizationRefs(weaponName)
+
+  // Raw normalized offset
+  const rawOffsetX = element.position.x - defaultPos.x
+  const rawOffsetY = element.position.y - defaultPos.y
+
+  // Convert to ext-normalized format (inverse of loading transformation)
+  const offsetX = rawOffsetX / (extRefX / REF_WIDTH)
+  const offsetY = rawOffsetY / (extRefY / REF_HEIGHT)
 
   return {
     id: element.assetId,
@@ -383,8 +449,8 @@ export function canvasElementToSticker(element: CanvasElement | null | undefined
     name: element.apiData?.name || 'Unknown Sticker',
     image: element.apiData?.image || '',
     position: typeof element.slotIndex === 'number' ? element.slotIndex : 0,
-    x: element.position.x,
-    y: element.position.y,
+    x: offsetX,   // Save as ext-normalized offset
+    y: offsetY,   // Save as ext-normalized offset
     wear: element.wear || 0,
     scale: element.scale,
     rotation: element.rotation,
@@ -416,16 +482,37 @@ interface KeychainOutputData {
 
 /**
  * Convert canvas element back to keychain data format
+ * 
+ * @param element - The canvas element to convert
+ * @param weaponName - The weapon name, used to calculate offset from default position
  */
-export function canvasElementToKeychain(element: CanvasElement | null | undefined): KeychainOutputData | null {
+export function canvasElementToKeychain(
+  element: CanvasElement | null | undefined,
+  weaponName?: string
+): KeychainOutputData | null {
   if (!element || element.type !== 'keychain') return null
+
+  // Calculate offset from default keychain position
+  // This matches the loading logic in keychainToCanvasElement()
+  const REF_WIDTH = 1328
+  const { x: extRefX } = getExternalNormalizationRefs(weaponName)
+
+  // Raw normalized offset from default position
+  const rawOffsetX = element.position.x - DEFAULT_KEYCHAIN_POSITION.x
+  const rawOffsetY = element.position.y - DEFAULT_KEYCHAIN_POSITION.y
+
+  // Convert back to Steam offset format (inverse of loading)
+  // Loading was: x = default_x + (offset / 100) * (extRefX / REF_WIDTH)
+  // Inverse: offset = (x - default_x) / (extRefX / REF_WIDTH) * 100
+  const offsetX = (rawOffsetX / (extRefX / REF_WIDTH)) * 100
+  const offsetY = rawOffsetY * 100
 
   return {
     id: element.assetId,
     name: element.apiData?.name || 'Unknown Keychain',
     image: element.apiData?.image || '',
-    x: element.position.x,
-    y: element.position.y,
+    x: offsetX,   // Save in percentage format for symmetry with Steam
+    y: offsetY,   // Save in percentage format for symmetry with Steam
     z: element.z || 0,
     seed: element.seed || 0,
     api: element.apiData
