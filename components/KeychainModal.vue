@@ -200,6 +200,17 @@ const handleRemove = () => {
   handleClose()
 }
 
+
+
+const handleResetConfig = () => {
+    state.value.customization = {
+      x: 0,
+      y: 0,
+      z: 0,
+      seed: 0
+    }
+}
+
 // Function to completely reset all state
 const resetAllState = () => {
   state.value = {
@@ -304,11 +315,29 @@ watch(() => ui.value.rarityFilterIds, () => {
       </div>
     </template>
     <template #header-extra>
-      <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="t('modals.keychain.searchPlaceholder') as string"
-          class="w-64"
-      />
+      <div class="flex items-center gap-2">
+        <NButton
+            secondary
+            type="error"
+            :disabled="!currentKeychain && !state.selectedItem"
+            @click="handleResetConfig"
+        >
+          <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+            </svg>
+          </template>
+          {{ t('modals.weaponSkin.buttons.reset') }}
+        </NButton>
+        <NDivider vertical />
+        <NInput
+            v-model:value="state.searchQuery"
+            :placeholder="t('modals.keychain.searchPlaceholder') as string"
+            class="w-64"
+        />
+      </div>
     </template>
 
     <NSpace vertical size="large" class="-mt-2">
