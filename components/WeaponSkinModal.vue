@@ -1346,7 +1346,7 @@ type="success" secondary :class="[
               </button>
               <div v-if="customization.keychain" class="relative group h-28 flex flex-col items-center justify-center w-full">
                 <img
-                    :src="generateFlatKeychainUrl(customization.keychain.api.name, customization.keychain.seed)"
+                    :src="generateFlatKeychainUrl(customization.keychain.api.name, customization.keychain.seed, customization.keychain.api.rarity?.id, customization.keychain.wrapped_sticker_id || undefined)"
                     :alt="customization.keychain.api.name"
                     class="h-full w-full object-contain max-h-[85%]"
                 >

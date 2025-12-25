@@ -330,17 +330,51 @@ export function stickerToCanvasElement(
  * Replaces non-alphanumeric characters with underscores and lowercases
  */
 export function sanitizeCharmName(name: string): string {
-  // Remove "Charm | " prefix if present (case insensitive)
-  const cleanName = name.replace(/^charm\s*\|\s*/i, '').trim()
+  // Remove "Charm | " or "Souvenir Charm | " prefix if present (case insensitive)
+  const cleanName = name.replace(/^(souvenir\s+)?charm\s*\|\s*/i, '').trim()
   return cleanName.replace(/[^a-z0-9]/gi, '_').toLowerCase()
 }
 
 /**
  * Generate local flat image URL for a keychain/charm
  * Matches the file structure from the charm scraper service
+ * @param name The name of the keychain
+ * @param seed The seed (optional, defaults to 0)
+ * @param stickerRarityId The rarity ID of the wrapped sticker (optional, for sticker slabs)
+ * @param wrappedStickerId The ID of the wrapped sticker (optional, for sticker slabs)
  */
-export function generateFlatKeychainUrl(name: string, seed: number = 0): string {
+export function generateFlatKeychainUrl(name: string, seed: number = 0, stickerRarityId?: string, wrappedStickerId?: number): string {
   const safeName = sanitizeCharmName(name)
+
+  // Special handling for Sticker Slabs in grid view (based on name)
+  // If we have a stickerRarityId passed (from the modal), use that to select the correct slab image
+  if (safeName.includes('sticker_slab')) {
+    // If we have a specific wrapped sticker ID, use the pre-generated image
+    if (wrappedStickerId) {
+      return `/img/charms/sticker_slab/sticker_slab_sticker_${wrappedStickerId}.webp`
+    }
+
+    let rarityId = 'default'
+
+    // If a rarity ID is provided (e.g. 'rarity_legendary'), extract the short name
+    if (stickerRarityId) {
+      const cleanRarity = stickerRarityId.replace(/^rarity_/, '').toLowerCase()
+      // Map rarity to known slab variants
+      if (['rare', 'high_grade'].includes(cleanRarity)) rarityId = 'highgrade'
+      else if (['mythical', 'remarkable'].includes(cleanRarity)) rarityId = 'remarkable'
+      else if (['legendary', 'exotic'].includes(cleanRarity)) rarityId = 'exotic'
+      else if (['contraband', 'ancient'].includes(cleanRarity)) rarityId = 'contraband'
+      else rarityId = 'default'
+    } else {
+      // Fallback: Check if the name itself implies a rarity (e.g. legacy/backend name)
+      if (safeName.includes('high_grade')) rarityId = 'highgrade'
+      if (safeName.includes('remarkable')) rarityId = 'remarkable'
+      if (safeName.includes('exotic')) rarityId = 'exotic'
+      if (safeName.includes('contraband')) rarityId = 'contraband'
+    }
+
+    return `/img/charms/sticker_slab/sticker_slab_${rarityId}_empty.webp`
+  }
   // Seeds supported by the scraper
   const SUPPORTED_SEEDS = [1, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000]
 
@@ -373,6 +407,16 @@ interface KeychainInputData {
     rarity?: {
       color?: string
       name?: string
+    }
+  }
+  wrapped_sticker_id?: number | null
+  highlight_reel_id?: number | null
+  // Optional: Pass full wrapped sticker object to determine rarity for the slab image
+  wrapped_sticker?: {
+    rarity?: {
+      id?: string
+      name?: string
+      color?: string
     }
   }
 }
@@ -443,8 +487,17 @@ export function keychainToCanvasElement(
 
   // Optimize image URL: prefer local flat image if available
   const keychainName = keychain.api?.name || 'Unknown Keychain'
+  let flatImageUrl = ''
+
+  // Optimize image URL: prefer local flat image if available
   const seed = typeof keychain.seed === 'number' && !isNaN(keychain.seed) ? keychain.seed : 0
-  const flatImageUrl = generateFlatKeychainUrl(keychainName, seed)
+  flatImageUrl = generateFlatKeychainUrl(
+    keychainName,
+    seed,
+    keychain.wrapped_sticker?.rarity?.id,
+    keychain.wrapped_sticker_id || undefined
+  )
+
 
   return {
     id: `keychain-${Date.now()}`,
@@ -458,6 +511,8 @@ export function keychainToCanvasElement(
     slotIndex: null,
     z: typeof keychain.offset_z === 'number' ? keychain.offset_z : (typeof keychain.z === 'number' ? keychain.z : 0),
     seed,
+    wrapped_sticker_id: (typeof keychain.wrapped_sticker_id === 'number') ? keychain.wrapped_sticker_id : undefined,
+    highlight_reel_id: (typeof keychain.highlight_reel_id === 'number') ? keychain.highlight_reel_id : undefined,
     apiData: {
       name: keychainName,
       image: flatImageUrl, // Use the flat image URL
@@ -553,6 +608,8 @@ interface KeychainOutputData {
   y: number
   z: number
   seed: number
+  wrapped_sticker_id?: number
+  highlight_reel_id?: number
   api: {
     name: string
     image: string
@@ -598,6 +655,8 @@ export function canvasElementToKeychain(
     y: offsetY,   // Save in percentage format for symmetry with Steam
     z: element.z || 0,
     seed: element.seed || 0,
+    wrapped_sticker_id: element.wrapped_sticker_id || undefined,
+    highlight_reel_id: element.highlight_reel_id || undefined,
     api: element.apiData
   }
 }

@@ -42,6 +42,10 @@ export interface CanvasElement {
   z?: number
   /** Optional seed (for keychains) */
   seed?: number
+  /** Optional wrapped sticker ID (for sticker slabs) */
+  wrapped_sticker_id?: number | null
+  /** Optional highlight reel ID (for highlight reels) */
+  highlight_reel_id?: number | null
   /** API data for display */
   apiData: {
     name: string

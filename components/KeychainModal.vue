@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { APIKeychain, IEnhancedWeaponKeychain } from "~/server/utils/interfaces";
+import type { APIKeychain, IEnhancedWeaponKeychain, APISticker } from "~/server/utils/interfaces";
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates';
+import WrappedStickerModal from './WrappedStickerModal.vue';
 
 const props = defineProps<{
   visible: boolean
   weaponName?: string
   team?: number
-  currentKeychain?: { id?: number; x?: number; y?: number; z?: number; seed?: number } | null
+  currentKeychain?: { id?: number; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number | null; highlight_reel_id?: number | null } | null
 }>()
 
 const emit = defineEmits<{
@@ -27,8 +28,12 @@ const state = ref({
     x: 0,
     y: 0,
     z: 0,
-    seed: 0
-  }
+    seed: 0,
+    wrapped_sticker_id: null as number | null,
+    highlight_reel_id: null as number | null
+  },
+  wrappedStickerModalVisible: false,
+  selectedWrappedSticker: null as APISticker | null
 })
 
 const PAGE_SIZE = 10
@@ -136,6 +141,26 @@ const teamBadgeClasses = computed(() => {
   return ''
 })
 
+const isStickerSlab = computed(() => {
+  const name = state.value.selectedItem?.name?.toLowerCase() || ''
+  return name.includes('sticker slab')
+})
+
+const isHighlightReel = computed(() => {
+  const name = state.value.selectedItem?.name?.toLowerCase() || ''
+  return name.includes('highlight')
+})
+
+const handleSelectWrappedSticker = (sticker: APISticker) => {
+  state.value.selectedWrappedSticker = sticker
+  state.value.customization.wrapped_sticker_id = Number(sticker.id.replace('sticker-', ''))
+}
+
+const clearWrappedSticker = () => {
+  state.value.selectedWrappedSticker = null
+  state.value.customization.wrapped_sticker_id = null
+}
+
 const fetchItems = async () => {
   try {
     state.value.isLoading = true
@@ -159,7 +184,9 @@ const handleSelect = (item: APIKeychain) => {
       x: 0,
       y: 0,
       z: 0,
-      seed: 0
+      seed: 0,
+      wrapped_sticker_id: null,
+      highlight_reel_id: null
     }
   }
 
@@ -178,6 +205,8 @@ const handleSave = () => {
     y: state.value.customization.y,
     z: state.value.customization.z,
     seed: state.value.customization.seed,
+    wrapped_sticker_id: state.value.customization.wrapped_sticker_id || undefined,
+    highlight_reel_id: state.value.customization.highlight_reel_id || undefined,
     api: {
       name: state.value.selectedItem.name,
       image: state.value.selectedItem.image,
@@ -208,7 +237,9 @@ const handleResetConfig = () => {
       x: 0,
       y: 0,
       z: 0,
-      seed: 0
+      seed: 0,
+      wrapped_sticker_id: null,
+      highlight_reel_id: null
     }
 }
 
@@ -223,8 +254,12 @@ const resetAllState = () => {
       x: 0,
       y: 0,
       z: 0,
-      seed: 0
-    }
+      seed: 0,
+      wrapped_sticker_id: null,
+      highlight_reel_id: null
+    },
+    wrappedStickerModalVisible: false,
+    selectedWrappedSticker: null
   }
 }
 
@@ -244,10 +279,36 @@ watchEffect(() => {
       x: props.currentKeychain.x ?? 0,
       y: props.currentKeychain.y ?? 0,
       z: props.currentKeychain.z ?? 0,
-      seed: props.currentKeychain.seed ?? 0
+      seed: props.currentKeychain.seed ?? 0,
+      wrapped_sticker_id: props.currentKeychain.wrapped_sticker_id ?? null,
+      highlight_reel_id: props.currentKeychain.highlight_reel_id ?? null
+    }
+    // Fetch wrapped sticker details if exists (optional optimisation: fetch only if not present)
+    if (props.currentKeychain.wrapped_sticker_id) {
+        // We'll rely on the parent or canvas to handle visual, but for UI preview we might want to fetch.
+        // For simplicity, we won't fetch the full sticker object here unless creating a new one.
+        // If we really need the preview of the EXISTING sticker, we might need an API call or assume data is sufficient.
     }
   }
 })
+
+const fetchWrappedStickerDetails = async (id: number) => {
+  if (!id) return
+  try {
+    // Check if we already have it to avoid refetching
+    if (state.value.selectedWrappedSticker && Number(state.value.selectedWrappedSticker.id.replace('sticker-', '')) === id) return
+
+    const response = await fetch(`/api/data/stickers?id=sticker-${id}`)
+    const data = await response.json()
+    const stickers = data.data || data.stickers || []
+    
+    if (stickers.length > 0) {
+      state.value.selectedWrappedSticker = stickers[0]
+    }
+  } catch (error) {
+    console.error('Error fetching wrapped sticker details:', error)
+  }
+}
 
 // Initialize with current keychain if editing
 watch(() => props.currentKeychain, (newKeychain) => {
@@ -256,7 +317,14 @@ watch(() => props.currentKeychain, (newKeychain) => {
       x: newKeychain.x ?? 0,
       y: newKeychain.y ?? 0,
       z: newKeychain.z ?? 0,
-      seed: newKeychain.seed ?? 0
+      seed: newKeychain.seed ?? 0,
+      wrapped_sticker_id: newKeychain.wrapped_sticker_id ?? null,
+      highlight_reel_id: newKeychain.highlight_reel_id ?? null
+    }
+
+    // Fetch wrapped sticker details if exists and not already loaded or mismatch
+    if (newKeychain.wrapped_sticker_id) {
+      fetchWrappedStickerDetails(newKeychain.wrapped_sticker_id)
     }
   }
 }, { immediate: true })
@@ -348,7 +416,7 @@ watch(() => ui.value.rarityFilterIds, () => {
           <!-- Left side - Image -->
           <div class="flex flex-col items-center justify-center">
             <img
-                :src="generateFlatKeychainUrl(state.selectedItem.name, state.customization.seed)"
+                :src="generateFlatKeychainUrl(state.selectedItem.name, state.customization.seed, state.selectedWrappedSticker?.rarity?.id, state.customization.wrapped_sticker_id || undefined)"
                 :alt="state.selectedItem.name"
                 class="scale-125 h-40 object-top object-cover"
             >
@@ -394,7 +462,7 @@ watch(() => ui.value.rarityFilterIds, () => {
                     :input-props="digitOnlyInputProps"
                 />
               </div>
-              <div>
+              <div v-if="!isStickerSlab && !isHighlightReel">
                 <h4 class="text-xs font-medium mb-1 text-gray-400">{{ t('modals.keychain.labels.seed') }}</h4>
                 <NInputNumber
                     v-model:value="state.customization.seed"
@@ -406,6 +474,39 @@ watch(() => ui.value.rarityFilterIds, () => {
                     class="w-full"
                     :input-props="digitOnlyInputProps"
                 />
+              </div>
+
+               <!-- Highlight Reel ID Input -->
+              <div v-if="isHighlightReel">
+                <h4 class="text-xs font-medium mb-1 text-gray-400">Highlight ID</h4>
+                 <NInputNumber
+                    v-model:value="state.customization.highlight_reel_id"
+                    :min="0"
+                    size="small"
+                    class="w-full"
+                    :input-props="digitOnlyInputProps"
+                    placeholder="Enter Highlight ID"
+                />
+              </div>
+
+              <!-- Sticker Slab Controls -->
+              <div v-if="isStickerSlab" class="col-span-2 sm:col-span-4 border-t border-[#313030] pt-3 mt-1">
+                <h4 class="text-xs font-medium mb-2 text-gray-400">Wrapped Sticker</h4>
+                
+                <div v-if="state.selectedWrappedSticker || state.customization.wrapped_sticker_id" class="flex items-center gap-3 bg-[#101010] p-2 rounded border border-[#313030]">
+                   <!-- If we have the object, show image. If only ID (legacy/edit), just show ID/placeholder -->
+                   <!-- Tiny preview removed as per request -->
+                   <div class="flex-1 min-w-0">
+                     <div class="text-sm font-medium truncate text-gray-200">
+                       {{ state.selectedWrappedSticker ? state.selectedWrappedSticker.name : `Sticker ID: ${state.customization.wrapped_sticker_id}` }}
+                     </div>
+                   </div>
+                   <NButton size="tiny" type="error" ghost @click="clearWrappedSticker">×</NButton>
+                </div>
+
+                <NButton v-else block dashed size="small" @click="state.wrappedStickerModalVisible = true">
+                   + Select Sticker to Wrap
+                </NButton>
               </div>
             </div>
 
@@ -524,6 +625,11 @@ watch(() => ui.value.rarityFilterIds, () => {
       </div>
     </NSpace>
   </NModal>
+
+  <WrappedStickerModal
+    v-model:visible="state.wrappedStickerModalVisible"
+    @select="handleSelectWrappedSticker"
+  />
 </template>
 
 <style scoped>

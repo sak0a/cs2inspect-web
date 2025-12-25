@@ -185,7 +185,7 @@ export const formatWeaponStickers = (stickers: IEnhancedWeaponSticker[]) => {
 /**
  * Formats weapon keychain for database storage
  */
-export const formatWeaponKeychain = (keychain: { id?: number; x?: number; y?: number; z?: number; seed?: number } | null) => {
+export const formatWeaponKeychain = (keychain: { id?: number; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number; highlight_reel_id?: number } | null) => {
     const defaultKeychain = {
         id: 0,
         x: 0,

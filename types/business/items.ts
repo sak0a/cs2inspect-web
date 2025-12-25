@@ -187,6 +187,10 @@ export interface KeychainConfiguration {
   offset_z?: number
   /** Random seed for positioning */
   seed: number
+  /** ID of the sticker wrapped inside the charm (for Sticker Slabs) */
+  wrapped_sticker_id?: number
+  /** ID of the highlight reel (for Highlight Reel charms) */
+  highlight_reel_id?: number
   /** API Data (optional) */
   api?: {
     name?: string

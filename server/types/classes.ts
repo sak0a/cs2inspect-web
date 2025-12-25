@@ -128,6 +128,8 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
     y: number;
     z: number;
     seed: number;
+    wrapped_sticker_id?: number | null;
+    highlight_reel_id?: number | null;
     api: { name: string; image: string; rarity: ItemRarity; };
 
     constructor(data: IEnhancedWeaponKeychain) {
@@ -136,16 +138,28 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
         this.y = data.y;
         this.z = data.z;
         this.seed = data.seed;
+        this.wrapped_sticker_id = data.wrapped_sticker_id;
+        this.highlight_reel_id = data.highlight_reel_id;
         this.api = data.api;
     }
 
     /**
      * Creates EnhancedWeaponKeychain from database string and API data
-     * @param keychain Database string in format: id;x;y;z;seed
+     * @param keychain Database string in format: id;x;y;z;seed[;wrapped_sticker_id;highlight_reel_id]
      * @param keychainData Array of API keychain data
      */
     static fromStringAndAPI(keychain: string, keychainData: APIKeychain[]): EnhancedWeaponKeychain {
-        const [keychainId, x, y, z, seed] = keychain.split(';');
+        const parts = keychain.split(';');
+        const keychainId = parts[0];
+        const x = parts[1];
+        const y = parts[2];
+        const z = parts[3];
+        const seed = parts[4];
+
+        // Optional extended fields
+        const wrapped_sticker_id = parts.length > 5 && parts[5] !== '' ? parseInt(parts[5]) : null;
+        const highlight_reel_id = parts.length > 6 && parts[6] !== '' ? parseInt(parts[6]) : null;
+
         const keychainInfo = keychainData.find((k: APIKeychain) => k.id === ("keychain-" + keychainId));
 
         return new EnhancedWeaponKeychain({
@@ -154,6 +168,8 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
             y: parseFloat(y),
             z: parseFloat(z),
             seed: parseInt(seed),
+            wrapped_sticker_id,
+            highlight_reel_id,
             api: {
                 name: keychainInfo?.name || '',
                 image: keychainInfo?.image || '',
@@ -164,10 +180,12 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
 
     /**
      * Converts keychain data to database string format
-     * Format: id;x;y;z;seed
+     * Format: id;x;y;z;seed;wrapped_sticker_id;highlight_reel_id
      */
     convertToDatabaseString(): string {
-        return `${this.id};${this.x};${this.y};${this.z};${this.seed}`;
+        const wrapped = this.wrapped_sticker_id ?? '';
+        const highlight = this.highlight_reel_id ?? '';
+        return `${this.id};${this.x};${this.y};${this.z};${this.seed};${wrapped};${highlight}`;
     }
 
     /**
@@ -181,6 +199,8 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
             y: this.y,
             z: this.z,
             seed: this.seed,
+            wrapped_sticker_id: this.wrapped_sticker_id,
+            highlight_reel_id: this.highlight_reel_id,
             api: this.api
         }
     }

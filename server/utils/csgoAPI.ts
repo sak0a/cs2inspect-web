@@ -1,6 +1,7 @@
 import type { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible, APIHighlight } from "~/server/utils/interfaces";
 import { EXTERNAL_API_URLS, CACHE_PERIODS, DATA_STALENESS_THRESHOLD } from './constants';
 import { processSkinData } from './skinUtils';
+import { processKeychainData } from './keychainUtils';
 import fs from 'fs';
 import path from 'path';
 
@@ -50,7 +51,8 @@ const API_FILES: Record<string, ApiFileConfig> = {
     },
     keychains: {
         url: EXTERNAL_API_URLS.KEYCHAINS,
-        path: path.join(STORAGE_DIR, 'keychains.json')
+        path: path.join(STORAGE_DIR, 'keychains.json'),
+        processor: processKeychainData
     },
     agents: {
         url: EXTERNAL_API_URLS.AGENTS,
