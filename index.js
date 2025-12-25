@@ -73,15 +73,16 @@ async function scrapeCharms() {
         const safeName = sanitizeName(name);
 
         // 1. Download Default Image
-        const defaultUrl = `https://img.cs2inspects.com/${id}_100_front.webp`;
-        const defaultFilename = `${safeName}_default.webp`;
+        const envUrl = process.env.SCRAPE_URL || 'localhost:3000';
+        const defaultUrl = envUrl + `/${id}_100_front.webp`;
+        const defaultFilename = `${safeName}_default_empty.webp`;
 
         const res = await downloadImage(defaultUrl, safeName, defaultFilename);
         if (res === true) totalDownloaded++;
 
         // 2. Download Variants
         const promises = SEEDS.map(async (seed) => {
-            const variantUrl = `https://img.cs2inspects.com/${id}_${seed}_front.webp`;
+            const variantUrl = envUrl + `/${id}_${seed}_front.webp`;
             const variantFilename = `${safeName}_seed_${seed}.webp`;
             const vRes = await downloadImage(variantUrl, safeName, variantFilename);
             if (vRes === true) totalDownloaded++;
@@ -116,7 +117,7 @@ async function scrapeStickerSlabs() {
                 startId = progress.lastId + 1;
                 console.log(`Resuming from ID ${startId}...`);
             }
-        } catch (e) {
+        } catch {
             console.error('Error reading progress file, starting from 1');
         }
     }
@@ -128,7 +129,8 @@ async function scrapeStickerSlabs() {
 
     // Helper function to process a single ID
     const processId = async (id) => {
-        const url = `https://img.cs2inspects.com/1355_37_${id}_front.webp`;
+        const envUrl = process.env.SCRAPE_URL || 'localhost:3000';
+        const url = envUrl + `/1355_37_${id}_front.webp`;
         const filename = `sticker_slab_sticker_${id}.webp`;
 
         const result = await downloadImage(url, 'sticker_slab', filename);
