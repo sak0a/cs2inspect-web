@@ -1,4 +1,4 @@
-import type { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible } from "~/server/utils/interfaces";
+import type { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible, APIHighlight } from "~/server/utils/interfaces";
 import { EXTERNAL_API_URLS, CACHE_PERIODS, DATA_STALENESS_THRESHOLD } from './constants';
 import { processSkinData } from './skinUtils';
 import fs from 'fs';
@@ -10,6 +10,7 @@ let agentData: APIAgent[];
 let keychainData: APIKeychain[];
 let musicKitData: APIMusicKit[];
 let collectibleData: APICollectible[];
+let highlightData: APIHighlight[];
 
 // Data freshness tracking
 let dataLoadTimestamp: string | null = null;
@@ -62,6 +63,10 @@ const API_FILES: Record<string, ApiFileConfig> = {
     collectibles: {
         url: EXTERNAL_API_URLS.COLLECTIBLES,
         path: path.join(STORAGE_DIR, 'collectibles.json')
+    },
+    highlights: {
+        url: EXTERNAL_API_URLS.HIGHLIGHTS,
+        path: path.join(STORAGE_DIR, 'highlights.json')
     }
 };
 
@@ -89,6 +94,10 @@ export function getAgentData(): APIAgent[] {
 
 export function getCollectibleData(): APICollectible[] {
     return collectibleData;
+}
+
+export function getHighlightData(): APIHighlight[] {
+    return highlightData;
 }
 
 /**
@@ -123,6 +132,11 @@ export async function getAgentDataAsync(): Promise<APIAgent[]> {
 export async function getCollectibleDataAsync(): Promise<APICollectible[]> {
     await ensureDataInitialized();
     return collectibleData;
+}
+
+export async function getHighlightDataAsync(): Promise<APIHighlight[]> {
+    await ensureDataInitialized();
+    return highlightData;
 }
 
 /**
@@ -253,13 +267,14 @@ export async function initCSGOApiData() {
         }
 
         // Load all data types in parallel
-        const [skins, stickers, keychains, agents, musicKits, collectibles] = await Promise.all([
+        const [skins, stickers, keychains, agents, musicKits, collectibles, highlights] = await Promise.all([
             loadData<APISkin>('skins'),
             loadData<APISticker>('stickers'),
             loadData<APIKeychain>('keychains'),
             loadData<APIAgent>('agents'),
             loadData<APIMusicKit>('music_kits'),
-            loadData<APICollectible>('collectibles')
+            loadData<APICollectible>('collectibles'),
+            loadData<APIHighlight>('highlights')
         ]);
 
         // Assign to global variables
@@ -269,6 +284,7 @@ export async function initCSGOApiData() {
         agentData = agents;
         musicKitData = musicKits;
         collectibleData = collectibles;
+        highlightData = highlights;
 
         // Track data freshness
         dataLoadTimestamp = new Date().toISOString();

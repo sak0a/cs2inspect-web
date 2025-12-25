@@ -24,6 +24,7 @@ export type {
   APIMusicKit,
   APIKeychain,
   APICollectible,
+  APIHighlight,
   CsTeam,
 
   // Item types

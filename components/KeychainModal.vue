@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { APIKeychain, IEnhancedWeaponKeychain } from "~/server/utils/interfaces";
+import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates';
 
 const props = defineProps<{
   visible: boolean
@@ -347,7 +348,7 @@ watch(() => ui.value.rarityFilterIds, () => {
           <!-- Left side - Image -->
           <div class="flex flex-col items-center justify-center">
             <img
-                :src="state.selectedItem.image"
+                :src="generateFlatKeychainUrl(state.selectedItem.name, state.customization.seed)"
                 :alt="state.selectedItem.name"
                 class="scale-125 h-40 object-top object-cover"
             >
@@ -486,7 +487,7 @@ watch(() => ui.value.rarityFilterIds, () => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="item.image"
+                :src="generateFlatKeychainUrl(item.name)"
                 :alt="item.name"
                 class="w-full h-24 object-contain mb-2"
                 loading="lazy"

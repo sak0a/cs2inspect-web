@@ -10,9 +10,10 @@ import type {
   KeychainConfiguration
 } from '~/types'
 
-// Legacy imports for backward compatibility
+// Backward compatibility imports
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
 import { steamAuth } from "~/services/steamAuth"
+import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
 import InlineVisualCustomizer from './InlineVisualCustomizer.vue'
 
 /**
@@ -1343,15 +1344,15 @@ type="success" secondary :class="[
                   <path d="M6 6l12 12" />
                 </svg>
               </button>
-              <div v-if="customization.keychain" class=" relative group h-30">
+              <div v-if="customization.keychain" class="relative group h-28 flex flex-col items-center justify-center w-full">
                 <img
-                    :src="customization.keychain.api.image"
+                    :src="generateFlatKeychainUrl(customization.keychain.api.name, customization.keychain.seed)"
                     :alt="customization.keychain.api.name"
-                    class="w-full h-full object-contain"
+                    class="h-full w-full object-contain max-h-[85%]"
                 >
-                <p class="text-sm text-center text-gray-400 mt-1">{{ customization.keychain.api.name.replace('Charm | ', '') }}</p>
+                <p class="text-xs text-center text-gray-400 mt-1 truncate w-full px-1">{{ customization.keychain.api.name.replace('Charm | ', '') }}</p>
               </div>
-              <div v-else class="h-30 flex items-center justify-center">
+              <div v-else class="h-28 flex items-center justify-center">
                 <span class="text-gray-400 text-sm">{{ t('modals.weaponSkin.keychain.add') }}</span>
               </div>
 

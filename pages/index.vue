@@ -1,441 +1,366 @@
 <script setup lang="ts">
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
-import type { WeaponCustomization, KnifeCustomization, GloveCustomization, IEnhancedWeapon, IEnhancedKnife, IEnhancedGlove } from '~/server/utils/interfaces'
 
 const user = ref<SteamUser | null>(null)
-const showImportModal = ref(false)
-const showWeaponModal = ref(false)
-const showKnifeModal = ref(false)
-const showGloveModal = ref(false)
-const isGeneratingLink = ref(false)
 const message = useMessage()
 const { t } = useI18n()
 
-// Use the inspect item composable
-const {
-  inspectedItem,
-  itemType,
-  customization,
-  isLoading,
-  error,
-  analyzeInspectLink,
-  loadFromStorage,
-  clearItem,
-  updateCustomization,
-  updateItem,
-  generateInspectLink,
-  hasItem
-} = useInspectItem()
+// Computed translations to avoid type issues in template
+const trans = {
+  title: computed(() => t('inspectLink.title') as string),
+  description: computed(() => t('inspectLink.description') as string),
+  inspectUrlLabel: computed(() => t('inspectLink.inspectUrlLabel') as string),
+  placeholder: computed(() => t('inspectLink.placeholder') as string),
+  importButton: computed(() => t('inspectLink.importButton') as string),
+  decodedJsonLabel: computed(() => t('inspectLink.decodedJsonLabel') as string),
+  copy: computed(() => t('common.copy') as string),
+  generateButton: computed(() => t('inspectLink.generateButton') as string),
+}
 
-// Create a new item from scratch
-const createNewItem = async (type: 'weapon' | 'knife' | 'glove') => {
-  if (!user.value?.steamId) {
-    message.error(t('auth.loginRequired') as string)
+const inspectUrl = ref('')
+const decodedJson = ref('')
+const isLoading = ref(false)
+const isGenerating = ref(false)
+
+/**
+ * Decodes an inspect link by calling the API
+ * This will show the raw item data in the JSON editor
+ */
+const handleDecode = async () => {
+  if (!inspectUrl.value) {
+    message.warning(t('modals.inspectUrl.noInspectUrl') as string)
     return
   }
 
+  isLoading.value = true
   try {
-    // Clear any existing item
-    clearItem()
+    const response = await fetch(`/api/inspect?action=inspect-item&steamId=${user.value?.steamId || ''}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ 
+        inspectUrl: inspectUrl.value,
+        itemType: 'weapon'
+      })
+    })
 
-    // Create a new item based on type
-    if (type === 'weapon') {
-      // Default to AK-47
-      const defaultWeapon = {
-        weapon_defindex: 7,
-        defaultName: 'AK-47',
-        paintIndex: 0,
-        defaultImage: '/images/weapons/ak47.png',
-        weapon_name: 'weapon_ak47',
-        category: 'rifle',
-        availableTeams: 'both',
-        name: 'AK-47',
-        image: '/images/weapons/ak47.png',
-        minFloat: 0,
-        maxFloat: 1,
-        rarity: { id: '0', name: 'Default', color: '#b0c3d9' },
-        team: null
-      }
+    const data = await response.json()
 
-      const defaultCustomization: WeaponCustomization = {
-        active: true,
-        statTrak: false,
-        statTrakCount: 0,
-        defindex: 7,
-        paintIndex: 0,
-        paintIndexOverride: false,
-        pattern: 0,
-        wear: 0,
-        nameTag: '',
-        stickers: [null, null, null, null, null],
-        keychain: null,
-        team: 0
-      }
-
-      updateItem(defaultWeapon)
-      updateCustomization(defaultCustomization)
-      itemType.value = 'weapon'
-      showWeaponModal.value = true
-    }
-    else if (type === 'knife') {
-      // Default to Karambit
-      const defaultKnife = {
-        weapon_defindex: 507,
-        defaultName: 'Karambit',
-        paintIndex: 0,
-        defaultImage: '/images/knives/karambit.png',
-        weapon_name: 'weapon_knife_karambit',
-        category: 'knife',
-        availableTeams: 'both',
-        name: 'Karambit',
-        image: '/images/knives/karambit.png',
-        minFloat: 0,
-        maxFloat: 1,
-        rarity: { id: '0', name: 'Default', color: '#b0c3d9' },
-        team: null
-      }
-
-      const defaultCustomization: KnifeCustomization = {
-        active: true,
-        statTrak: false,
-        statTrakCount: 0,
-        defindex: 507,
-        paintIndex: 0,
-        paintIndexOverride: false,
-        pattern: 0,
-        wear: 0,
-        nameTag: '',
-        team: 0
-      }
-
-      updateItem(defaultKnife)
-      updateCustomization(defaultCustomization)
-      itemType.value = 'knife'
-      showKnifeModal.value = true
-    }
-    else if (type === 'glove') {
-      // Default to Sport Gloves
-      const defaultGlove = {
-        weapon_defindex: 5027,
-        defaultName: 'Sport Gloves',
-        paintIndex: 0,
-        defaultImage: '/images/gloves/sport_gloves.png',
-        weapon_name: 'weapon_glove_sporty',
-        category: 'glove',
-        availableTeams: 'both',
-        name: 'Sport Gloves',
-        image: '/images/gloves/sport_gloves.png',
-        minFloat: 0,
-        maxFloat: 1,
-        rarity: { id: '0', name: 'Default', color: '#b0c3d9' },
-        team: null
-      }
-
-      const defaultCustomization: GloveCustomization = {
-        active: true,
-        defindex: 5027,
-        paintIndex: 0,
-        paintIndexOverride: false,
-        pattern: 0,
-        wear: 0,
-        team: 0
-      }
-
-      updateItem(defaultGlove)
-      updateCustomization(defaultCustomization)
-      itemType.value = 'glove'
-      showGloveModal.value = true
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to decode inspect link')
     }
 
-    message.success(t('inspectItem.itemCreated'))
-  } catch (err: unknown) {
-    console.error('Error creating item:', err)
-    const errorMessage = err instanceof Error ? err.message : String(err)
-    message.error(errorMessage || t('inspectItem.createFailed'))
-  }
-}
-
-// Handle inspect link submission
-const handleInspectLinkSubmit = async (inspectUrl: string) => {
-  if (!user.value?.steamId) {
-    message.error(t('auth.loginRequired'))
-    return
-  }
-
-  try {
-    await analyzeInspectLink(inspectUrl, user.value.steamId)
-    showImportModal.value = false
-
-    if (hasItem.value) {
-      message.success(t('inspectItem.importSuccess'))
-    }
+    // Display the item data in the text area
+    decodedJson.value = JSON.stringify(data.item, null, 2)
+    message.success(t('inspectLink.decodeSuccess') as string)
   } catch (err: unknown) {
     const errorMessage = err instanceof Error ? err.message : String(err)
-    message.error(errorMessage || t('inspectItem.importFailed'))
-  }
-}
-
-// Open the appropriate modal based on item type
-const handleCustomize = () => {
-  if (!hasItem.value) return
-
-  switch (itemType.value) {
-    case 'weapon':
-      showWeaponModal.value = true
-      break
-    case 'knife':
-      showKnifeModal.value = true
-      break
-    case 'glove':
-      showGloveModal.value = true
-      break
-  }
-}
-
-// Handle weapon skin save
-const handleWeaponSkinSave = (weapon: IEnhancedWeapon, newCustomization: WeaponCustomization) => {
-  updateItem(weapon)
-  updateCustomization(newCustomization)
-  showWeaponModal.value = false
-  message.success(t('inspectItem.customizationSaved'))
-}
-
-// Handle knife skin save
-const handleKnifeSkinSave = (knife: IEnhancedKnife, newCustomization: KnifeCustomization) => {
-  updateItem(knife)
-  updateCustomization(newCustomization)
-  showKnifeModal.value = false
-  message.success(t('inspectItem.customizationSaved'))
-}
-
-// Handle glove skin save
-const handleGloveSkinSave = (glove: IEnhancedGlove, newCustomization: GloveCustomization) => {
-  updateItem(glove)
-  updateCustomization(newCustomization)
-  showGloveModal.value = false
-  message.success(t('inspectItem.customizationSaved'))
-}
-
-// Generate inspect link for current item
-const handleGenerateLink = async () => {
-  if (!hasItem.value || !user.value?.steamId) return
-
-  isGeneratingLink.value = true
-
-  try {
-    const link = await generateInspectLink(user.value.steamId)
-
-    if (link) {
-      await navigator.clipboard.writeText(link)
-      message.success(t('inspectItem.linkCopied'), { duration: 3000 })
-    } else {
-      throw new Error(t('inspectItem.generateLinkFailed'))
-    }
-  } catch (err: unknown) {
-    const errorMessage = err instanceof Error ? err.message : String(err)
-    message.error(errorMessage || t('inspectItem.generateLinkFailed'))
+    message.error(errorMessage || t('modals.inspectUrl.defaultError') as string)
   } finally {
-    isGeneratingLink.value = false
+    isLoading.value = false
   }
 }
 
-// Other team has skin (always false for this feature)
-const otherTeamHasSkin = computed(() => false)
+/**
+ * Generates an inspect link from the JSON data in the text area
+ */
+const handleGenerate = async () => {
+  if (!decodedJson.value) return
+
+  try {
+    const parsedData = JSON.parse(decodedJson.value)
+    isGenerating.value = true
+
+    const response = await fetch(`/api/inspect?action=create-url&steamId=${user.value?.steamId || ''}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        ...parsedData,
+        // Ensure common fields are present if they were named differently in the input JSON
+        defindex: parsedData.defindex,
+        paintindex: parsedData.paintindex,
+        paintseed: parsedData.paintseed,
+        paintwear: parsedData.paintwear,
+        statTrak: parsedData.killeaterscoretype !== undefined ? !!parsedData.killeaterscoretype : parsedData.statTrak,
+        statTrakCount: parsedData.killeatervalue || parsedData.statTrakCount,
+        nameTag: parsedData.customname || parsedData.nameTag,
+        stickers: parsedData.stickers,
+        keychain: (parsedData.keychains && parsedData.keychains[0]) || parsedData.keychain,
+        itemType: parsedData.itemType || 'weapon'
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to generate inspect link')
+    }
+
+    // Copy to clipboard
+    await navigator.clipboard.writeText(data.inspectUrl)
+    message.success(t('inspectLink.copySuccess') as string)
+  } catch (err: unknown) {
+    if (err instanceof SyntaxError) {
+      message.error(t('inspectLink.invalidJson') as string)
+    } else {
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      message.error(errorMessage || 'Failed to generate inspect link')
+    }
+  } finally {
+    isGenerating.value = false
+  }
+}
+
+const handleCopyJson = () => {
+  if (!decodedJson.value) return
+  navigator.clipboard.writeText(decodedJson.value)
+  message.success(t('general.copiedToClipboard') as string)
+}
 
 onMounted(() => {
   user.value = steamAuth.getSavedUser()
-  loadFromStorage()
 })
 </script>
 
 <template>
-  <div class="pb-4 px-4 bg-[#181818]">
-    <div class="max-w-7xl mx-auto">
-
-      <!-- Description -->
-      <div class="mb-4">
-        <p class="text-gray-400">{{ t('inspectItem.description') }}</p>
+  <div class="min-h-screen bg-[#181818] py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto">
+      
+      <!-- Header Section -->
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-extrabold text-white tracking-tight mb-4 flex items-center justify-center gap-3">
+          <span class="p-3 bg-blue-600/20 rounded-2xl text-blue-500 shadow-xl shadow-blue-500/10 border border-blue-500/20">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5" />
+            </svg>
+          </span>
+          {{ trans.title.value }}
+        </h1>
+        <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+          {{ trans.description.value }}
+        </p>
       </div>
 
-      <!-- Main Content -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <h1>Coming soon</h1>
-        <!-- Left Side: Item Display -->
-      <!--
-        <div>
-          <InspectItemDisplay
-            :item="inspectedItem"
-            :item-type="itemType"
-            :customization="customization"
-            :is-loading="isLoading"
-            :user="user"
-            @customize="handleCustomize"
-            @clear="clearItem"
-            @generate-link="handleGenerateLink"
-          />
-        </div>
-      -->
-        <!-- Right Side: Controls -->
-         <!--
-        <div class="bg-[#242424] p-6 rounded-lg">
-          <h2 class="text-xl font-bold text-white mb-4">{{ t('inspectItem.controlsSection') }}</h2>
-        -->
-           <!-- Create New Item Section -->
-            <!--
-          <div class="mb-6">
-            <h3 class="text-lg font-semibold text-white mb-3">{{ t('inspectItem.createNewItem') }}</h3>
-            <p class="text-gray-300 mb-3">{{ t('inspectItem.createNewItemDesc') }}</p>
+      <!-- Main Card -->
+      <div class="bg-[#242424] rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative group">
+        <!-- Subtle gradient background -->
+        <div class="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5 pointer-events-none"></div>
+        
+        <div class="p-8 sm:p-10 relative">
+          <div class="space-y-8">
+            
+            <!-- Input Link Group -->
+            <div class="space-y-3">
+              <label class="text-sm font-semibold text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                {{ trans.inspectUrlLabel.value }}
+              </label>
+              <div class="flex flex-col sm:flex-row gap-4">
+                <div class="flex-1 relative group">
+                  <NInput
+                    v-model:value="inspectUrl"
+                    type="text"
+                    size="large"
+                    :placeholder="trans.placeholder.value"
+                    class="main-input"
+                  />
+                  <div class="absolute inset-0 rounded-xl border border-blue-500/0 group-focus-within:border-blue-500/50 transition-all pointer-events-none"></div>
+                </div>
+                <NButton
+                  type="primary"
+                  size="large"
+                  :loading="isLoading"
+                  class="decode-button px-8 font-bold"
+                  @click="handleDecode"
+                >
+                  <template #icon>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="16 16 12 12 8 16" />
+                      <line x1="12" y1="12" x2="12" y2="21" />
+                      <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+                      <polyline points="16 16 12 12 8 16" />
+                    </svg>
+                  </template>
+                  {{ trans.importButton.value }}
+                </NButton>
+              </div>
+            </div>
 
-            <div class="grid grid-cols-3 gap-3 mb-4">
+            <!-- JSON Editor Group -->
+            <div class="space-y-3">
+              <div class="flex justify-between items-center ml-1">
+                <label class="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="16 18 22 12 16 6" />
+                    <polyline points="8 6 2 12 8 18" />
+                  </svg>
+                  {{ trans.decodedJsonLabel.value }}
+                </label>
+                <div class="flex gap-2">
+                  <NButton
+                    quaternary
+                    size="tiny"
+                    type="info"
+                    class="hover:bg-blue-500/10 transition-colors"
+                    @click="handleCopyJson"
+                  >
+                    <template #icon>
+                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                      </svg>
+                    </template>
+                    {{ trans.copy.value }}
+                  </NButton>
+                </div>
+              </div>
+              <div class="relative group rounded-2xl overflow-hidden shadow-inner bg-black/20 border border-white/5">
+                <NInput
+                  v-model:value="decodedJson"
+                  type="textarea"
+                  :autosize="{ minRows: 12, maxRows: 24 }"
+                  placeholder='{ "defindex": 7, "paintindex": 0, ... }'
+                  class="json-editor"
+                />
+                <div class="absolute bottom-4 right-4 pointer-events-none opacity-20 text-xs font-mono text-gray-500">
+                  JSON-SCHEMA-V1
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="flex items-center justify-between pt-4 border-t border-white/5">
+              <div class="text-xs text-gray-500 font-medium flex items-center gap-2">
+                <div class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"></div>
+                API connected and ready
+              </div>
               <NButton
                 type="info"
-                :disabled="isLoading"
-                @click="createNewItem('weapon')"
+                size="large"
+                :loading="isGenerating"
+                :disabled="!decodedJson"
+                class="generate-button px-10 shadow-lg shadow-blue-500/20"
+                @click="handleGenerate"
               >
-                {{ t('common.weapon') }}
-              </NButton>
-
-              <NButton
-                type="info"
-                :disabled="isLoading"
-                @click="createNewItem('knife')"
-              >
-                {{ t('common.knife') }}
-              </NButton>
-
-              <NButton
-                type="info"
-                :disabled="isLoading"
-                @click="createNewItem('glove')"
-              >
-                {{ t('common.glove') }}
+                <template #icon>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                    <polyline points="17 21 17 13 7 13 7 21" />
+                    <polyline points="7 3 7 8 15 8" />
+                  </svg>
+                </template>
+                {{ trans.generateButton.value }}
               </NButton>
             </div>
+            
           </div>
-        -->
-
-          <!-- Import Section -->
-           <!--
-          <div class="mb-6">
-            <h3 class="text-lg font-semibold text-white mb-3">{{ t('inspectItem.importSection') }}</h3>
-            <p class="text-gray-300 mb-3">{{ t('inspectItem.importDesc') }}</p>
-
-            <NButton
-              type="primary"
-              size="large"
-              block
-              :disabled="isLoading"
-              @click="showImportModal = true"
-            >
-              <template #icon>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                  <polyline points="17 8 12 3 7 8"/>
-                  <line x1="12" y1="3" x2="12" y2="15"/>
-                </svg>
-              </template>
-              {{ t('inspectItem.importButton') }}
-            </NButton>
-          </div>
-        -->
-
-          <!-- Instructions -->
-           <!--
-          <div class="mb-6">
-            <h3 class="text-lg font-semibold text-white mb-3">{{ t('inspectItem.instructions') }}</h3>
-            <ul class="list-disc list-inside text-gray-400 space-y-1">
-              <li>{{ t('inspectItem.instructionStep1') }}</li>
-              <li>{{ t('inspectItem.instructionStep2') }}</li>
-              <li>{{ t('inspectItem.instructionStep3') }}</li>
-            </ul>
-          </div>
-        -->
-
-          <!-- Error Display -->
-          <div v-if="error" class="mt-4 p-3 bg-red-900/30 border border-red-700 rounded text-red-300">
-            {{ error }}
-          </div>
-        <!-- </div> -->
-      </div>
-
-      <!-- No User State -->
-      <div v-if="!user" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-        <div class="bg-[#242424] p-8 rounded-lg max-w-md text-center">
-          <h2 class="text-xl font-bold text-white mb-4">{{ t('auth.loginRequired') }}</h2>
-          <p class="text-gray-300 mb-6">{{ t('auth.loginToUseFeature') }}</p>
-          <NButton type="primary" size="large" @click="steamAuth.login()">
-            <template #icon>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2a10 10 0 0 0-10 10c0 4.42 2.87 8.17 6.84 9.5.5.08.66-.23.66-.5v-1.69c-2.77.6-3.36-1.34-3.36-1.34-.46-1.16-1.11-1.47-1.11-1.47-.91-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.87 1.52 2.34 1.07 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.55-1.11-4.55-4.92 0-1.11.38-2 1.03-2.71-.1-.25-.45-1.29.1-2.64 0 0 .84-.27 2.75 1.02.79-.22 1.65-.33 2.5-.33.85 0 1.71.11 2.5.33 1.91-1.29 2.75-1.02 2.75-1.02.55 1.35.2 2.39.1 2.64.65.71 1.03 1.6 1.03 2.71 0 3.82-2.34 4.66-4.57 4.91.36.31.69.92.69 1.85V21c0 .27.16.59.67.5C19.14 20.16 22 16.42 22 12A10 10 0 0 0 12 2z"/>
-              </svg>
-            </template>
-            {{ t('auth.loginButton') }}
-          </NButton>
         </div>
       </div>
+
+      <!-- Feature highlight -->
+      <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div class="p-6 bg-[#242424] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
+          <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+          </div>
+          <h3 class="text-white font-bold">Real-time Decoding</h3>
+          <p class="text-xs text-gray-500">Instantly convert masked and unmasked links to readable JSON format.</p>
+        </div>
+        <div class="p-6 bg-[#242424] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
+          <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <h3 class="text-white font-bold">Secure Encoding</h3>
+          <p class="text-xs text-gray-500">Safe and standard-compliant generation of Steam-compatible inspect links.</p>
+        </div>
+        <div class="p-6 bg-[#242424] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
+          <div class="p-3 bg-amber-500/10 rounded-xl text-amber-400">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          </div>
+          <h3 class="text-white font-bold">Metadata Support</h3>
+          <p class="text-xs text-gray-500">Including stickers, keychains, and custom names in your generated links.</p>
+        </div>
+      </div>
+
     </div>
-
-    <!-- Import Modal -->
-    <InspectURLModal
-      v-model:visible="showImportModal"
-      :loading="isLoading"
-      @submit="handleInspectLinkSubmit"
-    />
-
-    <!-- Weapon Skin Modal -->
-    <WeaponSkinModal
-      v-if="itemType === 'weapon'"
-      v-model:visible="showWeaponModal"
-      :weapon="inspectedItem"
-      :other-team-has-skin="otherTeamHasSkin"
-      @save="handleWeaponSkinSave"
-    />
-
-    <!-- Knife Skin Modal -->
-    <KnifeSkinModal
-      v-if="itemType === 'knife'"
-      v-model:visible="showKnifeModal"
-      :weapon="inspectedItem"
-      :user="user"
-      :other-team-has-skin="otherTeamHasSkin"
-      @save="handleKnifeSkinSave"
-    />
-
-    <!-- Glove Skin Modal -->
-    <GloveSkinModal
-      v-if="itemType === 'glove'"
-      v-model:visible="showGloveModal"
-      :weapon="inspectedItem"
-      :user="user"
-      :other-team-has-skin="otherTeamHasSkin"
-      @select="handleGloveSkinSave"
-    />
   </div>
 </template>
 
-<style scoped>
-/* Menu styles */
-.menu-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+<style scoped lang="scss">
+.main-input {
+  :deep(.n-input) {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.3) !important;
+      border-color: rgba(59, 130, 246, 0.3);
+    }
+      
+    &.n-input--focus {
+      background-color: rgba(0, 0, 0, 0.4) !important;
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
+  }
 }
 
-.menu-label {
-  position: absolute;
-  bottom: -25px;
-  font-size: 0.75rem;
-  color: #a0aec0;
-  opacity: 0;
-  transform: translateY(-5px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  pointer-events: none;
-  white-space: nowrap;
+.json-editor {
+  :deep(.n-input) {
+    background-color: transparent !important;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+    color: #e2e8f0;
+    transition: all 0.3s ease;
+    
+    .n-input__textarea-el {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+      padding: 1.5rem;
+      line-height: 1.6;
+    }
+  }
 }
 
-.group:hover .menu-label {
-  opacity: 1;
-  transform: translateY(0);
+.decode-button, .generate-button {
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &:hover {
+    transform: translateY(-2px);
+  }
+    
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.decode-button {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  border: none;
+  
+  &:hover {
+    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+  }
+}
+
+.generate-button {
+  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
+  border: none;
+  
+  &:hover {
+    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+  }
+}
+
+:deep(.n-input__placeholder) {
+  color: rgba(255, 255, 255, 0.2) !important;
 }
 </style>

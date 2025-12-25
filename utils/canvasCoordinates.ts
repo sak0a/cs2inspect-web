@@ -28,6 +28,13 @@ export const WEAPON_STICKER_SLOT_POSITIONS: Record<string, Record<number, Point>
     2: { x: 0.621, y: 0.521 },  // slot 2: x:825 y:200 -> 825/1328=0.621, 200/384=0.5208
     3: { x: 0.557, y: 0.150 },  // slot 3: x:740 y:100 -> 740/1328=0.557, 100/384=0.2604
     4: { x: 0.689, y: 0.482 }   // slot 4: x:915 y:185 -> 915/1328=0.689, 185/384=0.4818
+  },
+  'ak-47': {
+    0: { x: 725 / 1110, y: 57 / 320 },  // slot 0: x:850 y:180 -> 850/1328=0.640, 180/384=0.469
+    1: { x: 620 / 1110, y: 62 / 320 },  // slot 1: x:720 y:200 -> 720/1328=0.542, 200/384=0.521
+    2: { x: 514 / 1110, y: 55 / 320 },  // slot 2: x:600 y:195 -> 600/1328=0.452, 195/384=0.508
+    3: { x: 371 / 1110, y: 50 / 320 },  // slot 3: x:480 y:210 -> 480/1328=0.361, 210/384=0.547
+    4: { x: 725 / 1110, y: 57 / 320 }   // slot 4: x:360 y:225 -> 360/1328=0.271, 225/384=0.586
   }
 }
 
@@ -36,15 +43,16 @@ export function getWeaponReferenceSize(weaponName?: string): { width: number; he
   if (weaponName) {
     const clean = weaponName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
     if (clean === 'awp') return { width: 1328, height: 384 }
+    if (clean === 'ak-47') return { width: 1110, height: 320 }
   }
   // Fallback reference based on earlier default assumption
-  return { width: 1328, height: 800 }
+  return { width: 1120, height: 500 }
 }
 
 // External normalization reference denominators per weapon (approximate; tune as needed)
 export const EXTERNAL_NORMALIZATION_REFS: Record<string, { x: number; y: number }> = {
   // Calibrated from user samples for AWP
-  awp: { x: 1363, y: 1725 }
+  awp: { x: 1328, y: 384 }
 }
 
 export function getExternalNormalizationRefs(weaponName?: string): { x: number; y: number } {
@@ -54,7 +62,48 @@ export function getExternalNormalizationRefs(weaponName?: string): { x: number; 
     if (found) return found
   }
   // Generic fallback (can be tuned per project needs)
-  return { x: 1363, y: 1161 }
+  return { x: 1328, y: 384 }
+}
+
+/**
+ * Weapon-specific sticker and keychain display sizes
+ * Calculated based on proportional scaling from external reference site
+ * 
+ * Formula: asset_width = weapon_display_width × (external_asset_width / external_weapon_width)
+ * External reference: 
+ * AWP 1385px wide, stickers 96×72, keychains 75×75
+ * AK-47 1333,5px wide, 382,5px high, stickers 128x96, keychains 100x100
+ * Our canvas: AWP 1110px wide
+ */
+export const WEAPON_ASSET_SIZES: Record<string, { sticker: Size; keychain: Size }> = {
+  'awp': {
+    sticker: { width: 77, height: 58 },   // 4:3 ratio (1110 × 0.0693 = 77)
+    keychain: { width: 60, height: 60 }   // 1:1 ratio ^(1110 × 0.0542 = 60)
+  },
+  'ak-47': {
+    sticker: { width: 120, height: 72 },   // Calculated: 128 * 0.8324
+    keychain: { width: 72, height: 72 }    // Calculated: 100 * 0.8324
+  }
+}
+
+/**
+ * Default asset sizes when weapon-specific sizes are not defined
+ */
+export const DEFAULT_ASSET_SIZES = {
+  sticker: { width: 77, height: 58 },
+  keychain: { width: 60, height: 60 }
+}
+
+/**
+ * Get sticker and keychain display sizes for a weapon
+ */
+export function getWeaponAssetSizes(weaponName?: string): { sticker: Size; keychain: Size } {
+  if (weaponName) {
+    const clean = weaponName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+    const found = WEAPON_ASSET_SIZES[clean]
+    if (found) return found
+  }
+  return DEFAULT_ASSET_SIZES
 }
 
 /**
@@ -275,6 +324,35 @@ export function stickerToCanvasElement(
   }
 }
 
+
+/**
+ * Sanitize charm name to match scraper's file naming convention
+ * Replaces non-alphanumeric characters with underscores and lowercases
+ */
+export function sanitizeCharmName(name: string): string {
+  // Remove "Charm | " prefix if present (case insensitive)
+  const cleanName = name.replace(/^charm\s*\|\s*/i, '').trim()
+  return cleanName.replace(/[^a-z0-9]/gi, '_').toLowerCase()
+}
+
+/**
+ * Generate local flat image URL for a keychain/charm
+ * Matches the file structure from the charm scraper service
+ */
+export function generateFlatKeychainUrl(name: string, seed: number = 0): string {
+  const safeName = sanitizeCharmName(name)
+  // Seeds supported by the scraper
+  const SUPPORTED_SEEDS = [1, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000]
+
+  // If seed matches one of the downloaded variants, use it
+  if (SUPPORTED_SEEDS.includes(seed)) {
+    return `/img/charms/${safeName}/${safeName}_seed_${seed}.webp`
+  }
+
+  // Otherwise use the default image (usually seed 100)
+  return `/img/charms/${safeName}/${safeName}_default.webp`
+}
+
 /**
  * Keychain input data type with all possible properties
  */
@@ -363,6 +441,11 @@ export function keychainToCanvasElement(
   const scale = typeof keychain.scale === 'number' && !isNaN(keychain.scale) ? keychain.scale : 1.0
   const rotation = typeof keychain.rotation === 'number' && !isNaN(keychain.rotation) ? keychain.rotation : 0
 
+  // Optimize image URL: prefer local flat image if available
+  const keychainName = keychain.api?.name || 'Unknown Keychain'
+  const seed = typeof keychain.seed === 'number' && !isNaN(keychain.seed) ? keychain.seed : 0
+  const flatImageUrl = generateFlatKeychainUrl(keychainName, seed)
+
   return {
     id: `keychain-${Date.now()}`,
     type: 'keychain' as const,
@@ -374,10 +457,10 @@ export function keychainToCanvasElement(
     selected: false,
     slotIndex: null,
     z: typeof keychain.offset_z === 'number' ? keychain.offset_z : (typeof keychain.z === 'number' ? keychain.z : 0),
-    seed: typeof keychain.seed === 'number' && !isNaN(keychain.seed) ? keychain.seed : 0,
+    seed,
     apiData: {
-      name: keychain.api?.name || 'Unknown Keychain',
-      image: keychain.api?.image || '',
+      name: keychainName,
+      image: flatImageUrl, // Use the flat image URL
       rarity: keychain.api?.rarity && keychain.api.rarity.color && keychain.api.rarity.name
         ? {
           color: keychain.api.rarity.color,

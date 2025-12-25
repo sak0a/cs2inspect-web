@@ -65,6 +65,7 @@ export type {
   APIMusicKit,
   APIKeychain,
   APICollectible,
+  APIHighlight,
 
   // Enums
   CsTeam

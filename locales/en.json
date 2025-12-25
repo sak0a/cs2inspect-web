@@ -22,7 +22,7 @@
     "agents": "Agents",
     "pins": "Pins",
     "music": "Music Kits",
-    "inspects": "Inspects",
+    "inspects": "Inspect Link Decoder/Encoder",
     "home": "Home"
   },
   "teams": {
@@ -284,7 +284,8 @@
             "rotate": "Rot",
             "wear": "Wear",
             "remove": "Destroy"
-          }
+          },
+          "selectHint": "Select a sticker or keychain to edit"
         }
       },
       "sort": {
@@ -421,6 +422,20 @@
     "selectAll": "Select All",
     "noResults": "No results found",
     "pleaseSelectLoadout": "Please select a loadout first",
-    "for": "for"
+    "for": "for",
+    "copy": "Copy"
+  },
+  "inspectLink": {
+    "title": "Inspect Link Decoder/Encoder",
+    "description": "Decode an inspect link into JSON or generate an inspect link from JSON data.",
+    "importButton": "Decode Link",
+    "generateButton": "Generate Link",
+    "inspectUrlLabel": "Inspect Link",
+    "decodedJsonLabel": "Decoded JSON Data",
+    "placeholder": "Paste your inspect link here...",
+    "invalidJson": "Invalid JSON data",
+    "decodeSuccess": "Successfully decoded inspect link",
+    "generateSuccess": "Successfully generated inspect link",
+    "copySuccess": "Inspect link copied to clipboard"
   }
 }

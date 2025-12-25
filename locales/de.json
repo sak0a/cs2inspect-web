@@ -22,7 +22,7 @@
     "agents": "Agenten",
     "pins": "Pins",
     "music": "Musik-Kits",
-    "inspects": "Inspects",
+    "inspects": "Inspect Link Decoder/Encoder",
     "home": "Startseite"
   },
   "skins": {
@@ -380,6 +380,20 @@
     "selectAll": "Alles auswählen",
     "noResults": "Keine Ergebnisse gefunden",
     "pleaseSelectLoadout": "Bitte zuerst ein Loadout auswählen",
-    "for": "für"
+    "for": "für",
+    "copy": "Kopieren"
+  },
+  "inspectLink": {
+    "title": "Inspect Link Decoder/Encoder",
+    "description": "Dekodiere einen Inspect-Link in JSON oder generiere einen Inspect-Link aus JSON-Daten.",
+    "importButton": "Link dekodieren",
+    "generateButton": "Link generieren",
+    "inspectUrlLabel": "Inspect Link",
+    "decodedJsonLabel": "Dekodierte JSON-Daten",
+    "placeholder": "Füge deinen Inspect-Link hier ein...",
+    "invalidJson": "Ungültige JSON-Daten",
+    "decodeSuccess": "Inspect-Link erfolgreich dekodiert",
+    "generateSuccess": "Inspect-Link erfolgreich generiert",
+    "copySuccess": "Inspect-Link in die Zwischenablage kopiert"
   }
 }

@@ -252,6 +252,37 @@ export interface APICollectible extends BaseAPIItem {
     genuine?: boolean;
 }
 
+/**
+ * Represents a highlight from the CS2 API
+ * Extends BaseAPIItem with highlight-specific properties
+ */
+export interface APIHighlight extends BaseAPIItem {
+    /** Definition index */
+    def_index: string;
+    /** Item description */
+    description: string;
+    /** Tournament event name */
+    tournament_event: string;
+    /** First team name */
+    team0: string;
+    /** Second team name */
+    team1: string;
+    /** Tournament stage */
+    stage: string;
+    /** Tournament player name */
+    tournament_player: string;
+    /** Map name */
+    map: string;
+    /** Market hash name */
+    market_hash_name: string;
+    /** Video URL */
+    video: string;
+    /** Thumbnail image URL */
+    thumbnail: string;
+    /** Original item data */
+    original: Record<string, unknown>;
+}
+
 // ============================================================================
 // ENUMS AND CONSTANTS
 // ============================================================================

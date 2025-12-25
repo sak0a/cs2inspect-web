@@ -10,6 +10,7 @@ import {
   getDefaultStickerPosition,
   createCoordinateTransform,
   getExternalNormalizationRefs,
+  getWeaponAssetSizes,
 } from '~/utils/canvasCoordinates'
 
 
@@ -54,7 +55,7 @@ const videoManager = ref<VideoCanvasManager | null>(null)
 const canvasState = ref<CanvasState>({
   elements: [],
   selectedElementId: null,
-  canvasSize: { width: 1200, height: 800 },
+  canvasSize: { width: 1120, height: 500 },
   weaponImage: '',
   isDragging: false,
   isEditing: true
@@ -79,8 +80,16 @@ const REF_HEIGHT = 384
 const showCoordinateOverlay = ref(false)
 const mousePosition = ref({ x: 0, y: 0 })
 
-const STICKER_MAX_WIDTH_PX = 70
-const STICKER_MAX_HEIGHT_PX = 70
+// Asset sizes are now computed based on weapon type
+const assetSizes = computed(() => {
+  const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
+  return getWeaponAssetSizes(weaponName)
+})
+
+const STICKER_MAX_WIDTH_PX = computed(() => assetSizes.value.sticker.width)
+const STICKER_MAX_HEIGHT_PX = computed(() => assetSizes.value.sticker.height)
+const KEYCHAIN_MAX_WIDTH_PX = computed(() => assetSizes.value.keychain.width)
+const KEYCHAIN_MAX_HEIGHT_PX = computed(() => assetSizes.value.keychain.height)
 
 // Image cache
 const imageCache = new Map<string, HTMLImageElement>()
@@ -632,8 +641,8 @@ const drawElement = (element: CanvasElement) => {
     if(element.apiData?.image) {
         const cachedImg = imageCache.get(element.apiData.image)
         if(cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
-            const widthScale = STICKER_MAX_WIDTH_PX / cachedImg.naturalWidth
-            const heightScale = STICKER_MAX_HEIGHT_PX / cachedImg.naturalHeight
+            const widthScale = STICKER_MAX_WIDTH_PX.value / cachedImg.naturalWidth
+            const heightScale = STICKER_MAX_HEIGHT_PX.value / cachedImg.naturalHeight
             const baseScale = Math.min(widthScale, heightScale, 1)
             const baseWidth = cachedImg.naturalWidth * baseScale
             const baseHeight = cachedImg.naturalHeight * baseScale
@@ -668,8 +677,8 @@ const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
     if (element.apiData?.image) {
       const cachedImg = imageCache.get(element.apiData.image)
       if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
-        const widthScale = STICKER_MAX_WIDTH_PX / cachedImg.naturalWidth
-        const heightScale = STICKER_MAX_HEIGHT_PX / cachedImg.naturalHeight
+        const widthScale = STICKER_MAX_WIDTH_PX.value / cachedImg.naturalWidth
+        const heightScale = STICKER_MAX_HEIGHT_PX.value / cachedImg.naturalHeight
         const baseScale = Math.min(widthScale, heightScale, 1)
         const baseWidth = cachedImg.naturalWidth * baseScale
         const baseHeight = cachedImg.naturalHeight * baseScale
@@ -680,16 +689,16 @@ const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
           top: pos.y - drawHeight/2, bottom: pos.y + drawHeight/2
         }
       } else {
-          const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX : 80) * element.scale
-          const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX : 80) * element.scale
+          const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX.value : KEYCHAIN_MAX_WIDTH_PX.value) * element.scale
+          const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX.value : KEYCHAIN_MAX_HEIGHT_PX.value) * element.scale
           bounds = {
             left: pos.x - fallbackWidth/2, right: pos.x + fallbackWidth/2,
             top: pos.y - fallbackHeight/2, bottom: pos.y + fallbackHeight/2
           }
       }
     } else {
-        const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX : 80) * element.scale
-        const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX : 80) * element.scale
+        const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX.value : KEYCHAIN_MAX_WIDTH_PX.value) * element.scale
+        const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX.value : KEYCHAIN_MAX_HEIGHT_PX.value) * element.scale
         bounds = {
           left: pos.x - fallbackWidth/2, right: pos.x + fallbackWidth/2,
           top: pos.y - fallbackHeight/2, bottom: pos.y + fallbackHeight/2
