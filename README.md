@@ -1,6 +1,6 @@
 # CS2 Charm Scraper Service
 
-This service is a standalone Node.js utility designed to scrape and download charm images from [cs2inspects.com](https://cs2inspects.com/charms) for use in the CS2 Inspect Web application.
+This service is a standalone Node.js utility designed to scrape and download charm images from a configured source for use in the CS2 Inspect Web application.
 
 ## 📂 Project Structure
 
@@ -14,15 +14,17 @@ This service is a standalone Node.js utility designed to scrape and download cha
 │   └── ...
 ├── charms.json            # Configuration file mapping Charm Names to IDs
 ├── index.js               # Main scraper script
-└── package.json           # Dependencies (axios)
+├── package.json           # Dependencies (axios)
 ```
 
 ## 🛠 How It Works
 
-1.  **Configuration**: The `charms.json` file contains a curated list of charms with their names and internal IDs (e.g., `1355_82` for Dr. Brian). This IDs were extracted via a browser inspection session.
+1.  **Configuration**: 
+    - The `charms.json` file contains a curated list of charms with their names and internal IDs.
+    - **Environment Variable**: The base URL for scraping is configured via the `SCRAPE_URL` environment variable in the project's `.env` file.
 2.  **Image URL Pattern**: The scraper constructs image URLs using the pattern:
-    - Default: `https://img.cs2inspects.com/{ID}_100_front.webp`
-    - Variants: `https://img.cs2inspects.com/{ID}_{SEED}_front.webp`
+    - Default: `https://{SCRAPE_URL}/{ID}_100_front.webp`
+    - Variants: `https://{SCRAPE_URL}/{ID}_{SEED}_front.webp`
 3.  **Downloading**: It iterates through the list and downloads images to local folders in `assets/`.
     - It skips files that already exist.
     - It uses a standard set of 10 seed variations (`1, 10000, ... 90000`) commonly used for charms.
