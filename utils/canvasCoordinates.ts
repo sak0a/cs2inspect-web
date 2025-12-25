@@ -354,26 +354,7 @@ export function generateFlatKeychainUrl(name: string, seed: number = 0, stickerR
       return `/img/charms/sticker_slab/sticker_slab_sticker_${wrappedStickerId}.webp`
     }
 
-    let rarityId = 'default'
-
-    // If a rarity ID is provided (e.g. 'rarity_legendary'), extract the short name
-    if (stickerRarityId) {
-      const cleanRarity = stickerRarityId.replace(/^rarity_/, '').toLowerCase()
-      // Map rarity to known slab variants
-      if (['rare', 'high_grade'].includes(cleanRarity)) rarityId = 'highgrade'
-      else if (['mythical', 'remarkable'].includes(cleanRarity)) rarityId = 'remarkable'
-      else if (['legendary', 'exotic'].includes(cleanRarity)) rarityId = 'exotic'
-      else if (['contraband', 'ancient'].includes(cleanRarity)) rarityId = 'contraband'
-      else rarityId = 'default'
-    } else {
-      // Fallback: Check if the name itself implies a rarity (e.g. legacy/backend name)
-      if (safeName.includes('high_grade')) rarityId = 'highgrade'
-      if (safeName.includes('remarkable')) rarityId = 'remarkable'
-      if (safeName.includes('exotic')) rarityId = 'exotic'
-      if (safeName.includes('contraband')) rarityId = 'contraband'
-    }
-
-    return `/img/charms/sticker_slab/sticker_slab_${rarityId}_empty.webp`
+    return `/img/charms/sticker_slab/sticker_slab_default_empty.webp`
   }
   // Seeds supported by the scraper
   const SUPPORTED_SEEDS = [1, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000]
