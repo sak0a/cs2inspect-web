@@ -66,6 +66,10 @@ export interface WeaponKeychainCustomization {
     z: number;
     /** Random seed for keychain generation */
     seed: number;
+    /** ID of the sticker wrapped inside (for Sticker Slabs - ID 37) */
+    wrapped_sticker_id?: number;
+    /** ID of the highlight reel (for Highlight Reel keychains - IDs 36, 83) */
+    highlight_reel_id?: number;
     /** Optional API data for the keychain */
     api?: {
         id: string;

@@ -319,9 +319,9 @@ watch(() => ui.value.effectFilterIds, () => { state.value.currentPage = 1 }, { d
         <NCard
             v-for="item in paginatedItems"
             :key="item.id"
-            class="cursor-pointer transition-all hover:shadow-lg h-full hover:ring-2 hover:ring-[var(--selection-ring)] hover:border-0"
+            class="cursor-pointer transition-all hover:shadow-lg h-full hover:opacity-80"
             :style="{
-            borderColor: item.rarity?.color || '#313030',
+            border: `1px solid ${item.rarity?.color || '#313030'}`,
             background: `linear-gradient(135deg, #101010, ${
               hexToRgba(item.rarity?.color || '#313030', '0.15')
             })`
@@ -373,5 +373,10 @@ watch(() => ui.value.effectFilterIds, () => { state.value.currentPage = 1 }, { d
 .n-card {
   background: #242424;
   border: 1px solid #313030;
+}
+
+/* Ensure no selection ring appears by default */
+.n-card:not(:hover) {
+  --n-border-color: #313030 !important;
 }
 </style>

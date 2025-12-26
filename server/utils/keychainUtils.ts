@@ -5,7 +5,7 @@ import type { APIKeychain } from '~/server/types'
  */
 const CUSTOM_KEYCHAINS: APIKeychain[] = [
     {
-        id: 'keychain-90000',
+        id: 'keychain-37',  // Correct CS2 sticker slab keychain ID
         name: 'Charm | Sticker Slab',
         description: 'A charm that can wrap any sticker.',
         rarity: {
@@ -18,7 +18,7 @@ const CUSTOM_KEYCHAINS: APIKeychain[] = [
     },
     // Austin 2025 Highlight
     {
-        id: 'keychain-90005',
+        id: 'keychain-36',
         name: 'Souvenir Charm | Austin 2025 Highlight',
         description: 'A souvenir charm from the Austin 2025 event.',
         rarity: {
@@ -31,7 +31,7 @@ const CUSTOM_KEYCHAINS: APIKeychain[] = [
     },
     // Budapest 2025 Highlight (Assuming similar ID structure/naming for now as placeholder if exact name unknown, but user asked for "Budapest Major")
     {
-        id: 'keychain-90006',
+        id: 'keychain-83',
         name: 'Souvenir Charm | Budapest 2025 Highlight',
         description: 'A souvenir charm from the Budapest 2025 event.',
         rarity: {

@@ -114,6 +114,10 @@ export interface KeychainCustomization {
   y: number
   z: number
   seed: number
+  /** ID of the sticker wrapped inside (for Sticker Slabs - ID 37) */
+  wrapped_sticker_id?: number
+  /** ID of the highlight reel (for Highlight Reel keychains - IDs 36, 83) */
+  highlight_reel_id?: number
 }
 
 /**

@@ -179,21 +179,19 @@ const fetchItems = async () => {
 
 const handleSelect = (item: APIKeychain) => {
   state.value.selectedItem = item
-  if (!props.currentKeychain) {
-    state.value.customization = {
-      x: 0,
-      y: 0,
-      z: 0,
-      seed: 0,
-      wrapped_sticker_id: null,
-      highlight_reel_id: null
-    }
+  
+  // Always reset customization when selecting a new keychain to prevent stale data
+  state.value.customization = {
+    x: props.currentKeychain?.x ?? 0,
+    y: props.currentKeychain?.y ?? 0,
+    z: props.currentKeychain?.z ?? 0,
+    seed: 0,
+    wrapped_sticker_id: null,
+    highlight_reel_id: null
   }
-
-  // Reset seed to 0 for Austin 2025 Highlight charms
-  if (item.name?.includes('Souvenir Charm | Austin 2025 Highlight')) {
-    state.value.customization.seed = 0
-  }
+  
+  // Clear selected wrapped sticker preview
+  state.value.selectedWrappedSticker = null
 }
 
 const handleSave = () => {
