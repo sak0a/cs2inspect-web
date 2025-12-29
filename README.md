@@ -1,6 +1,6 @@
 # CS2 Sticker Scraper Service
 
-A standalone utility to scrape and download sticker images from cs2inspects.com with configurable wear values, image scaling, and WebP optimization.
+A standalone utility to scrape and download sticker images from SCRAPE_URL with configurable wear values, image scaling, and WebP optimization.
 
 ## 📂 Project Structure
 
@@ -112,10 +112,10 @@ bun run index.js --reset
 ## 🔗 Image URL Pattern
 
 ```
-https://cdn.cs2inspects.com/stickers/{stickerId}/{wear}.webp
+https://SCRAPE_URL/stickers/{stickerId}/{wear}.webp
 ```
 
-Example: `https://cdn.cs2inspects.com/stickers/10280/50.webp`
+Example: `https://SCRAPE_URL/stickers/10280/50.webp`
 
 ## 🎯 Integration
 
