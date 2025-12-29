@@ -1303,9 +1303,10 @@ type="success" secondary :class="[
                 </button>
                 <div v-if="sticker" class="h-28 relative group">
                   <img
-                      :src="sticker.api.image"
+                      :src="generateStickerImageUrl(sticker.id, sticker.wear || 0)"
                       :alt="sticker.api.name"
                       class="w-full h-full object-contain"
+                      @error="(e) => (e.target as HTMLImageElement).src = sticker?.api.image || ''"
                   >
                   <div class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <span class="text-white text-xs">{{ t('modals.weaponSkin.stickers.reposition') }}</span>

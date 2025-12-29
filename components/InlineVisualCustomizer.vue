@@ -11,6 +11,7 @@ import {
   createCoordinateTransform,
   getExternalNormalizationRefs,
   getWeaponAssetSizes,
+  generateStickerImageUrl
 } from '~/utils/canvasCoordinates'
 
 
@@ -857,6 +858,16 @@ const handleUpdateRotation = (delta: number) => {
 const handleUpdateStickerWear = (wear: number) => {
   if (!selectedElement.value || selectedElement.value.type !== 'sticker') return
   selectedElement.value.wear = wear
+  
+  // Update the image based on the new wear value
+  if (selectedElement.value.assetId) {
+      const newImage = generateStickerImageUrl(selectedElement.value.assetId, wear)
+      // Update apiData so it persists
+      if (selectedElement.value.apiData) {
+          selectedElement.value.apiData.image = newImage
+      }
+  }
+  
   renderCanvas()
 }
 

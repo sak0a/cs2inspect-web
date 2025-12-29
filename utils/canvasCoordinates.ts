@@ -218,6 +218,27 @@ interface StickerInputData {
 /**
  * Convert existing sticker data to canvas element
  */
+/**
+ * Generate local sticker image URL based on wear
+ * @param stickerId The ID of the sticker
+ * @param wear The wear value (0-1)
+ * @returns The URL to the sticker image
+ */
+export function generateStickerImageUrl(stickerId: number | string, wear: number = 0): string {
+  const id = stickerId.toString().replace('sticker-', '');
+
+  // Valid wear intervals are 0, 5, 10 ... 100
+  // Map the 0-1 float to the closest 0-100 integer step of 5
+  const percentage = Math.round(wear * 100);
+  const step = Math.round(percentage / 5) * 5;
+  const clampedStep = Math.max(0, Math.min(100, step));
+
+  return `/img/stickers/${id}/${clampedStep}.webp`;
+}
+
+/**
+ * Convert existing sticker data to canvas element
+ */
 export function stickerToCanvasElement(
   sticker: StickerInputData | null | undefined,
   slotIndex: number,
@@ -297,6 +318,9 @@ export function stickerToCanvasElement(
   const rotation = typeof sticker.rotation === 'number' && !isNaN(sticker.rotation) ? sticker.rotation : 0
   const wear = typeof sticker.wear === 'number' && !isNaN(sticker.wear) ? sticker.wear : 0
 
+  // Use generated URL for the image
+  const imageUrl = generateStickerImageUrl(sticker.id, wear);
+
   return {
     id: `sticker-${slotIndex}-${Date.now()}`,
     type: 'sticker' as const,
@@ -313,7 +337,7 @@ export function stickerToCanvasElement(
     slotIndex,
     apiData: {
       name: sticker.api?.name || 'Unknown Sticker',
-      image: sticker.api?.image || '',
+      image: imageUrl,
       rarity: sticker.api?.rarity && sticker.api.rarity.color && sticker.api.rarity.name
         ? {
           color: sticker.api.rarity.color,

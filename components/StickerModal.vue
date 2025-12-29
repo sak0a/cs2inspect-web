@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import type { APISticker, IEnhancedWeaponSticker } from "~/server/utils/interfaces";
+import { generateStickerImageUrl } from "~/utils/canvasCoordinates";
 
 const props = defineProps<{
+// ... (rest of props)
   visible: boolean
   position: number
   weaponName?: string
@@ -351,22 +353,22 @@ watchEffect(() => {
     state.value.selectedItem = state.value.items.find(item => item.id === ("sticker-" + props.currentSticker?.id))
     console.log('StickerModal - watchEffect currentSticker:', props.currentSticker)
     state.value.customization = {
-      x: props.currentSticker.x,
-      y: props.currentSticker.y,
-      wear: props.currentSticker.wear,
-      scale: props.currentSticker.scale,
-      rotation: props.currentSticker.rotation
+      x: props.currentSticker.x ?? 0,
+      y: props.currentSticker.y ?? 0,
+      wear: props.currentSticker.wear ?? 0,
+      scale: props.currentSticker.scale ?? 1,
+      rotation: props.currentSticker.rotation ?? 0
     }
   }
 })
 watch(() => props.currentSticker, (newSticker) => {
   if (newSticker) {
     state.value.customization = {
-      x: newSticker.x,
-      y: newSticker.y,
-      wear: newSticker.wear,
-      scale: newSticker.scale,
-      rotation: newSticker.rotation
+      x: newSticker.x ?? 0,
+      y: newSticker.y ?? 0,
+      wear: newSticker.wear ?? 0,
+      scale: newSticker.scale ?? 1,
+      rotation: newSticker.rotation ?? 0
     }
   }
 }, { immediate: true })
@@ -454,9 +456,10 @@ watch(() => ui.value.effectFilterIds, () => {
           <!-- Left side - Image -->
           <div class="flex flex-col items-center justify-center">
             <img
-                :src="state.selectedItem.image"
+                :src="generateStickerImageUrl(state.selectedItem.id.replace('sticker-', ''), state.customization.wear)"
                 :alt="state.selectedItem.name"
                 class="h-40 w-full object-contain"
+                @error="(e) => (e.target as HTMLImageElement).src = state.selectedItem?.image || ''"
             >
           </div>
 
