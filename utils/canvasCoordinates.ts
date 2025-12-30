@@ -233,7 +233,13 @@ export function generateStickerImageUrl(stickerId: number | string, wear: number
   const step = Math.round(percentage / 5) * 5;
   const clampedStep = Math.max(0, Math.min(100, step));
 
-  return `/img/stickers/${id}/${clampedStep}.webp`;
+  try {
+    const config = useRuntimeConfig()
+    return `${config.public.assetsUrl as string}${config.public.assetsStickerPath as string}/${id}/${clampedStep}.webp`;
+  } catch (e) {
+    // Fallback if runtime config is not available (e.g. tests)
+    return `/img/stickers/${id}/${clampedStep}.webp`;
+  }
 }
 
 /**
@@ -369,15 +375,34 @@ export function sanitizeCharmName(name: string): string {
  */
 export function generateFlatKeychainUrl(name: string, seed: number = 0, stickerRarityId?: string, wrappedStickerId?: number): string {
   const safeName = sanitizeCharmName(name)
+  let baseUrl = ''
+  let charmsPath = ''
+
+  try {
+    const config = useRuntimeConfig()
+    baseUrl = config.public.assetsUrl as string
+    charmsPath = config.public.assetsCharmsPath as string
+  } catch (e) {
+    // Fallback
+    baseUrl = ''
+    charmsPath = '/img/charms'
+  }
 
   // Special handling for Sticker Slabs in grid view (based on name)
   // If we have a stickerRarityId passed (from the modal), use that to select the correct slab image
   if (safeName.includes('sticker_slab')) {
     // If we have a specific wrapped sticker ID, use the pre-generated image
     if (wrappedStickerId) {
+      if (baseUrl) {
+        // Remote: assets.cu.sakoa.xyz/cs2inspect/charms / sticker_slab / sticker_slab_sticker_ {id} .webp
+        return `${baseUrl}${charmsPath}/sticker_slab/sticker_slab_sticker_${wrappedStickerId}.webp`
+      }
       return `/img/charms/sticker_slab/sticker_slab_sticker_${wrappedStickerId}.webp`
     }
 
+    if (baseUrl) {
+      return `${baseUrl}${charmsPath}/sticker_slab/sticker_slab_default_empty.webp`
+    }
     return `/img/charms/sticker_slab/sticker_slab_default_empty.webp`
   }
   // Seeds supported by the scraper
@@ -385,10 +410,16 @@ export function generateFlatKeychainUrl(name: string, seed: number = 0, stickerR
 
   // If seed matches one of the downloaded variants, use it
   if (SUPPORTED_SEEDS.includes(seed)) {
+    if (baseUrl) {
+      return `${baseUrl}${charmsPath}/${safeName}/${safeName}_seed_${seed}.webp`
+    }
     return `/img/charms/${safeName}/${safeName}_seed_${seed}.webp`
   }
 
   // Otherwise use the default image (usually seed 100)
+  if (baseUrl) {
+    return `${baseUrl}${charmsPath}/${safeName}/${safeName}_default.webp`
+  }
   return `/img/charms/${safeName}/${safeName}_default.webp`
 }
 
@@ -676,7 +707,22 @@ export function generateFlatImageUrl(weaponName: string, skinName: string): stri
   const cleanWeaponName = weaponName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
   const cleanSkinName = skinName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
 
+  let baseUrl = ''
+  let weaponsPath = ''
+
+  try {
+    const config = useRuntimeConfig()
+    baseUrl = config.public.assetsUrl as string
+    weaponsPath = config.public.assetsWeaponsPath as string
+  } catch (e) {
+    baseUrl = ''
+    weaponsPath = '/img/weapons/flat'
+  }
+
   // Try flat image first, fallback to default weapon image
+  if (baseUrl) {
+    return `${baseUrl}${weaponsPath}/flat/${cleanWeaponName}-${cleanSkinName}.png`
+  }
   const flatImageUrl = `/img/weapons/flat/${cleanWeaponName}-${cleanSkinName}.png`
 
   return flatImageUrl

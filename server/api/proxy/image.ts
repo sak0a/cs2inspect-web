@@ -8,6 +8,8 @@ const ALLOWED_HOST_PATTERNS: RegExp[] = [
   /(^|\.)steamcommunity\.com$/i,
   /(^|\.)akamai\.steamstatic\.com$/i,
   /(^|\.)community\.akamai\.steamstatic\.com$/i,
+  // Assets server for stickers/charms
+  /(^|\.)sakoa\.xyz$/i,
 ]
 
 function isAllowedUrl(rawUrl: string): boolean {

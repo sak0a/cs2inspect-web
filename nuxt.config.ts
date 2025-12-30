@@ -137,6 +137,14 @@ export default defineNuxtConfig({
     description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
     defaultLocale: 'en',
   },
+  runtimeConfig: {
+    public: {
+      assetsUrl: process.env.ASSETS_URL || 'https://assets.cu.sakoa.xyz/cs2inspect',
+      assetsStickerPath: process.env.ASSETS_STICKER_PATH || '/stickers',
+      assetsCharmsPath: process.env.ASSETS_CHARMS_PATH || '/charms',
+      assetsWeaponsPath: process.env.ASSETS_WEAPONS_PATH || '/weapons',
+    }
+  },
   pwa: {
     manifest: {
       name: 'CS2 Inspect',

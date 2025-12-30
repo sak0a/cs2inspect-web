@@ -213,8 +213,29 @@ const toCanvasSafeUrl = (url: string) => {
         console.warn('toCanvasSafeUrl: Empty URL')
         return ''
     }
+
+    // Direct string check for assets server to avoid any parsing/runtime config issues
+    if (url.includes('assets.cu.sakoa.xyz')) {
+        return url
+    }
+
     const u = new URL(url, window.location.origin)
+    
+    // Allow same-origin requests
     if (u.origin === window.location.origin) return u.toString()
+    
+    // Check if it's the assets server - direct access (CORS should be enabled on assets server)
+    try {
+        const config = useRuntimeConfig()
+        const assetsUrl = config.public.assetsUrl as string
+        if (assetsUrl && u.origin === new URL(assetsUrl).origin) {
+            return u.toString()
+        }
+    } catch (e) {
+        // ignore
+    }
+
+    // Proxy other external images (e.g. Steam community images) to avoid CORS issues on canvas
     if (u.protocol === 'http:' || u.protocol === 'https:') {
       return `/api/proxy/image?url=${encodeURIComponent(u.toString())}`
     }
@@ -225,33 +246,100 @@ const toCanvasSafeUrl = (url: string) => {
   }
 }
 
-const loadImage = (url: string): Promise<HTMLImageElement> => {
-  return new Promise((resolve, reject) => {
-    const cacheKey = url
+const imageLoadQueue = ref<Array<{url: string, retryCount: number, resolve: (img: HTMLImageElement) => void, reject: (err: any) => void}>>([])
+const activeLoadCount = ref(0)
+const MAX_CONCURRENT_LOADS = 3
+const MAX_RETRIES = 3
+const RETRY_DELAY = 1000
+
+const processQueue = () => {
+    if (imageLoadQueue.value.length === 0 || activeLoadCount.value >= MAX_CONCURRENT_LOADS) return
+
+    const task = imageLoadQueue.value.shift()
+    if (!task) return
+
+    activeLoadCount.value++
+    const { url, retryCount, resolve, reject } = task
     const finalUrl = toCanvasSafeUrl(url)
-    console.log(`[InlineVisualCustomizer] Loading image: ${url} -> ${finalUrl}`)
-    
-    if (imageCache.has(cacheKey)) {
-      const cachedImg = imageCache.get(cacheKey)!
-      if (cachedImg.complete && cachedImg.naturalWidth > 0) {
-        console.log('[InlineVisualCustomizer] Cache hit for', url)
-        resolve(cachedImg)
-        return
-      }
-    }
+
+
+
     const img = new Image()
-    img.crossOrigin = 'anonymous'
+    
+    // CRITICAL FIX: Do NOT set crossOrigin for our assets server.
+    // The server does not send CORS headers, so asking for 'anonymous' causes the load to fail.
+    // By not setting it, we get an opaque response (tainted canvas), which is fine for display.
+    if (!finalUrl.includes('assets.cu.sakoa.xyz')) {
+        img.crossOrigin = 'anonymous'
+    }
+
     img.onload = () => {
-      console.log('[InlineVisualCustomizer] Image loaded successfully:', url)
-      imageCache.set(cacheKey, img)
-      resolve(img)
+        activeLoadCount.value--
+        imageCache.set(url, img)
+
+        resolve(img)
+        processQueue() // Process next
     }
     img.onerror = (e) => {
-      console.error('[InlineVisualCustomizer] Failed to load image:', finalUrl, e)
-      reject(new Error(`Failed to load image: ${finalUrl}`))
+        activeLoadCount.value--
+
+        
+        if (retryCount < MAX_RETRIES) {
+             setTimeout(() => {
+                 imageLoadQueue.value.push({ url, retryCount: retryCount + 1, resolve, reject })
+                 processQueue()
+             }, RETRY_DELAY)
+        } else {
+            console.warn(`[InlineVisualCustomizer] Failed to load image after ${MAX_RETRIES + 1} attempts:`, finalUrl)
+            reject(new Error(`Failed to load image after ${MAX_RETRIES + 1} attempts: ${finalUrl}`))
+            processQueue()
+        }
     }
     img.src = finalUrl
-  })
+}
+
+const queueImageLoad = (url: string): Promise<HTMLImageElement> => {
+    return new Promise((resolve, reject) => {
+        if (!url) {
+            reject(new Error('Empty URL'))
+            return
+        }
+        if (imageCache.has(url)) {
+            const cached = imageCache.get(url)
+            if (cached && cached.complete && cached.naturalWidth > 0) {
+                resolve(cached)
+                return
+            }
+        }
+        
+        // Check if already in queue to avoid duplicates? 
+        // Simple optimization: if already queued, don't queue again (requires tracking)
+        // For now, simple queue
+        imageLoadQueue.value.push({ url, retryCount: 0, resolve, reject })
+        processQueue()
+    })
+}
+
+// Deprecated direct load, use queue
+const loadImage = (url: string) => queueImageLoad(url)
+
+const loadAllElementImages = async () => {
+    const elementsToLoad = canvasState.value.elements
+        .filter(el => el.apiData?.image && !imageCache.has(el.apiData.image))
+    
+
+    
+    const promises = elementsToLoad
+        .map(el => {
+            if (!el.apiData?.image) return Promise.resolve()
+            return queueImageLoad(el.apiData.image)
+                .then(() => {
+                    renderCanvas() // Re-render when an image loads
+                })
+                .catch(err => console.warn(`[InlineVisualCustomizer] Element image failed:`, err))
+        })
+    await Promise.allSettled(promises)
+
 }
 
 // --- Computed ---
@@ -290,10 +378,10 @@ const initializeCanvas = async () => {
   await nextTick()
   if (!canvas.value || !canvasContainer.value || !video.value) return
 
-  console.log('[InlineVisualCustomizer] initializeCanvas started')
+
   
   const containerRect = canvasContainer.value.getBoundingClientRect()
-  console.log('[InlineVisualCustomizer] Container Rect:', containerRect)
+
   
   canvasState.value.canvasSize = {
     width: containerRect.width,
@@ -302,7 +390,7 @@ const initializeCanvas = async () => {
   
   canvas.value.width = canvasState.value.canvasSize.width
   canvas.value.height = canvasState.value.canvasSize.height
-  console.log('[InlineVisualCustomizer] Canvas Size set to:', canvasState.value.canvasSize)
+
 
   ctx.value = canvas.value.getContext('2d')
 
@@ -324,7 +412,7 @@ const initializeCanvas = async () => {
 }
 
 const initializeWeaponBackground = async () => {
-  console.log('[InlineVisualCustomizer] initializeWeaponBackground')
+
   if (!props.weaponSkin || !video.value || !ctx.value) {
     console.warn('[InlineVisualCustomizer] Missing props or refs', { skin: !!props.weaponSkin, video: !!video.value, ctx: !!ctx.value })
     return
@@ -355,7 +443,7 @@ const initializeWeaponBackground = async () => {
         canvasState.value.weaponImage = ''
         isVideoMode.value = true
         videoReady = true
-        console.log('[InlineVisualCustomizer] Video initialized successfully')
+
       }
   } catch (e) {
       console.warn('[InlineVisualCustomizer] Video initialization failed', e)
@@ -365,13 +453,13 @@ const initializeWeaponBackground = async () => {
   // Fallback to static image
   if (!videoReady) {
       isVideoMode.value = false
-      console.log('[InlineVisualCustomizer] Fallback to static image')
+
       const imageUrl = props.weaponSkin.image
       if (imageUrl) {
           canvasState.value.weaponImage = imageUrl
           try {
               await loadImage(imageUrl)
-              console.log('[InlineVisualCustomizer] Static image loaded')
+
           } catch (e) {
               console.error('[InlineVisualCustomizer] Static image load failed', e)
           }
@@ -390,20 +478,38 @@ const initializeStaticBackground = () => {
 }
 
 const convertExistingCustomizations = () => {
+
+  
   const elements: CanvasElement[] = []
   const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
   props.stickers.forEach((sticker, index) => {
     if (sticker) {
       const element = stickerToCanvasElement(sticker, index, 10 + index, weaponName)
-      if (element) elements.push(element)
+      if (element) {
+        console.log(`[InlineVisualCustomizer] 🏷️ Converted sticker ${index}:`, {
+          id: element.assetId,
+          imageUrl: element.apiData?.image,
+          wear: element.wear
+        })
+        elements.push(element)
+      }
     }
   })
   if (props.keychain) {
     const element = keychainToCanvasElement(props.keychain, 5, weaponName)
-    if (element) elements.push(element)
+    if (element) {
+
+      elements.push(element)
+    }
   }
   canvasState.value.elements = elements
+  loadAllElementImages()
 }
+
+watch(() => [props.stickers, props.keychain], () => {
+    convertExistingCustomizations()
+    renderCanvas()
+}, { deep: true })
 
 // --- Rendering ---
 
@@ -458,7 +564,7 @@ const renderStaticBackground = () => {
         const img = new Image()
         img.onload = () => {
             if(ctx.value && canvas.value) {
-                console.log('[InlineVisualCustomizer] Drawing static background image')
+
                 drawImageWithAspectRatio(img, ctx.value, canvas.value.width, canvas.value.height)
                 drawElements()
             }
@@ -654,8 +760,7 @@ const drawElement = (element: CanvasElement) => {
             ctx.value.drawImage(cachedImg, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight)
             drawSelection({width: drawWidth, height: drawHeight})
         } else {
-            loadImage(element.apiData.image).then(() => renderCanvas()).catch(() => renderCanvas())
-            // Fallback draw
+            // Image not loaded yet - handled by loadAllElementImages watcher
              ctx.value!.fillStyle = element.type === 'sticker' ? '#FF6B6B' : '#4ECDC4'
              ctx.value!.fillRect(-size/2, -size/2, size, size)
              drawSelection()
@@ -864,7 +969,14 @@ const handleUpdateStickerWear = (wear: number) => {
       const newImage = generateStickerImageUrl(selectedElement.value.assetId, wear)
       // Update apiData so it persists
       if (selectedElement.value.apiData) {
-          selectedElement.value.apiData.image = newImage
+          // Only trigger reload if URL changed
+          if (selectedElement.value.apiData.image !== newImage) {
+              selectedElement.value.apiData.image = newImage
+
+              queueImageLoad(newImage).then(() => {
+                  renderCanvas()
+              })
+          }
       }
   }
   

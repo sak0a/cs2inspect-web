@@ -210,6 +210,22 @@ const handleClose = () => {
   ui.value.effectFilterIds = []
 }
 
+const getStickerSlabImage = (id: string) => {
+  const cleanId = id.replace('sticker-', '')
+  try {
+    const config = useRuntimeConfig()
+    const assetsUrl = config.public.assetsUrl as string
+    const charmsPath = config.public.assetsCharmsPath as string
+    
+    if (assetsUrl) {
+      return `${assetsUrl}${charmsPath}/sticker_slab/sticker_slab_sticker_${cleanId}.webp`
+    }
+  } catch (e) {
+    // ignore
+  }
+  return `/img/charms/sticker_slab/sticker_slab_sticker_${cleanId}.webp`
+}
+
 onMounted(() => {
   fetchItems()
 })
@@ -330,7 +346,7 @@ watch(() => ui.value.effectFilterIds, () => { state.value.currentPage = 1 }, { d
         >
           <div class="flex flex-col items-center">
             <img
-                :src="`/img/charms/sticker_slab/sticker_slab_sticker_${item.id.replace('sticker-', '')}.webp`"
+                :src="getStickerSlabImage(item.id)"
                 :alt="item.name"
                 class="w-full h-24 object-contain mb-2"
                 loading="lazy"
