@@ -9,6 +9,8 @@ interface LoadoutState {
     error: string | null;
 }
 
+const fetchPromises = new Map<string, Promise<void>>();
+
 export const useLoadoutStore = defineStore('loadout', {
 
     state: (): LoadoutState => ({
@@ -176,49 +178,58 @@ export const useLoadoutStore = defineStore('loadout', {
          * @param steamId
          */
         async fetchLoadouts(steamId: string) {
-            this.isLoading = true;
-            this.error = null;
+            if (fetchPromises.has(steamId)) return fetchPromises.get(steamId);
 
-            try {
-                const response = await fetch('/api/loadouts?steamId=' + steamId, {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json',
+            const promise = (async () => {
+                this.isLoading = true;
+                this.error = null;
+
+                try {
+                    const response = await fetch('/api/loadouts?steamId=' + steamId, {
+                        method: 'GET',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        }
+                    })
+                    if (!response.ok) {
+                        this.error = 'Failed to fetch loadouts API response';
                     }
-                })
-                if (!response.ok) {
-                    this.error = 'Failed to fetch loadouts API response';
-                }
 
-                const data = await response.json();
+                    const data = await response.json();
 
-                // Handle both old and new API response formats
-                const loadouts = data.data || data.loadouts;
-                if (!loadouts) {
-                    this.error = 'Failed to fetch loadouts API data';
-                    return;
-                }
+                    // Handle both old and new API response formats
+                    const loadouts = data.data || data.loadouts;
+                    if (!loadouts) {
+                        this.error = 'Failed to fetch loadouts API data';
+                        return;
+                    }
 
-                this.loadouts = loadouts;
-                if (!this.selectedLoadoutId && this.loadouts.length > 0) {
-                    // Find the active loadout, or fall back to the first one if none is active
-                    const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || loadout.active === 1);
-                    this.selectedLoadoutId = activeLoadout ? activeLoadout.id : this.loadouts[0].id;
-                } else if (this.selectedLoadoutId) {
-                    // If we have a selected loadout ID, verify it still exists in the fetched loadouts
-                    const selectedLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.id === this.selectedLoadoutId);
-                    if (!selectedLoadout) {
-                        // Selected loadout no longer exists, select the active one or first one
+                    this.loadouts = loadouts;
+                    if (!this.selectedLoadoutId && this.loadouts.length > 0) {
+                        // Find the active loadout, or fall back to the first one if none is active
                         const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || loadout.active === 1);
-                        this.selectedLoadoutId = activeLoadout ? activeLoadout.id : (this.loadouts.length > 0 ? this.loadouts[0].id : null);
+                        this.selectedLoadoutId = activeLoadout ? activeLoadout.id : (this.loadouts[0]?.id || null);
+                    } else if (this.selectedLoadoutId) {
+                        // If we have a selected loadout ID, verify it still exists in the fetched loadouts
+                        const selectedLoadoutId = this.selectedLoadoutId; // Capture value for TS
+                        const selectedLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.id === selectedLoadoutId);
+                        if (!selectedLoadout) {
+                            // Selected loadout no longer exists, select the active one or first one
+                            const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || loadout.active === 1);
+                            this.selectedLoadoutId = activeLoadout ? activeLoadout.id : (this.loadouts.length > 0 ? (this.loadouts[0]?.id || null) : null);
+                        }
                     }
+                } catch (error: unknown) {
+                    this.error = 'Failed to fetch loadouts: ' + (error instanceof Error ? error.message : String(error));
+                } finally {
+                    this.isLoading = false;
+                    fetchPromises.delete(steamId);
                 }
-            } catch (error: unknown) {
-                this.error = 'Failed to fetch loadouts: ' + (error instanceof Error ? error.message : String(error));
-            } finally {
-                this.isLoading = false;
-            }
+            })();
+
+            fetchPromises.set(steamId, promise);
+            return promise;
         },
 
         /**

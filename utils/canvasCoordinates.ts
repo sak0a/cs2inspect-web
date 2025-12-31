@@ -23,19 +23,38 @@ export const WEAPON_STICKER_SLOT_POSITIONS: Record<string, Record<number, Point>
   'awp': {
     // Based on image canvas 1328x384 (not 800). X uses 1328, Y uses 384 as per user-provided reference.
     //0: { x: 0.862, y: 0.573 },  // slot 0: x:1145 y:220 -> 1145/1328=0.862, 220/384=0.5729
-    0: { x: 1140 / 1328, y: 227 / 384 },  // slot 0: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
-    1: { x: 0.679, y: 0.480 },  // slot 1: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
-    2: { x: 0.621, y: 0.521 },  // slot 2: x:825 y:200 -> 825/1328=0.621, 200/384=0.5208
-    3: { x: 0.557, y: 0.150 },  // slot 3: x:740 y:100 -> 740/1328=0.557, 100/384=0.2604
-    4: { x: 0.689, y: 0.482 }   // slot 4: x:915 y:185 -> 915/1328=0.689, 185/384=0.4818
+    0: { x: 0.8575, y: 0.5907 },  // slot 0: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
+    1: { x: 0.6832, y: 0.4627 }, // slot 1  // slot 1: x:610 y:165 -> 610/1328=0.459, 165/384=0.4297
+    2: { x: 0.6218, y: 0.5239 }, // slot 2  // slot 2: x:825 y:200 -> 825/1328=0.621, 200/384=0.5208
+    3: { x: 0.5580, y: 0.1636 }, // slot 3: x:740 y:100 -> 740/1328=0.557, 100/384=0.2604
+    4: { x: 0.8575, y: 0.5907 }   // slot 4: x:915 y:185 -> 915/1328=0.689, 185/384=0.4818
   },
   'ak-47': {
-    0: { x: 725 / 1110, y: 57 / 320 },  // slot 0: x:850 y:180 -> 850/1328=0.640, 180/384=0.469
+    0: { x: 750 / 1110, y: 80 / 320 },  // slot 0: x:850 y:180 -> 850/1328=0.640, 180/384=0.469
     1: { x: 620 / 1110, y: 62 / 320 },  // slot 1: x:720 y:200 -> 720/1328=0.542, 200/384=0.521
     2: { x: 514 / 1110, y: 55 / 320 },  // slot 2: x:600 y:195 -> 600/1328=0.452, 195/384=0.508
     3: { x: 371 / 1110, y: 50 / 320 },  // slot 3: x:480 y:210 -> 480/1328=0.361, 210/384=0.547
     4: { x: 725 / 1110, y: 57 / 320 }   // slot 4: x:360 y:225 -> 360/1328=0.271, 225/384=0.586
   }
+}
+
+/**
+ * Weapon-specific keychain positions
+ * These are normalized coordinates (0-1)
+ */
+export const WEAPON_KEYCHAIN_SLOT_POSITIONS: Record<string, Point> = {
+  'awp': { x: 0.7786, y: 1.0760 }, // slot 0 // slot ? // slot ?, // slot ?, // slot 1
+  'ak-47': { x: 0.5, y: 0.5 } // TODO: Calibrate this
+}
+
+export function getDefaultKeychainPosition(weaponName?: string): Point {
+  if (weaponName) {
+    const clean = weaponName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+    if (WEAPON_KEYCHAIN_SLOT_POSITIONS[clean]) {
+      return WEAPON_KEYCHAIN_SLOT_POSITIONS[clean]
+    }
+  }
+  return DEFAULT_KEYCHAIN_POSITION
 }
 
 // Reference pixel sizes per weapon for offset conversion
@@ -77,7 +96,7 @@ export function getExternalNormalizationRefs(weaponName?: string): { x: number; 
  */
 export const WEAPON_ASSET_SIZES: Record<string, { sticker: Size; keychain: Size }> = {
   'awp': {
-    sticker: { width: 77, height: 58 },   // 4:3 ratio (1110 × 0.0693 = 77)
+    sticker: { width: 50, height: 50 },   // 4:3 ratio (1110 × 0.0693 = 77)
     keychain: { width: 60, height: 60 }   // 1:1 ratio ^(1110 × 0.0542 = 60)
   },
   'ak-47': {
@@ -122,6 +141,26 @@ export const DEFAULT_STICKER_SLOT_POSITIONS: Record<number, Point> = {
  * Default keychain position
  */
 export const DEFAULT_KEYCHAIN_POSITION: Point = { x: 0.5, y: 0.5 }
+
+/**
+ * Reference resolutions for resolution-aware sticker positioning
+ * Used to calculate scaling factors when loaded video differs from standard
+ */
+export const WEAPON_RESOLUTION_REFS: Record<string, { width: number, height: number }> = {
+  'awp': { width: 3840, height: 744 },
+  'ak-47': { width: 3814, height: 1118 },
+}
+
+/**
+ * Configurable overrides for specific resolutions
+ * Format: weapon -> 'widthxheight' -> adjustment params
+ * Used for manual calibration of odd resolutions
+ */
+export const RESOLUTION_OVERRIDES: Record<string, Record<string, { scaleX: number, scaleY: number, offsetX: number, offsetY: number }>> = {
+  'awp': {
+    '3824x770': { scaleX: 1, scaleY: 1, offsetX: -75, offsetY: 10 }
+  }
+}
 
 /**
  * Get default position for a sticker slot based on weapon type
@@ -235,11 +274,16 @@ export function generateStickerImageUrl(stickerId: number | string, wear: number
 
   try {
     const config = useRuntimeConfig()
-    return `${config.public.assetsUrl as string}${config.public.assetsStickerPath as string}/${id}/${clampedStep}.webp`;
+    const baseUrl = config.public.assetsUrl
+    const stickersPath = config.public.assetsStickerPath
+
+    if (baseUrl && stickersPath) {
+      return `${baseUrl}${stickersPath}/${id}/${clampedStep}.webp`;
+    }
   } catch (e) {
     // Fallback if runtime config is not available (e.g. tests)
-    return `/img/stickers/${id}/${clampedStep}.webp`;
   }
+  return `/img/stickers/${id}/${clampedStep}.webp`;
 }
 
 /**
@@ -380,8 +424,8 @@ export function generateFlatKeychainUrl(name: string, seed: number = 0, stickerR
 
   try {
     const config = useRuntimeConfig()
-    baseUrl = config.public.assetsUrl as string
-    charmsPath = config.public.assetsCharmsPath as string
+    baseUrl = (config.public.assetsUrl as string) || ''
+    charmsPath = (config.public.assetsCharmsPath as string) || ''
   } catch (e) {
     // Fallback
     baseUrl = ''
@@ -468,13 +512,14 @@ interface KeychainInputData {
 export function keychainToCanvasElement(
   keychain: KeychainInputData | null | undefined,
   zIndex: number = 5,
-  _weaponName?: string  // Reserved for future use if needed
+  weaponName?: string
 ): CanvasElement | null {
   if (!keychain) return null
 
-  // Start with default keychain position (center of the canvas)
-  let x = DEFAULT_KEYCHAIN_POSITION.x // 0.5
-  let y = DEFAULT_KEYCHAIN_POSITION.y // 0.5
+  // Start with default keychain position (based on weapon or center)
+  const defaultPos = getDefaultKeychainPosition(weaponName)
+  let x = defaultPos.x
+  let y = defaultPos.y
 
   // Robustly extract the raw coordinate values
   const rawX = typeof keychain.offset_x === 'number' ? keychain.offset_x :
@@ -492,6 +537,8 @@ export function keychainToCanvasElement(
       Math.abs(vx) > 1.5 || Math.abs(vy) > 1.5
 
     // Check if it's an absolute position (0-1 range) or an offset
+    // If it's EXTREMELY close to the default center (0.5), treat as offset 0
+    // But basic heuristic: if it looks like a normalized coord, use it.
     const isAbsolute = !isPercentage && vx > 0 && vx < 1 && vy > 0 && vy < 1 &&
       (Math.abs(vx - 0.5) > 0.001 || Math.abs(vy - 0.5) > 0.001)
 
@@ -505,18 +552,18 @@ export function keychainToCanvasElement(
       const dxNorm = isPercentage ? (vx / 100) : vx
       const dyNorm = isPercentage ? (vy / 100) : vy
 
-      // Just add to default position - no weapon-specific scaling needed for keychains
+      // Add to weapon-specific default position
       x += dxNorm
       y += dyNorm
 
-      debugLog(`📐 Keychain offsets applied [${isPercentage ? 'percentage' : 'decimal'}]:`,
+      debugLog(`📐 Keychain offsets applied [${isPercentage ? 'percentage' : 'decimal'}] to base [${defaultPos.x}, ${defaultPos.y}]:`,
         { vx, vy, dxNorm, dyNorm, final_x: x, final_y: y })
     }
   }
 
-  // Clamp to valid range
-  x = Math.max(0, Math.min(1, x))
-  y = Math.max(0, Math.min(1, y))
+  // Clamp to valid range - REMOVED to allow out of bounds
+  // x = Math.max(0, Math.min(1, x))
+  // y = Math.max(0, Math.min(1, y))
 
   const scale = typeof keychain.scale === 'number' && !isNaN(keychain.scale) ? keychain.scale : 1.0
   const rotation = typeof keychain.rotation === 'number' && !isNaN(keychain.rotation) ? keychain.rotation : 0
@@ -669,18 +716,16 @@ export function canvasElementToKeychain(
   if (!element || element.type !== 'keychain') return null
 
   // Calculate offset from default keychain position
-  // This matches the loading logic in keychainToCanvasElement()
-  const REF_WIDTH = 1328
-  const { x: extRefX } = getExternalNormalizationRefs(weaponName)
+  const defaultPos = getDefaultKeychainPosition(weaponName)
 
   // Raw normalized offset from default position
-  const rawOffsetX = element.position.x - DEFAULT_KEYCHAIN_POSITION.x
-  const rawOffsetY = element.position.y - DEFAULT_KEYCHAIN_POSITION.y
+  const rawOffsetX = element.position.x - defaultPos.x
+  const rawOffsetY = element.position.y - defaultPos.y
 
   // Convert back to Steam offset format (inverse of loading)
-  // Loading was: x = default_x + (offset / 100) * (extRefX / REF_WIDTH)
-  // Inverse: offset = (x - default_x) / (extRefX / REF_WIDTH) * 100
-  const offsetX = (rawOffsetX / (extRefX / REF_WIDTH)) * 100
+  // Loading was: x = default_x + (offset / 100)
+  // Inverse: offset = (x - default_x) * 100
+  const offsetX = rawOffsetX * 100
   const offsetY = rawOffsetY * 100
 
   return {
@@ -712,8 +757,8 @@ export function generateFlatImageUrl(weaponName: string, skinName: string): stri
 
   try {
     const config = useRuntimeConfig()
-    baseUrl = config.public.assetsUrl as string
-    weaponsPath = config.public.assetsWeaponsPath as string
+    baseUrl = (config.public.assetsUrl as string) || ''
+    weaponsPath = (config.public.assetsWeaponsPath as string) || ''
   } catch (e) {
     baseUrl = ''
     weaponsPath = '/img/weapons/flat'

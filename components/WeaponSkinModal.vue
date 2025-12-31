@@ -985,7 +985,7 @@ watch(() => props.weapon, () => {
 <template>
   <NModal
       :show="visible"
-      style="max-width: 1200px; width: 95vw"
+      style="max-width: 1800px; width: 95vw"
       preset="card"
       :bordered="false"
       size="huge"

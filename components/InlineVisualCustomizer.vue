@@ -11,7 +11,10 @@ import {
   createCoordinateTransform,
   getExternalNormalizationRefs,
   getWeaponAssetSizes,
-  generateStickerImageUrl
+  generateStickerImageUrl,
+  getDefaultKeychainPosition,
+  WEAPON_RESOLUTION_REFS,
+  RESOLUTION_OVERRIDES
 } from '~/utils/canvasCoordinates'
 
 
@@ -108,10 +111,121 @@ const debugWarn = (...args: unknown[]) => {
   if (isDevelopment) console.warn(...args)
 }
 
+
+
+// Calibration State (Dev Mode Only)
+const calibration = reactive({
+    active: false,
+    scaleX: 1.0,
+    scaleY: 1.0,
+    offsetX: 0,
+    offsetY: 0,
+    currentResolution: ''
+})
+
+
+
+const isFullscreen = ref(false)
+
+const copyCalibrationConfig = () => {
+    const config = `'${calibration.currentResolution}': { scaleX: ${calibration.scaleX}, scaleY: ${calibration.scaleY}, offsetX: ${calibration.offsetX}, offsetY: ${calibration.offsetY} }`
+    window.navigator.clipboard.writeText(config).then(() => {
+        message.success('Config copied to clipboard')
+    }).catch(err => {
+        console.error('Failed to copy', err)
+        message.error('Failed to copy config')
+    })
+}
+
+const copySelectedElementPosition = () => {
+    const p = selectedElement.value?.position
+    if(!p) return
+    const str = `{ x: ${p.x.toFixed(4)}, y: ${p.y.toFixed(4)} }, // slot ${selectedElement.value?.slotIndex ?? '?'}`
+    window.navigator.clipboard.writeText(str)
+    message.success('Pos copied!')
+}
+
 const normalizedToCanvasInImage = (p: { x: number; y: number }) => {
   const r = backgroundDrawRect.value
   if (r.width > 0 && r.height > 0) {
-    return { x: r.x + p.x * r.width, y: r.y + p.y * r.height }
+      let nx = p.x
+      let ny = p.y
+      
+      if (videoManager.value && props.weaponSkin) {
+          const meta = videoManager.value.getMetadata()
+          const rawName = props.weaponSkin.name.split(' | ')[0]
+          const weaponName = rawName ? rawName.toLowerCase().trim().replace('weapon_', '') : ''
+          const ref = WEAPON_RESOLUTION_REFS[weaponName]
+          
+          if (ref && meta.width > 0 && meta.height > 0) {
+              const resKey = `${meta.width}x${meta.height}`
+              
+              // Use calibration values if active, otherwise check overrides
+              let scaleX = 1, scaleY = 1, offX = 0, offY = 0
+
+              if (calibration.active && calibration.currentResolution === resKey) {
+                  scaleX = calibration.scaleX
+                  scaleY = calibration.scaleY
+                  offX = calibration.offsetX
+                  offY = calibration.offsetY
+              } else if (RESOLUTION_OVERRIDES[weaponName] && RESOLUTION_OVERRIDES[weaponName][resKey]) {
+                  const ov = RESOLUTION_OVERRIDES[weaponName][resKey]
+                  scaleX = ov.scaleX
+                  scaleY = ov.scaleY
+                  offX = ov.offsetX
+                  offY = ov.offsetY
+              } else if (meta.width !== ref.width || meta.height !== ref.height) {
+                 // Default auto-scale theory (fallback if no override)
+                 // scaleX = ref.width / meta.width
+                 // scaleY = ref.height / meta.height
+                 // Intentionally disabled in favor of manual calibration for now to avoid bad guesses
+              }
+
+              // Apply Transform: 
+              // Convert Normalized -> Reference Pixels -> Apply Scale/Offset -> Current Pixels -> Current Normalized
+              
+              // 1. Normalized to Reference Pixels (centered relative to 0.5)
+              const refPxX = (p.x - 0.5) * ref.width
+              const refPxY = (p.y - 0.5) * ref.height
+              
+              // 2. Apply Calibration Scale & Offset
+              // "Scale" here implies stretching the reference plane to fit the current view
+              // If scale > 1, the reference plane is larger (sticker moves out)
+              const adjPxX = refPxX * scaleX + offX
+              const adjPxY = refPxY * scaleY + offY
+              
+              // 3. Convert to Current Pixels (relative to center)
+              // Current Pixels = Reference Pixels mapped to current resolution
+              // Wait, simpler model: 
+              // We want to map p -> p_new. 
+              // Center (0.5) maps to Center (0.5) + Offset (normalized?)
+              
+              // Let's stick to the pixel math derived from the approved plan:
+              // nx_px = (nx * REF_WIDTH * ScaleX) + OffsetX  (This assumes top-left origin, maybe center is safer?)
+              
+              // IMPLEMENTATION: Center-based
+              // Goal: Map Normalized Coord P to Normalized Coord P'
+              
+              // P_ref_px = p.x * ref.width
+              // P_target_px = (P_ref_px * scaleX) + offX
+              // P_final_norm = P_target_px / current.width
+              
+              // But we want to preserve center.
+              // Center Ref = ref.width / 2
+              // Point relative to center: (p.x - 0.5) * ref.width
+              
+              // Adjusted point relative to center in Target:
+              // ((p.x - 0.5) * ref.width * scaleX) + offX
+              
+              // Final Normalized:
+              // new_x = 0.5 + ( ((p.x - 0.5) * ref.width * scaleX) + offX ) / meta.width
+               
+              nx = 0.5 + ( ((p.x - 0.5) * ref.width * scaleX) + offX ) / meta.width
+              ny = 0.5 + ( ((p.y - 0.5) * ref.height * scaleY) + offY ) / meta.height
+          }
+      }
+
+    return { x: r.x + nx * r.width, y: r.y + ny * r.height }
   }
   return coordinateTransform.normalizedToCanvas(p, canvasState.value.canvasSize)
 }
@@ -121,10 +235,8 @@ const canvasToNormalizedInImage = (pt: { x: number; y: number }) => {
   if (r.width > 0 && r.height > 0) {
     const nx = (pt.x - r.x) / r.width
     const ny = (pt.y - r.y) / r.height
-    return {
-      x: Math.max(0, Math.min(1, nx)),
-      y: Math.max(0, Math.min(1, ny))
-    }
+    // Relaxed bounds: Allow dragging outside the video rect
+    return { x: nx, y: ny }
   }
   return coordinateTransform.canvasToNormalized(pt, canvasState.value.canvasSize)
 }
@@ -443,6 +555,26 @@ const initializeWeaponBackground = async () => {
         canvasState.value.weaponImage = ''
         isVideoMode.value = true
         videoReady = true
+        
+        // Update calibration resolution
+        if (isDevelopment && videoManager.value) {
+            const meta = videoManager.value.getMetadata()
+            calibration.currentResolution = `${meta.width}x${meta.height}`
+            
+             // Auto-load override if exists
+             const rawName = props.weaponSkin.name.split(' | ')[0]
+             const weaponName = rawName ? rawName.toLowerCase().trim().replace('weapon_', '') : ''
+             const weaponOverrides = RESOLUTION_OVERRIDES[weaponName]
+             if (weaponOverrides) {
+                 const ov = weaponOverrides[calibration.currentResolution]
+                 if (ov) {
+                     calibration.scaleX = ov.scaleX
+                     calibration.scaleY = ov.scaleY
+                     calibration.offsetX = ov.offsetX
+                     calibration.offsetY = ov.offsetY
+                 }
+             }
+        }
 
       }
   } catch (e) {
@@ -495,11 +627,21 @@ const convertExistingCustomizations = () => {
       }
     }
   })
+    // Convert keychain
   if (props.keychain) {
-    const element = keychainToCanvasElement(props.keychain, 5, weaponName)
-    if (element) {
-
-      elements.push(element)
+    const kc = keychainToCanvasElement(props.keychain, 10, weaponName)
+    if (kc) {
+      // If we have an existing keychain in state (from internal editing), preserve its state if IDs match
+       const existing = canvasState.value.elements.find(e => e.type === 'keychain')
+       if(existing && existing.assetId === kc.assetId && canvasState.value.isEditing) {
+          // Keep existing position/scale/rotation if we are currently editing
+           // BUT only if not explicitly triggered by external prop change?
+           // Actually, if props change, we should probably reset unless we are the source of the change.
+           // For now, let's assume props are truth.
+           elements.push(kc)
+       } else {
+           elements.push(kc)
+       }
     }
   }
   canvasState.value.elements = elements
@@ -697,22 +839,38 @@ const drawCoordinateOverlay = () => {
   ctx.value.restore()
 }
 
+// Calculate global scale factor relative to standard design width (1120px)
+// This ensures stickers grow/shrink with the weapon image vs remaining fixed size
+const getGlobalScaleFactor = () => {
+    const STANDARD_DESIGN_WIDTH = 1120
+    if (backgroundDrawRect.value.width > 0) {
+        return backgroundDrawRect.value.width / STANDARD_DESIGN_WIDTH
+    }
+    return 1
+}
+
 const drawElement = (element: CanvasElement) => {
     if(!ctx.value) return
     const pos = normalizedToCanvasInImage(element.position)
+    const globalScale = getGlobalScaleFactor()
+    
     ctx.value.save()
     ctx.value.translate(pos.x, pos.y)
     ctx.value.rotate((element.rotation * Math.PI)/180)
     ctx.value.scale(element.scale, element.scale)
     
-    const size = 100 * element.scale
+    // Scale the base size by global scale
+    const size = 100 * element.scale * globalScale // Just for placeholder box
     
     // Selection ring logic
     const drawSelection = (bounds?: {width: number, height: number}) => {
         if(element.selected) { // Use exact same logic from modal
-            const accent = getComputedStyle(document.documentElement).getPropertyValue('--selection-ring').trim() || '#FACC15'
-            ctx.value!.strokeStyle = accent
+             const accent = getComputedStyle(document.documentElement).getPropertyValue('--selection-ring').trim() || '#FACC15'
+             ctx.value!.strokeStyle = accent
              const invScale = 1 / Math.max(0.1, element.scale || 1)
+             // Scale UI elements inversely to global scale to keep them crisp/constant size?
+             // Actually ring should probably scale with object.
+             
              const ringPadding = 0.75 * invScale
              const ringLineWidth = 1.1 * invScale
              const dash = 2.5 * invScale
@@ -748,13 +906,22 @@ const drawElement = (element: CanvasElement) => {
     if(element.apiData?.image) {
         const cachedImg = imageCache.get(element.apiData.image)
         if(cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
-            const widthScale = STICKER_MAX_WIDTH_PX.value / cachedImg.naturalWidth
-            const heightScale = STICKER_MAX_HEIGHT_PX.value / cachedImg.naturalHeight
-            const baseScale = Math.min(widthScale, heightScale, 1)
-            const baseWidth = cachedImg.naturalWidth * baseScale
-            const baseHeight = cachedImg.naturalHeight * baseScale
+            // APPLY GLOBAL SCALE to max dimensions
+            const maxW = STICKER_MAX_WIDTH_PX.value * globalScale
+            const maxH = STICKER_MAX_HEIGHT_PX.value * globalScale
             
-            const drawWidth = baseWidth * element.scale
+            const widthScale = maxW / cachedImg.naturalWidth
+            const heightScale = maxH / cachedImg.naturalHeight
+            const baseScale = Math.min(widthScale, heightScale, 1) // Allow upscaling? maybe remove ,1 if we want strict fit
+            
+            // Should usually just strict fit to box
+             const fitScale = Math.min(maxW / cachedImg.naturalWidth, maxH / cachedImg.naturalHeight)
+            
+            const baseWidth = cachedImg.naturalWidth * fitScale
+            const baseHeight = cachedImg.naturalHeight * fitScale
+            
+            // Draw width already includes global scale via baseWidth
+            const drawWidth = baseWidth * element.scale 
             const drawHeight = baseHeight * element.scale
             
             ctx.value.drawImage(cachedImg, -drawWidth/2, -drawHeight/2, drawWidth, drawHeight)
@@ -762,13 +929,16 @@ const drawElement = (element: CanvasElement) => {
         } else {
             // Image not loaded yet - handled by loadAllElementImages watcher
              ctx.value!.fillStyle = element.type === 'sticker' ? '#FF6B6B' : '#4ECDC4'
-             ctx.value!.fillRect(-size/2, -size/2, size, size)
-             drawSelection()
+             // Use scaled placeholder size
+             const placeholderSize = 100 * element.scale * globalScale
+             ctx.value!.fillRect(-placeholderSize/2, -placeholderSize/2, placeholderSize, placeholderSize)
+             drawSelection({width: placeholderSize, height: placeholderSize})
         }
     } else {
         ctx.value!.fillStyle = element.type === 'sticker' ? '#FF6B6B' : '#4ECDC4'
-        ctx.value!.fillRect(-size/2, -size/2, size, size)
-        drawSelection()
+        const placeholderSize = 100 * element.scale * globalScale
+        ctx.value!.fillRect(-placeholderSize/2, -placeholderSize/2, placeholderSize, placeholderSize)
+        drawSelection({width: placeholderSize, height: placeholderSize})
     }
     ctx.value.restore()
 }
@@ -777,17 +947,22 @@ const drawElement = (element: CanvasElement) => {
 
 const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
   const sorted = [...canvasState.value.elements].sort((a, b) => b.zIndex - a.zIndex)
+  const globalScale = getGlobalScaleFactor()
+
   for (const element of sorted) {
     const pos = normalizedToCanvasInImage(element.position)
     let bounds
     if (element.apiData?.image) {
       const cachedImg = imageCache.get(element.apiData.image)
       if (cachedImg && cachedImg.complete && cachedImg.naturalWidth > 0) {
-        const widthScale = STICKER_MAX_WIDTH_PX.value / cachedImg.naturalWidth
-        const heightScale = STICKER_MAX_HEIGHT_PX.value / cachedImg.naturalHeight
-        const baseScale = Math.min(widthScale, heightScale, 1)
-        const baseWidth = cachedImg.naturalWidth * baseScale
-        const baseHeight = cachedImg.naturalHeight * baseScale
+        // Apply Global Scale to hit detection too
+        const maxW = STICKER_MAX_WIDTH_PX.value * globalScale
+        const maxH = STICKER_MAX_HEIGHT_PX.value * globalScale
+        
+        const fitScale = Math.min(maxW / cachedImg.naturalWidth, maxH / cachedImg.naturalHeight)
+        
+        const baseWidth = cachedImg.naturalWidth * fitScale
+        const baseHeight = cachedImg.naturalHeight * fitScale
         const drawWidth = baseWidth * element.scale
         const drawHeight = baseHeight * element.scale
         bounds = {
@@ -795,16 +970,17 @@ const findElementAtPosition = (canvasPos: { x: number, y: number }) => {
           top: pos.y - drawHeight/2, bottom: pos.y + drawHeight/2
         }
       } else {
-          const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX.value : KEYCHAIN_MAX_WIDTH_PX.value) * element.scale
-          const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX.value : KEYCHAIN_MAX_HEIGHT_PX.value) * element.scale
+          // Fallback with global scale
+          const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX.value : KEYCHAIN_MAX_WIDTH_PX.value) * element.scale * globalScale
+          const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX.value : KEYCHAIN_MAX_HEIGHT_PX.value) * element.scale * globalScale
           bounds = {
             left: pos.x - fallbackWidth/2, right: pos.x + fallbackWidth/2,
             top: pos.y - fallbackHeight/2, bottom: pos.y + fallbackHeight/2
           }
       }
     } else {
-        const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX.value : KEYCHAIN_MAX_WIDTH_PX.value) * element.scale
-        const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX.value : KEYCHAIN_MAX_HEIGHT_PX.value) * element.scale
+        const fallbackWidth = (element.type === 'sticker' ? STICKER_MAX_WIDTH_PX.value : KEYCHAIN_MAX_WIDTH_PX.value) * element.scale * globalScale
+        const fallbackHeight = (element.type === 'sticker' ? STICKER_MAX_HEIGHT_PX.value : KEYCHAIN_MAX_HEIGHT_PX.value) * element.scale * globalScale
         bounds = {
           left: pos.x - fallbackWidth/2, right: pos.x + fallbackWidth/2,
           top: pos.y - fallbackHeight/2, bottom: pos.y + fallbackHeight/2
@@ -884,10 +1060,11 @@ const handleCanvasMouseMove = (event: MouseEvent) => {
   event.preventDefault()
   
   const normalizedPos = canvasToNormalizedInImage(canvasPos)
-  if (coordinateTransform.validateCoordinates(normalizedPos)) {
+  // Relaxed bounds: Allow placing anywhere (even outside 0-1 range)
+  // if (coordinateTransform.validateCoordinates(normalizedPos)) {
     setElementPosition(selectedElement.value.id, normalizedPos.x, normalizedPos.y)
     renderCanvas()
-  }
+  // }
 }
 
 const handleCanvasMouseUp = () => {
@@ -912,6 +1089,35 @@ const handleResize = () => {
   canvas.value.height = containerRect.height
   if (videoManager.value) videoManager.value.updateCanvasSize(canvasState.value.canvasSize)
   renderCanvas()
+}
+
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (!selectedElement.value) return
+
+    let dx = 0
+    let dy = 0
+    // Base step size (0.0005 for precision, 0.005 for shift)
+    const step = e.shiftKey ? 0.005 : 0.0005
+
+    switch (e.key) {
+        case 'ArrowLeft': dx = -step; break
+        case 'ArrowRight': dx = step; break
+        case 'ArrowUp': dy = -step; break
+        case 'ArrowDown': dy = step; break
+        default: return
+    }
+    
+    e.preventDefault()
+
+    const current = selectedElement.value.position
+    // Use the existing validation logic via the setter helper to ensure bounds
+    const p = { x: current.x + dx, y: current.y + dy }
+    
+    // Check bounds (Relaxed)
+    // if (p.x >= 0 && p.x <= 1 && p.y >= 0 && p.y <= 1) {
+        setElementPosition(selectedElement.value.id, p.x, p.y)
+        renderCanvas()
+    // }
 }
 
 const handleSave = (arg: boolean | MouseEvent = false) => {
@@ -996,19 +1202,46 @@ const handleSetRotation = (value: number | null) => {
   renderCanvas()
 }
 
+// Helper: Get Keychain offset relative to default
+const getKeychainRelativePos = (axis: 'x' | 'y') => {
+    if (!selectedElement.value || selectedElement.value.type !== 'keychain') return 0
+    const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'awp'
+    const def = getDefaultKeychainPosition(weaponName)
+    const current = selectedElement.value.position[axis]
+    return current - def[axis]
+}
+
+const updateKeychainRelativePos = (axis: 'x' | 'y', val: number) => {
+    if (!selectedElement.value || selectedElement.value.type !== 'keychain') return
+    const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'awp'
+    const def = getDefaultKeychainPosition(weaponName)
+    
+    // New absolute = default + relative offset
+    const newAbs = def[axis] + val
+    updateElementPosition(axis, newAbs)
+}
+
 // Watchers
+watch(calibration, () => {
+    if (isDevelopment && calibration.active) {
+        renderCanvas()
+    }
+}, { deep: true })
+
 watch(() => props.stickers, () => convertExistingCustomizations(), { deep: true })
 watch(() => props.keychain, () => convertExistingCustomizations())
 
 onMounted(() => {
   initializeCanvas()
   window.addEventListener('resize', handleResize)
+  window.addEventListener('keydown', handleKeyDown)
   setTimeout(() => forceVideoLoad(), 500)
 })
 
 onUnmounted(() => {
   handleSave(true) // Auto-save on exit
   window.removeEventListener('resize', handleResize)
+  window.removeEventListener('keydown', handleKeyDown)
   if (videoManager.value) {
     videoManager.value.destroy()
     videoManager.value = null
@@ -1031,7 +1264,8 @@ defineExpose({
     <div 
         ref="canvasContainer" 
         class="canvas-container w-full relative bg-[#101010] rounded-lg overflow-hidden" 
-        style="height: 500px;"
+        :class="{ 'fixed inset-0 z-[9999] h-screen w-screen rounded-none': isFullscreen }"
+        :style="!isFullscreen ? { height: '700px' } : {}"
     >
       <video ref="video" crossorigin="anonymous" playsinline style="display: none;"></video>
       <canvas 
@@ -1048,7 +1282,22 @@ defineExpose({
       </div>
 
       <!-- Debug Toggle (Dev only) -->
-      <div v-if="isDevelopment" class="absolute top-2 right-2 z-50">
+      <div v-if="isDevelopment" class="absolute top-2 right-2 z-50 flex flex-col gap-2 items-end">
+        <!-- Fullscreen Toggle -->
+        <NButton 
+          size="tiny" 
+          secondary
+          circle 
+          @click="() => { isFullscreen = !isFullscreen; nextTick(handleResize) }"
+          :type="isFullscreen ? 'primary' : 'default'"
+          class="opacity-50 hover:opacity-100 transition-opacity"
+          title="Toggle Fullscreen"
+        >
+          <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+          </template>
+        </NButton>
+
         <NButton 
           size="tiny" 
           secondary
@@ -1064,6 +1313,52 @@ defineExpose({
             </svg>
           </template>
         </NButton>
+
+        <!-- Calibration Toggle -->
+        <NButton 
+          size="tiny" 
+          secondary
+          circle 
+          @click="calibration.active = !calibration.active"
+          :type="calibration.active ? 'warning' : 'default'"
+          class="opacity-50 hover:opacity-100 transition-opacity"
+          title="Toggle Calibration UI"
+        >
+          <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="currentColor" d="M3 17v2h6v-2H3M3 5v2h10V5H3m10 16v-2h8v-2h-8v-2h-2v6h2M7 9v2H3v2h4v2h2V9H7m14 4v-2H11v2h10m-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
+          </template>
+        </NButton>
+
+        <!-- Calibration Panel -->
+        <div v-if="calibration.active" class="bg-black/80 backdrop-blur-md border border-white/10 p-3 rounded-lg w-64 text-xs">
+            <div class="flex justify-between items-center mb-2">
+                <span class="font-bold text-yellow-400">CALIBRATION</span>
+                <span class="text-gray-400">{{ calibration.currentResolution }}</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                <div>
+                    <span class="text-gray-500 block mb-1">Scale X</span>
+                    <NInputNumber v-model:value="calibration.scaleX" size="tiny" :step="0.001" :precision="4" :show-button="false" />
+                </div>
+                <div>
+                    <span class="text-gray-500 block mb-1">Scale Y</span>
+                    <NInputNumber v-model:value="calibration.scaleY" size="tiny" :step="0.001" :precision="4" :show-button="false" />
+                </div>
+                <div>
+                    <span class="text-gray-500 block mb-1">Offset X</span>
+                    <NInputNumber v-model:value="calibration.offsetX" size="tiny" :step="1" :precision="0" :show-button="false" />
+                </div>
+                <div>
+                    <span class="text-gray-500 block mb-1">Offset Y</span>
+                    <NInputNumber v-model:value="calibration.offsetY" size="tiny" :step="1" :precision="0" :show-button="false" />
+                </div>
+            </div>
+
+            <NButton size="tiny" block secondary type="info" @click="copyCalibrationConfig">
+                Copy Config
+            </NButton>
+        </div>
       </div>
       
       <!-- Phase 5 Quick Settings (Moved to footer) -->
@@ -1164,17 +1459,49 @@ defineExpose({
                                 <NInputNumber v-model:value="extYRef" size="tiny" class="w-10" :show-button="false" />
                              </div>
                          </template>
+                         
+                         <NButton v-if="isDevelopment" size="tiny" secondary circle type="info" class="ml-1" @click="copySelectedElementPosition" title="Copy Position Object">
+                            <template #icon>
+                               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                            </template>
+                         </NButton>
                      </div>
                 </div>
 
                 <!-- Keychain Position -->
                 <div v-if="selectedElement.type === 'keychain'" class="flex items-center gap-2">
                      <span class="text-[9px] text-gray-400">X</span>
-                     <NInputNumber size="tiny" :value="selectedElement.position.x" :step="0.01" :min="0" :max="1" :precision="2" @update:value="v => updateElementPosition('x', v)" class="w-12" :show-button="false" />
+                     <NInputNumber 
+                        size="tiny" 
+                        :value="getKeychainRelativePos('x')" 
+                        :step="0.01" 
+                        :min="-2" 
+                        :max="2" 
+                        :precision="4" 
+                        @update:value="v => updateKeychainRelativePos('x', v || 0)" 
+                        class="w-14" 
+                        :show-button="false" 
+                     />
                      <span class="text-[9px] text-gray-400 ml-1">Y</span>
-                     <NInputNumber size="tiny" :value="selectedElement.position.y" :step="0.01" :min="0" :max="1" :precision="2" @update:value="v => updateElementPosition('y', v)" class="w-12" :show-button="false" />
+                     <NInputNumber 
+                        size="tiny" 
+                        :value="getKeychainRelativePos('y')" 
+                        :step="0.01" 
+                        :min="-2" 
+                        :max="2" 
+                        :precision="4" 
+                        @update:value="v => updateKeychainRelativePos('y', v || 0)" 
+                        class="w-14" 
+                        :show-button="false" 
+                     />
                      <span class="text-[9px] text-gray-400 ml-1">Z</span>
-                     <NInputNumber size="tiny" :value="selectedElement.z || 0" :step="0.01" :min="-2" :max="2" :precision="2" @update:value="v => updateElementZ(v)" class="w-12" :show-button="false" />
+                     <NInputNumber size="tiny" :value="selectedElement.z || 0" :step="0.01" :min="-2" :max="2" :precision="2" @update:value="v => updateElementZ(v || 0)" class="w-12" :show-button="false" />
+                     
+                     <NButton v-if="isDevelopment" size="tiny" secondary circle type="info" class="ml-1" @click="copySelectedElementPosition" title="Copy Position Object">
+                        <template #icon>
+                           <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                        </template>
+                     </NButton>
                 </div>
             </div>
           </div>
