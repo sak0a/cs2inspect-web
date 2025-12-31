@@ -29,7 +29,14 @@ export interface DBLoadout extends BaseDBRecord {
     steamid: string;
     name: string;
     active: boolean | number;
-    selected_music?: number;
+    selected_music?: number | null;
+    selected_pin?: number | null;
+    selected_agent_t?: number | null;
+    selected_agent_ct?: number | null;
+    selected_glove_t?: number | null;
+    selected_glove_ct?: number | null;
+    selected_knife_t?: number | null;
+    selected_knife_ct?: number | null;
     share_code?: string;
     is_default?: boolean | number;
 }
