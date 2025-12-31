@@ -9,7 +9,7 @@ EXCLUDED_PATHS=(
   "public/img/stickers"
   "public/img/weapons"
 )
-TARGET_BRANCH="app-only"
+TARGET_BRANCH="app"
 SOURCE_BRANCH="master"
 TEMP_BRANCH="temp-deploy-sync-$(date +%s)"
 
