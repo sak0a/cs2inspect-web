@@ -20,7 +20,7 @@ bun install
 Create a `.env` file in `services/steam-service/`:
 
 ```env
-PORT=3001
+PORT=3000
 HOST=0.0.0.0
 NODE_ENV=development
 
@@ -52,7 +52,7 @@ bun start
 Add to your main app's `.env`:
 
 ```env
-STEAM_SERVICE_URL=http://localhost:3001
+STEAM_SERVICE_URL=http://localhost:3000
 STEAM_SERVICE_API_KEY=your_api_key_here
 ```
 
@@ -63,7 +63,7 @@ STEAM_SERVICE_API_KEY=your_api_key_here
 The `docker-compose.yml` already includes the steam service. Just add these environment variables:
 
 ```env
-STEAM_SERVICE_PORT=3001
+STEAM_SERVICE_PORT=3000
 STEAM_SERVICE_API_KEYS=your_api_key_here
 STEAM_SERVICE_CORS_ORIGINS=http://localhost:3000
 ```
@@ -81,7 +81,7 @@ docker-compose up -d
 All inspect endpoints require an `X-API-Key` header:
 
 ```bash
-curl -X POST http://localhost:3001/api/inspect/inspect-item \
+curl -X POST http://localhost:3000/api/inspect/inspect-item \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_api_key_here" \
   -d '{"inspectUrl": "steam://..."}'
@@ -119,7 +119,7 @@ Once confirmed working, you can remove Steam credentials from the main app's env
 ### Service Won't Start
 - Check that all required environment variables are set
 - Verify Steam credentials are correct
-- Check port 3001 is not already in use
+- Check port 3000 is not already in use
 
 ### "Invalid API Key" Errors
 - Verify `API_KEYS` in service `.env` matches `STEAM_SERVICE_API_KEY` in main app
@@ -141,19 +141,19 @@ Once confirmed working, you can remove Steam credentials from the main app's env
 
 ```bash
 # General health
-curl http://localhost:3001/api/health
+curl http://localhost:3000/api/health
 
 # Readiness probe
-curl http://localhost:3001/api/health/ready
+curl http://localhost:3000/api/health/ready
 
 # Liveness probe
-curl http://localhost:3001/api/health/live
+curl http://localhost:3000/api/health/live
 ```
 
 ### Status Endpoint
 
 ```bash
-curl http://localhost:3001/api/status
+curl http://localhost:3000/api/status
 ```
 
 Returns:

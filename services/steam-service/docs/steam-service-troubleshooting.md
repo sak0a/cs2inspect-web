@@ -109,7 +109,7 @@ The service will start and work for masked URL operations (create-url, analyze-u
 
 **Check Status:**
 ```bash
-curl http://localhost:3001/api/status/steam-client
+curl http://localhost:3000/api/status/steam-client
 ```
 
 ### Invalid API Key Errors
@@ -138,7 +138,7 @@ INVALID_API_KEY
 
 3. **Test API Key:**
    ```bash
-   curl -X POST http://localhost:3001/api/inspect/analyze-url \
+   curl -X POST http://localhost:3000/api/inspect/analyze-url \
      -H "X-API-Key: your_key" \
      -H "Content-Type: application/json" \
      -d '{"inspectUrl": "test"}'
@@ -156,16 +156,16 @@ Connection refused
 
 1. **Check Service is Running:**
    ```bash
-   curl http://localhost:3001/api/health/live
+   curl http://localhost:3000/api/health/live
    ```
 
 2. **Check Port:**
    ```bash
-   lsof -i :3001
+   lsof -i :3000
    ```
 
 3. **Verify URL:**
-   - Main app `.env`: `STEAM_SERVICE_URL=http://localhost:3001`
+   - Main app `.env`: `STEAM_SERVICE_URL=http://localhost:3000`
    - No `https://` for local testing
    - Port must match service port
 
@@ -201,19 +201,19 @@ Queue is full
 
 ```bash
 # Liveness
-curl http://localhost:3001/api/health/live
+curl http://localhost:3000/api/health/live
 
 # Readiness
-curl http://localhost:3001/api/health/ready
+curl http://localhost:3000/api/health/ready
 
 # Full status
-curl http://localhost:3001/api/status
+curl http://localhost:3000/api/status
 ```
 
 ### Check Steam Client Status
 
 ```bash
-curl http://localhost:3001/api/status/steam-client
+curl http://localhost:3000/api/status/steam-client
 ```
 
 Expected when working:
@@ -237,13 +237,13 @@ Expected when failed:
 ### Check Queue Status
 
 ```bash
-curl http://localhost:3001/api/status/queue
+curl http://localhost:3000/api/status/queue
 ```
 
 ### Test API Endpoint
 
 ```bash
-curl -X POST http://localhost:3001/api/inspect/create-url \
+curl -X POST http://localhost:3000/api/inspect/create-url \
   -H "X-API-Key: your_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -256,7 +256,7 @@ curl -X POST http://localhost:3001/api/inspect/create-url \
 ## Environment Variable Checklist
 
 **Steam Service** (`services/steam-service/.env`):
-- [ ] `PORT=3001` (or your port)
+- [ ] `PORT=3000` (or your port)
 - [ ] `STEAM_USERNAME=...` (no spaces)
 - [ ] `STEAM_PASSWORD=...` (no spaces, properly escaped)
 - [ ] `STEAM_API_KEY=...` (valid API key)
@@ -264,7 +264,7 @@ curl -X POST http://localhost:3001/api/inspect/create-url \
 - [ ] `CORS_ORIGINS=http://localhost:3000` (includes your main app URL)
 
 **Main App** (`.env`):
-- [ ] `STEAM_SERVICE_URL=http://localhost:3001` (matches service port)
+- [ ] `STEAM_SERVICE_URL=http://localhost:3000` (matches service port)
 - [ ] `STEAM_SERVICE_API_KEY=...` (matches one of the keys in service)
 
 ## Advanced Troubleshooting
@@ -305,8 +305,8 @@ client.initializeSteamClient().then(() => {
 ### Check for Port Conflicts
 
 ```bash
-# Check what's using port 3001
-lsof -i :3001
+# Check what's using port 3000
+lsof -i :3000
 
 # Or use a different port
 PORT=3002 bun run dev

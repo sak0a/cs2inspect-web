@@ -44,7 +44,7 @@ Add these environment variables in Coolify:
 
 ```env
 # Server Configuration
-PORT=3001
+PORT=3000
 HOST=0.0.0.0
 NODE_ENV=production
 
@@ -79,8 +79,8 @@ STEAM_QUEUE_TIMEOUT=30000
 #### Step 4: Configure Ports
 
 1. In Coolify application settings, set:
-   - **Port**: `3001`
-   - **Expose Port**: `3001`
+   - **Port**: `3000`
+   - **Expose Port**: `3000`
 
 #### Step 5: Configure Domain/Subdomain (Optional but Recommended)
 
@@ -90,7 +90,7 @@ STEAM_QUEUE_TIMEOUT=30000
 3. Enable SSL/TLS in Coolify
 
 **Option B: Port Access**
-- Access via: `your-server-ip:3001`
+- Access via: `your-server-ip:3000`
 - Less secure, but simpler setup
 
 #### Step 6: Deploy
@@ -130,7 +130,7 @@ networks:
 
 The main Nuxt app can reach the Steam Service via:
 
-- **Same Docker Compose**: `http://steam-service:3001`
+- **Same Docker Compose**: `http://steam-service:3000`
 - **Separate Applications (Coolify)**: Use a **Docker network alias** (recommended) or a **subdomain**
 
 #### Important: Don’t use `127.0.0.1` between containers
@@ -149,11 +149,11 @@ So from your Nuxt container, `http://127.0.0.1:3655` will *never* reach the stea
 
 ```env
 # Use Docker DNS name (network alias) + the steam-service INTERNAL port
-STEAM_SERVICE_URL=http://steam-service:3001
+STEAM_SERVICE_URL=http://steam-service:3000
 STEAM_SERVICE_API_KEY=your_secure_api_key_here
 ```
 
-> If your steam-service listens internally on a different port (e.g. `PORT=3665`), use that port in the URL.
+> If your steam-service listens internally on a different port (e.g. `PORT=3000`), use that port in the URL.
 > Don’t confuse **Port Mappings** (host:container) with the container’s internal port.
 
 #### Public (optional): subdomain through Traefik
@@ -185,7 +185,7 @@ Update your main Nuxt app's environment variables in Coolify:
 # Steam Service Configuration
 STEAM_SERVICE_URL=https://steam-api.yourdomain.com
 # OR if using internal network:
-# STEAM_SERVICE_URL=http://steam-service:3001
+# STEAM_SERVICE_URL=http://steam-service:3000
 
 STEAM_SERVICE_API_KEY=your_secure_api_key_here
 
@@ -203,7 +203,7 @@ STEAM_SERVICE_API_KEY=your_secure_api_key_here
 curl https://steam-api.yourdomain.com/api/health
 
 # Via port (if exposed)
-curl http://your-server-ip:3001/api/health
+curl http://your-server-ip:3000/api/health
 ```
 
 Expected response:
@@ -250,7 +250,7 @@ curl -X POST https://steam-api.yourdomain.com/api/inspect/create-url \
 **Common Issues:**
 - Missing `STEAM_USERNAME` or `STEAM_PASSWORD`
 - Invalid `API_KEYS` format
-- Port 3001 already in use
+- Port 3000 already in use
 
 ### "Steam Client Unavailable" Errors
 
@@ -397,7 +397,7 @@ Once confirmed working, you can remove Steam credentials from the main app (they
 
 ### Ports
 
-- **Steam Service**: `3001`
+- **Steam Service**: `3000`
 - **Main App**: `3000` (or your configured port)
 
 ## Support

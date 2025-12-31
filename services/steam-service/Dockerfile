@@ -31,11 +31,11 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/dist ./dist
 
 # Expose port
-EXPOSE 3665
+EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3665/api/health/live || exit 1
+  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-3000}/api/health/live || exit 1
 
 # Start the service
 CMD ["node", "dist/index.js"]
