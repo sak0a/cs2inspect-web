@@ -326,6 +326,41 @@ graph LR
 - **cs2-inspect-lib**: Item data parsing and generation
 - **Protobuf**: Binary protocol for CS2 item data
 
+## Repository Structure & Git Strategy
+
+CS2Inspect uses a Monorepo approach to manage the web application and its supporting services in a single repository while maintaining isolated branches for specialized deployments.
+
+### Monorepo Overview
+
+- **Source of Truth**: The `master` branch contains the entire codebase, including all services and documentation. All development occurs on branches that eventually merge into `master`.
+- **Directory Structure**:
+  - `/` (Root): Main Nuxt 3 web application.
+  - `/services/`: Isolated supporting services (managed via Git Subtrees).
+    - `/services/sticker-scraper/`: Automated sticker asset downloader.
+    - `/services/charm-scraper/`: Automated charm asset downloader.
+    - `/services/steam-service/`: Standalone Steam Game Coordinator bridge.
+  - `/scripts/`: Operational scripts for deployment and maintenance.
+
+### Branching Strategy
+
+| Branch | Purpose | Management |
+| :--- | :--- | :--- |
+| `master` | Main development branch. **Source of Truth**. | Pull Requests / Direct Commits |
+| `app` | Production-ready web application (excludes large assets and utility services). | Sync script: `bun run deploy:app` |
+| `sticker-scraper-only` | Isolated branch for the sticker scraper service. | Git Subtree push |
+| `charm-scraper-only` | Isolated branch for the charm scraper service. | Git Subtree push |
+| `steam-service-only` | Isolated branch for the Steam standalone service. | Git Subtree push |
+
+### Deployment Sync Flow
+
+For production environments (like Coolify) that only require the core web application, a specialized sync script is used:
+
+1.  **Develop**: All features and fixes are committed to `master`.
+2.  **Filter**: The `deploy:app` script creates a temporary clone of `master`.
+3.  **Exclude**: It removes directories not needed for production (e.g., scraping services, raw asset folders).
+4.  **Sync**: It force-pushes the filtered state to the `app` branch.
+5.  **Trigger**: Coolify monitors the `app` branch and automatically redeploys.
+
 ## Deployment Architecture
 
 ### Development

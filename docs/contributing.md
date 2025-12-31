@@ -108,7 +108,13 @@ git checkout -b refactor/optimize-loadout-store
 - `test/` - Test additions or modifications
 - `chore/` - Build process or dependency updates
 
-### 3. Make Changes
+### 3. Branch Targeting
+> [!IMPORTANT]
+> All developments, features, and fixes must target the **`master`** branch.
+> - **Do not** target the `app` or `*-only` branches; these are projection branches managed by deployment scripts.
+> - Even for changes in `/services/`, you should work in the `master` branch. The maintainers will handle the subtree syncs to the isolated service branches when needed.
+
+### 4. Make Changes
 
 Follow the code standards (see below) and make your changes:
 
@@ -126,7 +132,7 @@ npm run lint
 npm run lint -- --fix
 ```
 
-### 4. Commit Changes
+### 5. Commit Changes
 
 Write clear, descriptive commit messages:
 
@@ -168,13 +174,13 @@ Supports values from 0.0 (pristine) to 1.0 (fully scratched).
 Closes #123
 ```
 
-### 5. Push to GitHub
+### 6. Push to GitHub
 
 ```bash
 git push origin feature/add-weapon-preview
 ```
 
-### 6. Create Pull Request
+### 7. Create Pull Request
 
 1. Go to your fork on GitHub
 2. Click "Compare & pull request"

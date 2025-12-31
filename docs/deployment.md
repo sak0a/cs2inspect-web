@@ -101,7 +101,47 @@ Create `vercel.json` in the project root:
 
 ---
 
-### 2. Docker Deployment
+### 2. Coolify (Isolated App Branch)
+
+This method is used to deploy the web application while stripping away utility services and massive asset directories that are not needed in production.
+
+#### Branch Structure
+- **Source**: `master` (Monorepo)
+- **Target**: `app` (Filtered for production)
+
+#### Deployment Steps
+
+1.  **Configure Coolify**:
+    - Project Type: **GitHub Repository**
+    - Repository: `sak0a/cs2inspect-web`
+    - Branch: **`app`** (Important: Coolify should watch this branch, not master)
+
+2.  **Setup Deployment Script**:
+    The repository includes a safety-guarded script to sync your development work to the production branch.
+
+    ```bash
+    # From the master branch
+    bun run deploy:app
+    ```
+
+    *What this script does:*
+    - Switches to `master` and pulls latest.
+    - Creates a temporary branch.
+    - Removes excluded paths (e.g., `services/`, `public/img/charms/`, etc.).
+    - Force-pushes the clean state to the `app` branch.
+    - The push triggers Coolify's automatic redeployment.
+
+3.  **Excluded Directories**:
+    By default, the following are excluded from the `app` branch to keep the deployment lightweight:
+    - `services/sticker-scraper`
+    - `services/charm-scraper`
+    - `services/steam-service`
+    - `public/img/charms`
+    - `public/img/weapons`
+
+---
+
+### 3. Docker Deployment
 
 Deploy using Docker containers for full control and portability.
 
@@ -264,7 +304,7 @@ Deploy using Docker containers for full control and portability.
 
 ---
 
-### 3. Node.js + PM2
+### 4. Node.js + PM2
 
 Deploy directly to a VPS using Node.js and PM2 process manager.
 

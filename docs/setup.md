@@ -44,6 +44,9 @@ git clone https://github.com/sak0a/cs2inspect-web.git
 cd cs2inspect-web
 ```
 
+> [!NOTE]
+> All development and contributions should be performed on the **`master`** branch or feature branches targeting `master`. Other branches like `app` or `*-only` are automated projection branches and should not be used as a development base.
+
 ### 2. Install Dependencies
 
 ```bash
