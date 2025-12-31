@@ -6,7 +6,6 @@ EXCLUDED_PATHS=(
   "services/charm-scraper"
   "services/steam-service"
   "public/img/charms"
-  "public/img/stickers"
   "public/img/weapons"
 )
 TARGET_BRANCH="app"
@@ -27,12 +26,22 @@ git pull origin "$SOURCE_BRANCH"
 echo "Creating temporary branch $TEMP_BRANCH..."
 git checkout -b "$TEMP_BRANCH"
 
-# 3. Remove the services you don't want in production
+# SAFETY GUARD: Hard exit if we are still on the source branch
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+if [ "$CURRENT_BRANCH" == "$SOURCE_BRANCH" ]; then
+    echo "SAFETY ERROR: Failed to switch branches! Current branch is still $CURRENT_BRANCH."
+    echo "Aborting to prevent accidental deletion of files on $SOURCE_BRANCH."
+    exit 1
+fi
+
+# 3. Remove the directories you don't want in production
 echo "Removing excluded directories..."
 for path in "${EXCLUDED_PATHS[@]}"; do
-  if [ -d "$path" ]; then
+  
+  # Check if path exists in the current branch's file system
+  if [ -e "$path" ] || [ -d "$path" ]; then
+    echo "  - Removing $path"
     git rm -rf "$path"
-    echo "  - Removed $path"
   else
     echo "  - Skipping $path (not found)"
   fi
@@ -42,9 +51,9 @@ done
 echo "Committing changes..."
 
 # Grab the last message from master to make the deploy commit more informative
-ORIGINAL_MSG=$(git log -1 --pretty=%s)
+ORIGINAL_MSG=$(git log "$SOURCE_BRANCH" -1 --pretty=%s)
 
-# Check if there are changes to commit (there should be if folders existed)
+# Check if there are changes to commit
 if git diff-index --quiet HEAD --; then
     echo "No changes to commit (folders might have been already removed)."
 else
