@@ -5,7 +5,7 @@ This guide explains how to run and test the Steam Service locally alongside your
 ## Overview
 
 When testing locally, you'll run:
-1. **Steam Service** - Standalone service on port 3001 (or custom port)
+1. **Steam Service** - Standalone service on port 3000 (or custom port)
 2. **Main Nuxt App** - Your main application on port 3000 (or custom port)
 
 Both services run on your local machine and communicate via HTTP.
@@ -16,7 +16,7 @@ Both services run on your local machine and communicate via HTTP.
 │                                                  │
 │  ┌──────────────────┐      ┌──────────────────┐ │
 │  │  Main Nuxt App   │─────▶│  Steam Service   │ │
-│  │  Port: 3000      │ HTTP │  Port: 3001      │ │
+│  │  Port: 3000      │ HTTP │  Port: 3000      │ │
 │  │  http://local... │      │  http://local... │ │
 │  └──────────────────┘      └──────────────────┘ │
 │         │                           │            │
@@ -59,7 +59,7 @@ Or create it manually:
 
 ```env
 # Server Configuration
-PORT=3001
+PORT=3000
 HOST=0.0.0.0
 NODE_ENV=development
 
@@ -111,7 +111,7 @@ bun start
 
 You should see output like:
 ```
-Steam service started on http://0.0.0.0:3001
+Steam service started on http://0.0.0.0:3000
 Steam client initialized successfully
 ```
 
@@ -120,7 +120,7 @@ Steam client initialized successfully
 Open a new terminal and test the health endpoint:
 
 ```bash
-curl http://localhost:3001/api/health/live
+curl http://localhost:3000/api/health/live
 ```
 
 Expected response:
@@ -140,7 +140,7 @@ Add these to your main app's `.env` file (in the project root):
 
 ```env
 # Steam Service Configuration
-STEAM_SERVICE_URL=http://localhost:3001
+STEAM_SERVICE_URL=http://localhost:3000
 STEAM_SERVICE_API_KEY=your_local_test_api_key_here
 ```
 
@@ -152,7 +152,7 @@ Check that your main app can access the service:
 
 ```bash
 # From project root
-curl http://localhost:3001/api/status
+curl http://localhost:3000/api/status
 ```
 
 ## Step 3: Start Main App
@@ -177,20 +177,20 @@ Check the console output. You should see:
 **From Terminal:**
 ```bash
 # Service health
-curl http://localhost:3001/api/health
+curl http://localhost:3000/api/health
 
 # Service status
-curl http://localhost:3001/api/status
+curl http://localhost:3000/api/status
 
 # Steam client status
-curl http://localhost:3001/api/status/steam-client
+curl http://localhost:3000/api/status/steam-client
 ```
 
 ### 4.2 Test Inspect Endpoint
 
 **Create Inspect URL:**
 ```bash
-curl -X POST http://localhost:3001/api/inspect/create-url \
+curl -X POST http://localhost:3000/api/inspect/create-url \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_local_test_api_key_here" \
   -d '{
@@ -204,7 +204,7 @@ curl -X POST http://localhost:3001/api/inspect/create-url \
 
 **Analyze URL:**
 ```bash
-curl -X POST http://localhost:3001/api/inspect/analyze-url \
+curl -X POST http://localhost:3000/api/inspect/analyze-url \
   -H "Content-Type: application/json" \
   -H "X-API-Key: your_local_test_api_key_here" \
   -d '{
@@ -217,7 +217,7 @@ curl -X POST http://localhost:3001/api/inspect/analyze-url \
 1. Open your main app in browser: `http://localhost:3000`
 2. Navigate to a page that uses inspect functionality
 3. Try to inspect an item
-4. Check browser DevTools Network tab for requests to `http://localhost:3001`
+4. Check browser DevTools Network tab for requests to `http://localhost:3000`
 5. Verify the inspect works correctly
 
 ### 4.4 Monitor Logs
@@ -255,7 +255,7 @@ When you use inspect functionality in the main app, you should see requests in t
 Temporarily remove or comment out the environment variables:
 
 ```env
-# STEAM_SERVICE_URL=http://localhost:3001
+# STEAM_SERVICE_URL=http://localhost:3000
 # STEAM_SERVICE_API_KEY=your_local_test_api_key_here
 ```
 
@@ -267,8 +267,8 @@ Restart the main app. It should fall back to using the local Steam client (if co
 
 **Check Port Availability:**
 ```bash
-# Check if port 3001 is in use
-lsof -i :3001
+# Check if port 3000 is in use
+lsof -i :3000
 
 # Or use a different port
 PORT=3002 bun run dev
@@ -294,7 +294,7 @@ Look for error messages in the service startup logs.
 
 **Test API Key:**
 ```bash
-curl -X POST http://localhost:3001/api/inspect/analyze-url \
+curl -X POST http://localhost:3000/api/inspect/analyze-url \
   -H "X-API-Key: your_key_here" \
   -H "Content-Type: application/json" \
   -d '{"inspectUrl": "test"}'
@@ -306,12 +306,12 @@ If you get 401, the key is wrong.
 
 **Check Service is Running:**
 ```bash
-curl http://localhost:3001/api/health/live
+curl http://localhost:3000/api/health/live
 ```
 
 **Check URL in Main App:**
 Verify `STEAM_SERVICE_URL` in main app `.env` is correct:
-- Should be `http://localhost:3001` (not `https://`)
+- Should be `http://localhost:3000` (not `https://`)
 - Port must match the service port
 
 **Check CORS:**
@@ -365,7 +365,7 @@ const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SE
 3. Restart both services
 
 **Change Main App Port:**
-1. Update `PORT=3001` in main app `.env` (or `nuxt.config.ts`)
+1. Update `PORT=3000` in main app `.env` (or `nuxt.config.ts`)
 2. Update `CORS_ORIGINS` in steam service to include new port
 3. Restart both services
 
@@ -440,14 +440,14 @@ LOG_API_REQUESTS=true
 
 1. Open browser DevTools
 2. Go to Network tab
-3. Filter by `localhost:3001`
+3. Filter by `localhost:3000`
 4. Inspect requests/responses
 
 **Check Service Status:**
 
 ```bash
 # Real-time status
-watch -n 1 'curl -s http://localhost:3001/api/status | jq'
+watch -n 1 'curl -s http://localhost:3000/api/status | jq'
 ```
 
 ## Testing Checklist
@@ -471,17 +471,17 @@ You can test most endpoints without a Steam account:
 
 ```bash
 # These work without Steam:
-curl -X POST http://localhost:3001/api/inspect/create-url \
+curl -X POST http://localhost:3000/api/inspect/create-url \
   -H "X-API-Key: your_key" \
   -H "Content-Type: application/json" \
   -d '{"itemType": "weapon", "defindex": 7}'
 
-curl -X POST http://localhost:3001/api/inspect/analyze-url \
+curl -X POST http://localhost:3000/api/inspect/analyze-url \
   -H "X-API-Key: your_key" \
   -H "Content-Type: application/json" \
   -d '{"inspectUrl": "steam://..."}'
 
-curl -X POST http://localhost:3001/api/inspect/validate-url \
+curl -X POST http://localhost:3000/api/inspect/validate-url \
   -H "X-API-Key: your_key" \
   -H "Content-Type: application/json" \
   -d '{"inspectUrl": "steam://..."}'
@@ -495,7 +495,7 @@ For full testing with unmasked URLs:
 2. Service will initialize Steam client on startup
 3. Test unmasked URL inspection:
 ```bash
-curl -X POST http://localhost:3001/api/inspect/inspect-item \
+curl -X POST http://localhost:3000/api/inspect/inspect-item \
   -H "X-API-Key: your_key" \
   -H "Content-Type: application/json" \
   -d '{
@@ -510,7 +510,7 @@ Send multiple rapid requests:
 
 ```bash
 for i in {1..10}; do
-  curl -X POST http://localhost:3001/api/inspect/analyze-url \
+  curl -X POST http://localhost:3000/api/inspect/analyze-url \
     -H "X-API-Key: your_key" \
     -H "Content-Type: application/json" \
     -d '{"inspectUrl": "steam://..."}' &
@@ -520,21 +520,21 @@ wait
 
 Check queue status:
 ```bash
-curl http://localhost:3001/api/status/queue
+curl http://localhost:3000/api/status/queue
 ```
 
 ## Quick Reference
 
 ### Service URLs
 
-- **Health**: `http://localhost:3001/api/health/live`
-- **Status**: `http://localhost:3001/api/status`
-- **Inspect**: `http://localhost:3001/api/inspect/*`
+- **Health**: `http://localhost:3000/api/health/live`
+- **Status**: `http://localhost:3000/api/status`
+- **Inspect**: `http://localhost:3000/api/inspect/*`
 
 ### Environment Variables
 
 **Steam Service** (`services/steam-service/.env`):
-- `PORT=3001`
+- `PORT=3000`
 - `STEAM_USERNAME=...`
 - `STEAM_PASSWORD=...`
 - `STEAM_API_KEY=...`
@@ -542,7 +542,7 @@ curl http://localhost:3001/api/status/queue
 - `CORS_ORIGINS=http://localhost:3000`
 
 **Main App** (`.env`):
-- `STEAM_SERVICE_URL=http://localhost:3001`
+- `STEAM_SERVICE_URL=http://localhost:3000`
 - `STEAM_SERVICE_API_KEY=your_key`
 
 ### Useful Commands
