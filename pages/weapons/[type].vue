@@ -155,10 +155,19 @@ const fetchLoadoutSkins = async () => {
 onMounted(async () => {
   user.value = steamAuth.getSavedUser();
   if (user.value?.steamId) {
-    await loadoutStore.fetchLoadouts(user.value.steamId)
-    if (loadoutStore.selectedLoadoutId) {
-      await fetchLoadoutSkins();
+    try {
+      await loadoutStore.fetchLoadouts(user.value.steamId)
+      if (loadoutStore.selectedLoadoutId) {
+        await fetchLoadoutSkins();
+      } else {
+        isLoading.value = false;
+      }
+    } catch (e) {
+      console.error(e);
+      isLoading.value = false;
     }
+  } else {
+    isLoading.value = false;
   }
 })
 

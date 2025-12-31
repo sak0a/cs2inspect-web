@@ -178,6 +178,13 @@ const handleDropdownSelect = (key: any) => {
     else if (key === 'clear') showModal.value.clear = true
     else handleLoadoutAction(key as any)
 }
+
+onMounted(async () => {
+    const user = steamAuth.getSavedUser()
+    if (user?.steamId) {
+        await loadoutStore.fetchLoadouts(user.steamId)
+    }
+})
 </script>
 
 <template>

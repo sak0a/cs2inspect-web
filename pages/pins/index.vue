@@ -179,7 +179,10 @@ onMounted(async () => {
     } catch (error) {
       console.error('Error during initialization:', error)
       message.error('Failed to initialize page')
+      isLoading.value = false
     }
+  } else {
+    isLoading.value = false
   }
 })
 
