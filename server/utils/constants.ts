@@ -124,7 +124,7 @@ export const KEYCHAIN_CONFIG = {
 /**
  * Base URL for images hosted on GitHub or other platforms
  */
-export const IMAGE_BASE_URL = 'https://github.com/sak0a/cs2inspect-web/raw/refs/heads/master/public/img/defaults/'
+export const IMAGE_BASE_URL = '/img/defaults/'
 //https://github.com/sak0a/cs2inspect-web/raw/refs/heads/master/public/img/weapons/flat/ak-47-asiimov.webm
 
 // ============================================================================
