@@ -14,7 +14,8 @@
     "lint": "eslint .",
     "test": "vitest",
     "test:watch": "vitest --watch",
-    "test:coverage": "vitest --coverage"
+    "test:coverage": "vitest --coverage",
+    "deploy:app": "./scripts/deploy-app.sh"
   },
   "devDependencies": {
     "@nuxt/devtools": "^3.1.1",
