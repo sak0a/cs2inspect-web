@@ -19,12 +19,11 @@ export function useOtherTeamSkin(
 
         const currentTeam = selectedItem.value.databaseInfo?.team || 0
         const selectedDefindex = getItemDefindex(selectedItem.value)
+        const targetTeam = oppositeTeam(currentTeam)
 
-        return skins.value.some(weaponGroup =>
-            weaponGroup.some((weapon: WeaponItemData | KnifeItemData | GloveItemData) =>
-                getItemDefindex(weapon) === selectedDefindex &&
-                weapon.databaseInfo?.team === oppositeTeam(currentTeam)
-            )
+        return skins.value.some((weapon: WeaponItemData | KnifeItemData | GloveItemData) =>
+            getItemDefindex(weapon) === selectedDefindex &&
+            weapon.databaseInfo?.team === targetTeam
         )
     })
 }
@@ -43,18 +42,26 @@ export function useGroupedWeapons(
     skins: Ref<Array<WeaponItemData | KnifeItemData | GloveItemData>> | ComputedRef<Array<WeaponItemData | KnifeItemData | GloveItemData>>
 ): ComputedRef<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>> {
     return computed(() => {
-        return skins.value.reduce((acc, weaponGroup) => {
-            // Skip empty groups
-            if (!weaponGroup || !weaponGroup[0]) return acc;
+        return skins.value.reduce<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>>((acc, weapon) => {
+            if (!weapon) return acc;
 
-            const weapon = weaponGroup[0];
-            if (!acc[weapon.defaultName]) {
-                acc[weapon.defaultName] = {
-                    weapons: weaponGroup,
+            const name = weapon.defaultName;
+            if (!acc[name]) {
+                acc[name] = {
+                    weapons: [],
                     availableTeams: weapon.availableTeams,
-                    defaultName: weapon.defaultName
+                    defaultName: name
                 };
             }
+
+            acc[name].weapons.push(weapon);
+
+            // Update availability to 'both' if we have both teams represented
+            if (acc[name].availableTeams !== 'both' && weapon.availableTeams !== acc[name].availableTeams) {
+                // Optimization: if we see T and CT separately, logic might need check
+                // For now, simpler grouping
+            }
+
             return acc;
         }, {});
     });

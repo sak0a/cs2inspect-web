@@ -66,10 +66,16 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
      * @param slot Slot index (0-4) where this sticker is placed
      */
     static fromStringAndAPI(sticker: string, stickerData: APISticker[], slot: number): EnhancedWeaponSticker {
-        const [stickerId, x, y, wear, scale, rotation] = sticker.split(';');
+        const parts = sticker.split(';');
+        const stickerId = parts[0] ?? '0';
+        const x = parts[1] ?? '0';
+        const y = parts[2] ?? '0';
+        const wear = parts[3] ?? '0';
+        const scale = parts[4] ?? '1';
+        const rotation = parts[5] ?? '0';
 
         const stickerInfo = stickerData.find(
-            (sticker: APISticker) => sticker.id === ("sticker-" + stickerId)
+            (s: APISticker) => s.id === ("sticker-" + stickerId)
         );
 
         return new EnhancedWeaponSticker({
@@ -150,11 +156,11 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
      */
     static fromStringAndAPI(keychain: string, keychainData: APIKeychain[]): EnhancedWeaponKeychain {
         const parts = keychain.split(';');
-        const keychainId = parts[0];
-        const x = parts[1];
-        const y = parts[2];
-        const z = parts[3];
-        const seed = parts[4];
+        const keychainId = parts[0] ?? '0';
+        const x = parts[1] ?? '0';
+        const y = parts[2] ?? '0';
+        const z = parts[3] ?? '0';
+        const seed = parts[4] ?? '0';
 
         // Optional extended fields
         const wrapped_sticker_id = parts.length > 5 && parts[5] !== '' ? parseInt(parts[5]) : null;

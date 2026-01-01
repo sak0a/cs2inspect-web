@@ -18,18 +18,18 @@ export type {
   APIResponse,
   APIPaginatedResponse,
   APICollectionResponse,
-  
+
   // Specialized response types
   APICreateResponse,
   APIUpdateResponse,
   APIDeleteResponse,
   APIBatchResponse,
-  
+
   // Error response types
   APIValidationErrorResponse,
   APIAuthErrorResponse,
   APIRateLimitErrorResponse,
-  
+
   // Utility types
   AnyAPIResponse,
   ExtractAPIResponseData
@@ -49,7 +49,7 @@ export type {
   // Base item types
   APIItemTeam,
   APIBaseItem,
-  
+
   // Weapon skin types
   APIWeaponInfo,
   APIWeaponCategory,
@@ -58,26 +58,29 @@ export type {
   APIWearCondition,
   APICollection,
   APICrate,
-  
+
   // Sticker types
   APISticker,
   APITournament,
-  
+
   // Agent types
   APIAgent,
   APIAgentFaction,
-  
+
   // Music kit types
   APIMusicKit,
-  
+
   // Keychain types
   APIKeychain,
-  
+
   // Collectible types
   APICollectible,
-  
+
   // Union types
-  APIItem
+  APIItem,
+
+  // Backward compatibility
+  APISkin
 } from './items'
 
 export {

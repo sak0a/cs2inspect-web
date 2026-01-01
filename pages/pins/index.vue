@@ -2,7 +2,7 @@
 import { NSpin, NSelect, NInput } from 'naive-ui'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import type { APICollectible } from "~/server/utils/interfaces";
+import type { APICollectible } from "~/server/types";
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)

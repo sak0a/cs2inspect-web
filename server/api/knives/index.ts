@@ -1,5 +1,5 @@
 import { defineEventHandler, getQuery } from 'h3'
-import type {DBKnife, APISkin, IDefaultItem, IEnhancedKnife} from "~/server/utils/interfaces"
+import type { DBKnife, APISkin, IDefaultItem, IEnhancedKnife } from "~/server/types"
 import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
@@ -133,6 +133,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 paintIndex: paintIndexToUse,
                 rarity: rarityToUse,
                 availableTeams: 'both',
+                team: null,
                 databaseInfo: databaseResult
             } as IEnhancedKnife);
         }

@@ -50,6 +50,7 @@ export interface DBWeapon extends BaseDBItem {
     team: number;
     stattrak: boolean | number;
     stattrak_count: number;
+    stattrak_enabled?: boolean | number;
     nametag: string;
     sticker_0_id?: number;
     sticker_0_wear?: number;
@@ -97,6 +98,7 @@ export interface DBKnife extends BaseDBItem {
     team: number;
     stattrak: boolean | number;
     stattrak_count: number;
+    stattrak_enabled?: boolean | number;
     nametag: string;
 }
 

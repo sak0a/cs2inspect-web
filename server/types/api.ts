@@ -107,21 +107,14 @@ export interface CollectionAPIResponse<T = unknown> extends BaseAPIResponse<T[]>
 }
 
 // ============================================================================
-// SHARED TYPES AND INTERFACES
+// SHARED TYPES - RE-EXPORTED FROM ~/types
 // ============================================================================
 
-/**
- * Represents rarity information for CS2 items
- * Used across all item types (skins, stickers, agents, etc.)
- */
-export interface ItemRarity {
-    /** Unique identifier for the rarity level */
-    id: string;
-    /** Display name of the rarity (e.g., "Covert", "Classified") */
-    name: string;
-    /** Hex color code associated with this rarity level */
-    color: string;
-}
+// Re-export ItemRarity from unified type system
+export type { ItemRarity } from '~/types/core/common'
+
+// Re-export team enum
+export { CsTeam } from '~/types/core/common'
 
 /**
  * Represents team information for CS2 items
@@ -283,19 +276,4 @@ export interface APIHighlight extends BaseAPIItem {
     original: Record<string, unknown>;
 }
 
-// ============================================================================
-// ENUMS AND CONSTANTS
-// ============================================================================
-
-/**
- * Represents CS2 team identifiers
- * Used throughout the application for team-specific items and configurations
- */
-export enum CsTeam {
-    /** No team specified */
-    None = 0,
-    /** Terrorist team */
-    Terrorist = 1,
-    /** Counter-Terrorist team */
-    CounterTerrorist = 2
-}
+// Note: CsTeam is now re-exported from ~/types/core/common at the top of this file

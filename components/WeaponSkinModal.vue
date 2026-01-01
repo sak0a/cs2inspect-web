@@ -11,7 +11,7 @@ import type {
 } from '~/types'
 
 // Backward compatibility imports
-import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/utils/interfaces'
+import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/types'
 import { steamAuth } from "~/services/steamAuth"
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
 import InlineVisualCustomizer from './InlineVisualCustomizer.vue'
@@ -133,9 +133,9 @@ const user = computed((): UserProfile | null => {
 
   return {
     steamId: steamUser.steamId,
-    personaname: steamUser.displayName, // Mapping displayName to personaname
+    personaName: steamUser.personaName,
     avatar: steamUser.avatar,
-    profileurl: steamUser.profileUrl // Mapping profileUrl to profileurl
+    profileUrl: steamUser.profileUrl
   }
 })
 /**

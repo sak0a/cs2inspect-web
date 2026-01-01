@@ -2,8 +2,7 @@
 // New type system imports
 import type {
   GloveItemData,
-  DBGlove,
-  IEnhancedGlove
+  DBGlove
 } from '~/types'
 
 /**
@@ -132,7 +131,7 @@ const handleDefaultWeaponClick = (team: number): void => {
  *
  * @param weapon - Selected glove data
  */
-const handleSkinClick = (weapon: IEnhancedGlove): void => {
+const handleSkinClick = (weapon: GloveItemData): void => {
   try {
     if (!weapon) {
       throw new Error('Invalid glove data provided')
@@ -155,7 +154,7 @@ const handleSkinClick = (weapon: IEnhancedGlove): void => {
       <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
         <!-- Default glove if no skin selected -->
         <NCard
-            v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 2)"
+            v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 2)"
             :style="{
               borderColor: '#313030',
               background: '#242424'
@@ -178,7 +177,7 @@ const handleSkinClick = (weapon: IEnhancedGlove): void => {
         </NCard>
         <!-- CT skins -->
         <NCard
-            v-for="weapon in weaponData.weapons.filter((w: IEnhancedItem) => w.databaseInfo?.team === 2)"
+            v-for="weapon in weaponData.weapons.filter((w: GloveItemData) => w.databaseInfo?.team === 2)"
             :key="weapon.paintIndex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
@@ -206,7 +205,7 @@ const handleSkinClick = (weapon: IEnhancedGlove): void => {
       <NTabPane name="t" :tab="t('teams.terrorists') as string">
         <!-- Default glove if no skin selected -->
         <NCard
-            v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 1)"
+            v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 1)"
             :style="{
               borderColor: '#313030',
               background: '#242424'
@@ -229,7 +228,7 @@ const handleSkinClick = (weapon: IEnhancedGlove): void => {
         </NCard>
         <!-- T skins -->
         <NCard
-            v-for="weapon in weaponData.weapons.filter((w: IEnhancedItem) => w.databaseInfo?.team === 1)"
+            v-for="weapon in weaponData.weapons.filter((w: GloveItemData) => w.databaseInfo?.team === 1)"
             :key="weapon.paintIndex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',

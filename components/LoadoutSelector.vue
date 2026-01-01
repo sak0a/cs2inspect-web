@@ -1,7 +1,7 @@
 <script setup lang="ts">
 
 import { steamAuth } from '~/services/steamAuth'
-import type { DBLoadout } from '~/server/utils/interfaces'
+import type { DBLoadout } from '~/types'
 import {
   Trash as DeleteIcon,
   Edit as RenameIcon,

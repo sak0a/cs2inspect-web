@@ -1,3 +1,5 @@
+import type { H3Event } from 'h3';
+import { createError } from 'h3';
 import type {
     BaseAPIResponse,
     PaginatedAPIResponse,
@@ -44,7 +46,7 @@ export function createPaginationMeta(
     count: number
 ): PaginationMeta {
     const totalPages = Math.ceil(totalItems / limit);
-    
+
     return {
         currentPage,
         totalPages,
@@ -171,12 +173,14 @@ export function createErrorInfo(
     details?: unknown,
     fieldErrors?: Record<string, string[]>
 ): ErrorInfo {
-    return {
-        code,
-        message,
-        ...(details && { details }),
-        ...(fieldErrors && { fieldErrors })
-    };
+    const result: ErrorInfo = { code, message };
+    if (details !== undefined && details !== null) {
+        result.details = details;
+    }
+    if (fieldErrors !== undefined) {
+        result.fieldErrors = fieldErrors;
+    }
+    return result;
 }
 
 /**
@@ -184,30 +188,30 @@ export function createErrorInfo(
  * @param fn The async function to wrap
  * @param errorCode Default error code for unhandled errors
  */
-export function withErrorHandling<T extends unknown[], R>(
-    fn: (...args: T) => Promise<R>,
+export function withErrorHandling<R>(
+    fn: (event: H3Event) => Promise<R>,
     errorCode: string = 'INTERNAL_ERROR'
 ) {
-    return async (...args: T): Promise<R> => {
+    return async (event: H3Event): Promise<R> => {
         const startTime = Date.now();
-        
+
         try {
-            return await fn(...args);
+            return await fn(event);
         } catch (error: unknown) {
             const meta = createResponseMeta(startTime);
-            
+
             // If it's already a structured error, re-throw it
-            if (error.statusCode && error.data) {
+            if (error && typeof error === 'object' && 'statusCode' in error && 'data' in error) {
                 throw error;
             }
-            
+
             // Create standardized error response
             const errorInfo = createErrorInfo(
                 errorCode,
                 (error instanceof Error ? error.message : 'An unexpected error occurred'),
                 error
             );
-            
+
             const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500;
             createErrorResponse(errorInfo, meta, statusCode);
         }
@@ -245,20 +249,20 @@ export function extractFilterOptions<T>(
     filterFields: Record<string, string>
 ): Record<string, unknown[]> {
     const filters: Record<string, unknown[]> = {};
-    
+
     Object.entries(filterFields).forEach(([filterKey, fieldPath]) => {
         const values = new Set<unknown>();
-        
+
         data.forEach(item => {
             const value = getNestedValue(item, fieldPath);
             if (value !== null && value !== undefined) {
                 values.add(value);
             }
         });
-        
+
         filters[filterKey] = Array.from(values).sort();
     });
-    
+
     return filters;
 }
 
@@ -268,5 +272,7 @@ export function extractFilterOptions<T>(
  * @param path Dot-separated path (e.g., 'rarity.name')
  */
 function getNestedValue(obj: unknown, path: string): unknown {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    return path.split('.').reduce((current: Record<string, unknown> | undefined, key) =>
+        current ? (current as Record<string, unknown>)[key] as Record<string, unknown> | undefined : undefined,
+        obj as Record<string, unknown>);
 }

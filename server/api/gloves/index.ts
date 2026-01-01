@@ -1,10 +1,11 @@
-import { defineEventHandler } from 'h3'
+import { defineEventHandler, getQuery } from 'h3'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
-import type { DBGlove, APISkin, IDefaultItem, IEnhancedGlove} from "~/server/utils/interfaces"
+import type { DBGlove, APISkin, IDefaultItem, IEnhancedGlove } from "~/server/types"
 import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { executeQuery } from '~/server/database/database'
 import { DEFAULT_GLOVES } from '~/server/utils/constants'
 import { validateRequiredRequestData } from "~/server/utils/helpers";
+import { createDefaultItem, findMatchingSkin } from '~/server/utils/skinUtils';
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -94,6 +95,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 paintIndex: skinInfo?.paint_index || baseGlove.paintIndex,
                 rarity: skinInfo?.rarity,
                 availableTeams: 'both',
+                team: null,
                 databaseInfo: databaseResult
             } as IEnhancedGlove;
 

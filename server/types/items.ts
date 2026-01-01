@@ -1,121 +1,28 @@
 /**
- * Item and customization type definitions
- * Moved from server/utils/interfaces.ts for better organization
+ * Item and customization type definitions for CS2Inspect server
+ * 
+ * This file now re-exports shared customization types from ~/types,
+ * while keeping server-specific enhanced item interfaces.
  */
 
 import type { ItemRarity } from './api'
 
 // ============================================================================
-// CUSTOMIZATION INTERFACES
+// CUSTOMIZATION INTERFACES - RE-EXPORTED FROM ~/types
 // ============================================================================
 
-/**
- * Base interface for item customization
- * Contains common properties shared across all customizable items
- */
-export interface BaseCustomization {
-    /** Whether this item is active/equipped */
-    active: boolean;
-    /** Item definition index */
-    defindex?: number;
-    /** Paint index for the skin/pattern */
-    paintIndex: number;
-    /** Whether paint index is manually overridden */
-    paintIndexOverride: boolean;
-    /** Pattern seed for randomization */
-    pattern: number;
-    /** Wear value (float) */
-    wear: number;
-    /** Team this item belongs to */
-    team: number;
-    /** Whether to reset this item to defaults */
-    reset?: boolean;
-}
-
-/**
- * Represents sticker customization data
- * Used for positioning and styling stickers on weapons
- */
-export interface WeaponStickerCustomization {
-    /** Sticker ID */
-    id: number;
-    /** Wear/condition of the sticker */
-    wear: number;
-    /** Scale/size of the sticker */
-    scale: number;
-    /** Rotation angle in degrees */
-    rotation: number;
-    /** X-axis position offset */
-    x: number;
-    /** Y-axis position offset */
-    y: number;
-}
-
-/**
- * Represents keychain customization data
- * Used for positioning and configuring keychains on weapons
- */
-export interface WeaponKeychainCustomization {
-    /** Keychain ID */
-    id: number;
-    /** X-axis position offset */
-    x: number;
-    /** Y-axis position offset */
-    y: number;
-    /** Z-axis position offset */
-    z: number;
-    /** Random seed for keychain generation */
-    seed: number;
-    /** ID of the sticker wrapped inside (for Sticker Slabs - ID 37) */
-    wrapped_sticker_id?: number;
-    /** ID of the highlight reel (for Highlight Reel keychains - IDs 36, 83) */
-    highlight_reel_id?: number;
-    /** Optional API data for the keychain */
-    api?: {
-        id: string;
-        name: string;
-        color: string;
-    };
-}
-
-/**
- * Represents weapon customization data
- * Extends BaseCustomization with weapon-specific properties
- */
-export interface WeaponCustomization extends BaseCustomization {
-    /** Whether StatTrak is enabled */
-    statTrak: boolean;
-    /** StatTrak kill count */
-    statTrakCount: number;
-    /** Custom name tag */
-    nameTag: string;
-    /** Array of sticker customizations (up to 5 slots) */
-    stickers: WeaponStickerCustomization[] | null[];
-    /** Keychain customization */
-    keychain: WeaponKeychainCustomization | null;
-}
-
-/**
- * Represents knife customization data
- * Extends BaseCustomization with knife-specific properties
- */
-export interface KnifeCustomization extends BaseCustomization {
-    /** Whether StatTrak is enabled */
-    statTrak: boolean;
-    /** StatTrak kill count */
-    statTrakCount: number;
-    /** Custom name tag */
-    nameTag: string;
-}
-
-/**
- * Represents glove customization data
- * Extends BaseCustomization (gloves don't support StatTrak or name tags)
- */
-export type GloveCustomization = BaseCustomization
+// Re-export customization types from the unified type system
+export type {
+    BaseItemConfiguration as BaseCustomization,
+    StickerConfiguration as WeaponStickerCustomization,
+    KeychainConfiguration as WeaponKeychainCustomization,
+    WeaponConfiguration,
+    KnifeConfiguration,
+    GloveConfiguration
+} from '~/types/business/items'
 
 // ============================================================================
-// DEFAULT AND ENHANCED ITEM INTERFACES
+// DEFAULT AND ENHANCED ITEM INTERFACES (Server-specific)
 // ============================================================================
 
 /**
@@ -155,7 +62,7 @@ export interface IEnhancedItem extends IDefaultItem {
     /** Rarity information if available */
     rarity?: ItemRarity;
     /** Team association (null if available to both teams) */
-    team: number | null;
+    team: number | null | undefined;
     /** Database information if item is saved */
     databaseInfo?: unknown;
 }
@@ -239,16 +146,16 @@ export interface IEnhancedWeaponSticker {
     name?: string;
     /** Optional image for compatibility */
     image?: string;
-    /** Optional position index for compatibility */
-    position?: number;
+    /** Position index (0-4) - for StickerConfiguration compatibility */
+    position: number;
     /** API data for this sticker */
     api?: {
         name: string;
         image: string;
-        type?: string;
-        effect?: string;
-        tournament_event?: string;
-        tournament_team?: string;
+        type: string;
+        effect: string;
+        tournament_event: string;
+        tournament_team: string;
         rarity?: ItemRarity;
     };
 }
@@ -273,9 +180,9 @@ export interface IEnhancedWeaponKeychain {
     /** Optional image for compatibility */
     image?: string;
     /** ID of the sticker wrapped inside the charm (for Sticker Slabs) */
-    wrapped_sticker_id?: number;
+    wrapped_sticker_id?: number | null;
     /** ID of the highlight reel (for Highlight Reel charms) */
-    highlight_reel_id?: number;
+    highlight_reel_id?: number | null;
     /** API data for this keychain */
     api?: {
         name: string;

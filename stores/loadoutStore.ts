@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import type { DBLoadout, IEnhancedItem, IEnhancedWeapon } from '~/server/utils/interfaces'
+import type { DBLoadout } from '~/types'
+import type { IEnhancedItem, IEnhancedWeapon } from '~/server/types'
 
 interface LoadoutState {
     loadouts: DBLoadout[];

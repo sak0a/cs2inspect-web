@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Removed unused computed import
-import type { APIMusicKit } from "~/server/utils/interfaces";
+import type { APIMusicKit } from "~/server/types";
 
 const props = defineProps({
   musicKit: {

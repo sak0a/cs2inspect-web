@@ -1,5 +1,7 @@
+import { defineEventHandler, getQuery } from 'h3';
 import { getSkinsDataAsync, getDataFreshness } from '~/server/utils/csgoAPI';
-import type { APISkin } from "~/server/utils/interfaces";
+import { validateRequiredRequestData } from '~/server/utils/helpers';
+import type { APISkin } from "~/server/types";
 import {
     createPaginatedResponse,
     createResponseMeta,

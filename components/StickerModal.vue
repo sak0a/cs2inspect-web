@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { APISticker, IEnhancedWeaponSticker } from "~/server/utils/interfaces";
+import type { APISticker, IEnhancedWeaponSticker } from "~/server/types";
 import { generateStickerImageUrl } from "~/utils/canvasCoordinates";
 
 const props = defineProps<{

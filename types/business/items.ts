@@ -92,6 +92,10 @@ export interface BaseItemData {
   weapon_name: string
   /** Weapon definition index */
   weapon_defindex: number
+  /** Team association (null if available to both teams) - for IEnhanced* compatibility */
+  team?: number | null
+  /** Paint index for the skin/pattern - for IEnhanced* compatibility */
+  paintIndex?: number
 }
 
 // ============================================================================
@@ -121,10 +125,10 @@ export interface BaseItemData {
 export interface StickerConfiguration {
   /** Sticker identifier */
   id: EntityId | number | string
-  /** Sticker name */
-  name: string
-  /** Sticker image URL */
-  image: string
+  /** Sticker name (optional for IEnhancedWeaponSticker compatibility) */
+  name?: string
+  /** Sticker image URL (optional for IEnhancedWeaponSticker compatibility) */
+  image?: string
   /** Position on weapon (0-4) */
   position: number
   /** X coordinate (0-1) */
@@ -169,10 +173,10 @@ export interface StickerConfiguration {
 export interface KeychainConfiguration {
   /** Keychain identifier */
   id: EntityId | number | string
-  /** Keychain name */
-  name: string
-  /** Keychain image URL */
-  image: string
+  /** Keychain name (optional for IEnhancedWeaponKeychain compatibility) */
+  name?: string
+  /** Keychain image URL (optional for IEnhancedWeaponKeychain compatibility) */
+  image?: string
   /** X coordinate */
   x: number
   /** Y coordinate */
@@ -188,9 +192,9 @@ export interface KeychainConfiguration {
   /** Random seed for positioning */
   seed: number
   /** ID of the sticker wrapped inside the charm (for Sticker Slabs) */
-  wrapped_sticker_id?: number
+  wrapped_sticker_id?: number | null
   /** ID of the highlight reel (for Highlight Reel charms) */
-  highlight_reel_id?: number
+  highlight_reel_id?: number | null
   /** API Data (optional) */
   api?: {
     name?: string
@@ -500,3 +504,35 @@ export const ITEM_TYPE_CONFIG: Record<ItemType, ItemTypeConfiguration> = {
     maxStickers: 0
   }
 }
+
+// ============================================================================
+// BACKWARD COMPATIBILITY ALIASES (for server/types migration)
+// ============================================================================
+
+/**
+ * @deprecated Use BaseItemConfiguration instead
+ */
+export type BaseCustomization = BaseItemConfiguration
+
+/**
+ * @deprecated Use StickerConfiguration instead
+ */
+export type WeaponStickerCustomization = StickerConfiguration
+
+/**
+ * @deprecated Use KeychainConfiguration instead
+ */
+export type WeaponKeychainCustomization = KeychainConfiguration
+
+/**
+ * @deprecated Use StickerConfiguration instead
+ */
+export type StickerCustomization = StickerConfiguration
+
+/**
+ * @deprecated Use KeychainConfiguration instead
+ */
+export type KeychainCustomization = KeychainConfiguration
+
+// Note: IEnhancedWeapon, IEnhancedKnife, IEnhancedGlove, IEnhancedItem are 
+// NOT compatible aliases and should be imported from server/types/items.ts

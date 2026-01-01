@@ -5,7 +5,8 @@ import type {
   KnifeConfiguration,
   GloveConfiguration,
   ItemType,
-  AsyncResult
+  AsyncResult,
+  APISkin
 } from '~/types'
 
 import {
@@ -15,7 +16,7 @@ import {
 } from '~/types'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedItem } from '~/server/utils/interfaces'
+import type { IEnhancedItem } from '~/server/types'
 
 /**
  * Storage keys for browser storage
@@ -45,8 +46,8 @@ export function useInspectItem() {
    */
   const asyncState = computed<AsyncResult>(() => ({
     state: isLoading.value ? LoadingState.Loading :
-           error.value ? LoadingState.Error :
-           inspectedItem.value ? LoadingState.Success : LoadingState.Idle,
+      error.value ? LoadingState.Error :
+        inspectedItem.value ? LoadingState.Success : LoadingState.Idle,
     data: inspectedItem.value,
     error: error.value ? { code: 'INSPECT_ERROR', message: error.value } : undefined,
     isLoading: isLoading.value,
@@ -200,7 +201,7 @@ export function useInspectItem() {
       }
 
       const responseData = await response.json()
-      const data = responseData.item
+      const data = responseData.item as any
 
       console.log('Inspect link decoded data:', data)
 
@@ -292,10 +293,10 @@ export function useInspectItem() {
       }
 
       // Fetch additional item data with error handling
-      let itemData = null
+      let itemData: APISkin | null = null
       try {
         if (itemType.value) {
-          itemData = await fetchItemData(data.defindex, data.paintindex, itemType.value)
+          itemData = await fetchItemData(data.defindex, data.paintindex, itemType.value) as APISkin
           console.log('Additional item data:', itemData)
         }
       } catch (fetchError) {
@@ -312,7 +313,7 @@ export function useInspectItem() {
         paintIndex: data.paintindex || 0,
         defaultImage: itemData?.image || '',
         weapon_name: itemData?.name || fallbackName,
-        category: itemData?.category || itemType.value || 'unknown',
+        category: (itemData?.category || itemType.value || 'unknown') as string,
         availableTeams: 'both',
         name: itemData?.name || fallbackName,
         image: itemData?.image || '',

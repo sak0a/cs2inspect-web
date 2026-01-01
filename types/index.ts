@@ -53,7 +53,7 @@ export type {
   AsyncCallback,
   Optional,
   RequiredFields,
-  
+
   // Team and side definitions
   TeamAvailability,
 
@@ -81,7 +81,8 @@ export {
   // Enums
   TeamSide,
   ItemQuality,
-  LoadingState
+  LoadingState,
+  CsTeam
 } from './core/common'
 
 // ============================================================================
@@ -103,7 +104,7 @@ export type {
   APIRateLimitErrorResponse,
   AnyAPIResponse,
   ExtractAPIResponseData,
-  
+
   // Item interfaces
   APIItemTeam,
   APIBaseItem,
@@ -128,13 +129,16 @@ export {
   // Response utility functions
   isSuccessfulResponse,
   isErrorResponse,
-  
+
   // Item type guards
   isAPIWeaponSkin,
   isAPISticker,
   isAPIAgent,
   isAPIMusicKit
 } from './api'
+
+// Re-export APISkin from api/items for backward compatibility
+export type { APISkin } from './api/items'
 
 // ============================================================================
 // DATABASE TYPES
@@ -160,7 +164,7 @@ export type {
   DBAnyRecord,
   DBItemRecord,
   DBTableName,
-  
+
   // Query interfaces
   DBBaseQuery,
   DBFindByIdQuery,
@@ -199,33 +203,42 @@ export type {
   // Item type definitions
   ItemType,
   WeaponCategory,
-  
+
   // Base interfaces
   BaseItemConfiguration,
   BaseItemData,
-  
+
   // Sticker and keychain
   StickerConfiguration,
   KeychainConfiguration,
-  
+
   // Item data interfaces
   WeaponItemData,
   KnifeItemData,
   GloveItemData,
   ItemData,
-  
+
   // Configuration interfaces
   WeaponConfiguration,
   KnifeConfiguration,
   GloveConfiguration,
   ItemConfiguration,
-  
+
   // Type maps
   ItemDataMap,
   ItemConfigurationMap,
-  
+
   // Utility interfaces
-  ItemTypeConfiguration
+  ItemTypeConfiguration,
+
+  // Backward compatibility (deprecated) - customization aliases
+  BaseCustomization,
+  WeaponStickerCustomization,
+  WeaponKeychainCustomization,
+  StickerCustomization,
+  KeychainCustomization
+  // Note: IEnhancedWeapon, IEnhancedKnife, IEnhancedGlove are server-specific
+  // and should be imported from '~/server/types' instead
 } from './business/items'
 
 export {
@@ -236,7 +249,7 @@ export {
   isWeaponConfiguration,
   isKnifeConfiguration,
   isGloveConfiguration,
-  
+
   // Configuration constants
   ITEM_TYPE_CONFIG
 } from './business/items'
@@ -253,7 +266,7 @@ export type {
   BaseItemModalProps,
   BaseItemModalState,
   BaseItemModalEvents,
-  
+
   // Specific modal interfaces
   WeaponModalProps,
   WeaponModalState,
@@ -264,7 +277,7 @@ export type {
   GloveModalProps,
   GloveModalState,
   GloveModalEvents,
-  
+
   // Specialized modal interfaces
   StickerModalProps,
   StickerModalEvents,
@@ -276,11 +289,11 @@ export type {
   DuplicateConfirmModalEvents,
   ResetConfirmModalProps,
   ResetConfirmModalEvents,
-  
+
   // Composable interfaces
   ItemModalComposableReturn,
   ItemModalComposableConfig,
-  
+
   // Utility types
   ModalPropsForItemType,
   ModalStateForItemType,
@@ -288,40 +301,21 @@ export type {
 } from './components/modals'
 
 // ============================================================================
-// LEGACY COMPATIBILITY
+// LEGACY COMPATIBILITY - SERVER TYPES RE-EXPORT
 // ============================================================================
 
-
-
-/**
- * @deprecated Use WeaponItemData instead
- */
-export type IEnhancedWeapon = WeaponItemData
-
-/**
- * @deprecated Use KnifeItemData instead
- */
-export type IEnhancedKnife = KnifeItemData
-
-/**
- * @deprecated Use GloveItemData instead
- */
-export type IEnhancedGlove = GloveItemData
-
-/**
- * @deprecated Use ItemData instead
- */
-export type IEnhancedItem = ItemData
-
-/**
- * @deprecated Use APIWeaponSkin instead
- */
-export type APISkin = APIWeaponSkin
-
-/**
- * @deprecated Use UserProfile instead
- */
-export type SteamUser = UserProfile
+// Re-export IEnhanced* types from server/types for backward compatibility
+// Pages and components can import these from ~/types instead of ~/server/types
+export type {
+  IEnhancedItem,
+  IEnhancedWeapon,
+  IEnhancedKnife,
+  IEnhancedGlove,
+  IEnhancedWeaponSticker,
+  IEnhancedWeaponKeychain,
+  IMappedDBWeapon,
+  IDefaultItem
+} from '~/server/types/items'
 
 // ============================================================================
 // TYPE UTILITIES

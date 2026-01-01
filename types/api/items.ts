@@ -398,7 +398,7 @@ export interface APICollectible extends APIBaseItem {
 /**
  * Union type of all API item types
  */
-export type APIItem = 
+export type APIItem =
   | APIWeaponSkin
   | APISticker
   | APIAgent
@@ -433,3 +433,12 @@ export function isAPIAgent(item: APIItem): item is APIAgent {
 export function isAPIMusicKit(item: APIItem): item is APIMusicKit {
   return 'artist' in item && 'duration' in item
 }
+
+// ============================================================================
+// BACKWARD COMPATIBILITY ALIASES
+// ============================================================================
+
+/**
+ * @deprecated Use APIWeaponSkin instead
+ */
+export type APISkin = APIWeaponSkin

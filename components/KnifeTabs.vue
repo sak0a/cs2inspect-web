@@ -134,7 +134,7 @@ const handleDefaultWeaponClick = (team: number): void => {
  *
  * @param weapon - Selected knife data
  */
-const handleSkinClick = (weapon: IEnhancedKnife): void => {
+const handleSkinClick = (weapon: KnifeItemData): void => {
   try {
     if (!weapon) {
       throw new Error('Invalid knife data provided')
@@ -157,7 +157,7 @@ const handleSkinClick = (weapon: IEnhancedKnife): void => {
       <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
         <!-- Default weapon if no skin selected -->
         <NCard
-            v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 2)"
+            v-if="!weaponData.weapons.some((w: KnifeItemData) => w.databaseInfo?.team === 2)"
             :style="{
               borderColor: '#313030',
               background: '#242424'
@@ -208,7 +208,7 @@ const handleSkinClick = (weapon: IEnhancedKnife): void => {
       <NTabPane name="t" :tab="t('teams.terrorists') as string">
         <!-- Default weapon if no skin selected -->
         <NCard
-            v-if="!weaponData.weapons.some((w: IEnhancedItem) => w.databaseInfo?.team === 1)"
+            v-if="!weaponData.weapons.some((w: KnifeItemData) => w.databaseInfo?.team === 1)"
             :style="{
               borderColor: '#313030',
               background: '#242424'

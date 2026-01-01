@@ -11,11 +11,11 @@ import type {
     DBKnife,
     DBGlove,
     IEnhancedWeaponSticker
-} from '~/server/utils/interfaces'
+} from '~/server/types'
 import {
     EnhancedWeaponSticker,
     EnhancedWeaponKeychain
-} from '~/server/utils/interfaces'
+} from '~/server/types'
 
 /**
  * Validates common fields for all item types

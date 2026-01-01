@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Removed unused computed import
-import type { APICollectible } from "~/server/utils/interfaces";
+import type { APICollectible } from "~/server/types";
 
 const props = defineProps({
   collectible: {

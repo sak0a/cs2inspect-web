@@ -1,28 +1,32 @@
 /**
- * Common type definitions used across the CS2Inspect web application
- * These types are shared between frontend and backend components
+ * Common type definitions used across the CS2Inspect server
+ * 
+ * This file now re-exports shared types from ~/types for consistency,
+ * while maintaining server-specific types.
  */
 
 // ============================================================================
-// STEAM TYPES
+// RE-EXPORTS FROM ~/types (Shared with frontend)
+// ============================================================================
+
+// User types
+export type { UserProfile as SteamUser } from '~/types'
+
+// Utility types
+export type {
+  Callback,
+  AsyncCallback,
+  Optional,
+  RequiredFields,
+  ID
+} from '~/types/core/common'
+
+// ============================================================================
+// SERVER-SPECIFIC TYPES
 // ============================================================================
 
 /**
- * Steam user information
- */
-export interface SteamUser {
-  steamId: string
-  displayName: string
-  avatar: string
-  profileUrl: string
-}
-
-// ============================================================================
-// API RESPONSE TYPES
-// ============================================================================
-
-/**
- * Standard API response wrapper
+ * Standard API response wrapper (server-specific format)
  */
 export interface ApiResponse<T = unknown> {
   success: boolean
@@ -33,7 +37,7 @@ export interface ApiResponse<T = unknown> {
 }
 
 /**
- * Paginated API response
+ * Paginated API response (server-specific format)
  */
 export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
   pagination?: {
@@ -46,12 +50,8 @@ export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
   }
 }
 
-// ============================================================================
-// ITEM TYPES
-// ============================================================================
-
 /**
- * Base item interface
+ * Base item interface (server-specific)
  */
 export interface BaseItem {
   id: string
@@ -65,7 +65,7 @@ export interface BaseItem {
 }
 
 /**
- * Enhanced item with additional properties
+ * Enhanced item with additional properties (server-specific)
  */
 export interface EnhancedItem extends BaseItem {
   weapon_defindex: number
@@ -78,79 +78,24 @@ export interface EnhancedItem extends BaseItem {
 }
 
 // ============================================================================
-// CUSTOMIZATION TYPES
+// CUSTOMIZATION TYPES - RE-EXPORTED FROM ~/types
 // ============================================================================
 
-/**
- * Base customization interface
- */
-export interface BaseCustomization {
-  active: boolean
-  paintIndex: number
-  paintIndexOverride: boolean
-  pattern: number
-  wear: number
-  team: number
-}
-
-/**
- * Sticker customization
- */
-export interface StickerCustomization {
-  id: number
-  wear: number
-  scale: number
-  rotation: number
-  x: number
-  y: number
-}
-
-/**
- * Keychain customization
- */
-export interface KeychainCustomization {
-  id: number
-  x: number
-  y: number
-  z: number
-  seed: number
-  /** ID of the sticker wrapped inside (for Sticker Slabs - ID 37) */
-  wrapped_sticker_id?: number
-  /** ID of the highlight reel (for Highlight Reel keychains - IDs 36, 83) */
-  highlight_reel_id?: number
-}
-
-/**
- * Weapon customization with stickers and keychains
- */
-export interface WeaponCustomization extends BaseCustomization {
-  statTrak: boolean
-  statTrakCount: number
-  nameTag: string
-  stickers: (StickerCustomization | null)[]
-  keychain: KeychainCustomization | null
-}
-
-/**
- * Knife customization
- */
-export interface KnifeCustomization extends BaseCustomization {
-  statTrak: boolean
-  statTrakCount: number
-  nameTag: string
-}
-
-/**
- * Glove customization
- */
-export type GloveCustomization = BaseCustomization
+export type {
+  BaseItemConfiguration as BaseCustomization,
+  StickerConfiguration as StickerCustomization,
+  KeychainConfiguration as KeychainCustomization,
+  WeaponConfiguration as WeaponCustomization,
+  KnifeConfiguration as KnifeCustomization,
+  GloveConfiguration as GloveCustomization
+} from '~/types/business/items'
 
 // ============================================================================
 // LOADOUT TYPES
 // ============================================================================
 
 /**
- * Loadout information
+ * Loadout information (server-specific format)
  */
 export interface Loadout {
   id: number
@@ -165,32 +110,3 @@ export interface Loadout {
  * Team types
  */
 export type Team = 'T' | 'CT' | 'both'
-
-// ============================================================================
-// UTILITY TYPES
-// ============================================================================
-
-/**
- * Generic ID type
- */
-export type ID = string | number
-
-/**
- * Generic callback function
- */
-export type Callback<T = void> = (data: T) => void
-
-/**
- * Generic async callback function
- */
-export type AsyncCallback<T = void> = (data: T) => Promise<void>
-
-/**
- * Optional properties helper
- */
-export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-
-/**
- * Required properties helper
- */
-export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>

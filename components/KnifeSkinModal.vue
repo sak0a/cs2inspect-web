@@ -10,7 +10,7 @@ import type {
 } from '~/types'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedKnife, IEnhancedItem } from '~/server/utils/interfaces'
+import type { IEnhancedKnife, IEnhancedItem } from '~/server/types'
 
 /**
  * Props interface using new type system with backward compatibility

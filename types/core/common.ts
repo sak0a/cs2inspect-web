@@ -263,8 +263,8 @@ export interface AsyncResult<T = unknown, E = ErrorInfo> {
 export interface UserProfile {
   /** Steam ID (64-bit) */
   steamId: string
-  /** Display name */
-  displayName: string
+  /** Display name from Steam profile */
+  personaName: string
   /** Avatar image URL */
   avatar: string
   /** Steam profile URL */
@@ -284,3 +284,33 @@ export interface UserSession extends UserProfile {
   /** User permissions */
   permissions: string[]
 }
+
+// ============================================================================
+// BACKWARD COMPATIBILITY ALIASES
+// ============================================================================
+
+/**
+ * @deprecated Use UserProfile instead
+ * Steam user profile - alias for backward compatibility with server types
+ */
+export type SteamUser = UserProfile
+
+/**
+ * Counter-Strike team enum (server compatibility)
+ * 
+ * @description Numeric team identifiers matching server/types/api.ts CsTeam
+ */
+export enum CsTeam {
+  /** No team specified */
+  None = 0,
+  /** Terrorist team */
+  Terrorist = 1,
+  /** Counter-Terrorist team */
+  CounterTerrorist = 2
+}
+
+/**
+ * Generic ID type (server compatibility)
+ * @deprecated Use EntityId instead
+ */
+export type ID = string | number
