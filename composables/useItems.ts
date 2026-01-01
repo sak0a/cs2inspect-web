@@ -42,24 +42,33 @@ export function useGroupedWeapons(
     skins: Ref<Array<WeaponItemData | KnifeItemData | GloveItemData>> | ComputedRef<Array<WeaponItemData | KnifeItemData | GloveItemData>>
 ): ComputedRef<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>> {
     return computed(() => {
-        return skins.value.reduce<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>>((acc, weapon) => {
-            if (!weapon) return acc;
+        return skins.value.reduce<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>>((acc, itemOrGroup) => {
+            if (!itemOrGroup) return acc;
 
-            const name = weapon.defaultName;
-            if (!acc[name]) {
-                acc[name] = {
-                    weapons: [],
-                    availableTeams: weapon.availableTeams,
-                    defaultName: name
-                };
-            }
+            // Helper to process a single item
+            const processItem = (weapon: WeaponItemData | KnifeItemData | GloveItemData) => {
+                const name = weapon.defaultName;
+                if (!acc[name]) {
+                    acc[name] = {
+                        weapons: [],
+                        availableTeams: weapon.availableTeams,
+                        defaultName: name
+                    };
+                }
 
-            acc[name].weapons.push(weapon);
+                // Avoid duplicates if needed, or just push
+                acc[name].weapons.push(weapon);
 
-            // Update availability to 'both' if we have both teams represented
-            if (acc[name].availableTeams !== 'both' && weapon.availableTeams !== acc[name].availableTeams) {
-                // Optimization: if we see T and CT separately, logic might need check
-                // For now, simpler grouping
+                // Update availability logic if mixed teams found (optional optimization)
+            };
+
+            // Handle nested arrays (legacy structure) or flat items
+            if (Array.isArray(itemOrGroup)) {
+                // It's a group/array of items
+                (itemOrGroup as Array<WeaponItemData | KnifeItemData | GloveItemData>).forEach(item => processItem(item));
+            } else {
+                // It's a single item
+                processItem(itemOrGroup as WeaponItemData | KnifeItemData | GloveItemData);
             }
 
             return acc;
