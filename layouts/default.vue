@@ -280,7 +280,7 @@ onMounted(async () => {
             &copy; saka 2025
           </div>
         </div>
-        <div v-else class="h-full bg-[#181818] p-0">
+        <div v-else class="h-full bg-black p-0">
           <!-- Secondary Menu -->
           <div class="p-2 mb-4 sticky top-0 z-10">
             <div class="flex justify-end items-end">

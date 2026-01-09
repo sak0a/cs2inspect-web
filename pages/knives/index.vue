@@ -229,7 +229,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="p-4 bg-[#181818] ">
+  <div class="p-4 bg-black ">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
           title="Knives"

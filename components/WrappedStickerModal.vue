@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { APISticker, IEnhancedWeaponSticker } from "~/server/types";
+import type { APISticker } from "~/server/types";
 
 const props = defineProps<{
   visible: boolean

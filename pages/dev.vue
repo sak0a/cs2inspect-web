@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 const router = useRouter()
 const isDev = import.meta.env.DEV
 
@@ -10,19 +9,24 @@ onMounted(() => {
   }
 })
 
+// Input number demo values
 const value1 = ref(0)
 const value2 = ref(100)
 const value3 = ref(5)
+
 </script>
 
 <template>
   <ThemeProvider>
     <div class="min-h-screen bg-[#121212] p-8 text-white">
-      <div class="max-w-4xl mx-auto">
+      <div class="max-w-5xl mx-auto">
         <n-h2>Developer UI Test Page</n-h2>
         <p class="mb-8 text-gray-400">Environment: {{ isDev ? 'Development' : 'Production' }}</p>
 
         <n-space vertical size="large">
+        
+          <!-- Original Input Number Section -->
+          <n-h3 class="mt-8">Input Number Styling</n-h3>
           <n-card title="Input Number Styling" class="bg-[#1a1a1a] border-gray-800">
             <n-space vertical>
               <div class="grid grid-cols-2 gap-8">

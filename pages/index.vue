@@ -126,7 +126,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#181818] py-12 px-4 sm:px-6 lg:px-8">
+  <div class="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-4xl mx-auto">
       
       <!-- Header Section -->
@@ -296,9 +296,13 @@ onMounted(() => {
 .main-input {
   :deep(.n-input) {
     background-color: rgba(0, 0, 0, 0.2) !important;
-    border-radius: 12px;
+    border-radius: 12px !important;
     border: 1px solid rgba(255, 255, 255, 0.05);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    .n-input-wrapper {
+      border-radius: 12px !important;
+    }
     
     &:hover {
       background-color: rgba(0, 0, 0, 0.3) !important;
@@ -319,6 +323,11 @@ onMounted(() => {
     font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
     color: #e2e8f0;
     transition: all 0.3s ease;
+    border-radius: 12px !important;
+
+    .n-input-wrapper {
+      border-radius: 12px !important;
+    }
     
     .n-input__textarea-el {
       scrollbar-width: thin;
@@ -330,7 +339,7 @@ onMounted(() => {
 }
 
 .decode-button, .generate-button {
-  border-radius: 12px;
+  border-radius: 12px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   &:hover {
