@@ -1,18 +1,36 @@
 /**
  * Database record type definitions
+ * Types are inferred from Drizzle ORM schema definitions
  */
+import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
+import type {
+    loadouts,
+    pistols,
+    rifles,
+    smgs,
+    heavys,
+    knives,
+    gloves,
+    agents,
+    music,
+    pins,
+    healthCheckHistory
+} from '../database/schema';
+
+// Re-export DBLoadout from loadoutHelpers for backward compatibility
+export type { DBLoadout } from '../database/loadoutHelpers';
 
 /**
- * Base database record interface
+ * Base database record interface (for backward compatibility)
  */
 export interface BaseDBRecord {
-    id: string;
-    created_at?: string;
-    updated_at?: string;
+    id: number;
+    created_at?: Date;
+    updated_at?: Date;
 }
 
 /**
- * Base database item interface
+ * Base database item interface (for backward compatibility)
  */
 export interface BaseDBItem extends BaseDBRecord {
     steamid: string;
@@ -22,121 +40,51 @@ export interface BaseDBItem extends BaseDBRecord {
     paintseed: number;
 }
 
-/**
- * Loadout record in database
- */
-export interface DBLoadout extends BaseDBRecord {
-    steamid: string;
-    name: string;
-    active: boolean | number;
-    selected_music?: number | null;
-    selected_pin?: number | null;
-    selected_agent_t?: number | null;
-    selected_agent_ct?: number | null;
-    selected_glove_t?: number | null;
-    selected_glove_ct?: number | null;
-    selected_knife_t?: number | null;
-    selected_knife_ct?: number | null;
-    share_code?: string;
-    is_default?: boolean | number;
-}
+// Drizzle inferred types for loadouts
+export type LoadoutSelect = InferSelectModel<typeof loadouts>;
+export type LoadoutInsert = InferInsertModel<typeof loadouts>;
+
+// Drizzle inferred types for weapons
+export type PistolSelect = InferSelectModel<typeof pistols>;
+export type PistolInsert = InferInsertModel<typeof pistols>;
+export type RifleSelect = InferSelectModel<typeof rifles>;
+export type RifleInsert = InferInsertModel<typeof rifles>;
+export type SMGSelect = InferSelectModel<typeof smgs>;
+export type SMGInsert = InferInsertModel<typeof smgs>;
+export type HeavySelect = InferSelectModel<typeof heavys>;
+export type HeavyInsert = InferInsertModel<typeof heavys>;
+
+// Drizzle inferred types for knives
+export type KnifeSelect = InferSelectModel<typeof knives>;
+export type KnifeInsert = InferInsertModel<typeof knives>;
+
+// Drizzle inferred types for gloves
+export type GloveSelect = InferSelectModel<typeof gloves>;
+export type GloveInsert = InferInsertModel<typeof gloves>;
+
+// Drizzle inferred types for agents
+export type AgentSelect = InferSelectModel<typeof agents>;
+export type AgentInsert = InferInsertModel<typeof agents>;
+
+// Drizzle inferred types for music
+export type MusicSelect = InferSelectModel<typeof music>;
+export type MusicInsert = InferInsertModel<typeof music>;
+
+// Drizzle inferred types for pins
+export type PinSelect = InferSelectModel<typeof pins>;
+export type PinInsert = InferInsertModel<typeof pins>;
+
+// Drizzle inferred types for health check history
+export type HealthCheckHistorySelect = InferSelectModel<typeof healthCheckHistory>;
+export type HealthCheckHistoryInsert = InferInsertModel<typeof healthCheckHistory>;
 
 /**
- * Weapon record in database
+ * Backward compatible type aliases
+ * These map to the Drizzle inferred types for existing code
  */
-export interface DBWeapon extends BaseDBItem {
-    loadoutid: string;
-    active: boolean | number;
-    team: number;
-    stattrak: boolean | number;
-    stattrak_count: number;
-    stattrak_enabled?: boolean | number;
-    nametag: string;
-    sticker_0_id?: number;
-    sticker_0_wear?: number;
-    sticker_0_scale?: number;
-    sticker_0_rotation?: number;
-    sticker_0_x?: number;
-    sticker_0_y?: number;
-    sticker_1_id?: number;
-    sticker_1_wear?: number;
-    sticker_1_scale?: number;
-    sticker_1_rotation?: number;
-    sticker_1_x?: number;
-    sticker_1_y?: number;
-    sticker_2_id?: number;
-    sticker_2_wear?: number;
-    sticker_2_scale?: number;
-    sticker_2_rotation?: number;
-    sticker_2_x?: number;
-    sticker_2_y?: number;
-    sticker_3_id?: number;
-    sticker_3_wear?: number;
-    sticker_3_scale?: number;
-    sticker_3_rotation?: number;
-    sticker_3_x?: number;
-    sticker_3_y?: number;
-    sticker_4_id?: number;
-    sticker_4_wear?: number;
-    sticker_4_scale?: number;
-    sticker_4_rotation?: number;
-    sticker_4_x?: number;
-    sticker_4_y?: number;
-    keychain_id?: number;
-    keychain_x?: number;
-    keychain_y?: number;
-    keychain_z?: number;
-    keychain_seed?: number;
-}
-
-/**
- * Knife record in database
- */
-export interface DBKnife extends BaseDBItem {
-    loadoutid: string;
-    active: boolean | number;
-    team: number;
-    stattrak: boolean | number;
-    stattrak_count: number;
-    stattrak_enabled?: boolean | number;
-    nametag: string;
-}
-
-/**
- * Glove record in database
- */
-export interface DBGlove extends BaseDBItem {
-    loadoutid: string;
-    active: boolean | number;
-    team: number;
-}
-
-/**
- * Agent record in database
- */
-export interface DBAgent extends BaseDBRecord {
-    steamid: string;
-    loadoutid: string;
-    active: boolean | number;
-    team: number;
-    defindex: number;
-    model: string;
-}
-
-/**
- * Pin record in database
- */
-export interface DBPin extends BaseDBRecord {
-    steamid: string;
-    loadoutid: string;
-    defindex: number;
-}
-
-/**
- * Music kit record in database
- */
-export interface DBMusicKit extends BaseDBRecord {
-    steamid: string;
-    loadoutid: string;
-    defindex: number;
-}
+export type DBWeapon = PistolSelect | RifleSelect | SMGSelect | HeavySelect;
+export type DBKnife = KnifeSelect;
+export type DBGlove = GloveSelect;
+export type DBAgent = AgentSelect;
+export type DBPin = PinSelect;
+export type DBMusicKit = MusicSelect;

@@ -1,8 +1,10 @@
-import { defineEventHandler, createError } from 'h3'
-import { executeQuery } from '~/server/database/database'
+import { defineEventHandler, createError, getQuery, readBody } from 'h3'
+import { eq, and } from 'drizzle-orm'
+import { db } from '~/server/database/client'
+import { loadouts } from '~/server/database/schema'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
-import {VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES} from "~/server/utils/constants";
+import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from "~/server/utils/constants";
 
 type SelectionType = 'knife' | 'glove' | 'agent' | 'music' | 'pin'
 
@@ -29,17 +31,16 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
+    const loadoutIdNum = Number(loadoutId)
 
     // Music kits and pins don't require team selection
     if (type === 'music') {
         const musicid: number | null = body.musicid
 
-        // For music kits, we directly update the loadout table
-        await executeQuery<unknown[]>(
-            'UPDATE wp_player_loadouts SET selected_music = ? WHERE id = ? AND steamid = ?',
-            [musicid, loadoutId, steamId],
-            'Failed to update music kit'
-        )
+        // For music kits, we directly update the loadout table using Drizzle
+        await db.update(loadouts)
+            .set({ selected_music: musicid })
+            .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 
         Logger.success(`Updated music kit selection for loadout ${loadoutId}`)
         return { message: `Updated music kit selection for loadout ${loadoutId}` }
@@ -49,12 +50,10 @@ export default defineEventHandler(async (event) => {
         const pinid: number | null = body.pinid
 
         try {
-            // For pins, we directly update the loadout table
-            await executeQuery<unknown[]>(
-                'UPDATE wp_player_loadouts SET selected_pin = ? WHERE id = ? AND steamid = ?',
-                [pinid, loadoutId, steamId],
-                'Failed to update pin'
-            )
+            // For pins, we directly update the loadout table using Drizzle
+            await db.update(loadouts)
+                .set({ selected_pin: pinid })
+                .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 
             Logger.success(`Updated pin selection for loadout ${loadoutId}`)
             return { message: `Updated pin selection for loadout ${loadoutId}` }
@@ -86,10 +85,6 @@ export default defineEventHandler(async (event) => {
 
     const defindex: number = body.defindex
 
-    const updateField = team === 1
-        ? "selected_" + type + "_t"
-        : "selected_" + type + "_ct"
-
     if (type === 'knife') {
         if (defindex && !VALID_KNIFE_DEFINDEXES[defindex]) {
             throw createError({
@@ -106,13 +101,32 @@ export default defineEventHandler(async (event) => {
         }
     }
 
-    await executeQuery<unknown[]>(
-        `UPDATE wp_player_loadouts
-             SET ${updateField} = ?
-             WHERE id = ? AND steamid = ?`,
-        [defindex, loadoutId, steamId],
-        `Failed to update selected ${type}`
-    )
+    // Build the update object based on type and team
+    const updateObj: Record<string, number | null> = {}
+    if (type === 'knife') {
+        if (team === 1) {
+            updateObj.selected_knife_t = defindex
+        } else {
+            updateObj.selected_knife_ct = defindex
+        }
+    } else if (type === 'glove') {
+        if (team === 1) {
+            updateObj.selected_glove_t = defindex
+        } else {
+            updateObj.selected_glove_ct = defindex
+        }
+    } else if (type === 'agent') {
+        if (team === 1) {
+            updateObj.selected_agent_t = defindex
+        } else {
+            updateObj.selected_agent_ct = defindex
+        }
+    }
+
+    await db.update(loadouts)
+        .set(updateObj)
+        .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
+
     Logger.success(`Updated ${type} selection for loadout ${loadoutId}`)
     return { message: `Updated ${type} selection for loadout ${loadoutId}` }
 })

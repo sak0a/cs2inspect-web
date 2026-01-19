@@ -24,24 +24,6 @@ export const verifyUserAccess = (steamId: string, event: { context?: { auth?: { 
     Logger.info(`User access verified for Steam ID: ${steamId}`)
 }
 
-export const validateWeaponDatabaseTable = (type: string) => {
-    const tableMap: Record<string, string> = {
-        smgs: 'wp_player_smgs',
-        rifles: 'wp_player_rifles',
-        heavys: 'wp_player_heavys',
-        pistols: 'wp_player_pistols',
-    };
-
-    if (!tableMap[type]) {
-        Logger.error('Invalid weapon type')
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid weapon type'
-        })
-    }
-    return tableMap[type]
-}
-
 export function createDefaultEnhancedKnife<T>(baseItem: IDefaultItem): T[] {
     return [{
         weapon_defindex: baseItem.weapon_defindex,

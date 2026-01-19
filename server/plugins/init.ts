@@ -49,9 +49,9 @@ export function getCS2Client(): CS2Inspect {
 }
 
 export default defineNitroPlugin(async () => {
-    // Run database migrations first
+    // Run database migrations first (using Drizzle ORM)
     try {
-        const { runMigrations } = await import('../utils/migrations/runner');
+        const { runMigrations } = await import('../database/migrate');
         await runMigrations();
     } catch (error) {
         console.error('Failed to run database migrations:', error);

@@ -1,6 +1,8 @@
 import { DEFAULT_WEAPONS } from "~/server/utils/constants"
+import { eq, and } from 'drizzle-orm'
+import { db } from '~/server/database/client'
+import { pistols, rifles, smgs, heavys } from '~/server/database/schema'
 import type {
-    DBWeapon,
     APISkin,
     IDefaultItem,
     APISticker, IMappedDBWeapon, IEnhancedWeapon
@@ -8,9 +10,8 @@ import type {
 import { EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/types/classes';
 import { getSkinsDataAsync, getStickerDataAsync, getKeychainDataAsync } from '~/server/utils/csgoAPI';
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils';
-import { validateWeaponDatabaseTable, validateRequiredRequestData } from '~/server/utils/helpers';
+import { validateRequiredRequestData } from '~/server/utils/helpers';
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
-import { executeQuery } from "~/server/database/database";
 import { defineEventHandler, createError, getQuery } from "h3";
 import {
     createCollectionResponse,
@@ -18,12 +19,24 @@ import {
     withErrorHandling
 } from '~/server/utils/apiResponseHelpers';
 
+// Type for enhanced weapon sticker
+type IEnhancedWeaponSticker = ReturnType<EnhancedWeaponSticker['toInterface']>;
 
-function parseStickers(databaseResult: DBWeapon, stickerData: APISticker[]): (IEnhancedWeaponSticker | null)[] {
+// Map weapon types to Drizzle tables
+const weaponTypeToTable = {
+    'pistols': pistols,
+    'rifles': rifles,
+    'smgs': smgs,
+    'heavys': heavys,
+} as const;
+
+type WeaponType = keyof typeof weaponTypeToTable;
+
+function parseStickers(databaseResult: Record<string, unknown>, stickerData: APISticker[]): (IEnhancedWeaponSticker | null)[] {
     const stickers: (IEnhancedWeaponSticker | null)[] = [];
     for (let i = 0; i < 5; i++) {
-        const stickerField = `sticker_${i}` as keyof DBWeapon;
-        const stickerDatabaseData: string = databaseResult[stickerField]?.toString();
+        const stickerField = `sticker_${i}` as string;
+        const stickerDatabaseData: string = (databaseResult[stickerField] as string | undefined)?.toString() || '';
 
         if (!stickerDatabaseData) {
             stickers.push(null);
@@ -50,7 +63,16 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const loadoutId = query.loadoutId as string;
     validateRequiredRequestData(loadoutId, 'Loadout ID');
 
-    const table = validateWeaponDatabaseTable(type);
+    // Validate weapon type and get corresponding table
+    const weaponType = type.toLowerCase() as WeaponType;
+    const table = weaponTypeToTable[weaponType];
+    if (!table) {
+        throw createError({
+            statusCode: 400,
+            message: `Invalid weapon type: ${type}`
+        });
+    }
+
     // Get all available skins data (waits for initialization if needed)
     const skinData = await getSkinsDataAsync();
     if (!skinData) {
@@ -79,11 +101,13 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         });
     }
 
-    const rows = await executeQuery<DBWeapon[]>(
-        `SELECT * FROM ${table} WHERE steamid = ? AND loadoutid = ?`,
-        [steamId, loadoutId],
-        'Failed to fetch weapons'
-    );
+    // Fetch weapons using Drizzle
+    const rows = await db.select()
+        .from(table)
+        .where(and(
+            eq(table.steamid, steamId),
+            eq(table.loadoutid, Number(loadoutId))
+        ));
 
     // Filter and type-guard the weapons first
     const baseWeaponsWithCategory: IDefaultItem[] = DEFAULT_WEAPONS.filter(weapon => weapon.category === type);
@@ -93,8 +117,8 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         // Find the database entry for this weapon if it exists
         // Find matching skin from skin api using both weapon ID and paint index
 
-        const matchingDatabaseResults: DBWeapon[] = rows.filter(
-            (weapon: DBWeapon) => weapon.defindex === baseWeapon.weapon_defindex
+        const matchingDatabaseResults = rows.filter(
+            (weapon) => weapon.defindex === baseWeapon.weapon_defindex
         );
 
         if (matchingDatabaseResults.length === 0) {
@@ -106,13 +130,18 @@ export default defineEventHandler(withErrorHandling(async (event) => {
          * Iterate through all matching database results for this weapon_defindex
          */
         for (const databaseResult of matchingDatabaseResults) {
+            // Create a compatible object for findMatchingSkin
+            const dbResultForSkin = {
+                ...databaseResult,
+                id: String(databaseResult.id),
+                active: !!databaseResult.active,
+                stattrak_enabled: !!databaseResult.stattrak_enabled
+            };
+
             /**
              * Find matching skin from the skin data using the weapon ID and paint index
              */
-            const skinInfo: APISkin | undefined = findMatchingSkin(baseWeapon, databaseResult, skinData);
-
-            databaseResult.active = !!databaseResult.active;
-            databaseResult.stattrak_enabled = !!databaseResult.stattrak_enabled;
+            const skinInfo: APISkin | undefined = findMatchingSkin(baseWeapon, dbResultForSkin, skinData);
 
             // Check if we have a custom paint index but no matching skin (invalid paint index for this weapon)
             const hasCustomPaintIndex = databaseResult.paintindex && databaseResult.paintindex > 0;
@@ -174,16 +203,16 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 team: databaseResult.team,
 
                 databaseInfo: {
-                    active: databaseResult.active,
+                    active: !!databaseResult.active,
                     team: databaseResult.team,
                     defindex: databaseResult.defindex,
-                    statTrak: databaseResult.stattrak_enabled || false,
+                    statTrak: !!databaseResult.stattrak_enabled,
                     statTrakCount: databaseResult.stattrak_count || 0,
                     paintIndex: databaseResult.paintindex || 0,
                     paintWear: databaseResult.paintwear || 0.01,
                     pattern: databaseResult.paintseed || 0,
                     nameTag: databaseResult.nametag || '',
-                    stickers: parseStickers(databaseResult, stickerData),
+                    stickers: parseStickers(databaseResult as unknown as Record<string, unknown>, stickerData),
                     keychain: EnhancedWeaponKeychain.fromStringAndAPI(databaseResult.keychain, keychainData)?.toInterface()
                 } as IMappedDBWeapon
             } as IEnhancedWeapon);

@@ -104,14 +104,38 @@ export type {
   BaseDBRecord,
   BaseDBItem,
 
-  // Specific database interfaces
+  // Specific database interfaces (backward compatible aliases)
   DBLoadout,
   DBWeapon,
   DBKnife,
   DBGlove,
   DBPin,
   DBMusicKit,
-  DBAgent
+  DBAgent,
+
+  // Drizzle inferred types
+  LoadoutSelect,
+  LoadoutInsert,
+  PistolSelect,
+  PistolInsert,
+  RifleSelect,
+  RifleInsert,
+  SMGSelect,
+  SMGInsert,
+  HeavySelect,
+  HeavyInsert,
+  KnifeSelect,
+  KnifeInsert,
+  GloveSelect,
+  GloveInsert,
+  AgentSelect,
+  AgentInsert,
+  MusicSelect,
+  MusicInsert,
+  PinSelect,
+  PinInsert,
+  HealthCheckHistorySelect,
+  HealthCheckHistoryInsert
 } from './database'
 
 // ============================================================================

@@ -1,7 +1,8 @@
 /**
  * Health check probes for various system dependencies
  */
-import { pool } from '~/server/database/database';
+import { sql } from 'drizzle-orm';
+import { db, pool } from '~/server/database/client';
 import { getCS2Client } from '~/server/plugins/init';
 import type { HealthCheckResult, HealthStatus } from '~/server/types/health';
 import { $fetch } from 'ofetch';
@@ -12,34 +13,20 @@ import { steamServiceClient } from '~/server/utils/steamServiceClient';
  */
 async function calculateUptimePercentage(checkName: string, minutes: number = 60): Promise<number> {
     try {
-        const { executeQuery } = await import('~/server/database/database');
-
-        interface UptimeRow {
-            total_checks: number | string | bigint;
-            ok_checks: number | string | bigint;
-        }
-
-        const rows = await executeQuery<UptimeRow[]>(
-            `SELECT 
+        const result = await db.execute(sql`
+            SELECT 
                 COUNT(*) as total_checks,
                 SUM(CASE WHEN status = 'ok' THEN 1 ELSE 0 END) as ok_checks
-             FROM health_check_history 
-             WHERE check_name = ? 
-             AND checked_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)`,
-            [checkName, minutes],
-            'Failed to calculate uptime'
-        );
+            FROM health_check_history 
+            WHERE check_name = ${checkName} 
+            AND checked_at >= DATE_SUB(NOW(), INTERVAL ${minutes} MINUTE)
+        `);
 
-        if (rows.length > 0) {
-            const toNumber = (v: unknown): number => {
-                if (typeof v === 'number') return v;
-                if (typeof v === 'bigint') return Number(v);
-                if (typeof v === 'string') return Number(v);
-                return Number(v as number | string | bigint);
-            };
+        const rows = result as unknown as Array<{ total_checks: number | bigint; ok_checks: number | bigint }>;
 
-            const total = rows[0] ? toNumber(rows[0].total_checks) : 0;
-            const ok = rows[0] ? toNumber(rows[0].ok_checks) : 0;
+        if (rows.length > 0 && rows[0]) {
+            const total = Number(rows[0].total_checks);
+            const ok = Number(rows[0].ok_checks);
 
             if (Number.isFinite(total) && total > 0) {
                 return (ok / total) * 100;
@@ -66,41 +53,36 @@ export async function checkDatabase(): Promise<HealthCheckResult> {
     };
 
     try {
-        const conn = await pool.getConnection();
+        // Perform a simple query to verify connectivity using Drizzle
+        await db.execute(sql`SELECT 1`);
 
-        try {
-            // Perform a simple query to verify connectivity
-            await conn.query('SELECT 1');
+        const latency = Date.now() - startTime;
+        result.latency_ms = latency;
 
-            const latency = Date.now() - startTime;
-            result.latency_ms = latency;
+        // Get average latency and uptime from history
+        const { getAverageLatency } = await import('~/server/utils/health/history');
+        const avgLatency = await getAverageLatency('database', 60);
+        const uptimePercentage = await calculateUptimePercentage('database', 60);
 
-            // Get average latency and uptime from history
-            const { getAverageLatency } = await import('~/server/utils/health/history');
-            const avgLatency = await getAverageLatency('database', 60);
-            const uptimePercentage = await calculateUptimePercentage('database', 60);
-
-            // Check thresholds
-            if (latency > 200) {
-                result.status = 'fail';
-                result.message = `Database latency too high: ${latency}ms`;
-            } else if (latency > 50) {
-                result.status = 'degraded';
-                result.message = `Database latency elevated: ${latency}ms`;
-            } else {
-                result.message = 'Database connection healthy';
-            }
-
-            result.metadata = {
-                pool_active_connections: pool.activeConnections(),
-                pool_total_connections: pool.totalConnections(),
-                pool_idle_connections: pool.idleConnections(),
-                avg_latency_ms: avgLatency,
-                uptime_percentage: uptimePercentage,
-            };
-        } finally {
-            conn.release();
+        // Check thresholds
+        if (latency > 200) {
+            result.status = 'fail';
+            result.message = `Database latency too high: ${latency}ms`;
+        } else if (latency > 50) {
+            result.status = 'degraded';
+            result.message = `Database latency elevated: ${latency}ms`;
+        } else {
+            result.message = 'Database connection healthy';
         }
+
+        // Get pool stats from mysql2
+        const poolConfig = (pool as unknown as { pool?: { config?: { connectionLimit?: number }; _connectionQueue?: unknown[] } }).pool;
+        result.metadata = {
+            pool_connection_limit: poolConfig?.config?.connectionLimit || 'unknown',
+            pool_queue_size: poolConfig?._connectionQueue?.length || 0,
+            avg_latency_ms: avgLatency,
+            uptime_percentage: uptimePercentage,
+        };
     } catch (error: unknown) {
         result.status = 'fail';
         result.latency_ms = Date.now() - startTime;

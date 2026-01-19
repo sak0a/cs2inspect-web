@@ -1,7 +1,9 @@
 /**
- * Health check history persistence and retrieval
+ * Health check history persistence and retrieval using Drizzle ORM
  */
-import { executeQuery } from '~/server/database/database';
+import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
+import { db } from '~/server/database/client';
+import { healthCheckHistory } from '~/server/database/schema';
 import type { HealthCheckResult, HistoricalHealthData, HealthHistoryQuery } from '~/server/types/health';
 
 /**
@@ -9,20 +11,14 @@ import type { HealthCheckResult, HistoricalHealthData, HealthHistoryQuery } from
  */
 export async function saveHealthCheckResult(result: HealthCheckResult): Promise<void> {
     try {
-        await executeQuery(
-            `INSERT INTO health_check_history 
-            (check_name, status, latency_ms, message, metadata, checked_at) 
-            VALUES (?, ?, ?, ?, ?, ?)`,
-            [
-                result.name,
-                result.status,
-                result.latency_ms || null,
-                result.message || null,
-                result.metadata ? JSON.stringify(result.metadata) : null,
-                result.checked_at,
-            ],
-            'Failed to save health check result'
-        );
+        await db.insert(healthCheckHistory).values({
+            check_name: result.name,
+            status: result.status,
+            latency_ms: result.latency_ms || null,
+            message: result.message || null,
+            metadata: result.metadata ? JSON.stringify(result.metadata) : null,
+            checked_at: result.checked_at,
+        });
     } catch (error: unknown) {
         // Don't throw - health check persistence failures shouldn't break the app
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -48,42 +44,32 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
         limit = 100,
     } = query;
 
-    let sql = `SELECT check_name, status, latency_ms, checked_at 
-               FROM health_check_history 
-               WHERE 1=1`;
-    const params: unknown[] = [];
-
-    if (check_name) {
-        sql += ' AND check_name = ?';
-        params.push(check_name);
-    }
-
-    if (start_time) {
-        sql += ' AND checked_at >= ?';
-        params.push(start_time);
-    }
-
-    if (end_time) {
-        sql += ' AND checked_at <= ?';
-        params.push(end_time);
-    }
-
-    sql += ' ORDER BY checked_at DESC LIMIT ?';
-    params.push(limit);
-
     try {
-        interface HistoryRow {
-            check_name: string;
-            status: 'ok' | 'degraded' | 'fail';
-            latency_ms: number | null;
-            checked_at: string | Date;
+        // Build the where conditions
+        const conditions = [];
+        
+        if (check_name) {
+            conditions.push(eq(healthCheckHistory.check_name, check_name));
         }
         
-        const rows = await executeQuery<HistoryRow[]>(
-            sql,
-            params,
-            'Failed to fetch health check history'
-        );
+        if (start_time) {
+            conditions.push(gte(healthCheckHistory.checked_at, start_time));
+        }
+        
+        if (end_time) {
+            conditions.push(lte(healthCheckHistory.checked_at, end_time));
+        }
+
+        const rows = await db.select({
+            check_name: healthCheckHistory.check_name,
+            status: healthCheckHistory.status,
+            latency_ms: healthCheckHistory.latency_ms,
+            checked_at: healthCheckHistory.checked_at,
+        })
+            .from(healthCheckHistory)
+            .where(conditions.length > 0 ? and(...conditions) : undefined)
+            .orderBy(desc(healthCheckHistory.checked_at))
+            .limit(limit);
 
         // Group by check_name
         const grouped = new Map<string, HistoricalHealthData>();
@@ -98,7 +84,7 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
 
             grouped.get(row.check_name)!.data_points.push({
                 timestamp: new Date(row.checked_at),
-                status: row.status,
+                status: row.status as 'ok' | 'degraded' | 'fail',
                 latency_ms: row.latency_ms,
             });
         }
@@ -122,14 +108,14 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
  */
 export async function cleanupHealthCheckHistory(daysToKeep: number = 7): Promise<number> {
     try {
-        const result = await executeQuery<{ affectedRows?: number }>(
-            `DELETE FROM health_check_history 
-             WHERE checked_at < DATE_SUB(NOW(), INTERVAL ? DAY)`,
-            [daysToKeep],
-            'Failed to cleanup health check history'
-        );
+        const result = await db.execute(sql`
+            DELETE FROM health_check_history 
+            WHERE checked_at < DATE_SUB(NOW(), INTERVAL ${daysToKeep} DAY)
+        `);
 
-        return result.affectedRows || 0;
+        // mysql2 returns an array with [ResultSetHeader, FieldPacket[]]
+        const affectedRows = (result as unknown as [{ affectedRows?: number }])?.[0]?.affectedRows || 0;
+        return affectedRows;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         console.error('Failed to cleanup health check history:', errorMessage);
@@ -142,21 +128,17 @@ export async function cleanupHealthCheckHistory(daysToKeep: number = 7): Promise
  */
 export async function getAverageLatency(checkName: string, minutes: number = 60): Promise<number | null> {
     try {
-        interface AvgRow {
-            avg_latency: number | null;
-        }
-        
-        const rows = await executeQuery<AvgRow[]>(
-            `SELECT AVG(latency_ms) as avg_latency 
-             FROM health_check_history 
-             WHERE check_name = ? 
-             AND checked_at >= DATE_SUB(NOW(), INTERVAL ? MINUTE)
-             AND latency_ms IS NOT NULL`,
-            [checkName, minutes],
-            'Failed to calculate average latency'
-        );
+        const result = await db.execute(sql`
+            SELECT AVG(latency_ms) as avg_latency 
+            FROM health_check_history 
+            WHERE check_name = ${checkName} 
+            AND checked_at >= DATE_SUB(NOW(), INTERVAL ${minutes} MINUTE)
+            AND latency_ms IS NOT NULL
+        `);
 
-        if (rows.length > 0 && rows[0].avg_latency !== null) {
+        const rows = result as unknown as Array<{ avg_latency: number | null }>;
+
+        if (rows.length > 0 && rows[0]?.avg_latency !== null) {
             return Math.round(rows[0].avg_latency);
         }
         

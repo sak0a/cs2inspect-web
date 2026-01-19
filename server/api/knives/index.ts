@@ -1,9 +1,11 @@
 import { defineEventHandler, getQuery } from 'h3'
-import type { DBKnife, APISkin, IDefaultItem, IEnhancedKnife } from "~/server/types"
+import { eq, and } from 'drizzle-orm'
+import { db } from '~/server/database/client'
+import { knives } from '~/server/database/schema'
+import type { APISkin, IDefaultItem, IEnhancedKnife } from "~/server/types"
 import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
-import { executeQuery } from '~/server/database/database'
 import { DEFAULT_KNIVES } from '~/server/utils/constants'
 import {
     createCollectionResponse,
@@ -27,12 +29,13 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const skinData = await getSkinsDataAsync();
 
     //LOG: Logger.info(`Fetching knives for Steam ID: ${steamId}`);
-    // Fetch all knives from the database for the given loadout
-    const knives = await executeQuery<DBKnife[]>(
-        'SELECT * FROM wp_player_knifes WHERE steamid = ? AND loadoutid = ?',
-        [steamId, loadoutId],
-        'Failed to fetch knives'
-    );
+    // Fetch all knives from the database for the given loadout using Drizzle
+    const knivesData = await db.select()
+        .from(knives)
+        .where(and(
+            eq(knives.steamid, steamId),
+            eq(knives.loadoutid, Number(loadoutId))
+        ));
 
     // Fetch all knife skins from the skin data
     const knifeSkins: APISkin[] = skinData.filter(skin =>
@@ -44,29 +47,12 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const enhancedKnives = DEFAULT_KNIVES.map((baseKnife: IDefaultItem) => {
         // Find the database entries for this knife defindex if they exist
         //LOG: Logger.info(`Base knife: ${baseKnife.weapon_name}`)
-        const matchingDatabaseResults: DBKnife[] = knives.filter(
-            (knife: DBKnife) => knife.defindex === baseKnife.weapon_defindex
+        const matchingDatabaseResults = knivesData.filter(
+            (knife) => knife.defindex === baseKnife.weapon_defindex
         );
 
         // If no custom skins found, return the default knife
         if (matchingDatabaseResults.length === 0) {
-            /**
-             * [ { weapon_defindex: 526,
-             *     weapon_name: 'weapon_knife_kukri',
-             *     name: 'Kukri Knife',
-             *     defaultName: 'Kukri Knife',
-             *     image:
-             *      'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_kukri_png.png',
-             *     defaultImage:
-             *      'https://raw.githubusercontent.com/ByMykel/counter-strike-image-tracker/main/static/panorama/images/econ/weapons/base_weapons/weapon_knife_kukri_png.png',
-             *     category: 'knife',
-             *     minFloat: 0,
-             *     maxFloat: 1,
-             *     paintIndex: 0,
-             *     availableTeams: 'both'
-             *     }
-             * ]
-             */
             //LOG:Logger.info(`No matching database results for ${baseKnife.weapon_name}`)
             return createDefaultItem<IEnhancedKnife>(baseKnife);
         }
@@ -75,9 +61,15 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         const data: IEnhancedKnife[] = [];
         // Get for each matching database result the API Skin info
         for (const databaseResult of matchingDatabaseResults) {
-            const skinInfo = findMatchingSkin(baseKnife, databaseResult, knifeSkins);
-            databaseResult.active = !!databaseResult.active
-            databaseResult.stattrak_enabled = !!databaseResult.stattrak_enabled
+            // Create a compatible object for findMatchingSkin
+            const dbResultForSkin = {
+                ...databaseResult,
+                id: String(databaseResult.id),
+                active: !!databaseResult.active,
+                stattrak_enabled: !!databaseResult.stattrak_enabled
+            };
+
+            const skinInfo = findMatchingSkin(baseKnife, dbResultForSkin, knifeSkins);
 
             // Check if we have a custom paint index but no matching skin (invalid paint index for this knife)
             const hasCustomPaintIndex = databaseResult.paintindex && databaseResult.paintindex > 0;
@@ -134,27 +126,25 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 rarity: rarityToUse,
                 availableTeams: 'both',
                 team: null,
-                databaseInfo: databaseResult
+                databaseInfo: {
+                    ...databaseResult,
+                    active: !!databaseResult.active,
+                    stattrak_enabled: !!databaseResult.stattrak_enabled
+                }
             } as IEnhancedKnife);
         }
 
         // Directly return the data array because there must be at least one entry after line 46
         //LOG: Logger.info(`Data for ${baseKnife.weapon_name}: ${JSON.stringify(data)}`)
         return data
-        /*
-        If there are any custom skins for this knife, return them
-        if (data.length > 0) {
-            return data;
-        }
-        */
     });
 
-    //LOG: Logger.success(`Fetched ${knives.length} knives for Steam ID: ${steamId}`);
+    //LOG: Logger.success(`Fetched ${knivesData.length} knives for Steam ID: ${steamId}`);
 
     const meta = createResponseMeta(startTime, {
         steamId,
         loadoutId,
-        databaseRows: knives.length,
+        databaseRows: knivesData.length,
         knivesReturned: enhancedKnives.length
     });
 

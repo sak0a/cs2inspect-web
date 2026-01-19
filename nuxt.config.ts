@@ -138,10 +138,6 @@ export default defineNuxtConfig({
     description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
     defaultLocale: 'en',
   },
-  shadcn: {
-    prefix: '',
-    componentDir: '@/components/ui',
-  },
   runtimeConfig: {
     public: {
       assetsUrl: process.env.ASSETS_URL || 'https://assets.cu.sakoa.xyz/cs2inspect',

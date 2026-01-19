@@ -1,5 +1,7 @@
-import { defineEventHandler, createError } from 'h3'
-import { executeQuery } from '~/server/database/database'
+import { defineEventHandler, createError, getQuery } from 'h3'
+import { eq, and } from 'drizzle-orm'
+import { db } from '~/server/database/client'
+import { loadouts } from '~/server/database/schema'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import {
@@ -7,7 +9,6 @@ import {
     createResponseMeta,
     withErrorHandling
 } from '~/server/utils/apiResponseHelpers'
-import type { DBLoadout } from '~/types/database/records'
 
 export default defineEventHandler(withErrorHandling(async (event) => {
     const startTime = Date.now()
@@ -21,21 +22,23 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const loadoutId = query.loadoutId as string
     validateRequiredRequestData(loadoutId, 'Loadout ID')
 
-    // Fetch the selected pin from the loadout table (similar to music kits)
-    const loadouts = await executeQuery<DBLoadout[]>(
-        'SELECT selected_pin FROM wp_player_loadouts WHERE id = ? AND steamid = ?',
-        [loadoutId, steamId],
-        'Failed to fetch loadout'
-    )
+    // Fetch the selected pin from the loadout table using Drizzle
+    const loadoutsData = await db.select({ selected_pin: loadouts.selected_pin })
+        .from(loadouts)
+        .where(and(
+            eq(loadouts.id, Number(loadoutId)),
+            eq(loadouts.steamid, steamId)
+        ))
+        .limit(1)
 
-    if (loadouts.length === 0) {
+    if (loadoutsData.length === 0) {
         throw createError({
             statusCode: 404,
             message: 'Loadout not found'
         })
     }
 
-    const selectedPin = loadouts[0].selected_pin
+    const selectedPin = loadoutsData[0].selected_pin
 
     // Return the selected pin as an array for backward compatibility
     // If no pin is selected, return empty array
