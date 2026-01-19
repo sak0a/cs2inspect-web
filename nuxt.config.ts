@@ -113,12 +113,12 @@ export default defineNuxtConfig({
     ]
   },
   tailwindcss: {
-    /*cssPath: ['~/assets/css/tailwind.css', { injectPosition: "first" }],
+    cssPath: ['~/assets/css/tailwind.css', { injectPosition: "first" }],
     exposeConfig: {
       level: 2
     },
     config: {},
-    viewer: false,*/
+    viewer: false,
   },
   modules: [
     '@nuxtjs/tailwindcss',
