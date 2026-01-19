@@ -4,6 +4,7 @@ import { db } from '~/server/database/client'
 import { loadouts } from '~/server/database/schema'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { toLoadoutId } from '~/types/core/common'
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -26,7 +27,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const loadoutsData = await db.select({ selected_pin: loadouts.selected_pin })
         .from(loadouts)
         .where(and(
-            eq(loadouts.id, Number(loadoutId)),
+            eq(loadouts.id, toLoadoutId(loadoutId)),
             eq(loadouts.steamid, steamId)
         ))
         .limit(1)

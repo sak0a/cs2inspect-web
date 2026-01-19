@@ -9,17 +9,20 @@
  * @since 2.0.0
  */
 
-import type { 
-  EntityId, 
-  TeamSide, 
-  PaginationOptions, 
-  FilterOptions 
+import type {
+  EntityId,
+  TeamSide,
+  PaginationOptions,
+  FilterOptions,
+  SteamId,
+  LoadoutId,
+  Defindex
 } from '../core/common'
 
-import type { 
-  DBAnyRecord, 
-  DBItemRecord, 
-  DBLoadout 
+import type {
+  DBAnyRecord,
+  DBItemRecord,
+  DBLoadout
 } from './records'
 
 // ============================================================================
@@ -33,9 +36,9 @@ import type {
  */
 export interface DBBaseQuery {
   /** Steam ID for user-specific queries */
-  steamId?: string
+  steamId?: SteamId
   /** Loadout ID for loadout-specific queries */
-  loadoutId?: EntityId
+  loadoutId?: LoadoutId
   /** Include soft-deleted records */
   includeSoftDeleted?: boolean
 }
@@ -130,7 +133,7 @@ export interface DBCreateLoadoutQuery extends DBBaseQuery {
   /** Loadout name */
   name: string
   /** Copy items from another loadout */
-  copyFromLoadoutId?: EntityId
+  copyFromLoadoutId?: LoadoutId
 }
 
 /**
@@ -138,7 +141,7 @@ export interface DBCreateLoadoutQuery extends DBBaseQuery {
  */
 export interface DBUpdateLoadoutSelectionsQuery extends DBBaseQuery {
   /** Loadout ID to update */
-  loadoutId: EntityId
+  loadoutId: LoadoutId
   /** Selected knife for Terrorist team */
   selected_knife_t?: number | null
   /** Selected knife for Counter-Terrorist team */
@@ -170,7 +173,7 @@ export interface DBItemQuery<_T extends DBItemRecord = DBItemRecord> extends DBB
   /** Filter by active status */
   active?: boolean
   /** Filter by definition index */
-  defindex?: number
+  defindex?: Defindex
   /** Include item statistics */
   includeStats?: boolean
 }
@@ -387,7 +390,7 @@ export interface DBAggregatedResult extends DBQueryResult {
  * 
  * @template T - Database record type
  */
-export type QueryForRecord<T extends DBAnyRecord> = 
+export type QueryForRecord<T extends DBAnyRecord> =
   T extends DBLoadout ? DBLoadoutQuery :
   T extends DBItemRecord ? DBItemQuery<T> :
   DBBaseQuery

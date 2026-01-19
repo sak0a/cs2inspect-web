@@ -5,12 +5,11 @@ import type {
   GloveModalState,
   GloveConfiguration,
   APIWeaponSkin,
-  UserProfile,
-  DBGlove
+  UserProfile
 } from '~/types'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedGlove, IEnhancedItem } from '~/server/types'
+import type { IEnhancedGlove, IEnhancedItem, IMappedDBGlove } from '~/server/types'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -437,17 +436,17 @@ watch(() => props.weapon, () => {
       inheritedWeapon.value = props.weapon
       fetchSkinsForGlove()
 
-      // Cast to the correct database interface for gloves
-      const dbInfo = props.weapon.databaseInfo as DBGlove
+      // databaseInfo is already typed as IMappedDBGlove | undefined from IEnhancedGlove
+      const dbInfo = props.weapon.databaseInfo
       if (dbInfo) {
         customization.value = {
-          active: dbInfo.active || false,
+          active: Boolean(dbInfo.active),
           team: dbInfo.team || 1,
           defindex: props.weapon.weapon_defindex,
           paintIndex: dbInfo.paintindex || 0, // Note: database uses 'paintindex', not 'paintIndex'
           paintIndexOverride: false,
-          pattern: parseInt(dbInfo.paintseed) || 0, // Note: database uses 'paintseed', not 'pattern'
-          wear: parseFloat(dbInfo.paintwear) || 0 // Note: database uses 'paintwear', not 'paintWear'
+          pattern: typeof dbInfo.paintseed === 'string' ? parseInt(dbInfo.paintseed) || 0 : dbInfo.paintseed || 0,
+          wear: typeof dbInfo.paintwear === 'string' ? parseFloat(dbInfo.paintwear) || 0 : dbInfo.paintwear || 0
         }
       } else {
         customization.value = {

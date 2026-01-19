@@ -7,6 +7,7 @@ import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { DEFAULT_KNIVES } from '~/server/utils/constants'
+import { toLoadoutId } from '~/types/core/common'
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -34,7 +35,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         .from(knives)
         .where(and(
             eq(knives.steamid, steamId),
-            eq(knives.loadoutid, Number(loadoutId))
+            eq(knives.loadoutid, toLoadoutId(loadoutId))
         ));
 
     // Fetch all knife skins from the skin data

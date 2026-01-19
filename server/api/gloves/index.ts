@@ -8,6 +8,7 @@ import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { DEFAULT_GLOVES } from '~/server/utils/constants'
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import { createDefaultItem, findMatchingSkin } from '~/server/utils/skinUtils';
+import { toLoadoutId } from '~/types/core/common';
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -35,7 +36,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         .from(gloves)
         .where(and(
             eq(gloves.steamid, steamId),
-            eq(gloves.loadoutid, Number(loadoutId))
+            eq(gloves.loadoutid, toLoadoutId(loadoutId))
         ));
 
     Logger.info(`Found ${glovesData.length} glove entries in database:` + JSON.stringify(glovesData, null, 2));

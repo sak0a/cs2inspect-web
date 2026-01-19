@@ -27,7 +27,7 @@ const gloveOptions = computed(() => {
     { label: 'Default Gloves', value: -1 },
     ...Object.entries(groupedGloves.value).map(([gloveName, gloveData]) => ({
       label: gloveName,
-      value: gloveData.weapons[0].weapon_defindex
+      value: gloveData.weapons[0]?.weapon_defindex
     }))
   ]
 })

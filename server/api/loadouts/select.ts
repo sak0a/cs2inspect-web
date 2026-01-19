@@ -5,6 +5,7 @@ import { loadouts } from '~/server/database/schema'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from "~/server/utils/constants";
+import { toLoadoutId } from '~/types/core/common';
 
 type SelectionType = 'knife' | 'glove' | 'agent' | 'music' | 'pin'
 
@@ -31,7 +32,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event)
-    const loadoutIdNum = Number(loadoutId)
+    const loadoutIdNum = toLoadoutId(loadoutId)
 
     // Music kits and pins don't require team selection
     if (type === 'music') {

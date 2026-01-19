@@ -13,6 +13,7 @@ import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/ser
 import { validateRequiredRequestData } from '~/server/utils/helpers';
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
 import { defineEventHandler, createError, getQuery } from "h3";
+import { toLoadoutId } from '~/types/core/common';
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -106,7 +107,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         .from(table)
         .where(and(
             eq(table.steamid, steamId),
-            eq(table.loadoutid, Number(loadoutId))
+            eq(table.loadoutid, toLoadoutId(loadoutId))
         ));
 
     // Filter and type-guard the weapons first

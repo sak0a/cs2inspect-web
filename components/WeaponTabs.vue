@@ -3,6 +3,7 @@
 
 // Modern type imports
 import type { DBWeapon, WeaponItemData } from "~/types"
+import { toSteamId, toLoadoutId, toDefindex, toPaintIndex } from '~/types/core/common'
 
 /**
  * Props interface for WeaponTabs component
@@ -102,12 +103,12 @@ const handleDefaultWeaponClick = (team: number): void => {
       weapon_defindex: firstWeapon.weapon_defindex || firstWeapon.databaseInfo?.defindex || 0,
       databaseInfo: {
         id: `default-db-${firstWeapon.id || 'weapon'}`,
-        steamid: '',
-        loadoutid: '',
+        steamid: toSteamId(''),
+        loadoutid: toLoadoutId(0),
         active: false,
         team: team,
-        defindex: firstWeapon.databaseInfo?.defindex || 0,
-        paintindex: 0,
+        defindex: firstWeapon.databaseInfo?.defindex || toDefindex(0),
+        paintindex: toPaintIndex(0),
         paintseed: '0',
         paintwear: '0.01',
         stattrak_enabled: false,

@@ -9,6 +9,7 @@ import type {
   StickerConfiguration,
   KeychainConfiguration
 } from '~/types'
+import { toSteamId } from '~/types/core/common'
 
 // Backward compatibility imports
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/types'
@@ -132,7 +133,7 @@ const user = computed((): UserProfile | null => {
   if (!steamUser) return null
 
   return {
-    steamId: steamUser.steamId,
+    steamId: toSteamId(steamUser.steamId),
     personaName: steamUser.personaName,
     avatar: steamUser.avatar,
     profileUrl: steamUser.profileUrl

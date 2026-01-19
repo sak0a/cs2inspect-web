@@ -17,6 +17,7 @@ import {
     pins
 } from './schema';
 import type { InferSelectModel } from 'drizzle-orm';
+import { toLoadoutId } from '~/types/core/common';
 
 // Export inferred type for loadouts
 export type DBLoadout = InferSelectModel<typeof loadouts>;
@@ -31,7 +32,7 @@ export const getLoadoutsBySteamId = async (steamId: string): Promise<DBLoadout[]
 export const getLoadout = async (id: string, steamId: string): Promise<DBLoadout | undefined> => {
     const result = await db.select()
         .from(loadouts)
-        .where(and(eq(loadouts.id, Number(id)), eq(loadouts.steamid, steamId)))
+        .where(and(eq(loadouts.id, toLoadoutId(id)), eq(loadouts.steamid, steamId)))
         .limit(1);
     return result[0];
 };
@@ -59,7 +60,7 @@ export const updateLoadout = async (id: string, steamid: string, name: string): 
 
     await db.update(loadouts)
         .set({ name })
-        .where(and(eq(loadouts.id, Number(id)), eq(loadouts.steamid, steamid)));
+        .where(and(eq(loadouts.id, toLoadoutId(id)), eq(loadouts.steamid, steamid)));
 };
 
 export const updateLoadoutByName = async (steamId: string, name: string, newName: string): Promise<void> => {
@@ -97,13 +98,13 @@ export const loadoutExists = async (steamId: string, name: string): Promise<bool
 export const loadoutExistsById = async (id: string): Promise<boolean> => {
     const result = await db.select({ id: loadouts.id })
         .from(loadouts)
-        .where(eq(loadouts.id, Number(id)))
+        .where(eq(loadouts.id, toLoadoutId(id)))
         .limit(1);
     return result.length > 0;
 };
 
 export const deleteLoadout = async (id: string, steamId: string): Promise<void> => {
-    const loadoutId = Number(id);
+    const loadoutId = toLoadoutId(id);
 
     // Delete all associated items first (foreign key cascade should handle this, but being explicit)
     await db.delete(heavys).where(and(eq(heavys.loadoutid, loadoutId), eq(heavys.steamid, steamId)));
@@ -139,7 +140,7 @@ export const setActiveLoadout = async (id: string, steamId: string): Promise<voi
     // Then, set the specified loadout as active
     await db.update(loadouts)
         .set({ active: 1 })
-        .where(and(eq(loadouts.id, Number(id)), eq(loadouts.steamid, steamId)));
+        .where(and(eq(loadouts.id, toLoadoutId(id)), eq(loadouts.steamid, steamId)));
 };
 
 /**
@@ -168,7 +169,7 @@ export const duplicateLoadout = async (steamId: string, originalLoadoutId: strin
     const newLoadout = await getLoadoutByName(steamId, newName);
     if (!newLoadout) throw new Error('Failed to create new loadout');
 
-    const originalId = Number(originalLoadoutId);
+    const originalId = toLoadoutId(originalLoadoutId);
     const newLoadoutId = newLoadout.id;
 
     // 3. Duplicate items from all tables using Drizzle
@@ -241,7 +242,7 @@ export const duplicateLoadout = async (steamId: string, originalLoadoutId: strin
 export const setShareCode = async (loadoutId: string, steamId: string, shareCode: string): Promise<void> => {
     await db.update(loadouts)
         .set({ share_code: shareCode })
-        .where(and(eq(loadouts.id, Number(loadoutId)), eq(loadouts.steamid, steamId)));
+        .where(and(eq(loadouts.id, toLoadoutId(loadoutId)), eq(loadouts.steamid, steamId)));
 };
 
 export const getLoadoutByShareCode = async (shareCode: string): Promise<DBLoadout | undefined> => {
@@ -261,11 +262,11 @@ export const setLoadoutAsDefault = async (loadoutId: string, steamId: string): P
     // 2. Set new default
     await db.update(loadouts)
         .set({ is_default: 1 })
-        .where(and(eq(loadouts.id, Number(loadoutId)), eq(loadouts.steamid, steamId)));
+        .where(and(eq(loadouts.id, toLoadoutId(loadoutId)), eq(loadouts.steamid, steamId)));
 };
 
 export const clearLoadoutItems = async (loadoutId: string, steamId: string, categories: string[] = []): Promise<void> => {
-    const loadoutIdNum = Number(loadoutId);
+    const loadoutIdNum = toLoadoutId(loadoutId);
 
     const categoryToTable: Record<string, typeof knives | typeof gloves | typeof pistols | typeof rifles | typeof smgs | typeof heavys | typeof agents | typeof music | typeof pins> = {
         'knives': knives,

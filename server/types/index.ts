@@ -91,6 +91,8 @@ export type {
   IEnhancedKnife,
   IEnhancedGlove,
   IMappedDBWeapon,
+  IMappedDBKnife,
+  IMappedDBGlove,
   IEnhancedWeaponSticker,
   IEnhancedWeaponKeychain
 } from './items'

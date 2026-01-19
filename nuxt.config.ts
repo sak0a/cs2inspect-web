@@ -130,7 +130,6 @@ export default defineNuxtConfig({
     'nuxt-i18n-micro',
     //'@nuxtjs/seo',
     '@vite-pwa/nuxt',
-    'shadcn-nuxt'
   ],
   site: {
     url: 'https://cs2inspect.com',

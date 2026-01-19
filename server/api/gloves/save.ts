@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
 
     try {
         Logger.info(`Save glove request - steamId: ${steamId}, loadoutId: ${loadoutId}`)
-        Logger.info(`Save glove body:`, JSON.stringify(body, null, 2))
+        Logger.info(`Save glove body: ${JSON.stringify(body, null, 2)}`)
 
         // Handle reset case first, before validation
         if (body.reset) {

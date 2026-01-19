@@ -9,7 +9,7 @@
  * @since 2.0.0
  */
 
-import type { EntityId, Timestamp, TeamSide } from '../core/common'
+import type { EntityId, Timestamp, TeamSide, SteamId, LoadoutId, Defindex, PaintIndex } from '../core/common'
 
 // ============================================================================
 // BASE DATABASE INTERFACES
@@ -36,7 +36,7 @@ export interface DBBaseRecord {
  */
 export interface DBUserRecord extends DBBaseRecord {
   /** Steam ID of the record owner */
-  steamid: string
+  steamid: SteamId
 }
 
 /**
@@ -46,7 +46,7 @@ export interface DBUserRecord extends DBBaseRecord {
  */
 export interface DBLoadoutRecord extends DBUserRecord {
   /** ID of the associated loadout */
-  loadoutid: EntityId
+  loadoutid: LoadoutId
   /** Whether this item is currently active */
   active: boolean
   /** Team this item belongs to */
@@ -114,9 +114,9 @@ export interface DBLoadout extends DBUserRecord {
  */
 export interface DBBaseWeapon extends DBLoadoutRecord {
   /** Weapon definition index */
-  defindex: number
+  defindex: Defindex
   /** Paint index for the skin */
-  paintindex: number
+  paintindex: PaintIndex
   /** Pattern seed for randomization */
   paintseed: string
   /** Wear value (float as string) */
@@ -205,9 +205,9 @@ export type DBWeapon = DBRifle | DBPistol | DBSMG | DBHeavy
  */
 export interface DBKnife extends DBLoadoutRecord {
   /** Knife definition index */
-  defindex: number
+  defindex: Defindex
   /** Paint index for the skin */
-  paintindex: number
+  paintindex: PaintIndex
   /** Pattern seed for randomization */
   paintseed: string
   /** Wear value (float as string) */
@@ -248,9 +248,9 @@ export interface DBKnife extends DBLoadoutRecord {
  */
 export interface DBGlove extends DBLoadoutRecord {
   /** Glove definition index */
-  defindex: number
+  defindex: Defindex
   /** Paint index for the skin */
-  paintindex: number
+  paintindex: PaintIndex
   /** Pattern seed for randomization */
   paintseed: string
   /** Wear value (float as string) */
@@ -283,7 +283,7 @@ export interface DBGlove extends DBLoadoutRecord {
  */
 export interface DBAgent extends DBLoadoutRecord {
   /** Agent definition index */
-  defindex: number
+  defindex: Defindex
   /** Agent display name */
   agent_name: string
 }
@@ -351,7 +351,7 @@ export interface DBPin extends DBLoadoutRecord {
 /**
  * Union type of all database record types
  */
-export type DBAnyRecord = 
+export type DBAnyRecord =
   | DBLoadout
   | DBWeapon
   | DBKnife
@@ -363,7 +363,7 @@ export type DBAnyRecord =
 /**
  * Union type of all item-related database records
  */
-export type DBItemRecord = 
+export type DBItemRecord =
   | DBWeapon
   | DBKnife
   | DBGlove
@@ -374,7 +374,7 @@ export type DBItemRecord =
 /**
  * Extract the table name for a database record type
  */
-export type DBTableName<T extends DBAnyRecord> = 
+export type DBTableName<T extends DBAnyRecord> =
   T extends DBLoadout ? 'wp_player_loadouts' :
   T extends DBRifle ? 'wp_player_rifles' :
   T extends DBPistol ? 'wp_player_pistols' :

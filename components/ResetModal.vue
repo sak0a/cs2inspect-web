@@ -25,7 +25,7 @@ const handleConfirm = () => {
       :show="visible"
       style="width: 600px"
       preset="card"
-      :title="t('modals.reset.title') as string"
+      :title="String(t('modals.reset.title'))"
       :bordered="false"
       :mask-closable="!loading"
       :closable="!loading"

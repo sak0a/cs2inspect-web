@@ -26,7 +26,7 @@ const handleConfirm = () => {
       :show="visible"
       style="width: 700px;"
       :bordered="false"
-      :title="t('modals.duplicateItem.header', { itemType: _props.itemType }) as string"
+      :title="String(t('modals.duplicateItem.header', { itemType: _props.itemType }))"
       :mask-closable="!_props.loading"
       :closable="!_props.loading"
       preset="card"

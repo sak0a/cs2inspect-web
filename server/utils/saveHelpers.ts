@@ -5,6 +5,7 @@ import { knives, gloves, pistols, rifles, smgs, heavys } from '~/server/database
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
+import { toLoadoutId } from '~/types/core/common'
 import type {
     WeaponCustomization,
     KnifeCustomization,
@@ -223,7 +224,7 @@ export const handleWeaponReset = async (
     const table = weaponTableMap[tableName];
     await db.delete(table).where(and(
         eq(table.steamid, steamId),
-        eq(table.loadoutid, Number(loadoutId)),
+        eq(table.loadoutid, toLoadoutId(loadoutId)),
         eq(table.team, body.team as number),
         eq(table.defindex, body.defindex as number)
     ));
@@ -250,7 +251,7 @@ export const saveWeapon = async (
             throw new Error(`Invalid weapon table: ${tableName}`);
         }
 
-        const loadoutIdNum = Number(loadoutId);
+        const loadoutIdNum = toLoadoutId(loadoutId);
 
         // Check for existing weapon
         const existingWeapon = await db.select()
@@ -345,7 +346,7 @@ export const saveKnife = async (
     body: KnifeCustomization
 ) => {
     try {
-        const loadoutIdNum = Number(loadoutId);
+        const loadoutIdNum = toLoadoutId(loadoutId);
 
         // Check for existing knife
         const existingKnife = await db.select()
@@ -434,7 +435,7 @@ export const saveGlove = async (
     body: GloveCustomization
 ) => {
     try {
-        const loadoutIdNum = Number(loadoutId);
+        const loadoutIdNum = toLoadoutId(loadoutId);
 
         Logger.info(`saveGlove: Starting save process for steamId: ${steamId}, loadoutId: ${loadoutId}`);
         Logger.info(`saveGlove: Body data:`, JSON.stringify(body, null, 2));
