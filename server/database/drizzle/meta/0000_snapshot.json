@@ -1,0 +1,1905 @@
+{
+  "version": "5",
+  "dialect": "mysql",
+  "id": "54bf9178-c574-40af-adce-912096af368c",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "tables": {
+    "wp_player_agents": {
+      "name": "wp_player_agents",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "agent_name": {
+          "name": "agent_name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_agents_unique": {
+          "name": "uq_wp_player_agents_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "defindex"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_agents_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_agents_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_agents",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_agents_id": {
+          "name": "wp_player_agents_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_gloves": {
+      "name": "wp_player_gloves",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintindex": {
+          "name": "paintindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintseed": {
+          "name": "paintseed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintwear": {
+          "name": "paintwear",
+          "type": "float",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_gloves_unique": {
+          "name": "uq_wp_player_gloves_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "defindex"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_gloves_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_gloves_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_gloves",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_gloves_id": {
+          "name": "wp_player_gloves_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "health_check_config": {
+      "name": "health_check_config",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "check_name": {
+          "name": "check_name",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 1
+        },
+        "warning_threshold_ms": {
+          "name": "warning_threshold_ms",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "error_threshold_ms": {
+          "name": "error_threshold_ms",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "health_check_config_id": {
+          "name": "health_check_config_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "health_check_config_check_name_unique": {
+          "name": "health_check_config_check_name_unique",
+          "columns": [
+            "check_name"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "health_check_history": {
+      "name": "health_check_history",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "check_name": {
+          "name": "check_name",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "status": {
+          "name": "status",
+          "type": "varchar(20)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "latency_ms": {
+          "name": "latency_ms",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "metadata": {
+          "name": "metadata",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "checked_at": {
+          "name": "checked_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_check_name_time": {
+          "name": "idx_check_name_time",
+          "columns": [
+            "check_name",
+            "checked_at"
+          ],
+          "isUnique": false
+        },
+        "idx_checked_at": {
+          "name": "idx_checked_at",
+          "columns": [
+            "checked_at"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "health_check_history_id": {
+          "name": "health_check_history_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_heavys": {
+      "name": "wp_player_heavys",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintindex": {
+          "name": "paintindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintseed": {
+          "name": "paintseed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintwear": {
+          "name": "paintwear",
+          "type": "float",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stattrak_enabled": {
+          "name": "stattrak_enabled",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stattrak_count": {
+          "name": "stattrak_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "nametag": {
+          "name": "nametag",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sticker_0": {
+          "name": "sticker_0",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_1": {
+          "name": "sticker_1",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_2": {
+          "name": "sticker_2",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_3": {
+          "name": "sticker_3",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_4": {
+          "name": "sticker_4",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "keychain": {
+          "name": "keychain",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0'"
+        },
+        "wrapped_sticker_id": {
+          "name": "wrapped_sticker_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "highlight_reel_id": {
+          "name": "highlight_reel_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_heavys_unique": {
+          "name": "uq_wp_player_heavys_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "defindex"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_heavys_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_heavys_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_heavys",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_heavys_id": {
+          "name": "wp_player_heavys_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_knifes": {
+      "name": "wp_player_knifes",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintindex": {
+          "name": "paintindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintseed": {
+          "name": "paintseed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintwear": {
+          "name": "paintwear",
+          "type": "float",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stattrak_enabled": {
+          "name": "stattrak_enabled",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stattrak_count": {
+          "name": "stattrak_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "nametag": {
+          "name": "nametag",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_knifes_unique": {
+          "name": "uq_wp_player_knifes_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "defindex"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_knifes_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_knifes_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_knifes",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_knifes_id": {
+          "name": "wp_player_knifes_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_loadouts": {
+      "name": "wp_player_loadouts",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(25)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": 0
+        },
+        "selected_knife_t": {
+          "name": "selected_knife_t",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "selected_knife_ct": {
+          "name": "selected_knife_ct",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "selected_glove_t": {
+          "name": "selected_glove_t",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "selected_glove_ct": {
+          "name": "selected_glove_ct",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "selected_agent_t": {
+          "name": "selected_agent_t",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "selected_agent_ct": {
+          "name": "selected_agent_ct",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "selected_music": {
+          "name": "selected_music",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "selected_pin": {
+          "name": "selected_pin",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "share_code": {
+          "name": "share_code",
+          "type": "varchar(32)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "is_default": {
+          "name": "is_default",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid": {
+          "name": "idx_steamid",
+          "columns": [
+            "steamid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "wp_player_loadouts_id": {
+          "name": "wp_player_loadouts_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "wp_player_loadouts_share_code_unique": {
+          "name": "wp_player_loadouts_share_code_unique",
+          "columns": [
+            "share_code"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "_migrations": {
+      "name": "_migrations",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "filename": {
+          "name": "filename",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "executed_at": {
+          "name": "executed_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_filename": {
+          "name": "idx_filename",
+          "columns": [
+            "filename"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "_migrations_id": {
+          "name": "_migrations_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {
+        "_migrations_filename_unique": {
+          "name": "_migrations_filename_unique",
+          "columns": [
+            "filename"
+          ]
+        }
+      },
+      "checkConstraint": {}
+    },
+    "wp_player_music": {
+      "name": "wp_player_music",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "musicid": {
+          "name": "musicid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_music_unique": {
+          "name": "uq_wp_player_music_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "musicid"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_music_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_music_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_music",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_music_id": {
+          "name": "wp_player_music_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_pins": {
+      "name": "wp_player_pins",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        }
+      },
+      "foreignKeys": {
+        "wp_player_pins_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_pins_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_pins",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_pins_id": {
+          "name": "wp_player_pins_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_pistols": {
+      "name": "wp_player_pistols",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintindex": {
+          "name": "paintindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintseed": {
+          "name": "paintseed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintwear": {
+          "name": "paintwear",
+          "type": "float",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stattrak_enabled": {
+          "name": "stattrak_enabled",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stattrak_count": {
+          "name": "stattrak_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "nametag": {
+          "name": "nametag",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sticker_0": {
+          "name": "sticker_0",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_1": {
+          "name": "sticker_1",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_2": {
+          "name": "sticker_2",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_3": {
+          "name": "sticker_3",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_4": {
+          "name": "sticker_4",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "keychain": {
+          "name": "keychain",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0'"
+        },
+        "wrapped_sticker_id": {
+          "name": "wrapped_sticker_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "highlight_reel_id": {
+          "name": "highlight_reel_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_pistols_unique": {
+          "name": "uq_wp_player_pistols_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "defindex"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_pistols_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_pistols_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_pistols",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_pistols_id": {
+          "name": "wp_player_pistols_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_rifles": {
+      "name": "wp_player_rifles",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintindex": {
+          "name": "paintindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintseed": {
+          "name": "paintseed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintwear": {
+          "name": "paintwear",
+          "type": "float",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stattrak_enabled": {
+          "name": "stattrak_enabled",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stattrak_count": {
+          "name": "stattrak_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "nametag": {
+          "name": "nametag",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sticker_0": {
+          "name": "sticker_0",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_1": {
+          "name": "sticker_1",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_2": {
+          "name": "sticker_2",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_3": {
+          "name": "sticker_3",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_4": {
+          "name": "sticker_4",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "keychain": {
+          "name": "keychain",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0'"
+        },
+        "wrapped_sticker_id": {
+          "name": "wrapped_sticker_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "highlight_reel_id": {
+          "name": "highlight_reel_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_rifles_unique": {
+          "name": "uq_wp_player_rifles_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "defindex"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_rifles_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_rifles_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_rifles",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_rifles_id": {
+          "name": "wp_player_rifles_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    },
+    "wp_player_smgs": {
+      "name": "wp_player_smgs",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "steamid": {
+          "name": "steamid",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "active": {
+          "name": "active",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 1
+        },
+        "team": {
+          "name": "team",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "defindex": {
+          "name": "defindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintindex": {
+          "name": "paintindex",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintseed": {
+          "name": "paintseed",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "paintwear": {
+          "name": "paintwear",
+          "type": "float",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "stattrak_enabled": {
+          "name": "stattrak_enabled",
+          "type": "tinyint",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "stattrak_count": {
+          "name": "stattrak_count",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false,
+          "default": 0
+        },
+        "nametag": {
+          "name": "nametag",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "sticker_0": {
+          "name": "sticker_0",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_1": {
+          "name": "sticker_1",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_2": {
+          "name": "sticker_2",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_3": {
+          "name": "sticker_3",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "sticker_4": {
+          "name": "sticker_4",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0;0'"
+        },
+        "keychain": {
+          "name": "keychain",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "'0;0;0;0;0'"
+        },
+        "wrapped_sticker_id": {
+          "name": "wrapped_sticker_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "highlight_reel_id": {
+          "name": "highlight_reel_id",
+          "type": "int",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": "(now())"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "onUpdate": true,
+          "default": "(now())"
+        }
+      },
+      "indexes": {
+        "idx_steamid_loadout": {
+          "name": "idx_steamid_loadout",
+          "columns": [
+            "steamid",
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "loadoutid": {
+          "name": "loadoutid",
+          "columns": [
+            "loadoutid"
+          ],
+          "isUnique": false
+        },
+        "uq_wp_player_smgs_unique": {
+          "name": "uq_wp_player_smgs_unique",
+          "columns": [
+            "steamid",
+            "loadoutid",
+            "team",
+            "defindex"
+          ],
+          "isUnique": true
+        }
+      },
+      "foreignKeys": {
+        "wp_player_smgs_loadoutid_wp_player_loadouts_id_fk": {
+          "name": "wp_player_smgs_loadoutid_wp_player_loadouts_id_fk",
+          "tableFrom": "wp_player_smgs",
+          "tableTo": "wp_player_loadouts",
+          "columnsFrom": [
+            "loadoutid"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "wp_player_smgs_id": {
+          "name": "wp_player_smgs_id",
+          "columns": [
+            "id"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraint": {}
+    }
+  },
+  "views": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  },
+  "internal": {
+    "tables": {},
+    "indexes": {}
+  }
+}
