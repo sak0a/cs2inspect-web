@@ -23,6 +23,16 @@ logs
 .env.*
 !.env.example
 
+# Charm Scraper
+services/charm-scraper/assets
+services/sticker-scraper/assets
+public/img/charms/sticker_slab
+public/img/stickers
+
 # Build artifacts
 server/assets/_locales
-storage/csgo-api
+storage/
+notes_19_dec.txt
+.gitignore
+docs/todos_19_dec.md
+docs/todos_manager.html
