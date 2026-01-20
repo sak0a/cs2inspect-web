@@ -1,5 +1,3 @@
-import axios from 'axios'
-
 export interface SteamUser {
     steamId: string
     personaName: string
@@ -13,9 +11,7 @@ export interface SteamUser {
 }
 
 export class SteamAuthService {
-    private apiKey: string
     private readonly returnUrl: string
-    private apiBase: string
     private static instance: SteamAuthService
 
     public static getInstance(): SteamAuthService {
@@ -26,26 +22,7 @@ export class SteamAuthService {
     }
 
     constructor() {
-        this.apiKey = process.env.STEAM_API_KEY || 'defaultKey=323'
         this.returnUrl = `${import.meta.client ? window.location.origin : ''}/auth/callback`
-        this.apiBase = 'https://api.steampowered.com'
-
-        if (import.meta.client) {
-            this.setupAxiosInterceptors()
-        }
-    }
-
-
-    private setupAxiosInterceptors() {
-        axios.interceptors.response.use(
-            (response) => response,
-            (error) => {
-                if (error.response?.status === 401) {
-                    this.handleUnauthorized()
-                }
-                return Promise.reject(error)
-            }
-        )
     }
 
     private handleUnauthorized() {
@@ -79,27 +56,60 @@ export class SteamAuthService {
         })
 
         try {
-            const response = await axios.post('/api/steam/validate', validationParams)
-            return response.data.includes('is_valid:true')
-        } catch (error) {
+            const response = await $fetch<string>('/api/steam/validate', {
+                method: 'POST',
+                body: validationParams.toString(),
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            })
+            return response.includes('is_valid:true')
+        } catch (error: unknown) {
+            // Handle 401 errors globally
+            if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+                this.handleUnauthorized()
+            }
             console.error('Steam validation error:', error)
             return false
         }
     }
 
     async getUserInfo(steamId: string): Promise<SteamUser> {
-        const response = await axios.get(`/api/steam/user?steamid=${steamId}`)
-        const player = response.data.response.players[0]
-        return {
-            steamId: player.steamid,
-            personaName: player.personaname,
-            profileUrl: player.profileurl,
-            avatar: player.avatar,
-            avatarMedium: player.avatarmedium,
-            avatarFull: player.avatarfull,
-            realName: player.realname || null,
-            timeCreated: player.timecreated,
-            lastLogoff: player.lastlogoff
+        try {
+            const data = await $fetch<{
+                response: {
+                    players: Array<{
+                        steamid: string
+                        personaname: string
+                        profileurl: string
+                        avatar: string
+                        avatarmedium: string
+                        avatarfull: string
+                        realname?: string
+                        timecreated: number
+                        lastlogoff: number
+                    }>
+                }
+            }>(`/api/steam/user?steamid=${steamId}`)
+
+            const player = data.response.players[0]
+            if (!player) {
+                throw new Error('Player not found')
+            }
+            return {
+                steamId: player.steamid,
+                personaName: player.personaname,
+                profileUrl: player.profileurl,
+                avatar: player.avatar,
+                avatarMedium: player.avatarmedium,
+                avatarFull: player.avatarfull,
+                realName: player.realname ?? null,
+                timeCreated: player.timecreated,
+                lastLogoff: player.lastlogoff
+            }
+        } catch (error: unknown) {
+            if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+                this.handleUnauthorized()
+            }
+            throw error
         }
     }
 
@@ -112,7 +122,7 @@ export class SteamAuthService {
         if (import.meta.client) {
             localStorage.removeItem('steamUser')
             // Send logout request to clear the auth cookie
-            axios.post('/api/auth/logout')
+            $fetch('/api/auth/logout', { method: 'POST' })
                 .catch(error => console.error('Logout error:', error))
         }
     }

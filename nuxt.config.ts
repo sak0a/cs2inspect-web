@@ -24,6 +24,9 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: false,
   },
+  experimental: {
+    typedPages: true,
+  },
   sitemap: {
     zeroRuntime: true
   },
