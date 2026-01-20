@@ -45,10 +45,6 @@ export {
   isValidLoadoutId,
   isValidSteamId,
   isValidDefindex,
-
-  // Backward compatibility
-  type LoadoutIdLike,
-  type SteamIdLike,
 } from './branded'
 
 // Local alias for use within this file

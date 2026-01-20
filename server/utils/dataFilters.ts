@@ -4,23 +4,24 @@
  * @param query Query parameters from the request
  * @returns Filtered array of data items
  */
-export function filterDataByQuery<T>(data: T[], query: Record<string, string>): T[] {
+export function filterDataByQuery<T extends object>(data: T[], query: Record<string, string>): T[] {
     if (!data || !Array.isArray(data)) {
         return [];
     }
-    
+
     return data.filter((item: T) => {
         return Object.keys(query).every((key) => {
             // Check if the item has the property and if it matches the query
             if (key in item) {
                 const queryValue = query[key]; // Already cast to string in the event handler
-                const itemValue = item[key];
+                const itemValue = (item as Record<string, unknown>)[key];
 
                 // Handle nested objects (like rarity, team, etc.)
                 if (typeof itemValue === 'object' && itemValue !== null) {
-                    return itemValue.id === queryValue || 
-                           itemValue.name === queryValue || 
-                           (itemValue.color && itemValue.color === queryValue);
+                    const nestedValue = itemValue as Record<string, unknown>;
+                    return nestedValue.id === queryValue ||
+                        nestedValue.name === queryValue ||
+                        (nestedValue.color && nestedValue.color === queryValue);
                 }
 
                 // For other fields, perform a direct comparison
@@ -37,14 +38,14 @@ export function filterDataByQuery<T>(data: T[], query: Record<string, string>): 
  * @param responseKey Key to use in the response object (for backward compatibility)
  * @returns Event handler function
  */
-export function createDataApiHandler<T>(
+export function createDataApiHandler<T extends object>(
     getDataFn: (() => T[]) | (() => Promise<T[]>),
     responseKey: string
 ) {
     return defineEventHandler(async (event) => {
         const startTime = Date.now();
         const query = getQuery(event);
-        
+
         // Support both sync and async data getters
         const dataResult = getDataFn();
         const data = dataResult instanceof Promise ? await dataResult : dataResult;

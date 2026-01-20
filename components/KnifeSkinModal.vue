@@ -464,12 +464,11 @@ watch(() => props.weapon, () => {
     try {
       state.value.error = null
 
-      console.log('KnifeSkinModal - watch props.weapon:', props.weapon)
       inheritedWeapon.value = props.weapon
       fetchAvailableSkinsForKnife()
 
       // Cast to the correct database interface for knives
-      const dbInfo = props.weapon.databaseInfo as DBKnife
+      const dbInfo = props.weapon.databaseInfo
       if (dbInfo) {
         customization.value = {
           active: dbInfo.active || false,
@@ -477,8 +476,8 @@ watch(() => props.weapon, () => {
           defindex: props.weapon.weapon_defindex,
           paintIndex: dbInfo.paintindex || 0, // Note: database uses 'paintindex', not 'paintIndex'
           paintIndexOverride: false,
-          pattern: parseInt(dbInfo.paintseed) || 0, // Note: database uses 'paintseed', not 'pattern'
-          wear: parseFloat(dbInfo.paintwear) || 0, // Note: database uses 'paintwear', not 'paintWear'
+          pattern: parseInt(String(dbInfo.paintseed)) || 0, // Note: database uses 'paintseed', not 'pattern'
+          wear: parseFloat(String(dbInfo.paintwear)) || 0, // Note: database uses 'paintwear', not 'paintWear'
           statTrak: dbInfo.stattrak_enabled || false, // Note: database uses 'stattrak_enabled', not 'statTrak'
           statTrakCount: dbInfo.stattrak_count || 0, // Note: database uses 'stattrak_count', not 'statTrakCount'
           nameTag: dbInfo.nametag || '' // Note: database uses 'nametag', not 'nameTag'
@@ -496,7 +495,6 @@ watch(() => props.weapon, () => {
       const errorMessage = error instanceof Error ? error.message : 'Failed to initialize knife data'
       state.value.error = errorMessage
       emit('error', errorMessage)
-      console.error('Error initializing knife:', error)
     }
   }
 })
@@ -507,7 +505,7 @@ watch(() => props.weapon, () => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="weapon ? t('modals.knifeSkin.title', { weaponName: weapon?.defaultName }) as string : t('modals.knifeSkin.defaultTitle') as string"
+      :title="weapon ? String(t('modals.knifeSkin.title', { weaponName: weapon?.defaultName })) : String(t('modals.knifeSkin.defaultTitle'))"
       :bordered="false"
       size="huge"
       :theme-overrides="skinModalThemeOverrides"
@@ -564,7 +562,7 @@ watch(() => props.weapon, () => {
       <!-- Knife Search -->
       <NInput
           v-model:value="state.searchQuery"
-          :placeholder="t('modals.knifeSkin.inputs.searchPlaceholder') as string"
+          :placeholder="String(t('modals.knifeSkin.inputs.searchPlaceholder'))"
           class="pl-1 w-96"
       />
     </template>
@@ -599,7 +597,7 @@ watch(() => props.weapon, () => {
               </div>
               <NInput
                   v-model:value="customization.nameTag"
-                  :placeholder="t('modals.knifeSkin.inputs.nameTagPlaceholder') as string"
+                  :placeholder="String(t('modals.knifeSkin.inputs.nameTagPlaceholder'))"
                   class="pl-1"
               />
             </div>
@@ -710,7 +708,7 @@ watch(() => props.weapon, () => {
               <div
                   class="h-1 mt-2"
                   :style="{ background: skin.rarity?.color || '#313030' }"
-              />
+              ></div>
             </div>
           </div>
         </NCard>
@@ -723,7 +721,7 @@ watch(() => props.weapon, () => {
 
       <!-- No Results -->
       <div v-if="!state.isLoadingSkins && filteredSkins.length === 0" class="flex justify-center items-center h-64">
-        <NEmpty :description="t('modals.knifeSkin.noSearchResults') as string" />
+        <NEmpty :description="String(t('modals.knifeSkin.noSearchResults'))" />
       </div>
 
       <!-- Pagination -->
@@ -748,7 +746,7 @@ watch(() => props.weapon, () => {
         v-model:visible="state.showDuplicateConfirm"
         :loading="state.isDuplicating"
         :other-team-has-skin="otherTeamHasSkin"
-        :item-type="t('modals.duplicateItem.type.knife') as string"
+        :item-type="String(t('modals.duplicateItem.type.knife'))"
         @confirm="handleDuplicate"
     />
 

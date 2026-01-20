@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
             ...body,
         }
 
-        Logger.info(`Mapped glove data:`, JSON.stringify(gloveData, null, 2))
+        Logger.info(`Mapped glove data: ${JSON.stringify(gloveData, null, 2)}`)
 
         // Save the glove
         const result = await saveGlove(steamId, loadoutId, gloveData)

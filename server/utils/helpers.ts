@@ -1,5 +1,5 @@
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
-import { createError } from "h3";
+import { createError, type H3Event } from "h3";
 
 export const validateRequiredRequestData = (param: unknown, paramName: string, allowZero = false) => {
     if (allowZero && param === 0) return
@@ -12,8 +12,8 @@ export const validateRequiredRequestData = (param: unknown, paramName: string, a
     }
 }
 
-export const verifyUserAccess = (steamId: string, event: { context?: { auth?: { steamId?: string } } }) => {
-    const auth = event.context.auth
+export const verifyUserAccess = (steamId: string, event: H3Event) => {
+    const auth = (event.context as { auth?: { steamId?: string } })?.auth
     if (!auth || auth.steamId !== steamId) {
         Logger.error('Unauthorized access')
         throw createError({

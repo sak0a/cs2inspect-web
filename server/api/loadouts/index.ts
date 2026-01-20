@@ -52,7 +52,13 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         await createLoadout(steamId, body.name)
         Logger.success(`Loadout created successfully!`)
 
-        const data: DBLoadout = await getLoadoutByName(steamId, body.name)
+        const data = await getLoadoutByName(steamId, body.name)
+        if (!data) {
+            throw createError({
+                statusCode: 500,
+                message: 'Failed to retrieve created loadout'
+            })
+        }
         Logger.success(`Loadout ${data.id} retrieved successfully for response`)
 
         const meta = createResponseMeta(startTime, { steamId, method, loadoutName: body.name });

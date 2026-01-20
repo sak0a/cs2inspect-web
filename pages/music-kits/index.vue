@@ -3,6 +3,7 @@ import { NSpin, NSelect, NInput } from 'naive-ui'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import type { APIMusicKit } from "~/server/types";
+import { toSteamId } from "~/types/core/branded"
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)
@@ -185,7 +186,7 @@ onMounted(async () => {
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
     try {
-      await loadoutStore.fetchLoadouts(user.value.steamId)
+      await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       await fetchMusicKits()
 
       // Setup animations after DOM is updated
@@ -290,7 +291,7 @@ watch(() => searchQuery.value, () => {
             </div>
 
             <!-- No results message -->
-            <p v-if="searchQuery.value && filteredMusicKits.length === 0" class="text-gray-400 py-4 text-center">No music kits found matching your search</p>
+            <p v-if="searchQuery && filteredMusicKits.length === 0" class="text-gray-400 py-4 text-center">No music kits found matching your search</p>
           </div>
         </div>
       </div>

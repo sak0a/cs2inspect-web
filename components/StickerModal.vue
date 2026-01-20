@@ -9,7 +9,7 @@ const props = defineProps<{
   weaponName?: string
   team?: number
   currentSticker?: {
-    id?: number
+    id?: number | string
     x?: number
     y?: number
     wear?: number
@@ -277,6 +277,7 @@ const handleSave = () => {
   const emitData: IEnhancedWeaponSticker = {
     id: Number(state.value.selectedItem.id.replace('sticker-', '')),
     slot: props.position,
+    position: props.position,
     x: state.value.customization.x,
     y: state.value.customization.y,
     wear: state.value.customization.wear,
@@ -286,7 +287,7 @@ const handleSave = () => {
       name: state.value.selectedItem.name,
       image: state.value.selectedItem.image,
       type: state.value.selectedItem.type,
-      effect: state.value.selectedItem.effect,
+      effect: state.value.selectedItem.effect ?? '',
       tournament_event: state.value.selectedItem.tournament_event || '',
       tournament_team: state.value.selectedItem.tournament_team || '',
       rarity: state.value.selectedItem.rarity,
@@ -351,7 +352,6 @@ onMounted(() => {
 watchEffect(() => {
   if (props.currentSticker) {
     state.value.selectedItem = state.value.items.find(item => item.id === ("sticker-" + props.currentSticker?.id))
-    console.log('StickerModal - watchEffect currentSticker:', props.currentSticker)
     state.value.customization = {
       x: props.currentSticker.x ?? 0,
       y: props.currentSticker.y ?? 0,
@@ -443,7 +443,7 @@ watch(() => ui.value.effectFilterIds, () => {
         <NDivider vertical />
         <NInput
             v-model:value="state.searchQuery"
-            :placeholder="t('modals.sticker.searchPlaceholder') as string"
+            :placeholder="String(t('modals.sticker.searchPlaceholder'))"
             class="w-64"
         />
       </div>
@@ -656,7 +656,7 @@ v-if="currentSticker"
             <div
                 class="h-1 w-full mt-2"
                 :style="{ background: item.rarity?.color || '#313030' }"
-            />
+            ></div>
           </div>
         </NCard>
       </div>

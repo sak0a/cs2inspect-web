@@ -3,6 +3,7 @@ import { useMessage, NSpin } from 'naive-ui'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import type { APIAgent } from "~/types";
+import { toSteamId } from "~/types/core/branded"
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)
@@ -79,19 +80,36 @@ const handleAgentTypeChange = async (team: 't' | 'ct', agentDefindex: number) =>
     }
 
     // Ensure all agent cards remain visible after selection from dropdown
-    nextTick(() => {
-      document.querySelectorAll('.agent-card').forEach(card => {
-        if (!card.classList.contains('visible')) {
-          card.classList.add('visible')
-        }
-      })
-    })
+    nextTick(() => ensureCardsVisible())
 
     message.success(`${team === 't' ? 'Terrorist' : 'Counter-Terrorist'} agent updated`)
   }).catch((error) => {
     console.error(error)
     message.error("Failed to update Agent Type")
   })
+}
+
+// Helper function to ensure all agent cards have 'visible' class
+const ensureCardsVisible = () => {
+  document.querySelectorAll('.agent-card').forEach((card: Element) => {
+    if (!card.classList.contains('visible')) {
+      card.classList.add('visible')
+    }
+  })
+}
+
+// Handler for CT agent type change from dropdown
+const handleCtAgentDropdownChange = (value: number) => {
+  handleAgentTypeChange('ct', value)
+  // Ensure all agent cards remain visible after dropdown selection
+  nextTick(() => ensureCardsVisible())
+}
+
+// Handler for T agent type change from dropdown
+const handleTAgentDropdownChange = (value: number) => {
+  handleAgentTypeChange('t', value)
+  // Ensure all agent cards remain visible after dropdown selection
+  nextTick(() => ensureCardsVisible())
 }
 
 const handleAgentSelect = (agent: APIAgent) => {
@@ -145,7 +163,7 @@ const fetchAgents = async () => {
         const possibleAgentsArray = Object.values(data).find(val => Array.isArray(val) && val.length > 0)
         if (possibleAgentsArray) {
           console.log('Found possible agents array:', possibleAgentsArray)
-          agents.value = possibleAgentsArray
+          agents.value = possibleAgentsArray as APIAgent[]
         } else {
           agents.value = []
         }
@@ -169,8 +187,8 @@ const fetchAgents = async () => {
 }
 
 // References to scroll containers
-const ctScrollContainer = ref(null)
-const tScrollContainer = ref(null)
+const ctScrollContainer = ref<HTMLDivElement | null>(null)
+const tScrollContainer = ref<HTMLDivElement | null>(null)
 
 // Function to handle horizontal scrolling with mouse wheel
 const setupHorizontalScroll = () => {
@@ -181,7 +199,7 @@ const setupHorizontalScroll = () => {
       if (!container) return
 
       // Handle mouse wheel scrolling
-      container.addEventListener('wheel', (event) => {
+      container.addEventListener('wheel', (event: WheelEvent) => {
         if (event.deltaY) {
           event.preventDefault()
           // Adjust scroll speed for smoother scrolling
@@ -196,7 +214,7 @@ onMounted(async () => {
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
     try {
-      await loadoutStore.fetchLoadouts(user.value.steamId)
+      await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       await fetchAgents()
 
       // Setup horizontal scrolling and animations after DOM is updated
@@ -304,17 +322,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 :options="ctAgentOptions"
                 placeholder="Select agent"
                 class="w-96!"
-                @update:value="(value) => {
-                  handleAgentTypeChange('ct', value)
-                  // Ensure all agent cards remain visible after dropdown selection
-                  nextTick(() => {
-                    document.querySelectorAll('.agent-card').forEach(card => {
-                      if (!card.classList.contains('visible')) {
-                        card.classList.add('visible')
-                      }
-                    })
-                  })
-                }"
+                @update:value="handleCtAgentDropdownChange"
             />
           </div>
           <div ref="ctScrollContainer" class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll" style="min-width: max-content;">
@@ -337,17 +345,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 :options="tAgentOptions"
                 placeholder="Select agent"
                 class="w-96!"
-                @update:value="(value) => {
-                  handleAgentTypeChange('t', value)
-                  // Ensure all agent cards remain visible after dropdown selection
-                  nextTick(() => {
-                    document.querySelectorAll('.agent-card').forEach(card => {
-                      if (!card.classList.contains('visible')) {
-                        card.classList.add('visible')
-                      }
-                    })
-                  })
-                }"
+                @update:value="handleTAgentDropdownChange"
             />
           </div>
 

@@ -1,16 +1,18 @@
 import { defineStore } from 'pinia'
 import type { DBLoadout } from '~/types'
 import type { IEnhancedItem, IEnhancedWeapon } from '~/server/types'
+import type { LoadoutId, SteamId } from '~/types/core/branded'
+import { toLoadoutId } from '~/types/core/branded'
 
 interface LoadoutState {
     loadouts: DBLoadout[];
     currentSkins: IEnhancedItem[] | IEnhancedKnife[] | IEnhancedWeapon[];
-    selectedLoadoutId: string | null;
+    selectedLoadoutId: LoadoutId | null;
     isLoading: boolean;
     error: string | null;
 }
 
-const fetchPromises = new Map<string, Promise<void>>();
+const fetchPromises = new Map<SteamId, Promise<void>>();
 
 export const useLoadoutStore = defineStore('loadout', {
 
@@ -24,7 +26,7 @@ export const useLoadoutStore = defineStore('loadout', {
 
     getters: {
         selectedLoadout: (state) =>
-            state.loadouts.find((loadout: DBLoadout) => loadout.id === state.selectedLoadoutId),
+            state.loadouts.find((loadout: DBLoadout) => toLoadoutId(loadout.id) === state.selectedLoadoutId),
         hasLoadouts: (state) => state.loadouts.length > 0,
         loadoutSkins: (state) => state.currentSkins,
     },
@@ -35,7 +37,7 @@ export const useLoadoutStore = defineStore('loadout', {
          * @param type rifles | pistols | heavys | smgs
          * @param steamId
          */
-        async fetchLoadoutWeaponSkins(type: string, steamId: string) {
+        async fetchLoadoutWeaponSkins(type: string, steamId: SteamId) {
             this.isLoading = true;
             await fetch(`/api/weapons/${type}?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
                 method: 'GET',
@@ -64,7 +66,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        async fetchLoadoutKnives(steamId: string) {
+        async fetchLoadoutKnives(steamId: SteamId) {
             this.isLoading = true;
             await fetch(`/api/knives?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
                 method: 'GET',
@@ -92,7 +94,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        async fetchLoadoutGloves(steamId: string) {
+        async fetchLoadoutGloves(steamId: SteamId) {
             this.isLoading = true;
             await fetch(`/api/gloves?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
                 method: 'GET',
@@ -120,7 +122,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        async fetchLoadoutMusicKits(steamId: string) {
+        async fetchLoadoutMusicKits(steamId: SteamId) {
             this.isLoading = true;
             await fetch(`/api/music?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
                 method: 'GET',
@@ -146,7 +148,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        async fetchLoadoutPins(steamId: string) {
+        async fetchLoadoutPins(steamId: SteamId) {
             this.isLoading = true;
             await fetch(`/api/pins?loadoutId=${this.selectedLoadoutId}&steamId=${steamId}`, {
                 method: 'GET',
@@ -178,7 +180,7 @@ export const useLoadoutStore = defineStore('loadout', {
          * Fetch loadouts for the given Steam ID
          * @param steamId
          */
-        async fetchLoadouts(steamId: string) {
+        async fetchLoadouts(steamId: SteamId) {
             if (fetchPromises.has(steamId)) return fetchPromises.get(steamId);
 
             const promise = (async () => {
@@ -209,16 +211,16 @@ export const useLoadoutStore = defineStore('loadout', {
                     this.loadouts = loadouts;
                     if (!this.selectedLoadoutId && this.loadouts.length > 0) {
                         // Find the active loadout, or fall back to the first one if none is active
-                        const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || loadout.active === 1);
-                        this.selectedLoadoutId = activeLoadout ? activeLoadout.id : (this.loadouts[0]?.id || null);
+                        const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || Number(loadout.active) === 1);
+                        this.selectedLoadoutId = activeLoadout ? toLoadoutId(activeLoadout.id) : (this.loadouts[0]?.id ? toLoadoutId(this.loadouts[0].id) : null);
                     } else if (this.selectedLoadoutId) {
                         // If we have a selected loadout ID, verify it still exists in the fetched loadouts
                         const selectedLoadoutId = this.selectedLoadoutId; // Capture value for TS
-                        const selectedLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.id === selectedLoadoutId);
+                        const selectedLoadout = this.loadouts.find((loadout: DBLoadout) => toLoadoutId(loadout.id) === selectedLoadoutId);
                         if (!selectedLoadout) {
                             // Selected loadout no longer exists, select the active one or first one
-                            const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || loadout.active === 1);
-                            this.selectedLoadoutId = activeLoadout ? activeLoadout.id : (this.loadouts.length > 0 ? (this.loadouts[0]?.id || null) : null);
+                            const activeLoadout = this.loadouts.find((loadout: DBLoadout) => loadout.active === true || Number(loadout.active) === 1);
+                            this.selectedLoadoutId = activeLoadout ? toLoadoutId(activeLoadout.id) : (this.loadouts.length > 0 ? (this.loadouts[0]?.id ? toLoadoutId(this.loadouts[0].id) : null) : null);
                         }
                     }
                 } catch (error: unknown) {
@@ -238,7 +240,7 @@ export const useLoadoutStore = defineStore('loadout', {
          * @param steamId
          * @param name
          */
-        async createLoadout(steamId: string, name: string) {
+        async createLoadout(steamId: SteamId, name: string) {
             this.isLoading = true;
             await fetch(`/api/loadouts?steamId=${steamId}`, {
                 method: 'POST',
@@ -278,7 +280,7 @@ export const useLoadoutStore = defineStore('loadout', {
          * @param steamId
          * @param newName
          */
-        async updateLoadout(id: string, steamId: string, newName: string) {
+        async updateLoadout(id: LoadoutId, steamId: SteamId, newName: string) {
             this.isLoading = true;
 
             if (newName.length <= 0) {
@@ -305,7 +307,7 @@ export const useLoadoutStore = defineStore('loadout', {
                     throw new Error('Failed to update loadout; Authentication / Response failed');
                 }
                 const data = await response.json();
-                const index = this.loadouts.findIndex((l: DBLoadout) => l.id === id);
+                const index = this.loadouts.findIndex((l: DBLoadout) => toLoadoutId(l.id) === id);
                 if (index !== -1) {
                     this.loadouts[index] = data.loadout
                 }
@@ -320,7 +322,7 @@ export const useLoadoutStore = defineStore('loadout', {
          * @param steamId
          * @param id
          */
-        async deleteLoadout(steamId: string, id: string) {
+        async deleteLoadout(steamId: SteamId, id: LoadoutId) {
             this.isLoading = true;
             await fetch(`/api/loadouts?steamId=${steamId}&id=${id}`, {
                 method: 'DELETE',
@@ -345,7 +347,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        selectLoadout(id: string) {
+        selectLoadout(id: LoadoutId) {
             this.selectedLoadoutId = id;
         },
 
@@ -354,7 +356,7 @@ export const useLoadoutStore = defineStore('loadout', {
          * @param id - The loadout ID to activate
          * @param steamId - The Steam ID of the user
          */
-        async activateLoadout(id: string, steamId: string) {
+        async activateLoadout(id: LoadoutId, steamId: SteamId) {
             this.isLoading = true;
             try {
                 const response = await fetch(`/api/loadouts/activate?steamId=${steamId}&loadoutId=${id}`, {
@@ -377,12 +379,12 @@ export const useLoadoutStore = defineStore('loadout', {
                 // const updatedLoadout = data.data || data.loadout;
 
                 // Update the loadout in the store
-                const index = this.loadouts.findIndex((l: DBLoadout) => l.id === id);
+                const index = this.loadouts.findIndex((l: DBLoadout) => toLoadoutId(l.id) === id);
                 if (index !== -1) {
                     // Update all loadouts: set the selected one as active, others as inactive
                     this.loadouts = this.loadouts.map((loadout: DBLoadout) => ({
                         ...loadout,
-                        active: loadout.id === id ? true : false
+                        active: toLoadoutId(loadout.id) === id ? true : false
                     }));
                 }
 
@@ -395,7 +397,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }
         },
 
-        async duplicateLoadout(steamId: string, loadoutId: string) {
+        async duplicateLoadout(steamId: SteamId, loadoutId: LoadoutId) {
             this.isLoading = true;
             await fetch('/api/loadouts/duplicate', {
                 method: 'POST',
@@ -408,7 +410,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        async shareLoadout(steamId: string, loadoutId: string): Promise<string> {
+        async shareLoadout(steamId: SteamId, loadoutId: LoadoutId): Promise<string> {
             this.isLoading = true;
             try {
                 const res = await fetch('/api/loadouts/share', {
@@ -425,7 +427,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }
         },
 
-        async setLoadoutAsDefault(steamId: string, loadoutId: string) {
+        async setLoadoutAsDefault(steamId: SteamId, loadoutId: LoadoutId) {
             this.isLoading = true;
             await fetch('/api/loadouts/default', {
                 method: 'POST',
@@ -438,7 +440,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }).finally(() => this.isLoading = false);
         },
 
-        async clearLoadout(steamId: string, loadoutId: string, categories: string[] = []) {
+        async clearLoadout(steamId: SteamId, loadoutId: LoadoutId, categories: string[] = []) {
             this.isLoading = true;
             try {
                 const response = await fetch('/api/loadouts/clear', {
@@ -473,7 +475,7 @@ export const useLoadoutStore = defineStore('loadout', {
             }
         },
 
-        async importLoadout(steamId: string, shareCode: string) {
+        async importLoadout(steamId: SteamId, shareCode: string) {
             this.isLoading = true;
             try {
                 const response = await fetch('/api/loadouts/import', {
@@ -492,7 +494,7 @@ export const useLoadoutStore = defineStore('loadout', {
                 await this.fetchLoadouts(steamId);
                 // Select the new loadout
                 if (data.data && data.data.id) {
-                    this.selectedLoadoutId = data.data.id;
+                    this.selectedLoadoutId = toLoadoutId(data.data.id);
                 }
             } finally {
                 this.isLoading = false;

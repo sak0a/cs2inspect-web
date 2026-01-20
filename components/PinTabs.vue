@@ -2,15 +2,11 @@
 // Removed unused computed import
 import type { APICollectible } from "~/server/types";
 
-const props = defineProps({
-  collectible: {
-    type: Object as () => APICollectible,
-    required: true
-  },
-  isSelected: {
-    type: Boolean,
-    default: false
-  }
+const props = withDefaults(defineProps<{
+  collectible: APICollectible
+  isSelected?: boolean
+}>(), {
+  isSelected: false
 })
 
 const emit = defineEmits(['select'])

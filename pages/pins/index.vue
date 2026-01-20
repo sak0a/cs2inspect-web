@@ -3,6 +3,7 @@ import { NSpin, NSelect, NInput } from 'naive-ui'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import type { APICollectible } from "~/server/types";
+import { toSteamId } from "~/types/core/branded"
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)
@@ -14,7 +15,7 @@ const pinRefs = ref<Array<{ select: () => void }>>([])
 
 const loadoutStore = useLoadoutStore()
 const message = useMessage()
-const { t: _t } = useI18n()
+const { t } = useI18n()
 
 // Initialize collectibles with an empty array to prevent undefined errors
 collectibles.value = []
@@ -169,7 +170,7 @@ onMounted(async () => {
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
     try {
-      await loadoutStore.fetchLoadouts(user.value.steamId)
+      await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       await fetchCollectibles()
 
       // Setup animations after DOM is updated

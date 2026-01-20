@@ -46,7 +46,7 @@ function setCookie(name: string, val: string) {
 function getCookie(name: string): string | null {
   try {
     const part = document.cookie.split('; ').find(row => row.startsWith(name + '='))
-    return part ? decodeURIComponent(part.split('=')[1]) : null
+    return part ? decodeURIComponent(part.split('=')[1] ?? '') : null
   } catch {
     return null
   }
@@ -172,7 +172,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
@@ -223,7 +223,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
@@ -283,7 +283,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"

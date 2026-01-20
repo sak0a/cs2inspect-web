@@ -1,7 +1,7 @@
 import { getCS2Client } from "~/server/plugins/init";
 import { steamServiceClient } from '~/server/utils/steamServiceClient';
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
-import { mapCustomizationToRepresentation } from '~/server/utils/inspectHelpers'
+import { mapCustomizationToRepresentation, type CustomizationInput } from '~/server/utils/inspectHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { defineEventHandler, createError, getQuery, readBody } from 'h3'
 import type {
@@ -121,12 +121,12 @@ export default defineEventHandler(async (event) => {
 
                 // If we have a complete customization object (weapons), map it to the representation format
                 if (createUrlBody.customization && config.supportsStickers) {
-                    const representation = mapCustomizationToRepresentation(createUrlBody.customization);
-                    stickers = representation.stickers;
-                    keychain = representation.keychain;
+                    const representation = mapCustomizationToRepresentation(createUrlBody.customization as unknown as CustomizationInput);
+                    stickers = representation.stickers as unknown as typeof stickers;
+                    keychain = representation.keychain as unknown as typeof keychain;
                 }
 
-                const itemData: EconItem = {
+                const itemData = {
                     defindex: createUrlBody.defindex || config.defaultDefindex,
                     paintindex: createUrlBody.paintindex || config.defaultPaintindex,
                     paintseed: createUrlBody.paintseed || config.defaultPaintseed,
@@ -142,7 +142,7 @@ export default defineEventHandler(async (event) => {
                     })
                 };
 
-                const inspectUrl = createInspectUrl(itemData);
+                const inspectUrl = createInspectUrl(itemData as EconItem);
 
                 Logger.success(`Created ${itemType} inspect URL`)
                 return {

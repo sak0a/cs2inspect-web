@@ -1,7 +1,6 @@
-import type { ModalProps, CardProps, LayoutProps } from 'naive-ui'
+import type { ModalProps, CardProps, GlobalThemeOverrides } from 'naive-ui'
 type ModalThemeOverrides = NonNullable<ModalProps['themeOverrides']>
 type CardThemeOverrides = NonNullable<CardProps['themeOverrides']>
-type LayoutThemeOverrides = NonNullable<LayoutProps['themeOverrides']>
 
 // Glassmorphism modal card theme with backdrop blur and transparency
 const glassmorphismModalCardThemeOverrides: CardThemeOverrides = {
@@ -15,9 +14,7 @@ const glassmorphismModalCardThemeOverrides: CardThemeOverrides = {
     0 8px 16px rgba(0, 0, 0, 0.5),
     0 0 0 1px var(--glass-border),
     inset 0 1px 0 var(--glass-border)
-  `,
-  // Border for glassmorphism effect
-  border: '1px solid var(--glass-border)'
+  `
 }
 
 // Standard glassmorphism theme for main modals
@@ -38,14 +35,12 @@ export const weaponAttachmentModalThemeOverrides: ModalThemeOverrides = {
         0 12px 24px rgba(0, 0, 0, 0.6),
         0 0 0 1px var(--glass-border-light),
         inset 0 1px 0 var(--glass-border-light)
-      `,
-      border: '1px solid var(--glass-border-light)'
+      `
     }
   }
 }
 
-export const layoutThemeOverrides: LayoutThemeOverrides = {
+export const layoutThemeOverrides: GlobalThemeOverrides['Layout'] = {
   color: '#101010',
-  colorModal: '#101010',
   siderColor: '#101010'
 }

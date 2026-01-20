@@ -472,7 +472,7 @@ watch(() => props.weapon, () => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="weapon ? t('modals.gloveSkin.title', { weaponName: weapon?.defaultName }) as string : t('modals.gloveSkin.defaultTitle') as string"
+      :title="weapon ? String(t('modals.gloveSkin.title', { weaponName: weapon?.defaultName })) : String(t('modals.gloveSkin.defaultTitle'))"
       :bordered="false"
       size="huge"
       :theme-overrides="skinModalThemeOverrides"
@@ -529,7 +529,7 @@ watch(() => props.weapon, () => {
       <!-- Glove Search -->
       <NInput
           v-model:value="state.searchQuery"
-          :placeholder="t('modals.gloveSkin.inputs.searchPlaceholder') as string"
+          :placeholder="String(t('modals.gloveSkin.inputs.searchPlaceholder'))"
           class="pl-1 w-96"
       />
     </template>
@@ -658,7 +658,7 @@ watch(() => props.weapon, () => {
               <div
                   class="h-1 mt-2"
                   :style="{ background: skin.rarity?.color || '#313030' }"
-              />
+              ></div>
             </div>
           </div>
         </NCard>
@@ -671,7 +671,7 @@ watch(() => props.weapon, () => {
 
       <!-- No Results -->
       <div v-if="!state.isLoadingSkins && filteredSkins.length === 0" class="flex justify-center items-center h-64">
-        <NEmpty :description="t('modals.gloveSkin.noSearchResults') as string" />
+        <NEmpty :description="String(t('modals.gloveSkin.noSearchResults'))" />
       </div>
 
       <!-- Pagination -->
@@ -696,7 +696,7 @@ watch(() => props.weapon, () => {
         v-model:visible="state.showDuplicateConfirm"
         :loading="state.isDuplicating"
         :other-team-has-skin="otherTeamHasSkin"
-        :item-type="t('modals.duplicateItem.type.glove') as string"
+        :item-type="String(t('modals.duplicateItem.type.glove'))"
         @confirm="handleDuplicate"
     />
 

@@ -47,15 +47,15 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
     try {
         // Build the where conditions
         const conditions = [];
-        
+
         if (check_name) {
             conditions.push(eq(healthCheckHistory.check_name, check_name));
         }
-        
+
         if (start_time) {
             conditions.push(gte(healthCheckHistory.checked_at, start_time));
         }
-        
+
         if (end_time) {
             conditions.push(lte(healthCheckHistory.checked_at, end_time));
         }
@@ -85,7 +85,7 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
             grouped.get(row.check_name)!.data_points.push({
                 timestamp: new Date(row.checked_at),
                 status: row.status as 'ok' | 'degraded' | 'fail',
-                latency_ms: row.latency_ms,
+                latency_ms: row.latency_ms ?? undefined,
             });
         }
 
@@ -139,9 +139,9 @@ export async function getAverageLatency(checkName: string, minutes: number = 60)
         const rows = result as unknown as Array<{ avg_latency: number | null }>;
 
         if (rows.length > 0 && rows[0]?.avg_latency !== null) {
-            return Math.round(rows[0].avg_latency);
+            return Math.round(rows[0]!.avg_latency!);
         }
-        
+
         return null;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';

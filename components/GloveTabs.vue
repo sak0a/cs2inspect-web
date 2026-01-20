@@ -261,7 +261,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
     <NTabs type="line" animated size="small">
       <NTabPane
           :name="weaponData.availableTeams === 'terrorists' ? 't' : 'ct'"
-          :tab="weaponData.availableTeams === 'terrorists' ? t('teams.terrorists') as string : t('teams.counterTerrorists') as string"
+          :tab="weaponData.availableTeams === 'terrorists' ? String(t('teams.terrorists')) : String(t('teams.counterTerrorists'))"
       >
         <!-- Default glove if no skin selected -->
         <NCard
@@ -283,7 +283,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
             </div>
           </div>
         </NCard>

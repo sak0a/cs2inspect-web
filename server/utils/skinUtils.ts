@@ -62,7 +62,7 @@ export function findSkinsByWeapon(weaponName: string, skinsData: APISkin[]): API
  * @returns Array of matching skins
  */
 export function findSkinsByRarity(rarityName: string, skinsData: APISkin[]): APISkin[] {
-    return skinsData.filter(skin => 
+    return skinsData.filter(skin =>
         skin.rarity?.name.toLowerCase() === rarityName.toLowerCase()
     );
 }
@@ -104,7 +104,7 @@ export interface SkinFilterCriteria {
  * @returns Filtered array of skins
  */
 export function filterSkins(
-    skins: APISkin[], 
+    skins: APISkin[],
     criteria: SkinFilterCriteria,
     options: {
         fuzzySearch?: boolean;
@@ -118,26 +118,26 @@ export function filterSkins(
             const searchTerm = options.caseSensitive ? criteria.search : criteria.search.toLowerCase();
             const skinName = options.caseSensitive ? skin.name : skin.name.toLowerCase();
             const skinDesc = options.caseSensitive ? (skin.description || '') : (skin.description || '').toLowerCase();
-            
+
             if (!skinName.includes(searchTerm) && !skinDesc.includes(searchTerm)) {
                 return false;
             }
         }
 
         // Weapon type filter
-        if (criteria.weapon && 
+        if (criteria.weapon &&
             !skin.weapon?.id.toLowerCase().includes(criteria.weapon.toLowerCase())) {
             return false;
         }
 
         // Rarity filter
-        if (criteria.rarity && 
+        if (criteria.rarity &&
             skin.rarity?.name.toLowerCase() !== criteria.rarity.toLowerCase()) {
             return false;
         }
 
         // Category filter
-        if (criteria.category && 
+        if (criteria.category &&
             skin.category?.name.toLowerCase() !== criteria.category.toLowerCase()) {
             return false;
         }
@@ -265,7 +265,7 @@ export function createDefaultItem<T>(baseItem: IDefaultItem): T[] {
  * @returns Enhanced item
  */
 export function createEnhancedItemFromSkin<T extends IEnhancedItem>(
-    baseItem: IDefaultItem, 
+    baseItem: IDefaultItem,
     skin: APISkin
 ): T {
     return {
@@ -291,7 +291,7 @@ export function createEnhancedItemFromSkin<T extends IEnhancedItem>(
  * @returns True if skin has stickers
  */
 export function hasStickers(skin: { stickers?: unknown }): boolean {
-    return skin.stickers && Array.isArray(skin.stickers) && skin.stickers.length > 0;
+    return !!(skin.stickers && Array.isArray(skin.stickers) && skin.stickers.length > 0);
 }
 
 /**
@@ -310,7 +310,7 @@ export function getStickerNames(skin: { stickers?: Array<{ api?: { name?: string
  * @returns True if skin has a keychain
  */
 export function hasKeychain(skin: { keychain?: { id?: number } }): boolean {
-    return skin.keychain && skin.keychain.id && skin.keychain.id !== 0;
+    return !!(skin.keychain && skin.keychain.id && skin.keychain.id !== 0);
 }
 
 /**

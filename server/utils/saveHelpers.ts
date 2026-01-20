@@ -10,7 +10,8 @@ import type {
     WeaponCustomization,
     KnifeCustomization,
     GloveCustomization,
-    IEnhancedWeaponSticker
+    IEnhancedWeaponSticker,
+    IEnhancedWeaponKeychain
 } from '~/server/types'
 import {
     EnhancedWeaponSticker,
@@ -178,7 +179,7 @@ export const validateGloveFields = (_body: Record<string, unknown>) => {
 /**
  * Formats weapon stickers for database storage
  */
-export const formatWeaponStickers = (stickers: IEnhancedWeaponSticker[]) => {
+export const formatWeaponStickers = (stickers: (IEnhancedWeaponSticker | null)[]) => {
     const formattedStickers: string[] = stickers.map(
         sticker => sticker ?
             new EnhancedWeaponSticker(sticker).convertToDatabaseString() : '0;0;0;0;0;0'
@@ -195,21 +196,25 @@ export const formatWeaponStickers = (stickers: IEnhancedWeaponSticker[]) => {
 /**
  * Formats weapon keychain for database storage
  */
-export const formatWeaponKeychain = (keychain: { id?: number; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number; highlight_reel_id?: number } | null) => {
-    const defaultKeychain = {
+export const formatWeaponKeychain = (keychain: { id?: number | string; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number; highlight_reel_id?: number } | null) => {
+    const defaultKeychain: IEnhancedWeaponKeychain = {
         id: 0,
         x: 0,
         y: 0,
         z: 0,
         seed: 0,
         api: {
-            id: 'default',
             name: 'Default',
-            color: '#000000'
+            image: '',
+            rarity: {
+                id: 'default',
+                name: 'Default',
+                color: '#000000'
+            }
         }
     };
 
-    return new EnhancedWeaponKeychain((!keychain || keychain.id === 0) ? defaultKeychain : keychain).convertToDatabaseString();
+    return new EnhancedWeaponKeychain((!keychain || keychain.id === 0) ? defaultKeychain : keychain as IEnhancedWeaponKeychain).convertToDatabaseString();
 }
 
 /**
@@ -266,12 +271,12 @@ export const saveWeapon = async (
 
         // Handle reset case
         if (body.reset) {
-            return handleWeaponReset(tableName as WeaponTableName, steamId, loadoutId, body);
+            return handleWeaponReset(tableName as WeaponTableName, steamId, loadoutId, body as unknown as Record<string, unknown>);
         }
 
         // Format stickers and keychain
-        const formattedStickers = formatWeaponStickers(body.stickers);
-        const formattedKeychain = formatWeaponKeychain(body.keychain);
+        const formattedStickers = formatWeaponStickers(body.stickers as (IEnhancedWeaponSticker | null)[]);
+        const formattedKeychain = formatWeaponKeychain(body.keychain as { id?: number | string; x?: number; y?: number; z?: number; seed?: number } | null);
 
         // Update or insert weapon
         if (existingWeapon.length > 0) {
@@ -438,7 +443,7 @@ export const saveGlove = async (
         const loadoutIdNum = toLoadoutId(loadoutId);
 
         Logger.info(`saveGlove: Starting save process for steamId: ${steamId}, loadoutId: ${loadoutId}`);
-        Logger.info(`saveGlove: Body data:`, JSON.stringify(body, null, 2));
+        Logger.info(`saveGlove: Body data: ${JSON.stringify(body, null, 2)}`);
 
         // Handle reset case
         if (body.reset) {
@@ -469,7 +474,7 @@ export const saveGlove = async (
             ))
             .limit(1);
 
-        Logger.info(`saveGlove: Found ${existingGlove.length} existing glove entries:`, existingGlove);
+        Logger.info(`saveGlove: Found ${existingGlove.length} existing glove entries: ${JSON.stringify(existingGlove)}`);
 
         // Update or insert glove
         if (existingGlove.length > 0) {

@@ -105,7 +105,7 @@ export class SteamAuthService {
 
     extractSteamId(params: Record<string, string>): string | null {
         const matched = params['openid.claimed_id']?.match(/(\d+)$/)
-        return matched ? matched[1] : null
+        return matched ? (matched[1] ?? null) : null
     }
 
     logout(): void {

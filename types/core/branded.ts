@@ -228,18 +228,4 @@ export function isValidDefindex(value: unknown): value is Defindex {
     return typeof value === 'number' && Number.isInteger(value) && value >= 0
 }
 
-// ============================================================================
-// BACKWARD COMPATIBILITY
-// ============================================================================
 
-/**
- * Union type for LoadoutId that accepts both branded and plain number
- * Use during migration period to avoid breaking existing code
- */
-export type LoadoutIdLike = LoadoutId | number
-
-/**
- * Union type for SteamId that accepts both branded and plain string
- * Use during migration period to avoid breaking existing code
- */
-export type SteamIdLike = SteamId | string

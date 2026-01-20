@@ -15,13 +15,15 @@ import {
 } from '@vicons/tabler'
 import { Star as DefaultFilledIcon } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
+import { toSteamId, toLoadoutId } from '~/types/core/branded'
+import type { LoadoutId } from '~/types/core/branded'
 
 const loadoutStore = useLoadoutStore()
 const { t } = useI18n()
 const message = useMessage()
 
 // Track the previous loadout ID to avoid activating on initial load
-const previousLoadoutId = ref<string | null>(null)
+const previousLoadoutId = ref<LoadoutId | null>(null)
 
 const showModal = ref({
   create: false,
@@ -62,34 +64,34 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete' | 'dup
   try {
     switch (action) {
       case 'create':
-        await loadoutStore.createLoadout(user.steamId, formInputs.value.newName)
+        await loadoutStore.createLoadout(toSteamId(user.steamId), formInputs.value.newName)
         break
       case 'import':
-        await loadoutStore.importLoadout(user.steamId, formInputs.value.importCode)
+        await loadoutStore.importLoadout(toSteamId(user.steamId), formInputs.value.importCode)
         message.success(t('modals.loadout.import.success') as string, { duration: 2 })
         break
       case 'rename':
-        await loadoutStore.updateLoadout(loadoutId!, user.steamId, formInputs.value.renameName)
+        await loadoutStore.updateLoadout(loadoutId!, toSteamId(user.steamId), formInputs.value.renameName)
         break
       case 'delete':
-        await loadoutStore.deleteLoadout(user.steamId, loadoutId!)
+        await loadoutStore.deleteLoadout(toSteamId(user.steamId), loadoutId!)
         break
       case 'duplicate':
-        await loadoutStore.duplicateLoadout(user.steamId, loadoutId!)
+        await loadoutStore.duplicateLoadout(toSteamId(user.steamId), loadoutId!)
         message.success(t('modals.loadout.duplicate.success') as string, { duration: 2 })
         return
       case 'share': {
-        const code = await loadoutStore.shareLoadout(user.steamId, loadoutId!)
+        const code = await loadoutStore.shareLoadout(toSteamId(user.steamId), loadoutId!)
         formInputs.value.shareCode = code
         showModal.value.share = true
         return
       }
       case 'default':
-        await loadoutStore.setLoadoutAsDefault(user.steamId, loadoutId!)
+        await loadoutStore.setLoadoutAsDefault(toSteamId(user.steamId), loadoutId!)
         message.success(t('modals.loadout.default.success') as string, { duration: 2 })
         return
       case 'clear':
-        await loadoutStore.clearLoadout(user.steamId, loadoutId!, formInputs.value.clearCategories)
+        await loadoutStore.clearLoadout(toSteamId(user.steamId), loadoutId!, formInputs.value.clearCategories)
         break
     }
 
@@ -127,14 +129,14 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
   const user = steamAuth.getSavedUser()
   if (!user) return
 
-  const selectedLoadout = loadoutStore.loadouts.find((l: DBLoadout) => l.id === newLoadoutId)
-  if (selectedLoadout && (selectedLoadout.active === true || selectedLoadout.active === 1)) {
+  const selectedLoadout = loadoutStore.loadouts.find((l: DBLoadout) => toLoadoutId(l.id) === newLoadoutId)
+  if (selectedLoadout && selectedLoadout.active) {
     previousLoadoutId.value = newLoadoutId
     return
   }
 
   try {
-    await loadoutStore.activateLoadout(newLoadoutId, user.steamId)
+    await loadoutStore.activateLoadout(newLoadoutId, toSteamId(user.steamId))
     previousLoadoutId.value = newLoadoutId
   } catch (error: unknown) {
     console.error('Failed to activate loadout:', error)
@@ -182,7 +184,7 @@ const handleDropdownSelect = (key: any) => {
 onMounted(async () => {
     const user = steamAuth.getSavedUser()
     if (user?.steamId) {
-        await loadoutStore.fetchLoadouts(user.steamId)
+        await loadoutStore.fetchLoadouts(toSteamId(user.steamId))
     }
 })
 </script>

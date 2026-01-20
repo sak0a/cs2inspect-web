@@ -26,8 +26,10 @@ onMounted(() => {
     return;
   }
   const preloader = document.getElementById("preloader_" + preloaderStyle);
+  if (!preloader) return;
   preloader.classList.add(preloaderStyle);
-  const outerWrapper = document.querySelector(".preloader_wrapper_outer");
+  const outerWrapper = document.querySelector(".preloader_wrapper_outer") as HTMLElement | null;
+  if (!outerWrapper) return;
   outerWrapper.animate(animation(), {
     duration: revealDuration,
     delay: revealDelay,

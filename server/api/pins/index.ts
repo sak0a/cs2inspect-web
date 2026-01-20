@@ -39,7 +39,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         })
     }
 
-    const selectedPin = loadoutsData[0].selected_pin
+    const selectedPin = loadoutsData[0]!.selected_pin
 
     // Return the selected pin as an array for backward compatibility
     // If no pin is selected, return empty array

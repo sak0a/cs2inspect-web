@@ -2,7 +2,8 @@
 <script setup lang="ts">
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import type { IEnhancedWeapon, WeaponConfiguration } from "~/types";
+import type { IEnhancedWeapon, IEnhancedItem, WeaponConfiguration, UserProfile, WeaponItemData } from "~/types";
+import { toSteamId } from "~/types/core/common";
 
 definePageMeta({
   middleware: ['validate-weapon-url']
@@ -22,8 +23,19 @@ const message = useMessage()
 const showSkinModal = ref<boolean>(false)
 const selectedWeapon = ref<IEnhancedWeapon | null>(null)
 
-const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
-const groupedWeapons = useGroupedWeapons(skins)
+const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon as any, skins as any)
+const groupedWeapons = useGroupedWeapons(skins as any)
+
+// Convert SteamUser to UserProfile for components that expect branded types
+const userAsProfile = computed((): UserProfile | null => {
+  if (!user.value) return null
+  return {
+    steamId: toSteamId(user.value.steamId),
+    personaName: user.value.personaName,
+    avatar: user.value.avatar,
+    profileUrl: user.value.profileUrl
+  }
+})
 
 const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   selectedWeapon.value = weapon
@@ -142,12 +154,17 @@ const fetchLoadoutSkins = async () => {
     return;
   }
   isLoading.value = true;
-  await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, user.value.steamId).then(() => {
-    skins.value = loadoutStore.loadoutSkins;
+  await loadoutStore.fetchLoadoutWeaponSkins(WEAPON_TYPE, toSteamId(user.value.steamId)).then(() => {
+    skins.value = loadoutStore.loadoutSkins as IEnhancedWeapon[];
   }).catch(() => {
     error.value = 'Failed to load skins. Please try again later.';
     message.error('Failed to load skins');
   }).finally(() => isLoading.value = false);
+}
+
+// Wrapper handlers that handle type conversion for WeaponTabs events
+const handleWeaponClickWrapper = (weapon: WeaponItemData) => {
+  handleWeaponClick(weapon as unknown as IEnhancedWeapon)
 }
 
 // No animation code
@@ -156,7 +173,7 @@ onMounted(async () => {
   user.value = steamAuth.getSavedUser();
   if (user.value?.steamId) {
     try {
-      await loadoutStore.fetchLoadouts(user.value.steamId)
+      await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       if (loadoutStore.selectedLoadoutId) {
         await fetchLoadoutSkins();
       } else {
@@ -206,8 +223,8 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 v-for="(weaponData, weaponName) in groupedWeapons"
                       :key="weaponName"
                       class=""
-                      :weapon-data="weaponData"
-                      @weapon-click="handleWeaponClick"
+                      :weapon-data="weaponData as any"
+                      @weapon-click="handleWeaponClickWrapper"
           />
         </div>
         <!-- No Skins State -->

@@ -80,9 +80,9 @@ export type {
   BaseCustomization as ItemBaseCustomization,
   WeaponStickerCustomization,
   WeaponKeychainCustomization,
-  WeaponCustomization as ItemWeaponCustomization,
-  KnifeCustomization as ItemKnifeCustomization,
-  GloveCustomization as ItemGloveCustomization,
+  WeaponConfiguration as ItemWeaponCustomization,
+  KnifeConfiguration as ItemKnifeCustomization,
+  GloveConfiguration as ItemGloveCustomization,
 
   // Item interfaces
   IDefaultItem,
