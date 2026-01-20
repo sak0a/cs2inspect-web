@@ -91,7 +91,7 @@ const state = ref<WeaponModalState>({
   showStickerModal: false,
   showKeychainModal: false,
   showVisualCustomizer: false,
-  inlineVisualCustomizerActive: false, // NEW - for inline mode
+  inlineVisualCustomizerActive: false,
   currentStickerPosition: 0
 })
 
@@ -140,7 +140,7 @@ const user = computed((): UserProfile | null => {
   }
 })
 /**
- * Pagination and filtering computed properties
+ * Advanced pagination and filtering (extends base composable)
  */
 const PAGE_SIZE = ref(props.pageSize || 10)
 
