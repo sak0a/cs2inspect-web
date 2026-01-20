@@ -1,10 +1,33 @@
-import type { WeaponCustomization } from './interfaces';
 import type { Sticker } from 'cs2-inspect-lib';
+
+interface StickerInput {
+  id: number;
+  x?: number;
+  y?: number;
+  wear?: number;
+  scale?: number;
+  rotation?: number;
+}
+
+interface KeychainInput {
+  id: number | string;
+  x?: number;
+  y?: number;
+  z?: number;
+  seed?: number;
+  wrapped_sticker_id?: number;
+  highlight_reel_id?: number;
+}
+
+export interface CustomizationInput {
+  stickers: (StickerInput | null)[];
+  keychain?: KeychainInput | null;
+}
 
 /**
  * Maps the customization data from the frontend format to the format required by the inspect URL generator
  */
-export function mapCustomizationToRepresentation(customization: WeaponCustomization) {
+export function mapCustomizationToRepresentation(customization: CustomizationInput) {
   // Map stickers to the format required by the inspect URL generator
   const stickers = customization.stickers
     .map((sticker, index) => {

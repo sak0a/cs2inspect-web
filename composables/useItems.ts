@@ -1,18 +1,27 @@
 import type { WeaponItemData, KnifeItemData, GloveItemData } from "~/types"
 
+// Generic type for any weapon-like data
+type WeaponLikeData = {
+    databaseInfo?: { defindex?: number; team?: number } | undefined
+    defaultName: string
+    availableTeams: string
+    weapon_defindex?: number
+    [key: string]: unknown
+}
+
 /**
- * Helper function to get the defindex from modern item data
+ * Helper function to get the defindex from item data
  */
-function getItemDefindex(item: WeaponItemData | KnifeItemData | GloveItemData): number {
-    return item.databaseInfo?.defindex || 0
+function getItemDefindex(item: WeaponLikeData): number {
+    return item.databaseInfo?.defindex || item.weapon_defindex as number || 0
 }
 
 /**
  * Checks if the selected weapon/knife has a skin configured for the other team
  */
-export function useOtherTeamSkin(
-    selectedItem: Ref<WeaponItemData | KnifeItemData | GloveItemData | null> | ComputedRef<WeaponItemData | KnifeItemData | GloveItemData | null>,
-    skins: Ref<Array<WeaponItemData | KnifeItemData | GloveItemData>> | ComputedRef<Array<WeaponItemData | KnifeItemData | GloveItemData>>
+export function useOtherTeamSkin<T extends WeaponLikeData>(
+    selectedItem: Ref<T | null> | ComputedRef<T | null>,
+    skins: Ref<Array<T>> | ComputedRef<Array<T>>
 ): ComputedRef<boolean> {
     return computed(() => {
         if (!selectedItem.value) return false
@@ -21,7 +30,7 @@ export function useOtherTeamSkin(
         const selectedDefindex = getItemDefindex(selectedItem.value)
         const targetTeam = oppositeTeam(currentTeam)
 
-        return skins.value.some((weapon: WeaponItemData | KnifeItemData | GloveItemData) =>
+        return skins.value.some((weapon: T) =>
             getItemDefindex(weapon) === selectedDefindex &&
             weapon.databaseInfo?.team === targetTeam
         )
@@ -38,15 +47,15 @@ export const oppositeTeam = (current: number) => {
  * @param skins Ref or ComputedRef containing array of weapon groups
  * @returns ComputedRef with grouped weapons
  */
-export function useGroupedWeapons(
-    skins: Ref<Array<WeaponItemData | KnifeItemData | GloveItemData>> | ComputedRef<Array<WeaponItemData | KnifeItemData | GloveItemData>>
-): ComputedRef<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>> {
+export function useGroupedWeapons<T extends WeaponLikeData>(
+    skins: Ref<Array<T>> | ComputedRef<Array<T>>
+): ComputedRef<Record<string, { weapons: Array<T>, availableTeams: string, defaultName: string }>> {
     return computed(() => {
-        return skins.value.reduce<Record<string, { weapons: Array<WeaponItemData | KnifeItemData | GloveItemData>, availableTeams: string, defaultName: string }>>((acc, itemOrGroup) => {
+        return skins.value.reduce<Record<string, { weapons: Array<T>, availableTeams: string, defaultName: string }>>((acc, itemOrGroup) => {
             if (!itemOrGroup) return acc;
 
             // Helper to process a single item
-            const processItem = (weapon: WeaponItemData | KnifeItemData | GloveItemData) => {
+            const processItem = (weapon: T) => {
                 const name = weapon.defaultName;
                 if (!acc[name]) {
                     acc[name] = {
@@ -65,10 +74,10 @@ export function useGroupedWeapons(
             // Handle nested arrays (legacy structure) or flat items
             if (Array.isArray(itemOrGroup)) {
                 // It's a group/array of items
-                (itemOrGroup as Array<WeaponItemData | KnifeItemData | GloveItemData>).forEach(item => processItem(item));
+                (itemOrGroup as Array<T>).forEach(item => processItem(item));
             } else {
                 // It's a single item
-                processItem(itemOrGroup as WeaponItemData | KnifeItemData | GloveItemData);
+                processItem(itemOrGroup as T);
             }
 
             return acc;

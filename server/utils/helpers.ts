@@ -1,5 +1,5 @@
 import { APIRequestLogger as Logger } from "~/server/utils/logger";
-import { createError } from "h3";
+import { createError, type H3Event } from "h3";
 
 export const validateRequiredRequestData = (param: unknown, paramName: string, allowZero = false) => {
     if (allowZero && param === 0) return
@@ -12,8 +12,8 @@ export const validateRequiredRequestData = (param: unknown, paramName: string, a
     }
 }
 
-export const verifyUserAccess = (steamId: string, event: { context?: { auth?: { steamId?: string } } }) => {
-    const auth = event.context.auth
+export const verifyUserAccess = (steamId: string, event: H3Event) => {
+    const auth = (event.context as { auth?: { steamId?: string } })?.auth
     if (!auth || auth.steamId !== steamId) {
         Logger.error('Unauthorized access')
         throw createError({
@@ -22,24 +22,6 @@ export const verifyUserAccess = (steamId: string, event: { context?: { auth?: { 
         })
     }
     Logger.info(`User access verified for Steam ID: ${steamId}`)
-}
-
-export const validateWeaponDatabaseTable = (type: string) => {
-    const tableMap: Record<string, string> = {
-        smgs: 'wp_player_smgs',
-        rifles: 'wp_player_rifles',
-        heavys: 'wp_player_heavys',
-        pistols: 'wp_player_pistols',
-    };
-
-    if (!tableMap[type]) {
-        Logger.error('Invalid weapon type')
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid weapon type'
-        })
-    }
-    return tableMap[type]
 }
 
 export function createDefaultEnhancedKnife<T>(baseItem: IDefaultItem): T[] {

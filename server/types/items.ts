@@ -81,8 +81,8 @@ export interface IEnhancedWeapon extends IEnhancedItem {
  * Used for knives that can have StatTrak but no stickers/keychains
  */
 export interface IEnhancedKnife extends IEnhancedItem {
-    /** Knife-specific database information */
-    databaseInfo?: import('~/types/database/records').DBKnife;
+    /** Knife-specific database information (uses plain numbers for API serialization) */
+    databaseInfo?: IMappedDBKnife;
 }
 
 /**
@@ -90,13 +90,14 @@ export interface IEnhancedKnife extends IEnhancedItem {
  * Used for gloves that have no StatTrak or attachments
  */
 export interface IEnhancedGlove extends IEnhancedItem {
-    /** Glove-specific database information */
-    databaseInfo?: import('~/types/database/records').DBGlove;
+    /** Glove-specific database information (uses plain numbers for API serialization) */
+    databaseInfo?: IMappedDBGlove;
 }
 
 /**
  * Mapped database weapon interface
  * Represents weapon data as stored in and retrieved from the database
+ * Uses plain number types for API serialization compatibility
  */
 export interface IMappedDBWeapon {
     /** Whether this weapon is active/equipped */
@@ -121,6 +122,54 @@ export interface IMappedDBWeapon {
     stickers: (IEnhancedWeaponSticker | null)[];
     /** Keychain attachment */
     keychain: IEnhancedWeaponKeychain | null;
+}
+
+/**
+ * Mapped database knife interface
+ * Represents knife data for API responses (uses plain numbers, not branded types)
+ */
+export interface IMappedDBKnife {
+    /** Record ID */
+    id: number;
+    /** Whether this knife is active/equipped */
+    active: boolean;
+    /** Team this knife belongs to (1 = T, 2 = CT) */
+    team: number;
+    /** Knife definition index */
+    defindex: number;
+    /** Paint index for the skin */
+    paintindex: number;
+    /** Pattern seed for randomization */
+    paintseed: number | string;
+    /** Wear value (float or string) */
+    paintwear: number | string;
+    /** Whether StatTrak is enabled */
+    stattrak_enabled: boolean;
+    /** StatTrak kill count */
+    stattrak_count: number;
+    /** Custom name tag */
+    nametag: string | null;
+}
+
+/**
+ * Mapped database glove interface
+ * Represents glove data for API responses (uses plain numbers, not branded types)
+ */
+export interface IMappedDBGlove {
+    /** Record ID */
+    id: number;
+    /** Whether this glove is active/equipped */
+    active: boolean;
+    /** Team this glove belongs to (1 = T, 2 = CT) */
+    team: number;
+    /** Glove definition index */
+    defindex: number;
+    /** Paint index for the skin */
+    paintindex: number;
+    /** Pattern seed for randomization */
+    paintseed: number | string;
+    /** Wear value (float or string) */
+    paintwear: number | string;
 }
 
 /**

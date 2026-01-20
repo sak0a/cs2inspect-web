@@ -1,11 +1,14 @@
 import { defineEventHandler, getQuery } from 'h3'
+import { eq, and } from 'drizzle-orm'
+import { db } from '~/server/database/client'
+import { gloves } from '~/server/database/schema'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
-import type { DBGlove, APISkin, IDefaultItem, IEnhancedGlove } from "~/server/types"
+import type { APISkin, IDefaultItem, IEnhancedGlove, GloveSelect } from "~/server/types"
 import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
-import { executeQuery } from '~/server/database/database'
 import { DEFAULT_GLOVES } from '~/server/utils/constants'
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import { createDefaultItem, findMatchingSkin } from '~/server/utils/skinUtils';
+import { toLoadoutId } from '~/types/core/common';
 import {
     createCollectionResponse,
     createResponseMeta,
@@ -28,14 +31,15 @@ export default defineEventHandler(withErrorHandling(async (event) => {
     const skinData = await getSkinsDataAsync();
 
     Logger.info(`Fetching gloves for Steam ID: ${steamId}`);
-    // Fetch all gloves from the database for the given loadout
-    const gloves = await executeQuery<DBGlove[]>(
-        'SELECT * FROM wp_player_gloves WHERE steamid = ? AND loadoutid = ?',
-        [steamId, loadoutId],
-        'Failed to fetch gloves'
-    );
+    // Fetch all gloves from the database for the given loadout using Drizzle
+    const glovesData = await db.select()
+        .from(gloves)
+        .where(and(
+            eq(gloves.steamid, steamId),
+            eq(gloves.loadoutid, toLoadoutId(loadoutId))
+        ));
 
-    Logger.info(`Found ${gloves.length} glove entries in database:` + JSON.stringify(gloves, null, 2));
+    Logger.info(`Found ${glovesData.length} glove entries in database:` + JSON.stringify(glovesData, null, 2));
 
     // Fetch all glove skins from the skin data
     // Include all glove types: those with 'glove' in the name AND handwraps
@@ -55,8 +59,8 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         Logger.info(`Processing glove: ${baseGlove.defaultName} (defindex: ${baseGlove.weapon_defindex}, weapon_name: ${baseGlove.weapon_name})`);
 
         // Find the database entries for this glove defindex if they exist
-        const matchingDatabaseResults: DBGlove[] = gloves.filter(
-            (glove: DBGlove) => glove.defindex === baseGlove.weapon_defindex
+        const matchingDatabaseResults = glovesData.filter(
+            (glove) => glove.defindex === baseGlove.weapon_defindex
         );
 
         Logger.info(`Found ${matchingDatabaseResults.length} database entries for ${baseGlove.defaultName}:` + matchingDatabaseResults);
@@ -72,15 +76,20 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         for (const databaseResult of matchingDatabaseResults) {
             Logger.info(`Processing database result for ${baseGlove.defaultName}:` + databaseResult);
 
-            const skinInfo = findMatchingSkin(baseGlove, databaseResult, gloveSkins);
+            // Create a compatible object for findMatchingSkin
+            const dbResultForSkin = {
+                ...databaseResult,
+                id: String(databaseResult.id),
+                active: !!databaseResult.active
+            };
+
+            const skinInfo = findMatchingSkin(baseGlove, dbResultForSkin, gloveSkins);
 
             if (skinInfo) {
                 Logger.info(`Found matching skin for ${baseGlove.defaultName}:` + { name: skinInfo.name, image: skinInfo.image, paint_index: skinInfo.paint_index });
             } else {
                 Logger.info(`No matching skin found for ${baseGlove.defaultName} with paintindex ${databaseResult.paintindex}`);
             }
-
-            databaseResult.active = !!databaseResult.active
 
             const enhancedGlove = {
                 weapon_defindex: baseGlove.weapon_defindex,
@@ -96,7 +105,10 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                 rarity: skinInfo?.rarity,
                 availableTeams: 'both',
                 team: null,
-                databaseInfo: databaseResult
+                databaseInfo: {
+                    ...databaseResult,
+                    active: !!databaseResult.active
+                }
             } as IEnhancedGlove;
 
             Logger.info(`Created enhanced glove for ${baseGlove.defaultName}:` + {
@@ -113,12 +125,12 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         return data;
     });
 
-    Logger.success(`Fetched ${gloves.length} gloves for Steam ID: ${steamId}`);
+    Logger.success(`Fetched ${glovesData.length} gloves for Steam ID: ${steamId}`);
 
     const meta = createResponseMeta(startTime, {
         steamId,
         loadoutId,
-        databaseRows: gloves.length,
+        databaseRows: glovesData.length,
         glovesReturned: enhancedGloves.length
     });
 

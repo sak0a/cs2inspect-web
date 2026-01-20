@@ -13,6 +13,7 @@ import {
 import { isWeaponMatch } from '~/server/utils/weaponNameMapping';
 
 interface QueryFilters {
+    [key: string]: string | undefined;   // Index signature for Record compatibility
     search?: string;        // Search term for name
     weapon?: string;        // Specific weapon type
     rarity?: string;       // Rarity filter

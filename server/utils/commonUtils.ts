@@ -15,12 +15,12 @@ export function detectItemType(defindex: number): 'weapon' | 'knife' | 'glove' {
         DEFINDEX_RANGES.KNIVES.ADDITIONAL.includes(defindex)) {
         return 'knife';
     }
-    
+
     // Check if it's a glove
     if (defindex >= DEFINDEX_RANGES.GLOVES.MIN && defindex <= DEFINDEX_RANGES.GLOVES.MAX) {
         return 'glove';
     }
-    
+
     // Default to weapon
     return 'weapon';
 }
@@ -31,8 +31,8 @@ export function detectItemType(defindex: number): 'weapon' | 'knife' | 'glove' {
  * @returns True if valid weapon defindex
  */
 export function isValidWeaponDefindex(defindex: number): boolean {
-    return defindex >= DEFINDEX_RANGES.WEAPONS.MIN && 
-           defindex <= DEFINDEX_RANGES.WEAPONS.MAX;
+    return defindex >= DEFINDEX_RANGES.WEAPONS.MIN &&
+        defindex <= DEFINDEX_RANGES.WEAPONS.MAX;
 }
 
 /**
@@ -42,7 +42,7 @@ export function isValidWeaponDefindex(defindex: number): boolean {
  */
 export function isValidKnifeDefindex(defindex: number): boolean {
     return (defindex >= DEFINDEX_RANGES.KNIVES.MIN && defindex <= DEFINDEX_RANGES.KNIVES.MAX) ||
-           DEFINDEX_RANGES.KNIVES.ADDITIONAL.includes(defindex);
+        DEFINDEX_RANGES.KNIVES.ADDITIONAL.includes(defindex);
 }
 
 /**
@@ -51,8 +51,8 @@ export function isValidKnifeDefindex(defindex: number): boolean {
  * @returns True if valid glove defindex
  */
 export function isValidGloveDefindex(defindex: number): boolean {
-    return defindex >= DEFINDEX_RANGES.GLOVES.MIN && 
-           defindex <= DEFINDEX_RANGES.GLOVES.MAX;
+    return defindex >= DEFINDEX_RANGES.GLOVES.MIN &&
+        defindex <= DEFINDEX_RANGES.GLOVES.MAX;
 }
 
 // ============================================================================
@@ -69,12 +69,12 @@ export function safeParseNumber(value: unknown, defaultValue: number = 0): numbe
     if (typeof value === 'number' && !isNaN(value)) {
         return value;
     }
-    
+
     if (typeof value === 'string') {
         const parsed = parseFloat(value);
         return isNaN(parsed) ? defaultValue : parsed;
     }
-    
+
     return defaultValue;
 }
 
@@ -88,12 +88,12 @@ export function safeParseInt(value: unknown, defaultValue: number = 0): number {
     if (typeof value === 'number' && !isNaN(value)) {
         return Math.floor(value);
     }
-    
+
     if (typeof value === 'string') {
         const parsed = parseInt(value, 10);
         return isNaN(parsed) ? defaultValue : parsed;
     }
-    
+
     return defaultValue;
 }
 
@@ -160,9 +160,9 @@ export function parseStickerString(stickerString: string) {
     if (!stickerString || stickerString === STICKER_CONFIG.EMPTY_STICKER) {
         return null;
     }
-    
+
     const [id, x, y, wear, scale, rotation] = stickerString.split(';');
-    
+
     return {
         id: safeParseInt(id),
         x: safeParseNumber(x),
@@ -182,9 +182,9 @@ export function parseKeychainString(keychainString: string) {
     if (!keychainString || keychainString === KEYCHAIN_CONFIG.EMPTY_KEYCHAIN) {
         return null;
     }
-    
+
     const [id, x, y, z, seed] = keychainString.split(';');
-    
+
     return {
         id: safeParseInt(id),
         x: safeParseNumber(x),
@@ -299,7 +299,7 @@ export function groupBy<T>(array: T[], keyFn: (item: T) => string): Record<strin
  * @param keys Keys to pick
  * @returns New object with only picked properties
  */
-export function pick<T, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
+export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
     const result = {} as Pick<T, K>;
     keys.forEach(key => {
         if (key in obj) {
@@ -372,23 +372,23 @@ function calculateSimilarity(str1: string, str2: string): number {
  * @returns Edit distance
  */
 function levenshteinDistance(str1: string, str2: string): number {
-    const matrix = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(null));
+    const matrix: number[][] = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(0));
 
-    for (let i = 0; i <= str1.length; i++) matrix[0][i] = i;
-    for (let j = 0; j <= str2.length; j++) matrix[j][0] = j;
+    for (let i = 0; i <= str1.length; i++) matrix[0]![i] = i;
+    for (let j = 0; j <= str2.length; j++) matrix[j]![0] = j;
 
     for (let j = 1; j <= str2.length; j++) {
         for (let i = 1; i <= str1.length; i++) {
             const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
-            matrix[j][i] = Math.min(
-                matrix[j][i - 1] + 1,     // deletion
-                matrix[j - 1][i] + 1,     // insertion
-                matrix[j - 1][i - 1] + indicator // substitution
+            matrix[j]![i] = Math.min(
+                matrix[j]![i - 1]! + 1,     // deletion
+                matrix[j - 1]![i]! + 1,     // insertion
+                matrix[j - 1]![i - 1]! + indicator // substitution
             );
         }
     }
 
-    return matrix[str2.length][str1.length];
+    return matrix[str2.length]![str1.length]!;
 }
 
 /**
@@ -443,7 +443,10 @@ export function multiFilter<T>(
  * @returns Nested value or undefined
  */
 export function getNestedValue(obj: unknown, path: string): unknown {
-    return path.split('.').reduce((current, key) => current?.[key], obj);
+    return path.split('.').reduce((current: Record<string, unknown> | undefined, key) =>
+        (current as Record<string, unknown> | undefined)?.[key] as Record<string, unknown> | undefined,
+        obj as Record<string, unknown>
+    );
 }
 
 /**
@@ -455,11 +458,11 @@ export function getNestedValue(obj: unknown, path: string): unknown {
 export function setNestedValue(obj: Record<string, unknown>, path: string, value: unknown): void {
     const keys = path.split('.');
     const lastKey = keys.pop()!;
-    const target = keys.reduce((current, key) => {
+    const target = keys.reduce((current: Record<string, unknown>, key: string): Record<string, unknown> => {
         if (!(key in current)) {
             current[key] = {};
         }
-        return current[key];
+        return current[key] as Record<string, unknown>;
     }, obj);
     target[lastKey] = value;
 }
@@ -492,10 +495,10 @@ export function multiSort<T>(
             let comparison = 0;
 
             if (type === 'number') {
-                comparison = (aValue || 0) - (bValue || 0);
+                comparison = (Number(aValue) || 0) - (Number(bValue) || 0);
             } else if (type === 'date') {
-                const aDate = new Date(aValue || 0);
-                const bDate = new Date(bValue || 0);
+                const aDate = new Date((aValue as string | number | Date) || 0);
+                const bDate = new Date((bValue as string | number | Date) || 0);
                 comparison = aDate.getTime() - bDate.getTime();
             } else {
                 const aStr = String(aValue || '').toLowerCase();

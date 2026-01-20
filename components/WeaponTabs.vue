@@ -3,6 +3,7 @@
 
 // Modern type imports
 import type { DBWeapon, WeaponItemData } from "~/types"
+import { toSteamId, toLoadoutId, toDefindex, toPaintIndex } from '~/types/core/common'
 
 /**
  * Props interface for WeaponTabs component
@@ -45,7 +46,7 @@ function setCookie(name: string, val: string) {
 function getCookie(name: string): string | null {
   try {
     const part = document.cookie.split('; ').find(row => row.startsWith(name + '='))
-    return part ? decodeURIComponent(part.split('=')[1]) : null
+    return part ? decodeURIComponent(part.split('=')[1] ?? '') : null
   } catch {
     return null
   }
@@ -102,12 +103,12 @@ const handleDefaultWeaponClick = (team: number): void => {
       weapon_defindex: firstWeapon.weapon_defindex || firstWeapon.databaseInfo?.defindex || 0,
       databaseInfo: {
         id: `default-db-${firstWeapon.id || 'weapon'}`,
-        steamid: '',
-        loadoutid: '',
+        steamid: toSteamId(''),
+        loadoutid: toLoadoutId(0),
         active: false,
         team: team,
-        defindex: firstWeapon.databaseInfo?.defindex || 0,
-        paintindex: 0,
+        defindex: firstWeapon.databaseInfo?.defindex || toDefindex(0),
+        paintindex: toPaintIndex(0),
         paintseed: '0',
         paintwear: '0.01',
         stattrak_enabled: false,
@@ -171,7 +172,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
@@ -222,7 +223,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
@@ -282,7 +283,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"

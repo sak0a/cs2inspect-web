@@ -80,9 +80,9 @@ export type {
   BaseCustomization as ItemBaseCustomization,
   WeaponStickerCustomization,
   WeaponKeychainCustomization,
-  WeaponCustomization as ItemWeaponCustomization,
-  KnifeCustomization as ItemKnifeCustomization,
-  GloveCustomization as ItemGloveCustomization,
+  WeaponConfiguration as ItemWeaponCustomization,
+  KnifeConfiguration as ItemKnifeCustomization,
+  GloveConfiguration as ItemGloveCustomization,
 
   // Item interfaces
   IDefaultItem,
@@ -91,6 +91,8 @@ export type {
   IEnhancedKnife,
   IEnhancedGlove,
   IMappedDBWeapon,
+  IMappedDBKnife,
+  IMappedDBGlove,
   IEnhancedWeaponSticker,
   IEnhancedWeaponKeychain
 } from './items'
@@ -104,14 +106,38 @@ export type {
   BaseDBRecord,
   BaseDBItem,
 
-  // Specific database interfaces
+  // Specific database interfaces (backward compatible aliases)
   DBLoadout,
   DBWeapon,
   DBKnife,
   DBGlove,
   DBPin,
   DBMusicKit,
-  DBAgent
+  DBAgent,
+
+  // Drizzle inferred types
+  LoadoutSelect,
+  LoadoutInsert,
+  PistolSelect,
+  PistolInsert,
+  RifleSelect,
+  RifleInsert,
+  SMGSelect,
+  SMGInsert,
+  HeavySelect,
+  HeavyInsert,
+  KnifeSelect,
+  KnifeInsert,
+  GloveSelect,
+  GloveInsert,
+  AgentSelect,
+  AgentInsert,
+  MusicSelect,
+  MusicInsert,
+  PinSelect,
+  PinInsert,
+  HealthCheckHistorySelect,
+  HealthCheckHistoryInsert
 } from './database'
 
 // ============================================================================

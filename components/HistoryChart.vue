@@ -168,7 +168,7 @@ const chartOptions = computed<ChartJSOptions<'line'>>(() => ({
           const point = props.data.data_points[context.dataIndex];
           return [
             `Latency: ${value}ms`,
-            `Status: ${point.status.toUpperCase()}`
+            `Status: ${point?.status.toUpperCase()}`
           ];
         }
       }

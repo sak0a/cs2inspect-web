@@ -7,7 +7,7 @@ const props = defineProps<{
   visible: boolean
   weaponName?: string
   team?: number
-  currentKeychain?: { id?: number; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number | null; highlight_reel_id?: number | null } | null
+  currentKeychain?: { id?: number | string; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number | null; highlight_reel_id?: number | null } | null
 }>()
 
 const emit = defineEmits<{

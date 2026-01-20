@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import type { IEnhancedGlove, GloveConfiguration } from "~/types"
+import type { IEnhancedGlove, GloveConfiguration, GloveItemData, UserProfile } from "~/types"
+import { toSteamId } from "~/types/core/branded"
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedGlove[]>([])
@@ -27,7 +28,7 @@ const gloveOptions = computed(() => {
     { label: 'Default Gloves', value: -1 },
     ...Object.entries(groupedGloves.value).map(([gloveName, gloveData]) => ({
       label: gloveName,
-      value: gloveData.weapons[0].weapon_defindex
+      value: gloveData.weapons[0]?.weapon_defindex
     }))
   ]
 })
@@ -73,9 +74,9 @@ const fetchLoadoutGloves = async () => {
     return
   }
   isLoading.value = true;
-  await loadoutStore.fetchLoadoutGloves(user.value.steamId)
+  await loadoutStore.fetchLoadoutGloves(toSteamId(user.value.steamId))
       .then(() => {
-        skins.value = loadoutStore.loadoutSkins;
+        skins.value = loadoutStore.loadoutSkins as IEnhancedGlove[];
         updateSelectedGloves();
       })
       .catch(() => {
@@ -99,8 +100,8 @@ const findGloveInGroups = (defindex: number | null) => {
  */
 const updateSelectedGloves = () => {
   if (!loadoutStore.selectedLoadout) return;
-  selectedTeamGloves.value.terrorists = findGloveInGroups(loadoutStore.selectedLoadout.selected_glove_t)
-  selectedTeamGloves.value.counterTerrorists = findGloveInGroups(loadoutStore.selectedLoadout.selected_glove_ct)
+  selectedTeamGloves.value.terrorists = findGloveInGroups(loadoutStore.selectedLoadout.selected_glove_t) ?? null
+  selectedTeamGloves.value.counterTerrorists = findGloveInGroups(loadoutStore.selectedLoadout.selected_glove_ct) ?? null
 
   // Set initial glove types based on selected gloves
   tGloveType.value = selectedTeamGloves.value.terrorists?.weapon_defindex || -1;
@@ -193,7 +194,7 @@ onMounted(async () => {
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
     try {
-      await loadoutStore.fetchLoadouts(user.value.steamId)
+      await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       if (loadoutStore.selectedLoadoutId) {
         if (skins.value.length === 0) {
           await fetchLoadoutGloves()
@@ -262,12 +263,11 @@ watch(() => showSkinModal.value, (isVisible) => {
               v-for="(gloveData, gloveName) in groupedGloves"
               :key="gloveName"
               :weapon-data="{
-              weapons: gloveData.weapons,
+              weapons: gloveData.weapons as unknown as GloveItemData[],
               defaultName: gloveData.defaultName,
-              defaultImage: gloveData.defaultImage,
               availableTeams: 'both'
             }"
-              @weapon-click="handleGloveClick"
+              @weapon-click="(glove: GloveItemData) => handleGloveClick(glove as unknown as IEnhancedGlove)"
           />
         </div>
         <!-- No Skins State -->
@@ -280,11 +280,11 @@ watch(() => showSkinModal.value, (isVisible) => {
       <GloveSkinModal
           v-if="user"
           v-model:visible="showSkinModal"
-          :user="user"
+          :user="user as unknown as UserProfile"
           :weapon="selectedGlove"
           :other-team-has-skin="otherTeamHasSkin"
-          @select="handleSkinSelect"
-          @duplicate="handleGloveDuplicate"
+          @select="(glove: any, customization: GloveConfiguration) => handleSkinSelect(glove as IEnhancedGlove, customization)"
+          @duplicate="(glove: any, customization: GloveConfiguration) => handleGloveDuplicate(glove as IEnhancedGlove, customization)"
       />
     </div>
   </div>

@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import type { IEnhancedKnife, KnifeConfiguration } from "~/types"
+import type { IEnhancedKnife, IEnhancedItem, KnifeConfiguration, UserProfile } from "~/types"
+import { toSteamId } from "~/types/core/common"
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedKnife[]>([])
@@ -27,7 +28,7 @@ const knifeOptions = computed(() => {
     { label: 'Default Knife', value: -1 },
     ...Object.entries(groupedKnives.value).map(([knifeName, knifeData]) => ({
       label: knifeName,
-      value: knifeData.weapons[0].weapon_defindex
+      value: knifeData.weapons[0]?.weapon_defindex ?? -1
     }))
   ]
 })
@@ -72,9 +73,9 @@ const fetchLoadoutKnives = async () => {
     return
   }
   isLoading.value = true;
-  await loadoutStore.fetchLoadoutKnives(user.value.steamId)
+  await loadoutStore.fetchLoadoutKnives(toSteamId(user.value.steamId))
       .then(() => {
-        skins.value = loadoutStore.loadoutSkins;
+        skins.value = loadoutStore.loadoutSkins as IEnhancedKnife[];
         console.log("Fetched loadout knives: ", skins.value)
         updateSelectedKnives();
       })
@@ -99,8 +100,8 @@ const findKnifeInGroups = (defindex: number | null) => {
  */
 const updateSelectedKnives = () => {
   if (!loadoutStore.selectedLoadout) return;
-  selectedTeamKnives.value.terrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_t)
-  selectedTeamKnives.value.counterTerrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_ct)
+  selectedTeamKnives.value.terrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_t) ?? null
+  selectedTeamKnives.value.counterTerrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_ct) ?? null
 
   // Set initial knife types based on selected knives
   tKnifeType.value = selectedTeamKnives.value.terrorists?.weapon_defindex || -1;
@@ -111,6 +112,26 @@ const handleKnifeClick = (knife: IEnhancedKnife) => {
   console.log('Knife clicked: ', knife)
   selectedKnife.value = knife
   showSkinModal.value = true
+}
+
+// Convert SteamUser to UserProfile for components that expect branded types
+const userAsProfile = computed((): UserProfile | null => {
+  if (!user.value) return null
+  return {
+    steamId: toSteamId(user.value.steamId),
+    personaName: user.value.personaName,
+    avatar: user.value.avatar,
+    profileUrl: user.value.profileUrl
+  }
+})
+
+// Wrapper handlers that accept IEnhancedItem but cast to IEnhancedKnife
+const handleSkinSaveWrapper = async (skin: IEnhancedItem, customization: KnifeConfiguration) => {
+  await handleSkinSave(skin as IEnhancedKnife, customization)
+}
+
+const handleKnifeDuplicateWrapper = async (skin: IEnhancedItem, customization: KnifeConfiguration) => {
+  await handleKnifeDuplicate(skin as IEnhancedKnife, customization)
 }
 
 const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfiguration) => {
@@ -194,7 +215,7 @@ onMounted(async () => {
   user.value = steamAuth.getSavedUser()
   if (user.value?.steamId) {
     try {
-      await loadoutStore.fetchLoadouts(user.value.steamId)
+      await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       if (loadoutStore.selectedLoadoutId) {
         if (skins.value.length === 0) {
           await fetchLoadoutKnives()
@@ -271,12 +292,11 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
               v-for="(knifeData, knifeName) in groupedKnives"
               :key="knifeName"
               :weapon-data="{
-              weapons: knifeData.weapons,
+              weapons: knifeData.weapons as any,
               defaultName: knifeData.defaultName,
-              defaultImage: knifeData.defaultImage,
               availableTeams: 'both'
             }"
-              @weapon-click="handleKnifeClick"
+              @weapon-click="handleKnifeClick as any"
           />
         </div>
         <!-- No Skins State -->
@@ -287,13 +307,13 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 
       <!-- Knife Skin Selection & Customization Modal -->
       <KnifeSkinModal
-          v-if="user"
+          v-if="userAsProfile"
           v-model:visible="showSkinModal"
-          :user="user"
+          :user="userAsProfile"
           :weapon="selectedKnife"
           :other-team-has-skin="otherTeamHasSkin"
-          @save="handleSkinSave"
-          @duplicate="handleKnifeDuplicate"
+          @save="handleSkinSaveWrapper"
+          @duplicate="handleKnifeDuplicateWrapper"
       />
     </div>
   </div>

@@ -4,6 +4,7 @@ import type {
   KnifeItemData,
   DBKnife
 } from '~/types'
+import { toSteamId, toLoadoutId, toDefindex, toPaintIndex } from '~/types/core/common'
 
 /**
  * Props interface for KnifeTabs component
@@ -47,7 +48,7 @@ function setCookie(name: string, val: string) {
 function getCookie(name: string): string | null {
   try {
     const part = document.cookie.split('; ').find(row => row.startsWith(name + '='))
-    return part ? decodeURIComponent(part.split('=')[1]) : null
+    return part ? decodeURIComponent(part.split('=')[1] ?? '') : null
   } catch {
     return null
   }
@@ -104,12 +105,12 @@ const handleDefaultWeaponClick = (team: number): void => {
       weapon_defindex: firstKnife.weapon_defindex || firstKnife.databaseInfo?.defindex || 0,
       databaseInfo: {
         id: `default-db-${firstKnife.id || 'knife'}`,
-        steamid: '',
-        loadoutid: '',
+        steamid: toSteamId(''),
+        loadoutid: toLoadoutId(0),
         active: false,
         team: team,
-        defindex: firstKnife.databaseInfo?.defindex || 0,
-        paintindex: 0,
+        defindex: firstKnife.databaseInfo?.defindex || toDefindex(0),
+        paintindex: toPaintIndex(0),
         paintseed: '0',
         paintwear: '0.01',
         stattrak_enabled: false,
@@ -154,7 +155,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
   <!-- For weapons that both teams can use (like AWP) -->
   <div v-if="weaponData.availableTeams === 'both'" >
     <NTabs v-model:value="currentTeamTab" type="line" animated size="small" @update:value="(v) => setTeamCookie(v as 'ct' | 't')">
-      <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
+      <NTabPane name="ct" :tab="String(t('teams.counterTerrorists'))">
         <!-- Default weapon if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: KnifeItemData) => w.databaseInfo?.team === 2)"
@@ -167,14 +168,14 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
             </div>
           </div>
         </NCard>
@@ -199,13 +200,13 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }"></div> 
             </div>
           </div>
         </NCard>
       </NTabPane>
 
-      <NTabPane name="t" :tab="t('teams.terrorists') as string">
+      <NTabPane name="t" :tab="String(t('teams.terrorists'))">
         <!-- Default weapon if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: KnifeItemData) => w.databaseInfo?.team === 1)"
@@ -218,14 +219,14 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
             </div>
           </div>
         </NCard>
@@ -263,7 +264,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
     <NTabs type="line" animated size="small">
       <NTabPane
           :name="weaponData.availableTeams === 'terrorists' ? 't' : 'ct'"
-          :tab="weaponData.availableTeams === 'terrorists' ? t('teams.terrorists') as string : t('teams.counterTerrorists') as string"
+          :tab="weaponData.availableTeams === 'terrorists' ? String(t('teams.terrorists')) : String(t('teams.counterTerrorists'))"
       >
         <!-- Default weapon if no skin selected -->
         <NCard
@@ -278,14 +279,14 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
             </div>
           </div>
         </NCard>
@@ -310,7 +311,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }"></div>
             </div>
           </div>
         </NCard>

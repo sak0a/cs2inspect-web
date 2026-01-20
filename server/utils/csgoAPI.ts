@@ -35,7 +35,7 @@ const STORAGE_DIR = process.env.VERCEL || process.env.NETLIFY || process.env.AWS
 type ApiFileConfig = {
     url: string;
     path: string;
-    processor?: (data: unknown) => unknown;
+    processor?: <T>(data: T[]) => T[];
 };
 
 // Define the API files with their configurations
@@ -43,7 +43,7 @@ const API_FILES: Record<string, ApiFileConfig> = {
     skins: {
         url: EXTERNAL_API_URLS.SKINS,
         path: path.join(STORAGE_DIR, 'skins.json'),
-        processor: processSkinData
+        processor: processSkinData as <T>(data: T[]) => T[]
     },
     stickers: {
         url: EXTERNAL_API_URLS.STICKERS,
@@ -52,7 +52,7 @@ const API_FILES: Record<string, ApiFileConfig> = {
     keychains: {
         url: EXTERNAL_API_URLS.KEYCHAINS,
         path: path.join(STORAGE_DIR, 'keychains.json'),
-        processor: processKeychainData
+        processor: processKeychainData as <T>(data: T[]) => T[]
     },
     agents: {
         url: EXTERNAL_API_URLS.AGENTS,
@@ -217,7 +217,7 @@ function readDataFromFile(filePath: string): unknown {
  * Generic function to load data from file or API
  */
 async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
-    const config = API_FILES[type];
+    const config = API_FILES[type]!;
 
     try {
         let data: T[];
@@ -227,15 +227,15 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
 
         if (!isServerless && isFileValid(config.path)) {
             console.log(`Using cached ${type} data from ${config.path}`);
-            data = readDataFromFile(config.path);
+            data = readDataFromFile(config.path) as T[];
         } else {
             console.log(`Fetching fresh ${type} data`);
-            data = await fetchAndSaveData(config.url, config.path);
+            data = await fetchAndSaveData(config.url, config.path) as T[];
         }
 
         // Apply processor function if provided
         if (config.processor && typeof config.processor === 'function') {
-            data = config.processor(data);
+            data = config.processor(data) as T[];
         }
 
         return data;
@@ -245,7 +245,7 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
         // If file exists but is invalid or we failed to fetch, try to use it anyway
         if (fs.existsSync(config.path)) {
             console.log(`Falling back to existing ${type} data file`);
-            return readDataFromFile(config.path);
+            return readDataFromFile(config.path) as T[];
         }
 
         throw error;

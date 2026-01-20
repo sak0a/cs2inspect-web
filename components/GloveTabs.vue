@@ -4,6 +4,7 @@ import type {
   GloveItemData,
   DBGlove
 } from '~/types'
+import { toSteamId, toLoadoutId, toDefindex, toPaintIndex } from '~/types/core/common'
 
 /**
  * Props interface for GloveTabs component
@@ -47,7 +48,7 @@ function setCookie(name: string, val: string) {
 function getCookie(name: string): string | null {
   try {
     const part = document.cookie.split('; ').find(row => row.startsWith(name + '='))
-    return part ? decodeURIComponent(part.split('=')[1]) : null
+    return part ? decodeURIComponent(part.split('=')[1] ?? '') : null
   } catch {
     return null
   }
@@ -104,12 +105,12 @@ const handleDefaultWeaponClick = (team: number): void => {
       weapon_defindex: firstGlove.weapon_defindex || firstGlove.databaseInfo?.defindex || 0,
       databaseInfo: {
         id: `default-db-${firstGlove.id || 'glove'}`,
-        steamid: '',
-        loadoutid: '',
+        steamid: toSteamId(''),
+        loadoutid: toLoadoutId(0),
         active: false,
         team: team,
-        defindex: firstGlove.databaseInfo?.defindex || 0,
-        paintindex: 0,
+        defindex: firstGlove.databaseInfo?.defindex || toDefindex(0),
+        paintindex: toPaintIndex(0),
         paintseed: '0',
         paintwear: '0.01',
         created_at: new Date().toISOString(),
@@ -151,7 +152,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
   <!-- For gloves that both teams can use -->
   <div v-if="weaponData.availableTeams === 'both'" >
     <NTabs v-model:value="currentTeamTab" type="line" animated size="small" @update:value="(v) => setTeamCookie(v as 'ct' | 't')">
-      <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
+      <NTabPane name="ct" :tab="String(t('teams.counterTerrorists'))">
         <!-- Default glove if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 2)"
@@ -164,7 +165,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
@@ -202,7 +203,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         </NCard>
       </NTabPane>
 
-      <NTabPane name="t" :tab="t('teams.terrorists') as string">
+      <NTabPane name="t" :tab="String(t('teams.terrorists'))">
         <!-- Default glove if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 1)"
@@ -215,14 +216,14 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
             </div>
           </div>
         </NCard>
@@ -260,7 +261,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
     <NTabs type="line" animated size="small">
       <NTabPane
           :name="weaponData.availableTeams === 'terrorists' ? 't' : 'ct'"
-          :tab="weaponData.availableTeams === 'terrorists' ? t('teams.terrorists') as string : t('teams.counterTerrorists') as string"
+          :tab="weaponData.availableTeams === 'terrorists' ? String(t('teams.terrorists')) : String(t('teams.counterTerrorists'))"
       >
         <!-- Default glove if no skin selected -->
         <NCard
@@ -275,14 +276,14 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         >
           <div class="flex flex-col items-center">
             <img
-                :src="weaponData.weapons[0].defaultImage"
+                :src="weaponData.weapons[0]?.defaultImage"
                 :alt="weaponData.defaultName"
                 class="w-full h-32 object-contain mb-2"
                 loading="lazy"
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
             </div>
           </div>
         </NCard>

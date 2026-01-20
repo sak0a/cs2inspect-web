@@ -9,6 +9,7 @@ import type {
   StickerConfiguration,
   KeychainConfiguration
 } from '~/types'
+import { toSteamId } from '~/types/core/common'
 
 // Backward compatibility imports
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/types'
@@ -90,7 +91,7 @@ const state = ref<WeaponModalState>({
   showStickerModal: false,
   showKeychainModal: false,
   showVisualCustomizer: false,
-  inlineVisualCustomizerActive: false, // NEW - for inline mode
+  inlineVisualCustomizerActive: false,
   currentStickerPosition: 0
 })
 
@@ -132,14 +133,14 @@ const user = computed((): UserProfile | null => {
   if (!steamUser) return null
 
   return {
-    steamId: steamUser.steamId,
+    steamId: toSteamId(steamUser.steamId),
     personaName: steamUser.personaName,
     avatar: steamUser.avatar,
     profileUrl: steamUser.profileUrl
   }
 })
 /**
- * Pagination and filtering computed properties
+ * Advanced pagination and filtering (extends base composable)
  */
 const PAGE_SIZE = ref(props.pageSize || 10)
 
@@ -416,7 +417,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       statTrakCount: data.item.killeatervalue || 0,
       nameTag: data.item.customname || '',
       stickers,
-      keychain: keychainData
+      keychain: keychainData ?? null
     }
 
     // Update selected skin based on paint index
@@ -650,8 +651,8 @@ const handleStickerDrop = (e: DragEvent, toIndex: number) => {
 
   // Swap stickers in the customization object
   const stickers = [...customization.value.stickers]
-  const temp = stickers[fromIndex]
-  stickers[fromIndex] = stickers[toIndex]
+  const temp = stickers[fromIndex] ?? null
+  stickers[fromIndex] = stickers[toIndex] ?? null
   stickers[toIndex] = temp
   customization.value.stickers = stickers
 }
@@ -702,7 +703,7 @@ const handleInlineOpenStickerModal = (slotIndex: number) => {
 
 const handleInlineSave = () => {
     handleExitInlineVisualCustomizer()
-    message.success((t('modals.visualCustomizer.messages.saved') || 'Visual customization saved'))
+    message.success(String(t('modals.visualCustomizer.messages.saved') || 'Visual customization saved'))
 }
 
 const isEditableTarget = (target: EventTarget | null): boolean => {
@@ -1013,7 +1014,7 @@ watch(() => props.weapon, () => {
           secondary 
           type="error" 
           :disabled="!selectedSkin || customization.paintIndex == 0" 
-          :aria-label="t('modals.weaponSkin.buttons.reset') as string"
+          :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
           @click="state.showResetConfirm = true"
         >
           <template #icon>
@@ -1033,7 +1034,7 @@ watch(() => props.weapon, () => {
           secondary 
           type="default" 
           :disabled="!selectedSkin"
-          :aria-label="t('modals.weaponSkin.buttons.importFromLink') as string"
+          :aria-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
           @click="state.showImportModal = true"
         >
           <template #icon>
@@ -1049,7 +1050,7 @@ watch(() => props.weapon, () => {
           secondary
           type="default"
           :disabled="!selectedSkin || customization.paintIndex === 0"
-          :aria-label="t('modals.weaponSkin.buttons.generateLink') as string"
+          :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
           @click="handleCreateInspectLink"
         >
           <template #icon>
@@ -1062,7 +1063,7 @@ watch(() => props.weapon, () => {
         <!-- Weapon Search -->
         <NInput
             v-model:value="state.searchQuery"
-            :placeholder="t('modals.weaponSkin.inputs.searchPlaceholder') as string"
+            :placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
             class="pl-1 w-96"
         />
       </template>
@@ -1265,7 +1266,7 @@ type="success" secondary :class="[
         </div>
 
         <!-- Sticker and Keychain customization-->
-        <div class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': state.showDetails }">
+        <div class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': apiState.showDetails }">
           <!-- Stickers -->
           <div class="col-span-5 lg:col-span-5 md:col-span-3 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.stickers.title') }}</h4>
@@ -1304,9 +1305,9 @@ type="success" secondary :class="[
                 <div v-if="sticker" class="h-28 relative group">
                   <img
                       :src="generateStickerImageUrl(sticker.id, sticker.wear || 0)"
-                      :alt="sticker.api.name"
+                      :alt="sticker.api?.name ?? ''"
                       class="w-full h-full object-contain"
-                      @error="(e) => (e.target as HTMLImageElement).src = sticker?.api.image || ''"
+                      @error="(e) => (e.target as HTMLImageElement).src = sticker?.api?.image || ''"
                   >
                   <div class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <span class="text-white text-xs">{{ t('modals.weaponSkin.stickers.reposition') }}</span>
@@ -1333,8 +1334,8 @@ type="success" secondary :class="[
                 v-if="customization.keychain"
                 type="button"
                 class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
-                :title="t('modals.weaponSkin.keychain.remove') as string"
-                :aria-label="t('modals.weaponSkin.keychain.remove') as string"
+                :title="String(t('modals.weaponSkin.keychain.remove'))"
+                :aria-label="String(t('modals.weaponSkin.keychain.remove'))"
                 draggable="false"
                 @mousedown.stop.prevent
                 @click.stop.prevent="removeKeychain"
@@ -1347,11 +1348,11 @@ type="success" secondary :class="[
               </button>
               <div v-if="customization.keychain" class="relative group h-28 flex flex-col items-center justify-center w-full">
                 <img
-                    :src="generateFlatKeychainUrl(customization.keychain.api.name, customization.keychain.seed, customization.keychain.api.rarity?.id, customization.keychain.wrapped_sticker_id || undefined)"
-                    :alt="customization.keychain.api.name"
+                    :src="generateFlatKeychainUrl(customization.keychain.api?.name ?? '', customization.keychain.seed, undefined, customization.keychain.wrapped_sticker_id || undefined)"
+                    :alt="customization.keychain.api?.name ?? ''"
                     class="h-full w-full object-contain max-h-[85%]"
                 >
-                <p class="text-xs text-center text-gray-400 mt-1 truncate w-full px-1">{{ customization.keychain.api.name.replace('Charm | ', '') }}</p>
+                <p class="text-xs text-center text-gray-400 mt-1 truncate w-full px-1">{{ (customization.keychain.api?.name ?? '').replace('Charm | ', '') }}</p>
               </div>
               <div v-else class="h-28 flex items-center justify-center">
                 <span class="text-gray-400 text-sm">{{ t('modals.weaponSkin.keychain.add') }}</span>
@@ -1452,7 +1453,7 @@ type="success" secondary :class="[
 
       <!-- No Results -->
       <div v-if="!state.isLoadingSkins && sortedSkins.length === 0" class="flex justify-center items-center h-64">
-        <NEmpty :description="t('modals.weaponSkin.noSearchResults') as string" />
+        <NEmpty :description="String(t('modals.weaponSkin.noSearchResults'))" />
       </div>
 
       <!-- Pagination -->
@@ -1498,7 +1499,7 @@ type="success" secondary :class="[
           v-model:visible="state.showDuplicateConfirm"
           :loading="state.isDuplicating"
           :other-team-has-skin="otherTeamHasSkin"
-          :item-type="t('modals.duplicateItem.type.weapon') as string"
+          :item-type="String(t('modals.duplicateItem.type.weapon'))"
           @confirm="handleDuplicate"
       />
 

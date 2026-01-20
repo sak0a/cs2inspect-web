@@ -2,15 +2,11 @@
 // Removed unused computed import
 import type { APIMusicKit } from "~/server/types";
 
-const props = defineProps({
-  musicKit: {
-    type: Object as () => APIMusicKit,
-    required: true
-  },
-  isSelected: {
-    type: Boolean,
-    default: false
-  }
+const props = withDefaults(defineProps<{
+  musicKit: APIMusicKit
+  isSelected?: boolean
+}>(), {
+  isSelected: false
 })
 
 const emit = defineEmits(['select'])
@@ -18,14 +14,6 @@ const { t: _t } = useI18n()
 
 const handleSelect = () => {
   emit('select', props.musicKit)
-}
-
-const hexToRgba = (hex: string, opacity: string) => {
-  if (!hex) return `rgba(49, 48, 48, ${opacity})`
-  const r = parseInt(hex.slice(1, 3), 16)
-  const g = parseInt(hex.slice(3, 5), 16)
-  const b = parseInt(hex.slice(5, 7), 16)
-  return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
 
 // Removed unused getMusicKitBaseId computed property

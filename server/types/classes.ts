@@ -25,24 +25,26 @@ import type {
 export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
     id: number;
     slot: number;
+    position: number;
     x: number;
     y: number;
     wear: number;
     scale: number;
     rotation: number;
-    api: {
+    api?: {
         name: string;
         image: string;
         type: string;
         effect: string;
         tournament_event: string;
         tournament_team: string;
-        rarity: ItemRarity;
+        rarity?: ItemRarity;
     };
 
     constructor(data: IEnhancedWeaponSticker) {
-        this.id = data.id;
+        this.id = typeof data.id === 'string' ? parseInt(data.id) : data.id;
         this.slot = data.slot;
+        this.position = data.position ?? data.slot;
         this.x = data.x;
         this.y = data.y;
         this.wear = data.wear;
@@ -81,6 +83,7 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
         return new EnhancedWeaponSticker({
             id: parseInt(stickerId),
             slot: slot,
+            position: slot,
             x: parseFloat(x),
             y: parseFloat(y),
             wear: parseFloat(wear),
@@ -110,6 +113,7 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
         return {
             id: this.id,
             slot: this.slot,
+            position: this.position,
             x: this.x,
             y: this.y,
             wear: this.wear,
@@ -136,10 +140,10 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
     seed: number;
     wrapped_sticker_id?: number | null;
     highlight_reel_id?: number | null;
-    api: { name: string; image: string; rarity: ItemRarity; };
+    api?: { name: string; image: string; rarity?: ItemRarity; };
 
     constructor(data: IEnhancedWeaponKeychain) {
-        this.id = data.id;
+        this.id = typeof data.id === 'string' ? parseInt(data.id) : data.id;
         this.x = data.x;
         this.y = data.y;
         this.z = data.z;
@@ -163,8 +167,8 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
         const seed = parts[4] ?? '0';
 
         // Optional extended fields
-        const wrapped_sticker_id = parts.length > 5 && parts[5] !== '' ? parseInt(parts[5]) : null;
-        const highlight_reel_id = parts.length > 6 && parts[6] !== '' ? parseInt(parts[6]) : null;
+        const wrapped_sticker_id = parts.length > 5 && parts[5] !== '' ? parseInt(parts[5]!) : null;
+        const highlight_reel_id = parts.length > 6 && parts[6] !== '' ? parseInt(parts[6]!) : null;
 
         const keychainInfo = keychainData.find((k: APIKeychain) => k.id === ("keychain-" + keychainId));
 

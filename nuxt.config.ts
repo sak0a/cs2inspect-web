@@ -113,12 +113,12 @@ export default defineNuxtConfig({
     ]
   },
   tailwindcss: {
-    /*cssPath: ['~/assets/css/tailwind.css', { injectPosition: "first" }],
+    cssPath: ['~/assets/css/tailwind.css', { injectPosition: "first" }],
     exposeConfig: {
       level: 2
     },
     config: {},
-    viewer: false,*/
+    viewer: false,
   },
   modules: [
     '@nuxtjs/tailwindcss',
@@ -130,17 +130,12 @@ export default defineNuxtConfig({
     'nuxt-i18n-micro',
     //'@nuxtjs/seo',
     '@vite-pwa/nuxt',
-    'shadcn-nuxt'
   ],
   site: {
     url: 'https://cs2inspect.com',
     name: 'CS2 Inspect',
     description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
     defaultLocale: 'en',
-  },
-  shadcn: {
-    prefix: '',
-    componentDir: '@/components/ui',
   },
   runtimeConfig: {
     public: {

@@ -34,9 +34,9 @@ export async function initializeSteamClient() {
         }
 
         steamClientInitialized = true;
-        console.log('CS2 Inspect client initialized successfully');
+        console.log('[CS2 Inspect] CS2 Inspect client initialized successfully');
     } catch (error) {
-        console.error('Failed to initialize CS2 Inspect client:', error);
+        console.error('[CS2 Inspect] Failed to initialize CS2 Inspect client:', error);
         throw error;
     }
 }
@@ -49,16 +49,16 @@ export function getCS2Client(): CS2Inspect {
 }
 
 export default defineNitroPlugin(async () => {
-    // Run database migrations first
+    // Run database migrations first (using Drizzle ORM)
     try {
-        const { runMigrations } = await import('../utils/migrations/runner');
+        const { runMigrations } = await import('../database/migrate');
         await runMigrations();
     } catch (error) {
         console.error('Failed to run database migrations:', error);
         // Don't throw - allow server to start even if migrations fail
         // This allows manual intervention if needed
     }
-    
+
     // Initialize CSGO API data in the background (non-blocking)
     // This allows the server to start immediately while data loads
     // The promise is tracked in csgoAPI.ts so API endpoints can wait for it if needed
@@ -66,11 +66,11 @@ export default defineNitroPlugin(async () => {
     startDataInitialization().catch(error => {
         console.error('Failed to initialize CSGO API data', error);
     });
-    
+
     // Initialize Steam client only if steam service is not configured
     // If STEAM_SERVICE_URL is set, we'll use the external service instead
     const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SERVICE_API_KEY);
-    
+
     if (!useSteamService) {
         // Initialize Steam client in the background (non-blocking)
         initializeSteamClient().catch(error => {
@@ -79,10 +79,10 @@ export default defineNitroPlugin(async () => {
     } else {
         console.log('Steam service configured - using external service instead of local client');
     }
-    
+
     // Import health check sampler dynamically to avoid circular dependencies
     const { startHealthCheckSampler } = await import('../utils/health/sampler');
-    
+
     // Start health check sampler with 60 second interval
     startHealthCheckSampler(60000);
     console.log('Health check sampler started');

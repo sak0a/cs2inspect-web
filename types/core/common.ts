@@ -10,6 +10,47 @@
  */
 
 // ============================================================================
+// BRANDED TYPES (Re-exported from branded.ts)
+// ============================================================================
+
+// Import SteamId for local use in this file (UserProfile interface)
+import type { SteamId as ImportedSteamId } from './branded'
+
+export {
+  // Entity ID types
+  type LoadoutId,
+  type SteamId,
+
+  // Numeric identifier types
+  type Defindex,
+  type PaintIndex,
+  type PaintSeed,
+  type StickerId,
+  type KeychainId,
+  type MusicKitDefindex,
+  type PinDefindex,
+
+  // Conversion helpers
+  toLoadoutId,
+  toSteamId,
+  toDefindex,
+  toPaintIndex,
+  toPaintSeed,
+  toStickerId,
+  toKeychainId,
+  toMusicKitDefindex,
+  toPinDefindex,
+
+  // Type guards
+  isValidLoadoutId,
+  isValidSteamId,
+  isValidDefindex,
+} from './branded'
+
+// Local alias for use within this file
+type SteamId = ImportedSteamId
+
+// ============================================================================
 // UTILITY TYPES
 // ============================================================================
 
@@ -18,6 +59,7 @@
  * 
  * @description Used consistently across the application for entity identification
  * @example "user_123", "loadout_456", "weapon_789"
+ * @deprecated Consider using branded types (LoadoutId, SteamId, etc.) for specific IDs
  */
 export type EntityId = string
 
@@ -261,8 +303,8 @@ export interface AsyncResult<T = unknown, E = ErrorInfo> {
  * @description Basic Steam user data used throughout the application
  */
 export interface UserProfile {
-  /** Steam ID (64-bit) */
-  steamId: string
+  /** Steam ID (64-bit) - using branded SteamId type for type safety */
+  steamId: SteamId
   /** Display name from Steam profile */
   personaName: string
   /** Avatar image URL */

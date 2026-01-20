@@ -1,21 +1,32 @@
 import { createError } from 'h3'
-import { executeQuery } from '~/server/database/database'
+import { eq, and } from 'drizzle-orm'
+import { db } from '~/server/database/client'
+import { knives, gloves, pistols, rifles, smgs, heavys } from '~/server/database/schema'
 import { APIRequestLogger as Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
+import { toLoadoutId } from '~/types/core/common'
 import type {
     WeaponCustomization,
     KnifeCustomization,
     GloveCustomization,
-    DBWeapon,
-    DBKnife,
-    DBGlove,
-    IEnhancedWeaponSticker
+    IEnhancedWeaponSticker,
+    IEnhancedWeaponKeychain
 } from '~/server/types'
 import {
     EnhancedWeaponSticker,
     EnhancedWeaponKeychain
 } from '~/server/types'
+
+// Map table names to Drizzle table schemas
+const weaponTableMap = {
+    'wp_player_pistols': pistols,
+    'wp_player_rifles': rifles,
+    'wp_player_smgs': smgs,
+    'wp_player_heavys': heavys,
+} as const;
+
+type WeaponTableName = keyof typeof weaponTableMap;
 
 /**
  * Validates common fields for all item types
@@ -36,7 +47,7 @@ export const validateCommonFields = (body: Record<string, unknown>) => {
 
     // Validate paintIndex
     validateRequiredRequestData(body.paintIndex, 'Paint Index')
-    if (body.paintIndex < 0) {
+    if ((body.paintIndex as number) < 0) {
         Logger.error('Invalid paint index')
         throw createError({
             statusCode: 400,
@@ -46,7 +57,7 @@ export const validateCommonFields = (body: Record<string, unknown>) => {
 
     // Validate pattern (paintseed)
     validateRequiredRequestData(body.pattern, 'Paint Seed', true)
-    if (body.pattern < 0) {
+    if ((body.pattern as number) < 0) {
         Logger.error('Invalid paint seed')
         throw createError({
             statusCode: 400,
@@ -56,7 +67,7 @@ export const validateCommonFields = (body: Record<string, unknown>) => {
 
     // Validate paintWear
     validateRequiredRequestData(body.wear, 'Paint Wear', true)
-    if (body.wear < 0 || body.wear > 1) {
+    if ((body.wear as number) < 0 || (body.wear as number) > 1) {
         Logger.error('Invalid paint wear')
         throw createError({
             statusCode: 400,
@@ -79,7 +90,7 @@ export const validateCommonFields = (body: Record<string, unknown>) => {
  */
 export const validateWeaponFields = (body: Record<string, unknown>) => {
     // Validate defindex against valid weapon defindexes
-    if (!VALID_WEAPON_DEFINDEXES[body.defindex]) {
+    if (!VALID_WEAPON_DEFINDEXES[body.defindex as number]) {
         Logger.error('Invalid Weapon Defindex')
         throw createError({
             statusCode: 400,
@@ -98,7 +109,7 @@ export const validateWeaponFields = (body: Record<string, unknown>) => {
 
     // Validate statTrakCount
     validateRequiredRequestData(body.statTrakCount, 'StatTrak Count', true)
-    if (body.statTrakCount < 0) {
+    if ((body.statTrakCount as number) < 0) {
         Logger.error('Invalid StatTrak Count')
         throw createError({
             statusCode: 400,
@@ -107,7 +118,7 @@ export const validateWeaponFields = (body: Record<string, unknown>) => {
     }
 
     // Validate nameTag
-    if (body.nameTag && body.nameTag.length > 32) {
+    if (body.nameTag && (body.nameTag as string).length > 32) {
         Logger.error('Invalid Name Tag')
         throw createError({
             statusCode: 400,
@@ -121,7 +132,7 @@ export const validateWeaponFields = (body: Record<string, unknown>) => {
  */
 export const validateKnifeFields = (body: Record<string, unknown>) => {
     // Validate defindex against valid knife defindexes
-    if (!VALID_KNIFE_DEFINDEXES[body.defindex]) {
+    if (!VALID_KNIFE_DEFINDEXES[body.defindex as number]) {
         Logger.error('Invalid Knife Defindex')
         throw createError({
             statusCode: 400,
@@ -140,7 +151,7 @@ export const validateKnifeFields = (body: Record<string, unknown>) => {
 
     // Validate statTrakCount
     validateRequiredRequestData(body.statTrakCount, 'StatTrak Count', true)
-    if (body.statTrakCount < 0) {
+    if ((body.statTrakCount as number) < 0) {
         Logger.error('Invalid StatTrak Count')
         throw createError({
             statusCode: 400,
@@ -149,7 +160,7 @@ export const validateKnifeFields = (body: Record<string, unknown>) => {
     }
 
     // Validate nameTag
-    if (body.nameTag && body.nameTag.length > 32) {
+    if (body.nameTag && (body.nameTag as string).length > 32) {
         Logger.error('Invalid Name Tag')
         throw createError({
             statusCode: 400,
@@ -168,7 +179,7 @@ export const validateGloveFields = (_body: Record<string, unknown>) => {
 /**
  * Formats weapon stickers for database storage
  */
-export const formatWeaponStickers = (stickers: IEnhancedWeaponSticker[]) => {
+export const formatWeaponStickers = (stickers: (IEnhancedWeaponSticker | null)[]) => {
     const formattedStickers: string[] = stickers.map(
         sticker => sticker ?
             new EnhancedWeaponSticker(sticker).convertToDatabaseString() : '0;0;0;0;0;0'
@@ -185,145 +196,135 @@ export const formatWeaponStickers = (stickers: IEnhancedWeaponSticker[]) => {
 /**
  * Formats weapon keychain for database storage
  */
-export const formatWeaponKeychain = (keychain: { id?: number; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number; highlight_reel_id?: number } | null) => {
-    const defaultKeychain = {
+export const formatWeaponKeychain = (keychain: { id?: number | string; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number; highlight_reel_id?: number } | null) => {
+    const defaultKeychain: IEnhancedWeaponKeychain = {
         id: 0,
         x: 0,
         y: 0,
         z: 0,
         seed: 0,
         api: {
-            id: 'default',
             name: 'Default',
-            color: '#000000'
+            image: '',
+            rarity: {
+                id: 'default',
+                name: 'Default',
+                color: '#000000'
+            }
         }
     };
 
-    return new EnhancedWeaponKeychain((!keychain || keychain.id === 0) ? defaultKeychain : keychain).convertToDatabaseString();
+    return new EnhancedWeaponKeychain((!keychain || keychain.id === 0) ? defaultKeychain : keychain as IEnhancedWeaponKeychain).convertToDatabaseString();
 }
 
 /**
- * Generic function to handle item reset
+ * Generic function to handle weapon item reset using Drizzle
  */
-export const handleItemReset = async (
-    table: string,
+export const handleWeaponReset = async (
+    tableName: WeaponTableName,
     steamId: string,
     loadoutId: string,
-    body: Record<string, unknown>,
-    itemType: 'weapon' | 'knife' | 'glove'
+    body: Record<string, unknown>
 ) => {
-    // For weapons and knives, we delete the item
-    if (itemType === 'weapon' || itemType === 'knife' || itemType === 'glove') {
-        await executeQuery<unknown[]>(
-            `DELETE FROM ${table} WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?`,
-            [steamId, loadoutId, body.team, body.defindex],
-            `Failed to delete ${itemType}`
-        );
+    const table = weaponTableMap[tableName];
+    await db.delete(table).where(and(
+        eq(table.steamid, steamId),
+        eq(table.loadoutid, toLoadoutId(loadoutId)),
+        eq(table.team, body.team as number),
+        eq(table.defindex, body.defindex as number)
+    ));
 
-        Logger.success(`${itemType} deleted successfully`)
-        return {
-            success: true,
-            message: `${itemType} deleted successfully`
-        }
+    Logger.success('weapon deleted successfully')
+    return {
+        success: true,
+        message: 'weapon deleted successfully'
     }
 }
 
 /**
- * Save weapon to database
+ * Save weapon to database using Drizzle ORM
  */
 export const saveWeapon = async (
-    table: string,
+    tableName: string,
     steamId: string,
     loadoutId: string,
     body: WeaponCustomization
 ) => {
     try {
+        const table = weaponTableMap[tableName as WeaponTableName];
+        if (!table) {
+            throw new Error(`Invalid weapon table: ${tableName}`);
+        }
+
+        const loadoutIdNum = toLoadoutId(loadoutId);
+
         // Check for existing weapon
-        const existingWeapon = await executeQuery<DBWeapon[]>(
-            `SELECT * FROM ${table} WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?`,
-            [steamId, loadoutId, body.team, body.defindex],
-            'Failed to check if weapon exists'
-        );
+        const existingWeapon = await db.select()
+            .from(table)
+            .where(and(
+                eq(table.steamid, steamId),
+                eq(table.loadoutid, loadoutIdNum),
+                eq(table.team, body.team),
+                eq(table.defindex, body.defindex)
+            ))
+            .limit(1);
 
         // Handle reset case
         if (body.reset) {
-            return handleItemReset(table, steamId, loadoutId, body, 'weapon');
+            return handleWeaponReset(tableName as WeaponTableName, steamId, loadoutId, body as unknown as Record<string, unknown>);
         }
 
         // Format stickers and keychain
-        const formattedStickers = formatWeaponStickers(body.stickers);
-        const formattedKeychain = formatWeaponKeychain(body.keychain);
+        const formattedStickers = formatWeaponStickers(body.stickers as (IEnhancedWeaponSticker | null)[]);
+        const formattedKeychain = formatWeaponKeychain(body.keychain as { id?: number | string; x?: number; y?: number; z?: number; seed?: number } | null);
 
         // Update or insert weapon
         if (existingWeapon.length > 0) {
             console.log("saveWeapon: ", body)
-            await executeQuery<unknown[]>(
-                `UPDATE ${table} SET
-                    active = ?,
-                    paintindex = ?,
-                    paintwear = ?,
-                    paintseed = ?,
-                    stattrak_enabled = ?,
-                    stattrak_count = ?,
-                    nametag = ?,
-                    sticker_0 = ?,
-                    sticker_1 = ?,
-                    sticker_2 = ?,
-                    sticker_3 = ?,
-                    sticker_4 = ?,
-                    keychain = ?,
-                    team = ?
-                WHERE steamid = ? AND loadoutid = ? AND defindex = ? AND team = ?`,
-                [
-                    body.active,
-                    body.paintIndex,
-                    body.wear,
-                    body.pattern,
-                    body.statTrak,
-                    body.statTrakCount,
-                    body.nameTag,
-                    formattedStickers[0],
-                    formattedStickers[1],
-                    formattedStickers[2],
-                    formattedStickers[3],
-                    formattedStickers[4],
-                    formattedKeychain,
-                    body.team,
-                    steamId,
-                    loadoutId,
-                    body.defindex,
-                    body.team
-                ],
-                'Failed to update weapon'
-            );
+            await db.update(table)
+                .set({
+                    active: body.active ? 1 : 0,
+                    paintindex: body.paintIndex,
+                    paintwear: body.wear,
+                    paintseed: body.pattern,
+                    stattrak_enabled: body.statTrak ? 1 : 0,
+                    stattrak_count: body.statTrakCount,
+                    nametag: body.nameTag || null,
+                    sticker_0: formattedStickers[0],
+                    sticker_1: formattedStickers[1],
+                    sticker_2: formattedStickers[2],
+                    sticker_3: formattedStickers[3],
+                    sticker_4: formattedStickers[4],
+                    keychain: formattedKeychain,
+                    team: body.team
+                })
+                .where(and(
+                    eq(table.steamid, steamId),
+                    eq(table.loadoutid, loadoutIdNum),
+                    eq(table.defindex, body.defindex),
+                    eq(table.team, body.team)
+                ));
             Logger.success('Weapon updated successfully')
         } else {
-            await executeQuery<unknown[]>(
-                `INSERT INTO ${table} (
-                    steamid, loadoutid, defindex, active, team, paintindex, paintwear,
-                    paintseed, stattrak_enabled, stattrak_count, nametag,
-                    sticker_0, sticker_1, sticker_2, sticker_3, sticker_4,
-                    keychain
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    steamId,
-                    loadoutId,
-                    body.defindex,
-                    true, // Always set new weapons to active
-                    body.team,
-                    body.paintIndex,
-                    body.wear,
-                    body.pattern,
-                    body.statTrak,
-                    body.statTrakCount,
-                    body.nameTag,
-                    formattedStickers[0],
-                    formattedStickers[1],
-                    formattedStickers[2],
-                    formattedStickers[3],
-                    formattedStickers[4],
-                    formattedKeychain
-                ], 'Failed to create weapon')
+            await db.insert(table).values({
+                steamid: steamId,
+                loadoutid: loadoutIdNum,
+                defindex: body.defindex,
+                active: 1, // Always set new weapons to active
+                team: body.team,
+                paintindex: body.paintIndex,
+                paintwear: body.wear,
+                paintseed: body.pattern,
+                stattrak_enabled: body.statTrak ? 1 : 0,
+                stattrak_count: body.statTrakCount,
+                nametag: body.nameTag || null,
+                sticker_0: formattedStickers[0],
+                sticker_1: formattedStickers[1],
+                sticker_2: formattedStickers[2],
+                sticker_3: formattedStickers[3],
+                sticker_4: formattedStickers[4],
+                keychain: formattedKeychain
+            });
             Logger.success('Weapon created successfully')
         }
 
@@ -342,7 +343,7 @@ export const saveWeapon = async (
 }
 
 /**
- * Save knife to database
+ * Save knife to database using Drizzle ORM
  */
 export const saveKnife = async (
     steamId: string,
@@ -350,67 +351,69 @@ export const saveKnife = async (
     body: KnifeCustomization
 ) => {
     try {
-        const existingKnife = await executeQuery<DBKnife[]>(
-            'SELECT * FROM wp_player_knifes WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?',
-            [steamId, loadoutId, body.team, body.defindex],
-            'Failed to check if the knife exists'
-        );
+        const loadoutIdNum = toLoadoutId(loadoutId);
+
+        // Check for existing knife
+        const existingKnife = await db.select()
+            .from(knives)
+            .where(and(
+                eq(knives.steamid, steamId),
+                eq(knives.loadoutid, loadoutIdNum),
+                eq(knives.team, body.team),
+                eq(knives.defindex, body.defindex)
+            ))
+            .limit(1);
 
         // Handle reset case
         if (body.reset) {
-            return handleItemReset('wp_player_knifes', steamId, loadoutId, body, 'knife');
+            await db.delete(knives).where(and(
+                eq(knives.steamid, steamId),
+                eq(knives.loadoutid, loadoutIdNum),
+                eq(knives.team, body.team),
+                eq(knives.defindex, body.defindex)
+            ));
+
+            Logger.success('knife deleted successfully')
+            return {
+                success: true,
+                message: 'knife deleted successfully'
+            }
         }
 
         // Update or insert knife
         if (existingKnife.length > 0) {
             console.log('Updating existing knife')
-            await executeQuery<unknown[]>(
-                `UPDATE wp_player_knifes SET
-                    active = ?,
-                    paintindex = ?,
-                    paintseed = ?,
-                    paintwear = ?,
-                    stattrak_enabled = ?,
-                    stattrak_count = ?,
-                    nametag = ?
-                 WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?`,
-                [
-                    body.active,
-                    body.paintIndex,
-                    body.pattern,
-                    body.wear,
-                    body.statTrak,
-                    body.statTrakCount,
-                    body.nameTag,
-                    steamId,
-                    loadoutId,
-                    body.team,
-                    body.defindex
-                ],
-                'Failed to update knife'
-            );
+            await db.update(knives)
+                .set({
+                    active: body.active ? 1 : 0,
+                    paintindex: body.paintIndex,
+                    paintseed: body.pattern,
+                    paintwear: body.wear,
+                    stattrak_enabled: body.statTrak ? 1 : 0,
+                    stattrak_count: body.statTrakCount,
+                    nametag: body.nameTag || null
+                })
+                .where(and(
+                    eq(knives.steamid, steamId),
+                    eq(knives.loadoutid, loadoutIdNum),
+                    eq(knives.team, body.team),
+                    eq(knives.defindex, body.defindex)
+                ));
             Logger.success('Knife updated successfully')
         } else {
-            await executeQuery<unknown[]>(
-                `INSERT INTO wp_player_knifes (
-                    steamid, loadoutid, active, team, defindex, paintindex, paintseed,
-                    paintwear, stattrak_enabled, stattrak_count, nametag
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    steamId,
-                    loadoutId,
-                    true, // Always set new knives to active
-                    body.team,
-                    body.defindex,
-                    body.paintIndex,
-                    body.pattern,
-                    body.wear,
-                    body.statTrak,
-                    body.statTrakCount,
-                    body.nameTag,
-                ],
-                'Failed to create knife'
-            );
+            await db.insert(knives).values({
+                steamid: steamId,
+                loadoutid: loadoutIdNum,
+                active: 1, // Always set new knives to active
+                team: body.team,
+                defindex: body.defindex,
+                paintindex: body.paintIndex,
+                paintseed: body.pattern,
+                paintwear: body.wear,
+                stattrak_enabled: body.statTrak ? 1 : 0,
+                stattrak_count: body.statTrakCount,
+                nametag: body.nameTag || null
+            });
             Logger.success('Knife created successfully')
         }
 
@@ -429,7 +432,7 @@ export const saveKnife = async (
 }
 
 /**
- * Save glove to database
+ * Save glove to database using Drizzle ORM
  */
 export const saveGlove = async (
     steamId: string,
@@ -437,67 +440,71 @@ export const saveGlove = async (
     body: GloveCustomization
 ) => {
     try {
+        const loadoutIdNum = toLoadoutId(loadoutId);
+
         Logger.info(`saveGlove: Starting save process for steamId: ${steamId}, loadoutId: ${loadoutId}`);
-        Logger.info(`saveGlove: Body data:`, JSON.stringify(body, null, 2));
+        Logger.info(`saveGlove: Body data: ${JSON.stringify(body, null, 2)}`);
 
         // Handle reset case
         if (body.reset) {
             Logger.info('saveGlove: Processing reset request');
-            return handleItemReset('wp_player_gloves', steamId, loadoutId, body, 'glove');
+            await db.delete(gloves).where(and(
+                eq(gloves.steamid, steamId),
+                eq(gloves.loadoutid, loadoutIdNum),
+                eq(gloves.team, body.team),
+                eq(gloves.defindex, body.defindex)
+            ));
+
+            Logger.success('glove deleted successfully')
+            return {
+                success: true,
+                message: 'glove deleted successfully'
+            }
         }
 
         // Check for existing glove
         Logger.info(`saveGlove: Checking for existing glove with defindex: ${body.defindex}, team: ${body.team}`);
-        const existingGlove = await executeQuery<DBGlove[]>(
-            'SELECT * FROM wp_player_gloves WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?',
-            [steamId, loadoutId, body.team, body.defindex],
-            'Failed to check if glove exists'
-        );
+        const existingGlove = await db.select()
+            .from(gloves)
+            .where(and(
+                eq(gloves.steamid, steamId),
+                eq(gloves.loadoutid, loadoutIdNum),
+                eq(gloves.team, body.team),
+                eq(gloves.defindex, body.defindex)
+            ))
+            .limit(1);
 
-        Logger.info(`saveGlove: Found ${existingGlove.length} existing glove entries:`, existingGlove);
+        Logger.info(`saveGlove: Found ${existingGlove.length} existing glove entries: ${JSON.stringify(existingGlove)}`);
 
         // Update or insert glove
         if (existingGlove.length > 0) {
             Logger.info(`saveGlove: Updating existing glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
-            await executeQuery<unknown[]>(
-                `UPDATE wp_player_gloves SET
-                    active = ?,
-                    paintindex = ?,
-                    paintseed = ?,
-                    paintwear = ?
-                 WHERE steamid = ? AND loadoutid = ? AND team = ? AND defindex = ?`,
-                [
-                    body.active,
-                    body.paintIndex,
-                    body.pattern,
-                    body.wear,
-                    steamId,
-                    loadoutId,
-                    body.team,
-                    body.defindex
-                ],
-                'Failed to update glove'
-            );
+            await db.update(gloves)
+                .set({
+                    active: body.active ? 1 : 0,
+                    paintindex: body.paintIndex,
+                    paintseed: body.pattern,
+                    paintwear: body.wear
+                })
+                .where(and(
+                    eq(gloves.steamid, steamId),
+                    eq(gloves.loadoutid, loadoutIdNum),
+                    eq(gloves.team, body.team),
+                    eq(gloves.defindex, body.defindex)
+                ));
             Logger.success('Glove updated successfully')
         } else {
             Logger.info(`saveGlove: Inserting new glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
-            await executeQuery<unknown[]>(
-                `INSERT INTO wp_player_gloves (
-                    steamid, loadoutid, active, team, defindex, paintindex, paintseed,
-                    paintwear
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [
-                    steamId,
-                    loadoutId,
-                    true, // Always set new gloves to active
-                    body.team,
-                    body.defindex,
-                    body.paintIndex,
-                    body.pattern,
-                    body.wear
-                ],
-                'Failed to create glove'
-            );
+            await db.insert(gloves).values({
+                steamid: steamId,
+                loadoutid: loadoutIdNum,
+                active: 1, // Always set new gloves to active
+                team: body.team,
+                defindex: body.defindex,
+                paintindex: body.paintIndex,
+                paintseed: body.pattern,
+                paintwear: body.wear
+            });
             Logger.success('Glove created successfully')
         }
 
@@ -513,4 +520,26 @@ export const saveGlove = async (
             message: `Failed to save glove: ${errorMessage}`
         })
     }
+}
+
+/**
+ * Validate and return the Drizzle table for a weapon type
+ */
+export const validateWeaponDatabaseTable = (type: string): string => {
+    const typeMap: Record<string, string> = {
+        'pistols': 'wp_player_pistols',
+        'rifles': 'wp_player_rifles',
+        'smgs': 'wp_player_smgs',
+        'heavys': 'wp_player_heavys'
+    };
+
+    const tableName = typeMap[type.toLowerCase()];
+    if (!tableName) {
+        throw createError({
+            statusCode: 400,
+            message: `Invalid weapon type: ${type}`
+        });
+    }
+
+    return tableName;
 }

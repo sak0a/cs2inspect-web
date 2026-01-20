@@ -18,15 +18,14 @@ ref="progressBar" class="progress-bar"
            @mouseenter="showTooltip"
            @mouseleave="startHideTooltip">
         <!-- Full gradient background -->
-        <div class="progress-background"/>
+        <div class="progress-background"></div>
 
         <!-- Min-max range indicator -->
-        <div
-class="valid-range"
+        <div class="valid-range"
              :style="{
                left: `${(props.min * 100)}%`,
                width: `${((props.max - props.min) * 100)}%`
-             }"/>
+             }"></div>
 
         <!-- Slider handle and tooltip -->
         <div
@@ -45,8 +44,8 @@ class="valid-range"
 v-for="(label, value) in WEARS"
                :key="value"
                class="wear-label"
-               :style="{ left: `${value * 100}%` }">
-            <div class="wear-marker"/>
+               :style="{ left: `${Number(value) * 100}%` }">
+            <div class="wear-marker"></div>
           </div>
         </div>
       </div>
@@ -91,7 +90,7 @@ const progressBar = ref(null)
 const isDragging = ref(false)
 const localValue = ref(clampValue(props.modelValue))
 const isTooltipVisible = ref(false)
-const tooltipTimeout = ref(null)
+const tooltipTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // Format number to 3 decimal places for display
 const displayValue = computed(() => {
@@ -146,8 +145,9 @@ function handleBlur(event: Event) {
 function getCurrentWearLabel() {
   const wearValues = Object.keys(WEARS).map(Number)
   for (let i = wearValues.length - 1; i >= 0; i--) {
-    if (localValue.value >= wearValues[i]) {
-      return WEARS[wearValues[i]]
+    const wearValue = wearValues[i]
+    if (wearValue !== undefined && localValue.value >= wearValue) {
+      return WEARS[wearValue as keyof typeof WEARS]
     }
   }
   return WEARS[0]

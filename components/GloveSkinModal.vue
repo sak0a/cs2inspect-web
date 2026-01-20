@@ -2,15 +2,15 @@
 // New type system imports
 import type {
   GloveModalProps,
-  GloveModalState,
   GloveConfiguration,
   APIWeaponSkin,
-  UserProfile,
-  DBGlove
+  UserProfile
 } from '~/types'
+import { useItemModal } from '~/composables/useItemModal'
+import { api } from '~/utils/api'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedGlove, IEnhancedItem } from '~/server/types'
+import type { IEnhancedGlove, IEnhancedItem, IMappedDBGlove } from '~/server/types'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -44,33 +44,19 @@ const message = useMessage()
 const { t } = useI18n()
 
 /**
- * Modal state using new GloveModalState interface
+ * Use shared item modal composable for state, pagination, and skin fetching
  */
-const state = ref<GloveModalState>({
-  // Base modal state
-  isLoadingSkins: false,
-  searchQuery: '',
-  currentPage: 1,
-  error: null,
-
-  // Base item modal state
-  showImportModal: false,
-  showDuplicateConfirm: false,
-  showResetConfirm: false,
-  isImporting: false,
-  isLoadingInspect: false,
-  isResetting: false,
-  isDuplicating: false
-
-  // Note: GloveModalState doesn't have additional glove-specific state
-})
-
-/**
- * Additional state for API data (not part of the modal state interface)
- */
-const apiState = ref({
-  skins: [] as APIWeaponSkin[],
-  showDetails: false
+const { 
+  state, 
+  apiState, 
+  filteredSkins, 
+  paginatedSkins, 
+  totalPages, 
+  fetchSkins,
+  clearState 
+} = useItemModal({ 
+  itemType: 'glove', 
+  pageSize: props.pageSize || 10 
 })
 
 const inheritedWeapon = ref<IEnhancedItem | null>()
@@ -91,85 +77,15 @@ const defaultCustomization: GloveConfiguration = {
 
 const customization = ref<GloveConfiguration>({ ...defaultCustomization })
 
-// Removed unused oppositeTeam function
-
 /**
- * Pagination and filtering computed properties
- */
-const PAGE_SIZE = ref(props.pageSize || 10)
-
-const filteredSkins = computed(() => {
-  return apiState.value.skins.filter(skin =>
-    skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-  )
-})
-
-const paginatedSkins = computed(() => {
-  const start = (state.value.currentPage - 1) * PAGE_SIZE.value
-  const end = start + PAGE_SIZE.value
-  return filteredSkins.value.slice(start, end)
-})
-
-const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
-
-/**
- * Fetch available skins for the current glove
- * Updated to use new state structure and error handling
+ * Fetch available skins for the current glove using composable
  */
 const fetchSkinsForGlove = async () => {
   if (!props.weapon) {
     console.warn('GloveSkinModal: No weapon provided for skin fetching')
     return
   }
-
-  try {
-    state.value.isLoadingSkins = true
-    state.value.error = null
-
-    console.log('GloveSkinModal: Fetching skins for weapon:', props.weapon.weapon_name)
-    const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch skins: ${response.status} ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    console.log('GloveSkinModal: API response:', {
-      success: data.success,
-      dataLength: data.data?.length || 0,
-      weapon: props.weapon.weapon_name
-    })
-
-    // Handle both old and new API response formats
-    const skins = data.data || data.skins || []
-    apiState.value.skins = skins
-
-    if (skins.length === 0) {
-      console.warn('GloveSkinModal: No skins found for weapon:', props.weapon.weapon_name)
-      state.value.error = `No skins available for ${props.weapon.defaultName || props.weapon.weapon_name}`
-    } else {
-      console.log('GloveSkinModal: Successfully loaded', skins.length, 'skins')
-    }
-
-    // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(skins.filter((skin: APIWeaponSkin) =>
-      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-    ).length / PAGE_SIZE.value)
-
-    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-      state.value.currentPage = newTotalPages
-    }
-  } catch (error) {
-    console.error('GloveSkinModal: Error fetching glove skins:', {
-      error,
-      weapon: props.weapon?.weapon_name,
-      weaponData: props.weapon
-    })
-    state.value.error = error instanceof Error ? error.message : 'Failed to fetch skins'
-    emit('error', state.value.error)
-  } finally {
-    state.value.isLoadingSkins = false
-  }
+  await fetchSkins(props.weapon.weapon_name, (error) => emit('error', error))
 }
 
 /**
@@ -389,7 +305,7 @@ const handleSave = () => {
 const handleClose = () => {
   emit('update:visible', false)
   setTimeout(() => {
-    state.value.searchQuery = ''
+    clearState()
     selectedSkin.value = null
     inheritedWeapon.value = null
     customization.value = { ...defaultCustomization }
@@ -402,26 +318,10 @@ watch(() => customization.value.wear, (newWear) => {
   }
 }, { immediate: true })
 
-// Watch for changes to searchQuery to adjust current page if needed
-watch(() => state.value.searchQuery, () => {
-  // When search query changes, check if we need to adjust the current page
-  const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
-  if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-    state.value.currentPage = newTotalPages
-  } else if (newTotalPages > 0) {
-    // Reset to page 1 when search query changes
-    state.value.currentPage = 1
-  }
-})
-
 // Watch for changes to props.visible to check pagination when modal is opened
 watch(() => props.visible, (isVisible) => {
   if (isVisible && filteredSkins.value.length > 0) {
-    // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
-    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-      state.value.currentPage = newTotalPages
-    }
+    // Pagination is handled by the composable
   }
 })
 
@@ -437,17 +337,17 @@ watch(() => props.weapon, () => {
       inheritedWeapon.value = props.weapon
       fetchSkinsForGlove()
 
-      // Cast to the correct database interface for gloves
-      const dbInfo = props.weapon.databaseInfo as DBGlove
+      // databaseInfo is already typed as IMappedDBGlove | undefined from IEnhancedGlove
+      const dbInfo = props.weapon.databaseInfo
       if (dbInfo) {
         customization.value = {
-          active: dbInfo.active || false,
+          active: Boolean(dbInfo.active),
           team: dbInfo.team || 1,
           defindex: props.weapon.weapon_defindex,
           paintIndex: dbInfo.paintindex || 0, // Note: database uses 'paintindex', not 'paintIndex'
           paintIndexOverride: false,
-          pattern: parseInt(dbInfo.paintseed) || 0, // Note: database uses 'paintseed', not 'pattern'
-          wear: parseFloat(dbInfo.paintwear) || 0 // Note: database uses 'paintwear', not 'paintWear'
+          pattern: typeof dbInfo.paintseed === 'string' ? parseInt(dbInfo.paintseed) || 0 : dbInfo.paintseed || 0,
+          wear: typeof dbInfo.paintwear === 'string' ? parseFloat(dbInfo.paintwear) || 0 : dbInfo.paintwear || 0
         }
       } else {
         customization.value = {
@@ -473,7 +373,7 @@ watch(() => props.weapon, () => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="weapon ? t('modals.gloveSkin.title', { weaponName: weapon?.defaultName }) as string : t('modals.gloveSkin.defaultTitle') as string"
+      :title="weapon ? String(t('modals.gloveSkin.title', { weaponName: weapon?.defaultName })) : String(t('modals.gloveSkin.defaultTitle'))"
       :bordered="false"
       size="huge"
       :theme-overrides="skinModalThemeOverrides"
@@ -530,7 +430,7 @@ watch(() => props.weapon, () => {
       <!-- Glove Search -->
       <NInput
           v-model:value="state.searchQuery"
-          :placeholder="t('modals.gloveSkin.inputs.searchPlaceholder') as string"
+          :placeholder="String(t('modals.gloveSkin.inputs.searchPlaceholder'))"
           class="pl-1 w-96"
       />
     </template>
@@ -659,7 +559,7 @@ watch(() => props.weapon, () => {
               <div
                   class="h-1 mt-2"
                   :style="{ background: skin.rarity?.color || '#313030' }"
-              />
+              ></div>
             </div>
           </div>
         </NCard>
@@ -672,7 +572,7 @@ watch(() => props.weapon, () => {
 
       <!-- No Results -->
       <div v-if="!state.isLoadingSkins && filteredSkins.length === 0" class="flex justify-center items-center h-64">
-        <NEmpty :description="t('modals.gloveSkin.noSearchResults') as string" />
+        <NEmpty :description="String(t('modals.gloveSkin.noSearchResults'))" />
       </div>
 
       <!-- Pagination -->
@@ -697,7 +597,7 @@ watch(() => props.weapon, () => {
         v-model:visible="state.showDuplicateConfirm"
         :loading="state.isDuplicating"
         :other-team-has-skin="otherTeamHasSkin"
-        :item-type="t('modals.duplicateItem.type.glove') as string"
+        :item-type="String(t('modals.duplicateItem.type.glove'))"
         @confirm="handleDuplicate"
     />
 

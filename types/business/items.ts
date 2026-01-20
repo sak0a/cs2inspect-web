@@ -13,7 +13,10 @@ import type {
   EntityId,
   TeamSide,
   TeamAvailability,
-  ItemRarity
+  ItemRarity,
+  Defindex,
+  PaintIndex,
+  PaintSeed
 } from '../core/common'
 
 import type {
@@ -43,7 +46,9 @@ export type WeaponCategory = 'rifles' | 'pistols' | 'smgs' | 'heavys'
 /**
  * Base item configuration interface
  * 
- * @description Common properties for all item configurations
+ * @description Common properties for all item configurations.
+ * Uses plain number types for component compatibility.
+ * Branded types are used at the database layer (records.ts) for type safety.
  */
 export interface BaseItemConfiguration {
   /** Whether this item is currently active/equipped */
