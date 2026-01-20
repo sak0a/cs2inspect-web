@@ -62,10 +62,10 @@ export default defineEventHandler(async (event) => {
             const errorMessage = error instanceof Error ? error.message : String(error)
             // Check if the error is about missing column
             if (errorMessage.includes('Unknown column') && errorMessage.includes('selected_pin')) {
-                Logger.error(`Database column 'selected_pin' does not exist. Please run migration 003_add_selected_pin.sql`)
+                Logger.error(`Database column 'selected_pin' does not exist. Database schema is out of date.`)
                 throw createError({
                     statusCode: 500,
-                    message: 'Database schema is out of date. Please contact the administrator to run the migration.'
+                    message: 'Database schema is out of date. Please contact the administrator to update the database schema.'
                 })
             }
             // Re-throw other errors
