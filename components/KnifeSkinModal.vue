@@ -2,12 +2,12 @@
 // New type system imports
 import type {
   KnifeModalProps,
-  KnifeModalState,
   KnifeConfiguration,
   APIWeaponSkin,
   UserProfile,
   DBKnife
 } from '~/types'
+import { useItemModal } from '~/composables/useItemModal'
 
 // Legacy imports for backward compatibility
 import type { IEnhancedKnife, IEnhancedItem } from '~/server/types'
@@ -38,25 +38,19 @@ const message = useMessage()
 const { t } = useI18n()
 
 /**
- * Modal state using new KnifeModalState interface
+ * Use shared item modal composable for state, pagination, and skin fetching
  */
-const state = ref<KnifeModalState>({
-  // Base modal state
-  isLoadingSkins: false,
-  searchQuery: '',
-  currentPage: 1,
-  error: null,
-
-  // Base item modal state
-  showImportModal: false,
-  showDuplicateConfirm: false,
-  showResetConfirm: false,
-  isImporting: false,
-  isLoadingInspect: false,
-  isResetting: false,
-  isDuplicating: false
-
-  // Note: KnifeModalState doesn't have additional weapon-specific state like WeaponModalState
+const { 
+  state, 
+  apiState, 
+  filteredSkins, 
+  paginatedSkins, 
+  totalPages, 
+  fetchSkins,
+  clearState 
+} = useItemModal({ 
+  itemType: 'knife', 
+  pageSize: props.pageSize || 10 
 })
 
 const digitOnlyInputProps = {
@@ -65,14 +59,6 @@ const digitOnlyInputProps = {
   onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
   onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
 }
-
-/**
- * Additional state for API data (not part of the modal state interface)
- */
-const apiState = ref({
-  skins: [] as APIWeaponSkin[],
-  showDetails: false
-})
 
 const inheritedWeapon = ref<IEnhancedItem | null>()
 const selectedSkin = ref<IEnhancedItem | null>()
@@ -95,85 +81,15 @@ const defaultCustomization: KnifeConfiguration = {
 
 const customization = ref<KnifeConfiguration>({ ...defaultCustomization })
 
-// Removed unused oppositeTeam function
-
 /**
- * Pagination and filtering computed properties
- */
-const PAGE_SIZE = ref(props.pageSize || 10)
-
-const filteredSkins = computed(() => {
-  return apiState.value.skins.filter(skin =>
-    skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-  )
-})
-
-const paginatedSkins = computed(() => {
-  const start = (state.value.currentPage - 1) * PAGE_SIZE.value
-  const end = start + PAGE_SIZE.value
-  return filteredSkins.value.slice(start, end)
-})
-
-const totalPages = computed(() => Math.ceil(filteredSkins.value.length / PAGE_SIZE.value))
-
-/**
- * Fetch available skins for the current knife
- * Updated to use new state structure and error handling
+ * Fetch available skins for the current knife using composable
  */
 const fetchAvailableSkinsForKnife = async () => {
   if (!props.weapon) {
     console.warn('KnifeSkinModal: No weapon provided for skin fetching')
     return
   }
-
-  try {
-    state.value.isLoadingSkins = true
-    state.value.error = null
-
-    console.log('KnifeSkinModal: Fetching skins for weapon:', props.weapon.weapon_name)
-    const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch skins: ${response.status} ${response.statusText}`)
-    }
-
-    const data = await response.json()
-    console.log('KnifeSkinModal: API response:', {
-      success: data.success,
-      dataLength: data.data?.length || 0,
-      weapon: props.weapon.weapon_name
-    })
-
-    // Handle both old and new API response formats
-    const skins = data.data || data.skins || []
-    apiState.value.skins = skins
-
-    if (skins.length === 0) {
-      console.warn('KnifeSkinModal: No skins found for weapon:', props.weapon.weapon_name)
-      state.value.error = `No skins available for ${props.weapon.defaultName || props.weapon.weapon_name}`
-    } else {
-      console.log('KnifeSkinModal: Successfully loaded', skins.length, 'skins')
-    }
-
-    // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(skins.filter((skin: APIWeaponSkin) =>
-      skin.name.toLowerCase().includes(state.value.searchQuery.toLowerCase())
-    ).length / PAGE_SIZE.value)
-
-    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-      state.value.currentPage = newTotalPages
-    }
-  } catch (error) {
-    console.error('KnifeSkinModal: Error fetching knife skins:', {
-      error,
-      weapon: props.weapon?.weapon_name,
-      weaponData: props.weapon
-    })
-    state.value.error = error instanceof Error ? error.message : 'Failed to fetch skins'
-    emit('error', state.value.error)
-  } finally {
-    state.value.isLoadingSkins = false
-  }
+  await fetchSkins(props.weapon.weapon_name, (error) => emit('error', error))
 }
 
 /**
@@ -419,7 +335,7 @@ const handleSave = () => {
 const handleClose = () => {
   emit('update:visible', false)
   setTimeout(() => {
-    state.value.searchQuery = ''
+    clearState()
     selectedSkin.value = null
     inheritedWeapon.value = null
     customization.value = { ...defaultCustomization }
@@ -432,26 +348,10 @@ watch(() => customization.value.wear, (newWear) => {
   }
 }, { immediate: true })
 
-// Watch for changes to searchQuery to adjust current page if needed
-watch(() => state.value.searchQuery, () => {
-  // When search query changes, check if we need to adjust the current page
-  const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
-  if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-    state.value.currentPage = newTotalPages
-  } else if (newTotalPages > 0) {
-    // Reset to page 1 when search query changes
-    state.value.currentPage = 1
-  }
-})
-
 // Watch for changes to props.visible to check pagination when modal is opened
 watch(() => props.visible, (isVisible) => {
   if (isVisible && filteredSkins.value.length > 0) {
-    // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
-    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-      state.value.currentPage = newTotalPages
-    }
+    // Pagination is handled by the composable
   }
 })
 

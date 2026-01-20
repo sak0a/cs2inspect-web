@@ -2,7 +2,7 @@
  * Loadout Helper Functions using Drizzle ORM
  * Provides type-safe database operations for loadouts
  */
-import { eq, and, desc, asc, sql } from 'drizzle-orm';
+import { eq, and, desc, asc } from 'drizzle-orm';
 import { db } from './client';
 import {
     loadouts,
