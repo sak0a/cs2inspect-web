@@ -151,6 +151,24 @@ export {
 } from './classes'
 
 // ============================================================================
+// JSON SCHEMA TYPES
+// ============================================================================
+
+export type {
+  StickerJSON,
+  KeychainJSON
+} from './jsonSchemas'
+
+export {
+  createEmptyStickerJSON,
+  createEmptyKeychainJSON,
+  isValidStickerJSON,
+  isValidKeychainJSON,
+  isEmptySticker,
+  isEmptyKeychain
+} from './jsonSchemas'
+
+// ============================================================================
 // INSPECT API TYPES
 // ============================================================================
 

@@ -11,9 +11,11 @@ export default defineEventHandler(async (event) => {
 
     if (url?.startsWith('/api/steam/validate')) {
         const body = await readBody(event)
+        // Convert body object to URL-encoded string for Steam's OpenID endpoint
+        const formBody = new URLSearchParams(body as Record<string, string>).toString()
         const responseData = await $fetch<string>('https://steamcommunity.com/openid/login', {
             method: 'POST',
-            body,
+            body: formBody,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         })
         if (responseData.includes('is_valid:true')) {
