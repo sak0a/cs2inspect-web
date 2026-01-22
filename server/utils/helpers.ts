@@ -1,4 +1,4 @@
-import { APIRequestLogger as Logger } from "~/server/utils/logger";
+import { Logger } from "~/server/utils/logger";
 import { createError, type H3Event } from "h3";
 
 export const validateRequiredRequestData = (param: unknown, paramName: string, allowZero = false) => {

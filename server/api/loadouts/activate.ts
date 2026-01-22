@@ -1,12 +1,12 @@
 import { defineEventHandler, createError } from 'h3'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import { setActiveLoadout, getLoadout } from '~/server/database/loadoutHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import {
     createSuccessResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers'
+} from '~/server/utils/api/responseHelpers'
 
 /**
  * API endpoint to activate a loadout

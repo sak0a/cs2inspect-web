@@ -2,7 +2,7 @@ import { createError } from 'h3'
 import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { knives, gloves, pistols, rifles, smgs, heavys } from '~/server/database/schema'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
 import { toLoadoutId } from '~/types/core/common'
@@ -19,6 +19,15 @@ import {
     EnhancedWeaponSticker,
     EnhancedWeaponKeychain
 } from '~/server/types'
+import {
+    validateTeam,
+    validateStatTrak,
+    validateNameTag,
+    validatePaintIndex,
+    validatePaintSeed,
+    validatePaintWear,
+    validateActive
+} from '~/server/utils/validation/common'
 
 // Map table names to Drizzle table schemas
 const weaponTableMap = {
@@ -38,53 +47,19 @@ export const validateCommonFields = (body: Record<string, unknown>) => {
     validateRequiredRequestData(body.defindex, 'Defindex')
 
     // Validate team
-    validateRequiredRequestData(body.team, 'Team')
-    if (body.team !== 1 && body.team !== 2) {
-        Logger.error('Invalid team')
-        throw createError({
-            statusCode: 400,
-            message: `Invalid team: ${body.team}`
-        })
-    }
+    validateTeam(body.team)
 
     // Validate paintIndex
-    validateRequiredRequestData(body.paintIndex, 'Paint Index')
-    if ((body.paintIndex as number) < 0) {
-        Logger.error('Invalid paint index')
-        throw createError({
-            statusCode: 400,
-            message: `Invalid paint index: ${body.paintIndex}`
-        })
-    }
+    validatePaintIndex(body.paintIndex)
 
     // Validate pattern (paintseed)
-    validateRequiredRequestData(body.pattern, 'Paint Seed', true)
-    if ((body.pattern as number) < 0) {
-        Logger.error('Invalid paint seed')
-        throw createError({
-            statusCode: 400,
-            message: `Invalid paint seed: ${body.pattern}`
-        })
-    }
+    validatePaintSeed(body.pattern)
 
     // Validate paintWear
-    validateRequiredRequestData(body.wear, 'Paint Wear', true)
-    if ((body.wear as number) < 0 || (body.wear as number) > 1) {
-        Logger.error('Invalid paint wear')
-        throw createError({
-            statusCode: 400,
-            message: `Invalid paint wear: ${body.wear}`
-        })
-    }
+    validatePaintWear(body.wear)
 
     // Validate active
-    if (body.active !== true && body.active !== false) {
-        Logger.error('Invalid Active')
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid Active'
-        })
-    }
+    validateActive(body.active)
 }
 
 /**
@@ -100,33 +75,11 @@ export const validateWeaponFields = (body: Record<string, unknown>) => {
         })
     }
 
-    // Validate statTrak
-    if (body.statTrak !== true && body.statTrak !== false) {
-        Logger.error('Invalid StatTrak')
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid StatTrak'
-        })
-    }
-
-    // Validate statTrakCount
-    validateRequiredRequestData(body.statTrakCount, 'StatTrak Count', true)
-    if ((body.statTrakCount as number) < 0) {
-        Logger.error('Invalid StatTrak Count')
-        throw createError({
-            statusCode: 400,
-            message: `Invalid StatTrak Count: ${body.statTrakCount}`
-        })
-    }
+    // Validate statTrak and statTrakCount
+    validateStatTrak(body)
 
     // Validate nameTag
-    if (body.nameTag && (body.nameTag as string).length > 32) {
-        Logger.error('Invalid Name Tag')
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid Name Tag'
-        })
-    }
+    validateNameTag(body.nameTag)
 }
 
 /**
@@ -142,33 +95,11 @@ export const validateKnifeFields = (body: Record<string, unknown>) => {
         })
     }
 
-    // Validate statTrak
-    if (body.statTrak !== true && body.statTrak !== false) {
-        Logger.error('Invalid StatTrak')
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid StatTrak'
-        })
-    }
-
-    // Validate statTrakCount
-    validateRequiredRequestData(body.statTrakCount, 'StatTrak Count', true)
-    if ((body.statTrakCount as number) < 0) {
-        Logger.error('Invalid StatTrak Count')
-        throw createError({
-            statusCode: 400,
-            message: `Invalid StatTrak Count: ${body.statTrakCount}`
-        })
-    }
+    // Validate statTrak and statTrakCount
+    validateStatTrak(body)
 
     // Validate nameTag
-    if (body.nameTag && (body.nameTag as string).length > 32) {
-        Logger.error('Invalid Name Tag')
-        throw createError({
-            statusCode: 400,
-            message: 'Invalid Name Tag'
-        })
-    }
+    validateNameTag(body.nameTag)
 }
 
 /**

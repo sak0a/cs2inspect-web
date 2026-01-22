@@ -2,7 +2,7 @@ import { defineEventHandler, createError, getQuery, readBody } from 'h3'
 import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { loadouts } from '~/server/database/schema'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from "~/server/utils/constants";
 import { toLoadoutId } from '~/types/core/common';

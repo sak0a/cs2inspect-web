@@ -4,7 +4,7 @@ import { db } from '~/server/database/client'
 import { knives } from '~/server/database/schema'
 import type { APISkin, IDefaultItem, IEnhancedKnife } from "~/server/types"
 import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
-import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils'
+import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/data/skinUtils'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { DEFAULT_KNIVES } from '~/server/utils/constants'
 import { toLoadoutId } from '~/types/core/common'
@@ -12,7 +12,7 @@ import {
     createCollectionResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers';
+} from '~/server/utils/api/responseHelpers';
 
 
 export default defineEventHandler(withErrorHandling(async (event) => {

@@ -1,5 +1,5 @@
 import { defineEventHandler, createError } from 'h3'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)

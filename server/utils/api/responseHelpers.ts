@@ -7,8 +7,8 @@ import type {
     PaginationMeta,
     ResponseMeta,
     ErrorInfo
-} from './interfaces';
-import { API_VERSION, PAGINATION_DEFAULTS } from './constants';
+} from '~/server/utils/interfaces';
+import { API_VERSION, PAGINATION_DEFAULTS } from '~/server/utils/constants';
 
 /**
  * Creates standardized response metadata

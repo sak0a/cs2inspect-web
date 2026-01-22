@@ -1,12 +1,12 @@
 import { defineEventHandler, H3Event } from 'h3'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import { importLoadoutFromShareCode } from "~/server/database/loadoutHelpers";
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import {
     createSuccessResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers';
+} from '~/server/utils/api/responseHelpers';
 
 export default defineEventHandler(withErrorHandling(async (event: H3Event) => {
     const startTime = Date.now();

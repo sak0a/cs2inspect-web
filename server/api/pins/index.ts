@@ -2,14 +2,14 @@ import { defineEventHandler, createError, getQuery } from 'h3'
 import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { loadouts } from '~/server/database/schema'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { toLoadoutId } from '~/types/core/common'
 import {
     createCollectionResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers'
+} from '~/server/utils/api/responseHelpers'
 
 export default defineEventHandler(withErrorHandling(async (event) => {
     const startTime = Date.now()

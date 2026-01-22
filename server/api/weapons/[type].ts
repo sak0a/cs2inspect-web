@@ -14,16 +14,16 @@ import type {
 } from "~/server/types";
 import { EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/types/classes';
 import { getSkinsDataAsync, getStickerDataAsync, getKeychainDataAsync } from '~/server/utils/csgoAPI';
-import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/skinUtils';
+import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/data/skinUtils';
 import { validateRequiredRequestData } from '~/server/utils/helpers';
-import { APIRequestLogger as Logger } from "~/server/utils/logger";
+import { Logger } from "~/server/utils/logger";
 import { defineEventHandler, createError, getQuery } from "h3";
 import { toLoadoutId } from '~/types/core/common';
 import {
     createCollectionResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers';
+} from '~/server/utils/api/responseHelpers';
 
 // Type for enhanced weapon sticker
 type IEnhancedWeaponSticker = ReturnType<EnhancedWeaponSticker['toInterface']>;

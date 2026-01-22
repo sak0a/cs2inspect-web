@@ -2,18 +2,18 @@ import { defineEventHandler, getQuery } from 'h3'
 import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { gloves } from '~/server/database/schema'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import type { APISkin, IDefaultItem, IEnhancedGlove, GloveSelect } from "~/server/types"
 import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { DEFAULT_GLOVES } from '~/server/utils/constants'
 import { validateRequiredRequestData } from "~/server/utils/helpers";
-import { createDefaultItem, findMatchingSkin } from '~/server/utils/skinUtils';
+import { createDefaultItem, findMatchingSkin } from '~/server/utils/data/skinUtils';
 import { toLoadoutId } from '~/types/core/common';
 import {
     createCollectionResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers';
+} from '~/server/utils/api/responseHelpers';
 
 
 export default defineEventHandler(withErrorHandling(async (event) => {

@@ -1,7 +1,7 @@
 import type { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollectible, APIHighlight } from "~/server/types";
 import { EXTERNAL_API_URLS, CACHE_PERIODS, DATA_STALENESS_THRESHOLD } from './constants';
-import { processSkinData } from './skinUtils';
-import { processKeychainData } from './keychainUtils';
+import { processSkinData } from './data/skinUtils';
+import { processKeychainData } from './data/keychainUtils';
 import fs from 'fs';
 import path from 'path';
 

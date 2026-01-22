@@ -1,6 +1,6 @@
 import { getCS2Client } from "~/server/plugins/init";
-import { steamServiceClient } from '~/server/utils/steamServiceClient';
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { steamServiceClient } from '~/server/utils/api/steamServiceClient';
+import { Logger } from '~/server/utils/logger'
 import { mapCustomizationToRepresentation, type CustomizationInput } from '~/server/utils/inspectHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { defineEventHandler, createError, getQuery, readBody } from 'h3'

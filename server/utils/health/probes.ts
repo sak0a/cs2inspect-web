@@ -6,7 +6,7 @@ import { db, pool } from '~/server/database/client';
 import { getCS2Client } from '~/server/plugins/init';
 import type { HealthCheckResult, HealthStatus } from '~/server/types/health';
 import { $fetch } from 'ofetch';
-import { steamServiceClient } from '~/server/utils/steamServiceClient';
+import { steamServiceClient } from '~/server/utils/api/steamServiceClient';
 
 /**
  * Calculate uptime percentage for a check based on historical data

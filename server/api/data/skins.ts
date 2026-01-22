@@ -9,8 +9,8 @@ import {
     calculatePagination,
     extractFilterOptions,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers';
-import { isWeaponMatch } from '~/server/utils/weaponNameMapping';
+} from '~/server/utils/api/responseHelpers';
+import { isWeaponMatch } from '~/server/utils/data/weaponNameMapping';
 
 interface QueryFilters {
     [key: string]: string | undefined;   // Index signature for Record compatibility

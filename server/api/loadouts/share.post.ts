@@ -1,13 +1,13 @@
 
 import { defineEventHandler, getQuery, readBody, createError, H3Event } from 'h3'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import { getLoadout, setShareCode, getLoadoutByShareCode } from "~/server/database/loadoutHelpers";
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import {
     createSuccessResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers';
+} from '~/server/utils/api/responseHelpers';
 
 // Helper to generate random code
 const generateShareCode = () => {

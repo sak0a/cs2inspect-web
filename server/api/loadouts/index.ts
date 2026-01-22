@@ -1,7 +1,7 @@
 // server/api/loadouts.ts
 import { defineEventHandler, createError, getQuery, readBody } from 'h3'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
-import { APIRequestLogger as Logger } from '~/server/utils/logger'
+import { Logger } from '~/server/utils/logger'
 import type { DBLoadout } from '~/server/types'
 import {
     createLoadout,
@@ -13,7 +13,7 @@ import {
     createCollectionResponse,
     createResponseMeta,
     withErrorHandling
-} from '~/server/utils/apiResponseHelpers';
+} from '~/server/utils/api/responseHelpers';
 
 
 /**
