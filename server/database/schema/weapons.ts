@@ -1,5 +1,6 @@
-import { mysqlTable, int, varchar, tinyint, float, timestamp, index, uniqueIndex } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, tinyint, float, timestamp, index, uniqueIndex, json } from 'drizzle-orm/mysql-core';
 import { loadouts } from './loadouts';
+import type { StickerJSON, KeychainJSON } from '~/server/types/jsonSchemas';
 
 // Common weapon columns for all weapon tables
 const weaponColumns = {
@@ -15,14 +16,14 @@ const weaponColumns = {
     stattrak_enabled: tinyint('stattrak_enabled').default(0),
     stattrak_count: int('stattrak_count').default(0),
     nametag: varchar('nametag', { length: 255 }),
-    sticker_0: varchar('sticker_0', { length: 200 }).default('0;0;0;0;0;0').notNull(),
-    sticker_1: varchar('sticker_1', { length: 200 }).default('0;0;0;0;0;0').notNull(),
-    sticker_2: varchar('sticker_2', { length: 200 }).default('0;0;0;0;0;0').notNull(),
-    sticker_3: varchar('sticker_3', { length: 200 }).default('0;0;0;0;0;0').notNull(),
-    sticker_4: varchar('sticker_4', { length: 200 }).default('0;0;0;0;0;0').notNull(),
-    keychain: varchar('keychain', { length: 200 }).default('0;0;0;0;0').notNull(),
-    wrapped_sticker_id: int('wrapped_sticker_id'),
-    highlight_reel_id: int('highlight_reel_id'),
+    // JSON columns for stickers (null = empty slot)
+    sticker_0: json('sticker_0').$type<StickerJSON | null>().default(null),
+    sticker_1: json('sticker_1').$type<StickerJSON | null>().default(null),
+    sticker_2: json('sticker_2').$type<StickerJSON | null>().default(null),
+    sticker_3: json('sticker_3').$type<StickerJSON | null>().default(null),
+    sticker_4: json('sticker_4').$type<StickerJSON | null>().default(null),
+    // JSON column for keychain (includes wrapped_sticker_id and highlight_reel_id)
+    keychain: json('keychain').$type<KeychainJSON | null>().default(null),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
 };

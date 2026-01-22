@@ -11,7 +11,9 @@ import type {
     KnifeCustomization,
     GloveCustomization,
     IEnhancedWeaponSticker,
-    IEnhancedWeaponKeychain
+    IEnhancedWeaponKeychain,
+    StickerJSON,
+    KeychainJSON
 } from '~/server/types'
 import {
     EnhancedWeaponSticker,
@@ -177,44 +179,32 @@ export const validateGloveFields = (_body: Record<string, unknown>) => {
 }
 
 /**
- * Formats weapon stickers for database storage
+ * Formats weapon stickers for database storage as JSON
+ * @returns Array of StickerJSON | null for each slot
  */
 export const formatWeaponStickers = (stickers: (IEnhancedWeaponSticker | null)[]) => {
-    const formattedStickers: string[] = stickers.map(
-        sticker => sticker ?
-            new EnhancedWeaponSticker(sticker).convertToDatabaseString() : '0;0;0;0;0;0'
+    const formattedStickers: (StickerJSON | null)[] = stickers.map(
+        sticker => sticker ? new EnhancedWeaponSticker(sticker).toJSON() : null
     );
 
     // Pad array to always have 5 sticker slots
     while (formattedStickers.length < 5) {
-        formattedStickers.push('0;0;0;0;0;0');
+        formattedStickers.push(null);
     }
 
     return formattedStickers;
 }
 
 /**
- * Formats weapon keychain for database storage
+ * Formats weapon keychain for database storage as JSON
+ * @returns KeychainJSON | null
  */
-export const formatWeaponKeychain = (keychain: { id?: number | string; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number; highlight_reel_id?: number } | null) => {
-    const defaultKeychain: IEnhancedWeaponKeychain = {
-        id: 0,
-        x: 0,
-        y: 0,
-        z: 0,
-        seed: 0,
-        api: {
-            name: 'Default',
-            image: '',
-            rarity: {
-                id: 'default',
-                name: 'Default',
-                color: '#000000'
-            }
-        }
-    };
+export const formatWeaponKeychain = (keychain: { id?: number | string; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number; highlight_reel_id?: number } | null): KeychainJSON | null => {
+    if (!keychain || keychain.id === 0 || keychain.id === '0') {
+        return null;
+    }
 
-    return new EnhancedWeaponKeychain((!keychain || keychain.id === 0) ? defaultKeychain : keychain as IEnhancedWeaponKeychain).convertToDatabaseString();
+    return new EnhancedWeaponKeychain(keychain as IEnhancedWeaponKeychain).toJSON();
 }
 
 /**

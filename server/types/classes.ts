@@ -1,6 +1,8 @@
 /**
  * Class implementations for enhanced items
  * Moved from server/utils/interfaces.ts for better organization
+ * 
+ * Updated to use JSON format for database storage instead of semicolon-delimited strings.
  */
 
 import { parseInt } from "lodash-es";
@@ -13,6 +15,7 @@ import type {
     APIKeychain,
     ItemRarity
 } from './api'
+import type { StickerJSON, KeychainJSON } from './jsonSchemas'
 
 // ============================================================================
 // ENHANCED WEAPON STICKER CLASS
@@ -20,7 +23,7 @@ import type {
 
 /**
  * Enhanced weapon sticker class
- * Implements IEnhancedWeaponSticker with database conversion methods
+ * Implements IEnhancedWeaponSticker with JSON database conversion methods
  */
 export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
     id: number;
@@ -54,14 +57,60 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
     }
 
     /**
-     * Converts sticker data to database string format
-     * Format: id;x;y;wear;scale;rotation
+     * Converts sticker data to JSON format for database storage
      */
-    convertToDatabaseString(): string {
-        return `${this.id};${this.x};${this.y};${this.wear};${this.scale};${this.rotation}`;
+    toJSON(): StickerJSON | null {
+        if (!this.id || this.id === 0) return null;
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            wear: this.wear,
+            scale: this.scale,
+            rotation: this.rotation
+        };
     }
 
     /**
+     * Creates EnhancedWeaponSticker from JSON data and API data
+     * @param sticker JSON sticker data from database
+     * @param stickerData Array of API sticker data
+     * @param slot Slot index (0-4) where this sticker is placed
+     */
+    static fromJSON(sticker: StickerJSON | null, stickerData: APISticker[], slot: number): EnhancedWeaponSticker | null {
+        if (!sticker || sticker.id === 0) return null;
+
+        const stickerInfo = stickerData.find(
+            (s: APISticker) => s.id === ("sticker-" + sticker.id)
+        );
+
+        return new EnhancedWeaponSticker({
+            id: sticker.id,
+            slot: slot,
+            position: slot,
+            x: sticker.x,
+            y: sticker.y,
+            wear: sticker.wear,
+            scale: sticker.scale,
+            rotation: sticker.rotation,
+            api: {
+                name: stickerInfo?.name ?? '',
+                image: stickerInfo?.image ?? '',
+                type: stickerInfo?.type ?? '',
+                effect: stickerInfo?.effect ?? '',
+                tournament_event: stickerInfo?.tournament_event ?? '',
+                tournament_team: stickerInfo?.tournament_team ?? '',
+                rarity: stickerInfo?.rarity || {
+                    id: 'default',
+                    name: 'Default',
+                    color: '#000000'
+                }
+            }
+        });
+    }
+
+    /**
+     * @deprecated Use fromJSON instead. String format is no longer used.
      * Creates EnhancedWeaponSticker from database string and API data
      * @param sticker Database string in format: id;x;y;wear;scale;rotation
      * @param stickerData Array of API sticker data
@@ -106,6 +155,15 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
     }
 
     /**
+     * @deprecated Use toJSON instead. String format is no longer used.
+     * Converts sticker data to database string format
+     * Format: id;x;y;wear;scale;rotation
+     */
+    convertToDatabaseString(): string {
+        return `${this.id};${this.x};${this.y};${this.wear};${this.scale};${this.rotation}`;
+    }
+
+    /**
      * Converts to interface format, returns null if sticker is empty
      */
     toInterface(): IEnhancedWeaponSticker | null {
@@ -130,7 +188,7 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
 
 /**
  * Enhanced weapon keychain class
- * Implements IEnhancedWeaponKeychain with database conversion methods
+ * Implements IEnhancedWeaponKeychain with JSON database conversion methods
  */
 export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
     id: number;
@@ -154,6 +212,49 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
     }
 
     /**
+     * Converts keychain data to JSON format for database storage
+     */
+    toJSON(): KeychainJSON | null {
+        if (!this.id || this.id === 0) return null;
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            seed: this.seed,
+            wrapped_sticker_id: this.wrapped_sticker_id ?? null,
+            highlight_reel_id: this.highlight_reel_id ?? null
+        };
+    }
+
+    /**
+     * Creates EnhancedWeaponKeychain from JSON data and API data
+     * @param keychain JSON keychain data from database
+     * @param keychainData Array of API keychain data
+     */
+    static fromJSON(keychain: KeychainJSON | null, keychainData: APIKeychain[]): EnhancedWeaponKeychain | null {
+        if (!keychain || keychain.id === 0) return null;
+
+        const keychainInfo = keychainData.find((k: APIKeychain) => k.id === ("keychain-" + keychain.id));
+
+        return new EnhancedWeaponKeychain({
+            id: keychain.id,
+            x: keychain.x,
+            y: keychain.y,
+            z: keychain.z,
+            seed: keychain.seed,
+            wrapped_sticker_id: keychain.wrapped_sticker_id ?? null,
+            highlight_reel_id: keychain.highlight_reel_id ?? null,
+            api: {
+                name: keychainInfo?.name || '',
+                image: keychainInfo?.image || '',
+                rarity: keychainInfo?.rarity || { id: 'default', name: 'Default', color: '#000000' }
+            }
+        });
+    }
+
+    /**
+     * @deprecated Use fromJSON instead. String format is no longer used.
      * Creates EnhancedWeaponKeychain from database string and API data
      * @param keychain Database string in format: id;x;y;z;seed[;wrapped_sticker_id;highlight_reel_id]
      * @param keychainData Array of API keychain data
@@ -189,6 +290,7 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
     }
 
     /**
+     * @deprecated Use toJSON instead. String format is no longer used.
      * Converts keychain data to database string format
      * Format: id;x;y;z;seed;wrapped_sticker_id;highlight_reel_id
      */

@@ -5,7 +5,12 @@ import { pistols, rifles, smgs, heavys } from '~/server/database/schema'
 import type {
     APISkin,
     IDefaultItem,
-    APISticker, IMappedDBWeapon, IEnhancedWeapon
+    APISticker,
+    APIKeychain,
+    IMappedDBWeapon,
+    IEnhancedWeapon,
+    StickerJSON,
+    KeychainJSON
 } from "~/server/types";
 import { EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/types/classes';
 import { getSkinsDataAsync, getStickerDataAsync, getKeychainDataAsync } from '~/server/utils/csgoAPI';
@@ -33,20 +38,57 @@ const weaponTypeToTable = {
 
 type WeaponType = keyof typeof weaponTypeToTable;
 
+/**
+ * Parses sticker JSON data from database and enriches with API data
+ * Note: MySQL may return JSON as a string, so we need to parse it
+ */
 function parseStickers(databaseResult: Record<string, unknown>, stickerData: APISticker[]): (IEnhancedWeaponSticker | null)[] {
     const stickers: (IEnhancedWeaponSticker | null)[] = [];
     for (let i = 0; i < 5; i++) {
         const stickerField = `sticker_${i}` as string;
-        const stickerDatabaseData: string = (databaseResult[stickerField] as string | undefined)?.toString() || '';
+        let stickerJSON = databaseResult[stickerField] as StickerJSON | string | null;
 
-        if (!stickerDatabaseData) {
+        // MySQL may return JSON as string, parse if needed
+        if (typeof stickerJSON === 'string') {
+            try {
+                stickerJSON = JSON.parse(stickerJSON) as StickerJSON;
+            } catch {
+                stickerJSON = null;
+            }
+        }
+
+        if (!stickerJSON || stickerJSON.id === 0) {
             stickers.push(null);
             continue;
         }
 
-        stickers.push(EnhancedWeaponSticker.fromStringAndAPI(stickerDatabaseData, stickerData, i).toInterface());
+        const enhanced = EnhancedWeaponSticker.fromJSON(stickerJSON, stickerData, i);
+        stickers.push(enhanced?.toInterface() ?? null);
     }
     return stickers;
+}
+
+/**
+ * Parses keychain JSON data from database and enriches with API data
+ * Note: MySQL may return JSON as a string, so we need to parse it
+ */
+function parseKeychain(databaseResult: Record<string, unknown>, keychainData: APIKeychain[]): ReturnType<typeof EnhancedWeaponKeychain.prototype.toInterface> | null {
+    let keychainJSON = databaseResult.keychain as KeychainJSON | string | null;
+
+    // MySQL may return JSON as string, parse if needed
+    if (typeof keychainJSON === 'string') {
+        try {
+            keychainJSON = JSON.parse(keychainJSON) as KeychainJSON;
+        } catch {
+            keychainJSON = null;
+        }
+    }
+
+    if (!keychainJSON || keychainJSON.id === 0) {
+        return null;
+    }
+
+    return EnhancedWeaponKeychain.fromJSON(keychainJSON, keychainData)?.toInterface() ?? null;
 }
 
 export default defineEventHandler(withErrorHandling(async (event) => {
@@ -214,7 +256,7 @@ export default defineEventHandler(withErrorHandling(async (event) => {
                     pattern: databaseResult.paintseed || 0,
                     nameTag: databaseResult.nametag || '',
                     stickers: parseStickers(databaseResult as unknown as Record<string, unknown>, stickerData),
-                    keychain: EnhancedWeaponKeychain.fromStringAndAPI(databaseResult.keychain, keychainData)?.toInterface()
+                    keychain: parseKeychain(databaseResult as unknown as Record<string, unknown>, keychainData)
                 } as IMappedDBWeapon
             } as IEnhancedWeapon);
         }
