@@ -78,9 +78,15 @@ export const createLoadout = async (steamId: string, name: string): Promise<void
         throw new Error('A loadout with this name already exists');
     }
 
+    // Check if user has any existing loadouts
+    const existingLoadouts = await getLoadoutsBySteamId(steamId);
+    const isFirstLoadout = existingLoadouts.length === 0;
+
     await db.insert(loadouts).values({
         steamid: steamId,
-        name: name
+        name: name,
+        // Auto-set first loadout as default and active
+        ...(isFirstLoadout ? { is_default: 1, active: 1 } : {})
     });
 };
 
