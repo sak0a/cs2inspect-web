@@ -119,7 +119,7 @@ const handleSkinSelect = async (glove: IEnhancedGlove, customization: GloveConfi
     return
   }
   try {
-    const response = await fetch(`/api/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    const response = await fetch(`/api/items/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -159,7 +159,7 @@ const handleGloveDuplicate = async (glove: IEnhancedGlove, customization: GloveC
 
   try {
     console.log('Duplicating glove: ', glove.databaseInfo?.team, customization.team)
-    const response = await fetch(`/api/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    const response = await fetch(`/api/items/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

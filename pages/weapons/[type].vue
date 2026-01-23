@@ -51,7 +51,7 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
     message.error('Please select a paint to save the weapon')
     return
   }
-  await fetch(`/api/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+  await fetch(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
       seed: customization.keychain.seed || 0
     } : null
     console.log("DUPLICATE CUSTOM TEAM: ", customization.team)
-    const response = await fetch(`/api/weapons/save?steamId=${user.value?.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+    const response = await fetch(`/api/items/weapons/save?steamId=${user.value?.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

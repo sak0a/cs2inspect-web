@@ -139,7 +139,7 @@ const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
     return
   }
   console.log('Saving knife: ', knife, customization)
-  await fetch(`/api/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+  await fetch(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeC
   try {
     console.log('Duplicating knife: ', knife.databaseInfo?.team, customization.team)
 
-    const response = await fetch(`/api/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    const response = await fetch(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

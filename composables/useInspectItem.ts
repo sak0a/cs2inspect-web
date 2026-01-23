@@ -186,7 +186,7 @@ export function useInspectItem() {
       }
 
       // Try to decode the inspect link
-      const response = await fetch(`/api/weapons/inspect?action=inspect-item&steamId=${steamId}`, {
+      const response = await fetch(`/api/inspect?action=inspect-item&steamId=${steamId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

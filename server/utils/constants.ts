@@ -11,13 +11,13 @@ export const API_VERSION = '1.0.0';
  * Protected API paths that require authentication
  */
 export const PROTECTED_API_PATHS = [
-    '/api/weapons',
+    '/api/items/weapons',
     '/api/loadouts',
-    '/api/knives',
-    '/api/knives/save',
-    '/api/weapons/save',
-    '/api/weapons/inspect',
-    '/api/weapons/[type]',
+    '/api/items/knives',
+    '/api/items/knives/save',
+    '/api/items/weapons/save',
+    '/api/inspect',
+    '/api/items/weapons/[type]',
     '/api/auth/'
 ];
 

@@ -41,7 +41,7 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutWeaponSkins(type: string, steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ skins: IEnhancedWeapon[] }>(`/api/weapons/${type}`, {
+                const response = await api.get<{ skins: IEnhancedWeapon[] }>(`/api/items/weapons/${type}`, {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
@@ -62,7 +62,7 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutKnives(steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ knives: IEnhancedItem[] }>('/api/knives', {
+                const response = await api.get<{ knives: IEnhancedItem[] }>('/api/items/knives', {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
@@ -83,7 +83,7 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutGloves(steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ gloves: IEnhancedItem[] }>('/api/gloves', {
+                const response = await api.get<{ gloves: IEnhancedItem[] }>('/api/items/gloves', {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
@@ -124,7 +124,7 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutPins(steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ pins: IEnhancedItem[] }>('/api/pins', {
+                const response = await api.get<{ pins: IEnhancedItem[] }>('/api/items/pins', {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
