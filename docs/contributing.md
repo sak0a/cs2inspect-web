@@ -42,7 +42,7 @@ Thank you for considering contributing to CS2Inspect! This document provides gui
 
 Before contributing, ensure you have:
 
-1. **Development Environment**: Node.js 16+, MariaDB, Git
+1. **Development Environment**: Node.js 20+, MariaDB, Git
 2. **GitHub Account**: For submitting pull requests
 3. **Local Setup**: Follow the [Setup Guide](setup.md)
 
@@ -123,13 +123,13 @@ Follow the code standards (see below) and make your changes:
 # ...
 
 # Run tests
-npm test
+bun test
 
 # Run linter
-npm run lint
+bun run lint
 
 # Fix linting issues
-npm run lint -- --fix
+bun run lint -- --fix
 ```
 
 ### 5. Commit Changes
@@ -434,12 +434,12 @@ export default defineEventHandler(async (event) => {
 Before submitting a pull request, ensure:
 
 - [ ] Code follows the project's style guide
-- [ ] All tests pass (`npm test`)
-- [ ] Linter passes (`npm run lint`)
+- [ ] All tests pass (`bun test`)
+- [ ] Linter passes (`bun run lint`)
 - [ ] New tests added for new features
 - [ ] Documentation updated if needed
 - [ ] Commit messages are clear and descriptive
-- [ ] Branch is up to date with `main`
+- [ ] Branch is up to date with `master`
 - [ ] No merge conflicts
 - [ ] Screenshots included for UI changes
 
@@ -653,16 +653,16 @@ describe('POST /api/weapons/save', () => {
 
 ```bash
 # Run all tests
-npm test
+bun test
 
 # Run tests in watch mode
-npm run test:watch
+bun test --watch
 
 # Run tests with coverage
-npm run test:coverage
+bun test --coverage
 
 # Run specific test file
-npm test components/WeaponTabs.spec.ts
+bun test components/WeaponTabs.spec.ts
 ```
 
 ---

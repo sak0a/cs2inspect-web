@@ -11,13 +11,13 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 - **UI Library**: Naive UI
 - **Styling**: Tailwind CSS with custom SASS
 - **State Management**: Pinia
-- **Internationalization**: nuxt-i18n-micro (English, German, Russian)
+- **Internationalization**: nuxt-i18n-micro (EN, DE, RU, ES, FR, NL)
 - **Icons**: Iconify + Material Design Icons
 - **Charts**: Chart.js + vue-chartjs (for health monitoring)
 
 ### Backend
 - **Runtime**: Node.js with Nitro server
-- **Database**: MariaDB (MySQL compatible)
+- **Database**: MariaDB (MySQL compatible) with Drizzle ORM
 - **Authentication**: Steam OpenID + JWT
 - **CS2 Integration**: 
   - `cs2-inspect-lib` - CS2 item inspection
@@ -26,9 +26,9 @@ CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter
 
 ### DevOps
 - **Build System**: Vite
-- **Testing**: Vitest + Vue Test Utils
+- **Testing**: Vitest + Bun Test + Vue Test Utils
 - **Linting**: ESLint
-- **Package Manager**: npm
+- **Package Manager**: Bun (or npm)
 - **Containerization**: Docker + Docker Compose (with HEALTHCHECK)
 - **Deployment**: Vercel (configured)
 - **Health Monitoring**: Built-in health check system with status dashboard
@@ -189,15 +189,15 @@ server/types/
 └── health.ts                 # Health check type definitions
 ```
 
-#### Database Migrations
+#### Database with Drizzle ORM
 ```
-server/database/migrations/
-├── README.md                 # Migration system documentation
-├── 000_initial.sql           # Initial database schema
-└── 001_add_health_checks.sql # Health monitoring tables
-
-server/utils/migrations/
-└── runner.ts                 # Automatic migration runner
+server/database/
+├── client.ts                 # Drizzle database client
+├── migrate.ts                # Migration runner
+├── loadoutHelpers.ts         # Loadout query helpers
+├── schema/                   # Drizzle schema definitions
+│   └── index.ts             # Schema exports
+└── drizzle/                  # Generated migrations
 ```
 
 #### CS2 Inspect System
@@ -210,7 +210,7 @@ server/utils/csinspect/
 └── crc32.ts                 # CRC32 checksum validation
 ```
 
-### 3. Database Schema
+### 3. Database Schema (Drizzle ORM)
 
 #### Core Tables
 ```sql
@@ -222,16 +222,16 @@ wp_player_agents            # Agent selections per loadout
 wp_player_pins              # Pin collections per loadout
 health_check_history        # Health monitoring data
 health_check_config         # Health check configuration
-_migrations                 # Migration tracking
 ```
 
-#### Automatic Migrations
+#### Drizzle ORM Features
 
-The application includes an **automatic migration system** that runs on startup:
-- Migrations stored in `server/database/migrations/`
-- Executed sequentially on server start
-- Tracked in `_migrations` table
-- Safe to re-run (idempotent operations)
+The application uses **Drizzle ORM** for type-safe database operations:
+- Schema defined in TypeScript (`server/database/schema/`)
+- Type-safe queries with full IDE support
+- Use `bun run db:push` for development
+- Use `bun run db:generate && bun run db:migrate` for production
+- Visual browser with `bun run db:studio`
 
 #### Data Flow
 ```mermaid
@@ -366,7 +366,7 @@ For production environments (like Coolify) that only require the core web applic
 ### Development
 ```
 Local Machine
-├── npm run dev         # Nuxt dev server (port 3000)
+├── bun run dev         # Nuxt dev server (port 3210)
 ├── Docker Compose      # Local MariaDB instance
 └── .env                # Local configuration
 ```

@@ -122,11 +122,11 @@ curl http://localhost:3000/api/health/ready
 ### 5. Setup Database
 
 ```bash
-# Run migrations
-docker compose exec web npm run db:push
+# Push schema to database
+docker compose exec web bun run db:push
 
-# Verify database
-docker compose exec web npm run db:studio
+# Verify database (opens Drizzle Studio)
+docker compose exec web bun run db:studio
 ```
 
 Your application should now be running at `http://localhost:3000`!
@@ -210,8 +210,9 @@ sudo su - cs2inspect
 git clone https://github.com/sak0a/cs2inspect-web.git
 cd cs2inspect-web
 
-# Install dependencies
-npm install --production
+# Install dependencies (use bun if available)
+bun install
+# Or: npm install --production
 
 # Configure environment
 cp .env.example .env

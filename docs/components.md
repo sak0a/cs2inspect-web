@@ -153,8 +153,8 @@ interface KeychainModalProps {
 
 ---
 
-#### VisualCustomizerModal.vue
-**Purpose**: Advanced visual customization with canvas-based editing
+#### InlineVisualCustomizer.vue
+**Purpose**: Inline visual customization with canvas-based sticker editing
 
 **Features**:
 - Canvas-based sticker positioning
@@ -162,24 +162,29 @@ interface KeychainModalProps {
 - Rotation and scaling controls
 - Multi-layer sticker management
 - Real-time preview
-- Undo/redo functionality
-- Export customization
+- Integrated within WeaponSkinModal
+- Touch/mouse event handling
 
 **Technical Details**:
 - Uses HTML5 Canvas API
-- Touch/mouse event handling
 - Image loading and caching
 - Transform matrix calculations
 - Hit detection for selection
+- Coordinate mapping for accurate placement
 
-**Props**:
-```typescript
-interface VisualCustomizerProps {
-  show: boolean
-  weapon: WeaponItemData
-  stickers: Sticker[]
-}
-```
+**Integration**:
+Embedded within `WeaponSkinModal.vue` and toggled via the visual customizer button.
+
+---
+
+#### WrappedStickerModal.vue
+**Purpose**: Select and apply wrapped stickers (sticker charms)
+
+**Features**:
+- Browse wrapped sticker catalog
+- Search functionality
+- Preview wrapped sticker appearance
+- Apply to weapon
 
 ---
 
@@ -467,9 +472,12 @@ borderRadius: '20px'
 **Purpose**: Multi-language support
 
 **Supported Languages**:
-- English (en-US)
-- German (de-DE)
-- Russian (ru-RU)
+- English (en)
+- German (de)
+- Russian (ru)
+- Spanish (es)
+- French (fr)
+- Dutch (nl)
 
 **Features**:
 - Dropdown language selector
@@ -556,7 +564,7 @@ Standard modal structure:
 **Access**: Available at `/status` (public, no authentication required)
 
 **Internationalization**:
-- English, German, Russian translations
+- English, German, Russian, Spanish, French, Dutch translations
 - Localized status messages and labels
 
 ---

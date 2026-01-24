@@ -26,9 +26,9 @@ Vercel provides seamless Nuxt 3 deployment with automatic builds, serverless fun
 2. **Configure Build Settings**:
    ```
    Framework Preset: Nuxt.js
-   Build Command: npm run build
+   Build Command: bun run build
    Output Directory: .output/public
-   Install Command: npm install
+   Install Command: bun install
    ```
 
 3. **Set Environment Variables**:
@@ -309,7 +309,7 @@ Deploy using Docker containers for full control and portability.
 Deploy directly to a VPS using Node.js and PM2 process manager.
 
 #### Prerequisites
-- VPS with Node.js 16+ installed
+- VPS with Node.js 20+ installed
 - PM2 installed globally: `npm install -g pm2`
 - Nginx for reverse proxy
 - MariaDB database
@@ -325,12 +325,13 @@ Deploy directly to a VPS using Node.js and PM2 process manager.
 
 2. **Install Dependencies**:
    ```bash
-   npm install
+   bun install
+   # Or: npm install
    ```
 
 3. **Build Application**:
    ```bash
-   npm run build
+   bun run build
    ```
 
 4. **Configure Environment**:

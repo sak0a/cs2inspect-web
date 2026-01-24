@@ -7,7 +7,7 @@ The CS2Inspect API provides RESTful endpoints for managing user loadouts, weapon
 ## Base URL
 
 ```
-Development: http://localhost:3000/api
+Development: http://localhost:3210/api
 Production:  https://your-domain.com/api
 ```
 

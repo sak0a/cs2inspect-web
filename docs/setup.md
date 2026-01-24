@@ -6,14 +6,15 @@ Before setting up the CS2Inspect development environment, ensure you have the fo
 
 ### Required Software
 
-- **Node.js**: Version 16.x or higher (18.x recommended)
+- **Node.js**: Version 20 or higher
   ```bash
-  node --version  # Should be v16.0.0 or higher
+  node --version  # Should be v20.0.0 or higher
   ```
 
-- **npm**: Version 8.x or higher (comes with Node.js)
+- **Bun**: Latest version (recommended) or npm
   ```bash
-  npm --version
+  bun --version
+  # Or npm --version
   ```
 
 - **MariaDB/MySQL**: Version 10.x or higher
@@ -50,7 +51,8 @@ cd cs2inspect-web
 ### 2. Install Dependencies
 
 ```bash
-npm install
+bun install
+# Or: npm install
 ```
 
 This will install all required packages including:
@@ -110,18 +112,24 @@ docker-compose up -d
 
 4. **Database Schema**:
    
-   **Note**: The application now uses **automatic database migrations**. You no longer need to manually import the schema. The migrations will run automatically when you start the server for the first time.
+   **Note**: The application uses **Drizzle ORM** for database management. Use the following commands to set up your database:
    
-   If you prefer to manually initialize the database:
    ```bash
-   mysql -u csinspect -p csinspect < server/database/migrations/000_initial.sql
+   # Generate migration files from schema
+   bun run db:generate
+   
+   # Push schema directly to database (development)
+   bun run db:push
+   
+   # Or run migrations (production)
+   bun run db:migrate
    ```
    
-   The migration system will:
-   - Create all required tables automatically
-   - Track applied migrations in the `_migrations` table
-   - Run any new migrations on subsequent starts
-   - Skip already-applied migrations
+   Drizzle provides:
+   - Type-safe database queries
+   - Schema defined in TypeScript (`server/database/schema/`)
+   - Visual database browser with `bun run db:studio`
+   - Automatic migration generation
 
 ### 4. Environment Configuration
 
@@ -194,18 +202,17 @@ mysql -h 127.0.0.1 -u csinspect -p csinspect -e "SHOW TABLES;"
 Start the development server with hot-reload:
 
 ```bash
-npm run dev
+bun run dev
 ```
 
 The application will be available at:
-- **Local**: http://localhost:3000
-- **Network**: http://YOUR_IP:3000
-- **Health Status**: http://localhost:3000/status
+- **Local**: http://localhost:3210
+- **Network**: http://YOUR_IP:3210
+- **Health Status**: http://localhost:3210/status
 
 **First Startup**:
-- Database migrations run automatically
+- Database schema should be pushed with `bun run db:push`
 - Health check sampling starts automatically
-- Check console for migration progress
 - Monitor startup health at `/api/health/details`
 
 ### Production Build
@@ -213,13 +220,13 @@ The application will be available at:
 Build the application for production:
 
 ```bash
-npm run build
+bun run build
 ```
 
 Preview the production build:
 
 ```bash
-npm run preview
+bun run preview
 ```
 
 ### Docker Development
@@ -241,41 +248,31 @@ docker-compose down
 
 ## Database Management
 
-### Automatic Migrations
+### Drizzle ORM
 
-The project now uses an **automatic migration system**. Migrations run on server startup.
+The project uses **Drizzle ORM** for type-safe database management.
 
-**How it works**:
-1. Migrations stored in `server/database/migrations/`
-2. Executed sequentially on startup (000_, 001_, 002_, etc.)
-3. Tracked in `_migrations` table
-4. Skips already-applied migrations
-5. Safe to re-run (idempotent operations)
-
-**Available Migrations**:
-- `000_initial.sql` - Initial database schema (base tables)
-- `001_add_health_checks.sql` - Health monitoring tables
-
-**No manual intervention required** - migrations run automatically!
-
-**Manual Migration (if needed)**:
+**Available Commands**:
 ```bash
-# Apply specific migration
-mysql -u csinspect -p csinspect < server/database/migrations/000_initial.sql
+# Generate migration files from schema changes
+bun run db:generate
 
-# Or apply all in order
-for file in server/database/migrations/*.sql; do
-  echo "Applying: $file"
-  mysql -u csinspect -p csinspect < "$file"
-done
+# Push schema directly to database (development)
+bun run db:push
+
+# Run migrations (production)
+bun run db:migrate
+
+# Open Drizzle Studio (visual database browser)
+bun run db:studio
+
+# Introspect existing database
+bun run db:introspect
 ```
 
-**Creating New Migrations**:
-1. Create file: `002_your_description.sql`
-2. Use sequential numbering
-3. Use `IF NOT EXISTS` for tables/indexes
-4. Document in `server/database/migrations/README.md`
-5. Restart server - migration runs automatically
+**Schema Location**: `server/database/schema/`
+
+**Configuration**: `drizzle.config.ts`
 
 **Backup database**:
 ```bash
@@ -289,7 +286,7 @@ mysql -u csinspect -p csinspect < backup_20240101.sql
 
 ### Database Schema
 
-The main tables are:
+The main tables are (managed by Drizzle ORM):
 
 ```
 # Core Application Tables
@@ -300,15 +297,12 @@ wp_player_gloves        - Glove customizations
 wp_player_agents        - Agent selections
 wp_player_pins          - Pin collections
 
-# Health Monitoring Tables (added in 001_add_health_checks.sql)
+# Health Monitoring Tables
 health_check_history    - Historical health check data
 health_check_config     - Health check configuration
-
-# System Tables
-_migrations             - Migration tracking
 ```
 
-View migration files in `server/database/migrations/` directory.
+View schema definitions in `server/database/schema/` directory.
 
 ---
 
@@ -317,19 +311,20 @@ View migration files in `server/database/migrations/` directory.
 ### Run All Tests
 
 ```bash
-npm test
+bun test
+# Or: npm run test
 ```
 
 ### Run Tests in Watch Mode
 
 ```bash
-npm run test:watch
+bun test --watch
 ```
 
 ### Run Tests with Coverage
 
 ```bash
-npm run test:coverage
+bun test --coverage
 ```
 
 ### Test Structure
@@ -348,13 +343,13 @@ tests/
 ### Run Linter
 
 ```bash
-npm run lint
+bun run lint
 ```
 
 ### Auto-fix Linting Issues
 
 ```bash
-npm run lint -- --fix
+bun run lint -- --fix
 ```
 
 ### ESLint Configuration
@@ -494,18 +489,18 @@ docker-compose up -d
 
 #### 3. Port Already in Use
 
-**Error**: `Port 3000 is already in use`
+**Error**: `Port 3210 is already in use`
 
 **Solution**:
 ```bash
-# Find process using port 3000
-lsof -i :3000
+# Find process using port 3210
+lsof -i :3210
 
 # Kill the process
 kill -9 <PID>
 
 # Or use a different port
-PORT=3001 npm run dev
+PORT=3001 bun run dev
 ```
 
 #### 4. Missing Dependencies
@@ -515,8 +510,8 @@ PORT=3001 npm run dev
 **Solution**:
 ```bash
 # Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules bun.lockb
+bun install
 ```
 
 #### 5. TypeScript Errors
@@ -526,7 +521,7 @@ npm install
 **Solution**:
 ```bash
 # Regenerate type definitions
-npm run postinstall
+bun run postinstall
 
 # Or restart TypeScript server in your IDE
 ```
@@ -558,16 +553,16 @@ npm run postinstall
 
 ```bash
 # Generate static site
-npm run generate
+bun run generate
 
 # Analyze bundle size
-npm run build -- --analyze
+bun run build -- --analyze
 
 # Update dependencies
-npm update
+bun update
 
 # Check for outdated packages
-npm outdated
+bun outdated
 
 # Clean build artifacts
 rm -rf .nuxt .output node_modules/.cache
@@ -611,7 +606,7 @@ Create `.vscode/settings.json`:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `PORT` | Server port | `3000` |
+| `PORT` | Server port | `3210` |
 | `HOST` | Server host | `127.0.0.1` |
 | `JWT_TOKEN` | JWT secret key (min 32 chars) | `K32DJVF...` |
 | `JWT_EXPIRY` | Token expiration | `7d` |

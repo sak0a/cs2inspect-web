@@ -19,9 +19,9 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 - **[Contributing Guide](contributing.md)** - How to contribute to the project
 
 ### Additional Resources
-- **[Health Checks](../HEALTH_CHECKS.md)** - Comprehensive health monitoring system
+- **[Health Checks](./health-checks.md)** - Comprehensive health monitoring system
 - **[Theme Customization](theme-customization.md)** - UI theming and styling guide
-- **[Sticker Slots](StickerSlots.md)** - Sticker slot configuration
+- **[Sticker Slots](./sticker-slots.md)** - Sticker slot configuration
 - **[CS2 Inspect System](./cs2-inspect-system.md)** - In-depth inspect URL processing
 - **[Type System](../types/README.md)** - TypeScript interfaces and types
 
@@ -45,14 +45,14 @@ git clone https://github.com/sak0a/cs2inspect-web.git
 cd cs2inspect-web
 
 # Install dependencies
-npm install
+bun install
 
 # Configure environment
 cp .env.example .env
 # Edit .env with your settings
 
 # Start development server
-npm run dev
+bun run dev
 ```
 
 See the [Setup Guide](setup.md) for detailed instructions.
@@ -80,7 +80,7 @@ Frontend (Nuxt 3 + Vue 3)
 ├── Pages & Components
 ├── Pinia Stores
 ├── Composables
-└── Internationalization (EN, DE, RU)
+└── Internationalization (EN, DE, RU, ES, FR, NL)
 
 Backend (Nitro Server)
 ├── API Routes
@@ -144,7 +144,7 @@ See the [Architecture Guide](architecture.md) for detailed information.
 - **Server-Side Rendering**: Nuxt 3 SSR for optimal performance
 - **Real-Time Validation**: Client and server-side validation
 - **Type Safety**: Full TypeScript implementation
-- **Internationalization**: Multi-language support (EN, DE, RU)
+- **Internationalization**: Multi-language support (EN, DE, RU, ES, FR, NL)
 - **Responsive Design**: Works on desktop, tablet, and mobile
 - **Health Monitoring**: Built-in health check system with status dashboard
 - **Automatic Migrations**: Database schema migrations run on startup
@@ -164,15 +164,16 @@ See the [Architecture Guide](architecture.md) for detailed information.
 
 ### Backend
 - **Runtime**: Node.js with Nitro
-- **Database**: MariaDB/MySQL (with automatic migrations)
+- **Database**: MariaDB/MySQL (with Drizzle ORM)
 - **Authentication**: Steam OpenID + JWT
 - **CS2 Integration**: cs2-inspect-lib, node-cs2
 - **Health Monitoring**: Built-in health check system
 
 ### DevOps
 - **Build**: Vite
-- **Testing**: Vitest + Vue Test Utils
+- **Testing**: Vitest + Bun Test + Vue Test Utils
 - **Linting**: ESLint
+- **Package Manager**: Bun (or npm)
 - **Container**: Docker + Docker Compose (with HEALTHCHECK)
 - **Deployment**: Vercel compatible
 - **Monitoring**: Health checks + status dashboard

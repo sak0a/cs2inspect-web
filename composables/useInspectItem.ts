@@ -201,7 +201,7 @@ export function useInspectItem() {
       }
 
       const responseData = await response.json()
-      const data = responseData.item as any
+      const data = responseData.item
 
       console.log('Inspect link decoded data:', data)
 
