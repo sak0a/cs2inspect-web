@@ -1265,8 +1265,8 @@ After deployment:
 
 - [Development Setup](setup.md) - Local development environment
 - [Deployment Guide](deployment.md) - Detailed deployment scenarios
-- [Health Checks](health-checks.md) - Health monitoring system
-- [API Reference](api.md) - API documentation
+- [Health Checks](HEALTH_CHECKS.md) - Health monitoring system
+- [API Reference](api/) - API documentation
 
 ---
 
