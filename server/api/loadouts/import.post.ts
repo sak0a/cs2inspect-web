@@ -1,14 +1,14 @@
-import { defineEventHandler, H3Event } from 'h3'
+import { H3Event, createError, getQuery, readBody } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { importLoadoutFromShareCode } from "~/server/database/loadoutHelpers";
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import {
     createSuccessResponse,
     createResponseMeta,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers';
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
-export default defineEventHandler(withErrorHandling(async (event: H3Event) => {
+export default useErrorHandling(async (event: H3Event) => {
     const startTime = Date.now();
     const method = event.method
     const query = getQuery(event)
@@ -37,4 +37,4 @@ export default defineEventHandler(withErrorHandling(async (event: H3Event) => {
     const meta = createResponseMeta(startTime, { steamId, method, shareCode });
     return createSuccessResponse(newLoadout, meta, 'Loadout imported successfully');
 
-}, 'IMPORT_LOADOUT_ERROR'))
+}, ErrorCodes.LOADOUT_IMPORT_ERROR)

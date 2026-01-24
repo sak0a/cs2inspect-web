@@ -1,18 +1,18 @@
-import { defineEventHandler, createError } from 'h3'
+import { createError, getQuery } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { setActiveLoadout, getLoadout } from '~/server/database/loadoutHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import {
     createSuccessResponse,
     createResponseMeta,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers'
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
 /**
  * API endpoint to activate a loadout
  * Sets the specified loadout as active and deactivates all other loadouts for the user
  */
-export default defineEventHandler(withErrorHandling(async (event) => {
+export default useErrorHandling(async (event) => {
     const startTime = Date.now();
     const method = event.method
     const query = getQuery(event)
@@ -41,4 +41,4 @@ export default defineEventHandler(withErrorHandling(async (event) => {
 
     const meta = createResponseMeta(startTime, { steamId, method, loadoutId });
     return createSuccessResponse(data, meta, 'Loadout activated successfully');
-}, 'ACTIVATE_LOADOUT_ERROR'))
+}, ErrorCodes.LOADOUT_ERROR)

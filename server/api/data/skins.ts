@@ -1,4 +1,4 @@
-import { defineEventHandler, getQuery } from 'h3';
+import { getQuery } from 'h3';
 import { getSkinsDataAsync, getDataFreshness } from '~/server/utils/csgoAPI';
 import { validateRequiredRequestData } from '~/server/utils/helpers';
 import type { APISkin } from "~/server/types";
@@ -8,9 +8,9 @@ import {
     createPaginationMeta,
     calculatePagination,
     extractFilterOptions,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers';
 import { isWeaponMatch } from '~/server/utils/data/weaponNameMapping';
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
 interface QueryFilters {
     [key: string]: string | undefined;   // Index signature for Record compatibility
@@ -19,7 +19,7 @@ interface QueryFilters {
     rarity?: string;       // Rarity filter
 }
 
-export default defineEventHandler(withErrorHandling(async (event) => {
+export default useErrorHandling(async (event) => {
     const startTime = Date.now();
     const query = getQuery(event);
 
@@ -108,4 +108,4 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         availableFilters,
         `Found ${totalItems} skins matching criteria`
     );
-}, 'SKINS_FETCH_ERROR'));
+}, ErrorCodes.DATA_FETCH_ERROR);

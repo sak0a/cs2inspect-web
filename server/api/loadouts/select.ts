@@ -1,4 +1,4 @@
-import { defineEventHandler, createError, getQuery, readBody } from 'h3'
+import { createError, getQuery, readBody } from 'h3'
 import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { loadouts } from '~/server/database/schema'
@@ -6,10 +6,11 @@ import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from "~/server/utils/constants";
 import { toLoadoutId } from '~/types/core/common';
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
 type SelectionType = 'knife' | 'glove' | 'agent' | 'music' | 'pin'
 
-export default defineEventHandler(async (event) => {
+export default useErrorHandling(async (event) => {
     const query = getQuery(event)
 
     Logger.header(`Select Loadout Item request: ${event.method} ${event.req.url}`)
@@ -130,4 +131,4 @@ export default defineEventHandler(async (event) => {
 
     Logger.success(`Updated ${type} selection for loadout ${loadoutId}`)
     return { message: `Updated ${type} selection for loadout ${loadoutId}` }
-})
+}, ErrorCodes.LOADOUT_SELECT_ERROR)

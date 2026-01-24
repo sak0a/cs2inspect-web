@@ -17,13 +17,13 @@ import { getSkinsDataAsync, getStickerDataAsync, getKeychainDataAsync } from '~/
 import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/data/skinUtils';
 import { validateRequiredRequestData } from '~/server/utils/helpers';
 import { Logger } from "~/server/utils/logger";
-import { defineEventHandler, createError, getQuery } from "h3";
+import { createError, getQuery } from "h3";
 import { toLoadoutId } from '~/types/core/common';
 import {
     createCollectionResponse,
     createResponseMeta,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers';
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
 // Type for enhanced weapon sticker
 type IEnhancedWeaponSticker = ReturnType<EnhancedWeaponSticker['toInterface']>;
@@ -91,7 +91,7 @@ function parseKeychain(databaseResult: Record<string, unknown>, keychainData: AP
     return EnhancedWeaponKeychain.fromJSON(keychainJSON, keychainData)?.toInterface() ?? null;
 }
 
-export default defineEventHandler(withErrorHandling(async (event) => {
+export default useErrorHandling(async (event) => {
     const startTime = Date.now();
     const query = getQuery(event);
 
@@ -286,4 +286,4 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         undefined,
         `Successfully fetched ${enhancedWeapons.length} weapons of type '${type}'`
     );
-}, 'WEAPONS_FETCH_ERROR'));
+}, ErrorCodes.WEAPON_FETCH_ERROR);

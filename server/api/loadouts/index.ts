@@ -1,5 +1,5 @@
 // server/api/loadouts.ts
-import { defineEventHandler, createError, getQuery, readBody } from 'h3'
+import { createError, getQuery, readBody } from 'h3'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
 import type { DBLoadout } from '~/server/types'
@@ -12,15 +12,15 @@ import {
     createSuccessResponse,
     createCollectionResponse,
     createResponseMeta,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers';
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
 
 /**
  * Client uses the loadoutStore on the client side to interact with the loadouts API
  * loadout API fetches with the loadoutHelpers the data from the database
  */
-export default defineEventHandler(withErrorHandling(async (event) => {
+export default useErrorHandling(async (event) => {
     const startTime = Date.now();
     const method = event.method
     const query = getQuery(event)
@@ -98,4 +98,4 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         statusCode: 405,
         message: 'Method not allowed'
     })
-}, 'LOADOUTS_ERROR'))
+}, ErrorCodes.LOADOUT_ERROR)

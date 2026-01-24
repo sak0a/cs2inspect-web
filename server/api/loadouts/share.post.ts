@@ -1,13 +1,13 @@
 
-import { defineEventHandler, getQuery, readBody, createError, H3Event } from 'h3'
+import { getQuery, readBody, createError, H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { getLoadout, setShareCode, getLoadoutByShareCode } from "~/server/database/loadoutHelpers";
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import {
     createSuccessResponse,
     createResponseMeta,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers';
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
 // Helper to generate random code
 const generateShareCode = () => {
@@ -19,7 +19,7 @@ const generateShareCode = () => {
     return code;
 }
 
-export default defineEventHandler(withErrorHandling(async (event: H3Event) => {
+export default useErrorHandling(async (event: H3Event) => {
     const startTime = Date.now();
     const method = event.method
 
@@ -67,4 +67,4 @@ export default defineEventHandler(withErrorHandling(async (event: H3Event) => {
         message: 'Method not allowed'
     })
 
-}, 'SHARE_LOADOUT_ERROR'))
+}, ErrorCodes.LOADOUT_SHARE_ERROR)

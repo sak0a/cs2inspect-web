@@ -1,4 +1,4 @@
-import { defineEventHandler, createError, getQuery } from 'h3'
+import { createError, getQuery } from 'h3'
 import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { loadouts } from '~/server/database/schema'
@@ -8,10 +8,10 @@ import { toLoadoutId } from '~/types/core/common'
 import {
     createCollectionResponse,
     createResponseMeta,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers'
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
-export default defineEventHandler(withErrorHandling(async (event) => {
+export default useErrorHandling(async (event) => {
     const startTime = Date.now()
     const query = getQuery(event)
 
@@ -59,4 +59,4 @@ export default defineEventHandler(withErrorHandling(async (event) => {
         undefined,
         `Successfully fetched ${pins.length} pin(s)`
     )
-}, 'PINS_FETCH_ERROR'))
+}, ErrorCodes.PIN_FETCH_ERROR)

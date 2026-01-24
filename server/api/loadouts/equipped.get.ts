@@ -1,12 +1,12 @@
-import { defineEventHandler, H3Event, getQuery, createError } from 'h3'
+import { H3Event, getQuery, createError } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { getLoadoutsBySteamId } from '~/server/database/loadoutHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import {
     createSuccessResponse,
     createResponseMeta,
-    withErrorHandling
 } from '~/server/utils/api/responseHelpers'
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 
 /**
  * API endpoint to get the equipped loadout for a user
@@ -17,7 +17,7 @@ import {
  * 2. Loadout with active = 1
  * 3. First loadout found (fallback)
  */
-export default defineEventHandler(withErrorHandling(async (event: H3Event) => {
+export default useErrorHandling(async (event: H3Event) => {
     const startTime = Date.now()
     const method = event.method
     const query = getQuery(event)
@@ -63,4 +63,4 @@ export default defineEventHandler(withErrorHandling(async (event: H3Event) => {
     const meta = createResponseMeta(startTime, { steamId, method, loadoutId: equippedLoadout.id })
     return createSuccessResponse({ loadout: equippedLoadout }, meta, 'Equipped loadout retrieved successfully')
 
-}, 'GET_EQUIPPED_LOADOUT_ERROR'))
+}, ErrorCodes.LOADOUT_ERROR)

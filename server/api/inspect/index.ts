@@ -3,7 +3,8 @@ import { steamServiceClient } from '~/server/utils/api/steamServiceClient';
 import { Logger } from '~/server/utils/logger'
 import { mapCustomizationToRepresentation, type CustomizationInput } from '~/server/utils/inspectHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
-import { defineEventHandler, createError, getQuery, readBody } from 'h3'
+import { createError, getQuery, readBody } from 'h3'
+import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
 import type {
     EconItem,
     CS2Inspect
@@ -93,7 +94,7 @@ const ITEM_TYPE_CONFIG: ItemTypeConfigMap = {
 // Check if steam service is enabled
 const USE_STEAM_SERVICE = !!process.env.STEAM_SERVICE_URL && !!process.env.STEAM_SERVICE_API_KEY;
 
-export default defineEventHandler(async (event) => {
+export default useErrorHandling(async (event) => {
     const query = getQuery(event)
     const body = await readBody(event) as InspectRequest
 
@@ -453,13 +454,4 @@ export default defineEventHandler(async (event) => {
                     message: `Unknown action: ${action}. Available actions: create-url, analyze-url, inspect-item, decode-masked-only, decode-hex-data, validate-url, client-status`
                 });
         }
-    } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Inspect API error'
-        const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500
-        Logger.error(`Inspect API error: ${errorMessage}`)
-        throw createError({
-            statusCode,
-            message: errorMessage || 'Internal server error'
-        })
-    }
-})
+}, ErrorCodes.INSPECT_ERROR)
