@@ -55,7 +55,7 @@ export function validateNameTag(nameTag: unknown) {
  * Validates paint index (must be >= 0)
  */
 export function validatePaintIndex(paintIndex: unknown) {
-    validateRequiredRequestData(paintIndex, 'Paint Index')
+    validateRequiredRequestData(paintIndex, 'Paint Index', true)
     if ((paintIndex as number) < 0) {
         Logger.error('Invalid paint index')
         throw createError({

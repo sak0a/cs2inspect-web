@@ -488,6 +488,43 @@ Retrieve all loadouts for the authenticated user.
 
 ---
 
+### Get Equipped Loadout
+
+Retrieve the currently equipped loadout for a user. This is primarily designed for the CS2 server plugin to determine which loadout to apply when a player joins.
+
+**Endpoint**: `GET /api/loadouts/equipped`
+
+**Authentication**: Required (or API Key if used by plugin)
+
+**Query Parameters**:
+- `steamId` (required): The Steam ID of the user
+
+**Logic**:
+1. Checks for a loadout with `is_default = 1`.
+2. If none, checks for a loadout with `active = 1`.
+3. If none, falls back to the first available loadout.
+
+**Response**:
+```json
+{
+  "success": true,
+  "message": "Equipped loadout retrieved successfully",
+  "data": {
+    "loadout": {
+      "id": 1,
+      "steamid": "76561198012345678",
+      "name": "Competitive Setup",
+      "active": 0,
+      "is_default": 1,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    }
+  }
+}
+```
+
+---
+
 ### Create Loadout
 
 Create a new loadout for the authenticated user.

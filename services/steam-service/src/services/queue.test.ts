@@ -78,7 +78,7 @@ describe('Request Queue', () => {
   describe('Rate Limiting', () => {
     it('should delay between requests', async () => {
       const startTime = Date.now();
-      
+
       await requestQueue.enqueue(async () => 'first');
       await requestQueue.enqueue(async () => 'second');
 

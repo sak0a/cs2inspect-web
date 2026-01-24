@@ -1,0 +1,30 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "../../server/types/**/*.ts",
+    "../../types/**/*.ts"
+  ],
+  "entryPointStrategy": "expand",
+  "out": "reference/types",
+  "plugin": ["typedoc-plugin-markdown"],
+  "exclude": [
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "**/node_modules/**"
+  ],
+  "readme": "none",
+  "githubPages": false,
+  "hideGenerator": true,
+  "disableSources": false,
+  "categorizeByGroup": true,
+  "navigation": {
+    "includeCategories": true,
+    "includeGroups": true
+  },
+  "outputFileStrategy": "modules",
+  "fileExtension": ".md",
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": true,
+  "sort": ["source-order", "alphabetical"]
+}

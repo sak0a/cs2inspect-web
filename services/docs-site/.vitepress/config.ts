@@ -1,0 +1,149 @@
+import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
+
+export default withMermaid({
+  title: 'CS2Inspect Documentation',
+  description: 'Comprehensive documentation for CS2Inspect - Counter-Strike 2 weapon inspection and loadout management',
+  base: '/cs2inspect-web/',
+  
+  head: [
+    ['link', { rel: 'icon', href: '/cs2inspect-web/favicon.ico' }],
+    ['meta', { name: 'theme-color', content: '#FACC15' }]
+  ],
+
+  themeConfig: {
+    logo: '/logo.svg',
+    
+    nav: [
+      { text: 'Home', link: '/' },
+      { text: 'User Guide', link: '/user-guide' },
+      { text: 'Setup', link: '/setup' },
+      { text: 'API', link: '/api/' },
+      { text: 'GitHub', link: 'https://github.com/sak0a/cs2inspect-web' }
+    ],
+
+    sidebar: {
+      '/': [
+        {
+          text: 'Getting Started',
+          items: [
+            { text: 'Overview', link: '/' },
+            { text: 'User Guide', link: '/user-guide' },
+            { text: 'Setup Guide', link: '/setup' },
+            { text: 'How It Works', link: '/how-it-works' },
+            { text: 'FAQ', link: '/faq' }
+          ]
+        },
+        {
+          text: 'Technical Documentation',
+          items: [
+            { text: 'Architecture', link: '/architecture' },
+            { text: 'Frontend Architecture', link: '/architecture-frontend' },
+            { text: 'Backend Architecture', link: '/architecture-backend' },
+            { text: 'Deployment Architecture', link: '/architecture-deployment' },
+            { text: 'Components', link: '/components' }
+          ]
+        },
+        {
+          text: 'Deployment & Contributing',
+          items: [
+            { text: 'Deployment Guide', link: '/deployment' },
+            { text: 'Contributing Guide', link: '/contributing' }
+          ]
+        },
+        {
+          text: 'Additional Resources',
+          items: [
+            { text: 'Health Checks', link: '/HEALTH_CHECKS' },
+            { text: 'Theme Customization', link: '/theme-customization' },
+            { text: 'Sticker Slots', link: '/StickerSlots' },
+            { text: 'Glassmorphism', link: '/GLASSMORPHISM' }
+          ]
+        }
+      ],
+      '/api/': [
+        {
+          text: 'API Reference',
+          items: [
+            { text: 'Overview', link: '/api/' },
+            { text: 'Authentication', link: '/api/authentication' },
+            { text: 'Health Checks', link: '/api/health' },
+            { text: 'Data Endpoints', link: '/api/data' },
+            { text: 'Loadouts', link: '/api/loadouts' },
+            { text: 'Items', link: '/api/items' },
+            { text: 'Inspect System', link: '/api/inspect' },
+            { text: 'Error Handling', link: '/api/errors' }
+          ]
+        },
+        {
+          text: 'Auto-Generated',
+          collapsed: true,
+          items: [
+            { text: 'All Endpoints', link: '/api/api-reference' },
+            { text: 'Auth', link: '/api/api-auth' },
+            { text: 'Health', link: '/api/api-health' },
+            { text: 'Inspect', link: '/api/api-inspect' },
+            { text: 'Loadouts', link: '/api/api-loadouts' },
+            { text: 'Weapons', link: '/api/api-weapons' },
+            { text: 'Knives', link: '/api/api-knives' },
+            { text: 'Gloves', link: '/api/api-gloves' },
+            { text: 'Pins', link: '/api/api-pins' },
+            { text: 'Data', link: '/api/api-data' },
+            { text: 'Proxy', link: '/api/api-proxy' }
+          ]
+        }
+      ]
+    },
+
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/sak0a/cs2inspect-web' }
+    ],
+
+    search: {
+      provider: 'local'
+    },
+
+    footer: {
+      message: 'Built with ❤️ by the CS2Inspect community',
+      copyright: 'Copyright © 2025 CS2Inspect'
+    },
+
+    editLink: {
+      pattern: 'https://github.com/sak0a/cs2inspect-web/edit/master/services/docs-site/:path',
+      text: 'Edit this page on GitHub'
+    },
+
+    lastUpdated: {
+      text: 'Last updated',
+      formatOptions: {
+        dateStyle: 'short',
+        timeStyle: 'medium'
+      }
+    }
+  },
+
+  // Ignore dead links from migrated docs (can be fixed later)
+  ignoreDeadLinks: [
+    // Relative links that need fixing
+    /\.\/\.$/,
+    /\.\.\/HEALTH_CHECKS$/,
+    /\.\.\/CS2_INSPECT_SYSTEM_README$/,
+    /\.\.\/types\/README$/,
+    /\.\.\/setup$/,
+    /\.\/README$/,
+    // Localhost links
+    /^http:\/\/localhost/
+  ],
+
+  markdown: {
+    theme: {
+      light: 'github-light',
+      dark: 'github-dark'
+    },
+    lineNumbers: true
+  },
+
+  mermaid: {
+    theme: 'dark'
+  }
+})

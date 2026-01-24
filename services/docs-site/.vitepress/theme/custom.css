@@ -1,0 +1,149 @@
+/**
+ * VitePress Theme Customization
+ * 
+ * Matches the main CS2 Inspect Web application theme:
+ * - Dark background colors (#121212, #1a1a1a, #242424)
+ * - Yellow/Gold accent color (#FACC15)
+ * - Consistent with the Naive UI theme overrides in the main app
+ */
+
+:root {
+  /* Brand Colors - matches main app accent */
+  --vp-c-brand-1: #FACC15;
+  --vp-c-brand-2: #F59E0B;
+  --vp-c-brand-3: #EAB308;
+  --vp-c-brand-soft: rgba(250, 204, 21, 0.14);
+
+  /* Background Colors - matches main app dark theme */
+  --vp-c-bg: #121212;
+  --vp-c-bg-soft: #1a1a1a;
+  --vp-c-bg-mute: #242424;
+  --vp-c-bg-alt: #2c2c2c;
+
+  /* Border Colors */
+  --vp-c-border: #333333;
+  --vp-c-divider: #333333;
+  --vp-c-gutter: #242424;
+
+  /* Text Colors */
+  --vp-c-text-1: #ffffff;
+  --vp-c-text-2: #d4d4d4;
+  --vp-c-text-3: #a3a3a3;
+
+  /* Code Block Colors */
+  --vp-code-block-bg: #1a1a1a;
+  --vp-code-tab-divider: #333333;
+  --vp-code-copy-code-border-color: #333333;
+  --vp-code-copy-code-bg: #242424;
+  --vp-code-copy-code-hover-border-color: #FACC15;
+  --vp-code-copy-code-hover-bg: #2c2c2c;
+  --vp-code-copy-code-active-text: #FACC15;
+
+  /* Button Colors */
+  --vp-button-brand-border: #FACC15;
+  --vp-button-brand-text: #121212;
+  --vp-button-brand-bg: #FACC15;
+  --vp-button-brand-hover-border: #F59E0B;
+  --vp-button-brand-hover-text: #121212;
+  --vp-button-brand-hover-bg: #F59E0B;
+  --vp-button-brand-active-border: #CA8A04;
+  --vp-button-brand-active-text: #121212;
+  --vp-button-brand-active-bg: #CA8A04;
+
+  /* Custom Block Colors */
+  --vp-custom-block-tip-border: #FACC15;
+  --vp-custom-block-tip-text: #ffffff;
+  --vp-custom-block-tip-bg: rgba(250, 204, 21, 0.1);
+  --vp-custom-block-tip-code-bg: #1a1a1a;
+
+  /* Sidebar Colors */
+  --vp-sidebar-bg-color: #121212;
+  --vp-c-bg-elv: #1a1a1a;
+
+  /* Nav Colors */
+  --vp-nav-bg-color: #121212;
+  --vp-nav-screen-bg-color: #121212;
+  --vp-local-nav-bg-color: #121212;
+}
+
+/* Dark theme specific (VitePress applies dark theme by default) */
+.dark {
+  --vp-c-brand-1: #FACC15;
+  --vp-c-brand-2: #F59E0B;
+  --vp-c-brand-3: #EAB308;
+  
+  --vp-c-bg: #121212;
+  --vp-c-bg-soft: #1a1a1a;
+  --vp-c-bg-mute: #242424;
+  --vp-c-bg-alt: #2c2c2c;
+}
+
+/* Home page hero customization */
+.VPHome .VPHero .name {
+  background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.VPHome .VPHero .tagline {
+  color: var(--vp-c-text-2);
+}
+
+/* Feature cards styling to match main app */
+.VPHome .VPFeature {
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-border);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+}
+
+.VPHome .VPFeature:hover {
+  border-color: var(--vp-c-brand-1);
+  background: var(--vp-c-bg-mute);
+  transform: translateY(-2px);
+}
+
+/* Nav and sidebar styling */
+.VPNav {
+  background-color: var(--vp-nav-bg-color);
+  border-bottom: 1px solid var(--vp-c-border);
+}
+
+.VPSidebar {
+  background-color: var(--vp-sidebar-bg-color);
+  border-right: 1px solid var(--vp-c-border);
+}
+
+/* Link hover effects */
+.VPLink:hover {
+  color: var(--vp-c-brand-1);
+}
+
+/* Code blocks rounded corners to match main app */
+.vp-code-group .tabs {
+  border-radius: 12px 12px 0 0;
+}
+
+div[class*='language-'] {
+  border-radius: 12px;
+}
+
+/* Scrollbar styling to match main app */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--vp-c-bg-soft);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--vp-c-bg-alt);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vp-c-brand-1);
+}

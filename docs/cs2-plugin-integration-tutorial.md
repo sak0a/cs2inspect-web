@@ -9,6 +9,21 @@ Integrate the CS2 Weapon Paints Counter-Strike Sharp plugin with our CS2Inspect 
 - CS2Inspect web application deployed
 - Basic knowledge of C# and database management
 
+## 🧠 Core Concept: Loadout Logic
+
+Before integrating, it is important to understand how "Loadouts" are structured. We distinguish between **Active** and **Default** loadouts:
+
+1.  **Active ("Editing")**: Used by the Website UI. Tracks which loadout the user is currently viewing or modifying. Changing this on the website **should not** automatically change the player's items in-game immediately.
+2.  **Default ("Equipped")**: Used by the Game Server. This is the user's "Main" loadout that should be applied when they join the server.
+
+### Recommended Plugin Behavior
+- **On Player Join**: The plugin should fetch the **Equipped** loadout.
+    - **Endpoint**: `GET /api/loadouts/equipped?steamId=<steamid>`
+    - **Logic**: This endpoint returns the `Default` loadout. If no default is set, it falls back to the `Active` one, and then to the first available one.
+- **On Chat Command** (e.g., `!loadout <name>`): The plugin should fetch items for that specific loadout and apply them temporarily for the session. This does **not** need to change the `active` or `default` status in the database.
+
+Using the API endpoint is preferred over direct database queries as it abstracts the fallback logic (Default -> Active -> First).
+
 ## 🔧 Step 1: Database Migration Setup
 
 ### 1.1 Create Migration Scripts

@@ -116,7 +116,7 @@ export async function createServer() {
 export async function startServer() {
   try {
     const server = await createServer();
-    
+
     // Initialize Steam client in the background (only in production/startup, not in tests)
     // Don't await - let it initialize in background so service can start immediately
     if (process.env.NODE_ENV !== 'test') {
