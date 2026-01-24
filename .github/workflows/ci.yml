@@ -20,7 +20,7 @@ on:
 
 env:
   NODE_VERSION: '20'
-  BUN_VERSION: '1.1.0'
+  BUN_VERSION: 'latest'
 
 jobs:
   test:
@@ -52,7 +52,7 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install
 
       - name: Type check
         run: bun run typecheck
@@ -93,7 +93,7 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: Install dependencies
-        run: bun install --frozen-lockfile
+        run: bun install
 
       - name: Build application
         run: bun run build
