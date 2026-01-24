@@ -6,6 +6,8 @@ A full-stack web application for Counter-Strike 2 players to customize and manag
 ![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-square&logo=vue.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)
 ![MariaDB](https://img.shields.io/badge/MariaDB-10.x-003545?style=flat-square&logo=mariadb)
+![CI/CD](https://github.com/sak0a/cs2inspect-web/workflows/CI%2FCD%20Pipeline/badge.svg)
+![Docker](https://github.com/sak0a/cs2inspect-web/workflows/Build%20Docker%20Images/badge.svg)
 
 ## ✨ Features
 
@@ -200,10 +202,32 @@ For a complete list of Makefile commands, run `make help`
 Comprehensive documentation is available in the [`/docs`](./docs) directory:
 
 - [Setup Guide](./docs/setup.md) – Development environment setup
+- [Self-Hosting Guide](./docs/SELF_HOSTING.md) – Complete production deployment guide
+- [GitHub Actions CI/CD](./docs/github-actions.md) – Automated workflows and deployment
+- [Coolify Deployment](./services/docs-site/coolify.md) – Deploy with Coolify platform
 - [Architecture](./docs/architecture.md) – System architecture overview
 - [API Reference](./docs/api.md) – API endpoint documentation
 - [Components](./docs/components.md) – Component reference
+- [Recommendations](./docs/RECOMMENDATIONS.md) – Best practices and improvements
 - [Contributing](./docs/contributing.md) – Contribution guidelines
+
+## 🔄 CI/CD & Automation
+
+This project uses GitHub Actions for automated CI/CD:
+
+- **✅ Automated Testing** – Tests run on every push and PR
+- **📦 Build Artifacts** – Production-ready builds generated automatically
+- **🚀 Auto Deployment** – Master branch automatically syncs to app branch
+- **🐳 Docker Images** – Multi-platform images published to GitHub Container Registry
+- **📊 Status Monitoring** – Real-time workflow status and build reports
+
+See [GitHub Actions Documentation](./docs/github-actions.md) for complete details.
+
+**Workflows:**
+- `ci.yml` – Test, lint, and build on every push
+- `auto-deploy.yml` – Automatically deploy master to app branch
+- `deploy-app.yml` – Build and package deployment artifacts
+- `docker.yml` – Build and publish Docker images
 
 ## 🤝 Contributing
 
@@ -214,6 +238,8 @@ Contributions are welcome! Please read the [Contributing Guide](./docs/contribut
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
+
+**All commits trigger automated testing via GitHub Actions. Make sure tests pass before merging!**
 
 ## 📄 License
 

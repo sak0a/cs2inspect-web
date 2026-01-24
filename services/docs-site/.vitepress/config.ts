@@ -50,8 +50,10 @@ export default withMermaid({
             { text: 'Self-Hosting Guide', link: '/self-hosting' },
             { text: 'Deployment Guide', link: '/deployment' },
             { text: 'Coolify Deployment', link: '/coolify' },
+            { text: 'GitHub Actions CI/CD', link: '/github-actions' },
             { text: 'Contributing Guide', link: '/contributing' },
-            { text: 'Recommendations', link: '/recommendations' }
+            { text: 'Recommendations', link: '/recommendations' },
+            { text: 'Improvements Summary', link: '/improvements-summary' }
           ]
         },
         {

@@ -1,0 +1,72 @@
+name: Auto Deploy to App Branch
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'services/docs-site/**'
+      - 'services/sticker-scraper/**'
+      - 'services/charm-scraper/**'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force deployment'
+        required: false
+        default: 'false'
+
+jobs:
+  deploy-to-app-branch:
+    name: Deploy to App Branch
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+
+      - name: Run deployment script
+        run: |
+          chmod +x scripts/deploy-app.sh
+          ./scripts/deploy-app.sh
+
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Deployment to App Branch Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Source Branch:** \`master\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Branch:** \`app\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Deployed At:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Excluded from Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "- services/sticker-scraper" >> $GITHUB_STEP_SUMMARY
+          echo "- services/charm-scraper" >> $GITHUB_STEP_SUMMARY
+          echo "- services/steam-service" >> $GITHUB_STEP_SUMMARY
+          echo "- services/docs-site" >> $GITHUB_STEP_SUMMARY
+          echo "- public/img/* (stickers, charms, weapons)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔄 Next Steps" >> $GITHUB_STEP_SUMMARY
+          echo "The \`app\` branch has been updated and will trigger the deployment workflow." >> $GITHUB_STEP_SUMMARY
+
+  trigger-build:
+    name: Wait for Build
+    runs-on: ubuntu-latest
+    needs: deploy-to-app-branch
+    
+    steps:
+      - name: Wait for deployment workflow
+        run: |
+          echo "⏳ Waiting for deployment workflow to start..."
+          sleep 10
+          echo "✅ Deployment workflow should now be running on the app branch"
+          echo "Check the 'Deploy to App Branch' workflow for build status"

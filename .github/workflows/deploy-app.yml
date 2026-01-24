@@ -1,0 +1,202 @@
+name: Build & Release on App Branch
+
+on:
+  push:
+    branches:
+      - app
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub release'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+  BUN_VERSION: '1.1.0'
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      short_sha: ${{ steps.version.outputs.short_sha }}
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: app
+          fetch-depth: 0
+
+      - name: Get version info
+        id: version
+        run: |
+          # Get version from package.json
+          VERSION=$(node -p "require('./package.json').version")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          echo "build_version=$VERSION-build.$COMMIT_COUNT" >> $GITHUB_OUTPUT
+          
+          echo "📦 Version: $VERSION"
+          echo "🔢 Build: $COMMIT_COUNT"
+          echo "🔖 SHA: $SHORT_SHA"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run typecheck
+        continue-on-error: true
+
+      - name: Lint code
+        run: bun run lint
+        continue-on-error: true
+
+      - name: Run tests
+        run: bun test
+        continue-on-error: true
+
+      - name: Build application
+        run: bun run build
+        env:
+          NODE_ENV: production
+
+      - name: Create build artifact
+        run: |
+          # Create release info file
+          cat > .release-info.json << EOF
+          {
+            "version": "${{ steps.version.outputs.version }}",
+            "build": "${{ steps.version.outputs.commit_count }}",
+            "sha": "${{ github.sha }}",
+            "short_sha": "${{ steps.version.outputs.short_sha }}",
+            "build_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "branch": "app"
+          }
+          EOF
+          
+          tar -czf cs2inspect-${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_sha }}.tar.gz \
+            .output \
+            .release-info.json \
+            package.json \
+            bun.lockb \
+            nuxt.config.ts \
+            server \
+            public \
+            locales \
+            README.md
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: cs2inspect-v${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_sha }}
+          path: cs2inspect-*.tar.gz
+          retention-days: 30
+
+      - name: Deployment summary
+        run: |
+          echo "## 🚀 Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** \`${{ steps.version.outputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Build:** \`${{ steps.version.outputs.commit_count }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ steps.version.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Time:** $(date)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Artifact" >> $GITHUB_STEP_SUMMARY
+          echo "- Name: \`cs2inspect-v${{ steps.version.outputs.version }}-${{ steps.version.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Size: $(du -h cs2inspect-*.tar.gz | cut -f1)" >> $GITHUB_STEP_SUMMARY
+
+  # Auto-create release for significant commits
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: build-and-deploy
+    permissions:
+      contents: write
+    # Only create release on manual trigger with create_release=true
+    if: github.event.inputs.create_release == 'true'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: app
+          fetch-depth: 0
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: cs2inspect-v${{ needs.build-and-deploy.outputs.version }}-${{ needs.build-and-deploy.outputs.short_sha }}
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get last 10 commits for changelog
+          CHANGELOG=$(git log --oneline -10 --pretty=format:"- %s (%h)")
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ needs.build-and-deploy.outputs.version }}-${{ needs.build-and-deploy.outputs.short_sha }}
+          name: Release v${{ needs.build-and-deploy.outputs.version }} (${{ needs.build-and-deploy.outputs.short_sha }})
+          body: |
+            ## CS2Inspect Release
+            
+            **Version:** ${{ needs.build-and-deploy.outputs.version }}
+            **Commit:** ${{ needs.build-and-deploy.outputs.short_sha }}
+            **Build Date:** ${{ github.event.head_commit.timestamp }}
+            
+            ### 📋 Recent Changes
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ### 📦 Installation
+            
+            1. Download the artifact below
+            2. Extract: `tar -xzf cs2inspect-*.tar.gz`
+            3. Install deps: `bun install --production`
+            4. Run migrations: `bun run db:push`
+            5. Start: `bun run .output/server/index.mjs`
+            
+            ### 🐳 Docker
+            
+            ```bash
+            docker pull ghcr.io/sak0a/cs2inspect-web:latest
+            ```
+          files: cs2inspect-*.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

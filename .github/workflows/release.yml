@@ -1,0 +1,235 @@
+name: Create Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.2.3)'
+        required: true
+        type: string
+      prerelease:
+        description: 'Mark as pre-release'
+        required: false
+        default: false
+        type: boolean
+      draft:
+        description: 'Create as draft'
+        required: false
+        default: false
+        type: boolean
+
+env:
+  NODE_VERSION: '20'
+  BUN_VERSION: '1.1.0'
+
+jobs:
+  create-release:
+    name: Build and Create Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+
+    steps:
+      - name: Validate version format
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?$ ]]; then
+            echo "❌ Invalid version format: $VERSION"
+            echo "Expected format: X.Y.Z or X.Y.Z-suffix (e.g., 1.2.3 or 1.2.3-beta)"
+            exit 1
+          fi
+          echo "✅ Version format valid: $VERSION"
+
+      - name: Checkout app branch
+        uses: actions/checkout@v4
+        with:
+          ref: app
+          fetch-depth: 0
+
+      - name: Check if tag exists
+        run: |
+          if git rev-parse "v${{ github.event.inputs.version }}" >/dev/null 2>&1; then
+            echo "❌ Tag v${{ github.event.inputs.version }} already exists!"
+            exit 1
+          fi
+          echo "✅ Tag v${{ github.event.inputs.version }} is available"
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ env.BUN_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+            node_modules
+          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build application
+        run: bun run build
+        env:
+          NODE_ENV: production
+
+      - name: Get release info
+        id: info
+        run: |
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          COMMIT_COUNT=$(git rev-list --count HEAD)
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
+          echo "commit_count=$COMMIT_COUNT" >> $GITHUB_OUTPUT
+
+      - name: Create release artifact
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          # Create release info
+          cat > .release-info.json << EOF
+          {
+            "version": "$VERSION",
+            "sha": "${{ github.sha }}",
+            "short_sha": "${{ steps.info.outputs.short_sha }}",
+            "build_number": "${{ steps.info.outputs.commit_count }}",
+            "build_date": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "branch": "app"
+          }
+          EOF
+          
+          # Create tarball
+          tar -czf cs2inspect-v${VERSION}.tar.gz \
+            .output \
+            .release-info.json \
+            package.json \
+            bun.lockb \
+            nuxt.config.ts \
+            server \
+            public \
+            locales \
+            README.md
+          
+          echo "📦 Created: cs2inspect-v${VERSION}.tar.gz"
+          ls -lh cs2inspect-v${VERSION}.tar.gz
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          
+          if [ -n "$PREV_TAG" ]; then
+            echo "📋 Changes since $PREV_TAG:"
+            CHANGELOG=$(git log ${PREV_TAG}..HEAD --oneline --pretty=format:"- %s (%h)" | head -50)
+          else
+            echo "📋 Recent changes (no previous tag found):"
+            CHANGELOG=$(git log --oneline -20 --pretty=format:"- %s (%h)")
+          fi
+          
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create Git tag
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git tag -a "v${{ github.event.inputs.version }}" -m "Release v${{ github.event.inputs.version }}"
+          git push origin "v${{ github.event.inputs.version }}"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.version }}
+          name: v${{ github.event.inputs.version }}
+          body: |
+            ## 🎮 CS2Inspect v${{ github.event.inputs.version }}
+            
+            **Commit:** `${{ steps.info.outputs.short_sha }}`
+            **Build:** #${{ steps.info.outputs.commit_count }}
+            
+            ---
+            
+            ### 📋 Changes
+            
+            ${{ steps.changelog.outputs.changelog }}
+            
+            ---
+            
+            ### 📥 Installation
+            
+            #### Option 1: Download Release
+            
+            ```bash
+            # Download and extract
+            wget https://github.com/sak0a/cs2inspect-web/releases/download/v${{ github.event.inputs.version }}/cs2inspect-v${{ github.event.inputs.version }}.tar.gz
+            tar -xzf cs2inspect-v${{ github.event.inputs.version }}.tar.gz
+            
+            # Install dependencies
+            bun install --production
+            
+            # Run migrations
+            bun run db:push
+            
+            # Start application
+            bun run .output/server/index.mjs
+            ```
+            
+            #### Option 2: Docker
+            
+            ```bash
+            docker pull ghcr.io/sak0a/cs2inspect-web:v${{ github.event.inputs.version }}
+            docker pull ghcr.io/sak0a/cs2inspect-web:latest
+            ```
+            
+            #### Option 3: Clone Repository
+            
+            ```bash
+            git clone https://github.com/sak0a/cs2inspect-web.git
+            cd cs2inspect-web
+            git checkout v${{ github.event.inputs.version }}
+            bun install
+            bun run build
+            ```
+            
+            ---
+            
+            ### 📚 Documentation
+            
+            - [Self-Hosting Guide](https://github.com/sak0a/cs2inspect-web/blob/master/docs/SELF_HOSTING.md)
+            - [Coolify Deployment](https://github.com/sak0a/cs2inspect-web/blob/master/services/docs-site/coolify.md)
+            - [Setup Guide](https://github.com/sak0a/cs2inspect-web/blob/master/docs/setup.md)
+          files: cs2inspect-v${{ github.event.inputs.version }}.tar.gz
+          draft: ${{ github.event.inputs.draft }}
+          prerelease: ${{ github.event.inputs.prerelease }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Trigger Docker build
+        if: ${{ !github.event.inputs.prerelease }}
+        run: |
+          echo "🐳 Docker build will be triggered by the new tag v${{ github.event.inputs.version }}"
+          echo "Check the 'Build Docker Images' workflow for status"
+
+      - name: Release summary
+        run: |
+          echo "## 🎉 Release v${{ github.event.inputs.version }} Created!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** v${{ github.event.inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Tag:** \`v${{ github.event.inputs.version }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit:** \`${{ steps.info.outputs.short_sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Pre-release:** ${{ github.event.inputs.prerelease }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔗 Links" >> $GITHUB_STEP_SUMMARY
+          echo "- [Release Page](https://github.com/sak0a/cs2inspect-web/releases/tag/v${{ github.event.inputs.version }})" >> $GITHUB_STEP_SUMMARY
+          echo "- [Docker Image](https://github.com/sak0a/cs2inspect-web/pkgs/container/cs2inspect-web)" >> $GITHUB_STEP_SUMMARY
