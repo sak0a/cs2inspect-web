@@ -36,7 +36,15 @@ export default defineNuxtConfig({
         target: 'esnext'
       }
     },
-    minify: false
+    minify: false,
+    // Serve stickers from storage folder (moved out of public to avoid 200k+ file scan)
+    serverAssets: [
+      {
+        baseName: 'stickers',
+        dir: './storage/stickers'
+      }
+    ],
+    node: true
   },
   devServer: {
     port: Number(process.env.PORT) || 3210,
