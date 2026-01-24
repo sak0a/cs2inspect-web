@@ -6,15 +6,14 @@
 # - Run Nitro server with Bun
 
 # 1) Build stage (Node + Bun for install)
-FROM node:20-slim AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 
-# Install Bun into the build image
-RUN apt-get update \
- && apt-get install -y --no-install-recommends curl ca-certificates unzip \
- && rm -rf /var/lib/apt/lists/* \
- && curl -fsSL https://bun.sh/install | bash \
- && mv /root/.bun/bin/bun /usr/local/bin/bun
+# Install build dependencies and Bun
+RUN apk add --no-cache curl ca-certificates unzip \
+ && curl -fsSL https://bun.sh/install | sh \
+ && mv /root/.bun/bin/bun /usr/local/bin/bun \
+ && apk del curl unzip
 
 # Install dependencies via Bun (respects bun.lock)
 COPY package*.json bun.lock* ./
@@ -25,11 +24,11 @@ COPY . .
 RUN npm run build
 
 # 2) Runtime stage (Bun)
-FROM oven/bun:1 AS runner
+FROM oven/bun:1-alpine AS runner
 WORKDIR /app
 
 # Install curl for health checks
-RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache curl
 
 # Copy runtime dependencies and manifests for externalized packages (e.g., vue)
 COPY --from=build /app/node_modules ./node_modules

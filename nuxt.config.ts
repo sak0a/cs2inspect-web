@@ -27,9 +27,6 @@ export default defineNuxtConfig({
   experimental: {
     typedPages: true,
   },
-  sitemap: {
-    zeroRuntime: true
-  },
   nitro: {
     experimental: {
       wasm: true
@@ -134,12 +131,12 @@ export default defineNuxtConfig({
     //'@nuxtjs/seo',
     '@vite-pwa/nuxt',
   ],
-  site: {
-    url: 'https://cs2inspect.com',
-    name: 'CS2 Inspect',
-    description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
-    defaultLocale: 'en',
-  },
+  // site: { // Commented out until @nuxtjs/seo is enabled
+  //   url: 'https://cs2inspect.com',
+  //   name: 'CS2 Inspect',
+  //   description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
+  //   defaultLocale: 'en',
+  // },
   runtimeConfig: {
     public: {
       assetsUrl: process.env.ASSETS_URL || 'https://assets.cu.sakoa.xyz/cs2inspect',

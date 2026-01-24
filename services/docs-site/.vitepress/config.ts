@@ -47,8 +47,11 @@ export default withMermaid({
         {
           text: 'Deployment & Contributing',
           items: [
+            { text: 'Self-Hosting Guide', link: '/self-hosting' },
             { text: 'Deployment Guide', link: '/deployment' },
-            { text: 'Contributing Guide', link: '/contributing' }
+            { text: 'Coolify Deployment', link: '/coolify' },
+            { text: 'Contributing Guide', link: '/contributing' },
+            { text: 'Recommendations', link: '/recommendations' }
           ]
         },
         {

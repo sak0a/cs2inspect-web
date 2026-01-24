@@ -1,0 +1,128 @@
+version: "3.9"
+
+# Production Docker Compose Configuration
+# Optimized for production deployment with security and performance
+
+services:
+  database:
+    image: mariadb:10.11
+    container_name: cs2inspect-prod-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DATABASE_NAME}
+      MYSQL_USER: ${DATABASE_USER}
+      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - db_data_prod:/var/lib/mysql
+      - ./backups:/backups
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+      - --max-connections=200
+      - --innodb-buffer-pool-size=2G
+      - --innodb-log-file-size=512M
+    # Don't expose database port in production
+    # Use internal network only
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: cs2inspect-web:latest
+    container_name: cs2inspect-prod-web
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=${PORT:-3000}
+      - HOST=${HOST:-0.0.0.0}
+      - JWT_TOKEN=${JWT_TOKEN}
+      - JWT_EXPIRY=${JWT_EXPIRY}
+      - DATABASE_HOST=database
+      - DATABASE_PORT=3306
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
+      - DATABASE_CONNECTION_LIMIT=${DATABASE_CONNECTION_LIMIT:-20}
+      - STEAM_API_KEY=${STEAM_API_KEY}
+      - STEAM_SERVICE_URL=${STEAM_SERVICE_URL}
+      - LOG_API_REQUESTS=${LOG_API_REQUESTS:-false}
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+    ports:
+      - "${PORT:-3000}:${PORT:-3000}"
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/health/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    volumes:
+      - ./logs:/app/logs:rw
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '1.0'
+          memory: 1G
+
+  steam-service:
+    build:
+      context: ./services/steam-service
+      dockerfile: Dockerfile
+    image: cs2inspect-steam-service:latest
+    container_name: cs2inspect-prod-steam
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - PORT=${STEAM_SERVICE_PORT:-3001}
+      - HOST=${STEAM_SERVICE_HOST:-0.0.0.0}
+      - STEAM_USERNAME=${STEAM_USERNAME}
+      - STEAM_PASSWORD=${STEAM_PASSWORD}
+      - STEAM_API_KEY=${STEAM_API_KEY}
+      - API_KEYS=${STEAM_SERVICE_API_KEYS}
+      - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
+      - LOG_API_REQUESTS=${LOG_API_REQUESTS:-false}
+      - STEAM_RATE_LIMIT_DELAY=${STEAM_RATE_LIMIT_DELAY:-1500}
+      - STEAM_MAX_QUEUE_SIZE=${STEAM_MAX_QUEUE_SIZE:-100}
+    networks:
+      - prod-network
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:3001/api/health/ready"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+networks:
+  prod-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  db_data_prod:
+    driver: local

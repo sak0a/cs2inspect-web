@@ -53,9 +53,40 @@ A full-stack web application for Counter-Strike 2 players to customize and manag
 
 - Node.js >= 20
 - MariaDB/MySQL or Docker
-- npm or bun
+- Bun (recommended) or npm
 
 ### Installation
+
+#### Option 1: Remote Installation (One Command)
+
+```bash
+# Install directly from GitHub (Linux/macOS)
+curl -fsSL https://raw.githubusercontent.com/sak0a/cs2inspect-web/master/scripts/remote-install.sh | bash
+```
+
+This will automatically:
+- Install Node.js, Bun, and dependencies
+- Clone the repository
+- Setup database (optional)
+- Configure environment
+- Build application
+- Setup systemd service (optional)
+
+#### Option 2: Local Automated Installation (Linux/macOS)
+
+```bash
+# Clone the repository
+git clone https://github.com/sak0a/cs2inspect-web.git
+cd cs2inspect-web
+
+# Run installation script
+./scripts/install.sh
+
+# Or use setup wizard for interactive configuration
+./scripts/setup-wizard.sh
+```
+
+#### Option 3: Manual Installation
 
 ```bash
 # Clone the repository
@@ -63,7 +94,7 @@ git clone https://github.com/sak0a/cs2inspect-web.git
 cd cs2inspect-web
 
 # Install dependencies
-npm install
+bun install  # or npm install
 
 # Configure environment
 cp .env.example .env
@@ -73,26 +104,74 @@ cp .env.example .env
 docker-compose up -d
 
 # Run database migrations
-npm run db:push
+bun run db:push
 
 # Start development server
-npm run dev
+bun run dev  # or npm run dev
 ```
+
+#### Option 4: Using Makefile
+
+```bash
+# View all available commands
+make help
+
+# Install and setup
+make install
+make setup
+
+# Start development
+make dev
+```
+
+#### Option 5: Docker Deployment
+
+```bash
+# Development
+docker-compose -f docker-compose.dev.yml up -d
+
+# Production
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+See [SELF_HOSTING.md](docs/SELF_HOSTING.md) for complete production deployment guide.
 
 The app will be available at `http://localhost:3000`.
 
 ## 📜 Available Scripts
 
+### Bun/npm Scripts
+
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
-| `npm run build` | Build for production |
-| `npm run preview` | Preview production build |
-| `npm run lint` | Run ESLint |
-| `npm run test` | Run tests |
-| `npm run db:push` | Push database schema |
-| `npm run db:studio` | Open Drizzle Studio |
-| `npm run docs:dev` | Start documentation site |
+| `bun run dev` | Start development server |
+| `bun run build` | Build for production |
+| `bun run preview` | Preview production build |
+| `bun run lint` | Run ESLint |
+| `bun test` | Run tests |
+| `bun run db:push` | Push database schema |
+| `bun run db:studio` | Open Drizzle Studio |
+| `bun run docs:dev` | Start documentation site |
+
+### Makefile Commands
+
+For a complete list of Makefile commands, run `make help`
+
+**Common commands:**
+- `make install` - Install dependencies
+- `make setup` - Run interactive setup wizard
+- `make dev` - Start development server
+- `make build` - Build for production
+- `make test` - Run all tests
+- `make docker-up` - Start Docker containers
+- `make deploy` - Deploy to production
+
+### Shell Scripts
+
+- `./scripts/install.sh` - Automated installation script
+- `./scripts/setup-wizard.sh` - Interactive configuration wizard
+- `./scripts/validate-env.sh` - Validate environment configuration
+- `./scripts/deploy-app.sh` - Deploy to app branch
 
 ## 📁 Project Structure
 
