@@ -240,9 +240,8 @@ export const useLoadoutStore = defineStore('loadout', {
             }
 
             try {
-                const response = await api.put<{ loadout: DBLoadout }>('/api/loadouts', {
+                const response = await api.put<{ loadout: DBLoadout }>(`/api/loadouts/${id}`, {
                     steamId: String(steamId),
-                    id: String(id),
                     name: newName
                 });
 
@@ -266,9 +265,8 @@ export const useLoadoutStore = defineStore('loadout', {
         async deleteLoadout(steamId: SteamId, id: LoadoutId) {
             this.isLoading = true;
             try {
-                await api.delete('/api/loadouts', {
-                    steamId: String(steamId),
-                    id: String(id)
+                await api.delete(`/api/loadouts/${id}`, {
+                    steamId: String(steamId)
                 });
 
                 // Refresh loadouts to get updated list and active status

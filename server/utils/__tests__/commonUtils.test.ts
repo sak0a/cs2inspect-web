@@ -95,8 +95,8 @@ describe('commonUtils', () => {
             const data = [{ id: 1, name: 'a' }, { id: 1, name: 'b' }, { id: 2, name: 'c' }];
             const result = uniqueBy(data, item => item.id);
             expect(result).toHaveLength(2);
-            expect(result[0].name).toBe('a');
-            expect(result[1].name).toBe('c');
+            expect(result[0]!.name).toBe('a');
+            expect(result[1]!.name).toBe('c');
         });
 
         it('groupBy', () => {
@@ -108,8 +108,8 @@ describe('commonUtils', () => {
             const result = groupBy(data, item => item.type);
             expect(result.a).toHaveLength(2);
             expect(result.b).toHaveLength(1);
-            expect(result.a[0].val).toBe(1);
-            expect(result.a[1].val).toBe(3);
+            expect(result.a![0]!.val).toBe(1);
+            expect(result.a![1]!.val).toBe(3);
         });
     });
 });

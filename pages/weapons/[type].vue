@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-import type { IEnhancedWeapon, IEnhancedItem, WeaponConfiguration, UserProfile, WeaponItemData } from "~/types";
+import type { IEnhancedWeapon, WeaponConfiguration, UserProfile, WeaponItemData } from "~/types";
 import { toSteamId } from "~/types/core/common";
 
 definePageMeta({
@@ -11,7 +11,7 @@ definePageMeta({
 
 const { t } = useI18n()
 const route = useRoute()
-const WEAPON_TYPE = route.params.type as string ?? 'rifles'
+const WEAPON_TYPE = ((route.params as Record<string, string | string[]>).type as string) ?? 'rifles'
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedWeapon[]>([])
@@ -23,8 +23,8 @@ const message = useMessage()
 const showSkinModal = ref<boolean>(false)
 const selectedWeapon = ref<IEnhancedWeapon | null>(null)
 
-const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon as any, skins as any)
-const groupedWeapons = useGroupedWeapons(skins as any)
+const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
+const groupedWeapons = useGroupedWeapons(skins)
 
 // Convert SteamUser to UserProfile for components that expect branded types
 const userAsProfile = computed((): UserProfile | null => {
