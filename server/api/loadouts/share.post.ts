@@ -1,5 +1,6 @@
 
-import { getQuery, readBody, createError, H3Event } from 'h3'
+import { readBody, createError } from 'h3'
+import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { getLoadout, setShareCode, getLoadoutByShareCode } from "~/server/database/loadoutHelpers";
 import { validateRequiredRequestData } from "~/server/utils/helpers";
@@ -7,7 +8,7 @@ import {
     createSuccessResponse,
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers';
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 // Helper to generate random code
 const generateShareCode = () => {
@@ -19,52 +20,45 @@ const generateShareCode = () => {
     return code;
 }
 
+/**
+ * POST /api/loadouts/share
+ * Generates or retrieves a share code for a loadout
+ */
 export default useErrorHandling(async (event: H3Event) => {
-    const startTime = Date.now();
-    const method = event.method
+    const startTime = Date.now()
 
-    Logger.header(`Share Loadout API request: ${method} ${event.req.url}`)
+    Logger.header(`Share Loadout API request: ${event.req.url}`)
 
-    // Handle POST to generate/get share code
-    if (method === 'POST') {
-        const body = await readBody(event)
-        const loadoutId = body.loadoutId;
-        const steamId = body.steamId; // needed to verify ownership
+    const body = await readBody(event)
+    const loadoutId = body.loadoutId
+    const steamId = body.steamId // needed to verify ownership
 
-        validateRequiredRequestData(loadoutId, 'Loadout ID');
-        validateRequiredRequestData(steamId, 'Steam ID');
+    validateRequiredRequestData(loadoutId, 'Loadout ID')
+    validateRequiredRequestData(steamId, 'Steam ID')
 
-        const loadout = await getLoadout(loadoutId, steamId);
-        if (!loadout) {
-            throw createError({ statusCode: 404, message: 'Loadout not found' });
-        }
-
-        let shareCode = loadout.share_code;
-
-        if (!shareCode) {
-            // Generate unique code
-            // Simple retry logic used in production would be better, but for now single try
-            shareCode = generateShareCode();
-
-            // Check collision (unlikely but possible)
-            const existing = await getLoadoutByShareCode(shareCode);
-            if (existing) {
-                shareCode = generateShareCode(); // Retry once
-            }
-
-            await setShareCode(loadoutId, steamId, shareCode);
-        }
-
-        Logger.success(`Loadout ${loadoutId} share code: ${shareCode}`)
-
-        const meta = createResponseMeta(startTime, { steamId, method, loadoutId });
-        return createSuccessResponse({ shareCode }, meta, 'Share code retrieved successfully');
+    const loadout = await getLoadout(loadoutId, steamId)
+    if (!loadout) {
+        throw createError({ statusCode: 404, message: 'Loadout not found' })
     }
 
-    Logger.error('Method not allowed')
-    throw createError({
-        statusCode: 405,
-        message: 'Method not allowed'
-    })
+    let shareCode = loadout.share_code
+
+    if (!shareCode) {
+        // Generate unique code
+        shareCode = generateShareCode()
+
+        // Check collision (unlikely but possible)
+        const existing = await getLoadoutByShareCode(shareCode)
+        if (existing) {
+            shareCode = generateShareCode() // Retry once
+        }
+
+        await setShareCode(loadoutId, steamId, shareCode)
+    }
+
+    Logger.success(`Loadout ${loadoutId} share code: ${shareCode}`)
+
+    const meta = createResponseMeta(startTime, { steamId, method: 'POST', loadoutId })
+    return createSuccessResponse({ shareCode }, meta, 'Share code retrieved successfully')
 
 }, ErrorCodes.LOADOUT_SHARE_ERROR)

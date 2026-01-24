@@ -23,7 +23,7 @@ import {
     createCollectionResponse,
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers';
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 // Type for enhanced weapon sticker
 type IEnhancedWeaponSticker = ReturnType<EnhancedWeaponSticker['toInterface']>;

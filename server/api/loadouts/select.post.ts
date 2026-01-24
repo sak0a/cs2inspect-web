@@ -6,7 +6,7 @@ import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from "~/server/utils/constants";
 import { toLoadoutId } from '~/types/core/common';
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 type SelectionType = 'knife' | 'glove' | 'agent' | 'music' | 'pin'
 

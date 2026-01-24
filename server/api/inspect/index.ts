@@ -4,7 +4,7 @@ import { Logger } from '~/server/utils/logger'
 import { mapCustomizationToRepresentation, type CustomizationInput } from '~/server/utils/inspectHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { createError, getQuery, readBody } from 'h3'
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import type {
     EconItem,
     CS2Inspect
@@ -454,4 +454,8 @@ export default useErrorHandling(async (event) => {
                     message: `Unknown action: ${action}. Available actions: create-url, analyze-url, inspect-item, decode-masked-only, decode-hex-data, validate-url, client-status`
                 });
         }
+    } catch (error) {
+        Logger.error(`Inspect API error: ${error}`)
+        throw error
+    }
 }, ErrorCodes.INSPECT_ERROR)

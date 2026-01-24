@@ -9,7 +9,7 @@ import {
     createCollectionResponse,
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers'
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 export default useErrorHandling(async (event) => {
     const startTime = Date.now()

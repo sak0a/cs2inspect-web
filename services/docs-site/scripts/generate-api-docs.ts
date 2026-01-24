@@ -47,7 +47,7 @@ function extractMethod(filename: string, content: string): string {
   // Check file naming conventions (Nuxt style)
   const methodMatch = filename.match(/\.(get|post|put|patch|delete|head|options)\.ts$/i);
   if (methodMatch) {
-    return methodMatch[1].toUpperCase();
+    return methodMatch[1]!.toUpperCase();
   }
 
   // Check for explicit method handling in content
@@ -81,7 +81,7 @@ function extractJSDoc(content: string): string[] {
   let match;
 
   while ((match = jsdocRegex.exec(content)) !== null) {
-    const comment = match[1]
+    const comment = match[1]!
       .split('\n')
       .map(line => line.replace(/^\s*\*\s?/, '').trim())
       .filter(line => line.length > 0);
@@ -100,7 +100,7 @@ function extractDescription(jsdocs: string[]): string {
   if (jsdocs.length === 0) return 'No description available';
   
   // Get first non-tag line from first JSDoc
-  const lines = jsdocs[0].split('\n');
+  const lines = jsdocs[0]!.split('\n');
   const descLines: string[] = [];
   
   for (const line of lines) {
@@ -130,7 +130,7 @@ function extractQueryParams(content: string): ParamInfo[] {
   const queryMatches = content.matchAll(/const\s+(\w+)\s*=\s*query\.(\w+)/g);
   for (const match of queryMatches) {
     params.push({
-      name: match[2],
+      name: match[2]!,
       type: 'string',
       description: '',
       required: content.includes(`validateRequiredRequestData(${match[1]}`)
@@ -140,7 +140,7 @@ function extractQueryParams(content: string): ParamInfo[] {
   // Match destructured query
   const destructuredMatch = content.match(/const\s*\{\s*([^}]+)\s*\}\s*=\s*getQuery/);
   if (destructuredMatch) {
-    const vars = destructuredMatch[1].split(',').map(v => v.trim().split(':')[0].trim());
+    const vars = destructuredMatch[1]!.split(',').map(v => v.trim().split(':')[0]!.trim());
     for (const v of vars) {
       if (!params.find(p => p.name === v)) {
         params.push({
@@ -163,7 +163,7 @@ function extractResponseType(content: string): string {
   // Check for explicit return type
   const returnTypeMatch = content.match(/\):\s*Promise<([^>]+)>/);
   if (returnTypeMatch) {
-    return returnTypeMatch[1];
+    return returnTypeMatch[1]!;
   }
 
   // Check for response helpers
@@ -235,7 +235,7 @@ function scanDirectory(dir: string, category: string = ''): EndpointInfo[] {
         const paramMatches = endpoint.path.matchAll(/:(\w+)/g);
         for (const match of paramMatches) {
           endpoint.params.push({
-            name: match[1],
+            name: match[1]!,
             type: 'string',
             description: '',
             required: true

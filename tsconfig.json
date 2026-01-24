@@ -5,7 +5,8 @@
     "module": "ESNext",
     "verbatimModuleSyntax": false,
     "types": [
-      "node"
+      "node",
+      "@types/bun"
     ]
   },
   "exclude": [

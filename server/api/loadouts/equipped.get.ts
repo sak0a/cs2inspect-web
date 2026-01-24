@@ -1,4 +1,5 @@
-import { H3Event, getQuery, createError } from 'h3'
+import { getQuery, createError } from 'h3'
+import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { getLoadoutsBySteamId } from '~/server/database/loadoutHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
@@ -6,11 +7,11 @@ import {
     createSuccessResponse,
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers'
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 /**
- * API endpoint to get the equipped loadout for a user
- * This is designed for CS2 server plugin integration.
+ * GET /api/loadouts/equipped
+ * Gets the equipped loadout for a user (for CS2 server plugin integration)
  * 
  * Priority:
  * 1. Loadout with is_default = 1
@@ -19,18 +20,9 @@ import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
  */
 export default useErrorHandling(async (event: H3Event) => {
     const startTime = Date.now()
-    const method = event.method
     const query = getQuery(event)
 
-    Logger.header(`Get Equipped Loadout API request: ${method} ${event.req.url}`)
-
-    if (method !== 'GET') {
-        Logger.error('Method not allowed')
-        throw createError({
-            statusCode: 405,
-            message: 'Method not allowed'
-        })
-    }
+    Logger.header(`Get Equipped Loadout API request: ${event.req.url}`)
 
     const steamId = query.steamId as string
     validateRequiredRequestData(steamId, 'Steam ID')
@@ -60,7 +52,7 @@ export default useErrorHandling(async (event: H3Event) => {
 
     Logger.success(`Equipped loadout found: ${equippedLoadout.id} (${equippedLoadout.name})`)
 
-    const meta = createResponseMeta(startTime, { steamId, method, loadoutId: equippedLoadout.id })
+    const meta = createResponseMeta(startTime, { steamId, method: 'GET', loadoutId: equippedLoadout.id })
     return createSuccessResponse({ loadout: equippedLoadout }, meta, 'Equipped loadout retrieved successfully')
 
 }, ErrorCodes.LOADOUT_ERROR)

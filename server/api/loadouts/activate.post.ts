@@ -1,4 +1,4 @@
-import { createError, getQuery } from 'h3'
+import { getQuery } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { setActiveLoadout, getLoadout } from '~/server/database/loadoutHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
@@ -6,26 +6,17 @@ import {
     createSuccessResponse,
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers'
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 /**
- * API endpoint to activate a loadout
+ * POST /api/loadouts/activate
  * Sets the specified loadout as active and deactivates all other loadouts for the user
  */
 export default useErrorHandling(async (event) => {
-    const startTime = Date.now();
-    const method = event.method
+    const startTime = Date.now()
     const query = getQuery(event)
 
-    Logger.header(`Activate Loadout API request: ${method} ${event.req.url}`)
-
-    if (method !== 'POST') {
-        Logger.error('Method not allowed')
-        throw createError({
-            statusCode: 405,
-            message: 'Method not allowed'
-        })
-    }
+    Logger.header(`Activate Loadout API request: ${event.req.url}`)
 
     const steamId = query.steamId as string
     validateRequiredRequestData(steamId, 'Steam ID')
@@ -39,6 +30,6 @@ export default useErrorHandling(async (event) => {
     const data = await getLoadout(loadoutId, steamId)
     Logger.success(`Loadout ${loadoutId} retrieved successfully for response`)
 
-    const meta = createResponseMeta(startTime, { steamId, method, loadoutId });
-    return createSuccessResponse(data, meta, 'Loadout activated successfully');
+    const meta = createResponseMeta(startTime, { steamId, method: 'POST', loadoutId })
+    return createSuccessResponse(data, meta, 'Loadout activated successfully')
 }, ErrorCodes.LOADOUT_ERROR)

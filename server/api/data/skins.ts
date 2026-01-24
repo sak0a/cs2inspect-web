@@ -10,7 +10,7 @@ import {
     extractFilterOptions,
 } from '~/server/utils/api/responseHelpers';
 import { isWeaponMatch } from '~/server/utils/data/weaponNameMapping';
-import { useErrorHandling, ErrorCodes } from '~/server/middleware/errorHandler'
+import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 interface QueryFilters {
     [key: string]: string | undefined;   // Index signature for Record compatibility
