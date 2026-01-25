@@ -31,6 +31,7 @@ export default withMermaid({
             { text: 'User Guide', link: '/user-guide' },
             { text: 'Setup Guide', link: '/setup' },
             { text: 'How It Works', link: '/how-it-works' },
+            { text: 'Plugin Integration', link: '/plugin-integration' },
             { text: 'FAQ', link: '/faq' }
           ]
         },
@@ -42,6 +43,22 @@ export default withMermaid({
             { text: 'Backend Architecture', link: '/architecture-backend' },
             { text: 'Deployment Architecture', link: '/architecture-deployment' },
             { text: 'Components', link: '/components' }
+          ]
+        },
+        {
+          text: 'Services',
+          items: [
+            { text: 'Steam Service', link: '/services-steam' },
+            { text: 'Asset Scrapers', link: '/services-scrapers' }
+          ]
+        },
+        {
+          text: 'Reference',
+          items: [
+            { text: 'Composables', link: '/reference-composables' },
+            { text: 'Pinia Stores', link: '/reference-stores' },
+            { text: 'TypeScript Types', link: '/reference-types' },
+            { text: 'Environment Variables', link: '/reference-env' }
           ]
         },
         {
