@@ -323,8 +323,6 @@ export const useLoadoutStore = defineStore('loadout', {
                     loadoutId: String(loadoutId)
                 });
                 await this.fetchLoadouts(steamId);
-            } catch (error) {
-                throw error;
             } finally {
                 this.isLoading = false;
             }
@@ -351,8 +349,6 @@ export const useLoadoutStore = defineStore('loadout', {
                     loadoutId: String(loadoutId)
                 });
                 await this.fetchLoadouts(steamId);
-            } catch (error) {
-                throw error;
             } finally {
                 this.isLoading = false;
             }
