@@ -1,7 +1,21 @@
 /**
  * Type definitions for the unified inspect API endpoint
  * Handles all item types: weapons, knives, gloves, agents, music kits
+ * 
+ * ## Branded Types
+ * 
+ * This module uses branded types for type-safe URL and data handling:
+ * - `InspectUrl` - Steam inspect protocol URLs
+ * - `HexData` - Hex-encoded item data
+ * - `FloatValue` - Wear values (0-1)
+ * 
+ * Use conversion functions like `toInspectUrl()`, `toHexData()`, `toFloatValue()`
+ * when working with these values in business logic.
+ * 
+ * @see {@link ~/types/core/branded.ts} for branded type definitions
  */
+
+import type { InspectUrl, HexData, FloatValue } from '~/types'
 
 // ============================================================================
 // ITEM TYPE DEFINITIONS
@@ -43,6 +57,9 @@ export interface BaseInspectRequest {
 
 /**
  * Request interface for creating inspect URLs
+ * 
+ * Note: Uses plain number types for API compatibility.
+ * Values are validated and converted to branded types internally.
  */
 export interface CreateUrlRequest extends BaseInspectRequest {
   /** Item definition index */
@@ -51,7 +68,7 @@ export interface CreateUrlRequest extends BaseInspectRequest {
   paintindex?: number
   /** Pattern seed for the skin */
   paintseed?: number
-  /** Wear value (float) */
+  /** Wear value (float 0-1) - validated as FloatValue internally */
   paintwear?: number
   /** Item rarity */
   rarity?: number
@@ -59,7 +76,7 @@ export interface CreateUrlRequest extends BaseInspectRequest {
   statTrak?: boolean
   /** StatTrak kill count */
   statTrakCount?: number
-  /** Custom name tag */
+  /** Custom name tag (max 32 chars) */
   nameTag?: string
   /** Stickers array (weapons only) */
   stickers?: Array<{ id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number }>
@@ -73,7 +90,7 @@ export interface CreateUrlRequest extends BaseInspectRequest {
  * Request interface for inspecting URLs
  */
 export interface InspectUrlRequest extends BaseInspectRequest {
-  /** The inspect URL to process */
+  /** The inspect URL to process - validated as InspectUrl internally */
   inspectUrl: string
 }
 
@@ -81,7 +98,7 @@ export interface InspectUrlRequest extends BaseInspectRequest {
  * Request interface for decoding hex data
  */
 export interface DecodeHexRequest extends BaseInspectRequest {
-  /** Raw hex data to decode */
+  /** Raw hex data to decode - validated as HexData internally */
   hexData: string
 }
 

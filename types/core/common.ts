@@ -30,7 +30,25 @@ export {
   type MusicKitDefindex,
   type PinDefindex,
 
-  // Conversion helpers
+  // Tier 1: Critical safety types
+  type InspectUrl,
+  type HexData,
+  type FloatValue,
+  type StickerSlotIndex,
+  type TeamId,
+
+  // Tier 2: Domain safety types
+  type StatTrakCount,
+  type NameTag,
+  type ISOTimestamp,
+
+  // Tier 3: Visual and UX types
+  type HexColor,
+  type NormalizedCoordinate,
+  type Percentage,
+  type RarityId,
+
+  // Conversion helpers - Original
   toLoadoutId,
   toSteamId,
   toDefindex,
@@ -41,10 +59,54 @@ export {
   toMusicKitDefindex,
   toPinDefindex,
 
-  // Type guards
+  // Conversion helpers - Tier 1
+  toInspectUrl,
+  tryToInspectUrl,
+  toHexData,
+  toFloatValue,
+  toFloatValueClamped,
+  toStickerSlotIndex,
+  toTeamId,
+
+  // Conversion helpers - Tier 2
+  toStatTrakCount,
+  toNameTag,
+  toISOTimestamp,
+
+  // Conversion helpers - Tier 3
+  toHexColor,
+  toNormalizedCoordinate,
+  toNormalizedCoordinateClamped,
+  toPercentage,
+  toRarityId,
+
+  // Type guards - Original
   isValidLoadoutId,
   isValidSteamId,
   isValidDefindex,
+
+  // Type guards - Tier 1
+  isValidInspectUrl,
+  isValidHexData,
+  isValidFloatValue,
+  isValidStickerSlotIndex,
+  isValidTeamId,
+
+  // Type guards - Tier 2
+  isValidStatTrakCount,
+  isValidNameTag,
+  isValidISOTimestamp,
+
+  // Type guards - Tier 3
+  isValidHexColor,
+  isValidNormalizedCoordinate,
+  isValidPercentage,
+
+  // Utility functions
+  floatValueToCondition,
+  floatValueToConditionAbbr,
+  teamIdToName,
+  teamIdToAbbr,
 } from './branded'
 
 // Local alias for use within this file

@@ -84,6 +84,111 @@ Every interface includes:
 - Type guards for runtime type checking
 - Generic interfaces for reusable patterns
 - Utility types for common operations
+- **Branded types for compile-time ID and value safety**
+
+## 🏷️ Branded Types
+
+Branded types provide compile-time safety for primitive values, preventing common mistakes like mixing up different ID types or using invalid values.
+
+### Available Branded Types
+
+#### Entity Identifiers
+| Type | Base | Purpose |
+|------|------|---------|
+| `LoadoutId` | `number` | Loadout identifiers |
+| `SteamId` | `string` | Steam 64-bit identifiers (17-digit) |
+| `Defindex` | `number` | Weapon/item definition index |
+| `PaintIndex` | `number` | Paint/skin index |
+| `PaintSeed` | `number` | Pattern seed (0-999) |
+| `StickerId` | `number` | Sticker identifiers |
+| `KeychainId` | `number` | Keychain/charm identifiers |
+| `MusicKitDefindex` | `number` | Music kit identifiers |
+| `PinDefindex` | `number` | Pin/collectible identifiers |
+
+#### Value Types (Tier 1 - Critical Safety)
+| Type | Base | Purpose | Range |
+|------|------|---------|-------|
+| `InspectUrl` | `string` | Steam inspect protocol URLs | `steam://rungame/730/...` |
+| `HexData` | `string` | Hex-encoded item data | Valid hex characters |
+| `FloatValue` | `number` | Item wear/float values | 0.0 - 1.0 |
+| `StickerSlotIndex` | `number` | Sticker slot positions | 0 - 4 |
+| `TeamId` | `1 \| 2` | Team identifiers | 1 (T) or 2 (CT) |
+
+#### Value Types (Tier 2 - Domain Safety)
+| Type | Base | Purpose | Constraint |
+|------|------|---------|------------|
+| `StatTrakCount` | `number` | StatTrak kill count | >= 0 |
+| `NameTag` | `string` | Custom weapon name tags | max 32 chars |
+| `ISOTimestamp` | `string` | ISO 8601 timestamps | Valid ISO format |
+
+#### Value Types (Tier 3 - Visual/UX)
+| Type | Base | Purpose | Range |
+|------|------|---------|-------|
+| `HexColor` | `string` | CSS hex color codes | #RRGGBB or #RRGGBBAA |
+| `NormalizedCoordinate` | `number` | Normalized canvas positions | 0.0 - 1.0 |
+| `Percentage` | `number` | Percentage values | 0 - 100 |
+| `RarityId` | `string` | Item rarity identifiers | - |
+
+### Usage Examples
+
+```typescript
+import { 
+  toFloatValue, 
+  toFloatValueClamped,
+  toStickerSlotIndex,
+  toTeamId,
+  isValidFloatValue,
+  isValidInspectUrl,
+  floatValueToCondition
+} from '~/types'
+
+// Converting values with validation (throws on invalid)
+const wear = toFloatValue(0.15)  // ✅ Returns FloatValue
+const slot = toStickerSlotIndex(2)  // ✅ Returns StickerSlotIndex
+
+// toFloatValue(1.5)  // ❌ Throws error - out of range
+// toStickerSlotIndex(5)  // ❌ Throws error - invalid slot
+
+// Converting with clamping (never throws)
+const clampedWear = toFloatValueClamped(1.5)  // Returns 1.0 as FloatValue
+
+// Type guards for validation
+if (isValidFloatValue(userInput)) {
+  // userInput is now typed as FloatValue
+  console.log(floatValueToCondition(userInput))  // "Factory New", etc.
+}
+
+if (isValidInspectUrl(url)) {
+  // url is now typed as InspectUrl
+  processInspectUrl(url)
+}
+
+// Utility functions
+const wear: FloatValue = toFloatValue(0.05)
+console.log(floatValueToCondition(wear))  // "Factory New"
+console.log(floatValueToConditionAbbr(wear))  // "FN"
+
+const team: TeamId = toTeamId(1)
+console.log(teamIdToName(team))  // "Terrorist"
+console.log(teamIdToAbbr(team))  // "T"
+```
+
+### Why Branded Types?
+
+```typescript
+// WITHOUT branded types - easy to mix up IDs!
+function loadWeapon(defindex: number, paintIndex: number) {
+  // Oops! Parameters in wrong order - no compile error!
+}
+loadWeapon(paintIndex, defindex)  // Bug not caught!
+
+// WITH branded types - compile-time safety
+function loadWeaponSafe(defindex: Defindex, paintIndex: PaintIndex) {
+  // Parameters have distinct types
+}
+loadWeaponSafe(paintIndex, defindex)  // ❌ Compile error!
+loadWeaponSafe(toDefindex(7), toPaintIndex(12))  // ✅ Correct
+```
 
 ## 🚀 Usage Examples
 

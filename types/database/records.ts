@@ -5,11 +5,31 @@
  * structures and records. These interfaces match the actual database schema
  * and are used for type-safe database operations.
  * 
+ * ## Branded Types Usage
+ * 
+ * This module uses branded types for type-safe database operations:
+ * - `LoadoutId`, `SteamId` - Entity identifiers
+ * - `Defindex`, `PaintIndex` - Item identifiers
+ * - `ISOTimestamp` - Timestamp fields
+ * 
+ * Note: Some fields like `paintwear` and `stattrak_count` are stored as strings
+ * or plain numbers in the database but should be converted to branded types
+ * (FloatValue, StatTrakCount) when used in business logic.
+ * 
  * @version 2.0.0
  * @since 2.0.0
  */
 
-import type { EntityId, Timestamp, TeamSide, SteamId, LoadoutId, Defindex, PaintIndex } from '../core/common'
+import type { 
+  EntityId, 
+  Timestamp, 
+  TeamSide, 
+  SteamId, 
+  LoadoutId, 
+  Defindex, 
+  PaintIndex
+  // ISOTimestamp available for future use when migrating Timestamp fields
+} from '../core/common'
 
 // ============================================================================
 // BASE DATABASE INTERFACES

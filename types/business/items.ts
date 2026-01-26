@@ -5,6 +5,20 @@
  * configuration, and business logic operations. These interfaces represent
  * the application's domain model for CS2 items.
  * 
+ * ## Type Safety Strategy
+ * 
+ * This module uses plain `number` types for component compatibility, while the
+ * database layer (records.ts) uses branded types (e.g., `FloatValue`, `StickerId`)
+ * for type safety at persistence boundaries.
+ * 
+ * When interacting with the database, use conversion helpers like:
+ * - `toFloatValue(wear)` - Convert wear values
+ * - `toStickerSlotIndex(position)` - Convert sticker positions
+ * - `toStatTrakCount(count)` - Convert StatTrak counts
+ * - `toNameTag(name)` - Convert name tags with validation
+ * 
+ * @see {@link ../core/branded.ts} for branded type definitions
+ * 
  * @version 2.0.0
  * @since 2.0.0
  */
@@ -16,7 +30,12 @@ import type {
   ItemRarity,
   Defindex,
   PaintIndex,
-  PaintSeed
+  PaintSeed,
+  FloatValue,
+  StickerSlotIndex,
+  StatTrakCount,
+  NameTag,
+  NormalizedCoordinate
 } from '../core/common'
 
 import type {
@@ -24,6 +43,15 @@ import type {
   DBKnife,
   DBGlove
 } from '../database/records'
+
+// Re-export branded types for convenience
+export type {
+  FloatValue,
+  StickerSlotIndex,
+  StatTrakCount,
+  NameTag,
+  NormalizedCoordinate
+}
 
 // ============================================================================
 // ITEM TYPE DEFINITIONS

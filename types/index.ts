@@ -54,6 +54,35 @@ export type {
   Optional,
   RequiredFields,
 
+  // Branded types - Entity IDs
+  LoadoutId,
+  SteamId,
+  Defindex,
+  PaintIndex,
+  PaintSeed,
+  StickerId,
+  KeychainId,
+  MusicKitDefindex,
+  PinDefindex,
+
+  // Branded types - Tier 1: Critical safety
+  InspectUrl,
+  HexData,
+  FloatValue,
+  StickerSlotIndex,
+  TeamId,
+
+  // Branded types - Tier 2: Domain safety
+  StatTrakCount,
+  NameTag,
+  ISOTimestamp,
+
+  // Branded types - Tier 3: Visual and UX
+  HexColor,
+  NormalizedCoordinate,
+  Percentage,
+  RarityId,
+
   // Team and side definitions
   TeamAvailability,
 
@@ -82,7 +111,67 @@ export {
   TeamSide,
   ItemQuality,
   LoadingState,
-  CsTeam
+  CsTeam,
+
+  // Branded type conversion helpers - Original
+  toLoadoutId,
+  toSteamId,
+  toDefindex,
+  toPaintIndex,
+  toPaintSeed,
+  toStickerId,
+  toKeychainId,
+  toMusicKitDefindex,
+  toPinDefindex,
+
+  // Branded type conversion helpers - Tier 1
+  toInspectUrl,
+  tryToInspectUrl,
+  toHexData,
+  toFloatValue,
+  toFloatValueClamped,
+  toStickerSlotIndex,
+  toTeamId,
+
+  // Branded type conversion helpers - Tier 2
+  toStatTrakCount,
+  toNameTag,
+  toISOTimestamp,
+
+  // Branded type conversion helpers - Tier 3
+  toHexColor,
+  toNormalizedCoordinate,
+  toNormalizedCoordinateClamped,
+  toPercentage,
+  toRarityId,
+
+  // Type guards - Original
+  isValidLoadoutId,
+  isValidSteamId,
+  isValidDefindex,
+
+  // Type guards - Tier 1
+  isValidInspectUrl,
+  isValidHexData,
+  isValidFloatValue,
+  isValidStickerSlotIndex,
+  isValidTeamId,
+
+  // Type guards - Tier 2
+  isValidStatTrakCount,
+  isValidNameTag,
+  isValidISOTimestamp,
+
+  // Type guards - Tier 3
+  isValidHexColor,
+  isValidNormalizedCoordinate,
+  isValidPercentage,
+
+  // Utility functions
+  floatValueToCondition,
+  floatValueToConditionAbbr,
+  teamIdToName,
+  teamIdToAbbr,
 } from './core/common'
 
 // ============================================================================

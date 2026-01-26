@@ -12,7 +12,9 @@ import type {
 import {
   LoadingState,
   isWeaponConfiguration,
-  isKnifeConfiguration
+  isKnifeConfiguration,
+  toFloatValueClamped,
+  isValidFloatValue
 } from '~/types'
 
 // Legacy imports for backward compatibility
@@ -236,10 +238,10 @@ export function useInspectItem() {
       data.paintseed = normalizeNumber(data.paintseed, 'paintseed', 0)
       data.paintwear = normalizeNumber(data.paintwear, 'paintwear', 0)
 
-      // Ensure paintwear is within valid range (0-1)
-      if (data.paintwear < 0 || data.paintwear > 1) {
+      // Ensure paintwear is within valid range (0-1) using branded type helper
+      if (!isValidFloatValue(data.paintwear)) {
         console.warn(`Invalid paintwear value: ${data.paintwear}, clamping to valid range`)
-        data.paintwear = Math.max(0, Math.min(1, data.paintwear))
+        data.paintwear = toFloatValueClamped(data.paintwear)
       }
 
       // Handle StatTrak information with proper validation
