@@ -77,6 +77,8 @@ async function handleLogin() {
   }
 }
 
+
+
 const route = useRoute()
 const isDevPage = computed(() => route.path === '/dev' && import.meta.env.DEV)
 
@@ -110,11 +112,37 @@ onMounted(async () => {
   }
 })
 
+const backgroundStyle = {
+  background: '#000000',
+  backgroundImage: `
+    linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)
+  `,
+  backgroundSize: '20px 20px, 20px 20px, 20px 20px',
+  backgroundPosition: '0 0, 0 0, 0 0',
+}
+
+const backgroundStyleFade = {
+      backgroundImage: `
+        linear-gradient(45deg, transparent 49%, #242424 49%, #e5e7eb 51%, transparent 51%),
+        linear-gradient(-45deg, transparent 49%, #242424 49%, #e5e7eb 51%, transparent 51%)
+      `,
+      backgroundSize: "40px 40px",
+         WebkitMaskImage:
+            "radial-gradient(ellipse 80% 80% at 0% 0%, #000 50%, transparent 90%)",
+          maskImage:
+            "radial-gradient(ellipse 80% 80% at 0% 0%, #000 50%, transparent 90%)"
+    }
+
 </script>
 <template>
-
-  <NSpace vertical>
+      <!-- <div class="min-h-screen w-full bg-black relative" style="z-index: -5;">
+      <div class="absolute inset-0" :style="backgroundStyleFade"></div>
+    </div>-->
+  <NSpace vertical>  
     <NLayout has-sider >
+   
       <NLayoutSider
           v-if="user"
           :width="200"
@@ -253,7 +281,7 @@ onMounted(async () => {
           </div>
         </div>
       </NLayoutSider>
-      <NLayoutContent class="h-screen overflow-auto">
+      <NLayoutContent class="h-screen overflow-auto bg-transparent">
 
         <div v-if="!user && !isDevPage" class="flex items-center justify-center flex-col text-xl h-full relative">
           <!-- Language Switcher in top-right corner for login screen -->
@@ -274,7 +302,7 @@ onMounted(async () => {
             &copy; saka 2025
           </div>
         </div>
-        <div v-else class="h-full bg-black p-0">
+        <div v-else class="h-full p-0">
           <!-- Secondary Menu -->
           <div class="p-2 mb-4 sticky top-0 z-10">
             <div class="flex justify-end items-end">
@@ -311,6 +339,9 @@ body
 
 #__nuxt
   height: 100%
+
+.n-layout
+  @apply bg-transparent
 
 .n-layout-sider
   &-scroll-container
