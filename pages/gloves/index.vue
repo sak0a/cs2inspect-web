@@ -119,10 +119,10 @@ const handleSkinSelect = async (glove: IEnhancedGlove, customization: GloveConfi
       body: {
         defindex: glove.weapon_defindex,
         active: customization.active,
-        paintIndex: customization.paintIndex,
+        paintindex: customization.paintindex,
         paintIndexOverride: customization.paintIndexOverride,
-        wear: customization.wear,
-        pattern: customization.pattern,
+        paintwear: customization.paintwear,
+        paintseed: customization.paintseed,
         team: glove.databaseInfo?.team || customization.team || 0,
         reset: customization.reset
       }
@@ -154,9 +154,9 @@ const handleGloveDuplicate = async (glove: IEnhancedGlove, customization: GloveC
       body: {
         defindex: glove.weapon_defindex,
         active: true,
-        paintIndex: customization.paintIndex,
-        wear: customization.wear || 0,
-        pattern: customization.pattern || 0,
+        paintindex: customization.paintindex,
+        paintwear: customization.paintwear || 0,
+        paintseed: customization.paintseed || 0,
         team: customization.team, // This will be the opposite team number
         reset: false
       }

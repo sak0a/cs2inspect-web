@@ -72,9 +72,9 @@ const handleGenerate = async () => {
         paintindex: parsedData.paintindex,
         paintseed: parsedData.paintseed,
         paintwear: parsedData.paintwear,
-        statTrak: parsedData.killeaterscoretype !== undefined ? !!parsedData.killeaterscoretype : parsedData.statTrak,
-        statTrakCount: parsedData.killeatervalue || parsedData.statTrakCount,
-        nameTag: parsedData.customname || parsedData.nameTag,
+        stattrak_enabled: parsedData.killeaterscoretype !== undefined ? !!parsedData.killeaterscoretype : (parsedData.stattrak_enabled || parsedData.statTrak),
+        stattrak_count: parsedData.killeatervalue || parsedData.stattrak_count || parsedData.statTrakCount,
+        nametag: parsedData.customname || parsedData.nametag || parsedData.nameTag,
         stickers: parsedData.stickers,
         keychain: (parsedData.keychains && parsedData.keychains[0]) || parsedData.keychain,
         itemType: parsedData.itemType || 'weapon'

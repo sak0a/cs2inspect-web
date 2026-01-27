@@ -43,11 +43,11 @@ const { t } = useI18n()
  * Type guards for safe type checking
  */
 const isWeaponConfiguration = (config: ItemConfiguration | null): config is WeaponConfiguration => {
-  return config !== null && 'statTrak' in config && 'stickers' in config
+  return config !== null && 'stattrak_enabled' in config && 'stickers' in config
 }
 
 const isKnifeConfiguration = (config: ItemConfiguration | null): config is KnifeConfiguration => {
-  return config !== null && 'statTrak' in config && !('stickers' in config)
+  return config !== null && 'stattrak_enabled' in config && !('stickers' in config)
 }
 
 // Removed unused isGloveConfiguration function
@@ -82,7 +82,7 @@ const displayName = computed(() => {
     // Add StatTrak™ prefix if applicable (weapons and knives only)
     if (props.itemType === 'weapon' || props.itemType === 'knife') {
       if (isWeaponConfiguration(props.customization) || isKnifeConfiguration(props.customization)) {
-        if (props.customization.statTrak) {
+        if (props.customization.stattrak_enabled) {
           name = `StatTrak™ ${name}`
         }
       }
@@ -91,8 +91,8 @@ const displayName = computed(() => {
     // Add name tag if present (weapons and knives only)
     if (props.itemType === 'weapon' || props.itemType === 'knife') {
       if (isWeaponConfiguration(props.customization) || isKnifeConfiguration(props.customization)) {
-        if (props.customization.nameTag) {
-          name = `${name} (${props.customization.nameTag})`
+        if (props.customization.nametag) {
+          name = `${name} (${props.customization.nametag})`
         }
       }
     }
@@ -213,23 +213,23 @@ const handleGenerateLink = () => {
           <div class="mt-2 grid grid-cols-2 gap-2 text-sm">
             <div>
               <span class="text-gray-400">{{ t('common.paintIndex') }}:</span>
-              <span class="ml-1">{{ customization?.paintIndex || 0 }}</span>
+              <span class="ml-1">{{ customization?.paintindex || 0 }}</span>
             </div>
             <div>
               <span class="text-gray-400">{{ t('common.pattern') }}:</span>
-              <span class="ml-1">{{ customization?.pattern || 0 }}</span>
+              <span class="ml-1">{{ customization?.paintseed || 0 }}</span>
             </div>
             <div>
               <span class="text-gray-400">{{ t('common.wear') }}:</span>
-              <span class="ml-1">{{ formatFloat(customization?.wear || 0) }}</span>
+              <span class="ml-1">{{ formatFloat(customization?.paintwear || 0) }}</span>
             </div>
 
             <!-- StatTrak (only for weapons and knives) -->
             <div v-if="itemType === 'weapon' || itemType === 'knife'">
               <span class="text-gray-400">{{ t('common.statTrak') }}:</span>
               <span class="ml-1">
-                {{ (customization as WeaponCustomization | KnifeCustomization)?.statTrak ?
-                   (customization as WeaponCustomization | KnifeCustomization)?.statTrakCount :
+                {{ (customization as WeaponConfiguration | KnifeConfiguration)?.stattrak_enabled ?
+                   (customization as WeaponConfiguration | KnifeConfiguration)?.stattrak_count :
                    t('common.disabled') }}
               </span>
             </div>
@@ -238,7 +238,7 @@ const handleGenerateLink = () => {
           <!-- Stickers and Keychain (only for weapons) -->
           <div v-if="itemType === 'weapon' && customization" class="mt-3">
             <!-- Stickers -->
-            <div v-if="(customization as WeaponCustomization)?.stickers?.some(s => s !== null)" class="mb-2">
+            <div v-if="(customization as WeaponConfiguration)?.stickers?.some(s => s !== null)" class="mb-2">
               <p class="text-sm text-gray-400 mb-1">{{ t('common.stickers') }}:</p>
               <div class="flex flex-wrap gap-1">
                 <div
@@ -259,20 +259,20 @@ const handleGenerateLink = () => {
             </div>
 
             <!-- Keychain -->
-            <div v-if="(customization as WeaponCustomization)?.keychain" class="mb-2">
+            <div v-if="(customization as WeaponConfiguration)?.keychain" class="mb-2">
               <p class="text-sm text-gray-400 mb-1">{{ t('common.keychain') }}:</p>
               <div class="flex items-center">
                 <div class="w-10 h-10 rounded bg-gray-800/30 flex items-center justify-center overflow-hidden mr-2">
                   <img
-                    v-if="(customization as WeaponCustomization)?.keychain?.api?.image"
-                    :src="(customization as WeaponCustomization)?.keychain?.api?.image"
-                    :alt="(customization as WeaponCustomization)?.keychain?.api?.name || 'Keychain'"
+                    v-if="(customization as WeaponConfiguration)?.keychain?.api?.image"
+                    :src="(customization as WeaponConfiguration)?.keychain?.api?.image"
+                    :alt="(customization as WeaponConfiguration)?.keychain?.api?.name || 'Keychain'"
                     class="w-8 h-8 object-contain"
                   >
                   <span v-else class="text-xs text-gray-400">K</span>
                 </div>
                 <span class="text-sm text-gray-300">
-                  {{ (customization as WeaponCustomization)?.keychain?.api?.name || t('common.keychain') }}
+                  {{ (customization as WeaponConfiguration)?.keychain?.api?.name || t('common.keychain') }}
                 </span>
               </div>
             </div>

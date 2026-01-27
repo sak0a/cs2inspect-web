@@ -250,7 +250,7 @@ export function createDefaultItem<T>(baseItem: IDefaultItem): T[] {
         category: baseItem.category,
         minFloat: 0,
         maxFloat: 1,
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: baseItem.availableTeams,
         team: null,
         rarity: undefined,
@@ -274,7 +274,7 @@ export function createEnhancedItemFromSkin<T extends IEnhancedItem>(
         image: skin.image,
         minFloat: skin.min_float,
         maxFloat: skin.max_float,
-        paintIndex: Number(skin.paint_index),
+        paintindex: Number(skin.paint_index),
         rarity: skin.rarity,
         team: skin.team ? (skin.team.name.toLowerCase() === 'terrorist' ? 1 : 2) : null,
         databaseInfo: undefined

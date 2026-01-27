@@ -109,7 +109,7 @@ export default useErrorHandling(async (event) => {
                 // Default knife (paint index 0 or no custom skin)
                 displayImage = baseKnife.defaultImage;
                 displayName = baseKnife.defaultName;
-                paintIndexToUse = baseKnife.paintIndex;
+                paintIndexToUse = baseKnife.paintindex;
                 rarityToUse = undefined;
             }
 
@@ -123,7 +123,7 @@ export default useErrorHandling(async (event) => {
                 category: 'knife',
                 minFloat: skinInfo?.min_float || 0,
                 maxFloat: skinInfo?.max_float || 1,
-                paintIndex: paintIndexToUse,
+                paintindex: paintIndexToUse,
                 rarity: rarityToUse,
                 availableTeams: 'both',
                 team: null,

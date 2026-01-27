@@ -186,7 +186,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         <!-- CT skins -->
         <NCard
             v-for="weapon in weaponData.weapons.filter((w: WeaponItemData) => w.databaseInfo?.team === 2)"
-            :key="weapon.paintIndex"
+            :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
@@ -237,7 +237,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         <!-- T skins -->
         <NCard
             v-for="weapon in weaponData.weapons.filter((w: WeaponItemData) => w.databaseInfo?.team === 1)"
-            :key="weapon.paintIndex"
+            :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
@@ -297,7 +297,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         <!-- Team-specific skins -->
         <NCard
             v-for="weapon in weaponData.weapons"
-            :key="weapon.paintIndex"
+            :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +

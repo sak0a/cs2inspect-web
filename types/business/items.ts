@@ -73,8 +73,9 @@ export type WeaponCategory = 'rifles' | 'pistols' | 'smgs' | 'heavys'
 
 /**
  * Base item configuration interface
- * 
+ *
  * @description Common properties for all item configurations.
+ * Uses database column names for consistency across the application.
  * Uses plain number types for component compatibility.
  * Branded types are used at the database layer (records.ts) for type safety.
  */
@@ -85,14 +86,14 @@ export interface BaseItemConfiguration {
   team: TeamSide
   /** Item definition index */
   defindex: number
-  /** Paint index for the skin/pattern */
-  paintIndex: number
-  /** Whether paint index is manually overridden */
+  /** Paint index for the skin/pattern (matches DB column: paintindex) */
+  paintindex: number
+  /** Whether paint index is manually overridden (UI-specific, not in DB) */
   paintIndexOverride: boolean
-  /** Pattern seed for randomization */
-  pattern: number
-  /** Wear value (float between 0 and 1) */
-  wear: number
+  /** Pattern seed for randomization (matches DB column: paintseed) */
+  paintseed: number
+  /** Wear value (float between 0 and 1) (matches DB column: paintwear) */
+  paintwear: number
   /** Whether to reset this item to defaults */
   reset?: boolean
 }
@@ -128,7 +129,7 @@ export interface BaseItemData {
   /** Team association (null if available to both teams) - for IEnhanced* compatibility */
   team?: number | null
   /** Paint index for the skin/pattern - for IEnhanced* compatibility */
-  paintIndex?: number
+  paintindex?: number
 }
 
 // ============================================================================
@@ -264,34 +265,34 @@ export interface WeaponItemData extends BaseItemData {
 
 /**
  * Weapon configuration
- * 
+ *
  * @description Complete weapon customization configuration
- * 
+ *
  * @example
  * ```typescript
  * const config: WeaponConfiguration = {
  *   active: true,
  *   team: TeamSide.Terrorist,
  *   defindex: 7,
- *   paintIndex: 12,
+ *   paintindex: 12,
  *   paintIndexOverride: false,
- *   pattern: 123,
- *   wear: 0.15,
- *   statTrak: true,
- *   statTrakCount: 1337,
- *   nameTag: "My AK-47",
+ *   paintseed: 123,
+ *   paintwear: 0.15,
+ *   stattrak_enabled: true,
+ *   stattrak_count: 1337,
+ *   nametag: "My AK-47",
  *   stickers: [null, null, null, null, null],
  *   keychain: null
  * }
  * ```
  */
 export interface WeaponConfiguration extends BaseItemConfiguration {
-  /** Whether StatTrak is enabled */
-  statTrak: boolean
-  /** StatTrak kill count */
-  statTrakCount: number
-  /** Custom name tag */
-  nameTag: string
+  /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
+  stattrak_enabled: boolean
+  /** StatTrak kill count (matches DB column: stattrak_count) */
+  stattrak_count: number
+  /** Custom name tag (matches DB column: nametag) */
+  nametag: string
   /** Sticker configurations (5 positions, null if empty) */
   stickers: Array<StickerConfiguration | null>
   /** Keychain configuration (null if none) */
@@ -321,32 +322,32 @@ export interface KnifeItemData extends BaseItemData {
 
 /**
  * Knife configuration
- * 
+ *
  * @description Complete knife customization configuration
- * 
+ *
  * @example
  * ```typescript
  * const config: KnifeConfiguration = {
  *   active: true,
  *   team: TeamSide.Terrorist,
  *   defindex: 500,
- *   paintIndex: 12,
+ *   paintindex: 12,
  *   paintIndexOverride: false,
- *   pattern: 123,
- *   wear: 0.15,
- *   statTrak: true,
- *   statTrakCount: 1337,
- *   nameTag: "My Karambit"
+ *   paintseed: 123,
+ *   paintwear: 0.15,
+ *   stattrak_enabled: true,
+ *   stattrak_count: 1337,
+ *   nametag: "My Karambit"
  * }
  * ```
  */
 export interface KnifeConfiguration extends BaseItemConfiguration {
-  /** Whether StatTrak is enabled */
-  statTrak: boolean
-  /** StatTrak kill count */
-  statTrakCount: number
-  /** Custom name tag */
-  nameTag: string
+  /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
+  stattrak_enabled: boolean
+  /** StatTrak kill count (matches DB column: stattrak_count) */
+  stattrak_count: number
+  /** Custom name tag (matches DB column: nametag) */
+  nametag: string
 }
 
 // ============================================================================
@@ -372,19 +373,19 @@ export interface GloveItemData extends BaseItemData {
 
 /**
  * Glove configuration
- * 
+ *
  * @description Complete glove customization configuration
- * 
+ *
  * @example
  * ```typescript
  * const config: GloveConfiguration = {
  *   active: true,
  *   team: TeamSide.Terrorist,
  *   defindex: 5000,
- *   paintIndex: 10006,
+ *   paintindex: 10006,
  *   paintIndexOverride: false,
- *   pattern: 456,
- *   wear: 0.25
+ *   paintseed: 456,
+ *   paintwear: 0.25
  * }
  * ```
  */
@@ -451,21 +452,21 @@ export function isGloveItemData(item: ItemData): item is GloveItemData {
  * Type guard to check if configuration is for a weapon
  */
 export function isWeaponConfiguration(config: ItemConfiguration): config is WeaponConfiguration {
-  return 'statTrak' in config && 'stickers' in config
+  return 'stattrak_enabled' in config && 'stickers' in config
 }
 
 /**
  * Type guard to check if configuration is for a knife
  */
 export function isKnifeConfiguration(config: ItemConfiguration): config is KnifeConfiguration {
-  return 'statTrak' in config && !('stickers' in config)
+  return 'stattrak_enabled' in config && !('stickers' in config)
 }
 
 /**
  * Type guard to check if configuration is for gloves
  */
 export function isGloveConfiguration(config: ItemConfiguration): config is GloveConfiguration {
-  return !('statTrak' in config)
+  return !('stattrak_enabled' in config)
 }
 
 // ============================================================================

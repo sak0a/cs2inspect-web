@@ -47,7 +47,7 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
     message.error(t('loadout.selectLoadoutFirst') as string)
     return
   }
-  if (customization.paintIndex === null || customization.paintIndex === 0) {
+  if (customization.paintindex === null || customization.paintindex === 0) {
     message.error('Please select a paint to save the weapon')
     return
   }
@@ -56,12 +56,12 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
     body: {
       defindex: skin.weapon_defindex,
       active: customization.active,
-      paintIndex: customization.paintIndex,
-      wear: customization.wear,
-      pattern: customization.pattern,
-      statTrak: customization.statTrak,
-      statTrakCount: customization.statTrakCount,
-      nameTag: customization.nameTag,
+      paintindex: customization.paintindex,
+      paintwear: customization.paintwear,
+      paintseed: customization.paintseed,
+      stattrak_enabled: customization.stattrak_enabled,
+      stattrak_count: customization.stattrak_count,
+      nametag: customization.nametag,
       stickers: customization.stickers,
       keychain: customization.keychain,
       team: customization.team || 0,
@@ -115,12 +115,12 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
       body: {
         defindex: skin.weapon_defindex,
         active: true,
-        paintIndex: customization.paintIndex || 0,
-        wear: customization.wear || 0,
-        pattern: customization.pattern || 0,
-        statTrak: customization.statTrak || false,
-        statTrakCount: customization.statTrakCount || 0,
-        nameTag: customization.nameTag || '',
+        paintindex: customization.paintindex || 0,
+        paintwear: customization.paintwear || 0,
+        paintseed: customization.paintseed || 0,
+        stattrak_enabled: customization.stattrak_enabled || false,
+        stattrak_count: customization.stattrak_count || 0,
+        nametag: customization.nametag || '',
         stickers: formattedStickers,
         keychain: formattedKeychain,
         team: customization.team // This will be the opposite team number

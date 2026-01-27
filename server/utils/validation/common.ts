@@ -17,10 +17,10 @@ export function validateTeam(team: unknown): asserts team is 1 | 2 {
 }
 
 /**
- * Validates StatTrak fields
+ * Validates StatTrak fields (uses database column names: stattrak_enabled, stattrak_count)
  */
 export function validateStatTrak(body: Record<string, unknown>) {
-    if (body.statTrak !== true && body.statTrak !== false) {
+    if (body.stattrak_enabled !== true && body.stattrak_enabled !== false) {
         Logger.error('Invalid StatTrak')
         throw createError({
             statusCode: 400,
@@ -28,12 +28,12 @@ export function validateStatTrak(body: Record<string, unknown>) {
         })
     }
 
-    validateRequiredRequestData(body.statTrakCount, 'StatTrak Count', true)
-    if ((body.statTrakCount as number) < 0) {
+    validateRequiredRequestData(body.stattrak_count, 'StatTrak Count', true)
+    if ((body.stattrak_count as number) < 0) {
         Logger.error('Invalid StatTrak Count')
         throw createError({
             statusCode: 400,
-            message: `Invalid StatTrak Count: ${body.statTrakCount}`
+            message: `Invalid StatTrak Count: ${body.stattrak_count}`
         })
     }
 }

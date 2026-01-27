@@ -296,7 +296,7 @@ export function useInspectItem() {
       inspectedItem.value = {
         weapon_defindex: data.defindex,
         defaultName: itemData?.name || fallbackName,
-        paintIndex: data.paintindex || 0,
+        paintindex: data.paintindex || 0,
         defaultImage: itemData?.image || '',
         weapon_name: itemData?.name || fallbackName,
         category: (itemData?.category || itemType.value || 'unknown') as string,
@@ -316,13 +316,13 @@ export function useInspectItem() {
             active: true,
             team: 1, // Default to Terrorist team
             defindex: data.defindex,
-            paintIndex: data.paintindex || 0,
+            paintindex: data.paintindex || 0,
             paintIndexOverride: false,
-            pattern: data.paintseed || 0,
-            wear: data.paintwear || 0,
-            statTrak: data.stattrak_enabled || false,
-            statTrakCount: data.stattrak_count || 0,
-            nameTag: data.customname || '',
+            paintseed: data.paintseed || 0,
+            paintwear: data.paintwear || 0,
+            stattrak_enabled: data.stattrak_enabled || false,
+            stattrak_count: data.stattrak_count || 0,
+            nametag: data.customname || '',
             stickers: data.stickers || [null, null, null, null, null],
             keychain: data.keychain || null
           } as WeaponConfiguration
@@ -331,23 +331,23 @@ export function useInspectItem() {
             active: true,
             team: 1, // Default to Terrorist team
             defindex: data.defindex,
-            paintIndex: data.paintindex || 0,
+            paintindex: data.paintindex || 0,
             paintIndexOverride: false,
-            pattern: data.paintseed || 0,
-            wear: data.paintwear || 0,
-            statTrak: data.stattrak_enabled || false,
-            statTrakCount: data.stattrak_count || 0,
-            nameTag: data.customname || ''
+            paintseed: data.paintseed || 0,
+            paintwear: data.paintwear || 0,
+            stattrak_enabled: data.stattrak_enabled || false,
+            stattrak_count: data.stattrak_count || 0,
+            nametag: data.customname || ''
           } as KnifeConfiguration
         } else if (itemType.value === 'glove') {
           customization.value = {
             active: true,
             team: 1, // Default to Terrorist team
             defindex: data.defindex,
-            paintIndex: data.paintindex || 0,
+            paintindex: data.paintindex || 0,
             paintIndexOverride: false,
-            pattern: data.paintseed || 0,
-            wear: data.paintwear || 0
+            paintseed: data.paintseed || 0,
+            paintwear: data.paintwear || 0
           } as GloveConfiguration
         } else {
           // For other item types, create a basic configuration
@@ -355,10 +355,10 @@ export function useInspectItem() {
             active: true,
             team: 1,
             defindex: data.defindex,
-            paintIndex: data.paintindex || 0,
+            paintindex: data.paintindex || 0,
             paintIndexOverride: false,
-            pattern: data.paintseed || 0,
-            wear: data.paintwear || 0
+            paintseed: data.paintseed || 0,
+            paintwear: data.paintwear || 0
           }
         }
 
@@ -531,9 +531,9 @@ export function useInspectItem() {
       const basePayload = {
         itemType: itemType.value,
         defindex: inspectedItem.value.weapon_defindex,
-        paintindex: customization.value.paintIndex,
-        paintseed: customization.value.pattern,
-        paintwear: customization.value.wear,
+        paintindex: customization.value.paintindex,
+        paintseed: customization.value.paintseed,
+        paintwear: customization.value.paintwear,
         rarity: 0
       }
 
@@ -542,9 +542,9 @@ export function useInspectItem() {
 
       if (isWeaponConfiguration(customization.value)) {
         typeSpecificPayload = {
-          statTrak: customization.value.statTrak,
-          statTrakCount: customization.value.statTrakCount,
-          nameTag: customization.value.nameTag,
+          stattrak_enabled: customization.value.stattrak_enabled,
+          stattrak_count: customization.value.stattrak_count,
+          nametag: customization.value.nametag,
           stickers: customization.value.stickers?.map((sticker, index) => {
             if (!sticker) return null
             return {
@@ -568,9 +568,9 @@ export function useInspectItem() {
         }
       } else if (isKnifeConfiguration(customization.value)) {
         typeSpecificPayload = {
-          statTrak: customization.value.statTrak,
-          statTrakCount: customization.value.statTrakCount,
-          nameTag: customization.value.nameTag
+          stattrak_enabled: customization.value.stattrak_enabled,
+          stattrak_count: customization.value.stattrak_count,
+          nametag: customization.value.nametag
         }
       }
       // Gloves don't need additional properties

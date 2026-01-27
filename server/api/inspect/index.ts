@@ -133,9 +133,9 @@ export default useErrorHandling(async (event) => {
                     paintseed: createUrlBody.paintseed || config.defaultPaintseed,
                     paintwear: createUrlBody.paintwear || config.defaultPaintwear,
                     rarity: createUrlBody.rarity || config.defaultRarity,
-                    killeaterscoretype: (config.supportsStatTrak && createUrlBody.statTrak) ? 1 : 0,
-                    killeatervalue: (config.supportsStatTrak && createUrlBody.statTrakCount) || 0,
-                    customname: (config.supportsNameTag && createUrlBody.nameTag) || '',
+                    killeaterscoretype: (config.supportsStatTrak && createUrlBody.stattrak_enabled) ? 1 : 0,
+                    killeatervalue: (config.supportsStatTrak && createUrlBody.stattrak_count) || 0,
+                    customname: (config.supportsNameTag && createUrlBody.nametag) || '',
                     // Only include stickers and keychains for supported item types
                     ...(config.supportsStickers && {
                         stickers: stickers,

@@ -5,6 +5,7 @@ import type {
   WeaponModalState,
   WeaponConfiguration,
   APIWeaponSkin,
+  APIKeychain,
   UserProfile,
   StickerConfiguration,
   KeychainConfiguration
@@ -107,18 +108,19 @@ const selectedSkin = ref<IEnhancedWeapon | null>()
 
 /**
  * Default weapon configuration using new WeaponConfiguration interface
+ * Field names match database columns for consistency
  */
 const defaultCustomization: WeaponConfiguration = {
   active: false,
   team: 1, // Default to Terrorist team
   defindex: 0,
-  paintIndex: 0,
+  paintindex: 0,
   paintIndexOverride: false,
-  pattern: 0,
-  wear: 0,
-  statTrak: false,
-  statTrakCount: 0,
-  nameTag: '',
+  paintseed: 0,
+  paintwear: 0,
+  stattrak_enabled: false,
+  stattrak_count: 0,
+  nametag: '',
   stickers: [null, null, null, null, null],
   keychain: null
 }
@@ -337,11 +339,9 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     // Fetch keychain data if exists
     let keychainPromise
     if (data.item.keychains?.[0]) {
-      keychainPromise = $fetch<{ data?: any[]; keychains?: any[] }>(`/api/data/keychains?id=keychain-${data.item.keychains[0].sticker_id}`)
+      keychainPromise = $fetch<{ success: boolean; data: APIKeychain[] }>(`/api/data/keychains?id=keychain-${data.item.keychains[0].sticker_id}`)
           .then(keychainData => {
-            // Handle both old and new API response formats
-            const keychains = keychainData.data || keychainData.keychains || []
-            const keychain = keychains[0]
+            const keychain = keychainData.data?.[0]
             if (!keychain) return null
 
             return {
@@ -390,13 +390,13 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       active: true,
       team: props.weapon.databaseInfo?.team || 1, // Default to Terrorist team
       defindex: data.item.defindex,
-      paintIndex: data.item.paintindex,
+      paintindex: data.item.paintindex,
       paintIndexOverride: false,
-      pattern: data.item.paintseed,
-      wear: data.item.paintwear,
-      statTrak: data.item.killeaterscoretype !== null,
-      statTrakCount: data.item.killeatervalue || 0,
-      nameTag: data.item.customname || '',
+      paintseed: data.item.paintseed,
+      paintwear: data.item.paintwear,
+      stattrak_enabled: data.item.killeaterscoretype !== null,
+      stattrak_count: data.item.killeatervalue || 0,
+      nametag: data.item.customname || '',
       stickers,
       keychain: keychainData ?? null
     }
@@ -415,7 +415,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
         defaultImage: matchingSkin.image,
         minFloat: matchingSkin.min_float ?? 0,
         maxFloat: matchingSkin.max_float ?? 1,
-        paintIndex: Number(matchingSkin.paint_index),
+        paintindex: Number(matchingSkin.paint_index),
         rarity: matchingSkin.rarity,
         availableTeams: matchingSkin.team?.id ?? 'both',
       }
@@ -443,7 +443,7 @@ const handleCreateInspectLink = async () => {
   }
 
   // Require a configured skin (paint index) before generating an inspect link
-  if (!customization.value.paintIndex || customization.value.paintIndex === 0) {
+  if (!customization.value.paintindex || customization.value.paintindex === 0) {
     state.value.error = 'No skin configured for inspect link creation'
     emit('error', state.value.error)
     return
@@ -458,13 +458,13 @@ const handleCreateInspectLink = async () => {
       body: {
         itemType: 'weapon',
         defindex: props.weapon.weapon_defindex,
-        paintindex: customization.value.paintIndex,
-        paintseed: customization.value.pattern,
-        paintwear: customization.value.wear,
+        paintindex: customization.value.paintindex,
+        paintseed: customization.value.paintseed,
+        paintwear: customization.value.paintwear,
         rarity: 0,
-        statTrak: customization.value.statTrak,
-        statTrakCount: customization.value.statTrakCount,
-        nameTag: customization.value.nameTag,
+        stattrak_enabled: customization.value.stattrak_enabled,
+        stattrak_count: customization.value.stattrak_count,
+        nametag: customization.value.nametag,
         customization: customization.value
       }
     })
@@ -569,15 +569,15 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       defaultImage: skin.image,
       minFloat: skin.min_float ?? 0,
       maxFloat: skin.max_float ?? 1,
-      paintIndex: Number(skin.paint_index),
+      paintindex: Number(skin.paint_index),
       rarity: skin.rarity,
       availableTeams: skin.team?.id ?? 'both',
     }
 
     customization.value = {
       ...customization.value,
-      paintIndex: Number(skin.paint_index),
-      wear: Number(skin.min_float ?? 0),
+      paintindex: Number(skin.paint_index),
+      paintwear: Number(skin.min_float ?? 0),
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
@@ -726,7 +726,7 @@ const handleModalKeydown = (e: KeyboardEvent) => {
 
   // R → Reset (with confirmation)
   if (e.key === 'r' || e.key === 'R') {
-    if (!selectedSkin.value || customization.value.paintIndex === 0) return
+    if (!selectedSkin.value || customization.value.paintindex === 0) return
     e.preventDefault()
     state.value.showResetConfirm = true
     return
@@ -746,7 +746,7 @@ const handleVisualCustomizerSave = (data: { stickers: (StickerConfiguration | nu
 
   // Update weapon wear if provided
   if (typeof data.weaponWear === 'number') {
-    customization.value.wear = data.weaponWear
+    customization.value.paintwear = data.weaponWear
   }
 
   state.value.showVisualCustomizer = false
@@ -754,7 +754,7 @@ const handleVisualCustomizerSave = (data: { stickers: (StickerConfiguration | nu
 }
 
 const handleVisualCustomizerWearUpdate = (wearValue: number) => {
-  customization.value.wear = wearValue
+  customization.value.paintwear = wearValue
 }
 
 // Inline Visual Customizer Handlers
@@ -782,7 +782,7 @@ const handleInlineCustomizerKeychainUpdate = (keychain: any) => {
 }
 
 const handleInlineCustomizerWearUpdate = (wear: number) => {
-  customization.value.wear = wear
+  customization.value.paintwear = wear
 }
 
 const handleInlineStickerSlotSelect = (slotIndex: number) => {
@@ -813,9 +813,9 @@ const handleClose = () => {
   }, 300) // Small delay to ensure modal is closed first
 }
 
-watch(() => customization.value.wear, (newWear) => {
+watch(() => customization.value.paintwear, (newWear) => {
       if (typeof newWear === 'number' && !isNaN(newWear)) {
-        customization.value.wear = Number(newWear.toFixed(3));
+        customization.value.paintwear = Number(newWear.toFixed(3));
       }
     }, { immediate: true }
 );
@@ -823,17 +823,16 @@ watch(() => customization.value.wear, (newWear) => {
 // Function to completely reset all state
 const resetAllState = () => {
   // Reset customization to default values
-  // Reset customization to default values
   customization.value = {
     active: false,
     defindex: props.weapon?.weapon_defindex || 0,
-    statTrak: false,
-    statTrakCount: 0,
-    paintIndex: 0,
+    stattrak_enabled: false,
+    stattrak_count: 0,
+    paintindex: 0,
     paintIndexOverride: false,
-    pattern: 0,
-    wear: 0,
-    nameTag: '',
+    paintseed: 0,
+    paintwear: 0,
+    nametag: '',
     stickers: [null, null, null, null, null],
     keychain: null,
     team: 1
@@ -927,13 +926,13 @@ watch(() => props.weapon, () => {
           active: dbInfo.active || false,
           team: dbInfo.team || 1,
           defindex: props.weapon.weapon_defindex,
-          paintIndex: dbInfo.paintIndex || 0,
+          paintindex: dbInfo.paintindex || 0,
           paintIndexOverride: false,
-          pattern: dbInfo.pattern || 0,
-          wear: dbInfo.paintWear || 0,
-          statTrak: dbInfo.statTrak || false,
-          statTrakCount: dbInfo.statTrakCount || 0,
-          nameTag: dbInfo.nameTag || '',
+          paintseed: dbInfo.paintseed || 0,
+          paintwear: dbInfo.paintwear || 0,
+          stattrak_enabled: dbInfo.stattrak_enabled || false,
+          stattrak_count: dbInfo.stattrak_count || 0,
+          nametag: dbInfo.nametag || '',
           stickers: Array.isArray(dbInfo.stickers) ? [...dbInfo.stickers] : [null, null, null, null, null],
           keychain: dbInfo.keychain ? {...dbInfo.keychain} : null
         }
@@ -980,11 +979,11 @@ watch(() => props.weapon, () => {
     <template #header-extra>
       <template v-if="!state.inlineVisualCustomizerActive">
         <!-- Reset Weapon Configuration -->
-        <NButton 
-          :loading="state.isResetting" 
-          secondary 
-          type="error" 
-          :disabled="!selectedSkin || customization.paintIndex == 0" 
+        <NButton
+          :loading="state.isResetting"
+          secondary
+          type="error"
+          :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
           @click="state.showResetConfirm = true"
         >
@@ -1020,7 +1019,7 @@ watch(() => props.weapon, () => {
           :loading="state.isLoadingInspect"
           secondary
           type="default"
-          :disabled="!selectedSkin || customization.paintIndex === 0"
+          :disabled="!selectedSkin || customization.paintindex === 0"
           :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
           @click="handleCreateInspectLink"
         >
@@ -1063,11 +1062,11 @@ watch(() => props.weapon, () => {
             }"
             :stickers="customization.stickers"
             :keychain="customization.keychain"
-            :weapon-wear="customization.wear"
+            :weapon-wear="customization.paintwear"
             :min-wear="selectedSkin?.minFloat || 0"
             :max-wear="selectedSkin?.maxFloat || 1"
             @save="handleInlineSave"
-            @update-wear="val => customization.wear = val"
+            @update-wear="val => customization.paintwear = val"
             @update-stickers="stickers => customization.stickers = stickers"
             @update-keychain="keychain => customization.keychain = keychain"
             @open-sticker-modal="handleInlineOpenStickerModal"
@@ -1122,11 +1121,11 @@ watch(() => props.weapon, () => {
               <!-- StatTrak and Name Tag -->
               <div class="grid grid-cols-2 gap-4 w-full">
                 <div class="flex items-center space-x-4">
-                  <NSwitch v-model:value="customization.statTrak" />
+                  <NSwitch v-model:value="customization.stattrak_enabled" />
                   <span>{{ t('modals.weaponSkin.labels.stattrak') }}</span>
                   <NInputNumber
-                      v-model:value="customization.statTrakCount"
-                      :disabled="!customization.statTrak"
+                      v-model:value="customization.stattrak_count"
+                      :disabled="!customization.stattrak_enabled"
                       :min="0"
                       :max="99999"
                       class="w-28"
@@ -1134,7 +1133,7 @@ watch(() => props.weapon, () => {
                   />
                 </div>
                 <NInput
-                    v-model:value="customization.nameTag"
+                    v-model:value="customization.nametag"
                     :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
                     class="pl-1"
                     maxlength="20"
@@ -1153,7 +1152,7 @@ watch(() => props.weapon, () => {
                   </div>
                 </div>
                 <NInputNumber
-                    v-model:value="customization.paintIndex"
+                    v-model:value="customization.paintindex"
                     :min="0"
                     :max="9999"
                     :disabled="!customization.paintIndexOverride"
@@ -1164,7 +1163,7 @@ watch(() => props.weapon, () => {
               <div class="space-y-2">
                 <h4 class="font-bold">{{ t('modals.weaponSkin.labels.pattern') }}</h4>
                 <NInputNumber
-                    v-model:value="customization.pattern"
+                    v-model:value="customization.paintseed"
                     :min="0"
                     :max="1000"
                     :input-props="digitOnlyInputProps"
@@ -1178,7 +1177,7 @@ watch(() => props.weapon, () => {
                 <h4 class="font-bold">{{ t('modals.weaponSkin.labels.wear') }}</h4>
               </div>
               <WearSlider
-                  v-model="customization.wear"
+                  v-model="customization.paintwear"
                   :max="selectedSkin?.maxFloat ?? 1"
                   :min="selectedSkin?.minFloat ?? 0"
               />

@@ -35,7 +35,7 @@ export interface IDefaultItem {
     /** Default display name */
     defaultName: string;
     /** Default paint index (usually 0 for vanilla items) */
-    paintIndex: number;
+    paintindex: number;
     /** URL to default item image */
     defaultImage: string;
     /** Internal weapon name identifier */
@@ -98,6 +98,7 @@ export interface IEnhancedGlove extends IEnhancedItem {
  * Mapped database weapon interface
  * Represents weapon data as stored in and retrieved from the database
  * Uses plain number types for API serialization compatibility
+ * Field names match database columns for consistency
  */
 export interface IMappedDBWeapon {
     /** Whether this weapon is active/equipped */
@@ -106,18 +107,18 @@ export interface IMappedDBWeapon {
     team: number;
     /** Weapon definition index */
     defindex: number;
-    /** Whether StatTrak is enabled */
-    statTrak: boolean;
-    /** StatTrak kill count */
-    statTrakCount: number;
-    /** Paint index for the skin */
-    paintIndex: number;
-    /** Wear value (float) */
-    paintWear: number;
-    /** Pattern seed */
-    pattern: number;
-    /** Custom name tag */
-    nameTag: string;
+    /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
+    stattrak_enabled: boolean;
+    /** StatTrak kill count (matches DB column: stattrak_count) */
+    stattrak_count: number;
+    /** Paint index for the skin (matches DB column: paintindex) */
+    paintindex: number;
+    /** Wear value (float) (matches DB column: paintwear) */
+    paintwear: number;
+    /** Pattern seed (matches DB column: paintseed) */
+    paintseed: number;
+    /** Custom name tag (matches DB column: nametag) */
+    nametag: string;
     /** Array of stickers (up to 5 slots, null for empty slots) */
     stickers: (IEnhancedWeaponSticker | null)[];
     /** Keychain attachment */

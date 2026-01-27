@@ -64,15 +64,16 @@ const selectedSkin = ref<IEnhancedItem | null>()
 
 /**
  * Default glove configuration using new GloveConfiguration interface
+ * Field names match database columns for consistency
  */
 const defaultCustomization: GloveConfiguration = {
   active: false,
   team: 1, // Default to Terrorist team
   defindex: 0,
-  paintIndex: 0,
+  paintindex: 0,
   paintIndexOverride: false,
-  pattern: 0,
-  wear: 0
+  paintseed: 0,
+  paintwear: 0
 }
 
 const customization = ref<GloveConfiguration>({ ...defaultCustomization })
@@ -107,10 +108,10 @@ const handleReset = () => {
       active: true,
       team: customization.value.team,
       defindex: props.weapon.weapon_defindex,
-      paintIndex: 0, // Default paint index
+      paintindex: 0, // Default paint index
       paintIndexOverride: false,
-      pattern: 0,
-      wear: 0,
+      paintseed: 0,
+      paintwear: 0,
       reset: true // Signal to the server this is a reset operation
     }
 
@@ -186,15 +187,15 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       defaultImage: skin.image,
       minFloat: skin.min_float ?? 0,
       maxFloat: skin.max_float ?? 1,
-      paintIndex: Number(skin.paint_index),
+      paintindex: Number(skin.paint_index),
       rarity: skin.rarity,
       availableTeams: 'both',
     }
 
     customization.value = {
       ...customization.value,
-      paintIndex: Number(skin.paint_index),
-      wear: Number(skin.min_float ?? 0),
+      paintindex: Number(skin.paint_index),
+      paintwear: Number(skin.min_float ?? 0),
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
@@ -220,10 +221,10 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     customization.value = {
       active: true,
-      paintIndex: data.item.paintindex,
+      paintindex: data.item.paintindex,
       paintIndexOverride: false,
-      pattern: data.item.paintseed,
-      wear: data.item.paintwear,
+      paintseed: data.item.paintseed,
+      paintwear: data.item.paintwear,
       team: props.weapon.databaseInfo?.team || 1
     } as GloveConfiguration
 
@@ -240,7 +241,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
         defaultImage: matchingSkin.image,
         minFloat: matchingSkin.min_float ?? 0,
         maxFloat: matchingSkin.max_float ?? 1,
-        paintIndex: Number(matchingSkin.paint_index),
+        paintindex: Number(matchingSkin.paint_index),
         rarity: matchingSkin.rarity,
         availableTeams: matchingSkin.team?.id ?? 'both',
       }
@@ -265,9 +266,9 @@ const handleCreateInspectLink = async () => {
       body: {
         itemType: 'glove',
         defindex: props.weapon.weapon_defindex,
-        paintindex: customization.value.paintIndex,
-        paintseed: customization.value.pattern,
-        paintwear: customization.value.wear,
+        paintindex: customization.value.paintindex,
+        paintseed: customization.value.paintseed,
+        paintwear: customization.value.paintwear,
         rarity: 0
       }
     })
@@ -297,9 +298,9 @@ const handleClose = () => {
   }, 300)
 }
 
-watch(() => customization.value.wear, (newWear) => {
+watch(() => customization.value.paintwear, (newWear) => {
   if (typeof newWear === 'number' && !isNaN(newWear)) {
-    customization.value.wear = Number(newWear.toFixed(3))
+    customization.value.paintwear = Number(newWear.toFixed(3))
   }
 }, { immediate: true })
 
@@ -329,10 +330,10 @@ watch(() => props.weapon, () => {
           active: Boolean(dbInfo.active),
           team: dbInfo.team || 1,
           defindex: props.weapon.weapon_defindex,
-          paintIndex: dbInfo.paintindex || 0, // Note: database uses 'paintindex', not 'paintIndex'
+          paintindex: dbInfo.paintindex || 0,
           paintIndexOverride: false,
-          pattern: typeof dbInfo.paintseed === 'string' ? parseInt(dbInfo.paintseed) || 0 : dbInfo.paintseed || 0,
-          wear: typeof dbInfo.paintwear === 'string' ? parseFloat(dbInfo.paintwear) || 0 : dbInfo.paintwear || 0
+          paintseed: typeof dbInfo.paintseed === 'string' ? parseInt(dbInfo.paintseed) || 0 : dbInfo.paintseed || 0,
+          paintwear: typeof dbInfo.paintwear === 'string' ? parseFloat(dbInfo.paintwear) || 0 : dbInfo.paintwear || 0
         }
       } else {
         customization.value = {
@@ -448,19 +449,19 @@ watch(() => props.weapon, () => {
                   </div>
                 </div>
                 <NInputNumber
-                    v-model:value="customization.paintIndex"
+                    v-model:value="customization.paintindex"
                     :min="0"
                     :max="10100"
                     :disabled="!customization.paintIndexOverride"
                     :input-props="digitOnlyInputProps"
                 />
-                
+
               </div>
 
               <div class="space-y-2">
                 <h4 class="font-bold">{{ t('modals.gloveSkin.labels.pattern') }}</h4>
                 <NInputNumber
-                    v-model:value="customization.pattern"
+                    v-model:value="customization.paintseed"
                     :min="0"
                     :max="10100"
                     :input-props="digitOnlyInputProps"
@@ -474,7 +475,7 @@ watch(() => props.weapon, () => {
                 <h4 class="font-bold">{{ t('modals.gloveSkin.labels.wear') }}</h4>
               </div>
               <WearSlider
-                  v-model="customization.wear"
+                  v-model="customization.paintwear"
                   :max="selectedSkin?.maxFloat ?? 1"
                   :min="selectedSkin?.minFloat ?? 0"
               />

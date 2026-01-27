@@ -139,12 +139,12 @@ const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
     body: {
       defindex: knife.weapon_defindex,
       team: customization.team,
-      paintIndex: customization.paintIndex,
-      pattern: customization.pattern,
-      wear: customization.wear,
-      statTrak: customization.statTrak,
-      statTrakCount: customization.statTrakCount,
-      nameTag: customization.nameTag,
+      paintindex: customization.paintindex,
+      paintseed: customization.paintseed,
+      paintwear: customization.paintwear,
+      stattrak_enabled: customization.stattrak_enabled,
+      stattrak_count: customization.stattrak_count,
+      nametag: customization.nametag,
       active: customization.active,
       reset: customization.reset
     }
@@ -172,12 +172,12 @@ const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeC
       body: {
         defindex: knife.weapon_defindex,
         team: customization.team,
-        paintIndex: customization.paintIndex,
-        pattern: customization.pattern,
-        wear: customization.wear,
-        statTrak: customization.statTrak,
-        statTrakCount: customization.statTrakCount,
-        nameTag: customization.nameTag,
+        paintindex: customization.paintindex,
+        paintseed: customization.paintseed,
+        paintwear: customization.paintwear,
+        stattrak_enabled: customization.stattrak_enabled,
+        stattrak_count: customization.stattrak_count,
+        nametag: customization.nametag,
         active: customization.active,
         reset: customization.reset
       }

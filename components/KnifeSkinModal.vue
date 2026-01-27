@@ -65,18 +65,19 @@ const selectedSkin = ref<IEnhancedItem | null>()
 
 /**
  * Default knife configuration using new KnifeConfiguration interface
+ * Field names match database columns for consistency
  */
 const defaultCustomization: KnifeConfiguration = {
   active: false,
   team: 1, // Default to Terrorist team
   defindex: 0,
-  paintIndex: 0,
+  paintindex: 0,
   paintIndexOverride: false,
-  pattern: 0,
-  wear: 0,
-  statTrak: false,
-  statTrakCount: 0,
-  nameTag: ''
+  paintseed: 0,
+  paintwear: 0,
+  stattrak_enabled: false,
+  stattrak_count: 0,
+  nametag: ''
 }
 
 const customization = ref<KnifeConfiguration>({ ...defaultCustomization })
@@ -179,15 +180,15 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       defaultImage: skin.image,
       minFloat: skin.min_float ?? 0,
       maxFloat: skin.max_float ?? 1,
-      paintIndex: Number(skin.paint_index),
+      paintindex: Number(skin.paint_index),
       rarity: skin.rarity,
       availableTeams: 'both',
     }
 
     customization.value = {
       ...customization.value,
-      paintIndex: Number(skin.paint_index),
-      wear: Number(skin.min_float ?? 0),
+      paintindex: Number(skin.paint_index),
+      paintwear: Number(skin.min_float ?? 0),
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
@@ -225,13 +226,13 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       active: true,
       team: props.weapon.databaseInfo?.team || 1, // Default to Terrorist team
       defindex: data.item.defindex,
-      paintIndex: data.item.paintindex,
+      paintindex: data.item.paintindex,
       paintIndexOverride: false,
-      pattern: data.item.paintseed,
-      wear: data.item.paintwear,
-      statTrak: data.item.killeaterscoretype !== null,
-      statTrakCount: data.item.killeatervalue || 0,
-      nameTag: data.item.customname || ''
+      paintseed: data.item.paintseed,
+      paintwear: data.item.paintwear,
+      stattrak_enabled: data.item.killeaterscoretype !== null,
+      stattrak_count: data.item.killeatervalue || 0,
+      nametag: data.item.customname || ''
     }
 
     // Update selected skin based on paint index
@@ -248,7 +249,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
         defaultImage: matchingSkin.image,
         minFloat: matchingSkin.min_float ?? 0,
         maxFloat: matchingSkin.max_float ?? 1,
-        paintIndex: Number(matchingSkin.paint_index),
+        paintindex: Number(matchingSkin.paint_index),
         rarity: matchingSkin.rarity,
         availableTeams: matchingSkin.team?.id ?? 'both',
       }
@@ -284,13 +285,13 @@ const handleCreateInspectLink = async () => {
       body: {
         itemType: 'knife',
         defindex: props.weapon.weapon_defindex,
-        paintindex: customization.value.paintIndex,
-        paintseed: customization.value.pattern,
-        paintwear: customization.value.wear,
+        paintindex: customization.value.paintindex,
+        paintseed: customization.value.paintseed,
+        paintwear: customization.value.paintwear,
         rarity: 0,
-        statTrak: customization.value.statTrak,
-        statTrakCount: customization.value.statTrakCount,
-        nameTag: customization.value.nameTag
+        stattrak_enabled: customization.value.stattrak_enabled,
+        stattrak_count: customization.value.stattrak_count,
+        nametag: customization.value.nametag
       }
     })
 
@@ -325,9 +326,9 @@ const handleClose = () => {
   }, 300)
 }
 
-watch(() => customization.value.wear, (newWear) => {
+watch(() => customization.value.paintwear, (newWear) => {
   if (typeof newWear === 'number' && !isNaN(newWear)) {
-    customization.value.wear = Number(newWear.toFixed(3))
+    customization.value.paintwear = Number(newWear.toFixed(3))
   }
 }, { immediate: true })
 
@@ -357,13 +358,13 @@ watch(() => props.weapon, () => {
           active: dbInfo.active || false,
           team: dbInfo.team || 1,
           defindex: props.weapon.weapon_defindex,
-          paintIndex: dbInfo.paintindex || 0, // Note: database uses 'paintindex', not 'paintIndex'
+          paintindex: dbInfo.paintindex || 0,
           paintIndexOverride: false,
-          pattern: parseInt(String(dbInfo.paintseed)) || 0, // Note: database uses 'paintseed', not 'pattern'
-          wear: parseFloat(String(dbInfo.paintwear)) || 0, // Note: database uses 'paintwear', not 'paintWear'
-          statTrak: dbInfo.stattrak_enabled || false, // Note: database uses 'stattrak_enabled', not 'statTrak'
-          statTrakCount: dbInfo.stattrak_count || 0, // Note: database uses 'stattrak_count', not 'statTrakCount'
-          nameTag: dbInfo.nametag || '' // Note: database uses 'nametag', not 'nameTag'
+          paintseed: parseInt(String(dbInfo.paintseed)) || 0,
+          paintwear: parseFloat(String(dbInfo.paintwear)) || 0,
+          stattrak_enabled: dbInfo.stattrak_enabled || false,
+          stattrak_count: dbInfo.stattrak_count || 0,
+          nametag: dbInfo.nametag || ''
         }
       } else {
         customization.value = {
@@ -396,7 +397,7 @@ watch(() => props.weapon, () => {
   >
     <template #header-extra>
       <!-- Reset Button -->
-      <NButton secondary type="error" :disabled="!selectedSkin || customization.paintIndex == 0" @click="state.showResetConfirm = true">
+      <NButton secondary type="error" :disabled="!selectedSkin || customization.paintindex == 0" @click="state.showResetConfirm = true">
         <template #icon>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-refresh">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -469,17 +470,17 @@ watch(() => props.weapon, () => {
             <!-- StatTrak and Name Tag -->
             <div class="grid grid-cols-2 gap-4 w-full">
               <div class="flex items-center space-x-4">
-                <NSwitch v-model:value="customization.statTrak" />
+                <NSwitch v-model:value="customization.stattrak_enabled" />
                 <span>{{ t('modals.knifeSkin.labels.stattrak') }}</span>
                 <NInputNumber
-                  v-model:value="customization.statTrakCount"
-                  :disabled="!customization.statTrak"
+                  v-model:value="customization.stattrak_count"
+                  :disabled="!customization.stattrak_enabled"
                   :min="0" :max="999999" :precision="0" :show-button="false" class="w-28"
                   :input-props="digitOnlyInputProps"
                 />
               </div>
               <NInput
-                  v-model:value="customization.nameTag"
+                  v-model:value="customization.nametag"
                   :placeholder="String(t('modals.knifeSkin.inputs.nameTagPlaceholder'))"
                   class="pl-1"
               />
@@ -496,7 +497,7 @@ watch(() => props.weapon, () => {
                   </div>
                 </div>
                 <NInputNumber
-                    v-model:value="customization.paintIndex"
+                    v-model:value="customization.paintindex"
                     :min="0"
                     :max="9999"
                     :disabled="!customization.paintIndexOverride"
@@ -507,7 +508,7 @@ watch(() => props.weapon, () => {
               <div class="space-y-2">
                 <h4 class="font-bold">{{ t('modals.knifeSkin.labels.pattern') }}</h4>
                 <NInputNumber
-                    v-model:value="customization.pattern"
+                    v-model:value="customization.paintseed"
                     :min="0"
                     :max="1000"
                     :input-props="digitOnlyInputProps"
@@ -521,7 +522,7 @@ watch(() => props.weapon, () => {
                 <h4 class="font-bold">{{ t('modals.knifeSkin.labels.wear') }}</h4>
               </div>
               <WearSlider
-                  v-model="customization.wear"
+                  v-model="customization.paintwear"
                   :max="selectedSkin?.maxFloat ?? 1"
                   :min="selectedSkin?.minFloat ?? 0"
               />
@@ -537,7 +538,7 @@ watch(() => props.weapon, () => {
               <!-- Duplicate Knife -->
               <div>
                 <NButton
-                    :disabled="!selectedSkin || customization.paintIndex == 0"
+                    :disabled="!selectedSkin || customization.paintindex == 0"
                     type="default"
                     secondary
                     class="w-full"

@@ -73,11 +73,11 @@ export interface CreateUrlRequest extends BaseInspectRequest {
   /** Item rarity */
   rarity?: number
   /** Whether the item has StatTrak */
-  statTrak?: boolean
+  stattrak_enabled?: boolean
   /** StatTrak kill count */
-  statTrakCount?: number
+  stattrak_count?: number
   /** Custom name tag (max 32 chars) */
-  nameTag?: string
+  nametag?: string
   /** Stickers array (weapons only) */
   stickers?: Array<{ id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number }>
   /** Keychain object (weapons only) */

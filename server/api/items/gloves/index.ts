@@ -101,7 +101,7 @@ export default useErrorHandling(async (event) => {
                 category: 'glove',
                 minFloat: skinInfo?.min_float || 0,
                 maxFloat: skinInfo?.max_float || 1,
-                paintIndex: skinInfo?.paint_index || baseGlove.paintIndex,
+                paintindex: skinInfo?.paint_index || baseGlove.paintindex,
                 rarity: skinInfo?.rarity,
                 availableTeams: 'both',
                 team: null,
@@ -114,7 +114,7 @@ export default useErrorHandling(async (event) => {
             Logger.info(`Created enhanced glove for ${baseGlove.defaultName}:` + {
                 name: enhancedGlove.name,
                 image: enhancedGlove.image,
-                paintIndex: enhancedGlove.paintIndex,
+                paintindex: enhancedGlove.paintindex,
                 usingSkinImage: !!skinInfo?.image
             });
 

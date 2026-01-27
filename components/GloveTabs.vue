@@ -179,7 +179,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         <!-- CT skins -->
         <NCard
             v-for="weapon in weaponData.weapons.filter((w: GloveItemData) => w.databaseInfo?.team === 2)"
-            :key="weapon.paintIndex"
+            :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
@@ -230,7 +230,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         <!-- T skins -->
         <NCard
             v-for="weapon in weaponData.weapons.filter((w: GloveItemData) => w.databaseInfo?.team === 1)"
-            :key="weapon.paintIndex"
+            :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
@@ -290,7 +290,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         <!-- Team-specific skins -->
         <NCard
             v-for="weapon in weaponData.weapons"
-            :key="weapon.paintIndex"
+            :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +

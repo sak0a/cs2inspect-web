@@ -41,6 +41,7 @@ type WeaponTableName = keyof typeof weaponTableMap;
 
 /**
  * Validates common fields for all item types
+ * Uses database column names: paintindex, paintseed, paintwear
  */
 export const validateCommonFields = (body: Record<string, unknown>) => {
     // Validate defindex
@@ -49,14 +50,14 @@ export const validateCommonFields = (body: Record<string, unknown>) => {
     // Validate team
     validateTeam(body.team)
 
-    // Validate paintIndex
-    validatePaintIndex(body.paintIndex)
+    // Validate paintindex
+    validatePaintIndex(body.paintindex)
 
-    // Validate pattern (paintseed)
-    validatePaintSeed(body.pattern)
+    // Validate paintseed
+    validatePaintSeed(body.paintseed)
 
-    // Validate paintWear
-    validatePaintWear(body.wear)
+    // Validate paintwear
+    validatePaintWear(body.paintwear)
 
     // Validate active
     validateActive(body.active)
@@ -64,6 +65,7 @@ export const validateCommonFields = (body: Record<string, unknown>) => {
 
 /**
  * Validates weapon-specific fields
+ * Uses database column names: stattrak_enabled, stattrak_count, nametag
  */
 export const validateWeaponFields = (body: Record<string, unknown>) => {
     // Validate defindex against valid weapon defindexes
@@ -75,15 +77,16 @@ export const validateWeaponFields = (body: Record<string, unknown>) => {
         })
     }
 
-    // Validate statTrak and statTrakCount
+    // Validate stattrak_enabled and stattrak_count
     validateStatTrak(body)
 
-    // Validate nameTag
-    validateNameTag(body.nameTag)
+    // Validate nametag
+    validateNameTag(body.nametag)
 }
 
 /**
  * Validates knife-specific fields
+ * Uses database column names: stattrak_enabled, stattrak_count, nametag
  */
 export const validateKnifeFields = (body: Record<string, unknown>) => {
     // Validate defindex against valid knife defindexes
@@ -95,11 +98,11 @@ export const validateKnifeFields = (body: Record<string, unknown>) => {
         })
     }
 
-    // Validate statTrak and statTrakCount
+    // Validate stattrak_enabled and stattrak_count
     validateStatTrak(body)
 
-    // Validate nameTag
-    validateNameTag(body.nameTag)
+    // Validate nametag
+    validateNameTag(body.nametag)
 }
 
 /**
@@ -205,12 +208,12 @@ export const saveWeapon = async (
             await db.update(table)
                 .set({
                     active: body.active ? 1 : 0,
-                    paintindex: body.paintIndex,
-                    paintwear: body.wear,
-                    paintseed: body.pattern,
-                    stattrak_enabled: body.statTrak ? 1 : 0,
-                    stattrak_count: body.statTrakCount,
-                    nametag: body.nameTag || null,
+                    paintindex: body.paintindex,
+                    paintwear: body.paintwear,
+                    paintseed: body.paintseed,
+                    stattrak_enabled: body.stattrak_enabled ? 1 : 0,
+                    stattrak_count: body.stattrak_count,
+                    nametag: body.nametag || null,
                     sticker_0: formattedStickers[0],
                     sticker_1: formattedStickers[1],
                     sticker_2: formattedStickers[2],
@@ -233,12 +236,12 @@ export const saveWeapon = async (
                 defindex: body.defindex,
                 active: 1, // Always set new weapons to active
                 team: body.team,
-                paintindex: body.paintIndex,
-                paintwear: body.wear,
-                paintseed: body.pattern,
-                stattrak_enabled: body.statTrak ? 1 : 0,
-                stattrak_count: body.statTrakCount,
-                nametag: body.nameTag || null,
+                paintindex: body.paintindex,
+                paintwear: body.paintwear,
+                paintseed: body.paintseed,
+                stattrak_enabled: body.stattrak_enabled ? 1 : 0,
+                stattrak_count: body.stattrak_count,
+                nametag: body.nametag || null,
                 sticker_0: formattedStickers[0],
                 sticker_1: formattedStickers[1],
                 sticker_2: formattedStickers[2],
@@ -307,12 +310,12 @@ export const saveKnife = async (
             await db.update(knives)
                 .set({
                     active: body.active ? 1 : 0,
-                    paintindex: body.paintIndex,
-                    paintseed: body.pattern,
-                    paintwear: body.wear,
-                    stattrak_enabled: body.statTrak ? 1 : 0,
-                    stattrak_count: body.statTrakCount,
-                    nametag: body.nameTag || null
+                    paintindex: body.paintindex,
+                    paintseed: body.paintseed,
+                    paintwear: body.paintwear,
+                    stattrak_enabled: body.stattrak_enabled ? 1 : 0,
+                    stattrak_count: body.stattrak_count,
+                    nametag: body.nametag || null
                 })
                 .where(and(
                     eq(knives.steamid, steamId),
@@ -328,12 +331,12 @@ export const saveKnife = async (
                 active: 1, // Always set new knives to active
                 team: body.team,
                 defindex: body.defindex,
-                paintindex: body.paintIndex,
-                paintseed: body.pattern,
-                paintwear: body.wear,
-                stattrak_enabled: body.statTrak ? 1 : 0,
-                stattrak_count: body.statTrakCount,
-                nametag: body.nameTag || null
+                paintindex: body.paintindex,
+                paintseed: body.paintseed,
+                paintwear: body.paintwear,
+                stattrak_enabled: body.stattrak_enabled ? 1 : 0,
+                stattrak_count: body.stattrak_count,
+                nametag: body.nametag || null
             });
             Logger.success('Knife created successfully')
         }
@@ -399,13 +402,13 @@ export const saveGlove = async (
 
         // Update or insert glove
         if (existingGlove.length > 0) {
-            Logger.info(`saveGlove: Updating existing glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
+            Logger.info(`saveGlove: Updating existing glove with paintindex: ${body.paintindex}, paintseed: ${body.paintseed}, paintwear: ${body.paintwear}`);
             await db.update(gloves)
                 .set({
                     active: body.active ? 1 : 0,
-                    paintindex: body.paintIndex,
-                    paintseed: body.pattern,
-                    paintwear: body.wear
+                    paintindex: body.paintindex,
+                    paintseed: body.paintseed,
+                    paintwear: body.paintwear
                 })
                 .where(and(
                     eq(gloves.steamid, steamId),
@@ -415,16 +418,16 @@ export const saveGlove = async (
                 ));
             Logger.success('Glove updated successfully')
         } else {
-            Logger.info(`saveGlove: Inserting new glove with paintindex: ${body.paintIndex}, pattern: ${body.pattern}, wear: ${body.wear}`);
+            Logger.info(`saveGlove: Inserting new glove with paintindex: ${body.paintindex}, paintseed: ${body.paintseed}, paintwear: ${body.paintwear}`);
             await db.insert(gloves).values({
                 steamid: steamId,
                 loadoutid: loadoutIdNum,
                 active: 1, // Always set new gloves to active
                 team: body.team,
                 defindex: body.defindex,
-                paintindex: body.paintIndex,
-                paintseed: body.pattern,
-                paintwear: body.wear
+                paintindex: body.paintindex,
+                paintseed: body.paintseed,
+                paintwear: body.paintwear
             });
             Logger.success('Glove created successfully')
         }

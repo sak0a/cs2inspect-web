@@ -139,7 +139,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 1,
         weapon_name: "weapon_deagle",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_deagle.png",
         defaultName: "Desert Eagle",
@@ -149,7 +149,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 2,
         weapon_name: "weapon_elite",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_elite.png",
         defaultName: "Dual Berettas",
@@ -159,7 +159,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 3,
         weapon_name: "weapon_fiveseven",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_fiveseven.png",
         defaultName: "Five-SeveN",
@@ -169,7 +169,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 4,
         weapon_name: "weapon_glock",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_glock.png",
         defaultName: "Glock-18",
@@ -179,7 +179,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 7,
         weapon_name: "weapon_ak47",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_ak47.png",
         defaultName: "AK-47",
@@ -189,7 +189,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 8,
         weapon_name: "weapon_aug",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_aug.png",
         defaultName: "AUG",
@@ -199,7 +199,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 9,
         weapon_name: "weapon_awp",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_awp.png",
         defaultName: "AWP",
@@ -209,7 +209,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 10,
         weapon_name: "weapon_famas",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_famas.png",
         defaultName: "FAMAS",
@@ -219,7 +219,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 11,
         weapon_name: "weapon_g3sg1",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_g3sg1.png",
         defaultName: "G3SG1",
@@ -229,7 +229,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 13,
         weapon_name: "weapon_galilar",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_galilar.png",
         defaultName: "Galil AR",
@@ -239,7 +239,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 14,
         weapon_name: "weapon_m249",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_m249.png",
         defaultName: "M249",
@@ -249,7 +249,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 16,
         weapon_name: "weapon_m4a1",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_m4a1.png",
         defaultName: "M4A4",
@@ -259,7 +259,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 17,
         weapon_name: "weapon_mac10",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_mac10.png",
         defaultName: "MAC-10",
@@ -269,7 +269,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 19,
         weapon_name: "weapon_p90",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_p90.png",
         defaultName: "P90",
@@ -279,7 +279,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 23,
         weapon_name: "weapon_mp5sd",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_mp5sd.png",
         defaultName: "MP5-SD",
@@ -289,7 +289,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 24,
         weapon_name: "weapon_ump45",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_ump45.png",
         defaultName: "UMP-45",
@@ -299,7 +299,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 25,
         weapon_name: "weapon_xm1014",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_xm1014.png",
         defaultName: "XM1014",
@@ -309,7 +309,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 26,
         weapon_name: "weapon_bizon",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_bizon.png",
         defaultName: "PP-Bizon",
@@ -319,7 +319,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 27,
         weapon_name: "weapon_mag7",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_mag7.png",
         defaultName: "MAG-7",
@@ -329,7 +329,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 28,
         weapon_name: "weapon_negev",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_negev.png",
         defaultName: "Negev",
@@ -339,7 +339,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 29,
         weapon_name: "weapon_sawedoff",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_sawedoff.png",
         defaultName: "Sawed-Off",
@@ -349,7 +349,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 30,
         weapon_name: "weapon_tec9",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_tec9.png",
         defaultName: "Tec-9",
@@ -359,7 +359,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 31,
         weapon_name: "weapon_taser",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_taser.png",
         defaultName: "Zeus x27",
@@ -369,7 +369,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 32,
         weapon_name: "weapon_hkp2000",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_hkp2000.png",
         defaultName: "P2000",
@@ -379,7 +379,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 33,
         weapon_name: "weapon_mp7",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_mp7.png",
         defaultName: "MP7",
@@ -389,7 +389,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 34,
         weapon_name: "weapon_mp9",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_mp9.png",
         defaultName: "MP9",
@@ -399,7 +399,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 35,
         weapon_name: "weapon_nova",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_nova.png",
         defaultName: "Nova",
@@ -409,7 +409,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 36,
         weapon_name: "weapon_p250",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_p250.png",
         defaultName: "P250",
@@ -419,7 +419,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 38,
         weapon_name: "weapon_scar20",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_scar20.png",
         defaultName: "SCAR-20",
@@ -429,7 +429,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 39,
         weapon_name: "weapon_sg556",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_sg556.png",
         defaultName: "SG 553",
@@ -439,7 +439,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 40,
         weapon_name: "weapon_ssg08",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_ssg08.png",
         defaultName: "SSG 08",
@@ -449,7 +449,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 60,
         weapon_name: "weapon_m4a1_silencer",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_m4a1_silencer.png",
         defaultName: "M4A1-S",
@@ -459,7 +459,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 61,
         weapon_name: "weapon_usp_silencer",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_usp_silencer.png",
         defaultName: "USP-S",
@@ -469,7 +469,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 63,
         weapon_name: "weapon_cz75a",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_cz75a.png",
         defaultName: "CZ75-Auto",
@@ -479,7 +479,7 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     {
         weapon_defindex: 64,
         weapon_name: "weapon_revolver",
-        paintIndex: 0,
+        paintindex: 0,
         defaultImage:
             IMAGE_BASE_URL + "weapon_revolver.png",
         defaultName: "R8 Revolver",
@@ -500,7 +500,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Bayonet",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_bayonet.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -509,7 +509,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Classic Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_css.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -518,7 +518,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Flip Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_flip.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -527,7 +527,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Gut Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_gut.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -536,7 +536,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Karambit",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_karambit.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -545,7 +545,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "M9 Bayonet",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_m9_bayonet.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -554,7 +554,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Huntsman Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_tactical.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -563,7 +563,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Falchion Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_falchion.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -572,7 +572,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Bowie Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_survival_bowie.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -581,7 +581,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Butterfly Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_butterfly.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -590,7 +590,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Shadow Daggers",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_push.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -599,7 +599,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Paracord Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_cord.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -608,7 +608,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Survival Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_canis.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -617,7 +617,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Ursus Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_ursus.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -626,7 +626,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Navaja Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_gypsy_jackknife.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -635,7 +635,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Nomad Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_outdoor.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -644,7 +644,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Stiletto Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_stiletto.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -653,7 +653,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Talon Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_widowmaker.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -662,7 +662,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Skeleton Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_skeleton.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -671,7 +671,7 @@ export const DEFAULT_KNIVES: IDefaultItem[] = [
         defaultName: "Kukri Knife",
         defaultImage: IMAGE_BASE_URL + "weapon_knife_kukri.png",
         category: "knife",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     }
 ]
@@ -688,7 +688,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Bloodhound Gloves",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -697,7 +697,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Broken Fang Gloves",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -706,7 +706,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Driver Gloves",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -715,7 +715,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Hand Wraps",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -724,7 +724,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Hydra Gloves",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -733,7 +733,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Moto Gloves",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -742,7 +742,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Specialist Gloves",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     },
     {
@@ -751,7 +751,7 @@ export const DEFAULT_GLOVES = [
         defaultName: "Sport Gloves",
         defaultImage: IMAGE_BASE_URL + "default_gloves_t.png",
         category: "glove",
-        paintIndex: 0,
+        paintindex: 0,
         availableTeams: "both"
     }
 ];
