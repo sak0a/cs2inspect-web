@@ -10,6 +10,8 @@ import type {
   StickerConfiguration,
   KeychainConfiguration
 } from '~/types'
+import type { EconItem } from 'cs2-inspect-lib'
+import type { APISticker } from '~/server/types'
 import { toSteamId } from '~/types/core/common'
 
 // Backward compatibility imports
@@ -299,7 +301,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     state.value.isImporting = true
     state.value.error = null
 
-    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${user.value.steamId}`, {
+    const data = await $fetch<{ item: EconItem; message?: string }>(`/api/inspect?action=inspect-item&steamId=${user.value.steamId}`, {
       method: 'POST',
       body: { inspectUrl, itemType: 'weapon' }
     })
@@ -311,8 +313,8 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     // Fetch sticker data in parallel
     const stickerPromises = data.item.stickers?.map(async (sticker: { sticker_id: number; offset_x?: number; offset_y?: number; wear?: number; scale?: number; rotation?: number }, index: number) => {
       if (!sticker) return null
-      const stickerResponse = await $fetch<{ stickers: any[] }>(`/api/data/stickers?id=sticker-${sticker.sticker_id}`)
-      const stickerData = stickerResponse.stickers[0]
+      const stickerResponse = await $fetch<{ success: boolean; data: APISticker[] }>(`/api/data/stickers?id=sticker-${sticker.sticker_id}`)
+      const stickerData = stickerResponse.data?.[0]
 
       if (!stickerData) return null
 
@@ -338,23 +340,24 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     // Fetch keychain data if exists
     let keychainPromise
-    if (data.item.keychains?.[0]) {
-      keychainPromise = $fetch<{ success: boolean; data: APIKeychain[] }>(`/api/data/keychains?id=keychain-${data.item.keychains[0].sticker_id}`)
+    const itemKeychain = data.item.keychains?.[0]
+    if (itemKeychain) {
+      keychainPromise = $fetch<{ success: boolean; data: APIKeychain[] }>(`/api/data/keychains?id=keychain-${itemKeychain.sticker_id}`)
           .then(keychainData => {
             const keychain = keychainData.data?.[0]
             if (!keychain) return null
 
             return {
-              id: data.item.keychains[0].sticker_id,
+              id: itemKeychain.sticker_id,
               name: keychain.name || 'Unknown Keychain',
               image: keychain.image || '',
               x: 0,  // These are not used when offset_x/y are present
               y: 0,
-              z: data.item.keychains[0].offset_z || 0,
-              offset_x: data.item.keychains[0].offset_x || 0,
-              offset_y: data.item.keychains[0].offset_y || 0,
-              offset_z: data.item.keychains[0].offset_z || 0,
-              seed: data.item.keychains[0].pattern || 0,
+              z: itemKeychain.offset_z || 0,
+              offset_x: itemKeychain.offset_x || 0,
+              offset_y: itemKeychain.offset_y || 0,
+              offset_z: itemKeychain.offset_z || 0,
+              seed: itemKeychain.pattern || 0,
               api: {
                 name: keychain.name,
                 image: keychain.image,
@@ -375,7 +378,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     // Sort sticker results by their original index and place them in order
     stickerResults
-        .filter(Boolean) // Remove any null results
+        .filter((s): s is NonNullable<typeof s> => s !== null) // Remove any null results
         .sort((a, b) => a.index - b.index) // Sort by original index
         .forEach((stickerData, index) => {
           if (stickerData && index < 5) {

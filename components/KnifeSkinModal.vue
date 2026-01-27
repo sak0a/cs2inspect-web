@@ -7,6 +7,7 @@ import type {
   UserProfile,
   DBKnife
 } from '~/types'
+import type { EconItem } from 'cs2-inspect-lib'
 import { useItemModal } from '~/composables/useItemModal'
 
 // Legacy imports for backward compatibility
@@ -212,7 +213,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     state.value.isImporting = true
     state.value.error = null
 
-    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
+    const data = await $fetch<{ item: EconItem; message?: string }>(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
       method: 'POST',
       body: { inspectUrl, itemType: 'knife' }
     })
