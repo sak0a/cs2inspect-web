@@ -366,6 +366,43 @@
     "authenticating": "Authentifiziere...",
     "openSteamProfile": "Steam-Profil öffnen"
   },
+  "autoSave": {
+    "saving": "Speichert...",
+    "saved": "Gespeichert",
+    "failed": "Speichern fehlgeschlagen",
+    "retry": "Erneut versuchen",
+    "offline": "Offline - Änderungen werden gespeichert, sobald die Verbindung wiederhergestellt ist"
+  },
+  "history": {
+    "title": "Versionsverlauf",
+    "empty": "Kein Verlauf verfügbar",
+    "restore": "Wiederherstellen",
+    "restoreConfirmTitle": "Version wiederherstellen",
+    "restoreConfirmMessage": "Dies stellt den Gegenstand auf diese frühere Version zurück. Fortfahren?",
+    "restoreSuccess": "Erfolgreich auf frühere Version zurückgesetzt",
+    "restoreError": "Wiederherstellen fehlgeschlagen",
+    "fetchError": "Verlauf konnte nicht geladen werden",
+    "snapshot": "Schnappschuss",
+    "loadMore": "Mehr laden",
+    "changeTypes": {
+      "stickerAdded": "Sticker hinzugefügt",
+      "stickerRemoved": "Sticker entfernt",
+      "stickerModified": "Sticker geändert",
+      "keychainAdded": "Anhänger hinzugefügt",
+      "keychainRemoved": "Anhänger entfernt",
+      "keychainModified": "Anhänger geändert",
+      "wearChanged": "Abnutzung geändert",
+      "patternChanged": "Muster geändert",
+      "paintChanged": "Skin geändert",
+      "nametagChanged": "Namensschild geändert",
+      "stattrakToggled": "StatTrak umgeschaltet",
+      "stattrakCountChanged": "StatTrak-Zähler geändert",
+      "activeToggled": "Aktivstatus geändert",
+      "multipleChanges": "Mehrere Änderungen",
+      "initialSave": "Erstmalige Speicherung",
+      "reset": "Wiederhergestellt"
+    }
+  },
   "common": {
     "loading": "Lädt...",
     "error": "Fehler",

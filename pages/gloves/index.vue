@@ -108,6 +108,36 @@ const handleGloveClick = (glove: IEnhancedGlove) => {
   showSkinModal.value = true
 }
 
+/**
+ * Auto-save handler for automatic saving without closing modal
+ */
+const handleAutoSave = async (glove: IEnhancedGlove, customization: GloveConfiguration) => {
+  if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
+    throw new Error('No loadout or user selected')
+  }
+  if (customization.paintindex === null || customization.paintindex === 0) {
+    return // Don't auto-save without a paint selected
+  }
+  await $fetch<{ success: boolean; message: string }>(`/api/items/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    method: 'POST',
+    body: {
+      defindex: glove.weapon_defindex,
+      active: customization.active,
+      paintindex: customization.paintindex,
+      paintIndexOverride: customization.paintIndexOverride,
+      paintwear: customization.paintwear,
+      paintseed: customization.paintseed,
+      team: glove.databaseInfo?.team || customization.team || 0,
+      reset: customization.reset
+    }
+  }).then(async (data) => {
+    if (data.success) {
+      // Silently refresh data without closing modal
+      await fetchLoadoutGloves()
+    }
+  })
+}
+
 const handleSkinSelect = async (glove: IEnhancedGlove, customization: GloveConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error('Please select a loadout first')
@@ -290,6 +320,7 @@ watch(() => showSkinModal.value, (isVisible) => {
           :weapon="selectedGlove"
           :other-team-has-skin="otherTeamHasSkin"
           @select="(glove: any, customization: GloveConfiguration) => handleSkinSelect(glove as IEnhancedGlove, customization)"
+          @auto-save="(glove: any, customization: GloveConfiguration) => handleAutoSave(glove as IEnhancedGlove, customization)"
           @duplicate="(glove: any, customization: GloveConfiguration) => handleGloveDuplicate(glove as IEnhancedGlove, customization)"
       />
     </div>

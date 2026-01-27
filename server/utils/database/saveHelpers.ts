@@ -6,6 +6,8 @@ import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
 import { toLoadoutId } from '~/types/core/common'
+import { recordWeaponHistory, recordKnifeHistory, recordGloveHistory } from './historyHelpers'
+import type { ItemHistorySnapshot } from '~/server/database/schema/itemHistory'
 import type {
     WeaponCustomization,
     KnifeCustomization,
@@ -202,6 +204,21 @@ export const saveWeapon = async (
         const formattedStickers = formatWeaponStickers(body.stickers as (IEnhancedWeaponSticker | null)[]);
         const formattedKeychain = formatWeaponKeychain(body.keychain as { id?: number | string; x?: number; y?: number; z?: number; seed?: number } | null);
 
+        // Record history before update (non-blocking)
+        const category = tableName.replace('wp_player_', '') as 'pistols' | 'rifles' | 'smgs' | 'heavys'
+        const newSnapshot: ItemHistorySnapshot = {
+            paintindex: body.paintindex,
+            paintseed: body.paintseed,
+            paintwear: body.paintwear,
+            active: body.active,
+            stattrak_enabled: body.stattrak_enabled,
+            stattrak_count: body.stattrak_count,
+            nametag: body.nametag || undefined,
+            stickers: formattedStickers,
+            keychain: formattedKeychain
+        }
+        recordWeaponHistory(steamId, loadoutId, body.defindex, body.team, category, newSnapshot).catch(() => {})
+
         // Update or insert weapon
         if (existingWeapon.length > 0) {
             console.log("saveWeapon: ", body)
@@ -304,6 +321,18 @@ export const saveKnife = async (
             }
         }
 
+        // Record history before update (non-blocking)
+        const knifeSnapshot: ItemHistorySnapshot = {
+            paintindex: body.paintindex,
+            paintseed: body.paintseed,
+            paintwear: body.paintwear,
+            active: body.active,
+            stattrak_enabled: body.stattrak_enabled,
+            stattrak_count: body.stattrak_count,
+            nametag: body.nametag || undefined
+        }
+        recordKnifeHistory(steamId, loadoutId, body.defindex, body.team, knifeSnapshot).catch(() => {})
+
         // Update or insert knife
         if (existingKnife.length > 0) {
             console.log('Updating existing knife')
@@ -399,6 +428,15 @@ export const saveGlove = async (
             .limit(1);
 
         Logger.info(`saveGlove: Found ${existingGlove.length} existing glove entries: ${JSON.stringify(existingGlove)}`);
+
+        // Record history before update (non-blocking)
+        const gloveSnapshot: ItemHistorySnapshot = {
+            paintindex: body.paintindex,
+            paintseed: body.paintseed,
+            paintwear: body.paintwear,
+            active: body.active
+        }
+        recordGloveHistory(steamId, loadoutId, body.defindex, body.team, gloveSnapshot).catch(() => {})
 
         // Update or insert glove
         if (existingGlove.length > 0) {

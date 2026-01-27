@@ -366,6 +366,43 @@
     "authenticating": "Authentification...",
     "openSteamProfile": "Ouvrir le profil Steam"
   },
+  "autoSave": {
+    "saving": "Enregistrement...",
+    "saved": "Enregistré",
+    "failed": "Échec de l'enregistrement",
+    "retry": "Réessayer",
+    "offline": "Hors ligne - les modifications seront enregistrées à la reconnexion"
+  },
+  "history": {
+    "title": "Historique des versions",
+    "empty": "Aucun historique disponible",
+    "restore": "Restaurer",
+    "restoreConfirmTitle": "Restaurer la version",
+    "restoreConfirmMessage": "Cela restaurera l'objet à cette version précédente. Continuer?",
+    "restoreSuccess": "Restauration réussie vers la version précédente",
+    "restoreError": "Échec de la restauration",
+    "fetchError": "Impossible de charger l'historique",
+    "snapshot": "Instantané",
+    "loadMore": "Charger plus",
+    "changeTypes": {
+      "stickerAdded": "Autocollant ajouté",
+      "stickerRemoved": "Autocollant retiré",
+      "stickerModified": "Autocollant modifié",
+      "keychainAdded": "Porte-clés ajouté",
+      "keychainRemoved": "Porte-clés retiré",
+      "keychainModified": "Porte-clés modifié",
+      "wearChanged": "Usure modifiée",
+      "patternChanged": "Motif modifié",
+      "paintChanged": "Skin modifié",
+      "nametagChanged": "Plaque modifiée",
+      "stattrakToggled": "StatTrak basculé",
+      "stattrakCountChanged": "Compteur StatTrak modifié",
+      "activeToggled": "Statut actif modifié",
+      "multipleChanges": "Modifications multiples",
+      "initialSave": "Enregistrement initial",
+      "reset": "Restauré"
+    }
+  },
   "common": {
     "loading": "Chargement...",
     "error": "Erreur",

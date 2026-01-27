@@ -242,7 +242,7 @@
         "reset": "Reset",
         "importFromLink": "Import from Link",
         "generateLink": "Generate Link",
-        "save": "Save Changes",
+        "save": "Save & Close",
         "duplicate": "Duplicate to Other Team"
       },
       "team": {
@@ -407,6 +407,43 @@
   },
   "general": {
     "copiedToClipboard": "Copied to clipboard"
+  },
+  "autoSave": {
+    "saving": "Saving...",
+    "saved": "Saved",
+    "failed": "Save failed",
+    "retry": "Retry",
+    "offline": "Offline - changes will save when reconnected"
+  },
+  "history": {
+    "title": "Version History",
+    "empty": "No history available",
+    "restore": "Restore",
+    "restoreConfirmTitle": "Restore Version",
+    "restoreConfirmMessage": "This will restore the item to this previous version. Continue?",
+    "restoreSuccess": "Successfully restored to previous version",
+    "restoreError": "Failed to restore",
+    "fetchError": "Failed to load history",
+    "snapshot": "Snapshot",
+    "loadMore": "Load More",
+    "changeTypes": {
+      "stickerAdded": "Sticker Added",
+      "stickerRemoved": "Sticker Removed",
+      "stickerModified": "Sticker Modified",
+      "keychainAdded": "Keychain Added",
+      "keychainRemoved": "Keychain Removed",
+      "keychainModified": "Keychain Modified",
+      "wearChanged": "Wear Changed",
+      "patternChanged": "Pattern Changed",
+      "paintChanged": "Skin Changed",
+      "nametagChanged": "Nametag Changed",
+      "stattrakToggled": "StatTrak Toggled",
+      "stattrakCountChanged": "StatTrak Count Changed",
+      "activeToggled": "Active Status Changed",
+      "multipleChanges": "Multiple Changes",
+      "initialSave": "Initial Save",
+      "reset": "Restored"
+    }
   },
   "common": {
     "loading": "Loading...",

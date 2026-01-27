@@ -430,7 +430,7 @@ onMounted(async () => {
 .glassmorphism-dropdown .n-dropdown-option {
     color: white !important;
     border-radius: 8px !important;
-    margin: 2px 4px !important;
+    margin: 0px 4px !important;
 }
 .glassmorphism-dropdown .n-dropdown-option .n-dropdown-option-body::before {
     background-color: transparent !important;

@@ -42,6 +42,43 @@ const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   showSkinModal.value = true
 }
 
+/**
+ * Auto-save handler for automatic saving without closing modal
+ * Triggered by the auto-save composable in WeaponSkinModal
+ */
+const handleAutoSave = async (skin: IEnhancedWeapon, customization: WeaponConfiguration) => {
+  if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
+    throw new Error('No loadout or user selected')
+  }
+  if (customization.paintindex === null || customization.paintindex === 0) {
+    return // Don't auto-save without a paint selected
+  }
+  await $fetch(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+    method: 'POST',
+    body: {
+      defindex: skin.weapon_defindex,
+      active: customization.active,
+      paintindex: customization.paintindex,
+      paintwear: customization.paintwear,
+      paintseed: customization.paintseed,
+      stattrak_enabled: customization.stattrak_enabled,
+      stattrak_count: customization.stattrak_count,
+      nametag: customization.nametag,
+      stickers: customization.stickers,
+      keychain: customization.keychain,
+      team: customization.team || 0,
+      reset: customization.reset
+    }
+  }).then(async (data: { success: boolean; message: string }) => {
+    if (data.success) {
+      // Silently refresh data without closing modal or showing message
+      await fetchLoadoutSkins()
+    } else {
+      throw new Error(data.message)
+    }
+  })
+}
+
 const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error(t('loadout.selectLoadoutFirst') as string)
@@ -252,6 +289,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           :weapon="selectedWeapon"
           :other-team-has-skin="otherTeamHasSkin"
           @select="handleSkinSave"
+          @auto-save="handleAutoSave"
           @duplicate="handleWeaponDuplicate"
       />
     </div>

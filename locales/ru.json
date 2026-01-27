@@ -366,6 +366,43 @@
     "authenticating": "Авторизация...",
     "openSteamProfile": "Открыть профиль Steam"
   },
+  "autoSave": {
+    "saving": "Сохранение...",
+    "saved": "Сохранено",
+    "failed": "Ошибка сохранения",
+    "retry": "Повторить",
+    "offline": "Офлайн - изменения сохранятся при восстановлении соединения"
+  },
+  "history": {
+    "title": "История версий",
+    "empty": "История недоступна",
+    "restore": "Восстановить",
+    "restoreConfirmTitle": "Восстановить версию",
+    "restoreConfirmMessage": "Это восстановит предмет до предыдущей версии. Продолжить?",
+    "restoreSuccess": "Успешно восстановлено до предыдущей версии",
+    "restoreError": "Ошибка восстановления",
+    "fetchError": "Не удалось загрузить историю",
+    "snapshot": "Снимок",
+    "loadMore": "Загрузить ещё",
+    "changeTypes": {
+      "stickerAdded": "Наклейка добавлена",
+      "stickerRemoved": "Наклейка удалена",
+      "stickerModified": "Наклейка изменена",
+      "keychainAdded": "Брелок добавлен",
+      "keychainRemoved": "Брелок удалён",
+      "keychainModified": "Брелок изменён",
+      "wearChanged": "Износ изменён",
+      "patternChanged": "Паттерн изменён",
+      "paintChanged": "Скин изменён",
+      "nametagChanged": "Именная бирка изменена",
+      "stattrakToggled": "StatTrak переключён",
+      "stattrakCountChanged": "Счётчик StatTrak изменён",
+      "activeToggled": "Статус активности изменён",
+      "multipleChanges": "Несколько изменений",
+      "initialSave": "Первоначальное сохранение",
+      "reset": "Восстановлено"
+    }
+  },
   "common": {
     "loading": "Загрузка...",
     "error": "Ошибка",
