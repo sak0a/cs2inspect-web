@@ -35,12 +35,10 @@ export function filterDataByQuery<T extends object>(data: T[], query: Record<str
 /**
  * Creates a data API handler for a specific data type
  * @param getDataFn Function to get the data (can be sync or async)
- * @param responseKey Key to use in the response object (for backward compatibility)
  * @returns Event handler function
  */
 export function createDataApiHandler<T extends object>(
-    getDataFn: (() => T[]) | (() => Promise<T[]>),
-    responseKey: string
+    getDataFn: (() => T[]) | (() => Promise<T[]>)
 ) {
     return defineEventHandler(async (event) => {
         const startTime = Date.now();
@@ -60,9 +58,7 @@ export function createDataApiHandler<T extends object>(
 
         const filteredData = filterDataByQuery(data, cleanQuery);
 
-        // Return both old and new format for backward compatibility
         return {
-            // New standardized format
             success: true,
             data: filteredData,
             meta: {
@@ -71,9 +67,7 @@ export function createDataApiHandler<T extends object>(
                 processingTime: Date.now() - startTime,
                 totalItems: filteredData.length,
                 filtersApplied: Object.keys(cleanQuery)
-            },
-            // Old format for backward compatibility
-            [responseKey]: filteredData
+            }
         };
     });
 }

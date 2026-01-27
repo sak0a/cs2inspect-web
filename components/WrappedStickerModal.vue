@@ -184,10 +184,8 @@ const totalPages = computed(() => Math.ceil(sortedItems.value.length / PAGE_SIZE
 const fetchItems = async () => {
   try {
     state.value.isLoading = true
-    const response = await fetch('/api/data/stickers')
-    const data = await response.json()
-    const stickers = data.data || data.stickers || []
-    state.value.items = stickers
+    const response = await $fetch<{ data: APISticker[] }>('/api/data/stickers')
+    state.value.items = response.data ?? []
   } catch (error) {
     message.error(t('modals.sticker.errorFetching') as string)
     console.error('Error fetching stickers:', error)

@@ -142,17 +142,11 @@ export function useInspectItem() {
       }
 
       // Fetch item data from the API
-      const response = await fetch(`/api/data/${endpoint}?defindex=${defindex}&paintindex=${paintindex}`)
-
-      if (!response.ok) {
-        throw new Error(`API returned status ${response.status} when fetching ${type} data`)
-      }
-
-      const data = await response.json()
+      const data = await $fetch(`/api/data/${endpoint}?defindex=${defindex}&paintindex=${paintindex}`)
 
       // Check if the API returned success: false
-      if (data.success === false) {
-        throw new Error(`API returned success: false when fetching ${type} data: ${data.message || 'No error message'}`)
+      if (data && typeof data === 'object' && 'success' in data && data.success === false) {
+        throw new Error(`API returned success: false when fetching ${type} data: ${(data as any).message || 'No error message'}`)
       }
 
       return data
@@ -188,21 +182,11 @@ export function useInspectItem() {
       }
 
       // Try to decode the inspect link
-      const response = await fetch(`/api/inspect?action=inspect-item&steamId=${steamId}`, {
+      const responseData = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${steamId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include'
-        },
-        body: JSON.stringify({ inspectUrl })
+        body: { inspectUrl }
       })
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || `Failed to decode inspect link (${response.status})`)
-      }
-
-      const responseData = await response.json()
       const data = responseData.item
 
       console.log('Inspect link decoded data:', data)
@@ -591,24 +575,13 @@ export function useInspectItem() {
       }
       // Gloves don't need additional properties
 
-      const response = await fetch(`/api/inspect?action=create-url&steamId=${steamId}`, {
+      const data = await $fetch<{ inspectUrl: string; message?: string }>(`/api/inspect?action=create-url&steamId=${steamId}`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include'
-        },
-        body: JSON.stringify({
+        body: {
           ...basePayload,
           ...typeSpecificPayload
-        })
+        }
       })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || `Failed to generate inspect link (${response.status})`)
-      }
-
-      const data = await response.json()
 
       if (!data.inspectUrl) {
         throw new Error('Invalid response: missing inspect URL')

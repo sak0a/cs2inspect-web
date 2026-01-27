@@ -70,20 +70,15 @@ const handlePinTypeChange = async (pinId: number) => {
   selectedPin.value = actualPinId
 
   try {
-    const response = await fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=pin`,
+    await $fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=pin`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include'
-        },
-        body: JSON.stringify({
+        body: {
           pinid: actualPinId
-        })
+        }
       }
     )
 
-    await response.json()
     message.success(isDefault ? 'Reset to default pin' : 'Pin updated')
 
     // Update the loadout store to reflect the change
@@ -122,12 +117,8 @@ const fetchCollectibles = async () => {
 
   try {
     // Fetch collectibles data from API
-    const response = await fetch('/api/data/collectibles')
-    if (!response.ok) {
-      throw new Error('Failed to fetch collectibles')
-    }
-    const data = await response.json()
-    collectibles.value = data.collectibles || []
+    const response = await $fetch<{ data: APICollectible[] }>('/api/data/collectibles')
+    collectibles.value = response.data ?? []
 
     // Get the selected pin from the loadout
     if (loadoutStore.selectedLoadout) {

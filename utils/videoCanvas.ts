@@ -291,8 +291,8 @@ export function generateVideoUrl(weaponName: string, skinName: string): string {
  */
 export async function checkVideoExists(videoUrl: string): Promise<boolean> {
   try {
-    const response = await fetch(videoUrl, { method: 'HEAD' })
-    return response.ok
+    await $fetch.raw(videoUrl, { method: 'HEAD' })
+    return true
   } catch {
     return false
   }

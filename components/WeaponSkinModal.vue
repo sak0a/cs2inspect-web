@@ -245,28 +245,21 @@ const fetchAvailableSkinsForWeapon = async () => {
     state.value.error = null
 
     console.log('WeaponSkinModal: Fetching skins for weapon:', props.weapon.weapon_name)
-    const response = await fetch(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
+    const response = await $fetch<{ success: boolean; data: APIWeaponSkin[] }>(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch skins: ${response.status} ${response.statusText}`)
-    }
-
-    const data = await response.json()
     console.log('WeaponSkinModal: API response:', {
-      success: data.success,
-      dataLength: data.data?.length || 0,
+      success: response.success,
+      dataLength: response.data?.length || 0,
       weapon: props.weapon.weapon_name
     })
 
-    // Handle both old and new API response formats
-    const skins = data.data || data.skins || []
-    apiState.value.skins = skins
+    apiState.value.skins = response.data ?? []
 
-    if (skins.length === 0) {
+    if (response.data.length === 0) {
       console.warn('WeaponSkinModal: No skins found for weapon:', props.weapon.weapon_name)
       state.value.error = `No skins available for ${props.weapon.defaultName || props.weapon.weapon_name}`
     } else {
-      console.log('WeaponSkinModal: Successfully loaded', skins.length, 'skins')
+      console.log('WeaponSkinModal: Successfully loaded', response.data.length, 'skins')
     }
 
     // Check if current page is above available pages and adjust if needed
@@ -304,20 +297,10 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     state.value.isImporting = true
     state.value.error = null
 
-    const response = await fetch(`/api/inspect?action=inspect-item&steamId=${user.value.steamId}`, {
+    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${user.value.steamId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-      body: JSON.stringify({ inspectUrl, itemType: 'weapon' })
+      body: { inspectUrl, itemType: 'weapon' }
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to import inspect link')
-    }
 
     if (data.item.defindex !== props.weapon.weapon_defindex) {
       throw new Error(t('modals.weaponSkin.importFailedNoMatchingWeapon') as string)
@@ -326,8 +309,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     // Fetch sticker data in parallel
     const stickerPromises = data.item.stickers?.map(async (sticker: { sticker_id: number; offset_x?: number; offset_y?: number; wear?: number; scale?: number; rotation?: number }, index: number) => {
       if (!sticker) return null
-      const response = await fetch(`/api/data/stickers?id=sticker-${sticker.sticker_id}`)
-      const stickerResponse = await response.json()
+      const stickerResponse = await $fetch<{ stickers: any[] }>(`/api/data/stickers?id=sticker-${sticker.sticker_id}`)
       const stickerData = stickerResponse.stickers[0]
 
       if (!stickerData) return null
@@ -355,8 +337,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     // Fetch keychain data if exists
     let keychainPromise
     if (data.item.keychains?.[0]) {
-      keychainPromise = await fetch(`/api/data/keychains?id=keychain-${data.item.keychains[0].sticker_id}`)
-          .then(res => res.json())
+      keychainPromise = $fetch<{ data?: any[]; keychains?: any[] }>(`/api/data/keychains?id=keychain-${data.item.keychains[0].sticker_id}`)
           .then(keychainData => {
             // Handle both old and new API response formats
             const keychains = keychainData.data || keychainData.keychains || []
@@ -472,13 +453,9 @@ const handleCreateInspectLink = async () => {
     state.value.isLoadingInspect = true
     state.value.error = null
 
-    const response = await fetch(`/api/inspect?action=create-url&steamId=${user.value.steamId}`, {
+    const data = await $fetch<{ inspectUrl: string; message?: string }>(`/api/inspect?action=create-url&steamId=${user.value.steamId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-      body: JSON.stringify({
+      body: {
         itemType: 'weapon',
         defindex: props.weapon.weapon_defindex,
         paintindex: customization.value.paintIndex,
@@ -489,14 +466,8 @@ const handleCreateInspectLink = async () => {
         statTrakCount: customization.value.statTrakCount,
         nameTag: customization.value.nameTag,
         customization: customization.value
-      })
+      }
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to create inspect link')
-    }
 
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)

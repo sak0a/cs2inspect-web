@@ -41,26 +41,20 @@ const translatedExtrasMenuOptions = computed(() =>
 const validateAuth = async () => {
   if (!user.value) return false
 
-  await fetch('/api/auth/validate?steamId=' + user.value?.steamId, {
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
+  try {
+    const data = await $fetch<{ authenticated: boolean }>('/api/auth/validate?steamId=' + user.value?.steamId, {
+      credentials: 'include'
+    })
+    return data.authenticated
+  } catch (error: any) {
+    if (error?.status === 401 || error?.statusCode === 401) {
+      message.error(t('auth.automaticallyLoggedOut') as string)
+      steamAuth.logout()
+      user.value = null
     }
-  }).then(async (response) => {
-    if (!response.ok) {
-      if (response.status === 401) {
-        message.error(t('auth.automaticallyLoggedOut') as string)
-        steamAuth.logout();
-        user.value = null;
-      }
-      return false;
-    }
-    const data = await response.json();
-    return data.authenticated;
-  }).catch((error) => {
     console.log(error)
     return false
-  })
+  }
 }
 
 function handleSelect(key: string) {

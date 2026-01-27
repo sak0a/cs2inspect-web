@@ -39,20 +39,15 @@ const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: number) =>
     return
   }
 
-  await fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=knife`,
+  await $fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=knife`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include'
-        },
-        body: JSON.stringify({
+        body: {
           team: team === 't' ? 1 : 2,
           defindex: knifeDefindex === -1 ? null : knifeDefindex
-        })
+        }
       }
-  ).then(async (response) => {
-    await response.json()
+  ).then(async () => {
     if (!loadoutStore.selectedLoadout) {
       return
     }
@@ -139,13 +134,9 @@ const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
     return
   }
   console.log('Saving knife: ', knife, customization)
-  await fetch(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+  await $fetch(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'credentials': 'include'
-    },
-    body: JSON.stringify({
+    body: {
       defindex: knife.weapon_defindex,
       team: customization.team,
       paintIndex: customization.paintIndex,
@@ -156,10 +147,9 @@ const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
       nameTag: customization.nameTag,
       active: customization.active,
       reset: customization.reset
-    })
+    }
 
-  }).then(async (response) => {
-    const data = await response.json()
+  }).then(async (data: { message: string }) => {
     message.success(data.message)
     await fetchLoadoutKnives()
     showSkinModal.value = false
@@ -177,12 +167,9 @@ const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeC
   try {
     console.log('Duplicating knife: ', knife.databaseInfo?.team, customization.team)
 
-    const response = await fetch(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    const result = await $fetch<{ success: boolean; message: string }>(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+      body: {
         defindex: knife.weapon_defindex,
         team: customization.team,
         paintIndex: customization.paintIndex,
@@ -193,10 +180,9 @@ const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeC
         nameTag: customization.nameTag,
         active: customization.active,
         reset: customization.reset
-      })
+      }
     })
 
-    const result = await response.json()
     if (result.success) {
       message.success('Knife duplicated successfully')
       await fetchLoadoutKnives()

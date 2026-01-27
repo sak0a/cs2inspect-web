@@ -211,20 +211,10 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     state.value.isImporting = true
     state.value.error = null
 
-    const response = await fetch(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
+    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-      body: JSON.stringify({ inspectUrl, itemType: 'knife' })
+      body: { inspectUrl, itemType: 'knife' }
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to import inspect link')
-    }
 
     if (data.item.defindex !== props.weapon.weapon_defindex) {
       throw new Error(t('modals.knifeSkin.invalidInspectLink') as string)
@@ -289,10 +279,9 @@ const handleCreateInspectLink = async () => {
     state.value.isLoadingInspect = true
     state.value.error = null
 
-    const response = await fetch(`/api/inspect?action=create-url&steamId=${props.user.steamId}`, {
+    const data = await $fetch<{ inspectUrl: string; message?: string }>(`/api/inspect?action=create-url&steamId=${props.user.steamId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'credentials': 'include'},
-      body: JSON.stringify({
+      body: {
         itemType: 'knife',
         defindex: props.weapon.weapon_defindex,
         paintindex: customization.value.paintIndex,
@@ -302,14 +291,8 @@ const handleCreateInspectLink = async () => {
         statTrak: customization.value.statTrak,
         statTrakCount: customization.value.statTrakCount,
         nameTag: customization.value.nameTag
-      })
+      }
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to create inspect link')
-    }
 
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)

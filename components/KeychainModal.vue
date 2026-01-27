@@ -164,11 +164,8 @@ const clearWrappedSticker = () => {
 const fetchItems = async () => {
   try {
     state.value.isLoading = true
-    const response = await fetch('/api/data/keychains')
-    const data = await response.json()
-    // Handle both old and new API response formats
-    const keychains = data.data || data.keychains || []
-    state.value.items = keychains
+    const response = await $fetch<{ data: APIKeychain[] }>('/api/data/keychains')
+    state.value.items = response.data ?? []
   } catch (error) {
     message.error(t('modals.keychain.errorFetching') as string)
     console.error('Error fetching keychains:', error)
@@ -296,12 +293,10 @@ const fetchWrappedStickerDetails = async (id: number) => {
     // Check if we already have it to avoid refetching
     if (state.value.selectedWrappedSticker && Number(state.value.selectedWrappedSticker.id.replace('sticker-', '')) === id) return
 
-    const response = await fetch(`/api/data/stickers?id=sticker-${id}`)
-    const data = await response.json()
-    const stickers = data.data || data.stickers || []
+    const response = await $fetch<{ data: APISticker[] }>(`/api/data/stickers?id=sticker-${id}`)
     
-    if (stickers.length > 0) {
-      state.value.selectedWrappedSticker = stickers[0]
+    if (response.data.length > 0 && response.data[0]) {
+      state.value.selectedWrappedSticker = response.data[0]
     }
   } catch (error) {
     console.error('Error fetching wrapped sticker details:', error)

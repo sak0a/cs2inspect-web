@@ -81,20 +81,15 @@ const handleMusicKitTypeChange = async (musicKitId: number) => {
   selectedMusicKit.value = actualMusicKitId
 
   try {
-    const response = await fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=music`,
+    await $fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=music`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include'
-        },
-        body: JSON.stringify({
+        body: {
           musicid: actualMusicKitId
-        })
+        }
       }
     )
 
-    await response.json()
     message.success(isDefault ? 'Reset to default music kit' : 'Music kit updated')
 
     // Update the loadout store to reflect the change
@@ -131,14 +126,8 @@ const fetchMusicKits = async () => {
 
   try {
     // Fetch music kits data from API
-    const response = await fetch('/api/data/musickits')
-    if (!response.ok) {
-      throw new Error('Failed to fetch music kits')
-    }
-    const data = await response.json()
-    // Handle both old and new API response formats
-    const musickits = data.data || data.musickits || []
-    musicKits.value = musickits
+    const response = await $fetch<{ data: APIMusicKit[] }>('/api/data/musickits')
+    musicKits.value = response.data ?? []
 
     // Get the selected music kit from the loadout
     if (loadoutStore.selectedLoadout) {

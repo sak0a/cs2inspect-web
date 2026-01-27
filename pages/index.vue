@@ -34,22 +34,13 @@ const handleDecode = async () => {
 
   isLoading.value = true
   try {
-    const response = await fetch(`/api/inspect?action=inspect-item&steamId=${user.value?.steamId || ''}`, {
+    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${user.value?.steamId || ''}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
+      body: { 
         inspectUrl: inspectUrl.value,
         itemType: 'weapon'
-      })
+      }
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to decode inspect link')
-    }
 
     // Display the item data in the text area
     decodedJson.value = JSON.stringify(data.item, null, 2)
@@ -72,12 +63,9 @@ const handleGenerate = async () => {
     const parsedData = JSON.parse(decodedJson.value)
     isGenerating.value = true
 
-    const response = await fetch(`/api/inspect?action=create-url&steamId=${user.value?.steamId || ''}`, {
+    const data = await $fetch<{ inspectUrl: string; message?: string }>(`/api/inspect?action=create-url&steamId=${user.value?.steamId || ''}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
+      body: {
         ...parsedData,
         // Ensure common fields are present if they were named differently in the input JSON
         defindex: parsedData.defindex,
@@ -90,14 +78,8 @@ const handleGenerate = async () => {
         stickers: parsedData.stickers,
         keychain: (parsedData.keychains && parsedData.keychains[0]) || parsedData.keychain,
         itemType: parsedData.itemType || 'weapon'
-      })
+      }
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message || 'Failed to generate inspect link')
-    }
 
     // Copy to clipboard
     await navigator.clipboard.writeText(data.inspectUrl)

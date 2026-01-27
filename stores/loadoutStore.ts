@@ -41,16 +41,14 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutWeaponSkins(type: string, steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ skins: IEnhancedWeapon[] }>(`/api/items/weapons/${type}`, {
+                const response = await api.get<IEnhancedWeapon[]>(`/api/items/weapons/${type}`, {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
 
-                // Handle both old and new API response formats
-                const skins = response.data?.skins || (Array.isArray(response.data) ? response.data : []);
-                console.info(`Fetched ${skins.length} skins for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
-                this.currentSkins = skins;
-                console.log("Fetched skins: ", skins);
+                this.currentSkins = response.data ?? [];
+                console.info(`Fetched ${this.currentSkins.length} skins for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
+                console.log("Fetched skins: ", this.currentSkins);
             } catch (error) {
                 console.error(error);
                 throw error;
@@ -62,16 +60,14 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutKnives(steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ knives: IEnhancedItem[] }>('/api/items/knives', {
+                const response = await api.get<IEnhancedItem[]>('/api/items/knives', {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
 
-                // Handle both old and new API response formats
-                const knives = response.data?.knives || (Array.isArray(response.data) ? response.data : []);
-                this.currentSkins = knives;
-                console.info(`Fetched ${knives.length} knives for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
-                console.log("Fetched knives: ", knives);
+                this.currentSkins = response.data ?? [];
+                console.info(`Fetched ${this.currentSkins.length} knives for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
+                console.log("Fetched knives: ", this.currentSkins);
             } catch (error) {
                 console.error(error);
                 throw error;
@@ -83,16 +79,14 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutGloves(steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ gloves: IEnhancedItem[] }>('/api/items/gloves', {
+                const response = await api.get<IEnhancedItem[]>('/api/items/gloves', {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
 
-                // Handle both old and new API response formats
-                const gloves = response.data?.gloves || (Array.isArray(response.data) ? response.data : []);
-                this.currentSkins = gloves;
-                console.info(`Fetched ${gloves.length} gloves for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
-                console.log("Fetched gloves: ", gloves);
+                this.currentSkins = response.data ?? [];
+                console.info(`Fetched ${this.currentSkins.length} gloves for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
+                console.log("Fetched gloves: ", this.currentSkins);
             } catch (error) {
                 console.error(error);
                 throw error;
@@ -104,15 +98,14 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutMusicKits(steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ musicKits: IEnhancedItem[] }>('/api/music', {
+                const response = await api.get<IEnhancedItem[]>('/api/music', {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
 
-                const musicKits = response.data?.musicKits || [];
-                this.currentSkins = musicKits;
-                console.info(`Fetched ${response.meta?.rows || musicKits.length} music kits for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
-                console.log("Fetched music kits: ", musicKits);
+                this.currentSkins = response.data ?? [];
+                console.info(`Fetched ${this.currentSkins.length} music kits for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
+                console.log("Fetched music kits: ", this.currentSkins);
             } catch (error) {
                 console.error(error);
                 throw error;
@@ -124,16 +117,14 @@ export const useLoadoutStore = defineStore('loadout', {
         async fetchLoadoutPins(steamId: SteamId) {
             this.isLoading = true;
             try {
-                const response = await api.get<{ pins: IEnhancedItem[] }>('/api/items/pins', {
+                const response = await api.get<IEnhancedItem[]>('/api/items/pins', {
                     loadoutId: String(this.selectedLoadoutId),
                     steamId: String(steamId)
                 });
 
-                // Handle both old and new API response formats
-                const pins = response.data?.pins || (Array.isArray(response.data) ? response.data : []);
-                this.currentSkins = pins;
-                console.info(`Fetched ${pins.length} pins for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
-                console.log("Fetched pins: ", pins);
+                this.currentSkins = response.data ?? [];
+                console.info(`Fetched ${this.currentSkins.length} pins for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`);
+                console.log("Fetched pins: ", this.currentSkins);
             } catch (error) {
                 console.error(error);
                 throw error;

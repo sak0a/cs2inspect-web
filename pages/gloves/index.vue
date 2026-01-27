@@ -40,20 +40,15 @@ const handleGloveTypeChange = async (team: 't' | 'ct', gloveDefindex: number) =>
   }
 
   console.log('Glove Type Change', team, gloveDefindex)
-  await fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=glove`,
+  await $fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=glove`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include'
-        },
-        body: JSON.stringify({
+        body: {
           team: team === 't' ? 1 : 2,
           defindex: gloveDefindex === -1 ? null : gloveDefindex
-        })
+        }
       }
-  ).then(async (response) => {
-    await response.json()
+  ).then(async () => {
     if (!loadoutStore.selectedLoadout) {
       return
     }
@@ -119,13 +114,9 @@ const handleSkinSelect = async (glove: IEnhancedGlove, customization: GloveConfi
     return
   }
   try {
-    const response = await fetch(`/api/items/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    const data = await $fetch<{ success: boolean; message: string }>(`/api/items/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-      body: JSON.stringify({
+      body: {
         defindex: glove.weapon_defindex,
         active: customization.active,
         paintIndex: customization.paintIndex,
@@ -134,10 +125,9 @@ const handleSkinSelect = async (glove: IEnhancedGlove, customization: GloveConfi
         pattern: customization.pattern,
         team: glove.databaseInfo?.team || customization.team || 0,
         reset: customization.reset
-      })
+      }
     })
 
-    const data = await response.json()
     if (data.success) {
       message.success(data.message)
       await fetchLoadoutGloves()
@@ -159,12 +149,9 @@ const handleGloveDuplicate = async (glove: IEnhancedGlove, customization: GloveC
 
   try {
     console.log('Duplicating glove: ', glove.databaseInfo?.team, customization.team)
-    const response = await fetch(`/api/items/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+    const result = await $fetch<{ success: boolean; message: string }>(`/api/items/gloves/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+      body: {
         defindex: glove.weapon_defindex,
         active: true,
         paintIndex: customization.paintIndex,
@@ -172,10 +159,9 @@ const handleGloveDuplicate = async (glove: IEnhancedGlove, customization: GloveC
         pattern: customization.pattern || 0,
         team: customization.team, // This will be the opposite team number
         reset: false
-      })
+      }
     })
 
-    const result = await response.json()
     if (result.success) {
       message.success('Glove duplicated successfully')
       await fetchLoadoutGloves()

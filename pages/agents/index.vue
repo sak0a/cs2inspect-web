@@ -57,17 +57,13 @@ const handleAgentTypeChange = async (team: 't' | 'ct', agentDefindex: number) =>
     return
   }
 
-  await fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=agent`,
+  await $fetch(`/api/loadouts/select?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=agent`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'credentials': 'include'
-        },
-        body: JSON.stringify({
+        body: {
           team: team === 't' ? 1 : 2,
           defindex: agentDefindex === -1 ? null : agentDefindex
-        })
+        }
       }
   ).then(async () => {
     if (!loadoutStore.selectedLoadout) {
@@ -142,35 +138,9 @@ const fetchAgents = async () => {
       agents.value = []
     }
 
-    const response = await fetch('/api/data/agents')
-    if (!response.ok) {
-      throw new Error('Failed to fetch agents')
-    }
-
-    const data = await response.json()
-    console.log('Received agents data:', data)
-
-    // Check for different possible response structures
-    if (data && data.data && Array.isArray(data.data)) {
-      agents.value = data.data
-    } else if (data && data.agents && Array.isArray(data.agents)) {
-      agents.value = data.agents
-    } else {
-      console.warn('Unexpected agents data structure:', data)
-      // Try to extract agents from the response if possible
-      if (data && typeof data === 'object') {
-        // Look for any array property that might contain agents
-        const possibleAgentsArray = Object.values(data).find(val => Array.isArray(val) && val.length > 0)
-        if (possibleAgentsArray) {
-          console.log('Found possible agents array:', possibleAgentsArray)
-          agents.value = possibleAgentsArray as APIAgent[]
-        } else {
-          agents.value = []
-        }
-      } else {
-        agents.value = []
-      }
-    }
+    const response = await $fetch<{ data: APIAgent[] }>('/api/data/agents')
+    console.log('Received agents data:', response)
+    agents.value = response.data ?? []
 
     // Set initial selected agents if available in loadout
     if (loadoutStore.selectedLoadout) {

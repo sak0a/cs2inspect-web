@@ -51,13 +51,9 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
     message.error('Please select a paint to save the weapon')
     return
   }
-  await fetch(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+  await $fetch(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'credentials': 'include'
-    },
-    body: JSON.stringify({
+    body: {
       defindex: skin.weapon_defindex,
       active: customization.active,
       paintIndex: customization.paintIndex,
@@ -70,9 +66,8 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
       keychain: customization.keychain,
       team: customization.team || 0,
       reset: customization.reset
-    })
-  }).then(async (response) => {
-    const data = await response.json()
+    }
+  }).then(async (data: { success: boolean; message: string }) => {
     if (data.success) {
       message.success(data.message)
       await fetchLoadoutSkins()
@@ -115,12 +110,9 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
       seed: customization.keychain.seed || 0
     } : null
     console.log("DUPLICATE CUSTOM TEAM: ", customization.team)
-    const response = await fetch(`/api/items/weapons/save?steamId=${user.value?.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+    const result = await $fetch<{ success: boolean; message: string }>(`/api/items/weapons/save?steamId=${user.value?.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+      body: {
         defindex: skin.weapon_defindex,
         active: true,
         paintIndex: customization.paintIndex || 0,
@@ -132,10 +124,9 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
         stickers: formattedStickers,
         keychain: formattedKeychain,
         team: customization.team // This will be the opposite team number
-      })
+      }
     })
 
-    const result = await response.json()
     if (result.success) {
       message.success('Weapon duplicated successfully')
       await fetchLoadoutSkins() // Refresh the skins

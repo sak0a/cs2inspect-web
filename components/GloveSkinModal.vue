@@ -209,20 +209,10 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
   try {
     state.value.isImporting = true
-    const response = await fetch(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
+    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'credentials': 'include'
-      },
-      body: JSON.stringify({ inspectUrl, itemType: 'glove' })
+      body: { inspectUrl, itemType: 'glove' }
     })
-
-    const data = await response.json()
-
-    if (!response.ok) {
-      throw new Error(data.message)
-    }
 
     if (data.item.defindex !== props.weapon.weapon_defindex) {
       throw new Error(t('modals.gloveSkin.invalidInspectLink') as string)
@@ -270,22 +260,17 @@ const handleCreateInspectLink = async () => {
 
   try {
     state.value.isLoadingInspect = true
-    const response = await fetch(`/api/inspect?action=create-url&steamId=${props.user.steamId}`, {
+    const data = await $fetch<{ inspectUrl: string; message?: string }>(`/api/inspect?action=create-url&steamId=${props.user.steamId}`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'credentials': 'include'},
-      body: JSON.stringify({
+      body: {
         itemType: 'glove',
         defindex: props.weapon.weapon_defindex,
         paintindex: customization.value.paintIndex,
         paintseed: customization.value.pattern,
         paintwear: customization.value.wear,
         rarity: 0
-      })
+      }
     })
-    const data = await response.json()
-    if (!response.ok) {
-      throw new Error(data.message)
-    }
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
     message.success(t('modals.gloveSkin.generateInspectUrlSuccess') as string, { duration: 3000 })
