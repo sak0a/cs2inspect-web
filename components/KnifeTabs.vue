@@ -161,9 +161,9 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             v-if="!weaponData.weapons.some((w: KnifeItemData) => w.databaseInfo?.team === 2)"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] knife-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(2)"
         >
           <div class="flex flex-col items-center">
@@ -186,7 +186,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
-                hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
+                hexToRgba(weapon.rarity?.color, '0.15') + ')': 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] knife-card"
             @click="handleSkinClick(weapon)"
@@ -212,7 +212,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             v-if="!weaponData.weapons.some((w: KnifeItemData) => w.databaseInfo?.team === 1)"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] knife-card"
             @click="handleDefaultWeaponClick(1)"
@@ -237,7 +237,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
-                hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
+                hexToRgba(weapon.rarity?.color, '0.15') + ')': 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] knife-card"
             @click="handleSkinClick(weapon)"
@@ -268,12 +268,12 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
       >
         <!-- Default weapon if no skin selected -->
         <NCard
-            v-if="weaponData.weapons.length === 0"
+            v-if="!weaponData.weapons.some((w: KnifeItemData) => w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2))"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] knife-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(
               weaponData.availableTeams === 'terrorists' ? 1 : 2)"
         >
@@ -292,12 +292,12 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
         </NCard>
         <!-- Team-specific skins -->
         <NCard
-            v-for="weapon in weaponData.weapons"
+            v-for="weapon in weaponData.weapons.filter((w: KnifeItemData) => w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2))"
             :key="`${weapon.id}-${weapon.databaseInfo?.paintindex || 0}`"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
-                hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
+                hexToRgba(weapon.rarity?.color, '0.15') + ')': 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] knife-card"
             @click="handleSkinClick(weapon)"

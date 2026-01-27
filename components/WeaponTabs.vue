@@ -159,13 +159,13 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
   <!-- For weapons that both teams can use (like AWP) -->
   <div v-if="weaponData.availableTeams === 'both'" >
     <NTabs v-model:value="currentTeamTab" type="line" animated size="small" @update:value="(v) => setTeamCookie(v as 'ct' | 't')">
-      <NTabPane name="ct" :tab="t('teams.counterTerrorists') as string">
+      <NTabPane name="ct" :tab="String(t('teams.counterTerrorists'))">
         <!-- Default weapon if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: WeaponItemData) => w.databaseInfo?.team === 2)"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(2)"
@@ -210,13 +210,13 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         </NCard>
       </NTabPane>
 
-      <NTabPane name="t" :tab="t('teams.terrorists') as string">
+      <NTabPane name="t" :tab="String(t('teams.terrorists'))">
         <!-- Default weapon if no skin selected -->
         <NCard
             v-if="!weaponData.weapons.some((w: WeaponItemData) => w.databaseInfo?.team === 1)"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(1)"
@@ -268,14 +268,14 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
     <NTabs type="line" animated size="small">
       <NTabPane
           :name="weaponData.availableTeams === 'terrorists' ? 't' : 'ct'"
-          :tab="weaponData.availableTeams === 'terrorists' ? t('teams.terrorists') as string : t('teams.counterTerrorists') as string"
+          :tab="weaponData.availableTeams === 'terrorists' ? String(t('teams.terrorists')) : String(t('teams.counterTerrorists'))"
       >
         <!-- Default weapon if no skin selected -->
         <NCard
-            v-if="weaponData.weapons.length === 0"
+            v-if="!weaponData.weapons.some((w: WeaponItemData) => w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2))"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] weapon-card"
             @click="handleDefaultWeaponClick(
@@ -296,7 +296,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         </NCard>
         <!-- Team-specific skins -->
         <NCard
-            v-for="weapon in weaponData.weapons"
+            v-for="weapon in weaponData.weapons.filter((w: WeaponItemData) => w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2))"
             :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',

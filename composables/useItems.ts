@@ -1,5 +1,3 @@
-import type { WeaponItemData, KnifeItemData, GloveItemData } from "~/types"
-
 // Generic type for any weapon-like data
 type WeaponLikeData = {
     databaseInfo?: { defindex?: number; team?: number } | undefined
