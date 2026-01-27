@@ -199,29 +199,49 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="px-4 pb-4 bg-black">
+  <div class="px-4 pb-4">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
           title="Rifles"
           :user="user"
           :error="error || loadoutStore.error || ''"
-          :is-loading="isLoading"
+          :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
-      <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <!-- Skins Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
-          <WeaponTabs
-v-for="(weaponData, weaponName) in groupedWeapons"
-                      :key="weaponName"
-                      class=""
-                      :weapon-data="weaponData as any"
-                      @weapon-click="handleWeaponClickWrapper"
-          />
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
+        <!-- Skeleton Loading State -->
+        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          >
+            <NSkeleton height="128px" />
+            <div class="mt-3">
+              <NSkeleton text :repeat="1" />
+              <div class="mt-2">
+                <NSkeleton height="4px" />
+              </div>
+            </div>
+          </div>
         </div>
-        <!-- No Skins State -->
-        <div v-if="skins.length === 0" class="text-center py-12">
-          <p class="text-gray-400">No skins available for this loadout</p>
-        </div>
+
+        <!-- Content when loaded -->
+        <template v-else>
+          <!-- Skins Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+            <WeaponTabs
+              v-for="(weaponData, weaponName) in groupedWeapons"
+              :key="weaponName"
+              class=""
+              :weapon-data="weaponData as any"
+              @weapon-click="handleWeaponClickWrapper"
+            />
+          </div>
+          <!-- No Skins State -->
+          <div v-if="skins.length === 0" class="text-center py-12">
+            <p class="text-gray-400">No skins available for this loadout</p>
+          </div>
+        </template>
       </div>
 
       <!-- Skin Selection & Customization Modal -->

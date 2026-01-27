@@ -193,70 +193,89 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
           title="Pins"
           :user="user"
           :error="error || ''"
-          :is-loading="isLoading"
+          :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Pin Selection -->
-      <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <div class="flex gap-x-10 justify-start mb-6">
-          <div class="flex items-center justify-end space-x-2 ">
-            <span class="font-bold whitespace-nowrap">
-              Pin
-            </span>
-            <NSelect
-                v-model:value="selectedPin"
-                :options="pinOptions"
-                placeholder="Select pin"
-                class="w-72"
-                @update:value="handlePinTypeChange($event)"
-            />
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
+        <!-- Skeleton Loading State -->
+        <div v-if="isLoading" class="bg-[#242424] p-6 rounded-lg">
+          <div class="pin-grid">
+            <div
+              v-for="i in 12"
+              :key="i"
+              class="rounded-xl border border-[#313030] bg-[#101010] p-4 flex flex-col"
+              style="height: 300px"
+            >
+              <NSkeleton height="128px" />
+              <div class="mt-2 flex flex-col flex-grow">
+                <NSkeleton text class="mt-1" style="height: 40px" />
+                <NSkeleton text :repeat="2" class="mt-1" style="height: 64px" />
+                <div class="mt-auto">
+                  <NSkeleton height="4px" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Search and Filter -->
-        <div class="mb-6">
-          <div class="flex items-center space-x-4">
-            <NInput
-                v-model:value="searchQuery"
-                type="text"
-                placeholder="Search pins..."
-                class="w-full max-w-md"
-            />
-          </div>
-        </div>
-
-        <!-- Main Content Area -->
-        <div class="bg-[#242424] p-6 rounded-lg">
-          <!-- Loading State -->
-          <div v-if="isLoading" class="flex justify-center items-center py-12">
-            <NSpin size="large" />
-          </div>
-
-          <!-- Pins Vertical Grid -->
-          <div class="overflow-visible">
-            <!-- Display pins in a grid -->
-            <div v-if="filteredCollectibles.length > 0" class="pin-grid">
-              <PinTabs
-                  v-for="collectible in pinGrid"
-                  :key="collectible.id"
-                  ref="pinRefs"
-                  :collectible="collectible"
-                  :is-selected="getCollectibleBaseId(collectible) === selectedPin"
-                  class="fade-in-item"
-                  @select="handlePinSelect"
+        <!-- Content when loaded -->
+        <template v-else>
+          <div class="flex gap-x-10 justify-start mb-6">
+            <div class="flex items-center justify-end space-x-2 ">
+              <span class="font-bold whitespace-nowrap">
+                Pin
+              </span>
+              <NSelect
+                  v-model:value="selectedPin"
+                  :options="pinOptions"
+                  placeholder="Select pin"
+                  class="w-72"
+                  @update:value="handlePinTypeChange($event)"
               />
             </div>
+          </div>
 
-            <!-- No results message -->
-            <div v-else-if="!isLoading" class="text-center py-12">
-              <p v-if="searchQuery" class="text-gray-400 text-lg mb-2">
-                {{ t('pins.noResultsSearch', { query: searchQuery }) || `No pins found matching "${searchQuery}"` }}
-              </p>
-              <p v-else class="text-gray-400 text-lg">
-                {{ t('pins.noPinsAvailable') || 'No pins available' }}
-              </p>
+          <!-- Search and Filter -->
+          <div class="mb-6">
+            <div class="flex items-center space-x-4">
+              <NInput
+                  v-model:value="searchQuery"
+                  type="text"
+                  placeholder="Search pins..."
+                  class="w-full max-w-md"
+              />
             </div>
           </div>
-        </div>
+
+          <!-- Main Content Area -->
+          <div class="bg-[#242424] p-6 rounded-lg">
+            <!-- Pins Vertical Grid -->
+            <div class="overflow-visible">
+              <!-- Display pins in a grid -->
+              <div v-if="filteredCollectibles.length > 0" class="pin-grid">
+                <PinTabs
+                    v-for="collectible in pinGrid"
+                    :key="collectible.id"
+                    ref="pinRefs"
+                    :collectible="collectible"
+                    :is-selected="getCollectibleBaseId(collectible) === selectedPin"
+                    class="fade-in-item"
+                    @select="handlePinSelect"
+                />
+              </div>
+
+              <!-- No results message -->
+              <div v-else class="text-center py-12">
+                <p v-if="searchQuery" class="text-gray-400 text-lg mb-2">
+                  {{ t('pins.noResultsSearch', { query: searchQuery }) || `No pins found matching "${searchQuery}"` }}
+                </p>
+                <p v-else class="text-gray-400 text-lg">
+                  {{ t('pins.noPinsAvailable') || 'No pins available' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>

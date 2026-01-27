@@ -158,7 +158,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
             v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 2)"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
             @click="handleDefaultWeaponClick(2)"
@@ -209,7 +209,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
             v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 1)"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
             @click="handleDefaultWeaponClick(1)"
@@ -265,10 +265,10 @@ const handleSkinClick = (weapon: GloveItemData): void => {
       >
         <!-- Default glove if no skin selected -->
         <NCard
-            v-if="weaponData.weapons.length === 0"
+            v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2))"
             :style="{
               borderColor: '#313030',
-              background: '#242424'
+              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
             @click="handleDefaultWeaponClick(
@@ -289,7 +289,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
         </NCard>
         <!-- Team-specific skins -->
         <NCard
-            v-for="weapon in weaponData.weapons"
+            v-for="weapon in weaponData.weapons.filter((w: GloveItemData) => w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2))"
             :key="weapon.paintindex"
             :style="{
               borderColor: weapon.rarity?.color || '#313030',

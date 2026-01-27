@@ -242,53 +242,73 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           title="Knives"
           :user="user"
           :error="error || ''"
-          :is-loading="isLoading"
+          :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Knife Type Groups -->
-      <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <div class="flex gap-x-10 justify-start">
-          <div class="flex items-center justify-end space-x-2 ">
-            <span class="font-bold  whitespace-nowrap">
-              {{ t('teams.counterTerrorists') }}
-            </span>
-            <NSelect
-                v-model:value="ctKnifeType"
-                :options="knifeOptions"
-                placeholder="Select knife type"
-                class="w-48!"
-                @update:value="handleKnifeTypeChange('ct', $event)"
-            />
-          </div>
-          <div class="flex items-center space-x-2">
-            <span class=" font-bold">
-              {{ t('teams.terrorists') }}
-            </span>
-            <NSelect
-                v-model:value="tKnifeType"
-                :options="knifeOptions"
-                placeholder="Select knife type"
-                class="w-48!"
-                @update:value="handleKnifeTypeChange('t', $event)"
-            />
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
+        <!-- Skeleton Loading State -->
+        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          >
+            <NSkeleton height="128px" />
+            <div class="mt-3">
+              <NSkeleton text :repeat="1" />
+              <div class="mt-2">
+                <NSkeleton height="4px" />
+              </div>
+            </div>
           </div>
         </div>
-        <!-- Skins Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
-          <KnifeTabs
-              v-for="(knifeData, knifeName) in groupedKnives"
-              :key="knifeName"
-              :weapon-data="{
-              weapons: knifeData.weapons as any,
-              defaultName: knifeData.defaultName,
-              availableTeams: 'both'
-            }"
-              @weapon-click="handleKnifeClick as any"
-          />
-        </div>
-        <!-- No Skins State -->
-        <div v-if="skins.length === 0" class="text-center py-12">
-          <p class="text-gray-400">No skins available for this loadout</p>
-        </div>
+
+        <!-- Content when loaded -->
+        <template v-else>
+          <div class="flex gap-x-10 justify-start">
+            <div class="flex items-center justify-end space-x-2 ">
+              <span class="font-bold  whitespace-nowrap">
+                {{ t('teams.counterTerrorists') }}
+              </span>
+              <NSelect
+                  v-model:value="ctKnifeType"
+                  :options="knifeOptions"
+                  placeholder="Select knife type"
+                  class="w-48!"
+                  @update:value="handleKnifeTypeChange('ct', $event)"
+              />
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class=" font-bold">
+                {{ t('teams.terrorists') }}
+              </span>
+              <NSelect
+                  v-model:value="tKnifeType"
+                  :options="knifeOptions"
+                  placeholder="Select knife type"
+                  class="w-48!"
+                  @update:value="handleKnifeTypeChange('t', $event)"
+              />
+            </div>
+          </div>
+          <!-- Skins Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
+            <KnifeTabs
+                v-for="(knifeData, knifeName) in groupedKnives"
+                :key="knifeName"
+                :weapon-data="{
+                weapons: knifeData.weapons as any,
+                defaultName: knifeData.defaultName,
+                availableTeams: 'both'
+              }"
+                @weapon-click="handleKnifeClick as any"
+            />
+          </div>
+          <!-- No Skins State -->
+          <div v-if="skins.length === 0" class="text-center py-12">
+            <p class="text-gray-400">No skins available for this loadout</p>
+          </div>
+        </template>
       </div>
 
       <!-- Knife Skin Selection & Customization Modal -->

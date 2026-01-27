@@ -127,10 +127,9 @@ onMounted(() => {
       </div>
 
       <!-- Main Card -->
-      <div class="bg-[#242424] rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative group">
+      <div class=" rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative group">
         <!-- Subtle gradient background -->
-        <div class="absolute inset-0 bg-gradient-to-br from-blue-600/5 via-transparent to-purple-600/5 pointer-events-none"></div>
-        
+   
         <div class="p-8 sm:p-10 relative">
           <div class="space-y-8">
             

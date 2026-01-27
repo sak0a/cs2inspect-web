@@ -213,53 +213,73 @@ watch(() => showSkinModal.value, (isVisible) => {
           title="Gloves"
           :user="user"
           :error="error || ''"
-          :is-loading="isLoading"
+          :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Glove Type Groups -->
-      <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <div class="flex gap-x-10 justify-start">
-          <div class="flex items-center justify-end space-x-2 ">
-            <span class="font-bold  whitespace-nowrap">
-              {{ t('teams.counterTerrorists') }}
-            </span>
-            <NSelect
-                v-model:value="ctGloveType"
-                :options="gloveOptions"
-                placeholder="Select glove type"
-                class="w-48!"
-                @update:value="handleGloveTypeChange('ct', $event)"
-            />
-          </div>
-          <div class="flex items-center space-x-2">
-            <span class=" font-bold">
-              {{ t('teams.terrorists') }}
-            </span>
-            <NSelect
-                v-model:value="tGloveType"
-                :options="gloveOptions"
-                placeholder="Select glove type"
-                class="w-48!"
-                @update:value="handleGloveTypeChange('t', $event)"
-            />
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
+        <!-- Skeleton Loading State -->
+        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          >
+            <NSkeleton height="128px" />
+            <div class="mt-3">
+              <NSkeleton text :repeat="1" />
+              <div class="mt-2">
+                <NSkeleton height="4px" />
+              </div>
+            </div>
           </div>
         </div>
-        <!-- Skins Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
-          <GloveTabs
-              v-for="(gloveData, gloveName) in groupedGloves"
-              :key="gloveName"
-              :weapon-data="{
-              weapons: gloveData.weapons as unknown as GloveItemData[],
-              defaultName: gloveData.defaultName,
-              availableTeams: 'both'
-            }"
-              @weapon-click="(glove: GloveItemData) => handleGloveClick(glove as unknown as IEnhancedGlove)"
-          />
-        </div>
-        <!-- No Skins State -->
-        <div v-if="skins.length === 0" class="text-center py-12">
-          <p class="text-gray-400">No skins available for this loadout</p>
-        </div>
+
+        <!-- Content when loaded -->
+        <template v-else>
+          <div class="flex gap-x-10 justify-start">
+            <div class="flex items-center justify-end space-x-2 ">
+              <span class="font-bold  whitespace-nowrap">
+                {{ t('teams.counterTerrorists') }}
+              </span>
+              <NSelect
+                  v-model:value="ctGloveType"
+                  :options="gloveOptions"
+                  placeholder="Select glove type"
+                  class="w-48!"
+                  @update:value="handleGloveTypeChange('ct', $event)"
+              />
+            </div>
+            <div class="flex items-center space-x-2">
+              <span class=" font-bold">
+                {{ t('teams.terrorists') }}
+              </span>
+              <NSelect
+                  v-model:value="tGloveType"
+                  :options="gloveOptions"
+                  placeholder="Select glove type"
+                  class="w-48!"
+                  @update:value="handleGloveTypeChange('t', $event)"
+              />
+            </div>
+          </div>
+          <!-- Skins Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
+            <GloveTabs
+                v-for="(gloveData, gloveName) in groupedGloves"
+                :key="gloveName"
+                :weapon-data="{
+                weapons: gloveData.weapons as unknown as GloveItemData[],
+                defaultName: gloveData.defaultName,
+                availableTeams: 'both'
+              }"
+                @weapon-click="(glove: GloveItemData) => handleGloveClick(glove as unknown as IEnhancedGlove)"
+            />
+          </div>
+          <!-- No Skins State -->
+          <div v-if="skins.length === 0" class="text-center py-12">
+            <p class="text-gray-400">No skins available for this loadout</p>
+          </div>
+        </template>
       </div>
 
       <!-- Glove Skin Selection & Customization Modal -->

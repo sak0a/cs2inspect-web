@@ -220,69 +220,85 @@ watch(() => searchQuery.value, () => {
           title="Music Kits"
           :user="user"
           :error="error || ''"
-          :is-loading="isLoading"
+          :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Music Kit Selection -->
-      <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <div class="flex gap-x-10 justify-start mb-6">
-          <div class="flex items-center justify-end space-x-2 ">
-            <span class="font-bold whitespace-nowrap">
-              Music Kit
-            </span>
-            <NSelect
-                v-model:value="selectedMusicKit"
-                :options="musicKitOptions"
-                placeholder="Select music kit"
-                class="w-72"
-                @update:value="handleMusicKitTypeChange($event)"
-            />
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
+        <!-- Skeleton Loading State -->
+        <div v-if="isLoading" class="music-kit-grid">
+          <div
+            v-for="i in 8"
+            :key="i"
+            class="rounded-xl border border-[#313030] bg-[#101010] p-4 flex flex-col"
+            style="height: 300px"
+          >
+            <NSkeleton height="128px" />
+            <div class="mt-2 flex flex-col flex-grow">
+              <NSkeleton text class="mt-1" style="height: 40px" />
+              <NSkeleton text :repeat="2" class="mt-1" style="height: 64px" />
+              <div class="mt-auto">
+                <NSkeleton height="4px" />
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Loading State -->
-        <div v-if="isLoading" class="text-center py-12">
-          <NSpin size="large" />
-          <p class="mt-4 text-gray-400">Loading music kits...</p>
-        </div>
-
-        <!-- No Music Kits State -->
-        <div v-else-if="!musicKits || musicKits.length === 0" class="text-center py-12">
-          <p class="text-gray-400">No music kits available</p>
-        </div>
-
-        <!-- Music Kits Content -->
-        <div v-else>
-          <!-- Search Bar -->
-          <div class="mb-6">
-            <NInput v-model:value="searchQuery" placeholder="Search music kits..." clearable>
-              <template #prefix>
-                <div class="i-carbon-search text-lg" />
-              </template>
-            </NInput>
-          </div>
-
-          <!-- Music Kits Vertical Grid -->
-          <div class="overflow-visible">
-            <!-- Display music kits in a grid -->
-            <div class="music-kit-grid">
-              <MusicKitTabs
-                  v-for="musicKit in musicKitGrid"
-                  :key="musicKit.id"
-                  ref="musicKitRefs"
-                  :music-kit="musicKit"
-                  :is-selected="getMusicKitBaseId(musicKit) === selectedMusicKit"
-                  :class="[
-                    'fade-in-item',
-                    getMusicKitBaseId(musicKit) === selectedMusicKit ? 'selected-music-kit' : ''
-                  ]"
-                  @select="handleMusicKitSelect"
+        <!-- Content when loaded -->
+        <template v-else>
+          <div class="flex gap-x-10 justify-start mb-6">
+            <div class="flex items-center justify-end space-x-2 ">
+              <span class="font-bold whitespace-nowrap">
+                Music Kit
+              </span>
+              <NSelect
+                  v-model:value="selectedMusicKit"
+                  :options="musicKitOptions"
+                  placeholder="Select music kit"
+                  class="w-72"
+                  @update:value="handleMusicKitTypeChange($event)"
               />
             </div>
-
-            <!-- No results message -->
-            <p v-if="searchQuery && filteredMusicKits.length === 0" class="text-gray-400 py-4 text-center">No music kits found matching your search</p>
           </div>
-        </div>
+
+          <!-- No Music Kits State -->
+          <div v-if="!musicKits || musicKits.length === 0" class="text-center py-12">
+            <p class="text-gray-400">No music kits available</p>
+          </div>
+
+          <!-- Music Kits Content -->
+          <div v-else>
+            <!-- Search Bar -->
+            <div class="mb-6">
+              <NInput v-model:value="searchQuery" placeholder="Search music kits..." clearable>
+                <template #prefix>
+                  <div class="i-carbon-search text-lg" />
+                </template>
+              </NInput>
+            </div>
+
+            <!-- Music Kits Vertical Grid -->
+            <div class="overflow-visible">
+              <!-- Display music kits in a grid -->
+              <div class="music-kit-grid">
+                <MusicKitTabs
+                    v-for="musicKit in musicKitGrid"
+                    :key="musicKit.id"
+                    ref="musicKitRefs"
+                    :music-kit="musicKit"
+                    :is-selected="getMusicKitBaseId(musicKit) === selectedMusicKit"
+                    :class="[
+                      'fade-in-item',
+                      getMusicKitBaseId(musicKit) === selectedMusicKit ? 'selected-music-kit' : ''
+                    ]"
+                    @select="handleMusicKitSelect"
+                />
+              </div>
+
+              <!-- No results message -->
+              <p v-if="searchQuery && filteredMusicKits.length === 0" class="text-gray-400 py-4 text-center">No music kits found matching your search</p>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
   </div>
