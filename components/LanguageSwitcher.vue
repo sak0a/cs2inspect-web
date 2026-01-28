@@ -1,5 +1,4 @@
-<script setup>
-import { LucideLanguages as LanguageIcon } from 'lucide-vue-next'
+<script setup lang="ts">
 
 const { getLocale, switchLocale, getLocales } = useI18n()
 
@@ -15,7 +14,7 @@ const options = computed(() =>
 const currentLocale = computed(() => getLocale())
 
 // Function to get flag emoji based on locale code
-const getFlag = (code) => {
+const getFlag = (code: string) => {
   switch (code) {
     case 'en':
       return '🇬🇧'
@@ -35,7 +34,7 @@ const getFlag = (code) => {
 }
 
 // Handle locale selection without changing URL
-const handleSelect = (key) => {
+const handleSelect = (key: string) => {
   // Save language preference in a cookie
   const langCookie = useCookie('i18n_locale', {
     maxAge: 60 * 60 * 24 * 365, // 1 year
@@ -70,13 +69,7 @@ const handleSelect = (key) => {
       size="medium"
       class="language-select"
       @update:value="handleSelect"
-    >
-      <template #prefix>
-        <NIcon>
-          <LanguageIcon />
-        </NIcon>
-      </template>
-    </NSelect>
+    />
   </div>
 </template>
 

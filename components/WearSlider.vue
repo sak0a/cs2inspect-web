@@ -1,21 +1,17 @@
 <!-- WearSlider.vue -->
 <script setup lang="ts">
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: number): void
-}>()
-
 interface Props {
-  modelValue?: number
   min?: number
   max?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: 0.01,
   min: 0.00,
   max: 1.00
 })
+
+const modelValue = defineModel<number>({ default: 0.01 })
 
 const { t } = useI18n()
 
@@ -29,7 +25,7 @@ const WEARS = {
 
 const progressBar = ref(null)
 const isDragging = ref(false)
-const localValue = ref(clampValue(props.modelValue))
+const localValue = ref(clampValue(modelValue.value))
 const isTooltipVisible = ref(false)
 const tooltipTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
@@ -78,7 +74,7 @@ function handleBlur(event: Event) {
   const newValue = parseFloat((event.target as HTMLInputElement).value)
   if (!isNaN(newValue)) {
     localValue.value = clampValue(newValue)
-    emit('update:modelValue', localValue.value)
+    modelValue.value = localValue.value
   }
   (event.target as HTMLInputElement).value = displayValue.value
 }
@@ -115,12 +111,12 @@ function onDrag(event: MouseEvent) {
   if (newValue > props.max || newValue < props.min) return
   localValue.value = clampValue(newValue)
 
-  // Ensure we emit the update
-  emit('update:modelValue', newValue)
+  // Sync to parent via defineModel
+  modelValue.value = newValue
 }
 
 // Watch for external value changes
-watch(() => props.modelValue, (newValue) => {
+watch(modelValue, (newValue) => {
   if (newValue !== localValue.value) {
     localValue.value = clampValue(newValue)
   }

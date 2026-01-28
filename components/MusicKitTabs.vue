@@ -11,7 +11,9 @@ const props = withDefaults(defineProps<Props>(), {
   isSelected: false
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits<{
+  (e: 'select', musicKit: APIMusicKit): void
+}>()
 const { t: _t } = useI18n()
 
 const handleSelect = () => {

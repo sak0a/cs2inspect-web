@@ -8,7 +8,9 @@ const props = withDefaults(defineProps<Props>(), {
   isSelected: false
 })
 
-const emit = defineEmits(['select'])
+const emit = defineEmits<{
+  (e: 'select', agent: APIAgent): void
+}>()
 const { t } = useI18n()
 
 const handleSelect = () => {
