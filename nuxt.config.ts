@@ -204,5 +204,11 @@ export default defineNuxtConfig({
       }, 1000)
     }
   },
+  routeRules: {
+    '/api/items/**': { cache: { maxAge: 3600, swr: true } },
+    '/api/health/**': { cache: { maxAge: 60 } },
+    '/api/loadouts/**': { cache: false },
+    '/api/auth/**': { cache: false },
+  },
   compatibilityDate: '2024-10-12'
 })
