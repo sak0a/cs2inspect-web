@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft as ArrowLeftIcon } from '@vicons/tabler';
+import { LucideArrowLeft as ArrowLeftIcon } from 'lucide-vue-next';
 
 // Use a simple layout without authentication
 definePageMeta({

@@ -270,7 +270,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="p-4 bg-black ">
+  <div class="p-4  ">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
           title="Knives"

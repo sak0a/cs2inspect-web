@@ -3,17 +3,16 @@
 import { steamAuth } from '~/services/steamAuth'
 import type { DBLoadout } from '~/types'
 import {
-  Trash as DeleteIcon,
-  Edit as RenameIcon,
-  Plus as NewIcon,
-  Copy as DuplicateIcon,
-  Share as ShareIcon,
-  Star as DefaultIcon,
-  Eraser as ClearIcon,
-  Download as ImportIcon,
-  DotsVertical as MenuIcon
-} from '@vicons/tabler'
-import { Star as DefaultFilledIcon } from '@vicons/ionicons5'
+  LucideTrash2 as DeleteIcon,
+  LucidePencil as RenameIcon,
+  LucidePlus as NewIcon,
+  LucideCopy as DuplicateIcon,
+  LucideShare as ShareIcon,
+  LucideStar as DefaultIcon,
+  LucideEraser as ClearIcon,
+  LucideDownload as ImportIcon,
+  LucideEllipsisVertical as MenuIcon
+} from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
 import { toSteamId, toLoadoutId } from '~/types/core/branded'
 import type { LoadoutId } from '~/types/core/branded'
@@ -164,7 +163,7 @@ const dropdownOptions = computed(() => {
       { 
           label: t('loadout.actions.setDefault'), 
           key: 'default', 
-          icon: () => h(NIcon, { color: '#f59e0b' }, { default: () => h(isDefault ? DefaultFilledIcon : DefaultIcon) }) 
+          icon: () => h(NIcon, { color: '#f59e0b' }, { default: () => h(DefaultIcon, isDefault ? { fill: '#f59e0b' } : {}) })
       },
       { type: 'divider', key: 'd1' },
       { label: t('loadout.actions.clear'), key: 'clear', icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(ClearIcon) }) }, // Red

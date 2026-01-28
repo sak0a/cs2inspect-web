@@ -260,7 +260,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="px-4 pb-4 bg-black">
+  <div class="px-4 pb-4 ">
     <div class="max-w-7xl mx-auto content-fade-in">
       <SkinPageLayout
           title="Agents"

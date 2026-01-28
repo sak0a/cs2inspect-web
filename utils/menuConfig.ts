@@ -1,10 +1,10 @@
-import { Music, Pin, Home } from "@vicons/tabler";
+import { LucideMusic as Music, LucidePin as Pin, LucideHome as Home } from "lucide-vue-next";
 import { NIcon } from "naive-ui";
 import { h, type Component } from "vue";
 
 
-export function renderIcon(icon: Component) {
-    return () => h(NIcon, null, { default: () => h(icon) })
+export function renderIcon(icon: Component, size?: number) {
+    return () => h(NIcon, { component: icon, size })
 }
 
 export const homeMenuOptions = [
@@ -260,7 +260,7 @@ export const extrasMenuOptions = [
     {
         labelKey: 'extras.pins',
         key: '/pins',
-        icon: renderIcon(Pin)
+        icon: renderIcon(Pin, 24)
     },
     {
         labelKey: 'extras.agents',
@@ -274,6 +274,6 @@ export const extrasMenuOptions = [
     {
         labelKey: 'extras.music',
         key: '/music-kits',
-        icon: renderIcon(Music)
+        icon: renderIcon(Music, 24)
     }
 ]

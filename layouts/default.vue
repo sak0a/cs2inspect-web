@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NIcon } from 'naive-ui'
-import { LogOut as LogOutIcon, LogoSteam as SteamLogoIcon } from '@vicons/ionicons5'
+import { LucideLogOut as LogOutIcon } from 'lucide-vue-next'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 
 const selectedKey = ref<string>('')
@@ -112,34 +112,10 @@ onMounted(async () => {
   }
 })
 
-const backgroundStyle = {
-  background: '#000000',
-  backgroundImage: `
-    linear-gradient(to right, rgba(255,255,255,0.06) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(255,255,255,0.06) 1px, transparent 1px),
-    radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px)
-  `,
-  backgroundSize: '20px 20px, 20px 20px, 20px 20px',
-  backgroundPosition: '0 0, 0 0, 0 0',
-}
 
-const backgroundStyleFade = {
-      backgroundImage: `
-        linear-gradient(45deg, transparent 49%, #242424 49%, #e5e7eb 51%, transparent 51%),
-        linear-gradient(-45deg, transparent 49%, #242424 49%, #e5e7eb 51%, transparent 51%)
-      `,
-      backgroundSize: "40px 40px",
-         WebkitMaskImage:
-            "radial-gradient(ellipse 80% 80% at 0% 0%, #000 50%, transparent 90%)",
-          maskImage:
-            "radial-gradient(ellipse 80% 80% at 0% 0%, #000 50%, transparent 90%)"
-    }
 
 </script>
 <template>
-      <!-- <div class="min-h-screen w-full bg-black relative" style="z-index: -5;">
-      <div class="absolute inset-0" :style="backgroundStyleFade"></div>
-    </div>-->
   <NSpace vertical>  
     <NLayout has-sider >
    
@@ -289,8 +265,8 @@ const backgroundStyleFade = {
 
           {{ t('auth.loginRequired') }}
           <NButton size="large" class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md" @click="handleLogin">
-            <template #icon >
-              <SteamLogoIcon/>
+            <template #icon>
+              <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-9.96 9.04l5.37 2.22a2.82 2.82 0 0 1 1.62-.51l2.54-3.69v-.05a3.78 3.78 0 1 1 3.78 3.78h-.09l-3.62 2.58a2.84 2.84 0 0 1-5.65.28L1.2 13.4A10 10 0 1 0 12 2zm-4.89 14.5a2.13 2.13 0 0 0 2.54.89l1.49-.6a2.13 2.13 0 1 0-2.2-3.58l-1.53.63a2.13 2.13 0 0 0-.3 2.66zm10.52-7.47a2.52 2.52 0 1 0-2.52-2.52 2.52 2.52 0 0 0 2.52 2.52z"/></svg>
             </template>
             {{ t('auth.loginButton') }}
           </NButton>

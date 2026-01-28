@@ -237,7 +237,7 @@ watch(() => showSkinModal.value, (isVisible) => {
 </script>
 
 <template>
-  <div class="p-4 bg-black ">
+  <div class="p-4 ">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
           title="Gloves"

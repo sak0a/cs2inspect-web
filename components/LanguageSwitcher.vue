@@ -1,5 +1,5 @@
 <script setup>
-import { Language as LanguageIcon } from '@vicons/ionicons5'
+import { LucideLanguages as LanguageIcon } from 'lucide-vue-next'
 
 const { getLocale, switchLocale, getLocales } = useI18n()
 
