@@ -12,6 +12,11 @@ import { useItemModal } from '~/composables/useItemModal'
 
 // Legacy imports for backward compatibility
 import type { IEnhancedKnife, IEnhancedItem } from '~/server/types'
+import { useAutoSave, type SaveStatus } from '~/composables/useAutoSave'
+import SaveStatusIndicator from './SaveStatusIndicator.vue'
+import ItemHistoryPanel from './ItemHistoryPanel.vue'
+import { useLoadoutStore } from '~/stores/loadoutStore'
+import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -32,11 +37,16 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (e: 'save' | 'duplicate', skin: IEnhancedItem, customization: KnifeConfiguration): void
+  (e: 'auto-save', skin: IEnhancedItem, customization: KnifeConfiguration): void
   (e: 'error', error: string): void
 }>()
 
 const message = useMessage()
 const { t } = useI18n()
+const loadoutStore = useLoadoutStore()
+
+// History panel state
+const showHistoryPanel = ref(false)
 
 /**
  * Use shared item modal composable for state, pagination, and skin fetching
@@ -82,6 +92,37 @@ const defaultCustomization: KnifeConfiguration = {
 }
 
 const customization = ref<KnifeConfiguration>({ ...defaultCustomization })
+
+/**
+ * Auto-save functionality
+ */
+const autoSave = useAutoSave<KnifeConfiguration>(
+  async (data) => {
+    if (!selectedSkin.value) return
+    emit('auto-save', selectedSkin.value, data)
+  },
+  {
+    debounceMs: 1500,
+    retryAttempts: 3,
+    onSaveError: (error) => {
+      console.error('Auto-save failed:', error)
+    }
+  }
+)
+
+// Track if we should trigger auto-save (only when user makes intentional changes)
+const isInitializing = ref(false)
+
+// Watch customization changes for auto-save
+watch(
+  () => customization.value,
+  (newVal) => {
+    if (!isInitializing.value && selectedSkin.value && newVal.paintindex > 0 && props.visible) {
+      autoSave.triggerSave({ ...newVal })
+    }
+  },
+  { deep: true }
+)
 
 /**
  * Fetch available skins for the current knife using composable
@@ -186,10 +227,16 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       availableTeams: 'both',
     }
 
+    // Preserve current float value, only clamp if outside new skin's valid range
+    const newMinFloat = skin.min_float ?? 0
+    const newMaxFloat = skin.max_float ?? 1
+    const currentFloat = customization.value.paintwear
+    const clampedFloat = Math.max(newMinFloat, Math.min(newMaxFloat, currentFloat))
+
     customization.value = {
       ...customization.value,
       paintindex: Number(skin.paint_index),
-      paintwear: Number(skin.min_float ?? 0),
+      paintwear: clampedFloat,
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
@@ -310,14 +357,12 @@ const handleCreateInspectLink = async () => {
   }
 }
 
-const handleSave = () => {
-  if (!selectedSkin.value) return
-  console.log('Saving knife: ', selectedSkin.value, customization.value)
-  emit('save', selectedSkin.value, customization.value)
-  handleClose()
-}
+const handleClose = async () => {
+  // Flush any pending auto-save before closing
+  if (selectedSkin.value && customization.value.paintindex > 0) {
+    await autoSave.flushPending()
+  }
 
-const handleClose = () => {
   emit('update:visible', false)
   setTimeout(() => {
     clearState()
@@ -325,6 +370,26 @@ const handleClose = () => {
     inheritedWeapon.value = null
     customization.value = { ...defaultCustomization }
   }, 300)
+}
+
+/**
+ * Handle restoring from history
+ */
+const handleHistoryRestore = (record: ItemHistoryRecord) => {
+  if (record.configuration) {
+    const config = record.configuration
+    customization.value = {
+      ...customization.value,
+      paintindex: config.paintindex,
+      paintseed: config.paintseed,
+      paintwear: config.paintwear,
+      stattrak_enabled: config.stattrak_enabled ?? false,
+      stattrak_count: config.stattrak_count ?? 0,
+      nametag: config.nametag ?? ''
+    }
+    showHistoryPanel.value = false
+    // Note: Success message is shown by ItemHistoryPanel, no need to duplicate here
+  }
 }
 
 watch(() => customization.value.paintwear, (newWear) => {
@@ -347,7 +412,10 @@ watch(() => props.visible, (isVisible) => {
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
     try {
+      // Prevent auto-save during initialization
+      isInitializing.value = true
       state.value.error = null
+      autoSave.resetStatus()
 
       inheritedWeapon.value = props.weapon
       fetchAvailableSkinsForKnife()
@@ -376,7 +444,13 @@ watch(() => props.weapon, () => {
       }
 
       selectedSkin.value = inheritedWeapon.value
+
+      // Allow auto-save after initialization completes
+      nextTick(() => {
+        isInitializing.value = false
+      })
     } catch (error: unknown) {
+      isInitializing.value = false
       const errorMessage = error instanceof Error ? error.message : 'Failed to initialize knife data'
       state.value.error = errorMessage
       emit('error', errorMessage)
@@ -390,12 +464,23 @@ watch(() => props.weapon, () => {
       :show="visible"
       style="width: 1200px"
       preset="card"
-      :title="weapon ? String(t('modals.knifeSkin.title', { weaponName: weapon?.defaultName })) : String(t('modals.knifeSkin.defaultTitle'))"
       :bordered="false"
       size="huge"
       :theme-overrides="skinModalThemeOverrides"
       @update:show="handleClose"
   >
+    <template #header>
+      <div class="flex items-center gap-3">
+        <span class="leading-none">{{ weapon ? String(t('modals.knifeSkin.title', { weaponName: weapon?.defaultName })) : String(t('modals.knifeSkin.defaultTitle')) }}</span>
+        <!-- Auto-save status indicator (fixed position like NaiveUI messages) -->
+        <SaveStatusIndicator
+          :status="autoSave.status.value"
+          :show-retry="autoSave.status.value === 'error'"
+          fixed
+          @retry="autoSave.retry"
+        />
+      </div>
+    </template>
     <template #header-extra>
       <!-- Reset Button -->
       <NButton secondary type="error" :disabled="!selectedSkin || customization.paintindex == 0" @click="state.showResetConfirm = true">
@@ -444,6 +529,19 @@ watch(() => props.weapon, () => {
       </NButton>
       <NDivider vertical />
 
+      <!-- History Button -->
+      <NButton secondary type="default" :disabled="!selectedSkin" @click="showHistoryPanel = true">
+        <template #icon>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-history">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+            <path d="M12 8l0 4l2 2" />
+            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+          </svg>
+        </template>
+        {{ t('history.title') }}
+      </NButton>
+      <NDivider vertical />
+
       <!-- Knife Search -->
       <NInput
           v-model:value="state.searchQuery"
@@ -454,7 +552,7 @@ watch(() => props.weapon, () => {
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Skin Preview -->
-      <div v-if="inheritedWeapon" class="bg-[#1a1a1a] p-6 rounded-lg">
+      <div v-if="inheritedWeapon" class="bg-[#1a1a1a] p-6 rounded-lg bg-opacity-50">
         <div class="grid grid-cols-2 gap-6">
           <!-- Left side - Image -->
           <div>
@@ -529,13 +627,8 @@ watch(() => props.weapon, () => {
               />
             </div>
 
-            <!-- Save Button & Active Switch -->
+            <!-- Duplicate & Active Switch -->
             <div class="flex items-center justify-center w-full mt-0 gap-2">
-              <!-- Save Knife -->
-              <NButton type="success"  secondary class="w-40" @click="handleSave">
-                {{ t('modals.knifeSkin.buttons.save') }}
-              </NButton>
-
               <!-- Duplicate Knife -->
               <div>
                 <NButton
@@ -652,6 +745,17 @@ watch(() => props.weapon, () => {
         v-model:visible="state.showResetConfirm"
         :loading="state.isResetting"
         @confirm="handleReset"
+    />
+
+    <!-- Item History Panel -->
+    <ItemHistoryPanel
+        v-model:visible="showHistoryPanel"
+        item-type="knife"
+        :defindex="props.weapon?.weapon_defindex || 0"
+        :team="customization.team"
+        :steam-id="props.user?.steamId || ''"
+        :loadout-id="loadoutStore.selectedLoadoutId || 0"
+        @restore="handleHistoryRestore"
     />
   </NModal>
 </template>

@@ -1,0 +1,1 @@
+ALTER TABLE `wp_item_history` ADD `version_id` varchar(30) NOT NULL;

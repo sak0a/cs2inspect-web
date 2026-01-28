@@ -404,6 +404,43 @@
     "authenticating": "Autenticando...",
     "openSteamProfile": "Abrir perfil de Steam"
   },
+  "autoSave": {
+    "saving": "Guardando...",
+    "saved": "Guardado",
+    "failed": "Error al guardar",
+    "retry": "Reintentar",
+    "offline": "Sin conexión - los cambios se guardarán al reconectar"
+  },
+  "history": {
+    "title": "Historial de versiones",
+    "empty": "No hay historial disponible",
+    "restore": "Restaurar",
+    "restoreConfirmTitle": "Restaurar versión",
+    "restoreConfirmMessage": "Esto restaurará el artículo a esta versión anterior. ¿Continuar?",
+    "restoreSuccess": "Restaurado exitosamente a la versión anterior",
+    "restoreError": "Error al restaurar",
+    "fetchError": "Error al cargar el historial",
+    "snapshot": "Instantánea",
+    "loadMore": "Cargar más",
+    "changeTypes": {
+      "stickerAdded": "Pegatina añadida",
+      "stickerRemoved": "Pegatina eliminada",
+      "stickerModified": "Pegatina modificada",
+      "keychainAdded": "Llavero añadido",
+      "keychainRemoved": "Llavero eliminado",
+      "keychainModified": "Llavero modificado",
+      "wearChanged": "Desgaste cambiado",
+      "patternChanged": "Patrón cambiado",
+      "paintChanged": "Skin cambiado",
+      "nametagChanged": "Etiqueta cambiada",
+      "stattrakToggled": "StatTrak alternado",
+      "stattrakCountChanged": "Contador StatTrak cambiado",
+      "activeToggled": "Estado activo cambiado",
+      "multipleChanges": "Múltiples cambios",
+      "initialSave": "Guardado inicial",
+      "reset": "Restaurado"
+    }
+  },
   "common": {
     "loading": "Cargando...",
     "error": "Error",

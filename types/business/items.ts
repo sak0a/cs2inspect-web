@@ -28,9 +28,13 @@ import type {
   TeamSide,
   TeamAvailability,
   ItemRarity,
-  Defindex,
-  PaintIndex,
-  PaintSeed,
+  // Branded types imported for JSDoc documentation references
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  Defindex as _Defindex,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  PaintIndex as _PaintIndex,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  PaintSeed as _PaintSeed,
   FloatValue,
   StickerSlotIndex,
   StatTrakCount,
@@ -138,38 +142,46 @@ export interface BaseItemData {
 
 /**
  * Sticker configuration for weapons
- * 
+ *
  * @description Represents a sticker applied to a weapon
- * 
+ *
+ * ## Branded Types
+ *
+ * When converting to/from database or validating:
+ * - `id` → use `toStickerId(Number(id))` for StickerId
+ * - `position` → use `toStickerSlotIndex(position)` for StickerSlotIndex (0-4)
+ * - `x`, `y` → use `toNormalizedCoordinate(value)` for NormalizedCoordinate (0-1)
+ * - `wear` → use `toFloatValue(wear)` for FloatValue (0-1)
+ *
  * @example
  * ```typescript
  * const sticker: StickerConfiguration = {
- *   id: "sticker_123",
+ *   id: 1234, // StickerId from CS2 item definitions
  *   name: "Natus Vincere | Katowice 2014",
  *   image: "https://...",
- *   position: 0,
- *   x: 0.5,
- *   y: 0.5,
- *   wear: 0.0,
+ *   position: 0, // StickerSlotIndex (0-4)
+ *   x: 0.5,      // NormalizedCoordinate
+ *   y: 0.5,      // NormalizedCoordinate
+ *   wear: 0.0,   // FloatValue
  *   scale: 1.0,
  *   rotation: 0.0
  * }
  * ```
  */
 export interface StickerConfiguration {
-  /** Sticker identifier */
+  /** Sticker identifier - convert to StickerId for type safety */
   id: EntityId | number | string
   /** Sticker name (optional for IEnhancedWeaponSticker compatibility) */
   name?: string
   /** Sticker image URL (optional for IEnhancedWeaponSticker compatibility) */
   image?: string
-  /** Position on weapon (0-4) */
+  /** Position on weapon (0-4) - convert to StickerSlotIndex */
   position: number
-  /** X coordinate (0-1) */
+  /** X coordinate (0-1) - convert to NormalizedCoordinate */
   x: number
-  /** Y coordinate (0-1) */
+  /** Y coordinate (0-1) - convert to NormalizedCoordinate */
   y: number
-  /** Wear value (0-1) */
+  /** Wear value (0-1) - convert to FloatValue */
   wear: number
   /** Scale factor */
   scale: number
@@ -188,24 +200,31 @@ export interface StickerConfiguration {
 
 /**
  * Keychain configuration for weapons
- * 
+ *
  * @description Represents a keychain attached to a weapon
- * 
+ *
+ * ## Branded Types
+ *
+ * When converting to/from database or validating:
+ * - `id` → use `toKeychainId(Number(id))` for KeychainId
+ * - `wrapped_sticker_id` → use `toStickerId(id)` for StickerId (when present)
+ * - `seed` → use `toPaintSeed(seed)` for PaintSeed (same range 0-999)
+ *
  * @example
  * ```typescript
  * const keychain: KeychainConfiguration = {
- *   id: "keychain_123",
+ *   id: 5678,  // KeychainId from CS2 item definitions
  *   name: "Dust II Pin",
  *   image: "https://...",
  *   x: 0.0,
  *   y: 0.0,
  *   z: 0.0,
- *   seed: 123
+ *   seed: 123  // PaintSeed (0-999)
  * }
  * ```
  */
 export interface KeychainConfiguration {
-  /** Keychain identifier */
+  /** Keychain identifier - convert to KeychainId for type safety */
   id: EntityId | number | string
   /** Keychain name (optional for IEnhancedWeaponKeychain compatibility) */
   name?: string
@@ -223,9 +242,9 @@ export interface KeychainConfiguration {
   offset_y?: number
   /** External offset Z from Steam (optional) */
   offset_z?: number
-  /** Random seed for positioning */
+  /** Random seed for positioning - convert to PaintSeed (0-999) */
   seed: number
-  /** ID of the sticker wrapped inside the charm (for Sticker Slabs) */
+  /** ID of the sticker wrapped inside the charm (for Sticker Slabs) - convert to StickerId */
   wrapped_sticker_id?: number | null
   /** ID of the highlight reel (for Highlight Reel charms) */
   highlight_reel_id?: number | null

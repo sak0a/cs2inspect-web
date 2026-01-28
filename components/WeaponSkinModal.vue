@@ -17,8 +17,13 @@ import { toSteamId } from '~/types/core/common'
 // Backward compatibility imports
 import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/types'
 import { steamAuth } from "~/services/steamAuth"
+import { useLoadoutStore } from '~/stores/loadoutStore'
+import { useAutoSave, type SaveStatus } from '~/composables/useAutoSave'
+import SaveStatusIndicator from './SaveStatusIndicator.vue'
+import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
 import InlineVisualCustomizer from './InlineVisualCustomizer.vue'
+import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -38,6 +43,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (e: 'select' | 'duplicate', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
+  (e: 'auto-save', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
   (e: 'error', error: string): void
 }>()
 
@@ -95,7 +101,8 @@ const state = ref<WeaponModalState>({
   showKeychainModal: false,
   showVisualCustomizer: false,
   inlineVisualCustomizerActive: false,
-  currentStickerPosition: 0
+  currentStickerPosition: 0,
+  showHistoryPanel: false
 })
 
 /**
@@ -130,6 +137,43 @@ const defaultCustomization: WeaponConfiguration = {
 const customization = ref<WeaponConfiguration>({ ...defaultCustomization })
 
 /**
+ * Auto-save functionality
+ * Automatically saves changes to the server after a debounce period
+ */
+const autoSave = useAutoSave<WeaponConfiguration>(
+  async (data) => {
+    if (!selectedSkin.value) return
+    emit('auto-save', selectedSkin.value, data)
+  },
+  {
+    debounceMs: 1500,
+    retryAttempts: 3,
+    onSaveError: (error) => {
+      console.error('Auto-save failed:', error)
+    }
+  }
+)
+
+// Track if we should trigger auto-save (only when user makes intentional changes)
+const isInitializing = ref(false)
+
+// Watch customization changes for auto-save
+watch(
+  () => customization.value,
+  (newVal) => {
+    // Only auto-save if:
+    // 1. Not initializing (loading data from DB)
+    // 2. A skin is selected
+    // 3. A paint index is set (user has chosen a skin)
+    // 4. Modal is visible
+    if (!isInitializing.value && selectedSkin.value && newVal.paintindex > 0 && props.visible) {
+      autoSave.triggerSave({ ...newVal })
+    }
+  },
+  { deep: true }
+)
+
+/**
  * User profile using new UserProfile interface
  */
 const user = computed((): UserProfile | null => {
@@ -143,6 +187,8 @@ const user = computed((): UserProfile | null => {
     profileUrl: steamUser.profileUrl
   }
 })
+
+const loadoutStore = useLoadoutStore()
 /**
  * Advanced pagination and filtering (extends base composable)
  */
@@ -514,6 +560,200 @@ const handleReset = async () => {
 }
 
 /**
+ * Handle history restore - reload the configuration from the restored version
+ * Fetches API data for stickers and keychain to update the display
+ */
+const handleHistoryRestore = async (record: ItemHistoryRecord) => {
+  if (record.configuration) {
+    // Parse configuration if it's a JSON string (MariaDB/Drizzle may return JSON as string)
+    let config = record.configuration
+    if (typeof config === 'string') {
+      try {
+        config = JSON.parse(config)
+      } catch {
+        console.error('Failed to parse history configuration')
+        return
+      }
+    }
+
+    // Helper to safely parse a number from various types
+    const toNumber = (val: unknown, defaultVal: number): number => {
+      if (typeof val === 'number' && !isNaN(val)) return val
+      if (typeof val === 'string') {
+        const parsed = parseFloat(val)
+        return isNaN(parsed) ? defaultVal : parsed
+      }
+      return defaultVal
+    }
+
+    // Helper to safely parse an integer from various types
+    const toInt = (val: unknown, defaultVal: number): number => {
+      if (typeof val === 'number' && !isNaN(val)) return Math.floor(val)
+      if (typeof val === 'string') {
+        const parsed = parseInt(val, 10)
+        return isNaN(parsed) ? defaultVal : parsed
+      }
+      return defaultVal
+    }
+
+    // Properly restore stickers array - ensure it's always a 5-element array
+    // Important: Include slot and position based on array index for IEnhancedWeaponSticker compatibility
+    const restoredStickers: (StickerConfiguration | null)[] = [null, null, null, null, null]
+    const stickerPromises: Promise<void>[] = []
+
+    if (config.stickers && Array.isArray(config.stickers)) {
+      for (let index = 0; index < Math.min(config.stickers.length, 5); index++) {
+        let s = config.stickers[index]
+        if (!s) continue
+
+        // Parse if sticker is stored as a JSON string (MariaDB/Drizzle may return JSON as string)
+        if (typeof s === 'string') {
+          try {
+            s = JSON.parse(s)
+          } catch {
+            continue
+          }
+        }
+        if (typeof s !== 'object') continue
+
+        // Handle both number and string IDs
+        const id = toInt(s.id, 0)
+        if (id <= 0) continue
+
+        restoredStickers[index] = {
+          id: id,
+          slot: index,      // Required for IEnhancedWeaponSticker
+          position: index,  // Required for StickerConfiguration
+          x: toNumber(s.x, 0),
+          y: toNumber(s.y, 0),
+          wear: toNumber(s.wear, 0),
+          scale: toNumber(s.scale, 1),
+          rotation: toNumber(s.rotation, 0)
+        } as StickerConfiguration
+
+        // Fetch sticker API data
+        const stickerIndex = index
+        stickerPromises.push(
+          $fetch<{ success: boolean; data: APISticker[] }>(`/api/data/stickers?id=sticker-${id}`)
+            .then(response => {
+              const stickerData = response.data?.[0]
+              if (stickerData && restoredStickers[stickerIndex]) {
+                restoredStickers[stickerIndex] = {
+                  ...restoredStickers[stickerIndex]!,
+                  api: {
+                    name: stickerData.name,
+                    image: stickerData.image,
+                    type: stickerData.type,
+                    effect: stickerData.effect,
+                    tournament_event: stickerData.tournament_event,
+                    tournament_team: stickerData.tournament_team,
+                    rarity: stickerData.rarity,
+                  }
+                }
+              }
+            })
+            .catch(() => { /* Ignore sticker fetch errors */ })
+        )
+      }
+    }
+
+    // Properly restore keychain with all fields including wrapped_sticker_id and highlight_reel_id
+    let restoredKeychain: KeychainConfiguration | null = null
+    let keychainPromise: Promise<void> | null = null
+
+    if (config.keychain) {
+      // Parse if keychain is stored as a JSON string (MariaDB/Drizzle may return JSON as string)
+      let keychainData = config.keychain
+      if (typeof keychainData === 'string') {
+        try {
+          keychainData = JSON.parse(keychainData)
+        } catch {
+          keychainData = null
+        }
+      }
+
+      if (keychainData && typeof keychainData === 'object') {
+        const keychainId = toInt(keychainData.id, 0)
+        if (keychainId > 0) {
+          restoredKeychain = {
+            id: keychainId,
+            x: toNumber(keychainData.x, 0),
+            y: toNumber(keychainData.y, 0),
+            z: toNumber(keychainData.z, 0),
+            seed: toInt(keychainData.seed, 0),
+            // Preserve wrapped_sticker_id for Sticker Slabs
+            wrapped_sticker_id: toInt(keychainData.wrapped_sticker_id, 0) > 0
+              ? toInt(keychainData.wrapped_sticker_id, 0)
+              : undefined,
+            // Preserve highlight_reel_id for Highlight Reel charms
+            highlight_reel_id: toInt(keychainData.highlight_reel_id, 0) > 0
+              ? toInt(keychainData.highlight_reel_id, 0)
+              : undefined
+          } as KeychainConfiguration
+
+        // Fetch keychain API data
+        keychainPromise = $fetch<{ success: boolean; data: APIKeychain[] }>(`/api/data/keychains?id=keychain-${keychainId}`)
+          .then(response => {
+            const keychainData = response.data?.[0]
+            if (keychainData && restoredKeychain) {
+              restoredKeychain = {
+                ...restoredKeychain!,
+                api: {
+                  name: keychainData.name,
+                  image: keychainData.image,
+                  rarity: keychainData.rarity,
+                }
+              }
+            }
+          })
+          .catch(() => { /* Ignore keychain fetch errors */ })
+        }
+      }
+    }
+
+    // Wait for all API data to be fetched
+    await Promise.all([...stickerPromises, keychainPromise].filter(Boolean))
+
+    customization.value = {
+      ...customization.value,
+      paintindex: toInt(config.paintindex, 0),
+      paintseed: toInt(config.paintseed, 0),
+      paintwear: toNumber(config.paintwear, 0),
+      active: config.active ?? false,
+      stattrak_enabled: config.stattrak_enabled ?? false,
+      stattrak_count: toInt(config.stattrak_count, 0),
+      nametag: config.nametag || '',
+      stickers: restoredStickers,
+      keychain: restoredKeychain
+    }
+
+    // Also update the selected skin if paint index changed
+    if (config.paintindex) {
+      const matchingSkin = apiState.value.skins.find(skin =>
+        Number(skin.paint_index) === toInt(config.paintindex, 0)
+      )
+      if (matchingSkin && props.weapon) {
+        selectedSkin.value = {
+          ...props.weapon,
+          name: matchingSkin.name,
+          defaultName: matchingSkin.name,
+          image: matchingSkin.image,
+          defaultImage: matchingSkin.image,
+          minFloat: matchingSkin.min_float ?? 0,
+          maxFloat: matchingSkin.max_float ?? 1,
+          paintindex: Number(matchingSkin.paint_index),
+          rarity: matchingSkin.rarity,
+          availableTeams: matchingSkin.team?.id ?? 'both',
+        }
+      }
+    }
+
+    state.value.showHistoryPanel = false
+    // Note: Success message is shown by ItemHistoryPanel, no need to duplicate here
+  }
+}
+
+/**
  * Handle weapon duplication with improved error handling
  */
 const handleDuplicate = async () => {
@@ -577,10 +817,16 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       availableTeams: skin.team?.id ?? 'both',
     }
 
+    // Preserve current float value, only clamp if outside new skin's valid range
+    const newMinFloat = skin.min_float ?? 0
+    const newMaxFloat = skin.max_float ?? 1
+    const currentFloat = customization.value.paintwear
+    const clampedFloat = Math.max(newMinFloat, Math.min(newMaxFloat, currentFloat))
+
     customization.value = {
       ...customization.value,
       paintindex: Number(skin.paint_index),
-      paintwear: Number(skin.min_float ?? 0),
+      paintwear: clampedFloat,
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
@@ -803,10 +1049,19 @@ const digitOnlyInputProps = {
 
 const handleSave = () => {
   if (!selectedSkin.value) return
+  // Emit select to ensure any pending changes are saved
   emit('select', selectedSkin.value, customization.value)
-  handleClose();
+  // Mark as saved since we're explicitly saving
+  autoSave.markAsSaved()
+  handleClose()
 }
-const handleClose = () => {
+const handleClose = async () => {
+  // Flush any pending auto-save before closing
+  // This ensures changes are saved even if the user closes before debounce completes
+  if (selectedSkin.value && customization.value.paintindex > 0) {
+    await autoSave.flushPending()
+  }
+
   // Emit the update event to close the modal
   emit('update:visible', false)
 
@@ -914,10 +1169,13 @@ watch(() => ui.value.sortDir, () => {
 watch(() => props.weapon, () => {
   if (props.visible && props.weapon) {
     try {
+      // Prevent auto-save during initialization
+      isInitializing.value = true
       state.value.error = null
 
       // First reset all state to ensure no previous data persists
       resetAllState()
+      autoSave.resetStatus()
 
       // Then fetch new data and initialize state
       fetchAvailableSkinsForWeapon()
@@ -946,7 +1204,13 @@ watch(() => props.weapon, () => {
           defindex: props.weapon.weapon_defindex
         }
       }
+
+      // Allow auto-save after initialization completes
+      nextTick(() => {
+        isInitializing.value = false
+      })
     } catch (error: unknown) {
+      isInitializing.value = false
       const errorMessage = error instanceof Error ? error.message : 'Failed to initialize weapon data'
       state.value.error = errorMessage
       emit('error', errorMessage)
@@ -977,6 +1241,13 @@ watch(() => props.weapon, () => {
         >
           {{ teamLabel }}
         </span>
+        <!-- Auto-save status indicator (fixed position like NaiveUI messages) -->
+        <SaveStatusIndicator
+          :status="autoSave.status.value"
+          :show-retry="autoSave.status.value === 'error'"
+          fixed
+          @retry="autoSave.retry"
+        />
       </div>
     </template>
     <template #header-extra>
@@ -998,6 +1269,25 @@ watch(() => props.weapon, () => {
             </svg>
           </template>
           {{ t('modals.weaponSkin.buttons.reset') }}
+        </NButton>
+        <NDivider vertical />
+
+        <!-- History Button -->
+        <NButton
+          secondary
+          type="default"
+          :disabled="!selectedSkin || customization.paintindex == 0"
+          :aria-label="String(t('history.title'))"
+          @click="state.showHistoryPanel = true"
+        >
+          <template #icon>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+              <path d="M12 8l0 4l2 2" />
+              <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+            </svg>
+          </template>
+          {{ t('history.title') }}
         </NButton>
         <NDivider vertical />
 
@@ -1077,7 +1367,7 @@ watch(() => props.weapon, () => {
           </div>
           <div v-else key="normal">
         <!-- Selected Skin Preview -->
-        <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg">
+        <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg bg-opacity-40">
           <div class="grid grid-cols-2 gap-6">
             <!-- Left side - Image -->
             <div>
@@ -1186,14 +1476,8 @@ watch(() => props.weapon, () => {
               />
             </div>
 
-            <!-- Save Button & Active Switch-->
+            <!-- Duplicate & Active Switch-->
             <div class="flex items-center justify-center w-full mt-0 gap-2">
-              <!-- Save Weapon -->
-              <NButton
-type="success" secondary :class="[
-                selectedSkin?.availableTeams !== 'both' ? 'w-96' : 'w-40']" @click="handleSave">
-                {{ t('modals.weaponSkin.buttons.save') }}
-              </NButton>
               <!-- Duplicate Weapon -->
               <div v-if="selectedSkin?.availableTeams === 'both'" class="">
                 <NButton
@@ -1480,6 +1764,18 @@ type="success" secondary :class="[
           v-model:visible="state.showResetConfirm"
           :loading="state.isResetting"
           @confirm="handleReset"
+      />
+
+      <!-- Item History Panel -->
+      <ItemHistoryPanel
+          v-model:visible="state.showHistoryPanel"
+          item-type="weapon"
+          :category="props.weapon?.category as any"
+          :defindex="props.weapon?.weapon_defindex || 0"
+          :team="customization.team"
+          :steam-id="user?.steamId || ''"
+          :loadout-id="loadoutStore.selectedLoadoutId || 0"
+          @restore="handleHistoryRestore"
       />
 
       <!-- Visual Customizer Modal -->

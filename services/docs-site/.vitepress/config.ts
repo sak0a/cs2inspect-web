@@ -74,6 +74,12 @@ export default withMermaid({
           ]
         },
         {
+          text: 'Features',
+          items: [
+            { text: 'Version History', link: '/version-history' }
+          ]
+        },
+        {
           text: 'Additional Resources',
           items: [
             { text: 'Health Checks', link: '/HEALTH_CHECKS' },
@@ -106,6 +112,7 @@ export default withMermaid({
             { text: 'Health', link: '/api/api-health' },
             { text: 'Inspect', link: '/api/api-inspect' },
             { text: 'Loadouts', link: '/api/api-loadouts' },
+            { text: 'History', link: '/api/api-history' },
             { text: 'Weapons', link: '/api/api-weapons' },
             { text: 'Knives', link: '/api/api-knives' },
             { text: 'Gloves', link: '/api/api-gloves' },

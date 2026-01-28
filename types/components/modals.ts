@@ -171,6 +171,8 @@ export interface WeaponModalState extends BaseItemModalState {
   inlineVisualCustomizerActive: boolean
   /** Current sticker position being edited */
   currentStickerPosition: number
+  /** Whether history panel is visible */
+  showHistoryPanel: boolean
 }
 
 /**

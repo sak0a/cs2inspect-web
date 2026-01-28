@@ -42,6 +42,43 @@ const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   showSkinModal.value = true
 }
 
+/**
+ * Auto-save handler for automatic saving without closing modal
+ * Triggered by the auto-save composable in WeaponSkinModal
+ */
+const handleAutoSave = async (skin: IEnhancedWeapon, customization: WeaponConfiguration) => {
+  if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
+    throw new Error('No loadout or user selected')
+  }
+  if (customization.paintindex === null || customization.paintindex === 0) {
+    return // Don't auto-save without a paint selected
+  }
+  await $fetch(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+    method: 'POST',
+    body: {
+      defindex: skin.weapon_defindex,
+      active: customization.active,
+      paintindex: customization.paintindex,
+      paintwear: customization.paintwear,
+      paintseed: customization.paintseed,
+      stattrak_enabled: customization.stattrak_enabled,
+      stattrak_count: customization.stattrak_count,
+      nametag: customization.nametag,
+      stickers: customization.stickers,
+      keychain: customization.keychain,
+      team: customization.team || 0,
+      reset: customization.reset
+    }
+  }).then(async (data: { success: boolean; message: string }) => {
+    if (data.success) {
+      // Silently refresh data without closing modal or showing message
+      await fetchLoadoutSkins()
+    } else {
+      throw new Error(data.message)
+    }
+  })
+}
+
 const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfiguration) => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error(t('loadout.selectLoadoutFirst') as string)
@@ -228,15 +265,20 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
         <!-- Content when loaded -->
         <template v-else>
           <!-- Skins Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+          <TransitionGroup
+            name="card-fade"
+            tag="div"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2"
+            appear
+          >
             <WeaponTabs
-              v-for="(weaponData, weaponName) in groupedWeapons"
+              v-for="(weaponData, weaponName, index) in groupedWeapons"
               :key="weaponName"
-              class=""
+              :style="{ '--delay': `${index * 50}ms` }"
               :weapon-data="weaponData as any"
               @weapon-click="handleWeaponClickWrapper"
             />
-          </div>
+          </TransitionGroup>
           <!-- No Skins State -->
           <div v-if="skins.length === 0" class="text-center py-12">
             <p class="text-gray-400">No skins available for this loadout</p>
@@ -252,10 +294,28 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           :weapon="selectedWeapon"
           :other-team-has-skin="otherTeamHasSkin"
           @select="handleSkinSave"
+          @auto-save="handleAutoSave"
           @duplicate="handleWeaponDuplicate"
       />
     </div>
   </div>
 </template>
 <style>
+.card-fade-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition-delay: var(--delay, 0ms);
+}
+
+.card-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.card-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.card-fade-leave-to {
+  opacity: 0;
+}
 </style>

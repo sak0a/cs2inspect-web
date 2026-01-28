@@ -19,9 +19,8 @@
  * @see {@link ~/types/core/branded.ts} for branded type definitions
  */
 
-import { 
-    isValidFloatValue, 
-    isValidNormalizedCoordinate,
+import {
+    isValidFloatValue,
     isValidStatTrakCount
 } from '~/types'
 
@@ -32,15 +31,22 @@ import {
 /**
  * JSON schema for sticker data stored in database
  * Used for sticker_0 through sticker_4 columns
+ *
+ * ## Branded Types
+ *
+ * When converting to business logic types:
+ * - `id` → `toStickerId(id)` for StickerId
+ * - `x`, `y` → `toNormalizedCoordinate(value)` for NormalizedCoordinate (0-1)
+ * - `wear` → `toFloatValue(wear)` for FloatValue (0-1)
  */
 export interface StickerJSON {
-    /** Sticker ID (from CS2 item definitions) */
+    /** Sticker ID (from CS2 item definitions) - convert to StickerId */
     id: number;
-    /** X-axis position offset (0-1 normalized) */
+    /** X-axis position offset (0-1 normalized) - convert to NormalizedCoordinate */
     x: number;
-    /** Y-axis position offset (0-1 normalized) */
+    /** Y-axis position offset (0-1 normalized) - convert to NormalizedCoordinate */
     y: number;
-    /** Wear/condition of the sticker (0-1, where 0 is pristine) */
+    /** Wear/condition of the sticker (0-1, where 0 is pristine) - convert to FloatValue */
     wear: number;
     /** Scale/size of the sticker */
     scale: number;
@@ -55,9 +61,16 @@ export interface StickerJSON {
 /**
  * JSON schema for keychain data stored in database
  * Includes wrapped_sticker_id and highlight_reel_id directly
+ *
+ * ## Branded Types
+ *
+ * When converting to business logic types:
+ * - `id` → `toKeychainId(id)` for KeychainId
+ * - `seed` → `toPaintSeed(seed)` for PaintSeed (0-999)
+ * - `wrapped_sticker_id` → `toStickerId(id)` for StickerId (when present)
  */
 export interface KeychainJSON {
-    /** Keychain ID (from CS2 item definitions) */
+    /** Keychain ID (from CS2 item definitions) - convert to KeychainId */
     id: number;
     /** X-axis position offset */
     x: number;
@@ -65,9 +78,9 @@ export interface KeychainJSON {
     y: number;
     /** Z-axis position offset */
     z: number;
-    /** Random seed for keychain generation */
+    /** Random seed for keychain generation (0-999) - convert to PaintSeed */
     seed: number;
-    /** ID of the sticker wrapped inside the charm (for Sticker Slabs) */
+    /** ID of the sticker wrapped inside the charm (for Sticker Slabs) - convert to StickerId */
     wrapped_sticker_id?: number | null;
     /** ID of the highlight reel (for Highlight Reel charms) */
     highlight_reel_id?: number | null;

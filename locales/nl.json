@@ -366,6 +366,43 @@
     "authenticating": "Authenticeren...",
     "openSteamProfile": "Steam-profiel openen"
   },
+  "autoSave": {
+    "saving": "Opslaan...",
+    "saved": "Opgeslagen",
+    "failed": "Opslaan mislukt",
+    "retry": "Opnieuw proberen",
+    "offline": "Offline - wijzigingen worden opgeslagen wanneer de verbinding is hersteld"
+  },
+  "history": {
+    "title": "Versiegeschiedenis",
+    "empty": "Geen geschiedenis beschikbaar",
+    "restore": "Herstellen",
+    "restoreConfirmTitle": "Versie herstellen",
+    "restoreConfirmMessage": "Dit herstelt het item naar deze eerdere versie. Doorgaan?",
+    "restoreSuccess": "Succesvol hersteld naar eerdere versie",
+    "restoreError": "Herstellen mislukt",
+    "fetchError": "Geschiedenis laden mislukt",
+    "snapshot": "Snapshot",
+    "loadMore": "Meer laden",
+    "changeTypes": {
+      "stickerAdded": "Sticker toegevoegd",
+      "stickerRemoved": "Sticker verwijderd",
+      "stickerModified": "Sticker gewijzigd",
+      "keychainAdded": "Sleutelhanger toegevoegd",
+      "keychainRemoved": "Sleutelhanger verwijderd",
+      "keychainModified": "Sleutelhanger gewijzigd",
+      "wearChanged": "Slijtage gewijzigd",
+      "patternChanged": "Patroon gewijzigd",
+      "paintChanged": "Skin gewijzigd",
+      "nametagChanged": "Naamplaatje gewijzigd",
+      "stattrakToggled": "StatTrak omgeschakeld",
+      "stattrakCountChanged": "StatTrak-teller gewijzigd",
+      "activeToggled": "Actieve status gewijzigd",
+      "multipleChanges": "Meerdere wijzigingen",
+      "initialSave": "Eerste opslag",
+      "reset": "Hersteld"
+    }
+  },
   "common": {
     "loading": "Laden...",
     "error": "Fout",

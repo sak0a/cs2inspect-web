@@ -22,10 +22,9 @@ export default useErrorHandling(async (event) => {
 
     Logger.header(`Loadouts PUT request: ${event.req.url}`)
 
-    const steamId = query.steamId as string
-    validateRequiredRequestData(steamId, 'Steam ID')
-
     const body = await readBody(event)
+    const steamId = query.steamId as string || body.steamId
+    validateRequiredRequestData(steamId, 'Steam ID')
     validateRequiredRequestData(body.name, 'Loadout name')
 
     await updateLoadout(id, steamId, body.name)
@@ -35,5 +34,5 @@ export default useErrorHandling(async (event) => {
     Logger.success(`Loadout ${id} retrieved successfully for response`)
 
     const meta = createResponseMeta(startTime, { steamId, method: 'PUT', loadoutId: id })
-    return createSuccessResponse(data, meta, 'Loadout updated successfully')
+    return createSuccessResponse({ loadout: data }, meta, 'Loadout updated successfully')
 }, ErrorCodes.LOADOUT_ERROR)

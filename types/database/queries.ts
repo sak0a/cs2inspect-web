@@ -16,7 +16,9 @@ import type {
   FilterOptions,
   SteamId,
   LoadoutId,
-  Defindex
+  Defindex,
+  MusicKitDefindex,
+  PinDefindex
 } from '../core/common'
 
 import type {
@@ -138,24 +140,31 @@ export interface DBCreateLoadoutQuery extends DBBaseQuery {
 
 /**
  * Query parameters for updating loadout selections
+ *
+ * Uses branded types for type-safe selection values:
+ * - Knife/glove/agent selections use Defindex (weapon definition index)
+ * - Music kit selection uses MusicKitDefindex
+ * - Pin selection uses PinDefindex
  */
 export interface DBUpdateLoadoutSelectionsQuery extends DBBaseQuery {
   /** Loadout ID to update */
   loadoutId: LoadoutId
-  /** Selected knife for Terrorist team */
-  selected_knife_t?: number | null
-  /** Selected knife for Counter-Terrorist team */
-  selected_knife_ct?: number | null
-  /** Selected glove for Terrorist team */
-  selected_glove_t?: number | null
-  /** Selected glove for Counter-Terrorist team */
-  selected_glove_ct?: number | null
-  /** Selected agent for Terrorist team */
-  selected_agent_t?: number | null
-  /** Selected agent for Counter-Terrorist team */
-  selected_agent_ct?: number | null
-  /** Selected music kit */
-  selected_music?: number | null
+  /** Selected knife defindex for Terrorist team */
+  selected_knife_t?: Defindex | null
+  /** Selected knife defindex for Counter-Terrorist team */
+  selected_knife_ct?: Defindex | null
+  /** Selected glove defindex for Terrorist team */
+  selected_glove_t?: Defindex | null
+  /** Selected glove defindex for Counter-Terrorist team */
+  selected_glove_ct?: Defindex | null
+  /** Selected agent defindex for Terrorist team */
+  selected_agent_t?: Defindex | null
+  /** Selected agent defindex for Counter-Terrorist team */
+  selected_agent_ct?: Defindex | null
+  /** Selected music kit identifier */
+  selected_music?: MusicKitDefindex | null
+  /** Selected pin identifier */
+  selected_pin?: PinDefindex | null
 }
 
 // ============================================================================
