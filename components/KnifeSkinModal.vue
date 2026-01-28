@@ -4,15 +4,14 @@ import type {
   KnifeModalProps,
   KnifeConfiguration,
   APIWeaponSkin,
-  UserProfile,
-  DBKnife
+  UserProfile
 } from '~/types'
 import type { EconItem } from 'cs2-inspect-lib'
 import { useItemModal } from '~/composables/useItemModal'
 
 // Legacy imports for backward compatibility
 import type { IEnhancedKnife, IEnhancedItem } from '~/server/types'
-import { useAutoSave, type SaveStatus } from '~/composables/useAutoSave'
+import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
 import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
@@ -36,8 +35,7 @@ const props = defineProps<Props>()
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'save' | 'duplicate', skin: IEnhancedItem, customization: KnifeConfiguration): void
-  (e: 'auto-save', skin: IEnhancedItem, customization: KnifeConfiguration): void
+  (e: 'save' | 'duplicate' | 'auto-save', skin: IEnhancedItem, customization: KnifeConfiguration): void
   (e: 'error', error: string): void
 }>()
 

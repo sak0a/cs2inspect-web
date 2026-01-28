@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SteamUser } from "~/services/steamAuth"
+import { toSteamId } from '~/types/core/branded'
 import { steamAuth } from "~/services/steamAuth"
 interface Props {
   title: string
@@ -16,7 +17,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { t } = useI18n()
 const loadoutStore = useLoadoutStore()
-import { toSteamId } from '~/types/core/branded'
+
 
 // Expose slot for custom content
 </script>

@@ -7,6 +7,11 @@ const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
 const user = ref<SteamUser | null>(null)
 
+// Cookie-based SSR hint: tells the server which layout branch to render,
+// avoiding a layout shift when localStorage user data loads on mount.
+const loggedInHint = useCookie('steam_logged_in')
+const isLoggedIn = computed(() => !!user.value || !!loggedInHint.value)
+
 const message = useMessage()
 const { t } = useI18n()
 
@@ -121,7 +126,7 @@ onMounted(async () => {
     <NLayout has-sider >
    
       <NLayoutSider
-          v-if="user"
+          v-if="isLoggedIn"
           :width="200"
           bordered
           class="flex flex-col"
@@ -129,7 +134,7 @@ onMounted(async () => {
         <div class="grid grid-rows-[auto_1fr_auto] h-full">
           <!-- Steam Account Menu Section -->
           <div class="p-4 flex flex-col items-center">
-            <div class="flex items-center flex-col">
+            <div v-if="user" class="flex items-center flex-col">
               <a
                   :href="user.profileUrl"
                   target="_blank"
@@ -147,6 +152,12 @@ onMounted(async () => {
               </a>
               <div class="mt-3 text-center">
                 <span class="font-bold text-[15px]">{{ user.personaName }}</span>
+              </div>
+            </div>
+            <div v-else class="flex items-center flex-col">
+              <div :style="{ width: '100px', height: '100px', borderRadius: '50%' }" class="bg-gray-800 animate-pulse" />
+              <div class="mt-3">
+                <div class="h-4 w-20 bg-gray-800 rounded animate-pulse" />
               </div>
             </div>
           </div>
@@ -258,7 +269,7 @@ onMounted(async () => {
       </NLayoutSider>
       <NLayoutContent class="h-screen overflow-auto bg-transparent">
 
-        <div v-if="!user && !isDevPage" class="flex items-center justify-center flex-col text-xl h-full relative">
+        <div v-if="!isLoggedIn && !isDevPage" class="flex items-center justify-center flex-col text-xl h-full relative">
           <!-- Language Switcher in top-right corner for login screen -->
           <div class="absolute top-4 right-4">
             <LanguageSwitcher />

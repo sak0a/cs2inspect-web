@@ -40,8 +40,7 @@ const props = defineProps<Props>()
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select' | 'duplicate', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
-  (e: 'auto-save', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
+  (e: 'select' | 'duplicate' | 'auto-save', skin: IEnhancedWeapon, customization: WeaponConfiguration): void
   (e: 'error', error: string): void
 }>()
 

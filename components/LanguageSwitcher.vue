@@ -80,7 +80,7 @@ const handleSelect = (key: string) => {
 }
 
 .language-select {
-  min-width: 140px;
+  width: 140px;
 }
 
 :deep(.n-base-selection-label) {

@@ -121,6 +121,8 @@ export class SteamAuthService {
     logout(): void {
         if (import.meta.client) {
             localStorage.removeItem('steamUser')
+            // Clear the SSR layout hint cookie
+            document.cookie = 'steam_logged_in=; path=/; max-age=0'
             // Send logout request to clear the auth cookie
             $fetch('/api/auth/logout', { method: 'POST' })
                 .catch(error => console.error('Logout error:', error))
@@ -136,6 +138,8 @@ export class SteamAuthService {
     saveUser(user: SteamUser): void {
         if (import.meta.client) {
             localStorage.setItem('steamUser', JSON.stringify(user))
+            // Set SSR layout hint cookie so server renders the correct layout branch
+            document.cookie = 'steam_logged_in=1; path=/; max-age=31536000; SameSite=Lax'
         }
     }
 }

@@ -7,15 +7,15 @@ import type {
   UserProfile
 } from '~/types'
 import { useItemModal } from '~/composables/useItemModal'
-import { api } from '~/utils/api'
 
 // Legacy imports for backward compatibility
-import type { IEnhancedGlove, IEnhancedItem, IMappedDBGlove } from '~/server/types'
-import { useAutoSave, type SaveStatus } from '~/composables/useAutoSave'
+import type { IEnhancedGlove, IEnhancedItem } from '~/server/types'
+import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
 import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
+import type { EconItem } from 'cs2-inspect-lib'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -41,8 +41,7 @@ const digitOnlyInputProps = {
  */
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
-  (e: 'select' | 'duplicate', skin: IEnhancedItem, customization: GloveConfiguration): void
-  (e: 'auto-save', skin: IEnhancedItem, customization: GloveConfiguration): void
+  (e: 'select' | 'duplicate' | 'auto-save', skin: IEnhancedItem, customization: GloveConfiguration): void
   (e: 'error', error: string): void
 }>()
 
@@ -257,7 +256,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
   try {
     state.value.isImporting = true
-    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
+    const data = await $fetch<{ item: EconItem; message?: string }>(`/api/inspect?action=inspect-item&steamId=${props.user.steamId}`, {
       method: 'POST',
       body: { inspectUrl, itemType: 'glove' }
     })
