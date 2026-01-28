@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     ],
   },
   typescript: {
-    typeCheck: false,
+    typeCheck: true,
   },
   experimental: {
     typedPages: true,
@@ -131,7 +131,7 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@nuxt/test-utils/module',
-    'nuxt-mdi',
+    'nuxt-lucide-icons',
     'nuxtjs-naive-ui',
     '@nuxt/eslint',
     '@pinia/nuxt',

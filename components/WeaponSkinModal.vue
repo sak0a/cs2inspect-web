@@ -11,11 +11,8 @@ import type {
   KeychainConfiguration
 } from '~/types'
 import type { EconItem } from 'cs2-inspect-lib'
-import type { APISticker } from '~/server/types'
+import type { APISticker, KeychainJSON, IEnhancedWeapon, IMappedDBWeapon } from '~/server/types'
 import { toSteamId } from '~/types/core/common'
-
-// Backward compatibility imports
-import type { IEnhancedWeapon, IMappedDBWeapon } from '~/server/types'
 import { steamAuth } from "~/services/steamAuth"
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import { useAutoSave, type SaveStatus } from '~/composables/useAutoSave'
@@ -695,7 +692,7 @@ const handleHistoryRestore = async (record: ItemHistoryRecord) => {
             continue
           }
         }
-        if (typeof s !== 'object') continue
+        if (typeof s !== 'object' || s === null) continue
 
         // Handle both number and string IDs
         const id = toInt(s.id, 0)
@@ -744,7 +741,7 @@ const handleHistoryRestore = async (record: ItemHistoryRecord) => {
 
     if (config.keychain) {
       // Parse if keychain is stored as a JSON string (MariaDB/Drizzle may return JSON as string)
-      let keychainData = config.keychain
+      let keychainData: KeychainJSON | string | null = config.keychain as KeychainJSON | string | null
       if (typeof keychainData === 'string') {
         try {
           keychainData = JSON.parse(keychainData)

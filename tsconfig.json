@@ -2,12 +2,7 @@
   // https://nuxt.com/docs/guide/concepts/typescript
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
-    "module": "ESNext",
-    "verbatimModuleSyntax": false,
-    "types": [
-      "node",
-      "@types/bun"
-    ]
+    "types": ["bun"]
   },
   "exclude": [
     "services/steam-service/**"

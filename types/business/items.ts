@@ -191,6 +191,10 @@ export interface StickerConfiguration {
   api?: {
     name?: string
     image?: string
+    type?: string
+    effect?: string
+    tournament_event?: string
+    tournament_team?: string
     rarity?: {
       color?: string
       name?: string
