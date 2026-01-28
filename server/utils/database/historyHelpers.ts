@@ -274,9 +274,6 @@ function detectChangeType(
   const oldKeychainId = getKeychainIdNormalized(oldSnapshot.keychain)
   const newKeychainId = getKeychainIdNormalized(newSnapshot.keychain)
 
-  // Debug logging for keychain comparison
-  Logger.info(`Keychain comparison - Old ID: ${oldKeychainId}, New ID: ${newKeychainId}, Old keychain: ${JSON.stringify(oldSnapshot.keychain)}, New keychain: ${JSON.stringify(newSnapshot.keychain)}`)
-
   if (oldKeychainId !== newKeychainId) {
     if (oldKeychainId === 0 && newKeychainId !== 0) {
       // Keychain added - try to get the name
@@ -373,12 +370,6 @@ export async function recordWeaponHistory(
       .limit(1)
 
     const oldSnapshot = current[0] ? weaponToSnapshot(current[0]) : null
-
-    // Debug: Log the raw database record and converted snapshot
-    Logger.info(`recordWeaponHistory - Raw DB record keychain: ${JSON.stringify(current[0]?.keychain)}`)
-    Logger.info(`recordWeaponHistory - Old snapshot keychain: ${JSON.stringify(oldSnapshot?.keychain)}`)
-    Logger.info(`recordWeaponHistory - New snapshot keychain: ${JSON.stringify(newSnapshot.keychain)}`)
-
     const { changeType, description } = detectChangeType(oldSnapshot, newSnapshot, skinsData, keychainData)
 
     // Don't record if nothing changed

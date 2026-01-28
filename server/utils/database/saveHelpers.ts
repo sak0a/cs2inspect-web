@@ -222,7 +222,6 @@ export const saveWeapon = async (
 
         // Update or insert weapon
         if (existingWeapon.length > 0) {
-            console.log("saveWeapon: ", body)
             await db.update(table)
                 .set({
                     active: body.active ? 1 : 0,
@@ -336,7 +335,6 @@ export const saveKnife = async (
 
         // Update or insert knife
         if (existingKnife.length > 0) {
-            console.log('Updating existing knife')
             await db.update(knives)
                 .set({
                     active: body.active ? 1 : 0,
