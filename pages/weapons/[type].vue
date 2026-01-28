@@ -27,7 +27,7 @@ const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
 const groupedWeapons = useGroupedWeapons(skins)
 
 // Convert SteamUser to UserProfile for components that expect branded types
-const userAsProfile = computed((): UserProfile | null => {
+computed((): UserProfile | null => {
   if (!user.value) return null
   return {
     steamId: toSteamId(user.value.steamId),

@@ -1,8 +1,10 @@
 <script setup lang="ts">
-const _props = defineProps<{
+interface Props {
   visible: boolean
   loading?: boolean
-}>()
+}
+
+const _props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void

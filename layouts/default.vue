@@ -46,8 +46,9 @@ const validateAuth = async () => {
       credentials: 'include'
     })
     return data.authenticated
-  } catch (error: any) {
-    if (error?.status === 401 || error?.statusCode === 401) {
+  } catch (error: unknown) {
+    const err = error as { status?: number; statusCode?: number } | undefined
+    if (err?.status === 401 || err?.statusCode === 401) {
       message.error(t('auth.automaticallyLoggedOut') as string)
       steamAuth.logout()
       user.value = null
@@ -235,7 +236,7 @@ onMounted(async () => {
                 :closable="false"
                 :mask-closable="false"
                 style="width: 400px"
-                :title="t('modals.logout.title') as string"
+                :title="String(t('modals.logout.title'))"
               >
                 <div class="mb-3">
                   <p>{{ t('modals.logout.question') }}</p>

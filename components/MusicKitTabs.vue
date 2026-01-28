@@ -2,10 +2,12 @@
 // Removed unused computed import
 import type { APIMusicKit } from "~/server/types";
 
-const props = withDefaults(defineProps<{
+interface Props {
   musicKit: APIMusicKit
   isSelected?: boolean
-}>(), {
+}
+
+const props = withDefaults(defineProps<Props>(), {
   isSelected: false
 })
 

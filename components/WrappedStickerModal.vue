@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import type { APISticker } from "~/server/types";
 
-const props = defineProps<{
+interface Props {
   visible: boolean
-}>()
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void

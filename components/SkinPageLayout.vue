@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
-const props = withDefaults(defineProps<{
+interface Props {
   title: string
   user?: SteamUser | null
   error?: string | null
   isLoading?: boolean
-}>(), {
+}
+
+const props = withDefaults(defineProps<Props>(), {
   user: null,
   error: null,
   isLoading: false

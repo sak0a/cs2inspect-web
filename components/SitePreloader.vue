@@ -1,9 +1,10 @@
 <script setup lang="ts">
-const props = defineProps({
-  preloaderName: {
-    type: String,
-    default: "preloader" + Math.floor(Math.random() * 100)
-  }
+interface Props {
+  preloaderName?: string
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  preloaderName: "preloader" + Math.floor(Math.random() * 100)
 })
 const state = reactive({
   preloader: true

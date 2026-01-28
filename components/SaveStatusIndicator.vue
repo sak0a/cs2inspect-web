@@ -55,11 +55,13 @@
 <script setup lang="ts">
 import type { SaveStatus } from '~/composables/useAutoSave'
 
-const props = defineProps<{
+interface Props {
   status: SaveStatus
   showRetry?: boolean
   fixed?: boolean
-}>()
+}
+
+const props = defineProps<Props>()
 
 defineEmits<{
   (e: 'retry'): void

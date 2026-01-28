@@ -2,8 +2,7 @@
 import type { APISticker, IEnhancedWeaponSticker } from "~/server/types";
 import { generateStickerImageUrl } from "~/utils/canvasCoordinates";
 
-const props = defineProps<{
-// ... (rest of props)
+interface Props {
   visible: boolean
   position: number
   weaponName?: string
@@ -18,7 +17,9 @@ const props = defineProps<{
     ext_norm_x?: number
     ext_norm_y?: number
   } | null
-}>()
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void

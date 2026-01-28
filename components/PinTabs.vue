@@ -2,10 +2,12 @@
 // Removed unused computed import
 import type { APICollectible } from "~/server/types";
 
-const props = withDefaults(defineProps<{
+interface Props {
   collectible: APICollectible
   isSelected?: boolean
-}>(), {
+}
+
+const props = withDefaults(defineProps<Props>(), {
   isSelected: false
 })
 

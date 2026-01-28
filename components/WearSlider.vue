@@ -1,79 +1,20 @@
 <!-- WearSlider.vue -->
-<template>
-  <div class="wear-control-container">
-    <!-- Custom Number Input -->
-    <div class="custom-number-input">
-      <input
-          type="text"
-          :value="displayValue"
-          @input="handleCustomInput"
-          @blur="handleBlur"
-          @keydown.enter="handleBlur"
-      >
-    </div>
-
-    <div class="progress-container">
-      <div
-ref="progressBar" class="progress-bar"
-           @mouseenter="showTooltip"
-           @mouseleave="startHideTooltip">
-        <!-- Full gradient background -->
-        <div class="progress-background"></div>
-
-        <!-- Min-max range indicator -->
-        <div class="valid-range"
-             :style="{
-               left: `${(props.min * 100)}%`,
-               width: `${((props.max - props.min) * 100)}%`
-             }"></div>
-
-        <!-- Slider handle and tooltip -->
-        <div
-            class="slider-handle"
-            :style="{ left: `${handlePosition}%` }"
-            @mousedown="startDragging"
-        >
-          <div class="tooltip" :class="{ visible: isTooltipVisible }">
-            {{ displayValue }} - {{ getCurrentWearLabel() }}
-          </div>
-        </div>
-
-        <!-- Wear labels -->
-        <div class="wear-labels">
-          <div
-v-for="(label, value) in WEARS"
-               :key="value"
-               class="wear-label"
-               :style="{ left: `${Number(value) * 100}%` }">
-            <div class="wear-marker"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-
-  </div>
-</template>
-
 <script setup lang="ts">
 
 const emit = defineEmits<{
   (e: 'update:modelValue', value: number): void
 }>()
 
-const props = defineProps({
-  modelValue: {
-    type: Number,
-    default: 0.01
-  },
-  min: {
-    type: Number,
-    default: 0.00
-  },
-  max: {
-    type: Number,
-    default: 1.00
-  }
+interface Props {
+  modelValue?: number
+  min?: number
+  max?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  modelValue: 0.01,
+  min: 0.00,
+  max: 1.00
 })
 
 const { t } = useI18n()
@@ -203,7 +144,61 @@ onBeforeUnmount(() => {
   }
 })
 </script>
+<template>
+  <div class="wear-control-container">
+    <!-- Custom Number Input -->
+    <div class="custom-number-input">
+      <input
+          type="text"
+          :value="displayValue"
+          @input="handleCustomInput"
+          @blur="handleBlur"
+          @keydown.enter="handleBlur"
+      >
+    </div>
 
+    <div class="progress-container">
+      <div
+ref="progressBar" class="progress-bar"
+           @mouseenter="showTooltip"
+           @mouseleave="startHideTooltip">
+        <!-- Full gradient background -->
+        <div class="progress-background"></div>
+
+        <!-- Min-max range indicator -->
+        <div class="valid-range"
+             :style="{
+               left: `${(props.min * 100)}%`,
+               width: `${((props.max - props.min) * 100)}%`
+             }"></div>
+
+        <!-- Slider handle and tooltip -->
+        <div
+            class="slider-handle"
+            :style="{ left: `${handlePosition}%` }"
+            @mousedown="startDragging"
+        >
+          <div class="tooltip" :class="{ visible: isTooltipVisible }">
+            {{ displayValue }} - {{ getCurrentWearLabel() }}
+          </div>
+        </div>
+
+        <!-- Wear labels -->
+        <div class="wear-labels">
+          <div
+v-for="(label, value) in WEARS"
+               :key="value"
+               class="wear-label"
+               :style="{ left: `${Number(value) * 100}%` }">
+            <div class="wear-marker"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+</template>
 <style scoped>
 .wear-control-container {
   display: flex;

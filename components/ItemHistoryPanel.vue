@@ -7,7 +7,7 @@
 
 import type { ItemHistoryRecord, HistoryItemType, HistoryItemCategory } from '~/server/database/schema/itemHistory'
 
-const props = defineProps<{
+interface Props {
   visible: boolean
   itemType: HistoryItemType
   category?: HistoryItemCategory
@@ -15,7 +15,9 @@ const props = defineProps<{
   team: number
   steamId: string
   loadoutId: number
-}>()
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void

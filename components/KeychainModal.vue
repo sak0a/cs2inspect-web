@@ -3,12 +3,14 @@ import type { APIKeychain, IEnhancedWeaponKeychain, APISticker } from "~/server/
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates';
 import WrappedStickerModal from './WrappedStickerModal.vue';
 
-const props = defineProps<{
+interface Props {
   visible: boolean
   weaponName?: string
   team?: number
   currentKeychain?: { id?: number | string; x?: number; y?: number; z?: number; seed?: number; wrapped_sticker_id?: number | null; highlight_reel_id?: number | null } | null
-}>()
+}
+
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void

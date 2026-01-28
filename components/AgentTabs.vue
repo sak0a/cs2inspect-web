@@ -1,8 +1,10 @@
 <script setup lang="ts">
-const props = withDefaults(defineProps<{
+interface Props {
   agent: APIAgent
   isSelected?: boolean
-}>(), {
+}
+
+const props = withDefaults(defineProps<Props>(), {
   isSelected: false
 })
 
