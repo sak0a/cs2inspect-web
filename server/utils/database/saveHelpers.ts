@@ -204,7 +204,8 @@ export const saveWeapon = async (
         const formattedStickers = formatWeaponStickers(body.stickers as (IEnhancedWeaponSticker | null)[]);
         const formattedKeychain = formatWeaponKeychain(body.keychain as { id?: number | string; x?: number; y?: number; z?: number; seed?: number } | null);
 
-        // Record history before update (non-blocking)
+        // Record history BEFORE update - must await to prevent race condition
+        // The old state must be read from DB before we modify it
         const category = tableName.replace('wp_player_', '') as 'pistols' | 'rifles' | 'smgs' | 'heavys'
         const newSnapshot: ItemHistorySnapshot = {
             paintindex: body.paintindex,
@@ -217,7 +218,7 @@ export const saveWeapon = async (
             stickers: formattedStickers,
             keychain: formattedKeychain
         }
-        recordWeaponHistory(steamId, loadoutId, body.defindex, body.team, category, newSnapshot).catch(() => {})
+        await recordWeaponHistory(steamId, loadoutId, body.defindex, body.team, category, newSnapshot)
 
         // Update or insert weapon
         if (existingWeapon.length > 0) {
@@ -321,7 +322,7 @@ export const saveKnife = async (
             }
         }
 
-        // Record history before update (non-blocking)
+        // Record history BEFORE update - must await to prevent race condition
         const knifeSnapshot: ItemHistorySnapshot = {
             paintindex: body.paintindex,
             paintseed: body.paintseed,
@@ -331,7 +332,7 @@ export const saveKnife = async (
             stattrak_count: body.stattrak_count,
             nametag: body.nametag || undefined
         }
-        recordKnifeHistory(steamId, loadoutId, body.defindex, body.team, knifeSnapshot).catch(() => {})
+        await recordKnifeHistory(steamId, loadoutId, body.defindex, body.team, knifeSnapshot)
 
         // Update or insert knife
         if (existingKnife.length > 0) {
@@ -429,14 +430,14 @@ export const saveGlove = async (
 
         Logger.info(`saveGlove: Found ${existingGlove.length} existing glove entries: ${JSON.stringify(existingGlove)}`);
 
-        // Record history before update (non-blocking)
+        // Record history BEFORE update - must await to prevent race condition
         const gloveSnapshot: ItemHistorySnapshot = {
             paintindex: body.paintindex,
             paintseed: body.paintseed,
             paintwear: body.paintwear,
             active: body.active
         }
-        recordGloveHistory(steamId, loadoutId, body.defindex, body.team, gloveSnapshot).catch(() => {})
+        await recordGloveHistory(steamId, loadoutId, body.defindex, body.team, gloveSnapshot)
 
         // Update or insert glove
         if (existingGlove.length > 0) {

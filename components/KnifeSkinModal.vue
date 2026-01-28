@@ -227,10 +227,16 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       availableTeams: 'both',
     }
 
+    // Preserve current float value, only clamp if outside new skin's valid range
+    const newMinFloat = skin.min_float ?? 0
+    const newMaxFloat = skin.max_float ?? 1
+    const currentFloat = customization.value.paintwear
+    const clampedFloat = Math.max(newMinFloat, Math.min(newMaxFloat, currentFloat))
+
     customization.value = {
       ...customization.value,
       paintindex: Number(skin.paint_index),
-      paintwear: Number(skin.min_float ?? 0),
+      paintwear: clampedFloat,
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'
@@ -382,7 +388,7 @@ const handleHistoryRestore = (record: ItemHistoryRecord) => {
       nametag: config.nametag ?? ''
     }
     showHistoryPanel.value = false
-    message.success(t('history.restoreSuccess') as string)
+    // Note: Success message is shown by ItemHistoryPanel, no need to duplicate here
   }
 }
 

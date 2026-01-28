@@ -10,9 +10,9 @@ import { eq, and } from 'drizzle-orm'
 import { toLoadoutId } from '~/types/core/common'
 import { Logger } from '~/server/utils/logger'
 import { generateVersionId } from '~/server/utils/versionIdGenerator'
-import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
+import { getSkinsDataAsync, getKeychainDataAsync } from '~/server/utils/csgoAPI'
 import { findSkinByPaintIndex } from '~/server/utils/data/skinUtils'
-import type { APISkin } from '~/server/types'
+import type { APISkin, APIKeychain } from '~/server/types'
 import type {
   HistoryItemType,
   HistoryItemCategory,
@@ -32,6 +32,22 @@ const weaponTableMap = {
 type WeaponCategory = keyof typeof weaponTableMap
 
 /**
+ * Parse a JSON column value that might be a string or object
+ * MariaDB/Drizzle may return JSON columns as strings
+ */
+function parseJsonColumn<T>(value: T | string | null | undefined): T | null {
+  if (!value) return null
+  if (typeof value === 'string') {
+    try {
+      return JSON.parse(value) as T
+    } catch {
+      return null
+    }
+  }
+  return value as T
+}
+
+/**
  * Convert a weapon database record to a history snapshot
  */
 function weaponToSnapshot(record: {
@@ -42,12 +58,12 @@ function weaponToSnapshot(record: {
   stattrak_enabled?: number | null
   stattrak_count?: number | null
   nametag?: string | null
-  sticker_0?: StickerJSON | null
-  sticker_1?: StickerJSON | null
-  sticker_2?: StickerJSON | null
-  sticker_3?: StickerJSON | null
-  sticker_4?: StickerJSON | null
-  keychain?: KeychainJSON | null
+  sticker_0?: StickerJSON | string | null
+  sticker_1?: StickerJSON | string | null
+  sticker_2?: StickerJSON | string | null
+  sticker_3?: StickerJSON | string | null
+  sticker_4?: StickerJSON | string | null
+  keychain?: KeychainJSON | string | null
 }): ItemHistorySnapshot {
   return {
     paintindex: record.paintindex,
@@ -58,13 +74,13 @@ function weaponToSnapshot(record: {
     stattrak_count: record.stattrak_count ?? 0,
     nametag: record.nametag ?? undefined,
     stickers: [
-      record.sticker_0 ?? null,
-      record.sticker_1 ?? null,
-      record.sticker_2 ?? null,
-      record.sticker_3 ?? null,
-      record.sticker_4 ?? null
+      parseJsonColumn<StickerJSON>(record.sticker_0),
+      parseJsonColumn<StickerJSON>(record.sticker_1),
+      parseJsonColumn<StickerJSON>(record.sticker_2),
+      parseJsonColumn<StickerJSON>(record.sticker_3),
+      parseJsonColumn<StickerJSON>(record.sticker_4)
     ],
-    keychain: record.keychain ?? null
+    keychain: parseJsonColumn<KeychainJSON>(record.keychain)
   }
 }
 
@@ -117,12 +133,67 @@ function extractSkinName(fullName: string): string {
 }
 
 /**
+ * Extract just the keychain name part (e.g., "Biomech" from "Charm | Biomech")
+ */
+function extractKeychainName(fullName: string): string {
+  const parts = fullName.split(' | ')
+  return parts.length > 1 ? parts[1]! : fullName
+}
+
+/**
+ * Find a keychain by its numeric ID
+ */
+function findKeychainById(keychainId: number, keychainData: APIKeychain[]): APIKeychain | undefined {
+  // API keychain IDs are like "keychain-37", database stores just 37
+  return keychainData.find(k => {
+    const apiId = typeof k.id === 'string' ? parseInt(k.id.replace('keychain-', ''), 10) : k.id
+    return apiId === keychainId
+  })
+}
+
+/**
+ * Helper to get a normalized sticker ID (always a number, 0 for empty)
+ * Treats null, undefined, id=0, and id="0" as empty (returns 0)
+ */
+function getStickerIdNormalized(sticker: StickerJSON | null | undefined): number {
+  if (!sticker) return 0
+  const id = typeof sticker.id === 'string' ? parseInt(sticker.id, 10) : sticker.id
+  return (id && !isNaN(id)) ? id : 0
+}
+
+/**
+ * Helper to get a normalized keychain ID (always a number, 0 for empty)
+ * Treats null, undefined, id=0, and id="0" as empty (returns 0)
+ * Also handles the case where keychain is stored as a JSON string in the database
+ */
+function getKeychainIdNormalized(keychain: KeychainJSON | string | null | undefined): number {
+  if (!keychain) return 0
+
+  // Handle case where keychain is stored as a JSON string
+  let keychainObj: KeychainJSON | null = null
+  if (typeof keychain === 'string') {
+    try {
+      keychainObj = JSON.parse(keychain) as KeychainJSON
+    } catch {
+      return 0
+    }
+  } else {
+    keychainObj = keychain
+  }
+
+  if (!keychainObj) return 0
+  const id = typeof keychainObj.id === 'string' ? parseInt(keychainObj.id, 10) : keychainObj.id
+  return (id && !isNaN(id)) ? id : 0
+}
+
+/**
  * Detect changes between old and new snapshots
  */
 function detectChangeType(
   oldSnapshot: ItemHistorySnapshot | null,
   newSnapshot: ItemHistorySnapshot,
-  skinsData?: APISkin[]
+  skinsData?: APISkin[],
+  keychainData?: APIKeychain[]
 ): { changeType: ChangeType; description: string } {
   if (!oldSnapshot) {
     return { changeType: 'initial_save', description: 'Initial configuration' }
@@ -177,30 +248,69 @@ function detectChangeType(
     }
   }
 
-  // Check stickers (if present)
-  if (oldSnapshot.stickers && newSnapshot.stickers) {
-    for (let i = 0; i < 5; i++) {
-      const oldSticker = oldSnapshot.stickers[i]
-      const newSticker = newSnapshot.stickers[i]
+  // Check stickers (if present) - use normalized IDs to handle string/number and null/0 differences
+  if (oldSnapshot.stickers || newSnapshot.stickers) {
+    const oldStickers = oldSnapshot.stickers || []
+    const newStickers = newSnapshot.stickers || []
 
-      if (!oldSticker && newSticker) {
-        changes.push(`sticker ${i + 1} added`)
-      } else if (oldSticker && !newSticker) {
-        changes.push(`sticker ${i + 1} removed`)
-      } else if (oldSticker && newSticker && oldSticker.id !== newSticker.id) {
-        changes.push(`sticker ${i + 1} changed`)
+    for (let i = 0; i < 5; i++) {
+      const oldId = getStickerIdNormalized(oldStickers[i])
+      const newId = getStickerIdNormalized(newStickers[i])
+
+      // Only report change if the actual sticker ID changed
+      if (oldId !== newId) {
+        if (oldId === 0 && newId !== 0) {
+          changes.push(`sticker ${i + 1} added`)
+        } else if (oldId !== 0 && newId === 0) {
+          changes.push(`sticker ${i + 1} removed`)
+        } else {
+          changes.push(`sticker ${i + 1} changed`)
+        }
       }
     }
   }
 
-  // Check keychain
-  if (oldSnapshot.keychain?.id !== newSnapshot.keychain?.id) {
-    if (!oldSnapshot.keychain && newSnapshot.keychain) {
-      changes.push('keychain added')
-    } else if (oldSnapshot.keychain && !newSnapshot.keychain) {
-      changes.push('keychain removed')
+  // Check keychain - use normalized IDs to handle string/number and null/0 differences
+  const oldKeychainId = getKeychainIdNormalized(oldSnapshot.keychain)
+  const newKeychainId = getKeychainIdNormalized(newSnapshot.keychain)
+
+  // Debug logging for keychain comparison
+  Logger.info(`Keychain comparison - Old ID: ${oldKeychainId}, New ID: ${newKeychainId}, Old keychain: ${JSON.stringify(oldSnapshot.keychain)}, New keychain: ${JSON.stringify(newSnapshot.keychain)}`)
+
+  if (oldKeychainId !== newKeychainId) {
+    if (oldKeychainId === 0 && newKeychainId !== 0) {
+      // Keychain added - try to get the name
+      let keychainDesc = 'Keychain added'
+      if (keychainData) {
+        const newKeychain = findKeychainById(newKeychainId, keychainData)
+        if (newKeychain) {
+          keychainDesc = `Keychain added: ${extractKeychainName(newKeychain.name)}`
+        }
+      }
+      changes.push(keychainDesc)
+    } else if (oldKeychainId !== 0 && newKeychainId === 0) {
+      // Keychain removed - try to get the old name
+      let keychainDesc = 'Keychain removed'
+      if (keychainData) {
+        const oldKeychain = findKeychainById(oldKeychainId, keychainData)
+        if (oldKeychain) {
+          keychainDesc = `Keychain removed: ${extractKeychainName(oldKeychain.name)}`
+        }
+      }
+      changes.push(keychainDesc)
     } else {
-      changes.push('keychain changed')
+      // Keychain changed - try to get both names
+      let keychainDesc = 'Keychain changed'
+      if (keychainData) {
+        const oldKeychain = findKeychainById(oldKeychainId, keychainData)
+        const newKeychain = findKeychainById(newKeychainId, keychainData)
+        if (oldKeychain && newKeychain) {
+          keychainDesc = `Keychain changed: ${extractKeychainName(oldKeychain.name)} → ${extractKeychainName(newKeychain.name)}`
+        } else if (newKeychain) {
+          keychainDesc = `Keychain changed: → ${extractKeychainName(newKeychain.name)}`
+        }
+      }
+      changes.push(keychainDesc)
     }
   }
 
@@ -221,9 +331,9 @@ function detectChangeType(
     else if (changes[0]?.includes('sticker') && changes[0]?.includes('added')) changeType = 'sticker_added'
     else if (changes[0]?.includes('sticker') && changes[0]?.includes('removed')) changeType = 'sticker_removed'
     else if (changes[0]?.includes('sticker') && changes[0]?.includes('changed')) changeType = 'sticker_modified'
-    else if (changes[0]?.includes('keychain') && changes[0]?.includes('added')) changeType = 'keychain_added'
-    else if (changes[0]?.includes('keychain') && changes[0]?.includes('removed')) changeType = 'keychain_removed'
-    else if (changes[0]?.includes('keychain') && changes[0]?.includes('changed')) changeType = 'keychain_modified'
+    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('added')) changeType = 'keychain_added'
+    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('removed')) changeType = 'keychain_removed'
+    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('changed')) changeType = 'keychain_modified'
   }
 
   const description = changes.slice(0, 3).join(', ')
@@ -245,8 +355,11 @@ export async function recordWeaponHistory(
     const table = weaponTableMap[category]
     const loadoutIdNum = toLoadoutId(loadoutId)
 
-    // Get skins data for skin name lookup
-    const skinsData = await getSkinsDataAsync()
+    // Get skins and keychain data for name lookups
+    const [skinsData, keychainData] = await Promise.all([
+      getSkinsDataAsync(),
+      getKeychainDataAsync()
+    ])
 
     // Get current state from database
     const current = await db.select()
@@ -260,14 +373,21 @@ export async function recordWeaponHistory(
       .limit(1)
 
     const oldSnapshot = current[0] ? weaponToSnapshot(current[0]) : null
-    const { changeType, description } = detectChangeType(oldSnapshot, newSnapshot, skinsData)
+
+    // Debug: Log the raw database record and converted snapshot
+    Logger.info(`recordWeaponHistory - Raw DB record keychain: ${JSON.stringify(current[0]?.keychain)}`)
+    Logger.info(`recordWeaponHistory - Old snapshot keychain: ${JSON.stringify(oldSnapshot?.keychain)}`)
+    Logger.info(`recordWeaponHistory - New snapshot keychain: ${JSON.stringify(newSnapshot.keychain)}`)
+
+    const { changeType, description } = detectChangeType(oldSnapshot, newSnapshot, skinsData, keychainData)
 
     // Don't record if nothing changed
     if (oldSnapshot && changeType === 'multiple_changes' && description === 'Configuration updated') {
       return
     }
 
-    // Insert history record
+    // Insert history record with the NEW state (result of the change)
+    // This way "sticker added" entries contain the config WITH the sticker
     const versionId = generateVersionId()
     await db.insert(itemHistory).values({
       steamid: steamId,
@@ -276,7 +396,7 @@ export async function recordWeaponHistory(
       item_category: category as HistoryItemCategory,
       defindex,
       team,
-      configuration: oldSnapshot || newSnapshot,
+      configuration: newSnapshot,
       change_type: changeType,
       change_description: description,
       version_id: versionId,
@@ -325,7 +445,7 @@ export async function recordKnifeHistory(
       return
     }
 
-    // Insert history record
+    // Insert history record with the NEW state (result of the change)
     const versionId = generateVersionId()
     await db.insert(itemHistory).values({
       steamid: steamId,
@@ -334,7 +454,7 @@ export async function recordKnifeHistory(
       item_category: null,
       defindex,
       team,
-      configuration: oldSnapshot || newSnapshot,
+      configuration: newSnapshot,
       change_type: changeType,
       change_description: description,
       version_id: versionId,
@@ -382,7 +502,7 @@ export async function recordGloveHistory(
       return
     }
 
-    // Insert history record
+    // Insert history record with the NEW state (result of the change)
     const versionId = generateVersionId()
     await db.insert(itemHistory).values({
       steamid: steamId,
@@ -391,7 +511,7 @@ export async function recordGloveHistory(
       item_category: null,
       defindex,
       team,
-      configuration: oldSnapshot || newSnapshot,
+      configuration: newSnapshot,
       change_type: changeType,
       change_description: description,
       version_id: versionId,

@@ -74,7 +74,20 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const config = record.configuration as ItemHistorySnapshot
+    // Parse configuration if it's a JSON string (database might return it as string)
+    let config: ItemHistorySnapshot
+    if (typeof record.configuration === 'string') {
+      try {
+        config = JSON.parse(record.configuration) as ItemHistorySnapshot
+      } catch {
+        throw createError({
+          statusCode: 500,
+          message: 'Invalid configuration format in history record'
+        })
+      }
+    } else {
+      config = record.configuration as ItemHistorySnapshot
+    }
     const loadoutIdNum = toLoadoutId(String(record.loadoutid))
 
     // Restore based on item type
@@ -89,37 +102,100 @@ export default defineEventHandler(async (event) => {
 
       const table = weaponTableMap[category as keyof typeof weaponTableMap]
 
+      // Helper to safely parse a number from various types
+      const toNumber = (val: unknown, defaultVal: number): number => {
+        if (typeof val === 'number' && !isNaN(val)) return val
+        if (typeof val === 'string') {
+          const parsed = parseFloat(val)
+          return isNaN(parsed) ? defaultVal : parsed
+        }
+        return defaultVal
+      }
+
+      // Helper to safely parse an integer from various types
+      const toInt = (val: unknown, defaultVal: number): number => {
+        if (typeof val === 'number' && !isNaN(val)) return Math.floor(val)
+        if (typeof val === 'string') {
+          const parsed = parseInt(val, 10)
+          return isNaN(parsed) ? defaultVal : parsed
+        }
+        return defaultVal
+      }
+
       // Helper to validate sticker - must have a valid id (handle both number and string IDs)
+      // Also handles the case where sticker is stored as a JSON string
       const getSticker = (sticker: unknown): StickerJSON | null => {
-        if (!sticker || typeof sticker !== 'object') return null
-        const s = sticker as Record<string, unknown>
-        const id = typeof s.id === 'string' ? parseInt(s.id, 10) : s.id
-        if (!id || typeof id !== 'number' || isNaN(id) || id === 0) return null
-        // Return with normalized numeric ID
+        if (!sticker) return null
+
+        // Parse if it's a JSON string
+        let stickerObj: Record<string, unknown>
+        if (typeof sticker === 'string') {
+          try {
+            stickerObj = JSON.parse(sticker) as Record<string, unknown>
+          } catch {
+            return null
+          }
+        } else if (typeof sticker === 'object') {
+          stickerObj = sticker as Record<string, unknown>
+        } else {
+          return null
+        }
+
+        const s = stickerObj
+        const id = toInt(s.id, 0)
+        if (id <= 0) return null
+        // Return with normalized numeric values
         return {
           id: id,
-          x: typeof s.x === 'number' ? s.x : 0,
-          y: typeof s.y === 'number' ? s.y : 0,
-          wear: typeof s.wear === 'number' ? s.wear : 0,
-          scale: typeof s.scale === 'number' ? s.scale : 1,
-          rotation: typeof s.rotation === 'number' ? s.rotation : 0
+          x: toNumber(s.x, 0),
+          y: toNumber(s.y, 0),
+          wear: toNumber(s.wear, 0),
+          scale: toNumber(s.scale, 1),
+          rotation: toNumber(s.rotation, 0)
         } as StickerJSON
       }
 
       // Helper to validate keychain - must have a valid id (handle both number and string IDs)
+      // Also handles the case where keychain is stored as a JSON string
       const getKeychain = (keychain: unknown): KeychainJSON | null => {
-        if (!keychain || typeof keychain !== 'object') return null
-        const k = keychain as Record<string, unknown>
-        const id = typeof k.id === 'string' ? parseInt(k.id, 10) : k.id
-        if (!id || typeof id !== 'number' || isNaN(id) || id === 0) return null
-        // Return with normalized values
-        return {
+        if (!keychain) return null
+
+        // Parse if it's a JSON string
+        let keychainObj: Record<string, unknown>
+        if (typeof keychain === 'string') {
+          try {
+            keychainObj = JSON.parse(keychain) as Record<string, unknown>
+          } catch {
+            return null
+          }
+        } else if (typeof keychain === 'object') {
+          keychainObj = keychain as Record<string, unknown>
+        } else {
+          return null
+        }
+
+        const k = keychainObj
+        const id = toInt(k.id, 0)
+        if (id <= 0) return null
+        // Return with normalized values, including optional wrapped_sticker_id and highlight_reel_id
+        const result: KeychainJSON = {
           id: id,
-          x: typeof k.x === 'number' ? k.x : 0,
-          y: typeof k.y === 'number' ? k.y : 0,
-          z: typeof k.z === 'number' ? k.z : 0,
-          seed: typeof k.seed === 'number' ? k.seed : 0
-        } as KeychainJSON
+          x: toNumber(k.x, 0),
+          y: toNumber(k.y, 0),
+          z: toNumber(k.z, 0),
+          seed: toInt(k.seed, 0)
+        }
+        // Preserve wrapped_sticker_id for Sticker Slabs
+        const wrappedId = toInt(k.wrapped_sticker_id, 0)
+        if (wrappedId > 0) {
+          result.wrapped_sticker_id = wrappedId
+        }
+        // Preserve highlight_reel_id for Highlight Reel charms
+        const highlightId = toInt(k.highlight_reel_id, 0)
+        if (highlightId > 0) {
+          result.highlight_reel_id = highlightId
+        }
+        return result
       }
 
       await db.update(table)

@@ -265,15 +265,20 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
         <!-- Content when loaded -->
         <template v-else>
           <!-- Skins Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+          <TransitionGroup
+            name="card-fade"
+            tag="div"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2"
+            appear
+          >
             <WeaponTabs
-              v-for="(weaponData, weaponName) in groupedWeapons"
+              v-for="(weaponData, weaponName, index) in groupedWeapons"
               :key="weaponName"
-              class=""
+              :style="{ '--delay': `${index * 50}ms` }"
               :weapon-data="weaponData as any"
               @weapon-click="handleWeaponClickWrapper"
             />
-          </div>
+          </TransitionGroup>
           <!-- No Skins State -->
           <div v-if="skins.length === 0" class="text-center py-12">
             <p class="text-gray-400">No skins available for this loadout</p>
@@ -296,4 +301,21 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
   </div>
 </template>
 <style>
+.card-fade-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition-delay: var(--delay, 0ms);
+}
+
+.card-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.card-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.card-fade-leave-to {
+  opacity: 0;
+}
 </style>

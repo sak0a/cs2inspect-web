@@ -561,67 +561,195 @@ const handleReset = async () => {
 
 /**
  * Handle history restore - reload the configuration from the restored version
+ * Fetches API data for stickers and keychain to update the display
  */
-const handleHistoryRestore = (record: ItemHistoryRecord) => {
+const handleHistoryRestore = async (record: ItemHistoryRecord) => {
   if (record.configuration) {
-    const config = record.configuration
+    // Parse configuration if it's a JSON string (MariaDB/Drizzle may return JSON as string)
+    let config = record.configuration
+    if (typeof config === 'string') {
+      try {
+        config = JSON.parse(config)
+      } catch {
+        console.error('Failed to parse history configuration')
+        return
+      }
+    }
+
+    // Helper to safely parse a number from various types
+    const toNumber = (val: unknown, defaultVal: number): number => {
+      if (typeof val === 'number' && !isNaN(val)) return val
+      if (typeof val === 'string') {
+        const parsed = parseFloat(val)
+        return isNaN(parsed) ? defaultVal : parsed
+      }
+      return defaultVal
+    }
+
+    // Helper to safely parse an integer from various types
+    const toInt = (val: unknown, defaultVal: number): number => {
+      if (typeof val === 'number' && !isNaN(val)) return Math.floor(val)
+      if (typeof val === 'string') {
+        const parsed = parseInt(val, 10)
+        return isNaN(parsed) ? defaultVal : parsed
+      }
+      return defaultVal
+    }
 
     // Properly restore stickers array - ensure it's always a 5-element array
     // Important: Include slot and position based on array index for IEnhancedWeaponSticker compatibility
-    let restoredStickers: (StickerConfiguration | null)[] = [null, null, null, null, null]
+    const restoredStickers: (StickerConfiguration | null)[] = [null, null, null, null, null]
+    const stickerPromises: Promise<void>[] = []
+
     if (config.stickers && Array.isArray(config.stickers)) {
-      restoredStickers = config.stickers.map((s, index) => {
-        if (!s || typeof s !== 'object') return null
+      for (let index = 0; index < Math.min(config.stickers.length, 5); index++) {
+        let s = config.stickers[index]
+        if (!s) continue
+
+        // Parse if sticker is stored as a JSON string (MariaDB/Drizzle may return JSON as string)
+        if (typeof s === 'string') {
+          try {
+            s = JSON.parse(s)
+          } catch {
+            continue
+          }
+        }
+        if (typeof s !== 'object') continue
+
         // Handle both number and string IDs
-        const id = typeof s.id === 'string' ? parseInt(s.id, 10) : s.id
-        if (!id || isNaN(id) || id === 0) return null
-        return {
+        const id = toInt(s.id, 0)
+        if (id <= 0) continue
+
+        restoredStickers[index] = {
           id: id,
           slot: index,      // Required for IEnhancedWeaponSticker
           position: index,  // Required for StickerConfiguration
-          x: s.x ?? 0,
-          y: s.y ?? 0,
-          wear: s.wear ?? 0,
-          scale: s.scale ?? 1,
-          rotation: s.rotation ?? 0
+          x: toNumber(s.x, 0),
+          y: toNumber(s.y, 0),
+          wear: toNumber(s.wear, 0),
+          scale: toNumber(s.scale, 1),
+          rotation: toNumber(s.rotation, 0)
         } as StickerConfiguration
-      })
-      // Ensure we always have 5 slots
-      while (restoredStickers.length < 5) {
-        restoredStickers.push(null)
+
+        // Fetch sticker API data
+        const stickerIndex = index
+        stickerPromises.push(
+          $fetch<{ success: boolean; data: APISticker[] }>(`/api/data/stickers?id=sticker-${id}`)
+            .then(response => {
+              const stickerData = response.data?.[0]
+              if (stickerData && restoredStickers[stickerIndex]) {
+                restoredStickers[stickerIndex] = {
+                  ...restoredStickers[stickerIndex]!,
+                  api: {
+                    name: stickerData.name,
+                    image: stickerData.image,
+                    type: stickerData.type,
+                    effect: stickerData.effect,
+                    tournament_event: stickerData.tournament_event,
+                    tournament_team: stickerData.tournament_team,
+                    rarity: stickerData.rarity,
+                  }
+                }
+              }
+            })
+            .catch(() => { /* Ignore sticker fetch errors */ })
+        )
       }
     }
 
-    // Properly restore keychain
+    // Properly restore keychain with all fields including wrapped_sticker_id and highlight_reel_id
     let restoredKeychain: KeychainConfiguration | null = null
-    if (config.keychain && typeof config.keychain === 'object') {
-      // Handle both number and string IDs
-      const keychainId = typeof config.keychain.id === 'string' ? parseInt(config.keychain.id, 10) : config.keychain.id
-      if (keychainId && !isNaN(keychainId) && keychainId !== 0) {
-        restoredKeychain = {
-          id: keychainId,
-          x: config.keychain.x ?? 0,
-          y: config.keychain.y ?? 0,
-          z: config.keychain.z ?? 0,
-          seed: config.keychain.seed ?? 0
-        } as KeychainConfiguration
+    let keychainPromise: Promise<void> | null = null
+
+    if (config.keychain) {
+      // Parse if keychain is stored as a JSON string (MariaDB/Drizzle may return JSON as string)
+      let keychainData = config.keychain
+      if (typeof keychainData === 'string') {
+        try {
+          keychainData = JSON.parse(keychainData)
+        } catch {
+          keychainData = null
+        }
+      }
+
+      if (keychainData && typeof keychainData === 'object') {
+        const keychainId = toInt(keychainData.id, 0)
+        if (keychainId > 0) {
+          restoredKeychain = {
+            id: keychainId,
+            x: toNumber(keychainData.x, 0),
+            y: toNumber(keychainData.y, 0),
+            z: toNumber(keychainData.z, 0),
+            seed: toInt(keychainData.seed, 0),
+            // Preserve wrapped_sticker_id for Sticker Slabs
+            wrapped_sticker_id: toInt(keychainData.wrapped_sticker_id, 0) > 0
+              ? toInt(keychainData.wrapped_sticker_id, 0)
+              : undefined,
+            // Preserve highlight_reel_id for Highlight Reel charms
+            highlight_reel_id: toInt(keychainData.highlight_reel_id, 0) > 0
+              ? toInt(keychainData.highlight_reel_id, 0)
+              : undefined
+          } as KeychainConfiguration
+
+        // Fetch keychain API data
+        keychainPromise = $fetch<{ success: boolean; data: APIKeychain[] }>(`/api/data/keychains?id=keychain-${keychainId}`)
+          .then(response => {
+            const keychainData = response.data?.[0]
+            if (keychainData && restoredKeychain) {
+              restoredKeychain = {
+                ...restoredKeychain!,
+                api: {
+                  name: keychainData.name,
+                  image: keychainData.image,
+                  rarity: keychainData.rarity,
+                }
+              }
+            }
+          })
+          .catch(() => { /* Ignore keychain fetch errors */ })
+        }
       }
     }
+
+    // Wait for all API data to be fetched
+    await Promise.all([...stickerPromises, keychainPromise].filter(Boolean))
 
     customization.value = {
       ...customization.value,
-      paintindex: config.paintindex,
-      paintseed: config.paintseed,
-      paintwear: config.paintwear,
+      paintindex: toInt(config.paintindex, 0),
+      paintseed: toInt(config.paintseed, 0),
+      paintwear: toNumber(config.paintwear, 0),
       active: config.active ?? false,
       stattrak_enabled: config.stattrak_enabled ?? false,
-      stattrak_count: config.stattrak_count ?? 0,
+      stattrak_count: toInt(config.stattrak_count, 0),
       nametag: config.nametag || '',
       stickers: restoredStickers,
       keychain: restoredKeychain
     }
+
+    // Also update the selected skin if paint index changed
+    if (config.paintindex) {
+      const matchingSkin = apiState.value.skins.find(skin =>
+        Number(skin.paint_index) === toInt(config.paintindex, 0)
+      )
+      if (matchingSkin && props.weapon) {
+        selectedSkin.value = {
+          ...props.weapon,
+          name: matchingSkin.name,
+          defaultName: matchingSkin.name,
+          image: matchingSkin.image,
+          defaultImage: matchingSkin.image,
+          minFloat: matchingSkin.min_float ?? 0,
+          maxFloat: matchingSkin.max_float ?? 1,
+          paintindex: Number(matchingSkin.paint_index),
+          rarity: matchingSkin.rarity,
+          availableTeams: matchingSkin.team?.id ?? 'both',
+        }
+      }
+    }
+
     state.value.showHistoryPanel = false
-    message.success(t('history.restoreSuccess') as string)
+    // Note: Success message is shown by ItemHistoryPanel, no need to duplicate here
   }
 }
 
@@ -689,10 +817,16 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
       availableTeams: skin.team?.id ?? 'both',
     }
 
+    // Preserve current float value, only clamp if outside new skin's valid range
+    const newMinFloat = skin.min_float ?? 0
+    const newMaxFloat = skin.max_float ?? 1
+    const currentFloat = customization.value.paintwear
+    const clampedFloat = Math.max(newMinFloat, Math.min(newMaxFloat, currentFloat))
+
     customization.value = {
       ...customization.value,
       paintindex: Number(skin.paint_index),
-      paintwear: Number(skin.min_float ?? 0),
+      paintwear: clampedFloat,
     }
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to select skin'

@@ -34,7 +34,7 @@ const state = ref({
   showRestoreConfirm: false,
   pagination: {
     total: 0,
-    limit: 20,
+    limit: 10,
     offset: 0,
     hasMore: false
   }
@@ -227,7 +227,7 @@ watch(() => props.visible, (isVisible) => {
 <template>
   <NDrawer
     :show="visible"
-    :width="400"
+    :width="360"
     placement="right"
     class="history-drawer"
     :on-update:show="(val: boolean) => emit('update:visible', val)"
@@ -256,7 +256,7 @@ watch(() => props.visible, (isVisible) => {
             <div class="flex items-start gap-3">
               <!-- Icon -->
               <div class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-                <span class="text-sm">{{ getChangeIcon(record.change_type) }}</span>
+                <span class="text-sm scale-125">{{ getChangeIcon(record.change_type) }}</span>
               </div>
 
               <!-- Content -->
@@ -428,7 +428,7 @@ watch(() => props.visible, (isVisible) => {
 }
 </style>
 
-<style lang="postcss">
+<style lang="scss">
 /* Global styles for the drawer - needs to be unscoped to affect n-drawer components */
 /* Override ALL Naive UI drawer elements with transparent/dark glassmorphism */
 
@@ -446,6 +446,7 @@ watch(() => props.visible, (isVisible) => {
   backdrop-filter: blur(20px) saturate(150%) !important;
   -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
   border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
+ 
   box-shadow:
     -8px 0 32px rgba(0, 0, 0, 0.5),
     -2px 0 8px rgba(0, 0, 0, 0.3) !important;
@@ -458,6 +459,7 @@ watch(() => props.visible, (isVisible) => {
 .history-drawer-content .n-scrollbar,
 .history-drawer-content .n-scrollbar-container,
 .history-drawer-content .n-scrollbar-content {
+  padding: 2px !important;
   background: transparent !important;
   background-color: transparent !important;
 }

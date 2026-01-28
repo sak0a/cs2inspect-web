@@ -326,10 +326,16 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
             </div>
           </div>
           <!-- Skins Grid -->
-          <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4">
+          <TransitionGroup
+            name="card-fade"
+            tag="div"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4"
+            appear
+          >
             <KnifeTabs
-                v-for="(knifeData, knifeName) in groupedKnives"
+                v-for="(knifeData, knifeName, index) in groupedKnives"
                 :key="knifeName"
+                :style="{ '--delay': `${index * 50}ms` }"
                 :weapon-data="{
                 weapons: knifeData.weapons as any,
                 defaultName: knifeData.defaultName,
@@ -337,7 +343,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
               }"
                 @weapon-click="handleKnifeClick as any"
             />
-          </div>
+          </TransitionGroup>
           <!-- No Skins State -->
           <div v-if="skins.length === 0" class="text-center py-12">
             <p class="text-gray-400">No skins available for this loadout</p>
@@ -374,5 +380,23 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 .n-card {
   background: #242424;
   border: 1px solid #313030;
+}
+
+.card-fade-enter-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition-delay: var(--delay, 0ms);
+}
+
+.card-fade-enter-from {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.card-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+
+.card-fade-leave-to {
+  opacity: 0;
 }
 </style>

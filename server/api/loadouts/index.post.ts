@@ -19,10 +19,9 @@ export default useErrorHandling(async (event) => {
 
     Logger.header(`Loadouts POST request: ${event.req.url}`)
 
-    const steamId = query.steamId as string
-    validateRequiredRequestData(steamId, 'Steam ID')
-
     const body = await readBody(event)
+    const steamId = query.steamId as string || body.steamId
+    validateRequiredRequestData(steamId, 'Steam ID')
     validateRequiredRequestData(body.name, 'Loadout Name')
 
     await createLoadout(steamId, body.name)
@@ -38,5 +37,5 @@ export default useErrorHandling(async (event) => {
     Logger.success(`Loadout ${data.id} retrieved successfully for response`)
 
     const meta = createResponseMeta(startTime, { steamId, method: 'POST', loadoutName: body.name })
-    return createSuccessResponse(data, meta, 'Loadout created successfully')
+    return createSuccessResponse({ loadout: data }, meta, 'Loadout created successfully')
 }, ErrorCodes.LOADOUT_ERROR)

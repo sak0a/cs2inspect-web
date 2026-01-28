@@ -1,4 +1,4 @@
-import { getQuery } from 'h3'
+import { getQuery, readBody } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { setActiveLoadout, getLoadout } from '~/server/database/loadoutHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
@@ -18,10 +18,11 @@ export default useErrorHandling(async (event) => {
 
     Logger.header(`Activate Loadout API request: ${event.req.url}`)
 
-    const steamId = query.steamId as string
+    const body = await readBody(event)
+    const steamId = query.steamId as string || body.steamId
     validateRequiredRequestData(steamId, 'Steam ID')
 
-    const loadoutId = query.loadoutId as string
+    const loadoutId = query.loadoutId as string || body.loadoutId
     validateRequiredRequestData(loadoutId, 'Loadout ID')
 
     await setActiveLoadout(loadoutId, steamId)
