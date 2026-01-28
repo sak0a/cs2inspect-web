@@ -15,7 +15,7 @@ import type { APISticker, KeychainJSON, IEnhancedWeapon, IMappedDBWeapon } from 
 import { toSteamId } from '~/types/core/common'
 import { steamAuth } from "~/services/steamAuth"
 import { useLoadoutStore } from '~/stores/loadoutStore'
-import { useAutoSave, type SaveStatus } from '~/composables/useAutoSave'
+import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
 import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
@@ -981,15 +981,6 @@ const removeKeychain = () => {
   customization.value.keychain = null
 }
 
-const handleOpenVisualCustomizer = () => {
-  if (!selectedSkin.value) {
-    message.warning('Please select a weapon skin first')
-    return
-  }
-  // Toggle inline mode instead of modal
-  state.value.inlineVisualCustomizerActive = !state.value.inlineVisualCustomizerActive
-}
-
 const handleExitInlineVisualCustomizer = () => {
   state.value.inlineVisualCustomizerActive = false
 }
@@ -1066,56 +1057,6 @@ const handleModalKeydown = (e: KeyboardEvent) => {
     state.value.showDuplicateConfirm = true
   }
 }
-
-const handleVisualCustomizerSave = (data: { stickers: (StickerConfiguration | null)[], keychain: KeychainConfiguration | null, weaponWear?: number }) => {
-  customization.value.stickers = data.stickers
-  customization.value.keychain = data.keychain
-
-  // Update weapon wear if provided
-  if (typeof data.weaponWear === 'number') {
-    customization.value.paintwear = data.weaponWear
-  }
-
-  state.value.showVisualCustomizer = false
-  message.success('Visual customization applied successfully')
-}
-
-const handleVisualCustomizerWearUpdate = (wearValue: number) => {
-  customization.value.paintwear = wearValue
-}
-
-// Inline Visual Customizer Handlers
-const handleInlineCustomizerStickerUpdate = (stickers: any[]) => {
-  customization.value.stickers = stickers.map(s => s ? {
-    ...s,
-    id: s.id.toString(),
-    name: s.api?.name || s.name || 'Sticker',
-    image: s.api?.image || s.image || '',
-    position: s.slot
-  } : null)
-}
-
-const handleInlineCustomizerKeychainUpdate = (keychain: any) => {
-  if (keychain) {
-    customization.value.keychain = {
-        ...keychain,
-        id: keychain.id.toString(),
-        name: keychain.api?.name || keychain.name || 'Keychain',
-        image: keychain.api?.image || keychain.image || ''
-    }
-  } else {
-    customization.value.keychain = null
-  }
-}
-
-const handleInlineCustomizerWearUpdate = (wear: number) => {
-  customization.value.paintwear = wear
-}
-
-const handleInlineStickerSlotSelect = (slotIndex: number) => {
-  handleAddSticker(slotIndex)
-}
-
 
 
 const digitOnlyInputProps = {
@@ -1872,28 +1813,10 @@ onUnmounted(() => {
           :loadout-id="loadoutStore.selectedLoadoutId || 0"
           @restore="handleHistoryRestore"
       />
-
-      <!-- Visual Customizer Modal -->
-      <!--<VisualCustomizerModal
-          :visible="state.showVisualCustomizer"
-          :weapon-skin="{
-            name: selectedSkin?.name || '',
-            image: selectedSkin?.image || '',
-            defindex: selectedSkin?.weapon_defindex || 0
-          }"
-          :stickers="customization.stickers"
-          :keychain="customization.keychain"
-          :weapon-wear="customization.wear"
-          :min-wear="selectedSkin?.minFloat || 0"
-          :max-wear="selectedSkin?.maxFloat || 1"
-          @update:visible="state.showVisualCustomizer = $event"
-          @save="handleVisualCustomizerSave"
-          @update-wear="handleVisualCustomizerWearUpdate"
-      />-->
     </div>
   </NModal>
 </template>
-<style scoped lang="postcss">
+<style scoped lang="scss">
 @reference "tailwindcss";
 
 .active-item {
