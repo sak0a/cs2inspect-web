@@ -49,6 +49,7 @@
     "jsonwebtoken": "^9.0.3",
     "naive-ui": "^2.43.2",
     "nuxt": "^4.3.0",
+    "nuxt-lucide-icons": "2.0.0",
     "nuxtjs-naive-ui": "^1.0.2",
     "playwright-core": "^1.57.0",
     "postcss": "^8.5.6",
