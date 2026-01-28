@@ -131,25 +131,35 @@ export interface DBLoadout extends DBUserRecord {
 
 /**
  * Base weapon database record
- * 
+ *
  * @description Common fields for all weapon types (rifles, pistols, SMGs, etc.)
+ *
+ * ## Branded Types Conversion
+ *
+ * When using values from this record in business logic, convert to branded types:
+ * - `paintseed` → `toPaintSeed(parseInt(paintseed))` for PaintSeed
+ * - `paintwear` → `toFloatValue(parseFloat(paintwear))` for FloatValue (0-1)
+ * - `stattrak_count` → `toStatTrakCount(stattrak_count)` for StatTrakCount
+ * - `nametag` → `toNameTag(nametag)` for NameTag (max 32 chars)
+ * - Sticker IDs → `toStickerId(id)` for StickerId
+ * - Sticker x/y → `toNormalizedCoordinate(value)` for NormalizedCoordinate (0-1)
  */
 export interface DBBaseWeapon extends DBLoadoutRecord {
   /** Weapon definition index */
   defindex: Defindex
   /** Paint index for the skin */
   paintindex: PaintIndex
-  /** Pattern seed for randomization */
+  /** Pattern seed (0-999) - convert to PaintSeed for business logic */
   paintseed: string
-  /** Wear value (float as string) */
+  /** Wear value as string (0-1) - convert to FloatValue for business logic */
   paintwear: string
   /** Whether StatTrak is enabled */
   stattrak_enabled: boolean
-  /** StatTrak kill count */
+  /** StatTrak kill count - convert to StatTrakCount for validation */
   stattrak_count: number
-  /** Custom name tag */
+  /** Custom name tag (max 32 chars) - convert to NameTag for validation */
   nametag: string
-  /** Sticker data for position 0 (format: id;x;y;wear;scale;rotation) */
+  /** Sticker data for position 0 (JSON with id, x, y, wear, scale, rotation) */
   sticker_0: string
   /** Sticker data for position 1 */
   sticker_1: string
@@ -159,7 +169,7 @@ export interface DBBaseWeapon extends DBLoadoutRecord {
   sticker_3: string
   /** Sticker data for position 4 */
   sticker_4: string
-  /** Keychain data (format: id;x;y;z;seed) */
+  /** Keychain data (JSON with id, x, y, z, seed) */
   keychain: string
 }
 
@@ -202,9 +212,17 @@ export type DBWeapon = DBRifle | DBPistol | DBSMG | DBHeavy
 
 /**
  * Knife database record
- * 
+ *
  * @description Represents knife configurations in the wp_player_knifes table
- * 
+ *
+ * ## Branded Types Conversion
+ *
+ * When using values from this record in business logic, convert to branded types:
+ * - `paintseed` → `toPaintSeed(parseInt(paintseed))` for PaintSeed
+ * - `paintwear` → `toFloatValue(parseFloat(paintwear))` for FloatValue (0-1)
+ * - `stattrak_count` → `toStatTrakCount(stattrak_count)` for StatTrakCount
+ * - `nametag` → `toNameTag(nametag)` for NameTag (max 32 chars)
+ *
  * @example
  * ```typescript
  * const knife: DBKnife = {
@@ -230,15 +248,15 @@ export interface DBKnife extends DBLoadoutRecord {
   defindex: Defindex
   /** Paint index for the skin */
   paintindex: PaintIndex
-  /** Pattern seed for randomization */
+  /** Pattern seed (0-999) - convert to PaintSeed for business logic */
   paintseed: string
-  /** Wear value (float as string) */
+  /** Wear value as string (0-1) - convert to FloatValue for business logic */
   paintwear: string
   /** Whether StatTrak is enabled */
   stattrak_enabled: boolean
-  /** StatTrak kill count */
+  /** StatTrak kill count - convert to StatTrakCount for validation */
   stattrak_count: number
-  /** Custom name tag */
+  /** Custom name tag (max 32 chars) - convert to NameTag for validation */
   nametag: string
 }
 
@@ -248,9 +266,15 @@ export interface DBKnife extends DBLoadoutRecord {
 
 /**
  * Glove database record
- * 
+ *
  * @description Represents glove configurations in the wp_player_gloves table
- * 
+ *
+ * ## Branded Types Conversion
+ *
+ * When using values from this record in business logic, convert to branded types:
+ * - `paintseed` → `toPaintSeed(parseInt(paintseed))` for PaintSeed
+ * - `paintwear` → `toFloatValue(parseFloat(paintwear))` for FloatValue (0-1)
+ *
  * @example
  * ```typescript
  * const glove: DBGlove = {
@@ -273,9 +297,9 @@ export interface DBGlove extends DBLoadoutRecord {
   defindex: Defindex
   /** Paint index for the skin */
   paintindex: PaintIndex
-  /** Pattern seed for randomization */
+  /** Pattern seed (0-999) - convert to PaintSeed for business logic */
   paintseed: string
-  /** Wear value (float as string) */
+  /** Wear value as string (0-1) - convert to FloatValue for business logic */
   paintwear: string
 }
 

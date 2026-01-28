@@ -11,16 +11,40 @@ import type { StickerJSON, KeychainJSON } from '~/server/types/jsonSchemas';
 
 /**
  * Snapshot of an item's configuration stored as JSON
+ *
+ * ## Branded Types Conversion
+ *
+ * When restoring history or using snapshot values in business logic,
+ * convert to branded types for type safety:
+ * - `paintindex` → `toPaintIndex(paintindex)` for PaintIndex
+ * - `paintseed` → `toPaintSeed(paintseed)` for PaintSeed (0-999)
+ * - `paintwear` → `toFloatValue(paintwear)` for FloatValue (0-1)
+ * - `stattrak_count` → `toStatTrakCount(stattrak_count)` for StatTrakCount
+ * - `nametag` → `toNameTag(nametag)` for NameTag (max 32 chars)
+ * - Sticker IDs → `toStickerId(sticker.id)` for StickerId
+ * - Sticker positions → `toNormalizedCoordinate(value)` for NormalizedCoordinate
+ * - Keychain IDs → `toKeychainId(keychain.id)` for KeychainId
+ *
+ * @see {@link ~/types/core/branded.ts} for branded type definitions
  */
 export interface ItemHistorySnapshot {
+  /** Paint index for the skin - convert to PaintIndex */
   paintindex: number;
+  /** Pattern seed (0-999) - convert to PaintSeed */
   paintseed: number;
+  /** Wear value (0-1) - convert to FloatValue */
   paintwear: number;
+  /** Whether StatTrak is enabled */
   stattrak_enabled?: boolean;
+  /** StatTrak kill count - convert to StatTrakCount */
   stattrak_count?: number;
+  /** Custom name tag (max 32 chars) - convert to NameTag */
   nametag?: string;
+  /** Sticker configurations (with StickerId for id field) */
   stickers?: Array<StickerJSON | null>;
+  /** Keychain configuration (with KeychainId for id field) */
   keychain?: KeychainJSON | null;
+  /** Whether item is active/equipped */
   active?: boolean;
 }
 
