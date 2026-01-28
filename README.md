@@ -39,7 +39,7 @@ A full-stack web application for Counter-Strike 2 players to customize and manag
 
 | Category | Technology |
 |----------|------------|
-| Framework | Nuxt 3 (Vue 3 + TypeScript) |
+| Framework | Nuxt 4 (Vue 3 + TypeScript) |
 | UI Library | Naive UI |
 | Styling | Tailwind CSS + SASS |
 | State Management | Pinia |
