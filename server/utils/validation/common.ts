@@ -73,10 +73,13 @@ export function validateNameTag(nameTag: unknown) {
  * Validates paint index (must be non-negative integer)
  *
  * Uses branded type guard isValidDefindex() (same constraints as PaintIndex)
+ * Coerces string numbers to actual numbers before validation
  */
 export function validatePaintIndex(paintIndex: unknown) {
     validateRequiredRequestData(paintIndex, 'Paint Index', true)
-    if (!isValidDefindex(paintIndex)) {
+    // Coerce string numbers to actual numbers
+    const coerced = typeof paintIndex === 'string' ? Number(paintIndex) : paintIndex
+    if (!isValidDefindex(coerced)) {
         Logger.error('Invalid paint index')
         throw createError({
             statusCode: 400,
@@ -89,10 +92,13 @@ export function validatePaintIndex(paintIndex: unknown) {
  * Validates paint seed/pattern (must be non-negative integer)
  *
  * Uses branded type guard isValidDefindex() (same constraints as PaintSeed)
+ * Coerces string numbers to actual numbers before validation
  */
 export function validatePaintSeed(pattern: unknown) {
     validateRequiredRequestData(pattern, 'Paint Seed', true)
-    if (!isValidDefindex(pattern)) {
+    // Coerce string numbers to actual numbers
+    const coerced = typeof pattern === 'string' ? Number(pattern) : pattern
+    if (!isValidDefindex(coerced)) {
         Logger.error('Invalid paint seed')
         throw createError({
             statusCode: 400,

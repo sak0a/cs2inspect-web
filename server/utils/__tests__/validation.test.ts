@@ -59,6 +59,11 @@ describe('validation/common', () => {
             expect(() => validatePaintIndex(123)).not.toThrow();
         });
 
+        it('should allow string numbers', () => {
+            expect(() => validatePaintIndex('0')).not.toThrow();
+            expect(() => validatePaintIndex('123')).not.toThrow();
+        });
+
         it('should throw for negative indices', () => {
             // Updated error message includes constraint info
             expect(() => validatePaintIndex(-1)).toThrow('Invalid paint index: -1. Must be a non-negative integer');
@@ -69,6 +74,11 @@ describe('validation/common', () => {
         it('should allow non-negative seeds', () => {
             expect(() => validatePaintSeed(0)).not.toThrow();
             expect(() => validatePaintSeed(123)).not.toThrow();
+        });
+
+        it('should allow string numbers', () => {
+            expect(() => validatePaintSeed('0')).not.toThrow();
+            expect(() => validatePaintSeed('123')).not.toThrow();
         });
 
         it('should throw for negative seeds', () => {
