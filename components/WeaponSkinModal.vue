@@ -24,6 +24,7 @@ import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
 import InlineVisualCustomizer from './InlineVisualCustomizer.vue'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
+import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -157,6 +158,14 @@ const autoSave = useAutoSave<WeaponConfiguration>(
 // Track if we should trigger auto-save (only when user makes intentional changes)
 const isInitializing = ref(false)
 
+// Video preview refs
+const previewVideo = ref<HTMLVideoElement | null>(null)
+const previewCanvas = ref<HTMLCanvasElement | null>(null)
+const previewCtx = ref<CanvasRenderingContext2D | null>(null)
+const previewVideoManager = ref<VideoCanvasManager | null>(null)
+const isPreviewVideoMode = ref(false)
+const isPreviewVideoLoading = ref(false)
+
 // Watch customization changes for auto-save
 watch(
   () => customization.value,
@@ -172,6 +181,26 @@ watch(
   },
   { deep: true }
 )
+
+// Watch wear changes to update video preview
+watch(
+  () => customization.value.paintwear,
+  (newWear) => {
+    if (isPreviewVideoMode.value && previewVideoManager.value) {
+      previewVideoManager.value.updateWear(newWear)
+    }
+  }
+)
+
+// Watch selectedSkin to initialize video preview
+watch(selectedSkin, async (newSkin) => {
+  if (newSkin) {
+    await nextTick()
+    await initializePreviewVideo()
+  } else {
+    isPreviewVideoMode.value = false
+  }
+})
 
 /**
  * User profile using new UserProfile interface
@@ -329,6 +358,58 @@ const fetchAvailableSkinsForWeapon = async () => {
   } finally {
     state.value.isLoadingSkins = false
   }
+}
+
+/**
+ * Initialize video preview for the selected skin
+ * Falls back to static image if video not available
+ */
+const initializePreviewVideo = async () => {
+  if (!selectedSkin.value || !previewVideo.value || !previewCanvas.value) return
+
+  // Get canvas context
+  previewCtx.value = previewCanvas.value.getContext('2d')
+  if (!previewCtx.value) return
+
+  // Generate video URL from skin name
+  const weaponName = selectedSkin.value.name.split(' | ')[0] || 'weapon'
+  const skinName = selectedSkin.value.name.split(' | ')[1] || 'skin'
+  const videoUrl = generateVideoUrl(weaponName, skinName)
+
+  isPreviewVideoLoading.value = true
+
+  try {
+    const videoExists = await checkVideoExists(videoUrl)
+    if (videoExists) {
+      // Clean up previous video manager
+      if (previewVideoManager.value) {
+        previewVideoManager.value.destroy()
+      }
+
+      previewVideoManager.value = new VideoCanvasManager({
+        video: previewVideo.value,
+        ctx: previewCtx.value,
+        canvasSize: { width: previewCanvas.value.width, height: previewCanvas.value.height },
+        wearValue: customization.value.paintwear,
+        minWear: selectedSkin.value.minFloat ?? 0,
+        maxWear: selectedSkin.value.maxFloat ?? 1,
+        videoDuration: 140,
+        transparentBackground: true
+      })
+      await previewVideoManager.value.loadVideo(videoUrl)
+      // Seek to current wear and render after seek completes
+      await previewVideoManager.value.seekToWear(customization.value.paintwear)
+      isPreviewVideoMode.value = true
+      previewVideoManager.value.renderFrame()
+    } else {
+      isPreviewVideoMode.value = false
+    }
+  } catch (e) {
+    console.warn('[WeaponSkinModal] Video preview init failed', e)
+    isPreviewVideoMode.value = false
+  }
+
+  isPreviewVideoLoading.value = false
 }
 
 // mapCustomizationToRepresentation has been moved to the backend
@@ -1218,6 +1299,13 @@ watch(() => props.weapon, () => {
     }
   }
 })
+
+// Cleanup video manager on unmount
+onUnmounted(() => {
+  if (previewVideoManager.value) {
+    previewVideoManager.value.destroy()
+  }
+})
 </script>
 
 <template>
@@ -1368,10 +1456,24 @@ watch(() => props.weapon, () => {
         <!-- Selected Skin Preview -->
         <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg bg-opacity-40">
           <div class="grid grid-cols-2 gap-6">
-            <!-- Left side - Image -->
+            <!-- Left side - Video/Image Preview -->
             <div>
               <div class="relative">
+                <!-- Hidden video element for frame extraction -->
+                <video ref="previewVideo" crossorigin="anonymous" playsinline style="display: none;" />
+
+                <!-- Canvas for video rendering (shown when video available) -->
+                <canvas
+                  v-show="isPreviewVideoMode && !isPreviewVideoLoading"
+                  ref="previewCanvas"
+                  class="w-full h-64"
+                  width="640"
+                  height="256"
+                />
+
+                <!-- Static image fallback (shown when no video or loading) -->
                 <img
+                    v-show="!isPreviewVideoMode || isPreviewVideoLoading"
                     :src="selectedSkin?.image"
                     :alt="selectedSkin?.name"
                     class="w-full h-64 object-contain"
@@ -1404,12 +1506,13 @@ watch(() => props.weapon, () => {
                     <path d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2" />
                   </svg>
                 </button>
+                <!-- Skin Name Overlay -->
+                <h3 class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1">{{ selectedSkin?.name }}</h3>
               </div>
-              <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
             </div>
 
             <!-- Right side - Customization -->
-            <div class="space-y-6 flex flex-col items-center">
+            <div class="space-y-4 flex flex-col items-center">
               <!-- StatTrak and Name Tag -->
               <div class="grid grid-cols-2 gap-4 w-full">
                 <div class="flex items-center space-x-4">
@@ -1433,36 +1536,6 @@ watch(() => props.weapon, () => {
                 />
               </div>
 
-            <!-- Paint Settings -->
-            <div class="grid grid-cols-2 gap-4 w-full">
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <h4 class="font-bold">{{ t('modals.weaponSkin.labels.paintIndex') }}</h4>
-                  <div class="flex items-center space-x-2">
-                    <NSwitch v-model:value="customization.paintIndexOverride" />
-                    <span class="text-sm">{{ t('modals.weaponSkin.labels.paintIndexOverride') }}</span>
-                  </div>
-                </div>
-                <NInputNumber
-                    v-model:value="customization.paintindex"
-                    :min="0"
-                    :max="9999"
-                    :disabled="!customization.paintIndexOverride"
-                    :input-props="digitOnlyInputProps"
-                />
-              </div>
-
-              <div class="space-y-2">
-                <h4 class="font-bold">{{ t('modals.weaponSkin.labels.pattern') }}</h4>
-                <NInputNumber
-                    v-model:value="customization.paintseed"
-                    :min="0"
-                    :max="1000"
-                    :input-props="digitOnlyInputProps"
-                />
-              </div>
-            </div>
-
             <!-- Wear Slider -->
             <div class="w-full">
               <div class="flex items-start justify-between">
@@ -1475,23 +1548,37 @@ watch(() => props.weapon, () => {
               />
             </div>
 
-            <!-- Duplicate & Active Switch-->
-            <div class="flex items-center justify-center w-full mt-0 gap-2">
-              <!-- Duplicate Weapon -->
-              <div v-if="selectedSkin?.availableTeams === 'both'" class="">
-                <NButton
-                    :disabled="!selectedSkin"
-                    type="default"
-                    secondary
-                    class="w-full"
-                    @click="state.showDuplicateConfirm = true"
-                >
-                  {{ t('modals.weaponSkin.buttons.duplicate') }}
-                </NButton>
+            <!-- Paint Settings & Active Toggle -->
+            <div class="flex flex-wrap items-end gap-4 w-full">
+              <div class="flex flex-col gap-1">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium">{{ t('modals.weaponSkin.labels.paintIndex') }}</span>
+                  <NSwitch v-model:value="customization.paintIndexOverride" size="small" />
+                </div>
+                <NInputNumber
+                    v-model:value="customization.paintindex"
+                    :min="0"
+                    :max="9999"
+                    :disabled="!customization.paintIndexOverride"
+                    :input-props="digitOnlyInputProps"
+                    class="w-28"
+                />
               </div>
 
-              <NSpace justify="center" align="center" class="w-full h-full">
-                <NSwitch v-model:value="customization.active" size="large" class="col-span-1">
+              <div class="flex flex-col gap-1">
+                <span class="text-sm font-medium">{{ t('modals.weaponSkin.labels.pattern') }}</span>
+                <NInputNumber
+                    v-model:value="customization.paintseed"
+                    :min="0"
+                    :max="1000"
+                    :input-props="digitOnlyInputProps"
+                    class="w-28"
+                />
+              </div>
+
+              <!-- Active/Inactive Toggle & Duplicate -->
+              <div class="flex items-center gap-4 flex-1">
+                <NSwitch v-model:value="customization.active" size="medium">
                   <template #checked>
                     {{ t('modals.weaponSkin.labels.itemActive') }}
                   </template>
@@ -1499,7 +1586,19 @@ watch(() => props.weapon, () => {
                     {{ t('modals.weaponSkin.labels.itemInactive') }}
                   </template>
                 </NSwitch>
-              </NSpace>
+
+                <!-- Duplicate Weapon -->
+                <NButton
+                    v-if="selectedSkin?.availableTeams === 'both'"
+                    :disabled="!selectedSkin"
+                    type="default"
+                    secondary
+                    size="small"
+                    @click="state.showDuplicateConfirm = true"
+                >
+                  {{ t('modals.weaponSkin.buttons.duplicate') }}
+                </NButton>
+              </div>
             </div>
 
             <!-- Stickers & Keychain Toggle and Duplicate Weapon Buttons -->
@@ -1526,7 +1625,7 @@ watch(() => props.weapon, () => {
           <!-- Stickers -->
           <div class="col-span-5 lg:col-span-5 md:col-span-3 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.stickers.title') }}</h4>
-            <div class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-x-2 min-h-36 max-h-36">
+            <div class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-x-1.5 min-h-32 max-h-32">
               <div
                   v-for="(sticker, index) in customization.stickers"
                   :key="index"
@@ -1558,7 +1657,7 @@ watch(() => props.weapon, () => {
                     <path d="M6 6l12 12" />
                   </svg>
                 </button>
-                <div v-if="sticker" class="h-28 relative group">
+                <div v-if="sticker" class="h-24 relative group">
                   <img
                       :src="generateStickerImageUrl(sticker.id, sticker.wear || 0)"
                       :alt="sticker.api?.name ?? ''"
@@ -1569,7 +1668,7 @@ watch(() => props.weapon, () => {
                     <span class="text-white text-xs">{{ t('modals.weaponSkin.stickers.reposition') }}</span>
                   </div>
                 </div>
-                <div v-else class="h-28 flex items-center justify-center">
+                <div v-else class="h-24 flex items-center justify-center">
                   <span class="text-gray-400 text-sm">{{ t('modals.weaponSkin.stickers.add') }}</span>
                 </div>
                 <div class="mt-1 absolute top-0 left-1 text-xs text-gray-400">
@@ -1582,7 +1681,7 @@ watch(() => props.weapon, () => {
           <div class="col-span-1 lg:col-span-1 md:col-span-3 sm:col-span-2 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.keychain.title') }}</h4>
             <div
-                class="relative group items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-36 max-h-36"
+                class="relative group items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-32 max-h-32"
                 :class="{ 'inactive-item': !customization.keychain, 'active-item': customization.keychain }"
                 @click="handleAddKeychain"
             >
@@ -1602,7 +1701,7 @@ watch(() => props.weapon, () => {
                   <path d="M6 6l12 12" />
                 </svg>
               </button>
-              <div v-if="customization.keychain" class="relative group h-28 flex flex-col items-center justify-center w-full">
+              <div v-if="customization.keychain" class="relative group h-24 flex flex-col items-center justify-center w-full">
                 <img
                     :src="generateFlatKeychainUrl(customization.keychain.api?.name ?? '', customization.keychain.seed, undefined, customization.keychain.wrapped_sticker_id || undefined)"
                     :alt="customization.keychain.api?.name ?? ''"
@@ -1610,7 +1709,7 @@ watch(() => props.weapon, () => {
                 >
                 <p class="text-xs text-center text-gray-400 mt-1 truncate w-full px-1">{{ (customization.keychain.api?.name ?? '').replace('Charm | ', '') }}</p>
               </div>
-              <div v-else class="h-28 flex items-center justify-center">
+              <div v-else class="h-24 flex items-center justify-center">
                 <span class="text-gray-400 text-sm">{{ t('modals.weaponSkin.keychain.add') }}</span>
               </div>
 

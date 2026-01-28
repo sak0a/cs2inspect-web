@@ -19,6 +19,8 @@ export interface VideoCanvasOptions {
   maxWear: number
   /** Video duration in seconds (default: 140) */
   videoDuration?: number
+  /** Use transparent background instead of dark fill (default: false) */
+  transparentBackground?: boolean
 }
 
 export interface VideoMetadata {
@@ -45,6 +47,7 @@ export class VideoCanvasManager {
   private isVideoReady: boolean = false
   private currentWear: number = 0
   private renderCallback?: () => void
+  private transparentBackground: boolean
 
   constructor(options: VideoCanvasOptions) {
     this.video = options.video
@@ -54,6 +57,7 @@ export class VideoCanvasManager {
     this.minWear = options.minWear
     this.maxWear = options.maxWear
     this.currentWear = options.wearValue
+    this.transparentBackground = options.transparentBackground ?? false
 
     this.setupVideo()
   }
@@ -186,9 +190,11 @@ export class VideoCanvasManager {
         drawY = 0
       }
 
-      // Fill background with dark color first
-      this.ctx.fillStyle = '#1a1a1a'
-      this.ctx.fillRect(0, 0, this.canvasSize.width, this.canvasSize.height)
+      // Fill background with dark color (unless transparent)
+      if (!this.transparentBackground) {
+        this.ctx.fillStyle = '#1a1a1a'
+        this.ctx.fillRect(0, 0, this.canvasSize.width, this.canvasSize.height)
+      }
 
       // Draw video frame to canvas with proper aspect ratio
       this.ctx.drawImage(
