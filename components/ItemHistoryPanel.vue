@@ -6,7 +6,6 @@
  */
 
 import type { ItemHistoryRecord, HistoryItemType, HistoryItemCategory } from '~/server/database/schema/itemHistory'
-import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 const props = defineProps<{
   visible: boolean
@@ -343,7 +342,6 @@ watch(() => props.visible, (isVisible) => {
         :bordered="false"
         :mask-closable="!state.isRestoring"
         :closable="!state.isRestoring"
-        :theme-overrides="skinModalThemeOverrides"
       >
         <p class="text-gray-300">{{ t('history.restoreConfirmMessage') }}</p>
         <div v-if="state.selectedRecord" class="mt-4 p-4 rounded-xl bg-black/40 border border-amber-500/20 backdrop-blur-sm">

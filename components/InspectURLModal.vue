@@ -44,7 +44,6 @@ const handleClose = () => {
       preset="card"
       :title="t('modals.inspectUrl.title') as string"
       :bordered="false"
-      :theme-overrides="skinModalThemeOverrides"
       :mask-closable="!_props.loading"
       :closable="!_props.loading"
       @update:show="handleClose"

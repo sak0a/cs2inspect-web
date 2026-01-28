@@ -239,7 +239,6 @@ onMounted(async () => {
       :bordered="false"
       style="width: 500px"
       :title="t('modals.loadout.create.title') as string"
-      :theme-overrides="skinModalThemeOverrides"
       @after-leave="formInputs.newName = ''"
   >
     <NInput
@@ -266,7 +265,6 @@ onMounted(async () => {
       preset="card"
       style="width: 500px"
       :title="t('modals.loadout.rename.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
-      :theme-overrides="skinModalThemeOverrides"
       @after-leave = "formInputs.renameName = ''"
   >
     <NInput
@@ -293,7 +291,6 @@ onMounted(async () => {
       :bordered="false"
       style="width: 500px"
       :title="t('modals.loadout.delete.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
-      :theme-overrides="skinModalThemeOverrides"
       @after-leave="formInputs.deleteConfirm = ''"
   >
     <p>{{ t('modals.loadout.delete.question') }}</p>
@@ -330,7 +327,6 @@ onMounted(async () => {
       :bordered="false"
       style="width: 500px"
       :title="t('modals.loadout.clear.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
-      :theme-overrides="skinModalThemeOverrides"
       @after-leave="formInputs.clearConfirm = ''"
   >
     <p>{{ t('modals.loadout.clear.question') }}</p>
@@ -376,7 +372,6 @@ onMounted(async () => {
       :bordered="false"
       style="width: 400px"
       :title="t('modals.loadout.share.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
-      :theme-overrides="skinModalThemeOverrides"
   >
       <div class="flex flex-col gap-4">
           <p>{{ t('modals.loadout.share.description') }}</p>
@@ -396,7 +391,6 @@ onMounted(async () => {
       :bordered="false"
       style="width: 500px"
       :title="t('modals.loadout.import.title') as string"
-      :theme-overrides="skinModalThemeOverrides"
       @after-leave="formInputs.importCode = ''"
   >
       <div class="flex flex-col gap-4">

@@ -40,8 +40,17 @@ const myThemeOverrides: GlobalThemeOverrides = {
     textColor: '#ffffff',
     peers: {
       Card: {
-        borderRadius: '20px',
-        color: '#121212',
+        borderRadius: '24px',
+        // Semi-transparent background for glassmorphism effect
+        colorModal: 'var(--glass-bg-primary)',
+        // Enhanced shadow with multiple layers for depth
+        boxShadow: `
+          0 32px 64px rgba(0, 0, 0, 0.9),
+          0 16px 32px rgba(0, 0, 0, 0.7),
+          0 8px 16px rgba(0, 0, 0, 0.5),
+          0 0 0 1px var(--glass-border),
+          inset 0 1px 0 var(--glass-border)
+        `,
         textColor: '#ffffff',
         titleTextColor: '#ffffff',
         closeIconColor: '#ffffff',
@@ -49,6 +58,10 @@ const myThemeOverrides: GlobalThemeOverrides = {
         closeColorPressed: '#444444'
       }
     }
+  },
+  Layout: {
+    color: '#101010',
+    siderColor: '#101010'
   },
   Menu: {
     borderRadius: '20px',

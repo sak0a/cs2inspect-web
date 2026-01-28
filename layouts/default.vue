@@ -148,7 +148,6 @@ const backgroundStyleFade = {
           :width="200"
           bordered
           class="flex flex-col"
-          :theme-overrides="layoutThemeOverrides"
       >
         <div class="grid grid-rows-[auto_1fr_auto] h-full">
           <!-- Steam Account Menu Section -->
@@ -259,7 +258,6 @@ const backgroundStyleFade = {
                 :bordered="false"
                 :closable="false"
                 :mask-closable="false"
-                :theme-overrides="skinModalThemeOverrides"
                 style="width: 400px"
                 :title="t('modals.logout.title') as string"
               >

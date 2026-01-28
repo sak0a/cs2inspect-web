@@ -1,30 +1,8 @@
-import type { ModalProps, CardProps, GlobalThemeOverrides } from 'naive-ui'
+import type { ModalProps } from 'naive-ui'
 type ModalThemeOverrides = NonNullable<ModalProps['themeOverrides']>
-type CardThemeOverrides = NonNullable<CardProps['themeOverrides']>
 
-// Glassmorphism modal card theme with backdrop blur and transparency
-const glassmorphismModalCardThemeOverrides: CardThemeOverrides = {
-  borderRadius: '24px',
-  // Semi-transparent background for glassmorphism effect (CSS variables will override this)
-  colorModal: 'var(--glass-bg-primary)',
-  // Enhanced shadow with multiple layers for depth
-  boxShadow: `
-    0 32px 64px rgba(0, 0, 0, 0.9),
-    0 16px 32px rgba(0, 0, 0, 0.7),
-    0 8px 16px rgba(0, 0, 0, 0.5),
-    0 0 0 1px var(--glass-border),
-    inset 0 1px 0 var(--glass-border)
-  `
-}
-
-// Standard glassmorphism theme for main modals
-export const skinModalThemeOverrides: ModalThemeOverrides = {
-  peers: {
-    Card: glassmorphismModalCardThemeOverrides
-  }
-}
-
-// Lighter glassmorphism for smaller attachment modals
+// Lighter glassmorphism for smaller attachment modals (stickers, keychains)
+// Note: Main modal styling is now in ThemeProvider.vue as the global default
 export const weaponAttachmentModalThemeOverrides: ModalThemeOverrides = {
   peers: {
     Card: {
@@ -38,9 +16,4 @@ export const weaponAttachmentModalThemeOverrides: ModalThemeOverrides = {
       `
     }
   }
-}
-
-export const layoutThemeOverrides: GlobalThemeOverrides['Layout'] = {
-  color: '#101010',
-  siderColor: '#101010'
 }

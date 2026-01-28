@@ -29,7 +29,6 @@ const handleConfirm = () => {
       :bordered="false"
       :mask-closable="!loading"
       :closable="!loading"
-      :theme-overrides="skinModalThemeOverrides"
       @update:show="(show) => { if (!show) handleClose() }">
     <p>{{ t('modals.reset.question') }}</p>
     <div class="flex justify-end mt-4 gap-2">

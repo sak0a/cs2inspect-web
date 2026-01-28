@@ -29,8 +29,7 @@ const handleConfirm = () => {
       :title="String(t('modals.duplicateItem.header', { itemType: _props.itemType }))"
       :mask-closable="!_props.loading"
       :closable="!_props.loading"
-      preset="card"
-      :theme-overrides="skinModalThemeOverrides">
+      preset="card">
     <NSpace vertical>
       <div class="py-2">
         <p v-if="_props.otherTeamHasSkin" class="text-warning mb-4">

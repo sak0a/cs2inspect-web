@@ -434,7 +434,6 @@ watch(() => props.weapon, () => {
       preset="card"
       :bordered="false"
       size="huge"
-      :theme-overrides="skinModalThemeOverrides"
       @update:show="handleClose"
   >
     <template #header>

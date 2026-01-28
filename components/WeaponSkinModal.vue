@@ -1228,7 +1228,6 @@ watch(() => props.weapon, () => {
       :bordered="false"
       size="huge"
       class="duration-500 ease-in-out transition-all"
-      :theme-overrides="skinModalThemeOverrides"
       @update:show="handleClose"
   >
     <template #header>
