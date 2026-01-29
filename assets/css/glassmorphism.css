@@ -1,3 +1,25 @@
+/* Glassmorphism Sidebar */
+.s-sider-glass {
+  background: var(--glass-bg-primary);
+  backdrop-filter: var(--glass-blur-strong) var(--glass-saturation);
+  -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation);
+  border-right: 1px solid var(--glass-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.s-sider-glass--top {
+  border-right: none;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.s-sider-glass--overlay {
+  box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.s-sider-glass--overlay.s-sider-glass--top {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
 /* Glassmorphism Effects for Modals */
 
 /* Main modal glassmorphism styling - only for the main modal card, not grid cards */
@@ -937,6 +959,39 @@
   box-shadow:
     0 0 0 3px rgba(255, 255, 255, 0.14),
     0 12px 24px rgba(0, 0, 0, 0.34);
+}
+
+/* Footer */
+.footer-accent {
+  position: relative;
+  margin-top: auto;
+}
+
+.footer-gradient {
+  height: 48px;
+  background: linear-gradient(
+    to bottom,
+    transparent 0%,
+    rgba(250, 204, 21, 0.03) 40%,
+    rgba(250, 204, 21, 0.06) 100%
+  );
+  pointer-events: none;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 0.75rem;
+  color: rgba(250, 204, 21, 0.45);
+  background: rgba(250, 204, 21, 0.04);
+}
+
+.footer-brand {
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: rgba(250, 204, 21, 0.6);
 }
 
 /* Dialogs (NDialogProvider) */

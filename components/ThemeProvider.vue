@@ -59,10 +59,6 @@ const myThemeOverrides: GlobalThemeOverrides = {
       }
     }
   },
-  Layout: {
-    color: '#101010',
-    siderColor: '#101010'
-  },
   Menu: {
     borderRadius: '20px',
   },

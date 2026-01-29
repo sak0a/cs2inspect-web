@@ -33,6 +33,70 @@ const showModal = ref({
   import: false
 })
 
+const selectShow = ref(false)
+let hoverTimeout: ReturnType<typeof setTimeout> | null = null
+const overDropdown = ref(false)
+
+const onHoverEnter = () => {
+  if (hoverTimeout) clearTimeout(hoverTimeout)
+  hoverTimeout = null
+  selectShow.value = true
+}
+
+const onHoverLeave = () => {
+  if (hoverTimeout) clearTimeout(hoverTimeout)
+  hoverTimeout = setTimeout(() => {
+    if (!overDropdown.value) {
+      selectShow.value = false
+    }
+  }, 200)
+}
+
+// Track mouseenter/mouseleave on the teleported dropdown panel
+const onDropdownEnter = () => {
+  overDropdown.value = true
+  if (hoverTimeout) clearTimeout(hoverTimeout)
+  hoverTimeout = null
+}
+
+const onDropdownLeave = () => {
+  overDropdown.value = false
+  if (hoverTimeout) clearTimeout(hoverTimeout)
+  hoverTimeout = setTimeout(() => {
+    selectShow.value = false
+  }, 200)
+}
+
+// Attach listeners to the dropdown panel when it appears/disappears
+let trackedPanel: HTMLElement | null = null
+
+watch(selectShow, (open) => {
+  if (!open) {
+    if (trackedPanel) {
+      trackedPanel.removeEventListener('mouseenter', onDropdownEnter)
+      trackedPanel.removeEventListener('mouseleave', onDropdownLeave)
+      trackedPanel = null
+    }
+    overDropdown.value = false
+    return
+  }
+  // Wait for the DOM to render the dropdown
+  nextTick(() => {
+    // Naive UI teleports select menus into .v-binder-follower-content wrappers.
+    // Find the one that contains a .n-base-select-menu that is currently visible.
+    const menus = document.querySelectorAll('.v-binder-follower-content .n-base-select-menu')
+    for (const menu of menus) {
+      const follower = menu.closest('.v-binder-follower-content') as HTMLElement | null
+      if (follower && follower.style.display !== 'none') {
+        trackedPanel = follower
+        follower.addEventListener('mouseenter', onDropdownEnter)
+        follower.addEventListener('mouseleave', onDropdownLeave)
+        break
+      }
+    }
+  })
+})
+
 const formInputs = ref({
   newName: '',
   renameName: '',
@@ -155,26 +219,39 @@ const copyToClipboard = () => {
 const dropdownOptions = computed(() => {
     // Check if current loadout is default
     const isDefault = loadoutStore.selectedLoadout?.is_default === 1 || loadoutStore.selectedLoadout?.is_default === true;
-    
-    return [
-      { label: t('loadout.actions.rename'), key: 'rename', icon: () => h(NIcon, null, { default: () => h(RenameIcon) }) },
-      { label: t('loadout.actions.duplicate'), key: 'duplicate', icon: () => h(NIcon, null, { default: () => h(DuplicateIcon) }) },
-      { label: t('loadout.actions.share'), key: 'share', icon: () => h(NIcon, null, { default: () => h(ShareIcon) }) },
-      { 
-          label: t('loadout.actions.setDefault'), 
-          key: 'default', 
-          icon: () => h(NIcon, { color: '#f59e0b' }, { default: () => h(DefaultIcon, isDefault ? { fill: '#f59e0b' } : {}) })
-      },
-      { type: 'divider', key: 'd1' },
-      { label: t('loadout.actions.clear'), key: 'clear', icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(ClearIcon) }) }, // Red
-      { label: t('loadout.actions.delete'), key: 'delete', icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(DeleteIcon) }) } // Red
+    const hasSelection = loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId
+
+    const items: Array<Record<string, unknown>> = [
+      { label: t('loadout.create'), key: 'create', icon: () => h(NIcon, { color: '#22c55e' }, { default: () => h(NewIcon) }) },
+      { label: t('loadout.import'), key: 'import', icon: () => h(NIcon, { color: '#3b82f6' }, { default: () => h(ImportIcon) }) },
     ]
+
+    if (hasSelection) {
+      items.push(
+        { type: 'divider', key: 'd0' },
+        { label: t('loadout.actions.rename'), key: 'rename', icon: () => h(NIcon, null, { default: () => h(RenameIcon) }) },
+        { label: t('loadout.actions.duplicate'), key: 'duplicate', icon: () => h(NIcon, null, { default: () => h(DuplicateIcon) }) },
+        { label: t('loadout.actions.share'), key: 'share', icon: () => h(NIcon, null, { default: () => h(ShareIcon) }) },
+        {
+            label: t('loadout.actions.setDefault'),
+            key: 'default',
+            icon: () => h(NIcon, { color: '#f59e0b' }, { default: () => h(DefaultIcon, isDefault ? { fill: '#f59e0b' } : {}) })
+        },
+        { type: 'divider', key: 'd1' },
+        { label: t('loadout.actions.clear'), key: 'clear', icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(ClearIcon) }) },
+        { label: t('loadout.actions.delete'), key: 'delete', icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(DeleteIcon) }) },
+      )
+    }
+
+    return items
 })
 
 const menuProps = () => ({ class: 'glassmorphism-dropdown' })
 
 const handleDropdownSelect = (key: any) => {
-    if (key === 'rename') showModal.value.rename = true
+    if (key === 'create') showModal.value.create = true
+    else if (key === 'import') showModal.value.import = true
+    else if (key === 'rename') showModal.value.rename = true
     else if (key === 'delete') showModal.value.delete = true
     else if (key === 'clear') showModal.value.clear = true
     else handleLoadoutAction(key as any)
@@ -191,43 +268,34 @@ onMounted(async () => {
 <template>
   <NSpace vertical>
     <NSpace align="center">
-      <NSelect
+      <div
           v-if="loadoutStore.hasLoadouts"
-          v-model:value="loadoutStore.selectedLoadoutId"
-          :options="loadoutStore.loadouts.map((loadout: DBLoadout) => ({
-            label: loadout.name + (loadout.is_default ? ' (Default)' : ''),
-            value: loadout.id
-          }))"
-          :placeholder="t('loadout.select') as string"
-          :loading="loadoutStore.isLoading"
-          class="min-w-[180px]"
-      />
+          @mouseenter="onHoverEnter"
+          @mouseleave="onHoverLeave"
+      >
+        <NSelect
+            v-model:value="loadoutStore.selectedLoadoutId"
+            v-model:show="selectShow"
+            :options="loadoutStore.loadouts.map((loadout: DBLoadout) => ({
+              label: loadout.name + (loadout.is_default ? ' (Default)' : ''),
+              value: loadout.id
+            }))"
+            :placeholder="t('loadout.select') as string"
+            :loading="loadoutStore.isLoading"
+            class="min-w-[180px]"
+        />
+      </div>
 
-      <template v-if="loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId">
-          <NDropdown 
-              trigger="hover" 
-              :options="dropdownOptions" 
-              @select="handleDropdownSelect"
-              :menu-props="menuProps"
-          >
-              <NButton circle strong secondary :aria-label="t('loadout.manage') as string">
-                  <template #icon><NIcon><MenuIcon /></NIcon></template>
-              </NButton>
-          </NDropdown>
-      </template>
-
-      <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="success" :secondary="loadoutStore.hasLoadouts" :loading="loadoutStore.isLoading" :aria-label="t('loadout.create') as string" @click="showModal.create = true">
-        <template v-if="loadoutStore.hasLoadouts" #icon>
-          <NIcon><NewIcon /></NIcon>
-        </template>
-        <template v-if="!loadoutStore.hasLoadouts">
-          {{ t('loadout.create') }}
-        </template>
-      </NButton>
-
-      <NButton size="medium" circle strong secondary type="info" @click="showModal.import = true" :title="t('loadout.import')">
-          <template #icon><NIcon><ImportIcon /></NIcon></template>
-      </NButton>
+      <NDropdown
+          trigger="hover"
+          :options="dropdownOptions"
+          :menu-props="menuProps"
+          @select="handleDropdownSelect"
+      >
+          <NButton circle strong secondary :aria-label="t('loadout.manage') as string">
+              <template #icon><NIcon><MenuIcon /></NIcon></template>
+          </NButton>
+      </NDropdown>
     </NSpace>
   </NSpace>
 
@@ -431,7 +499,4 @@ onMounted(async () => {
 .glassmorphism-dropdown .n-dropdown-option:hover {
     background-color: rgba(255, 255, 255, 0.1) !important;
 }
-</style>
-<style lang="sass" scoped>
-
 </style>
