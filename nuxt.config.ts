@@ -197,7 +197,7 @@ export default defineNuxtConfig({
   },
   hooks: {
     'close': async () => {
-      if (process.argv.includes('typecheck')) return
+      if (process.argv.includes('typecheck') || process.argv.includes('lint') || process.argv.includes('analyze')) return
       setTimeout(() => {
         console.log("Closing...")
         process.exit(0)

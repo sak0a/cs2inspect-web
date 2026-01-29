@@ -2,6 +2,7 @@
 import type { APIKeychain, IEnhancedWeaponKeychain, APISticker } from "~/server/types";
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates';
 import WrappedStickerModal from './WrappedStickerModal.vue';
+import { digitOnlyInputProps } from '~/utils/inputProps'
 
 interface Props {
   visible: boolean
@@ -40,108 +41,38 @@ const state = ref({
 
 const PAGE_SIZE = 10
 
-type KeychainSortBy = 'name' | 'rarity'
-type SortDir = 'asc' | 'desc'
-
-const ui = ref({
-  sortBy: 'name' as KeychainSortBy,
-  sortDir: 'asc' as SortDir,
-  rarityFilterIds: [] as string[],
-})
-
-const rarityRank = (rarityId: string | undefined) => {
-  const raw = (rarityId || '').toLowerCase()
-  const id = raw.replace(/^rarity_/, '')
-  const rankMap: Record<string, number> = {
-    default: 1,
-    rare: 2,
-    mythical: 3,
-    legendary: 4,
-    ancient: 5,
-    contraband: 6,
-  }
-  return rankMap[id] ?? 0
-}
-
-const availableRarities = computed(() => {
-  const map = new Map<string, { id: string; name: string; color: string }>()
-  for (const item of state.value.items) {
-    const id = item.rarity?.id
-    if (!id) continue
-    if (!map.has(id)) {
-      map.set(id, { id, name: item.rarity.name, color: item.rarity.color })
-    }
-  }
-  return Array.from(map.values()).sort((a, b) => rarityRank(a.id) - rarityRank(b.id))
-})
-
 const keychainSortOptions = computed(() => [
   { label: t('modals.keychain.sort.name') as string, value: 'name' },
   { label: t('modals.keychain.sort.rarity') as string, value: 'rarity' },
 ])
 
-const toggleSortDir = () => {
-  ui.value.sortDir = ui.value.sortDir === 'asc' ? 'desc' : 'asc'
-  state.value.currentPage = 1
-}
-
-const toggleRarityFilter = (rarityId: string) => {
-  const set = new Set(ui.value.rarityFilterIds)
-  if (set.has(rarityId)) set.delete(rarityId)
-  else set.add(rarityId)
-  ui.value.rarityFilterIds = Array.from(set)
-  state.value.currentPage = 1
-}
-
-const filteredItems = computed(() => {
-  const q = state.value.searchQuery.toLowerCase()
-  const raritySet = new Set(ui.value.rarityFilterIds)
-  const useRarityFilter = raritySet.size > 0
-
-  return state.value.items.filter((item) => {
-    if (q && !item.name.toLowerCase().includes(q)) return false
-    if (useRarityFilter && !raritySet.has(item.rarity?.id)) return false
-    return true
-  })
+const {
+  sortBy,
+  sortDir,
+  rarityFilterIds,
+  availableRarities,
+  sortedItems,
+  paginatedItems,
+  totalPages,
+  toggleSortDir,
+  toggleRarityFilter,
+} = useFilterSort({
+  items: computed(() => state.value.items),
+  searchQuery: computed(() => state.value.searchQuery),
+  currentPage: computed({
+    get: () => state.value.currentPage,
+    set: (v) => { state.value.currentPage = v },
+  }),
+  pageSize: PAGE_SIZE,
+  sortKeys: ['name', 'rarity'],
 })
-
-const sortedItems = computed(() => {
-  const dir = ui.value.sortDir === 'asc' ? 1 : -1
-  const sortBy = ui.value.sortBy
-
-  return [...filteredItems.value].sort((a, b) => {
-    if (sortBy === 'rarity') {
-      const diff = rarityRank(a.rarity?.id) - rarityRank(b.rarity?.id)
-      if (diff !== 0) return diff * dir
-    }
-    return a.name.localeCompare(b.name) * dir
-  })
-})
-
-const paginatedItems = computed(() => {
-  const start = (state.value.currentPage - 1) * PAGE_SIZE
-  const end = start + PAGE_SIZE
-  return sortedItems.value.slice(start, end)
-})
-
-const totalPages = computed(() => Math.ceil(sortedItems.value.length / PAGE_SIZE))
 
 // Check if seed input should be disabled for Austin 2025 Highlight charms
 const isSeedDisabled = computed(() => {
   return state.value.selectedItem?.name?.includes('Souvenir Charm | Austin 2025 Highlight') || false
 })
 
-const teamLabel = computed((): string | null => {
-  if (props.team === 1) return t('modals.weaponSkin.team.terrorist') as string
-  if (props.team === 2) return t('modals.weaponSkin.team.counterTerrorist') as string
-  return null
-})
-
-const teamBadgeClasses = computed(() => {
-  if (props.team === 1) return 'border-orange-500/30 bg-orange-500/15 text-orange-300'
-  if (props.team === 2) return 'border-blue-500/30 bg-blue-500/15 text-blue-300'
-  return ''
-})
+const { teamLabel, teamBadgeClasses } = useTeamBadge(() => props.team)
 
 const isStickerSlab = computed(() => {
   const name = state.value.selectedItem?.name?.toLowerCase() || ''
@@ -212,13 +143,6 @@ const handleSave = () => {
   }
   emit('select', emitData)
   handleClose()
-}
-
-const digitOnlyInputProps = {
-  inputmode: 'numeric' as const, 
-  pattern: '\\d*',
-  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
-  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
 }
 
 const handleRemove = () => {
@@ -341,19 +265,6 @@ watch(() => state.value.customization.seed, (newSeed) => {
   }
 })
 
-// Reset pagination to page 1 whenever filters/sort/search change
-watch(() => state.value.searchQuery, () => {
-  state.value.currentPage = 1
-})
-watch(() => ui.value.sortBy, () => {
-  state.value.currentPage = 1
-})
-watch(() => ui.value.sortDir, () => {
-  state.value.currentPage = 1
-})
-watch(() => ui.value.rarityFilterIds, () => {
-  state.value.currentPage = 1
-}, { deep: true })
 </script>
 
 <template>
@@ -527,7 +438,7 @@ watch(() => ui.value.rarityFilterIds, () => {
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
           <NSelect
-            v-model:value="ui.sortBy"
+            v-model:value="sortBy"
             size="small"
             class="w-44"
             :options="keychainSortOptions"
@@ -536,10 +447,10 @@ watch(() => ui.value.rarityFilterIds, () => {
             size="small"
             secondary
             type="default"
-            :aria-label="`Sort ${ui.sortDir === 'asc' ? 'ascending' : 'descending'}`"
+            :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
-            {{ ui.sortDir === 'asc' ? '↑' : '↓' }}
+            {{ sortDir === 'asc' ? '↑' : '↓' }}
           </NButton>
         </div>
 
@@ -550,10 +461,10 @@ watch(() => ui.value.rarityFilterIds, () => {
             :key="rarity.id"
             size="small"
             secondary
-            :type="ui.rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
-            :style="ui.rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :type="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+            :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
             :aria-label="`Filter by ${rarity.name} rarity`"
-            :aria-pressed="ui.rarityFilterIds.includes(rarity.id)"
+            :aria-pressed="rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
           >
             <span class="flex items-center gap-2">

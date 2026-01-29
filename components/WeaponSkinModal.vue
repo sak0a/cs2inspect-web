@@ -2,7 +2,6 @@
 // New type system imports
 import type {
   WeaponModalProps,
-  WeaponModalState,
   WeaponConfiguration,
   APIWeaponSkin,
   APIKeychain,
@@ -13,6 +12,8 @@ import type {
 import type { EconItem } from 'cs2-inspect-lib'
 import type { APISticker, KeychainJSON, IEnhancedWeapon, IMappedDBWeapon } from '~/server/types'
 import { toSteamId } from '~/types/core/common'
+import { digitOnlyInputProps } from '~/utils/inputProps'
+import { useItemModal } from '~/composables/useItemModal'
 import { steamAuth } from "~/services/steamAuth"
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import { useAutoSave } from '~/composables/useAutoSave'
@@ -47,7 +48,7 @@ const message = useMessage()
 
 const modalTitle = computed(() => {
   // Show visual customizer title when in inline mode
-  if (state.value.inlineVisualCustomizerActive && selectedSkin.value) {
+  if (weaponState.value.inlineVisualCustomizerActive && selectedSkin.value) {
     return t('modals.weaponSkin.visualCustomizer.modalTitle', { 
       weaponName: selectedSkin.value.name 
     }) as string
@@ -58,54 +59,42 @@ const modalTitle = computed(() => {
     : t('modals.weaponSkin.defaultTitle') as string
 })
 
-const teamLabel = computed((): string | null => {
-  const team = props.weapon?.databaseInfo?.team
-  if (team === 1) return t('modals.weaponSkin.team.terrorist') as string
-  if (team === 2) return t('modals.weaponSkin.team.counterTerrorist') as string
-  return null
-})
+const { teamLabel, teamBadgeClasses } = useTeamBadge(() => props.weapon?.databaseInfo?.team)
 
-const teamBadgeClasses = computed(() => {
-  const team = props.weapon?.databaseInfo?.team
-  if (team === 1) return 'border-orange-500/30 bg-orange-500/15 text-orange-300'
-  if (team === 2) return 'border-blue-500/30 bg-blue-500/15 text-blue-300'
-  return ''
+/**
+ * Use shared item modal composable for state, pagination, sorting, and skin fetching
+ */
+const {
+  state,
+  apiState,
+  PAGE_SIZE,
+  sortBy,
+  sortDir,
+  rarityFilterIds,
+  availableRarities,
+  sortedSkins,
+  paginatedSkins,
+  totalPages,
+  fetchSkins,
+  clearState,
+  toggleSortDir,
+  toggleRarityFilter,
+} = useItemModal({
+  itemType: 'weapon',
+  pageSize: props.pageSize || 10,
+  enableSortFilter: true,
 })
 
 /**
- * Modal state using new WeaponModalState interface
+ * Weapon-specific modal state (not shared with other item modals)
  */
-const state = ref<WeaponModalState>({
-  // Base modal state
-  isLoadingSkins: false,
-  searchQuery: '',
-  currentPage: 1,
-  error: null,
-
-  // Base item modal state
-  showImportModal: false,
-  showDuplicateConfirm: false,
-  showResetConfirm: false,
-  isImporting: false,
-  isLoadingInspect: false,
-  isResetting: false,
-  isDuplicating: false,
-
-  // Weapon-specific modal state
+const weaponState = ref({
   showStickerModal: false,
   showKeychainModal: false,
   showVisualCustomizer: false,
   inlineVisualCustomizerActive: false,
   currentStickerPosition: 0,
-  showHistoryPanel: false
-})
-
-/**
- * Additional state for API data (not part of the modal state interface)
- */
-const apiState = ref({
-  skins: [] as APIWeaponSkin[],
-  showDetails: false
+  showHistoryPanel: false,
 })
 
 const selectedSkin = ref<IEnhancedWeapon | null>()
@@ -212,147 +201,11 @@ const user = computed((): UserProfile | null => {
 })
 
 const loadoutStore = useLoadoutStore()
-/**
- * Advanced pagination and filtering (extends base composable)
- */
-const PAGE_SIZE = ref(props.pageSize || 10)
-
-type SkinSortBy = 'name' | 'rarity'
-type SortDir = 'asc' | 'desc'
-
-const ui = ref({
-  sortBy: 'name' as SkinSortBy,
-  sortDir: 'asc' as SortDir,
-  rarityFilterIds: [] as string[],
-})
-
-const rarityRank = (rarityId: string | undefined) => {
-  const id = (rarityId || '').toLowerCase()
-  const rankMap: Record<string, number> = {
-    consumer: 1,
-    industrial: 2,
-    milspec: 3,
-    restricted: 4,
-    classified: 5,
-    covert: 6,
-    extraordinary: 7,
-  }
-  return rankMap[id] ?? 0
-}
-
-const availableRarities = computed(() => {
-  const map = new Map<string, { id: string; name: string; color: string }>()
-  for (const skin of apiState.value.skins) {
-    const id = skin.rarity?.id
-    if (!id) continue
-    if (!map.has(id)) {
-      map.set(id, { id, name: skin.rarity.name, color: skin.rarity.color })
-    }
-  }
-  return Array.from(map.values()).sort((a, b) => rarityRank(a.id) - rarityRank(b.id))
-})
 
 const skinSortOptions = computed(() => [
   { label: t('modals.weaponSkin.sort.name') as string, value: 'name' },
   { label: t('modals.weaponSkin.sort.rarity') as string, value: 'rarity' },
 ])
-
-const toggleSortDir = () => {
-  ui.value.sortDir = ui.value.sortDir === 'asc' ? 'desc' : 'asc'
-  state.value.currentPage = 1
-}
-
-const toggleRarityFilter = (rarityId: string) => {
-  const set = new Set(ui.value.rarityFilterIds)
-  if (set.has(rarityId)) set.delete(rarityId)
-  else set.add(rarityId)
-  ui.value.rarityFilterIds = Array.from(set)
-  state.value.currentPage = 1
-}
-
-const filteredSkins = computed(() => {
-  const q = state.value.searchQuery.toLowerCase()
-  const raritySet = new Set(ui.value.rarityFilterIds)
-  const useRarityFilter = raritySet.size > 0
-
-  return apiState.value.skins.filter((skin) => {
-    if (q && !skin.name.toLowerCase().includes(q)) return false
-    if (useRarityFilter && !raritySet.has(skin.rarity?.id)) return false
-    return true
-  })
-})
-
-const sortedSkins = computed(() => {
-  const dir = ui.value.sortDir === 'asc' ? 1 : -1
-  const sortBy = ui.value.sortBy
-
-  return [...filteredSkins.value].sort((a, b) => {
-    if (sortBy === 'rarity') {
-      const diff = rarityRank(a.rarity?.id) - rarityRank(b.rarity?.id)
-      if (diff !== 0) return diff * dir
-    }
-    return a.name.localeCompare(b.name) * dir
-  })
-})
-
-const paginatedSkins = computed(() => {
-  const start = (state.value.currentPage - 1) * PAGE_SIZE.value
-  const end = start + PAGE_SIZE.value
-  return sortedSkins.value.slice(start, end)
-})
-
-const totalPages = computed(() => Math.ceil(sortedSkins.value.length / PAGE_SIZE.value))
-
-/**
- * Fetch available skins for the current weapon
- * Updated to use new state structure and error handling
- */
-const fetchAvailableSkinsForWeapon = async () => {
-  if (!props.weapon) {
-    console.warn('WeaponSkinModal: No weapon provided for skin fetching')
-    return
-  }
-
-  try {
-    state.value.isLoadingSkins = true
-    state.value.error = null
-
-    console.log('WeaponSkinModal: Fetching skins for weapon:', props.weapon.weapon_name)
-    const response = await $fetch<{ success: boolean; data: APIWeaponSkin[] }>(`/api/data/skins?weapon=${props.weapon.weapon_name}`)
-
-    console.log('WeaponSkinModal: API response:', {
-      success: response.success,
-      dataLength: response.data?.length || 0,
-      weapon: props.weapon.weapon_name
-    })
-
-    apiState.value.skins = response.data ?? []
-
-    if (response.data.length === 0) {
-      console.warn('WeaponSkinModal: No skins found for weapon:', props.weapon.weapon_name)
-      state.value.error = `No skins available for ${props.weapon.defaultName || props.weapon.weapon_name}`
-    } else {
-      console.log('WeaponSkinModal: Successfully loaded', response.data.length, 'skins')
-    }
-
-    // Check if current page is above available pages and adjust if needed
-    const newTotalPages = Math.ceil(sortedSkins.value.length / PAGE_SIZE.value)
-
-    if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-      state.value.currentPage = newTotalPages
-    }
-  } catch (error) {
-    console.error('WeaponSkinModal: Error fetching weapon skins:', {
-      error,
-      weapon: props.weapon?.weapon_name,
-      weaponData: props.weapon
-    })
-    state.value.error = error instanceof Error ? error.message : 'Failed to fetch skins'
-    emit('error', state.value.error)
-  } finally {
-    state.value.isLoadingSkins = false
-  }
-}
 
 /**
  * Initialize video preview for the selected skin
@@ -823,7 +676,7 @@ const handleHistoryRestore = async (record: ItemHistoryRecord) => {
       }
     }
 
-    state.value.showHistoryPanel = false
+    weaponState.value.showHistoryPanel = false
     // Note: Success message is shown by ItemHistoryPanel, no need to duplicate here
   }
 }
@@ -952,11 +805,11 @@ const handleStickerDrop = (e: DragEvent, toIndex: number) => {
   customization.value.stickers = stickers
 }
 const handleAddSticker = (position: number) => {
-  state.value.currentStickerPosition = position
-  state.value.showStickerModal = true
+  weaponState.value.currentStickerPosition = position
+  weaponState.value.showStickerModal = true
 }
 const handleStickerSelect = (stickerData: StickerConfiguration | null) => {
-  customization.value.stickers[state.value.currentStickerPosition] = stickerData
+  customization.value.stickers[weaponState.value.currentStickerPosition] = stickerData
 }
 
 const removeSticker = (index: number) => {
@@ -967,7 +820,7 @@ const removeSticker = (index: number) => {
 }
 
 const handleAddKeychain = () => {
-  state.value.showKeychainModal = true
+  weaponState.value.showKeychainModal = true
 }
 const handleKeychainSelect = (keychainData: KeychainConfiguration | null) => {
   customization.value.keychain = keychainData
@@ -979,12 +832,12 @@ const removeKeychain = () => {
 }
 
 const handleExitInlineVisualCustomizer = () => {
-  state.value.inlineVisualCustomizerActive = false
+  weaponState.value.inlineVisualCustomizerActive = false
 }
 
 const handleInlineOpenStickerModal = (slotIndex: number) => {
-  state.value.currentStickerPosition = slotIndex
-  state.value.showStickerModal = true
+  weaponState.value.currentStickerPosition = slotIndex
+  weaponState.value.showStickerModal = true
 }
 
 const handleInlineSave = () => {
@@ -1008,12 +861,12 @@ const handleModalKeydown = (e: KeyboardEvent) => {
 
   // If any sub-modals are open, don't intercept Enter here.
   if (
-    state.value.showStickerModal
-    || state.value.showKeychainModal
+    weaponState.value.showStickerModal
+    || weaponState.value.showKeychainModal
     || state.value.showImportModal
     || state.value.showDuplicateConfirm
     || state.value.showResetConfirm
-    || state.value.showVisualCustomizer
+    || weaponState.value.showVisualCustomizer
   ) {
     return
   }
@@ -1056,12 +909,6 @@ const handleModalKeydown = (e: KeyboardEvent) => {
 }
 
 
-const digitOnlyInputProps = {
-  inputmode: 'numeric' as const, 
-  pattern: '\\d*',
-  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
-  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
-}
 
 const handleSave = () => {
   if (!selectedSkin.value) return
@@ -1112,30 +959,17 @@ const resetAllState = () => {
     team: 1
   }
 
-  // Reset all other state
-  state.value = {
-    ...state.value,
-    searchQuery: '',
-    currentPage: 1,
-    // skins: [], // Removed as apiState.value.skins is used
-    isLoadingSkins: false,
+  // Reset base modal state via composable
+  clearState()
+
+  // Reset weapon-specific state
+  weaponState.value = {
     showStickerModal: false,
     showKeychainModal: false,
-    showImportModal: false,
-    // showDetails: false, // Removed as it's not in the type
+    showVisualCustomizer: false,
+    inlineVisualCustomizerActive: false,
     currentStickerPosition: 0,
-    showResetConfirm: false,
-    showDuplicateConfirm: false,
-    isResetting: false,
-    isImporting: false,
-    isLoadingInspect: false,
-    isDuplicating: false
-  }
-
-  ui.value = {
-    sortBy: 'name',
-    sortDir: 'asc',
-    rarityFilterIds: [],
+    showHistoryPanel: false,
   }
 
   // Reset selected skin
@@ -1158,26 +992,6 @@ watch(() => props.visible, (isVisible) => {
   }
 }, { immediate: true })
 
-// Watch for changes to searchQuery to adjust current page if needed
-watch(() => state.value.searchQuery, () => {
-  // When search query changes, check if we need to adjust the current page
-  const newTotalPages = Math.ceil(sortedSkins.value.length / PAGE_SIZE.value)
-  if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-    state.value.currentPage = newTotalPages
-  } else if (newTotalPages > 0) {
-    // Reset to page 1 when search query changes
-    state.value.currentPage = 1
-  }
-})
-
-watch(() => ui.value.sortBy, () => {
-  state.value.currentPage = 1
-})
-
-watch(() => ui.value.sortDir, () => {
-  state.value.currentPage = 1
-})
-
 /**
  * Watch for changes to props.weapon to initialize state when a weapon is selected
  * Updated to use new WeaponConfiguration interface
@@ -1194,7 +1008,7 @@ watch(() => props.weapon, () => {
       autoSave.resetStatus()
 
       // Then fetch new data and initialize state
-      fetchAvailableSkinsForWeapon()
+      fetchSkins(props.weapon.weapon_name, (err) => emit('error', err))
       selectedSkin.value = props.weapon
 
       const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
@@ -1273,7 +1087,7 @@ onUnmounted(() => {
       </div>
     </template>
     <template #header-extra>
-      <template v-if="!state.inlineVisualCustomizerActive">
+      <template v-if="!weaponState.inlineVisualCustomizerActive">
         <!-- Reset Weapon Configuration -->
         <NButton
           :loading="state.isResetting"
@@ -1300,7 +1114,7 @@ onUnmounted(() => {
           type="default"
           :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('history.title'))"
-          @click="state.showHistoryPanel = true"
+          @click="weaponState.showHistoryPanel = true"
         >
           <template #icon>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1366,7 +1180,7 @@ onUnmounted(() => {
     <div @keydown="handleModalKeydown">
       <NSpace vertical size="large" class="-mt-2">
         <Transition name="fade" mode="out-in">
-          <div v-if="state.inlineVisualCustomizerActive" key="inline">
+          <div v-if="weaponState.inlineVisualCustomizerActive" key="inline">
           <!-- Visual Customizer Inline Mode -->
           <LazyInlineVisualCustomizer
             :visible="true"
@@ -1420,7 +1234,7 @@ onUnmounted(() => {
                   :disabled="!selectedSkin"
                   :title="(t('modals.weaponSkin.visualCustomizer.button') as string) || 'Visual Customizer'"
                   :aria-label="(t('modals.weaponSkin.visualCustomizer.button') as string) || 'Visual Customizer'"
-                  @click.stop="state.inlineVisualCustomizerActive = true"
+                  @click.stop="weaponState.inlineVisualCustomizerActive = true"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -1658,7 +1472,7 @@ onUnmounted(() => {
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.sort.label') }}</span>
           <NSelect
-            v-model:value="ui.sortBy"
+            v-model:value="sortBy"
             size="small"
             class="w-44"
             :options="skinSortOptions"
@@ -1667,10 +1481,10 @@ onUnmounted(() => {
             size="small" 
             secondary 
             type="default"
-            :aria-label="`Sort ${ui.sortDir === 'asc' ? 'ascending' : 'descending'}`"
+            :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
-            {{ ui.sortDir === 'asc' ? '↑' : '↓' }}
+            {{ sortDir === 'asc' ? '↑' : '↓' }}
           </NButton>
         </div>
 
@@ -1681,10 +1495,10 @@ onUnmounted(() => {
             :key="rarity.id"
             size="small"
             secondary
-            :type="ui.rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
-            :style="ui.rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :type="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+            :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
             :aria-label="`Filter by ${rarity.name} rarity`"
-            :aria-pressed="ui.rarityFilterIds.includes(rarity.id)"
+            :aria-pressed="rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
           >
             <span class="flex items-center gap-2">
@@ -1760,9 +1574,9 @@ onUnmounted(() => {
 
       <!-- Sticker Modal -->
       <LazyStickerModal
-          v-model:visible="state.showStickerModal"
-          :position="state.currentStickerPosition"
-          :current-sticker="customization.stickers[state.currentStickerPosition]"
+          v-model:visible="weaponState.showStickerModal"
+          :position="weaponState.currentStickerPosition"
+          :current-sticker="customization.stickers[weaponState.currentStickerPosition]"
           :weapon-name="selectedSkin?.name || weapon?.defaultName"
           :team="customization.team"
           @select="handleStickerSelect"
@@ -1770,7 +1584,7 @@ onUnmounted(() => {
 
       <!-- Keychain Modal -->
       <KeychainModal
-          v-model:visible="state.showKeychainModal"
+          v-model:visible="weaponState.showKeychainModal"
           :current-keychain="customization.keychain"
           :weapon-name="selectedSkin?.name || weapon?.defaultName"
           :team="customization.team"
@@ -1801,7 +1615,7 @@ onUnmounted(() => {
 
       <!-- Item History Panel -->
       <LazyItemHistoryPanel
-          v-model:visible="state.showHistoryPanel"
+          v-model:visible="weaponState.showHistoryPanel"
           item-type="weapon"
           :category="props.weapon?.category as any"
           :defindex="props.weapon?.weapon_defindex || 0"

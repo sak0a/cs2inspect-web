@@ -13,7 +13,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     NAlert: typeof import('naive-ui')['NAlert']
-    NAvatar: typeof import('naive-ui')['NAvatar']
     NBadge: typeof import('naive-ui')['NBadge']
     NButton: typeof import('naive-ui')['NButton']
     NCard: typeof import('naive-ui')['NCard']
@@ -32,9 +31,6 @@ declare module 'vue' {
     NInput: typeof import('naive-ui')['NInput']
     NInputGroup: typeof import('naive-ui')['NInputGroup']
     NInputNumber: typeof import('naive-ui')['NInputNumber']
-    NLayout: typeof import('naive-ui')['NLayout']
-    NLayoutContent: typeof import('naive-ui')['NLayoutContent']
-    NLayoutSider: typeof import('naive-ui')['NLayoutSider']
     NLoadingBarProvider: typeof import('naive-ui')['NLoadingBarProvider']
     NMenu: typeof import('naive-ui')['NMenu']
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
@@ -60,7 +56,6 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const NAlert: typeof import('naive-ui')['NAlert']
-  const NAvatar: typeof import('naive-ui')['NAvatar']
   const NBadge: typeof import('naive-ui')['NBadge']
   const NButton: typeof import('naive-ui')['NButton']
   const NCard: typeof import('naive-ui')['NCard']
@@ -79,9 +74,6 @@ declare global {
   const NInput: typeof import('naive-ui')['NInput']
   const NInputGroup: typeof import('naive-ui')['NInputGroup']
   const NInputNumber: typeof import('naive-ui')['NInputNumber']
-  const NLayout: typeof import('naive-ui')['NLayout']
-  const NLayoutContent: typeof import('naive-ui')['NLayoutContent']
-  const NLayoutSider: typeof import('naive-ui')['NLayoutSider']
   const NLoadingBarProvider: typeof import('naive-ui')['NLoadingBarProvider']
   const NMenu: typeof import('naive-ui')['NMenu']
   const NMessageProvider: typeof import('naive-ui')['NMessageProvider']

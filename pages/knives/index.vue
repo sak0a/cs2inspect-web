@@ -301,26 +301,26 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
         <template v-else>
           <div class="flex gap-x-10 justify-start">
             <div class="flex items-center justify-end space-x-2 ">
-              <span class="font-bold  whitespace-nowrap">
+              <span class="font-bold  whitespace-nowrap text-white">
                 {{ t('teams.counterTerrorists') }}
               </span>
               <NSelect
                   v-model:value="ctKnifeType"
                   :options="knifeOptions"
                   placeholder="Select knife type"
-                  class="w-48!"
+                  class="w-44"
                   @update:value="handleKnifeTypeChange('ct', $event)"
               />
             </div>
             <div class="flex items-center space-x-2">
-              <span class=" font-bold">
+              <span class="font-bold text-white">
                 {{ t('teams.terrorists') }}
               </span>
               <NSelect
                   v-model:value="tKnifeType"
                   :options="knifeOptions"
                   placeholder="Select knife type"
-                  class="w-48!"
+                  class="w-44"
                   @update:value="handleKnifeTypeChange('t', $event)"
               />
             </div>

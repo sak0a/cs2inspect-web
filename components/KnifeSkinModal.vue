@@ -8,6 +8,7 @@ import type {
 } from '~/types'
 import type { EconItem } from 'cs2-inspect-lib'
 import { useItemModal } from '~/composables/useItemModal'
+import { digitOnlyInputProps } from '~/utils/inputProps'
 
 // Legacy imports for backward compatibility
 import type { IEnhancedKnife, IEnhancedItem } from '~/server/types'
@@ -61,12 +62,6 @@ const {
   pageSize: props.pageSize || 10 
 })
 
-const digitOnlyInputProps = {
-  inputmode: 'numeric' as const, 
-  pattern: '\\d*',
-  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
-  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
-}
 
 const inheritedWeapon = ref<IEnhancedItem | null>()
 const selectedSkin = ref<IEnhancedItem | null>()
