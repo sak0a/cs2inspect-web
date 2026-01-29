@@ -7,6 +7,7 @@ import type {
   UserProfile
 } from '~/types'
 import { useItemModal } from '~/composables/useItemModal'
+import { digitOnlyInputProps } from '~/utils/inputProps'
 
 // Legacy imports for backward compatibility
 import type { IEnhancedGlove, IEnhancedItem } from '~/server/types'
@@ -29,11 +30,6 @@ interface Props extends Omit<GloveModalProps, 'weapon' | 'user'> {
 
 const props = defineProps<Props>()
 
-const digitOnlyInputProps = {
-  inputmode: 'numeric' as const, pattern: '\\d*',
-  onKeydown: (e: KeyboardEvent) => { const allow=['Backspace','Delete','Tab','ArrowLeft','ArrowRight','Home','End','Enter']; const meta=e.ctrlKey||e.metaKey; if (allow.includes(e.key)||(meta&&/[acvxy]/i.test(e.key))) return; if (!/^[0-9]$/.test(e.key)) e.preventDefault() },
-  onPaste: (e: ClipboardEvent) => { const t=e.clipboardData?.getData('text')||''; if (/[^0-9]/.test(t)) e.preventDefault() }
-}
 
 /**
  * Events interface using new type system with backward compatibility

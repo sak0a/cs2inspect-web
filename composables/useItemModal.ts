@@ -1,12 +1,13 @@
 /**
  * useItemModal - Shared composable for item skin modal functionality
- * 
+ *
  * Extracts common logic from WeaponSkinModal, GloveSkinModal, and KnifeSkinModal
  * to reduce code duplication and improve maintainability.
  */
 
 import type { APIWeaponSkin } from '~/types'
 import { api } from '~/utils/api'
+import { skinRarityRank, toggleFilterId } from '~/utils/rarity'
 
 /**
  * Base modal state shared across all item modals
@@ -38,22 +39,26 @@ export interface ItemModalApiState {
     showDetails: boolean
 }
 
+type SortDir = 'asc' | 'desc'
+
 /**
  * Options for configuring the useItemModal composable
  */
 export interface UseItemModalOptions {
     itemType: 'weapon' | 'knife' | 'glove'
     pageSize?: number
+    /** Enable sort and rarity filter UI state. Default: false */
+    enableSortFilter?: boolean
 }
 
 /**
  * Create a reusable item modal composable
- * 
+ *
  * @param options - Configuration options
  * @returns Reactive state and utility functions for item modals
  */
 export function useItemModal(options: UseItemModalOptions) {
-    const { itemType, pageSize = 10 } = options
+    const { itemType, pageSize = 10, enableSortFilter = false } = options
 
     // Base modal state
     const state = ref<ItemModalState>({
@@ -78,20 +83,59 @@ export function useItemModal(options: UseItemModalOptions) {
 
     const PAGE_SIZE = ref(pageSize)
 
+    // Sort/filter state (only meaningful when enableSortFilter is true)
+    const sortBy = ref<string>('name')
+    const sortDir = ref<SortDir>('asc')
+    const rarityFilterIds = ref<string[]>([])
+
     // ============================================================================
-    // Computed Properties - Filtering and Pagination
+    // Computed Properties - Filtering, Sorting, and Pagination
     // ============================================================================
 
+    const availableRarities = computed(() => {
+        if (!enableSortFilter) return []
+        const map = new Map<string, { id: string; name: string; color: string }>()
+        for (const skin of apiState.value.skins) {
+            const id = skin.rarity?.id
+            if (!id) continue
+            if (!map.has(id)) {
+                map.set(id, { id, name: skin.rarity.name, color: skin.rarity.color })
+            }
+        }
+        return Array.from(map.values()).sort((a, b) => skinRarityRank(a.id) - skinRarityRank(b.id))
+    })
+
     /**
-     * Filter skins by search query
+     * Filter skins by search query and optional rarity filter
      */
     const filteredSkins = computed(() => {
         const query = state.value.searchQuery.toLowerCase()
-        if (!query) return apiState.value.skins
+        const raritySet = new Set(rarityFilterIds.value)
+        const useRarityFilter = enableSortFilter && raritySet.size > 0
 
-        return apiState.value.skins.filter(skin =>
-            skin.name.toLowerCase().includes(query)
-        )
+        return apiState.value.skins.filter(skin => {
+            if (query && !skin.name.toLowerCase().includes(query)) return false
+            if (useRarityFilter && !raritySet.has(skin.rarity?.id)) return false
+            return true
+        })
+    })
+
+    /**
+     * Sorted skins (only sorts when enableSortFilter is true, otherwise pass-through)
+     */
+    const sortedSkins = computed(() => {
+        if (!enableSortFilter) return filteredSkins.value
+
+        const dir = sortDir.value === 'asc' ? 1 : -1
+        const key = sortBy.value
+
+        return [...filteredSkins.value].sort((a, b) => {
+            if (key === 'rarity') {
+                const diff = skinRarityRank(a.rarity?.id) - skinRarityRank(b.rarity?.id)
+                if (diff !== 0) return diff * dir
+            }
+            return a.name.localeCompare(b.name) * dir
+        })
     })
 
     /**
@@ -100,23 +144,33 @@ export function useItemModal(options: UseItemModalOptions) {
     const paginatedSkins = computed(() => {
         const start = (state.value.currentPage - 1) * PAGE_SIZE.value
         const end = start + PAGE_SIZE.value
-        return filteredSkins.value.slice(start, end)
+        return sortedSkins.value.slice(start, end)
     })
 
     /**
-     * Total number of pages based on filtered results
+     * Total number of pages based on sorted results
      */
     const totalPages = computed(() =>
-        Math.ceil(filteredSkins.value.length / PAGE_SIZE.value)
+        Math.ceil(sortedSkins.value.length / PAGE_SIZE.value)
     )
 
     // ============================================================================
     // Methods - Core Functionality
     // ============================================================================
 
+    function toggleSortDir() {
+        sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+        state.value.currentPage = 1
+    }
+
+    function toggleRarityFilter(rarityId: string) {
+        rarityFilterIds.value = toggleFilterId(rarityFilterIds.value, rarityId)
+        state.value.currentPage = 1
+    }
+
     /**
      * Fetch available skins for the given item
-     * 
+     *
      * @param itemName - Name of the item (weapon_name from props)
      * @param onError - Optional error callback
      */
@@ -175,6 +229,11 @@ export function useItemModal(options: UseItemModalOptions) {
     function resetSearchState() {
         state.value.searchQuery = ''
         state.value.currentPage = 1
+        if (enableSortFilter) {
+            sortBy.value = 'name'
+            sortDir.value = 'asc'
+            rarityFilterIds.value = []
+        }
     }
 
     /**
@@ -195,6 +254,11 @@ export function useItemModal(options: UseItemModalOptions) {
             showDuplicateConfirm: false
         }
         apiState.value.skins = []
+        if (enableSortFilter) {
+            sortBy.value = 'name'
+            sortDir.value = 'asc'
+            rarityFilterIds.value = []
+        }
     }
 
     // ============================================================================
@@ -223,8 +287,15 @@ export function useItemModal(options: UseItemModalOptions) {
         apiState,
         PAGE_SIZE,
 
+        // Sort/filter state
+        sortBy,
+        sortDir,
+        rarityFilterIds,
+
         // Computed
+        availableRarities,
         filteredSkins,
+        sortedSkins,
         paginatedSkins,
         totalPages,
 
@@ -232,6 +303,8 @@ export function useItemModal(options: UseItemModalOptions) {
         fetchSkins,
         adjustCurrentPage,
         resetSearchState,
-        clearState
+        clearState,
+        toggleSortDir,
+        toggleRarityFilter
     }
 }
