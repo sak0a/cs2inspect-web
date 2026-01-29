@@ -288,7 +288,23 @@ export class VideoCanvasManager {
 export function generateVideoUrl(weaponName: string, skinName: string): string {
   const cleanWeaponName = weaponName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
   const cleanSkinName = skinName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
-  
+
+  let baseUrl = ''
+  let weaponsPath = ''
+
+  try {
+    const config = useRuntimeConfig()
+    baseUrl = (config.public.assetsUrl as string) || ''
+    weaponsPath = (config.public.assetsWeaponsPath as string) || ''
+  } catch {
+    baseUrl = ''
+    weaponsPath = ''
+  }
+
+  if (baseUrl) {
+    return `${baseUrl}${weaponsPath}/${cleanWeaponName}-${cleanSkinName}.webm`
+  }
+
   return `/img/weapons/flat/${cleanWeaponName}-${cleanSkinName}.webm`
 }
 
