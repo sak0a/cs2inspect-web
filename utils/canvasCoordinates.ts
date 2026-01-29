@@ -280,7 +280,7 @@ export function generateStickerImageUrl(stickerId: number | string, wear: number
     if (baseUrl && stickersPath) {
       return `${baseUrl}${stickersPath}/${id}/${clampedStep}.webp`;
     }
-  } catch (e) {
+  } catch {
     // Fallback if runtime config is not available (e.g. tests)
   }
   return `/img/stickers/${id}/${clampedStep}.webp`;
@@ -426,7 +426,7 @@ export function generateFlatKeychainUrl(name: string, seed: number = 0, stickerR
     const config = useRuntimeConfig()
     baseUrl = (config.public.assetsUrl as string) || ''
     charmsPath = (config.public.assetsCharmsPath as string) || ''
-  } catch (e) {
+  } catch {
     // Fallback
     baseUrl = ''
     charmsPath = '/img/charms'
@@ -759,7 +759,7 @@ export function generateFlatImageUrl(weaponName: string, skinName: string): stri
     const config = useRuntimeConfig()
     baseUrl = (config.public.assetsUrl as string) || ''
     weaponsPath = (config.public.assetsWeaponsPath as string) || ''
-  } catch (e) {
+  } catch {
     baseUrl = ''
     weaponsPath = '/img/weapons/flat'
   }
