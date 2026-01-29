@@ -377,6 +377,7 @@
   },
   "loadout": {
     "create": "Crear loadout",
+    "manage": "Gestionar loadout",
     "select": "Seleccionar un loadout",
     "createDefault": "Crear loadout por defecto",
     "confirmDelete": "¿Estás seguro de que quieres eliminar este loadout?",

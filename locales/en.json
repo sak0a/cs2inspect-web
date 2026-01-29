@@ -378,6 +378,7 @@
   },
   "loadout": {
     "create": "Create Loadout",
+    "manage": "Manage loadout",
     "import": "Import",
     "select": "Select a loadout",
     "createDefault": "Create Default Loadout",

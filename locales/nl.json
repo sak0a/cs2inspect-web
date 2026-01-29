@@ -348,6 +348,7 @@
   },
   "loadout": {
     "create": "Loadout maken",
+    "manage": "Loadout beheren",
     "select": "Selecteer een loadout",
     "createDefault": "Standaard loadout maken",
     "confirmDelete": "Weet je zeker dat je dit loadout wilt verwijderen?",

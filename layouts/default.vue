@@ -142,12 +142,7 @@ onMounted(async () => {
                   :title="t('auth.openSteamProfile') as string"
                   class="avatar-link"
               >
-                <NAvatar
-                    round
-                    size="large"
-                    :src="user.avatarFull"
-                    :style="{ width: '100px', height: '100px' }"
-                />
+                <img class="rounded-full" alt="Steam Avatar" :src="user.avatarFull" :style="{ width: '100px', height: '100px' }" />
               </a>
               <div class="mt-3 text-center">
                 <span class="font-bold text-[15px]">{{ user.personaName }}</span>
@@ -178,7 +173,7 @@ onMounted(async () => {
             <!-- Weapon Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
-                <span class="text-xs font-bold text-gray-500">{{ t('navigation.weapons') }}</span>
+                <span class="text-xs font-bold text-gray-400">{{ t('navigation.weapons') }}</span>
               </div>
               <NMenu
                   :icon-size="45"
@@ -193,7 +188,7 @@ onMounted(async () => {
             <!-- Melee Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
-                <span class="text-xs font-bold text-gray-500">{{ t('navigation.melee') }}</span>
+                <span class="text-xs font-bold text-gray-400">{{ t('navigation.melee') }}</span>
               </div>
               <NMenu
                   :icon-size="45"
@@ -209,7 +204,7 @@ onMounted(async () => {
             <!-- Extras Menu Section -->
             <div class="flex flex-col">
               <div class="px-4">
-                <span class="text-xs font-bold text-gray-500">{{ t('navigation.extras') }}</span>
+                <span class="text-xs font-bold text-gray-400">{{ t('navigation.extras') }}</span>
               </div>
               <NMenu
                   :icon-size="30"
@@ -225,7 +220,7 @@ onMounted(async () => {
           <!-- Bottom: Actions Section -->
           <div class="p-4">
             <div class="mb-2">
-              <span class="text-xs font-bold text-gray-500">{{ t('navigation.actions') }}</span>
+              <span class="text-xs font-bold text-gray-400">{{ t('navigation.actions') }}</span>
             </div>
             <div class="space-y-2">
               <NButton

@@ -210,13 +210,13 @@ onMounted(async () => {
               @select="handleDropdownSelect"
               :menu-props="menuProps"
           >
-              <NButton circle strong secondary>
+              <NButton circle strong secondary :aria-label="t('loadout.manage') as string">
                   <template #icon><NIcon><MenuIcon /></NIcon></template>
               </NButton>
           </NDropdown>
       </template>
 
-      <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="success" :secondary="loadoutStore.hasLoadouts" :loading="loadoutStore.isLoading" @click="showModal.create = true">
+      <NButton size="medium" :circle="loadoutStore.hasLoadouts" type="success" :secondary="loadoutStore.hasLoadouts" :loading="loadoutStore.isLoading" :aria-label="t('loadout.create') as string" @click="showModal.create = true">
         <template v-if="loadoutStore.hasLoadouts" #icon>
           <NIcon><NewIcon /></NIcon>
         </template>

@@ -337,6 +337,7 @@
   },
   "loadout": {
     "create": "Loadout erstellen",
+    "manage": "Loadout verwalten",
     "select": "Wähle ein Loadout",
     "createDefault": "Standard-Loadout erstellen",
     "confirmDelete": "Bist du sicher, dass du dieses Loadout löschen möchtest?",
