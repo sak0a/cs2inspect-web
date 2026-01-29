@@ -230,6 +230,7 @@ function handleSettingsSelect(key: string) {
           :width="200"
           show-trigger
           :mode="sidebarMode"
+          
           :hover-expanded="hoverExpanded"
           :enable-transitions="isReady"
           @mouseenter="onMouseEnter"
@@ -576,7 +577,7 @@ function handleSettingsSelect(key: string) {
           </nav>
         </template>
       </SLayoutSider>
-      <SLayoutContent class="h-full min-w-0 min-h-0 flex-1">
+      <SLayoutContent :sider-position="sidebarMode" class="min-w-0 min-h-0 flex-1">
 
         <div v-if="!isLoggedIn && !isDevPage" class="flex items-center justify-center flex-col text-xl h-full relative">
           <!-- Language Switcher in top-right corner for login screen -->
@@ -598,19 +599,18 @@ function handleSettingsSelect(key: string) {
           </div>
         </div>
         <div v-else class="h-full flex flex-col">
-          <!-- Secondary Menu — min-h reserves space to prevent CLS when LoadoutSelector mounts -->
-          <div class="p-2 mb-4 sticky top-0 z-10 flex-shrink-0 min-h-[50px]">
-            <div class="flex justify-end items-end">
-
-              <div v-if="sidebarMode === 'left'" class="flex items-center gap-6">
-                <div v-if="user" class="menu-item group" >
-                  <LoadoutSelector />
+          <div class="flex-1 relative" :class="sidebarMode === 'left' ? 'overflow-auto' : ''" style="contain: layout style">
+            <!-- Secondary Menu — absolutely positioned so content flows underneath -->
+            <div v-if="sidebarMode === 'left'" class="p-2 sticky top-0 z-10 pointer-events-none" style="background: rgba(0, 0, 0, 0.15); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px)">
+              <div class="flex justify-end items-end">
+                <div class="flex items-center gap-6">
+                  <div v-if="user" class="menu-item group pointer-events-auto">
+                    <LoadoutSelector />
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <!-- Secondary Menu End -->
-          <div class="flex-1 overflow-auto" style="contain: layout style">
+            <!-- Secondary Menu End -->
             <div class="flex flex-col min-h-full">
               <div class="flex-1">
                 <slot />

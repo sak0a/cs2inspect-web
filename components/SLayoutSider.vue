@@ -50,7 +50,7 @@ function toggleCollapsed() {
     class="flex-shrink-0 relative"
     :class="[
       enableTransitions ? 'transition-all duration-200 ease-in-out' : '',
-      mode === 'top' ? 'w-full' : '',
+      mode === 'top' ? 'w-full sticky top-0 z-40' : '',
     ]"
     :style="{ width: mode === 'left' ? `${wrapperWidth}px` : undefined }"
   >
@@ -69,9 +69,12 @@ function toggleCollapsed() {
       }"
     >
       <div
-        :class="mode === 'top'
-          ? 'flex flex-row items-center overflow-x-auto overflow-y-hidden w-full'
-          : 'flex flex-col h-full overflow-y-auto overflow-x-hidden'"
+        :class="[
+          mode === 'top'
+            ? 'flex flex-row items-center overflow-x-auto overflow-y-hidden w-full'
+            : 'flex flex-col h-full overflow-y-auto overflow-x-hidden',
+          enableTransitions ? 'opacity-100' : 'opacity-0',
+        ]"
       >
         <slot />
       </div>
@@ -124,6 +127,11 @@ function toggleCollapsed() {
 </template>
 
 <style scoped lang="sass">
+.s-sider-glass
+  background: rgba(0, 0, 0, 0.15)
+  backdrop-filter: blur(12px)
+  -webkit-backdrop-filter: blur(12px)
+
 .s-sider-trigger
   position: absolute
   top: 0

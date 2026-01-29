@@ -819,7 +819,7 @@ export function generateFallbackWeaponImageUrl(weaponName: string): string {
   const cleanWeaponName = weaponName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
   const defaultImageName = weaponMapping[cleanWeaponName] || 'weapon_ak47' // fallback to AK-47
 
-  return `/img/defaults/${defaultImageName}.png`
+  return `/img/defaults/${defaultImageName}.webp`
 }
 
 /**

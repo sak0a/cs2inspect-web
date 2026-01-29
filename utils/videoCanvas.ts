@@ -312,6 +312,13 @@ export function generateVideoUrl(weaponName: string, skinName: string): string {
  * Check if video file exists
  */
 export async function checkVideoExists(videoUrl: string): Promise<boolean> {
+  // For cross-origin URLs, skip the HEAD check to avoid CORS issues.
+  // Instead, optimistically assume the video exists and let the video
+  // element handle errors during playback.
+  if (videoUrl.startsWith('http')) {
+    return true
+  }
+
   try {
     await $fetch.raw(videoUrl, { method: 'HEAD' })
     return true

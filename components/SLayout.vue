@@ -13,7 +13,9 @@ withDefaults(defineProps<Props>(), {
 <template>
   <div
     class="flex h-screen bg-transparent relative"
-    :class="hasSider && siderPosition === 'left' ? 'flex-row' : 'flex-col'"
+    :class="[
+      hasSider && siderPosition === 'left' ? 'flex-row' : 'flex-col overflow-auto',
+    ]"
   >
     <slot />
   </div>
