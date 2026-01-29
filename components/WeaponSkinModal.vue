@@ -17,9 +17,7 @@ import { steamAuth } from "~/services/steamAuth"
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
-import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
-import InlineVisualCustomizer from './InlineVisualCustomizer.vue'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
 
@@ -1370,7 +1368,7 @@ onUnmounted(() => {
         <Transition name="fade" mode="out-in">
           <div v-if="state.inlineVisualCustomizerActive" key="inline">
           <!-- Visual Customizer Inline Mode -->
-          <InlineVisualCustomizer
+          <LazyInlineVisualCustomizer
             :visible="true"
             :weapon-skin="{
               name: selectedSkin?.name || '',
@@ -1761,7 +1759,7 @@ onUnmounted(() => {
       </NSpace>
 
       <!-- Sticker Modal -->
-      <StickerModal
+      <LazyStickerModal
           v-model:visible="state.showStickerModal"
           :position="state.currentStickerPosition"
           :current-sticker="customization.stickers[state.currentStickerPosition]"
@@ -1802,7 +1800,7 @@ onUnmounted(() => {
       />
 
       <!-- Item History Panel -->
-      <ItemHistoryPanel
+      <LazyItemHistoryPanel
           v-model:visible="state.showHistoryPanel"
           item-type="weapon"
           :category="props.weapon?.category as any"

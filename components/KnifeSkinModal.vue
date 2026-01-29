@@ -13,7 +13,6 @@ import { useItemModal } from '~/composables/useItemModal'
 import type { IEnhancedKnife, IEnhancedItem } from '~/server/types'
 import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
-import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 
@@ -745,7 +744,7 @@ watch(() => props.weapon, () => {
     />
 
     <!-- Item History Panel -->
-    <ItemHistoryPanel
+    <LazyItemHistoryPanel
         v-model:visible="showHistoryPanel"
         item-type="knife"
         :defindex="props.weapon?.weapon_defindex || 0"

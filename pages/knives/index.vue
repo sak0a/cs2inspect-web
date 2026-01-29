@@ -352,7 +352,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
       </div>
 
       <!-- Knife Skin Selection & Customization Modal -->
-      <KnifeSkinModal
+      <LazyKnifeSkinModal
           v-if="userAsProfile"
           v-model:visible="showSkinModal"
           :user="userAsProfile"

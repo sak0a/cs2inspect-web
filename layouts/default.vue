@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NIcon } from 'naive-ui'
 import { LucideLogOut as LogOutIcon } from 'lucide-vue-next'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 

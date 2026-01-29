@@ -287,7 +287,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
       </div>
 
       <!-- Skin Selection & Customization Modal -->
-      <WeaponSkinModal
+      <LazyWeaponSkinModal
           v-if="user"
           v-model:visible="showSkinModal"
           :user="user"

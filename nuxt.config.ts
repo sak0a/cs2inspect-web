@@ -22,7 +22,7 @@ export default defineNuxtConfig({
     ],
   },
   typescript: {
-    typeCheck: true,
+    typeCheck: process.env.NODE_ENV !== 'production',
   },
   experimental: {
     typedPages: true,
@@ -36,7 +36,7 @@ export default defineNuxtConfig({
         target: 'esnext'
       }
     },
-    minify: false,
+    minify: true,
     // Serve stickers from storage folder (moved out of public to avoid 200k+ file scan)
     serverAssets: [
       {

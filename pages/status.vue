@@ -208,7 +208,7 @@ onUnmounted(() => {
 
             <!-- Full-width charts - one per row -->
             <div v-else class="grid grid-cols-1 gap-6">
-              <HistoryChart
+              <LazyHistoryChart
                 v-for="data in filteredHistoricalData"
                 :key="data.check_name"
                 :data="data"

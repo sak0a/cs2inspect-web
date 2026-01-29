@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useMessage, NSpin } from 'naive-ui'
 import type { SteamUser } from "~/services/steamAuth"
 import { steamAuth } from "~/services/steamAuth"
 import type { APIAgent } from "~/types";

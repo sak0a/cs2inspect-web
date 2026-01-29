@@ -12,7 +12,6 @@ import { useItemModal } from '~/composables/useItemModal'
 import type { IEnhancedGlove, IEnhancedItem } from '~/server/types'
 import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
-import ItemHistoryPanel from './ItemHistoryPanel.vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 import type { EconItem } from 'cs2-inspect-lib'
@@ -697,7 +696,7 @@ watch(() => props.weapon, () => {
     />
 
     <!-- Item History Panel -->
-    <ItemHistoryPanel
+    <LazyItemHistoryPanel
         v-model:visible="showHistoryPanel"
         item-type="glove"
         :defindex="props.weapon?.weapon_defindex || 0"

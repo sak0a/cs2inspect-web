@@ -319,7 +319,7 @@ watch(() => showSkinModal.value, (isVisible) => {
       </div>
 
       <!-- Glove Skin Selection & Customization Modal -->
-      <GloveSkinModal
+      <LazyGloveSkinModal
           v-if="user"
           v-model:visible="showSkinModal"
           :user="user as unknown as UserProfile"
