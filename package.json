@@ -18,6 +18,7 @@
     "test:coverage": "bun test --coverage",
     "test:bun": "bun test",
     "deploy:app": "./scripts/deploy-app.sh",
+    "deploy:app-dev": "./scripts/deploy-app-dev.sh",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
