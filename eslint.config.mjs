@@ -4,7 +4,7 @@ import withNuxt from './.nuxt/eslint.config.mjs'
 export default withNuxt(
     // Ignore patterns - must come first
     {
-        ignores: ['site/**', '**/site/**']
+        ignores: ['site/**', '**/site/**', 'services/**']
     },
     // Nuxt ESLint config with custom rules
     {
