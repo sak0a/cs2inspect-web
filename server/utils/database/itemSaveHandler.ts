@@ -1,16 +1,20 @@
 import { defineEventHandler, createError, getQuery, readBody, type H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
-import { validateTeam } from '~/server/utils/validation/common'
+import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
+import {
+    weaponSaveBodySchema,
+    knifeSaveBodySchema,
+    gloveSaveBodySchema,
+    resetRequestSchema
+} from '~/server/database/schema/zod'
 import {
     saveWeapon,
     saveKnife,
     saveGlove,
-    validateCommonFields,
-    validateWeaponFields,
-    validateKnifeFields,
-    validateGloveFields,
-    validateWeaponDatabaseTable
+    validateWeaponDatabaseTable,
+    validateWeaponDefindex,
+    validateKnifeDefindex
 } from '~/server/utils/database/saveHelpers'
 import type { ItemType, SaveRequestConfig } from '~/server/types/save'
 
@@ -20,8 +24,9 @@ import type { ItemType, SaveRequestConfig } from '~/server/types/save'
 const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
     weapon: {
         validateFields: (body) => {
-            validateCommonFields(body)
-            validateWeaponFields(body)
+            const parsed = parseBodyWithSchema(weaponSaveBodySchema, body)
+            validateWeaponDefindex(parsed.defindex)
+            return parsed
         },
         saveFunction: saveWeapon,
         requiresType: true,
@@ -34,8 +39,9 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
     },
     knife: {
         validateFields: (body) => {
-            validateCommonFields(body)
-            validateKnifeFields(body)
+            const parsed = parseBodyWithSchema(knifeSaveBodySchema, body)
+            validateKnifeDefindex(parsed.defindex)
+            return parsed
         },
         saveFunction: saveKnife,
         requiresType: false,
@@ -45,8 +51,7 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
     },
     glove: {
         validateFields: (body) => {
-            validateCommonFields(body)
-            validateGloveFields(body)
+            return parseBodyWithSchema(gloveSaveBodySchema, body)
         },
         saveFunction: saveGlove,
         requiresType: false,
@@ -54,14 +59,6 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
             return [query.steamId as string, query.loadoutId as string, body]
         }
     }
-}
-
-/**
- * Validates reset request (minimal validation for reset operations)
- */
-function validateResetRequest(body: Record<string, unknown>) {
-    validateRequiredRequestData(body.defindex, 'Defindex')
-    validateTeam(body.team)
 }
 
 /**
@@ -94,7 +91,7 @@ export function createSaveHandler(itemType: ItemType) {
         try {
             // Handle reset case
             if (body.reset) {
-                validateResetRequest(body)
+                parseBodyWithSchema(resetRequestSchema, body)
                 const saveParams = config.getSaveParams({ ...body, reset: true }, query)
                 return await config.saveFunction(...saveParams)
             }
@@ -106,6 +103,10 @@ export function createSaveHandler(itemType: ItemType) {
             const saveParams = config.getSaveParams(body, query)
             return await config.saveFunction(...saveParams)
         } catch (error: unknown) {
+            // Re-throw H3 errors (including validation errors) as-is
+            if (error && typeof error === 'object' && 'statusCode' in error) {
+                throw error
+            }
             const errorMessage = error instanceof Error ? error.message : `Failed to save ${itemType}`
             Logger.error(`Failed to save ${itemType}: ${errorMessage}`)
             throw createError({

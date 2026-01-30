@@ -21,3 +21,26 @@ export { migrations } from './migrations';
 // History tables
 export { itemHistory } from './itemHistory';
 export type { ItemHistorySnapshot, ChangeType, HistoryItemType, HistoryItemCategory, ItemHistoryRecord, NewItemHistoryRecord } from './itemHistory';
+
+// Zod validation schemas (drizzle-zod)
+export {
+    insertLoadoutSchema,
+    selectLoadoutSchema,
+    loadoutCreateBodySchema,
+    insertWeaponSchema,
+    selectWeaponSchema,
+    weaponSaveBodySchema,
+    insertKnifeSchema,
+    selectKnifeSchema,
+    knifeSaveBodySchema,
+    insertGloveSchema,
+    selectGloveSchema,
+    gloveSaveBodySchema,
+    insertAgentSchema,
+    selectAgentSchema,
+    insertMusicSchema,
+    selectMusicSchema,
+    insertPinSchema,
+    selectPinSchema,
+    resetRequestSchema,
+} from './zod';
