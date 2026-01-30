@@ -137,7 +137,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     'nuxt-i18n-micro',
     //'@nuxtjs/seo',
-    '@vite-pwa/nuxt',
+    //'@vite-pwa/nuxt',
   ],
   // site: { // Commented out until @nuxtjs/seo is enabled
   //   url: 'https://cs2inspect.com',
@@ -153,7 +153,7 @@ export default defineNuxtConfig({
       assetsWeaponsPath: process.env.ASSETS_WEAPONS_PATH || '/weapons',
     }
   },
-  pwa: {
+  /*pwa: {
     manifest: {
       name: 'CS2 Inspect',
       short_name: 'CS2 Inspect',
@@ -179,7 +179,7 @@ export default defineNuxtConfig({
       enabled: true,
       type: 'module',
     },
-  },
+  },*/
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', displayName: 'English' },
@@ -204,11 +204,6 @@ export default defineNuxtConfig({
       }, 1000)
     }
   },
-  routeRules: {
-    '/api/items/**': { cache: { maxAge: 3600, swr: true } },
-    '/api/health/**': { cache: { maxAge: 60 } },
-    '/api/loadouts/**': { cache: false },
-    '/api/auth/**': { cache: false },
-  },
+  
   compatibilityDate: '2024-10-12'
 })
