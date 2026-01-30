@@ -127,7 +127,7 @@ const handleAutoSave = async (glove: IEnhancedGlove, customization: GloveConfigu
       paintIndexOverride: customization.paintIndexOverride,
       paintwear: customization.paintwear,
       paintseed: customization.paintseed,
-      team: glove.databaseInfo?.team || customization.team || 0,
+      team: glove.databaseInfo?.team || customization.team,
       reset: customization.reset
     }
   }).then(async (data) => {
@@ -153,7 +153,7 @@ const handleSkinSelect = async (glove: IEnhancedGlove, customization: GloveConfi
         paintIndexOverride: customization.paintIndexOverride,
         paintwear: customization.paintwear,
         paintseed: customization.paintseed,
-        team: glove.databaseInfo?.team || customization.team || 0,
+        team: glove.databaseInfo?.team || customization.team,
         reset: customization.reset
       }
     })

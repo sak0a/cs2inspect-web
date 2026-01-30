@@ -64,7 +64,7 @@ const handleAutoSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
       nametag: customization.nametag,
       stickers: customization.stickers,
       keychain: customization.keychain,
-      team: customization.team || 0,
+      team: customization.team,
       reset: customization.reset
     }
   await $fetch<{ success: boolean; message: string }>(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
@@ -104,7 +104,7 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
       nametag: customization.nametag,
       stickers: customization.stickers,
       keychain: customization.keychain,
-      team: customization.team || 0,
+      team: customization.team,
       reset: customization.reset
     }
   }).then(async (data) => {

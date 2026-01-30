@@ -52,6 +52,12 @@ describe('Zod schema validation', () => {
             expect(() => weaponSaveBodySchema.parse({ ...validWeaponBody, team: 0 })).toThrow();
         });
 
+        it('should coerce string numbers to numbers', () => {
+            const result = weaponSaveBodySchema.parse({ ...validWeaponBody, paintseed: '123', paintindex: '38' });
+            expect(result.paintseed).toBe(123);
+            expect(result.paintindex).toBe(38);
+        });
+
         it('should reject negative paintindex', () => {
             expect(() => weaponSaveBodySchema.parse({ ...validWeaponBody, paintindex: -1 })).toThrow();
         });

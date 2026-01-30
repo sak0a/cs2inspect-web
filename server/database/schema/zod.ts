@@ -35,14 +35,14 @@ export const loadoutCreateBodySchema = insertLoadoutSchema.pick({
 // SHARED REFINEMENTS
 // ============================================================================
 
-const teamSchema = z.number().int('Team must be an integer').min(1, 'Team must be 1 (Terrorist) or 2 (Counter-Terrorist)').max(2, 'Team must be 1 (Terrorist) or 2 (Counter-Terrorist)')
-const defindexSchema = z.number().int('Defindex must be an integer').nonnegative('Defindex must be non-negative')
-const paintIndexSchema = z.number().int('Paint index must be an integer').nonnegative('Paint index must be non-negative')
-const paintSeedSchema = z.number().int('Paint seed must be an integer').nonnegative('Paint seed must be non-negative')
-const paintWearSchema = z.number().min(0, 'Paint wear must be between 0 and 1').max(1, 'Paint wear must be between 0 and 1')
+const teamSchema = z.coerce.number().int('Team must be an integer').min(1, 'Team must be 1 (Terrorist) or 2 (Counter-Terrorist)').max(2, 'Team must be 1 (Terrorist) or 2 (Counter-Terrorist)')
+const defindexSchema = z.coerce.number().int('Defindex must be an integer').nonnegative('Defindex must be non-negative')
+const paintIndexSchema = z.coerce.number().int('Paint index must be an integer').nonnegative('Paint index must be non-negative')
+const paintSeedSchema = z.coerce.number().int('Paint seed must be an integer').nonnegative('Paint seed must be non-negative')
+const paintWearSchema = z.coerce.number().min(0, 'Paint wear must be between 0 and 1').max(1, 'Paint wear must be between 0 and 1')
 const activeSchema = z.boolean({ message: 'Active must be true or false' })
 const stattrakEnabledSchema = z.boolean({ message: 'stattrak_enabled must be true or false' })
-const stattrakCountSchema = z.number().int('StatTrak count must be an integer').nonnegative('StatTrak count must be non-negative')
+const stattrakCountSchema = z.coerce.number().int('StatTrak count must be an integer').nonnegative('StatTrak count must be non-negative')
 const nametagSchema = z.string().max(32, 'Name tag must be at most 32 characters').nullable().optional()
 
 // ============================================================================
