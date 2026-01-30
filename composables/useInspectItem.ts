@@ -21,6 +21,24 @@ import {
 import type { IEnhancedItem } from '~/server/types'
 
 /**
+ * Raw inspect item data returned from the inspect API
+ */
+interface InspectItemData {
+  defindex: number
+  paintindex: number
+  paintseed: number
+  paintwear: number
+  killeatervalue?: number
+  killeaterscoretype?: number
+  customname?: string
+  stattrak_count: number
+  stattrak_enabled: boolean
+  stickers?: Array<unknown> | null
+  keychain?: unknown | null
+  [key: string]: unknown
+}
+
+/**
  * Storage keys for browser storage
  */
 const STORAGE_KEY_ITEM = 'cs2inspect-item'
@@ -146,7 +164,7 @@ export function useInspectItem() {
 
       // Check if the API returned success: false
       if (data && typeof data === 'object' && 'success' in data && data.success === false) {
-        throw new Error(`API returned success: false when fetching ${type} data: ${(data as any).message || 'No error message'}`)
+        throw new Error(`API returned success: false when fetching ${type} data: ${(data as Record<string, unknown>).message || 'No error message'}`)
       }
 
       return data
@@ -182,7 +200,7 @@ export function useInspectItem() {
       }
 
       // Try to decode the inspect link
-      const responseData = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${steamId}`, {
+      const responseData = await $fetch<{ item: InspectItemData; message?: string }>(`/api/inspect?action=inspect-item&steamId=${steamId}`, {
         method: 'POST',
         body: { inspectUrl }
       })

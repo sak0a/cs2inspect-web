@@ -96,7 +96,7 @@ export function createSaveHandler(itemType: ItemType) {
             if (body.reset) {
                 validateResetRequest(body)
                 const saveParams = config.getSaveParams({ ...body, reset: true }, query)
-                return await (config.saveFunction as (...args: any[]) => Promise<any>)(...saveParams)
+                return await config.saveFunction(...saveParams)
             }
 
             // Validate all fields for non-reset cases
@@ -104,7 +104,7 @@ export function createSaveHandler(itemType: ItemType) {
 
             // Get save parameters and execute save
             const saveParams = config.getSaveParams(body, query)
-            return await (config.saveFunction as (...args: any[]) => Promise<any>)(...saveParams)
+            return await config.saveFunction(...saveParams)
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : `Failed to save ${itemType}`
             Logger.error(`Failed to save ${itemType}: ${errorMessage}`)

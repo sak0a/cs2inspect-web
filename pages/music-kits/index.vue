@@ -213,7 +213,7 @@ watch(() => searchQuery.value, () => {
 </script>
 
 <template>
-  <div class="p-4 bg-[#181818]">
+  <div class="p-4">
     <div class="max-w-7xl mx-auto content-fade-in">
       <SkinPageLayout
           title="Music Kits"

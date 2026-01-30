@@ -41,7 +41,7 @@ export type TrackedConfiguration = WeaponConfiguration | KnifeConfiguration | Gl
 /**
  * Check if two values are deeply equal
  */
-function deepEqual(a: unknown, b: unknown): boolean {
+function _deepEqual(a: unknown, b: unknown): boolean {
   if (a === b) return true
   if (a === null || b === null) return a === b
   if (typeof a !== 'object' || typeof b !== 'object') return false
@@ -53,7 +53,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
 
   for (const key of keysA) {
     if (!keysB.includes(key)) return false
-    if (!deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
+    if (!_deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
       return false
     }
   }

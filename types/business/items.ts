@@ -29,11 +29,11 @@ import type {
   TeamAvailability,
   ItemRarity,
   // Branded types imported for JSDoc documentation references
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   Defindex as _Defindex,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   PaintIndex as _PaintIndex,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   PaintSeed as _PaintSeed,
   FloatValue,
   StickerSlotIndex,

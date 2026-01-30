@@ -677,7 +677,7 @@ watch(() => props.weapon, () => {
               <div
                   class="h-1 mt-2"
                   :style="{ background: skin.rarity?.color || '#313030' }"
-              ></div>
+              />
             </div>
           </div>
         </NCard>

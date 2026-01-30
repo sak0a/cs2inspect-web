@@ -15,7 +15,8 @@
  * @see {@link ~/types/core/branded.ts} for branded type definitions
  */
 
-import type { InspectUrl, HexData, FloatValue } from '~/types'
+// Branded types (InspectUrl, HexData, FloatValue) are documented in JSDoc above
+// but used implicitly via conversion functions, not directly in this file's type annotations
 
 // ============================================================================
 // ITEM TYPE DEFINITIONS

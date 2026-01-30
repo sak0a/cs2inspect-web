@@ -1,4 +1,4 @@
-import { mysqlTable, int, varchar, timestamp, text, tinyint, index, uniqueIndex } from 'drizzle-orm/mysql-core';
+import { mysqlTable, int, varchar, timestamp, text, tinyint, index } from 'drizzle-orm/mysql-core';
 
 export const healthCheckHistory = mysqlTable('health_check_history', {
     id: int('id').primaryKey().autoincrement(),

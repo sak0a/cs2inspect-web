@@ -61,7 +61,7 @@ const _overallStatus = computed(() => {
 async function loadStatus() {
   loading.value = true;
   try {
-    const data = await $fetch<{ checks: any[] }>('/api/health/details');
+    const data = await $fetch<{ checks: HealthCheck[] }>('/api/health/details');
     healthChecks.value = data.checks || [];
     lastUpdate.value = new Date();
   } catch (error) {
@@ -94,7 +94,7 @@ async function loadHistory() {
         break;
     }
 
-    const data = await $fetch<any[]>(`/api/health/history?start_time=${startTime.toISOString()}&limit=500`);
+    const data = await $fetch<HistoricalData[]>(`/api/health/history?start_time=${startTime.toISOString()}&limit=500`);
     historicalData.value = data || [];
   } catch (error) {
     console.error('Failed to load health history:', error);

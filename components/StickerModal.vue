@@ -485,7 +485,7 @@ v-if="currentSticker"
             <div
                 class="h-1 w-full mt-2"
                 :style="{ background: item.rarity?.color || '#313030' }"
-            ></div>
+            />
           </div>
         </NCard>
       </div>

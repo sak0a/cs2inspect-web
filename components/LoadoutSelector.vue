@@ -248,13 +248,13 @@ const dropdownOptions = computed(() => {
 
 const menuProps = () => ({ class: 'glassmorphism-dropdown' })
 
-const handleDropdownSelect = (key: any) => {
+const handleDropdownSelect = (key: string | number) => {
     if (key === 'create') showModal.value.create = true
     else if (key === 'import') showModal.value.import = true
     else if (key === 'rename') showModal.value.rename = true
     else if (key === 'delete') showModal.value.delete = true
     else if (key === 'clear') showModal.value.clear = true
-    else handleLoadoutAction(key as any)
+    else handleLoadoutAction(key as 'duplicate' | 'share' | 'default')
 }
 
 onMounted(async () => {

@@ -186,7 +186,7 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
 </script>
 
 <template>
-  <div class="p-4 bg-[#181818]">
+  <div class="p-4">
     <div class="max-w-7xl mx-auto content-fade-in">
       <SkinPageLayout
           title="Pins"
@@ -197,7 +197,7 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
       <!-- Pin Selection -->
       <div v-if="!error && user && loadoutStore.selectedLoadoutId">
         <!-- Skeleton Loading State -->
-        <div v-if="isLoading" class="bg-[#242424] p-6 rounded-lg">
+        <div v-if="isLoading" class="p-6 rounded-lg">
           <div class="pin-grid">
             <div
               v-for="i in 12"
@@ -247,7 +247,7 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
           </div>
 
           <!-- Main Content Area -->
-          <div class="bg-[#242424] p-6 rounded-lg">
+          <div class="p-6 rounded-lg">
             <!-- Pins Vertical Grid -->
             <div class="overflow-visible">
               <!-- Display pins in a grid -->

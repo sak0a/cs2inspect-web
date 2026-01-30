@@ -125,7 +125,7 @@ export function useAutoSave<T>(
   let lastSavedData: T | null = null
   let pendingData: T | null = null
   let savedTimeoutId: ReturnType<typeof setTimeout> | null = null
-  let isOnline = ref(typeof navigator !== 'undefined' ? navigator.onLine : true)
+  const isOnline = ref(typeof navigator !== 'undefined' ? navigator.onLine : true)
 
   // ============================================================================
   // Utility Functions

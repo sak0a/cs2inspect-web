@@ -2,7 +2,8 @@ export type ItemType = 'weapon' | 'knife' | 'glove'
 
 export interface SaveRequestConfig {
     validateFields: (body: Record<string, unknown>) => void
-    saveFunction: (...args: any[]) => Promise<any>
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    saveFunction: (...args: any[]) => Promise<{ success: boolean; message: string }>
     requiresType: boolean
-    getSaveParams: (body: Record<string, unknown>, query: Record<string, unknown>) => any[]
+    getSaveParams: (body: Record<string, unknown>, query: Record<string, unknown>) => unknown[]
 }

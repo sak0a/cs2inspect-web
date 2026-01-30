@@ -1,4 +1,4 @@
-import { describe, it, expect, spyOn } from 'bun:test';
+import { describe, it, expect } from 'bun:test';
 import { Logger } from '../logger';
 
 describe('Logger', () => {

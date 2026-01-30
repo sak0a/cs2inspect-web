@@ -9,7 +9,7 @@ interface Props {
   isLoading?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
+const _props = withDefaults(defineProps<Props>(), {
   user: null,
   error: null,
   isLoading: false

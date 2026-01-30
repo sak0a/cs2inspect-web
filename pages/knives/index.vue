@@ -143,7 +143,7 @@ const handleAutoSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
   if (customization.paintindex === null || customization.paintindex === 0) {
     return // Don't auto-save without a paint selected
   }
-  await $fetch(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+  await $fetch<{ success?: boolean; message: string }>(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
     method: 'POST',
     body: {
       defindex: knife.weapon_defindex,
@@ -157,7 +157,7 @@ const handleAutoSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
       active: customization.active,
       reset: customization.reset
     }
-  }).then(async (data: { success?: boolean; message: string }) => {
+  }).then(async () => {
     // Silently refresh data without closing modal
     await fetchLoadoutKnives()
   })
@@ -168,7 +168,7 @@ const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
     return
   }
   console.log('Saving knife: ', knife, customization)
-  await $fetch(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
+  await $fetch<{ message: string }>(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {
     method: 'POST',
     body: {
       defindex: knife.weapon_defindex,
@@ -183,7 +183,7 @@ const handleSkinSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
       reset: customization.reset
     }
 
-  }).then(async (data: { message: string }) => {
+  }).then(async (data) => {
     message.success(data.message)
     await fetchLoadoutKnives()
     showSkinModal.value = false

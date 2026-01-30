@@ -68,6 +68,7 @@ describe('commonUtils', () => {
             expect(isEmpty('')).toBe(true);
             expect(isEmpty('  ')).toBe(true);
             expect(isEmpty('a')).toBe(false);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             expect(isEmpty(null as any)).toBe(true);
         });
 

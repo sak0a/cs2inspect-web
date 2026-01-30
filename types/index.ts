@@ -32,9 +32,7 @@ import type {
   ItemConfigurationMap
 } from './business/items'
 
-import type { APIWeaponSkin } from './api/items'
 import type { DBWeapon, DBKnife, DBGlove } from './database/records'
-import type { UserProfile } from './core/common'
 import {
   isWeaponConfiguration,
   isKnifeConfiguration,

@@ -91,7 +91,7 @@ const getStickerSlabImage = (id: string) => {
     if (assetsUrl) {
       return `${assetsUrl}${charmsPath}/sticker_slab/sticker_slab_sticker_${cleanId}.webp`
     }
-  } catch (e) {
+  } catch {
     // ignore
   }
   return `/img/charms/sticker_slab/sticker_slab_sticker_${cleanId}.webp`

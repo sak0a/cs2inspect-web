@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { VisualCustomizerProps, CanvasElement, CanvasState } from '~/types/canvas'
+import type { StickerConfiguration, KeychainConfiguration } from '~/types'
 import {
   stickerToCanvasElement,
   keychainToCanvasElement,
@@ -31,11 +32,9 @@ const setElementPosition = (elementId: string, x: number, y: number) => {
 
 // Interface for inline customizer events (based on plan)
 interface InlineVisualCustomizerEvents {
-  (e: 'update-stickers', stickers: Array<any>): void
-  (e: 'update-keychain', keychain: any): void
-  (e: 'update-wear', wear: number): void
-  (e: 'select-sticker-slot', slotIndex: number): void // Keep for compat if used elsewhere? 
-  (e: 'open-sticker-modal', slotIndex: number): void
+  (e: 'update-stickers', stickers: Array<StickerConfiguration | null>): void
+  (e: 'update-keychain', keychain: KeychainConfiguration | null): void
+  (e: 'update-wear' | 'select-sticker-slot' | 'open-sticker-modal', value: number): void
   (e: 'save'): void
 }
 
@@ -104,10 +103,10 @@ const quickSettingsPosition = ref({ x: 0, y: 0 })
 
 // --- Helpers ---
 
-const debugLog = (...args: unknown[]) => {
+const _debugLog = (...args: unknown[]) => {
   if (isDevelopment) console.log(...args)
 }
-const debugWarn = (...args: unknown[]) => {
+const _debugWarn = (...args: unknown[]) => {
   if (isDevelopment) console.warn(...args)
 }
 
@@ -191,8 +190,8 @@ const normalizedToCanvasInImage = (p: { x: number; y: number }) => {
               // 2. Apply Calibration Scale & Offset
               // "Scale" here implies stretching the reference plane to fit the current view
               // If scale > 1, the reference plane is larger (sticker moves out)
-              const adjPxX = refPxX * scaleX + offX
-              const adjPxY = refPxY * scaleY + offY
+              const _adjPxX = refPxX * scaleX + offX
+              const _adjPxY = refPxY * scaleY + offY
               
               // 3. Convert to Current Pixels (relative to center)
               // Current Pixels = Reference Pixels mapped to current resolution
@@ -343,7 +342,7 @@ const toCanvasSafeUrl = (url: string) => {
         if (assetsUrl && u.origin === new URL(assetsUrl).origin) {
             return u.toString()
         }
-    } catch (e) {
+    } catch {
         // ignore
     }
 
@@ -352,13 +351,13 @@ const toCanvasSafeUrl = (url: string) => {
       return `/api/proxy/image?url=${encodeURIComponent(u.toString())}`
     }
     return url
-  } catch (e) {
-    console.warn('toCanvasSafeUrl: Invalid URL', url, e)
+  } catch (_e) {
+    console.warn('toCanvasSafeUrl: Invalid URL', url, _e)
     return url
   }
 }
 
-const imageLoadQueue = ref<Array<{url: string, retryCount: number, resolve: (img: HTMLImageElement) => void, reject: (err: any) => void}>>([])
+const imageLoadQueue = ref<Array<{url: string, retryCount: number, resolve: (img: HTMLImageElement) => void, reject: (err: unknown) => void}>>([])
 const activeLoadCount = ref(0)
 const MAX_CONCURRENT_LOADS = 3
 const MAX_RETRIES = 3
@@ -392,10 +391,10 @@ const processQueue = () => {
         resolve(img)
         processQueue() // Process next
     }
-    img.onerror = (e) => {
+    img.onerror = (_e) => {
         activeLoadCount.value--
 
-        
+
         if (retryCount < MAX_RETRIES) {
              setTimeout(() => {
                  imageLoadQueue.value.push({ url, retryCount: retryCount + 1, resolve, reject })
@@ -602,7 +601,7 @@ const initializeWeaponBackground = async () => {
   }
   isVideoLoading.value = false
 }
-const initializeStaticBackground = () => {
+const _initializeStaticBackground = () => {
   if (!props.weaponSkin) return
   const weaponName = props.weaponSkin.name.split(' | ')[0] || 'weapon'
   const skinName = props.weaponSkin.name.split(' | ')[1] || 'skin'
@@ -912,7 +911,7 @@ const drawElement = (element: CanvasElement) => {
             
             const widthScale = maxW / cachedImg.naturalWidth
             const heightScale = maxH / cachedImg.naturalHeight
-            const baseScale = Math.min(widthScale, heightScale, 1) // Allow upscaling? maybe remove ,1 if we want strict fit
+            const _baseScale = Math.min(widthScale, heightScale, 1) // Allow upscaling? maybe remove ,1 if we want strict fit
             
             // Should usually just strict fit to box
              const fitScale = Math.min(maxW / cachedImg.naturalWidth, maxH / cachedImg.naturalHeight)
@@ -1123,8 +1122,8 @@ const handleKeyDown = (e: KeyboardEvent) => {
 const handleSave = (arg: boolean | MouseEvent = false) => {
   const silent = typeof arg === 'boolean' ? arg : false
   // Convert elements back to format for emit
-  const stickers: Array<any> = new Array(5).fill(null)
-  let keychain: any = null
+  const stickers: Array<StickerConfiguration | null> = new Array(5).fill(null)
+  let keychain: KeychainConfiguration | null = null
   const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
   
   canvasState.value.elements.forEach(element => {
@@ -1267,7 +1266,7 @@ defineExpose({
         :class="{ 'fixed inset-0 z-[9999] h-screen w-screen rounded-none': isFullscreen }"
         :style="!isFullscreen ? { height: '700px' } : {}"
     >
-      <video ref="video" crossorigin="anonymous" playsinline style="display: none;"></video>
+      <video ref="video" crossorigin="anonymous" playsinline style="display: none;"/>
       <canvas 
         ref="canvas" 
         class="w-full h-full cursor-crosshair select-none touch-none"
@@ -1278,7 +1277,7 @@ defineExpose({
       />
       <!-- Loading indicator -->
       <div v-if="isVideoLoading" class="absolute inset-0 flex items-center justify-center bg-black/50 pointer-events-none">
-        <div class="animate-spin rounded-full h-12 w-12 border-4 border-[var(--selection-ring)] border-t-transparent"></div>
+        <div class="animate-spin rounded-full h-12 w-12 border-4 border-[var(--selection-ring)] border-t-transparent"/>
       </div>
 
       <!-- Debug Toggle (Dev only) -->
@@ -1288,10 +1287,10 @@ defineExpose({
           size="tiny" 
           secondary
           circle 
-          @click="() => { isFullscreen = !isFullscreen; nextTick(handleResize) }"
           :type="isFullscreen ? 'primary' : 'default'"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Fullscreen"
+          @click="() => { isFullscreen = !isFullscreen; nextTick(handleResize) }"
         >
           <template #icon>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="currentColor" d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
@@ -1302,10 +1301,10 @@ defineExpose({
           size="tiny" 
           secondary
           circle 
-          @click="showCoordinateOverlay = !showCoordinateOverlay"
           :type="showCoordinateOverlay ? 'primary' : 'default'"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Debug Overlay"
+          @click="showCoordinateOverlay = !showCoordinateOverlay"
         >
           <template #icon>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
@@ -1319,10 +1318,10 @@ defineExpose({
           size="tiny" 
           secondary
           circle 
-          @click="calibration.active = !calibration.active"
           :type="calibration.active ? 'warning' : 'default'"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Calibration UI"
+          @click="calibration.active = !calibration.active"
         >
           <template #icon>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"><path fill="currentColor" d="M3 17v2h6v-2H3M3 5v2h10V5H3m10 16v-2h8v-2h-8v-2h-2v6h2M7 9v2H3v2h4v2h2V9H7m14 4v-2H11v2h10m-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
@@ -1369,7 +1368,8 @@ defineExpose({
       <!-- Left: Controls Panel (Replaces Weapon Name) -->
       <!-- Use flex-none to fit content, max-w-[70%] to prevent pushing slider too much -->
       <div class="flex-none flex items-center p-1 max-w-[70%]">
-          <div v-if="selectedElement" 
+          <div
+v-if="selectedElement" 
                class="flex flex-col gap-1.5
                       bg-black/40 backdrop-blur-md 
                       border border-white/5 
@@ -1443,15 +1443,15 @@ defineExpose({
                      <div class="flex items-center gap-1">
                          <template v-if="offsetUnits === 'px'">
                              <span class="text-[9px] text-gray-400">X</span>
-                             <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).x" @update:value="v => updateSelectedElementOffset('x', v)" class="w-12" :show-button="false" placeholder="0" />
+                             <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).x" class="w-12" :show-button="false" placeholder="0" @update:value="v => updateSelectedElementOffset('x', v)" />
                              <span class="text-[9px] text-gray-400 ml-1">Y</span>
-                             <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).y" @update:value="v => updateSelectedElementOffset('y', v)" class="w-12" :show-button="false" placeholder="0" />
+                             <NInputNumber size="tiny" :value="getElementOffsetCanvasPx(selectedElement).y" class="w-12" :show-button="false" placeholder="0" @update:value="v => updateSelectedElementOffset('y', v)" />
                          </template>
                          <template v-else>
                              <span class="text-[9px] text-gray-400">X</span>
-                             <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).x" :precision="4" @update:value="v => updateSelectedElementOffsetExternal('x', v)" class="w-14" :show-button="false" />
+                             <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).x" :precision="4" class="w-14" :show-button="false" @update:value="v => updateSelectedElementOffsetExternal('x', v)" />
                              <span class="text-[9px] text-gray-400 ml-1">Y</span>
-                             <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).y" :precision="4" @update:value="v => updateSelectedElementOffsetExternal('y', v)" class="w-14" :show-button="false" />
+                             <NInputNumber size="tiny" :value="getElementOffsetExternalNorm(selectedElement).y" :precision="4" class="w-14" :show-button="false" @update:value="v => updateSelectedElementOffsetExternal('y', v)" />
                              
                              <div class="flex items-center gap-1 border-l border-white/10 pl-2 ml-1">
                                 <span class="text-[9px] text-gray-500">REF</span>
@@ -1460,7 +1460,7 @@ defineExpose({
                              </div>
                          </template>
                          
-                         <NButton v-if="isDevelopment" size="tiny" secondary circle type="info" class="ml-1" @click="copySelectedElementPosition" title="Copy Position Object">
+                         <NButton v-if="isDevelopment" size="tiny" secondary circle type="info" class="ml-1" title="Copy Position Object" @click="copySelectedElementPosition">
                             <template #icon>
                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                             </template>
@@ -1478,9 +1478,9 @@ defineExpose({
                         :min="-2" 
                         :max="2" 
                         :precision="4" 
-                        @update:value="v => updateKeychainRelativePos('x', v || 0)" 
                         class="w-14" 
                         :show-button="false" 
+                        @update:value="v => updateKeychainRelativePos('x', v || 0)" 
                      />
                      <span class="text-[9px] text-gray-400 ml-1">Y</span>
                      <NInputNumber 
@@ -1490,14 +1490,14 @@ defineExpose({
                         :min="-2" 
                         :max="2" 
                         :precision="4" 
-                        @update:value="v => updateKeychainRelativePos('y', v || 0)" 
                         class="w-14" 
                         :show-button="false" 
+                        @update:value="v => updateKeychainRelativePos('y', v || 0)" 
                      />
                      <span class="text-[9px] text-gray-400 ml-1">Z</span>
-                     <NInputNumber size="tiny" :value="selectedElement.z || 0" :step="0.01" :min="-2" :max="2" :precision="2" @update:value="v => updateElementZ(v || 0)" class="w-12" :show-button="false" />
+                     <NInputNumber size="tiny" :value="selectedElement.z || 0" :step="0.01" :min="-2" :max="2" :precision="2" class="w-12" :show-button="false" @update:value="v => updateElementZ(v || 0)" />
                      
-                     <NButton v-if="isDevelopment" size="tiny" secondary circle type="info" class="ml-1" @click="copySelectedElementPosition" title="Copy Position Object">
+                     <NButton v-if="isDevelopment" size="tiny" secondary circle type="info" class="ml-1" title="Copy Position Object" @click="copySelectedElementPosition">
                         <template #icon>
                            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24"><path fill="currentColor" d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
                         </template>

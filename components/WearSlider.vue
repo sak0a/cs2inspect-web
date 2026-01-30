@@ -159,14 +159,15 @@ ref="progressBar" class="progress-bar"
            @mouseenter="showTooltip"
            @mouseleave="startHideTooltip">
         <!-- Full gradient background -->
-        <div class="progress-background"></div>
+        <div class="progress-background"/>
 
         <!-- Min-max range indicator -->
-        <div class="valid-range"
+        <div
+class="valid-range"
              :style="{
                left: `${(props.min * 100)}%`,
                width: `${((props.max - props.min) * 100)}%`
-             }"></div>
+             }"/>
 
         <!-- Slider handle and tooltip -->
         <div
@@ -186,7 +187,7 @@ v-for="(label, value) in WEARS"
                :key="value"
                class="wear-label"
                :style="{ left: `${Number(value) * 100}%` }">
-            <div class="wear-marker"></div>
+            <div class="wear-marker"/>
           </div>
         </div>
       </div>

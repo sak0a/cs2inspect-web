@@ -31,6 +31,7 @@ describe('validation/common', () => {
         });
 
         it('should throw for invalid StatTrak flag', () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             expect(() => validateStatTrak({ stattrak_enabled: 'true', stattrak_count: 100 } as any)).toThrow('Invalid StatTrak');
         });
 
@@ -108,6 +109,7 @@ describe('validation/common', () => {
         });
 
         it('should throw for non-boolean active flag', () => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             expect(() => validateActive('true' as any)).toThrow('Invalid Active');
         });
     });

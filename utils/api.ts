@@ -54,7 +54,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
                     options.onUnauthorized()
                 } else {
                     // Default behavior: redirect to home
-                    if (process.client) {
+                    if (import.meta.client) {
                         navigateTo('/')
                     }
                 }
@@ -103,7 +103,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
                 return await $fetch<ApiResponse<T>>(url, {
                     ...defaultOptions,
                     method: 'POST',
-                    body: body as any,
+                    body: body as Record<string, unknown>,
                 })
             } catch (error) {
                 return handleError(error)
@@ -121,7 +121,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
                 return await $fetch<ApiResponse<T>>(url, {
                     ...defaultOptions,
                     method: 'PUT',
-                    body: body as any,
+                    body: body as Record<string, unknown>,
                 })
             } catch (error) {
                 return handleError(error)

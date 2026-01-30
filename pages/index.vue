@@ -17,6 +17,7 @@ const trans = {
   generateButton: computed(() => t('inspectLink.generateButton') as string),
 }
 
+
 const inspectUrl = ref('')
 const decodedJson = ref('')
 const isLoading = ref(false)
@@ -34,7 +35,7 @@ const handleDecode = async () => {
 
   isLoading.value = true
   try {
-    const data = await $fetch<{ item: any; message?: string }>(`/api/inspect?action=inspect-item&steamId=${user.value?.steamId || ''}`, {
+    const data = await $fetch<{ item: Record<string, unknown>; message?: string; success?: boolean }>(`/api/inspect?action=inspect-item&steamId=${user.value?.steamId || ''}`, {
       method: 'POST',
       body: { 
         inspectUrl: inspectUrl.value,
@@ -151,7 +152,7 @@ onMounted(() => {
                     :placeholder="trans.placeholder.value"
                     class="main-input"
                   />
-                  <div class="absolute inset-0 rounded-xl border border-blue-500/0 group-focus-within:border-blue-500/50 transition-all pointer-events-none"></div>
+                  <div class="absolute inset-0 rounded-xl border border-blue-500/0 group-focus-within:border-blue-500/50 transition-all pointer-events-none"/>
                 </div>
                 <NButton
                   type="primary"
@@ -218,7 +219,7 @@ onMounted(() => {
             <!-- Footer Actions -->
             <div class="flex items-center justify-between pt-4 border-t border-white/5">
               <div class="text-xs text-gray-500 font-medium flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"></div>
+                <div class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse"/>
                 API connected and ready
               </div>
               <NButton
@@ -248,21 +249,21 @@ onMounted(() => {
       <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div class="p-6 bg-[#242424] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
           <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
           </div>
           <h3 class="text-white font-bold">Real-time Decoding</h3>
           <p class="text-xs text-gray-500">Instantly convert masked and unmasked links to readable JSON format.</p>
         </div>
         <div class="p-6 bg-[#242424] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
           <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
           <h3 class="text-white font-bold">Secure Encoding</h3>
           <p class="text-xs text-gray-500">Safe and standard-compliant generation of Steam-compatible inspect links.</p>
         </div>
         <div class="p-6 bg-[#242424] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3">
           <div class="p-3 bg-amber-500/10 rounded-xl text-amber-400">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
           </div>
           <h3 class="text-white font-bold">Metadata Support</h3>
           <p class="text-xs text-gray-500">Including stickers, keychains, and custom names in your generated links.</p>

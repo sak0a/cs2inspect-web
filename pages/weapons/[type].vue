@@ -53,9 +53,7 @@ const handleAutoSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
   if (customization.paintindex === null || customization.paintindex === 0) {
     return // Don't auto-save without a paint selected
   }
-  await $fetch(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
-    method: 'POST',
-    body: {
+  const test = {
       defindex: skin.weapon_defindex,
       active: customization.active,
       paintindex: customization.paintindex,
@@ -69,13 +67,18 @@ const handleAutoSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
       team: customization.team || 0,
       reset: customization.reset
     }
-  }).then(async (data: { success: boolean; message: string }) => {
+  await $fetch<{ success: boolean; message: string }>(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+    method: 'POST',
+    body: { ...test }
+  }).then(async (data) => {
     if (data.success) {
       // Silently refresh data without closing modal or showing message
       await fetchLoadoutSkins()
     } else {
       throw new Error(data.message)
     }
+  }).finally(() => {
+    console.log(test)
   })
 }
 
@@ -88,7 +91,7 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
     message.error('Please select a paint to save the weapon')
     return
   }
-  await $fetch(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
+  await $fetch<{ success: boolean; message: string }>(`/api/items/weapons/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`, {
     method: 'POST',
     body: {
       defindex: skin.weapon_defindex,
@@ -104,7 +107,7 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
       team: customization.team || 0,
       reset: customization.reset
     }
-  }).then(async (data: { success: boolean; message: string }) => {
+  }).then(async (data) => {
     if (data.success) {
       message.success(data.message)
       await fetchLoadoutSkins()

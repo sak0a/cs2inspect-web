@@ -175,7 +175,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"/>
             </div>
           </div>
         </NCard>
@@ -200,7 +200,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }"></div> 
+              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }"/> 
             </div>
           </div>
         </NCard>
@@ -226,7 +226,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"/>
             </div>
           </div>
         </NCard>
@@ -286,7 +286,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }"></div>
+              <div class="h-1 mt-2" :style="{ background: '#313030' }"/>
             </div>
           </div>
         </NCard>
@@ -311,7 +311,7 @@ const handleSkinClick = (weapon: KnifeItemData): void => {
             >
             <div class="w-full">
               <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }"></div>
+              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }"/>
             </div>
           </div>
         </NCard>
