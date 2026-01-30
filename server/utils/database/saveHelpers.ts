@@ -3,7 +3,6 @@ import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { knives, gloves, pistols, rifles, smgs, heavys } from '~/server/database/schema'
 import { Logger } from '~/server/utils/logger'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
 import { toLoadoutId } from '~/types/core/common'
 import { recordWeaponHistory, recordKnifeHistory, recordGloveHistory } from './historyHelpers'
@@ -21,15 +20,6 @@ import {
     EnhancedWeaponSticker,
     EnhancedWeaponKeychain
 } from '~/server/types'
-import {
-    validateTeam,
-    validateStatTrak,
-    validateNameTag,
-    validatePaintIndex,
-    validatePaintSeed,
-    validatePaintWear,
-    validateActive
-} from '~/server/utils/validation/common'
 
 // Map table names to Drizzle table schemas
 const weaponTableMap = {
@@ -42,76 +32,29 @@ const weaponTableMap = {
 type WeaponTableName = keyof typeof weaponTableMap;
 
 /**
- * Validates common fields for all item types
- * Uses database column names: paintindex, paintseed, paintwear
+ * Validates weapon defindex against known valid weapon defindexes
  */
-export const validateCommonFields = (body: Record<string, unknown>) => {
-    // Validate defindex
-    validateRequiredRequestData(body.defindex, 'Defindex')
-
-    // Validate team
-    validateTeam(body.team)
-
-    // Validate paintindex
-    validatePaintIndex(body.paintindex)
-
-    // Validate paintseed
-    validatePaintSeed(body.paintseed)
-
-    // Validate paintwear
-    validatePaintWear(body.paintwear)
-
-    // Validate active
-    validateActive(body.active)
-}
-
-/**
- * Validates weapon-specific fields
- * Uses database column names: stattrak_enabled, stattrak_count, nametag
- */
-export const validateWeaponFields = (body: Record<string, unknown>) => {
-    // Validate defindex against valid weapon defindexes
-    if (!VALID_WEAPON_DEFINDEXES[body.defindex as number]) {
+export const validateWeaponDefindex = (defindex: number) => {
+    if (!VALID_WEAPON_DEFINDEXES[defindex]) {
         Logger.error('Invalid Weapon Defindex')
         throw createError({
             statusCode: 400,
-            message: `Invalid Weapon Defindex: ${body.defindex}`
+            message: `Invalid Weapon Defindex: ${defindex}`
         })
     }
-
-    // Validate stattrak_enabled and stattrak_count
-    validateStatTrak(body)
-
-    // Validate nametag
-    validateNameTag(body.nametag)
 }
 
 /**
- * Validates knife-specific fields
- * Uses database column names: stattrak_enabled, stattrak_count, nametag
+ * Validates knife defindex against known valid knife defindexes
  */
-export const validateKnifeFields = (body: Record<string, unknown>) => {
-    // Validate defindex against valid knife defindexes
-    if (!VALID_KNIFE_DEFINDEXES[body.defindex as number]) {
+export const validateKnifeDefindex = (defindex: number) => {
+    if (!VALID_KNIFE_DEFINDEXES[defindex]) {
         Logger.error('Invalid Knife Defindex')
         throw createError({
             statusCode: 400,
-            message: `Invalid Knife Defindex: ${body.defindex}`
+            message: `Invalid Knife Defindex: ${defindex}`
         })
     }
-
-    // Validate stattrak_enabled and stattrak_count
-    validateStatTrak(body)
-
-    // Validate nametag
-    validateNameTag(body.nametag)
-}
-
-/**
- * Validates glove-specific fields
- */
-export const validateGloveFields = (_body: Record<string, unknown>) => {
-    // Gloves don't have additional specific validations beyond the common ones
 }
 
 /**
