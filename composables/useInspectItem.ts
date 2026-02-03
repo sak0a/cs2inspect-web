@@ -1,4 +1,3 @@
-// New type system imports
 import type {
   ItemConfiguration,
   WeaponConfiguration,
@@ -6,7 +5,8 @@ import type {
   GloveConfiguration,
   ItemType,
   AsyncResult,
-  APISkin
+  APISkin,
+  IEnhancedItem
 } from '~/types'
 
 import {
@@ -16,9 +16,6 @@ import {
   toFloatValueClamped,
   isValidFloatValue
 } from '~/types'
-
-// Legacy imports for backward compatibility
-import type { IEnhancedItem } from '~/server/types'
 
 /**
  * Raw inspect item data returned from the inspect API

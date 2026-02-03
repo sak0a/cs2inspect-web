@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { APIAgent } from '~/types'
+
 interface Props {
   agent: APIAgent
   isSelected?: boolean

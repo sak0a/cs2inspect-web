@@ -8,6 +8,8 @@ import {
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
+import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
+import { loadoutUpdateBodySchema } from '~/server/database/schema/zod'
 
 /**
  * PUT /api/loadouts/:id
@@ -23,11 +25,11 @@ export default useErrorHandling(async (event) => {
     Logger.header(`Loadouts PUT request: ${event.req.url}`)
 
     const body = await readBody(event)
-    const steamId = query.steamId as string || body.steamId
+    const parsed = parseBodyWithSchema(loadoutUpdateBodySchema, body)
+    const steamId: string = (query.steamId as string) || parsed.steamId || ''
     validateRequiredRequestData(steamId, 'Steam ID')
-    validateRequiredRequestData(body.name, 'Loadout name')
 
-    await updateLoadout(id, steamId, body.name)
+    await updateLoadout(id, steamId, parsed.name)
     Logger.success(`Loadout ${id} updated successfully!`)
 
     const data = await getLoadout(id, steamId)

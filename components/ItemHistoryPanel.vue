@@ -34,10 +34,9 @@ const state = ref({
   selectedRecord: null as ItemHistoryRecord | null,
   showRestoreConfirm: false,
   pagination: {
-    total: 0,
+    currentPage: 1,
     limit: 10,
-    offset: 0,
-    hasMore: false
+    hasNext: false
   }
 })
 
@@ -49,13 +48,14 @@ const fetchHistory = async () => {
 
   state.value.isLoading = true
   try {
+    const offset = (state.value.pagination.currentPage - 1) * state.value.pagination.limit
     const params = new URLSearchParams({
       steamId: props.steamId,
       loadoutId: String(props.loadoutId),
       defindex: String(props.defindex),
       team: String(props.team),
       limit: String(state.value.pagination.limit),
-      offset: String(state.value.pagination.offset)
+      offset: String(offset)
     })
 
     if (props.category) {
@@ -65,12 +65,13 @@ const fetchHistory = async () => {
     const response = await $fetch<{
       success: boolean
       data: ItemHistoryRecord[]
-      pagination: typeof state.value.pagination
+      pagination: { currentPage: number; totalPages: number; totalItems: number; limit: number; count: number; hasNext: boolean; hasPrevious: boolean }
     }>(`/api/items/history/${props.itemType}?${params.toString()}`)
 
     if (response.success) {
       state.value.records = response.data
-      state.value.pagination = response.pagination
+      state.value.pagination.currentPage = response.pagination.currentPage
+      state.value.pagination.hasNext = response.pagination.hasNext
     }
   } catch (error) {
     console.error('Failed to fetch history:', error)
@@ -205,7 +206,7 @@ const hasMoreChanges = (description: string | null | undefined): boolean => {
  * Load more records
  */
 const loadMore = () => {
-  state.value.pagination.offset += state.value.pagination.limit
+  state.value.pagination.currentPage++
   fetchHistory()
 }
 
@@ -219,7 +220,7 @@ const handleClose = () => {
 // Fetch history when visible
 watch(() => props.visible, (isVisible) => {
   if (isVisible) {
-    state.value.pagination.offset = 0
+    state.value.pagination.currentPage = 1
     fetchHistory()
   }
 }, { immediate: true })
@@ -323,7 +324,7 @@ watch(() => props.visible, (isVisible) => {
           </div>
 
           <!-- Load More -->
-          <div v-if="state.pagination.hasMore" class="pt-4">
+          <div v-if="state.pagination.hasNext" class="pt-4">
             <NButton
               block
               :loading="state.isLoading"

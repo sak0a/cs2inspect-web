@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia'
-import type { DBLoadout } from '~/types'
-import type { IEnhancedItem, IEnhancedWeapon } from '~/server/types'
-import type { LoadoutId, SteamId } from '~/types/core/branded'
-import { toLoadoutId } from '~/types/core/branded'
+import type { DBLoadout, IEnhancedItem, IEnhancedWeapon, IEnhancedKnife, LoadoutId, SteamId } from '~/types'
+import { toLoadoutId } from '~/types'
 import { api } from '~/utils/api'
 
 interface LoadoutState {

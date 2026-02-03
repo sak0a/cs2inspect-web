@@ -22,6 +22,22 @@ export { migrations } from './migrations';
 export { itemHistory } from './itemHistory';
 export type { ItemHistorySnapshot, ChangeType, HistoryItemType, HistoryItemCategory, ItemHistoryRecord, NewItemHistoryRecord } from './itemHistory';
 
+// Admin tables
+export { adminUsers, bannedUsers, appSettings, adminActivityLog } from './admin';
+export type {
+    AdminUser,
+    NewAdminUser,
+    BannedUser,
+    NewBannedUser,
+    AppSetting,
+    NewAppSetting,
+    AdminActivityLogEntry,
+    NewAdminActivityLogEntry,
+    AdminRole,
+    SettingType,
+    AdminAction
+} from './admin';
+
 // Zod validation schemas (drizzle-zod)
 export {
     insertLoadoutSchema,

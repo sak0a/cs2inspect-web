@@ -13,15 +13,24 @@
  * - offset: number (optional, default 0)
  */
 
-import { createError, getQuery, getRouterParam } from 'h3'
+import { createError, getRouterParam } from 'h3'
 import { db } from '~/server/database/client'
 import { itemHistory } from '~/server/database/schema'
 import { eq, and, desc } from 'drizzle-orm'
 import { Logger } from '~/server/utils/logger'
 import type { HistoryItemType, HistoryItemCategory } from '~/server/database/schema/itemHistory'
+import { toSteamId, toLoadoutId, toDefindex, toTeamId } from '~/types/core/branded'
+import {
+    createPaginatedResponse,
+    createPaginationMeta,
+    createResponseMeta,
+} from '~/server/utils/api/responseHelpers'
+import { parseQueryWithSchema } from '~/server/utils/validation/zodHelpers'
+import { itemHistoryQuerySchema } from '~/server/utils/validation/querySchemas'
 
 export default defineEventHandler(async (event) => {
   try {
+    const startTime = Date.now()
     const itemType = getRouterParam(event, 'itemType') as HistoryItemType
 
     // Validate item type
@@ -32,44 +41,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
-    const query = getQuery(event)
+    // Validate query parameters with Zod
+    const params = parseQueryWithSchema(itemHistoryQuerySchema, event)
+    const { limit, offset } = params
+    const category = params.category as HistoryItemCategory | undefined
 
-    // Validate required parameters
-    const steamId = query.steamId as string
-    const loadoutId = Number(query.loadoutId)
-    const defindex = Number(query.defindex)
-    const team = Number(query.team)
-    const category = query.category as HistoryItemCategory | undefined
-    const limit = Math.min(Number(query.limit) || 20, 100) // Max 100
-    const offset = Number(query.offset) || 0
-
-    if (!steamId) {
-      throw createError({
-        statusCode: 400,
-        message: 'steamId is required'
-      })
-    }
-
-    if (isNaN(loadoutId) || loadoutId <= 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'Valid loadoutId is required'
-      })
-    }
-
-    if (isNaN(defindex) || defindex <= 0) {
-      throw createError({
-        statusCode: 400,
-        message: 'Valid defindex is required'
-      })
-    }
-
-    if (isNaN(team) || (team !== 1 && team !== 2)) {
-      throw createError({
-        statusCode: 400,
-        message: 'Valid team (1 or 2) is required'
-      })
-    }
+    // Convert to branded types
+    const steamId = toSteamId(params.steamId)
+    const loadoutId = toLoadoutId(params.loadoutId)
+    const defindex = toDefindex(params.defindex)
+    const team = toTeamId(params.team)
 
     // Build query conditions
     const conditions = [
@@ -101,19 +82,14 @@ export default defineEventHandler(async (event) => {
       .where(and(...conditions))
 
     const totalCount = countResult.length
+    const currentPage = Math.floor(offset / limit) + 1
 
     Logger.info(`Fetched ${records.length} history records for ${itemType} (defindex: ${defindex}, team: ${team})`)
 
-    return {
-      success: true,
-      data: records,
-      pagination: {
-        total: totalCount,
-        limit,
-        offset,
-        hasMore: offset + records.length < totalCount
-      }
-    }
+    const meta = createResponseMeta(startTime, { itemType, defindex, team })
+    const pagination = createPaginationMeta(currentPage, totalCount, limit, records.length)
+
+    return createPaginatedResponse(records, pagination, meta)
   } catch (error) {
     if (error instanceof Error && 'statusCode' in error) {
       throw error

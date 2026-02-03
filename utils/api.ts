@@ -1,6 +1,6 @@
 /**
  * Centralized API client for CS2Inspect
- * 
+ *
  * Provides a typed wrapper around Nuxt's $fetch with:
  * - Automatic error handling
  * - Global 401 redirect logic
@@ -8,19 +8,7 @@
  * - Type safety for requests and responses
  */
 
-/**
- * Standard API response wrapper
- * @template T - Type of the data payload
- */
-export interface ApiResponse<T> {
-    success: boolean
-    data?: T
-    error?: {
-        code: string
-        message: string
-    }
-    meta?: Record<string, unknown>
-}
+import type { APIResponse } from '~/types'
 
 /**
  * Configuration options for the API client
@@ -82,7 +70,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
                     })
                 }
 
-                return await $fetch<ApiResponse<T>>(url, {
+                return await $fetch<APIResponse<T>>(url, {
                     ...defaultOptions,
                     method: 'GET',
                     query: Object.keys(cleanQuery).length > 0 ? cleanQuery : undefined,
@@ -100,7 +88,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
          */
         async post<T>(url: string, body?: unknown) {
             try {
-                return await $fetch<ApiResponse<T>>(url, {
+                return await $fetch<APIResponse<T>>(url, {
                     ...defaultOptions,
                     method: 'POST',
                     body: body as Record<string, unknown>,
@@ -118,7 +106,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
          */
         async put<T>(url: string, body?: unknown) {
             try {
-                return await $fetch<ApiResponse<T>>(url, {
+                return await $fetch<APIResponse<T>>(url, {
                     ...defaultOptions,
                     method: 'PUT',
                     body: body as Record<string, unknown>,
@@ -145,7 +133,7 @@ export function createApiClient(options: ApiClientOptions = {}) {
                     })
                 }
 
-                return await $fetch<ApiResponse<T>>(url, {
+                return await $fetch<APIResponse<T>>(url, {
                     ...defaultOptions,
                     method: 'DELETE',
                     query: Object.keys(cleanQuery).length > 0 ? cleanQuery : undefined,

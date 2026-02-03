@@ -1,15 +1,12 @@
 <script setup lang="ts">
-// New type system imports
 import type {
   ItemConfiguration,
   WeaponConfiguration,
   KnifeConfiguration,
   UserProfile,
-  ItemType
+  ItemType,
+  IEnhancedItem
 } from '~/types'
-
-// Legacy imports for backward compatibility
-import type { IEnhancedItem } from '~/server/types'
 
 /**
  * Props interface using new type system with backward compatibility

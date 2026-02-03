@@ -1,16 +1,14 @@
 <script setup lang="ts">
-// New type system imports
 import type {
   GloveModalProps,
   GloveConfiguration,
   APIWeaponSkin,
-  UserProfile
+  UserProfile,
+  IEnhancedGlove,
+  IEnhancedItem
 } from '~/types'
 import { useItemModal } from '~/composables/useItemModal'
 import { digitOnlyInputProps } from '~/utils/inputProps'
-
-// Legacy imports for backward compatibility
-import type { IEnhancedGlove, IEnhancedItem } from '~/server/types'
 import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'

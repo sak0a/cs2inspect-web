@@ -1,5 +1,4 @@
 // server/api/loadouts/[id].delete.ts
-import { getQuery } from 'h3'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
 import { deleteLoadout } from "~/server/database/loadoutHelpers"
@@ -8,6 +7,8 @@ import {
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
+import { parseQueryWithSchema } from '~/server/utils/validation/zodHelpers'
+import { steamIdQuerySchema } from '~/server/utils/validation/querySchemas'
 
 /**
  * DELETE /api/loadouts/:id
@@ -15,15 +16,13 @@ import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
  */
 export default useErrorHandling(async (event) => {
     const startTime = Date.now()
-    const query = getQuery(event)
 
     const id = event.context.params?.id as string
     validateRequiredRequestData(id, 'Loadout ID')
 
     Logger.header(`Loadouts DELETE request: ${event.req.url}`)
 
-    const steamId = query.steamId as string
-    validateRequiredRequestData(steamId, 'Steam ID')
+    const { steamId } = parseQueryWithSchema(steamIdQuerySchema, event)
 
     await deleteLoadout(id, steamId)
     Logger.success(`Loadout ${id} deleted successfully!`)

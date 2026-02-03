@@ -9,11 +9,10 @@
  * @since 2.0.0
  */
 
-import type { 
-  EntityId, 
-  Timestamp, 
-  ErrorInfo, 
-  PaginationMeta 
+import type {
+  Timestamp,
+  ErrorInfo,
+  PaginationMeta
 } from '../core/common'
 
 // ============================================================================
@@ -63,7 +62,7 @@ export interface APIResponse<TData = unknown> {
   /** The main data payload (present when success is true) */
   data?: TData
   /** Response metadata */
-  meta: APIResponseMeta
+  meta?: APIResponseMeta
   /** Error information (present when success is false) */
   error?: ErrorInfo
   /** Human-readable message */
@@ -125,148 +124,18 @@ export interface APICollectionResponse<TData = unknown> extends APIResponse<TDat
 }
 
 // ============================================================================
-// SPECIALIZED RESPONSE TYPES
-// ============================================================================
-
-/**
- * Response for create operations
- * 
- * @template TData - Type of the created entity
- * 
- * @description Used when creating new entities via API
- */
-export interface APICreateResponse<TData = unknown> extends APIResponse<TData> {
-  /** ID of the created entity */
-  createdId: EntityId
-  /** Location header for the created resource */
-  location?: string
-}
-
-/**
- * Response for update operations
- * 
- * @template TData - Type of the updated entity
- * 
- * @description Used when updating existing entities via API
- */
-export interface APIUpdateResponse<TData = unknown> extends APIResponse<TData> {
-  /** ID of the updated entity */
-  updatedId: EntityId
-  /** Fields that were modified */
-  modifiedFields?: string[]
-}
-
-/**
- * Response for delete operations
- * 
- * @description Used when deleting entities via API
- */
-export interface APIDeleteResponse extends APIResponse<null> {
-  /** ID of the deleted entity */
-  deletedId: EntityId
-  /** Whether the deletion was soft or hard */
-  deletionType?: 'soft' | 'hard'
-}
-
-/**
- * Response for batch operations
- * 
- * @template TData - Type of individual items in the batch
- * 
- * @description Used for operations that affect multiple entities
- */
-export interface APIBatchResponse<TData = unknown> extends APIResponse<TData[]> {
-  /** Batch operation statistics */
-  batch: {
-    /** Total number of items processed */
-    totalProcessed: number
-    /** Number of successful operations */
-    successful: number
-    /** Number of failed operations */
-    failed: number
-    /** Details of failed operations */
-    failures?: Array<{
-      id: EntityId
-      error: ErrorInfo
-    }>
-  }
-}
-
-// ============================================================================
-// ERROR RESPONSE TYPES
-// ============================================================================
-
-/**
- * Validation error response
- * 
- * @description Used when request validation fails
- */
-export interface APIValidationErrorResponse extends APIResponse<never> {
-  success: false
-  error: ErrorInfo & {
-    code: 'VALIDATION_ERROR'
-    /** Field-specific validation errors */
-    validationErrors: Array<{
-      field: string
-      message: string
-      rule: string
-      value: unknown
-    }>
-  }
-}
-
-/**
- * Authentication error response
- * 
- * @description Used when authentication fails or is required
- */
-export interface APIAuthErrorResponse extends APIResponse<never> {
-  success: false
-  error: ErrorInfo & {
-    code: 'AUTH_ERROR' | 'TOKEN_EXPIRED' | 'INSUFFICIENT_PERMISSIONS'
-    /** Required permissions for the operation */
-    requiredPermissions?: string[]
-  }
-}
-
-/**
- * Rate limit error response
- * 
- * @description Used when rate limits are exceeded
- */
-export interface APIRateLimitErrorResponse extends APIResponse<never> {
-  success: false
-  error: ErrorInfo & {
-    code: 'RATE_LIMIT_EXCEEDED'
-    /** When the rate limit resets */
-    resetAt: Timestamp
-    /** Number of requests remaining */
-    remaining: number
-    /** Rate limit window in seconds */
-    windowSeconds: number
-  }
-}
-
-// ============================================================================
 // UTILITY TYPES
 // ============================================================================
 
 /**
  * Union type of all possible API response types
- * 
+ *
  * @template TData - Type of successful response data
  */
-export type AnyAPIResponse<TData = unknown> = 
+export type AnyAPIResponse<TData = unknown> =
   | APIResponse<TData>
   | APIPaginatedResponse<TData>
   | APICollectionResponse<TData>
-  | APICreateResponse<TData>
-  | APIUpdateResponse<TData>
-  | APIDeleteResponse
-  | APIBatchResponse<TData>
-  | APIValidationErrorResponse
-  | APIAuthErrorResponse
-  | APIRateLimitErrorResponse
 
 /**
  * Extract the data type from an API response type

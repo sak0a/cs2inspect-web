@@ -31,6 +31,12 @@ export const loadoutCreateBodySchema = insertLoadoutSchema.pick({
     name: true,
 })
 
+/** Schema for loadout update request body */
+export const loadoutUpdateBodySchema = z.object({
+    name: z.string().min(1, 'Loadout name is required').max(25, 'Loadout name must be at most 25 characters'),
+    steamId: z.string().min(1, 'Steam ID is required').optional(),
+})
+
 // ============================================================================
 // SHARED REFINEMENTS
 // ============================================================================
