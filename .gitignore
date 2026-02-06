@@ -23,6 +23,9 @@ logs
 .env.*
 !.env.example
 
+public/img/charms
+public/img/weapons
+
 # Charm Scraper
 services/charm-scraper/assets
 services/sticker-scraper/assets
@@ -37,3 +40,5 @@ notes_19_dec.txt
 docs/todos_19_dec.md
 docs/todos_manager.html
 better_dx.md
+IMPLEMENTATION_PLAN.md
+GITHUB_ACTIONS_SUMMARY.md
