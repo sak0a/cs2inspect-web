@@ -343,6 +343,7 @@ watch(() => props.visible, (isVisible) => {
         style="width: 420px"
         :title="String(t('history.restoreConfirmTitle'))"
         :bordered="false"
+        :auto-focus="false"
         :mask-closable="!state.isRestoring"
         :closable="!state.isRestoring"
       >

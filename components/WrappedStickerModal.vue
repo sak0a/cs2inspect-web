@@ -118,6 +118,7 @@ watch(() => props.visible, (newValue) => {
       preset="card"
       :bordered="false"
       size="huge"
+      :auto-focus="false"
       :theme-overrides="weaponAttachmentModalThemeOverrides"
       @update:show="handleClose"
   >
@@ -131,7 +132,7 @@ watch(() => props.visible, (newValue) => {
         <NInput
             v-model:value="state.searchQuery"
             :placeholder="t('modals.sticker.searchPlaceholder') as string"
-            class="w-64"
+            class="w-96"
         />
       </div>
     </template>
@@ -225,9 +226,21 @@ watch(() => props.visible, (newValue) => {
         </NCard>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="state.isLoading" class="flex justify-center items-center h-64">
-        <NSpin size="large" />
+      <!-- Skeleton Loading State -->
+      <div v-if="state.isLoading" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div
+          v-for="i in PAGE_SIZE"
+          :key="i"
+          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
+        >
+          <NSkeleton height="96px" />
+          <div class="mt-3">
+            <NSkeleton text :repeat="1" />
+            <div class="mt-2">
+              <NSkeleton height="4px" />
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Empty State -->

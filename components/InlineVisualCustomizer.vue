@@ -1262,7 +1262,7 @@ defineExpose({
     <!-- Full-width Canvas Container -->
     <div 
         ref="canvasContainer" 
-        class="canvas-container w-full relative bg-[#101010] rounded-lg overflow-hidden" 
+        class="canvas-container w-full relative bg-[var(--bg-dark)] rounded-lg overflow-hidden" 
         :class="{ 'fixed inset-0 z-[9999] h-screen w-screen rounded-none': isFullscreen }"
         :style="!isFullscreen ? { height: '700px' } : {}"
     >

@@ -160,7 +160,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
               borderColor: '#313030',
               background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
             @click="handleDefaultWeaponClick(2)"
         >
           <div class="flex flex-col items-center">
@@ -185,7 +185,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
                 hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
             @click="handleSkinClick(weapon)"
         >
           <div class="flex flex-col items-center">
@@ -211,7 +211,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
               borderColor: '#313030',
               background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
             @click="handleDefaultWeaponClick(1)"
         >
           <div class="flex flex-col items-center">
@@ -236,7 +236,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
                 hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
             @click="handleSkinClick(weapon)"
         >
           <div class="flex flex-col items-center">
@@ -270,7 +270,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
               borderColor: '#313030',
               background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
             @click="handleDefaultWeaponClick(
               weaponData.availableTeams === 'terrorists' ? 1 : 2)"
         >
@@ -296,7 +296,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
               background: weapon.rarity?.color ? 'linear-gradient(135deg, #101010, ' +
                 hexToRgba(weapon.rarity?.color, '0.15') + ')': '#242424'
             }"
-            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[#242424] glove-card"
+            class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
             @click="handleSkinClick(weapon)"
         >
           <div class="flex flex-col items-center">

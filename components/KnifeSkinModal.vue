@@ -452,10 +452,11 @@ watch(() => props.weapon, () => {
 <template>
   <NModal
       :show="visible"
-      style="width: 1200px"
+      style="max-width: 1200px; width: 95vw"
       preset="card"
       :bordered="false"
       size="huge"
+      :auto-focus="false"
       @update:show="handleClose"
   >
     <template #header>
@@ -541,7 +542,7 @@ watch(() => props.weapon, () => {
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Skin Preview -->
-      <div v-if="inheritedWeapon" class="bg-[#1a1a1a] p-6 rounded-lg bg-opacity-50">
+      <div v-if="inheritedWeapon" class="bg-[var(--bg-secondary)] p-6 rounded-lg bg-opacity-50">
         <div class="grid grid-cols-2 gap-6">
           <!-- Left side - Image -->
           <div>
@@ -647,7 +648,7 @@ watch(() => props.weapon, () => {
       </div>
 
       <!-- Skins Grid -->
-      <div v-if="!state.isLoadingSkins" class="grid grid-cols-5 gap-4">
+      <div v-if="!state.isLoadingSkins" class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4">
         <NCard
             v-for="skin in paginatedSkins"
             :key="skin.id"
@@ -682,11 +683,11 @@ watch(() => props.weapon, () => {
       </div>
 
       <!-- Skeleton Loading State -->
-      <div v-if="state.isLoadingSkins" class="grid grid-cols-5 gap-4">
+      <div v-if="state.isLoadingSkins" class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4">
         <div
           v-for="i in 10"
           :key="i"
-          class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
           <NSkeleton height="128px" />
           <div class="mt-3">

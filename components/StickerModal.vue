@@ -237,6 +237,7 @@ watch(() => props.visible, (newValue) => {
       preset="card"
       :bordered="false"
       size="huge"
+      :auto-focus="false"
       :theme-overrides="weaponAttachmentModalThemeOverrides"
       @update:show="handleClose"
   >
@@ -273,14 +274,14 @@ watch(() => props.visible, (newValue) => {
         <NInput
             v-model:value="state.searchQuery"
             :placeholder="String(t('modals.sticker.searchPlaceholder'))"
-            class="w-64"
+            class="w-96"
         />
       </div>
     </template>
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Sticker Preview -->
-      <div v-if="state.selectedItem" class="bg-[#1a1a1a] p-4 md:p-6 rounded-lg">
+      <div v-if="state.selectedItem" class="bg-[var(--bg-secondary)] p-4 md:p-6 rounded-lg bg-opacity-50">
         <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
           <!-- Left side - Image -->
           <div class="flex flex-col items-center justify-center">
@@ -370,7 +371,7 @@ watch(() => props.visible, (newValue) => {
             </div>
 
             <!-- Bottom Section: Title and Buttons -->
-            <div class="border-t border-[#313030] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div class="border-t border-[var(--border-subtle)] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4">
               <!-- Sticker Name -->
               <h3 class="text-lg font-bold text-white">{{ state.selectedItem.name.replace(/^Sticker \| /, '') }}</h3>
 
@@ -464,7 +465,7 @@ v-if="currentSticker"
             :key="item.id"
             :class="[
             'cursor-pointer transition-all hover:shadow-lg h-full',
-            state.selectedItem?.id === item.id ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-65' : ''
+            state.selectedItem?.id === item.id ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
           ]"
             :style="{
             borderColor: item.rarity?.color || '#313030',
@@ -495,7 +496,7 @@ v-if="currentSticker"
         <div
           v-for="i in PAGE_SIZE"
           :key="i"
-          class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
           <NSkeleton height="96px" />
           <div class="mt-3">

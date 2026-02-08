@@ -29,6 +29,7 @@ const handleConfirm = () => {
       preset="card"
       :title="String(t('modals.reset.title'))"
       :bordered="false"
+      :auto-focus="false"
       :mask-closable="!loading"
       :closable="!loading"
       @update:show="(show) => { if (!show) handleClose() }">

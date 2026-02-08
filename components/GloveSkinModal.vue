@@ -422,10 +422,11 @@ watch(() => props.weapon, () => {
 <template>
   <NModal
       :show="visible"
-      style="width: 1200px"
+      style="max-width: 1200px; width: 95vw"
       preset="card"
       :bordered="false"
       size="huge"
+      :auto-focus="false"
       @update:show="handleClose"
   >
     <template #header>
@@ -511,20 +512,22 @@ watch(() => props.weapon, () => {
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Skin Preview -->
-      <div v-if="inheritedWeapon" class="bg-[#1a1a1a] p-6 rounded-lg bg-opacity-50">
+      <div v-if="inheritedWeapon" class="bg-[var(--bg-secondary)] p-4 rounded-lg bg-opacity-50">
         <div class="grid grid-cols-2 gap-6">
           <!-- Left side - Image -->
-          <div>
+          <div class="relative">
             <img
                 :src="selectedSkin?.image"
                 :alt="selectedSkin?.name"
                 class="w-full h-64 object-contain"
             >
-            <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
+            <h3 class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1 bg-gradient-to-t from-black/60 to-transparent">
+              {{ selectedSkin?.name }}
+            </h3>
           </div>
 
           <!-- Right side - Customization -->
-          <div class="space-y-6 flex flex-col items-center">
+          <div class="space-y-4 flex flex-col items-center">
 
             <!-- Paint Settings -->
             <div class="grid grid-cols-2 gap-4 w-full">
@@ -570,37 +573,31 @@ watch(() => props.weapon, () => {
             </div>
 
             <!-- Duplicate & Active Switch -->
-            <div class="flex items-center justify-center w-full mt-0 gap-2">
-              <!-- Duplicate Glove -->
-              <div>
-                <NButton
-                    :disabled="!selectedSkin"
-                    type="default"
-                    secondary
-                    class="w-full"
-                    @click="state.showDuplicateConfirm = true"
-                >
-                  {{ t('modals.gloveSkin.buttons.duplicate') }}
-                </NButton>
-              </div>
+            <div class="flex items-center justify-between w-full">
+              <NButton
+                  :disabled="!selectedSkin"
+                  type="default"
+                  secondary
+                  @click="state.showDuplicateConfirm = true"
+              >
+                {{ t('modals.gloveSkin.buttons.duplicate') }}
+              </NButton>
 
-              <NSpace justify="center" align="center" class="w-full h-full">
-                <NSwitch v-model:value="customization.active" size="large" class="col-span-1">
-                  <template #checked>
-                    {{ t('modals.gloveSkin.labels.itemActive') }}
-                  </template>
-                  <template #unchecked>
-                    {{ t('modals.gloveSkin.labels.itemInactive') }}
-                  </template>
-                </NSwitch>
-              </NSpace>
+              <NSwitch v-model:value="customization.active" size="large">
+                <template #checked>
+                  {{ t('modals.gloveSkin.labels.itemActive') }}
+                </template>
+                <template #unchecked>
+                  {{ t('modals.gloveSkin.labels.itemInactive') }}
+                </template>
+              </NSwitch>
             </div>
           </div>
         </div>
       </div>
 
       <!-- Skins Grid -->
-      <div v-if="!state.isLoadingSkins" class="grid grid-cols-5 gap-4">
+      <div v-if="!state.isLoadingSkins" class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4">
         <NCard
             v-for="skin in paginatedSkins"
             :key="skin.id"
@@ -635,11 +632,11 @@ watch(() => props.weapon, () => {
       </div>
 
       <!-- Skeleton Loading State -->
-      <div v-if="state.isLoadingSkins" class="grid grid-cols-5 gap-4">
+      <div v-if="state.isLoadingSkins" class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4">
         <div
           v-for="i in 10"
           :key="i"
-          class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
           <NSkeleton height="128px" />
           <div class="mt-3">

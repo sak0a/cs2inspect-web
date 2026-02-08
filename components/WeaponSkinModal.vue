@@ -1066,6 +1066,7 @@ onUnmounted(() => {
       preset="card"
       :bordered="false"
       size="huge"
+      :auto-focus="false"
       class="duration-500 ease-in-out transition-all"
       @update:show="handleClose"
   >
@@ -1205,7 +1206,7 @@ onUnmounted(() => {
           </div>
           <div v-else key="normal">
         <!-- Selected Skin Preview -->
-        <div v-if="selectedSkin" class="bg-[#1a1a1a] p-6  rounded-lg bg-opacity-40">
+        <div v-if="selectedSkin" class="bg-[var(--bg-secondary)] p-6  rounded-lg bg-opacity-50">
           <div class="grid grid-cols-2 gap-6">
             <!-- Left side - Video/Image Preview -->
             <div>
@@ -1381,8 +1382,8 @@ onUnmounted(() => {
                   v-for="(sticker, index) in customization.stickers"
                   :key="index"
                   class="
-                  sticker-slot group flex items-center justify-center bg-[#242424] p-2 rounded cursor-move
- transition-all relative hover:bg-[#2a2a2a] hover:shadow-md active:scale-[0.98]"
+                  sticker-slot group flex items-center justify-center bg-[var(--card-bg)] p-2 rounded cursor-move
+ transition-all relative hover:bg-[var(--bg-hover)] hover:shadow-md active:scale-[0.98]"
                   :class="{ 'inactive-item': !sticker, 'active-item': sticker }"
                   draggable="true"
                   @dragstart="handleStickerDragStart($event, index)"
@@ -1432,7 +1433,7 @@ onUnmounted(() => {
           <div class="col-span-1 lg:col-span-1 md:col-span-3 sm:col-span-2 mt-4">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.keychain.title') }}</h4>
             <div
-                class="relative group items-center flex justify-center bg-[#242424] p-2 rounded cursor-pointer hover:bg-[#2a2a2a] transition-all min-h-32 max-h-32"
+                class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
                 :class="{ 'inactive-item': !customization.keychain, 'active-item': customization.keychain }"
                 @click="handleAddKeychain"
             >
@@ -1516,7 +1517,7 @@ onUnmounted(() => {
         <div
           v-for="i in PAGE_SIZE"
           :key="i"
-          class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
           <NSkeleton height="128px" />
           <div class="mt-3">

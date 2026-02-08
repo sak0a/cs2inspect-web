@@ -274,6 +274,7 @@ watch(() => state.value.customization.seed, (newSeed) => {
       preset="card"
       :bordered="false"
       size="huge"
+      :auto-focus="false"
       :theme-overrides="weaponAttachmentModalThemeOverrides"
       @update:show="handleClose"
   >
@@ -310,14 +311,14 @@ watch(() => state.value.customization.seed, (newSeed) => {
         <NInput
             v-model:value="state.searchQuery"
             :placeholder="t('modals.keychain.searchPlaceholder') as string"
-            class="w-64"
+            class="w-96"
         />
       </div>
     </template>
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Keychain Preview -->
-      <div v-if="state.selectedItem" class="bg-[#1a1a1a] p-4 md:p-6 rounded-lg">
+      <div v-if="state.selectedItem" class="bg-[var(--bg-secondary)] p-4 md:p-6 rounded-lg bg-opacity-50">
         <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
           <!-- Left side - Image -->
           <div class="flex flex-col items-center justify-center">
@@ -396,10 +397,10 @@ watch(() => state.value.customization.seed, (newSeed) => {
               </div>
 
               <!-- Sticker Slab Controls -->
-              <div v-if="isStickerSlab" class="col-span-2 sm:col-span-4 border-t border-[#313030] pt-3 mt-1">
+              <div v-if="isStickerSlab" class="col-span-2 sm:col-span-4 border-t border-[var(--border-subtle)] pt-3 mt-1">
                 <h4 class="text-xs font-medium mb-2 text-gray-400">Wrapped Sticker</h4>
                 
-                <div v-if="state.selectedWrappedSticker || state.customization.wrapped_sticker_id" class="flex items-center gap-3 bg-[#101010] p-2 rounded border border-[#313030]">
+                <div v-if="state.selectedWrappedSticker || state.customization.wrapped_sticker_id" class="flex items-center gap-3 bg-[var(--bg-dark)] p-2 rounded border border-[var(--border-subtle)]">
                    <!-- If we have the object, show image. If only ID (legacy/edit), just show ID/placeholder -->
                    <!-- Tiny preview removed as per request -->
                    <div class="flex-1 min-w-0">
@@ -417,7 +418,7 @@ watch(() => state.value.customization.seed, (newSeed) => {
             </div>
 
             <!-- Bottom Section: Title and Buttons -->
-            <div class="border-t border-[#313030] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4">
+            <div class="border-t border-[var(--border-subtle)] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4">
               <h3 class="text-lg font-bold text-white">{{ state.selectedItem.name.replace(/^Charm \| /, '') }}</h3>
               
               <div class="flex gap-3 w-full lg:w-auto justify-end">
@@ -482,7 +483,7 @@ watch(() => state.value.customization.seed, (newSeed) => {
             :key="item.id"
             :class="[
             'cursor-pointer transition-all hover:shadow-lg h-full',
-            state.selectedItem?.id === item.id.replace('keychain-', '') ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-65' : ''
+            state.selectedItem?.id === item.id.replace('keychain-', '') ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
           ]"
             :style="{
             borderColor: item.rarity?.color || '#313030',
@@ -513,7 +514,7 @@ watch(() => state.value.customization.seed, (newSeed) => {
         <div
           v-for="i in PAGE_SIZE"
           :key="i"
-          class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
           <NSkeleton height="96px" />
           <div class="mt-3">

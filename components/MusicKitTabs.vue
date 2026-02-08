@@ -31,7 +31,7 @@ const handleSelect = () => {
           hexToRgba(musicKit.rarity?.color, '0.15') + ')': '#242424'
       }"
       :class="[
-        'cursor-pointer rounded-xl bg-[#242424] music-kit-card',
+        'cursor-pointer rounded-xl bg-[var(--card-bg)] music-kit-card',
         isSelected ? 'selected-music-kit ring-2 ring-[var(--selection-ring)] border-0 visible' : 'hover:shadow-lg hover:scale-100 hover:z-10'
       ]"
       @click="handleSelect"

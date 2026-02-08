@@ -46,6 +46,7 @@ const handleClose = () => {
       preset="card"
       :title="t('modals.inspectUrl.title') as string"
       :bordered="false"
+      :auto-focus="false"
       :mask-closable="!_props.loading"
       :closable="!_props.loading"
       @update:show="handleClose"

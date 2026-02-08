@@ -33,7 +33,7 @@ const teamLabel = computed(() => {
       }"
 
       :class="[
-        'hover:shadow-lg transition-all cursor-pointer rounded-xl mt-2 mx-2 bg-[#242424] w-[300px] agent-card',
+        'hover:shadow-lg transition-all cursor-pointer rounded-xl mt-2 mx-2 bg-[var(--card-bg)] w-[300px] agent-card',
         isSelected ? 'ring-2 ring-[var(--selection-ring)] border-0 visible' : ''
       ]"
       @click="handleSelect"
