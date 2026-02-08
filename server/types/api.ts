@@ -1,117 +1,16 @@
 /**
- * API response and request type definitions
+ * API item type definitions
  * Moved from server/utils/interfaces.ts for better organization
  */
 
-// ============================================================================
-// API RESPONSE INTERFACES
-// ============================================================================
-
-/**
- * Standard pagination metadata for API responses
- * Provides consistent pagination information across all endpoints
- */
-export interface PaginationMeta {
-    /** Current page number (1-based) */
-    currentPage: number;
-    /** Total number of pages available */
-    totalPages: number;
-    /** Total number of items across all pages */
-    totalItems: number;
-    /** Number of items per page */
-    limit: number;
-    /** Number of items in current response */
-    count: number;
-    /** Whether there is a next page */
-    hasNext: boolean;
-    /** Whether there is a previous page */
-    hasPrevious: boolean;
-}
-
-/**
- * Standard metadata for API responses
- * Provides additional context and information about the response
- */
-export interface ResponseMeta {
-    /** Timestamp when the response was generated */
-    timestamp: string;
-    /** Time taken to process the request (in milliseconds) */
-    processingTime?: number;
-    /** Version of the API */
-    apiVersion?: string;
-    /** Additional metadata specific to the endpoint */
-    [key: string]: unknown;
-}
-
-/**
- * Standard error information for API responses
- * Provides consistent error reporting across all endpoints
- */
-export interface ErrorInfo {
-    /** Error code for programmatic handling */
-    code: string;
-    /** Human-readable error message */
-    message: string;
-    /** Additional error details */
-    details?: unknown;
-    /** Field-specific validation errors */
-    fieldErrors?: Record<string, string[]>;
-}
-
-/**
- * Base API response interface
- * All API responses should extend this interface
- */
-export interface BaseAPIResponse<T = unknown> {
-    /** Whether the request was successful */
-    success: boolean;
-    /** The main data payload */
-    data?: T;
-    /** Response metadata */
-    meta: ResponseMeta;
-    /** Pagination information (if applicable) */
-    pagination?: PaginationMeta;
-    /** Error information (if success is false) */
-    error?: ErrorInfo;
-    /** Human-readable message */
-    message?: string;
-}
-
-/**
- * Paginated API response interface
- * For endpoints that return paginated data
- */
-export interface PaginatedAPIResponse<T = unknown> extends BaseAPIResponse<T[]> {
-    /** Pagination information (required for paginated responses) */
-    pagination: PaginationMeta;
-    /** Applied filters information */
-    appliedFilters?: Record<string, unknown>;
-    /** Available filter options */
-    availableFilters?: Record<string, unknown[]>;
-}
-
-/**
- * Collection API response interface
- * For endpoints that return collections of items with metadata
- */
-export interface CollectionAPIResponse<T = unknown> extends BaseAPIResponse<T[]> {
-    /** Collection-specific metadata */
-    collection: {
-        /** Total count of items in the collection */
-        totalCount: number;
-        /** Available categories/types */
-        categories?: string[];
-        /** Available filters and their options */
-        filters?: Record<string, unknown[]>;
-    };
-}
+import type { ItemRarity } from '~/types/core/common'
 
 // ============================================================================
 // SHARED TYPES - RE-EXPORTED FROM ~/types
 // ============================================================================
 
 // Re-export ItemRarity from unified type system
-export type { ItemRarity } from '~/types/core/common'
+export type { ItemRarity }
 
 // Re-export team enum
 export { CsTeam } from '~/types/core/common'

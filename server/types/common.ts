@@ -21,35 +21,6 @@ export type {
   ID
 } from '~/types/core/common'
 
-// ============================================================================
-// SERVER-SPECIFIC TYPES
-// ============================================================================
-
-/**
- * Standard API response wrapper (server-specific format)
- */
-export interface ApiResponse<T = unknown> {
-  success: boolean
-  data?: T
-  error?: string
-  message?: string
-  statusCode?: number
-}
-
-/**
- * Paginated API response (server-specific format)
- */
-export interface PaginatedResponse<T = unknown> extends ApiResponse<T[]> {
-  pagination?: {
-    currentPage: number
-    totalPages: number
-    totalItems: number
-    limit: number
-    hasNext: boolean
-    hasPrevious: boolean
-  }
-}
-
 /**
  * Base item interface (server-specific)
  */

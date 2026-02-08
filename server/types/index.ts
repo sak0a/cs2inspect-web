@@ -14,10 +14,6 @@ export type {
   // Steam types
   SteamUser,
 
-  // API response types
-  ApiResponse,
-  PaginatedResponse,
-
   // Item types
   BaseItem,
   EnhancedItem,
@@ -43,18 +39,23 @@ export type {
 } from './common'
 
 // ============================================================================
-// API TYPES
+// API RESPONSE TYPES (from unified ~/types)
 // ============================================================================
 
 export type {
-  // API Response interfaces
+  APIResponseMeta,
+  APIResponse,
+  APIPaginatedResponse,
+  APICollectionResponse,
   PaginationMeta,
-  ResponseMeta,
-  ErrorInfo,
-  BaseAPIResponse,
-  PaginatedAPIResponse,
-  CollectionAPIResponse,
+  ErrorInfo
+} from '~/types'
 
+// ============================================================================
+// API ITEM TYPES
+// ============================================================================
+
+export type {
   // Item interfaces
   ItemRarity,
   ItemTeam,
