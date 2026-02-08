@@ -1,4 +1,4 @@
-import type { APISkin, IDefaultItem, IEnhancedItem } from '~/server/utils/interfaces';
+import type { APISkin, IDefaultItem, IEnhancedItem } from '~/server/types';
 import { hexToRgba } from '~/server/utils/commonUtils';
 
 // ============================================================================

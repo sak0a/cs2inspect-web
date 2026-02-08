@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-CS2Inspect Web is a full-stack Nuxt 3 application for Counter-Strike 2 players to customize loadouts (weapons, knives, gloves, agents, music kits, pins) with real-time preview. Users authenticate via Steam OpenID, and configurations are stored in MariaDB.
+CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players to customize loadouts (weapons, knives, gloves, agents, music kits, pins) with real-time preview. Users authenticate via Steam OpenID, and configurations are stored in MariaDB.
 
 ## Commands
 
