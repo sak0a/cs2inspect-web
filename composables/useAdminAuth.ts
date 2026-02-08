@@ -4,7 +4,7 @@
  * @description Provides admin status checks, role verification, and route guards
  * for protecting admin-only routes and features.
  */
-import { computed, ref, type ComputedRef, type Ref } from 'vue'
+import { computed, ref, type ComputedRef } from 'vue'
 import { useAdminStore } from '~/stores/adminStore'
 
 // ============================================================================

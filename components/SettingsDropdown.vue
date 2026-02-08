@@ -90,7 +90,7 @@ const languageOptions = computed(() => {
 })
 
 const dropdownOptions = computed(() => {
-  const options: Array<Record<string, any>> = [
+  const options: Array<Record<string, unknown>> = [
     {
       label: String(t('navigation.language') || 'Language'),
       key: 'language',

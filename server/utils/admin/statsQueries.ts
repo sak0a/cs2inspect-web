@@ -4,7 +4,7 @@
  * Functions for querying user statistics, item counts, and activity data
  * for the admin panel dashboard.
  */
-import { sql, eq, gte, and, desc } from 'drizzle-orm'
+import { sql, eq, gte, desc } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import {
     loadouts,

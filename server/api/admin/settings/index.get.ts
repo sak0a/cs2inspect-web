@@ -12,7 +12,7 @@ import {
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers'
 
-export default useErrorHandling(async (event) => {
+export default useErrorHandling(async () => {
     const startTime = Date.now()
 
     const db = useDatabase()

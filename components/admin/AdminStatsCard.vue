@@ -54,12 +54,6 @@ const iconComponent = computed(() => {
   return iconMap[props.icon] || PackageIcon
 })
 
-// Trend direction and styling
-const trendDirection = computed(() => {
-  if (!props.trend) return null
-  return props.trend.value >= 0 ? 'up' : 'down'
-})
-
 const trendIcon = computed(() => {
   if (!props.trend) return undefined
   return props.trend.value >= 0 ? TrendingUpIcon : TrendingDownIcon

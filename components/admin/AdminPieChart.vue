@@ -7,7 +7,7 @@
     <div class="chart-container glass-container p-4 relative">
       <!-- Loading state -->
       <div v-if="loading" class="flex items-center justify-center min-h-[300px]">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
       </div>
 
       <!-- Chart -->
@@ -29,7 +29,7 @@
             <div
               class="w-4 h-4 rounded-sm"
               :style="{ backgroundColor: colors[index] }"
-            ></div>
+            />
             <span class="text-gray-300">{{ item.label }}</span>
             <span class="text-gray-500 ml-auto">{{ item.value.toLocaleString() }}</span>
           </div>
@@ -49,7 +49,8 @@ import {
   Chart as ChartJS,
   ArcElement,
   Tooltip,
-  Legend
+  Legend,
+  type TooltipItem
 } from 'chart.js';
 import { Doughnut } from 'vue-chartjs';
 
@@ -153,9 +154,10 @@ const chartOptions = computed(() => ({
       padding: 12,
       displayColors: true,
       callbacks: {
-        label: (context: any) => {
-          const value = context.parsed;
-          const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+        label: (context: TooltipItem<'doughnut'>) => {
+          const value = typeof context.parsed === 'number' ? context.parsed : 0;
+          const data = (context.dataset.data ?? []) as number[];
+          const total = data.reduce((a: number, b: number) => a + b, 0);
           const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
           return `${context.label}: ${value.toLocaleString()} (${percentage}%)`;
         }

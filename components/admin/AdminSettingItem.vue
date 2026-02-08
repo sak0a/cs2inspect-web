@@ -145,19 +145,19 @@ const typeBadgeClass = computed(() => {
             <template v-else-if="setting.type === 'number'">
               <NInputNumber
                 :value="typeof editValue === 'number' ? editValue : Number(editValue) || 0"
-                @update:value="(val: number | null) => editValue = val ?? 0"
                 class="w-full"
                 size="small"
+                @update:value="(val: number | null) => editValue = val ?? 0"
               />
             </template>
             <template v-else>
               <NInput
                 :value="String(editValue)"
-                @update:value="(val: string) => editValue = val"
                 :type="setting.type === 'json' ? 'textarea' : 'text'"
                 :rows="setting.type === 'json' ? 3 : undefined"
                 class="w-full"
                 size="small"
+                @update:value="(val: string) => editValue = val"
               />
             </template>
           </div>

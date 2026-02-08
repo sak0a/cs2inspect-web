@@ -16,10 +16,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'page-change', page: number): void
-  (e: 'search', query: string): void
-  (e: 'view', steamId: string): void
-  (e: 'ban', steamId: string): void
-  (e: 'unban', steamId: string): void
+  (e: 'search' | 'view' | 'ban' | 'unban', value: string): void
 }>()
 
 const searchQuery = ref('')

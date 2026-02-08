@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { LucideUsers as UsersIcon } from 'lucide-vue-next'
-import type { AdminUserSummary } from '~/types'
 
 definePageMeta({
   middleware: 'admin',

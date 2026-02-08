@@ -8,8 +8,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:show', value: boolean): void
-  (e: 'confirm'): void
-  (e: 'cancel'): void
+  (e: 'confirm' | 'cancel'): void
 }>()
 
 const confirmInput = ref('')

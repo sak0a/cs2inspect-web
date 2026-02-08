@@ -20,7 +20,7 @@
     <div class="chart-container glass-container p-4 relative">
       <!-- Loading state -->
       <div v-if="loading" class="flex items-center justify-center min-h-[300px]">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
       </div>
 
       <!-- Chart -->

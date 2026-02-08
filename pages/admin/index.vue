@@ -1,9 +1,5 @@
 <script setup lang="ts">
 import {
-  LucideUsers as UsersIcon,
-  LucideUserCheck as ActiveUsersIcon,
-  LucidePackage as LoadoutsIcon,
-  LucideSword as ItemsIcon,
   LucideSettings as SettingsIcon,
   LucideActivity as ActivityLogIcon,
   LucideShield as UserManagementIcon,
@@ -23,7 +19,6 @@ const {
   overviewStats,
   activityData,
   topUsers,
-  timeRange,
   isLoadingStats,
   isLoadingActivity,
   isLoading,

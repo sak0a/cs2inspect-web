@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { LucideSettings as SettingsIcon } from 'lucide-vue-next'
 import { useAdminStore } from '~/stores/adminStore'
-import type { AdminSetting } from '~/types'
 
 definePageMeta({
   middleware: 'admin',

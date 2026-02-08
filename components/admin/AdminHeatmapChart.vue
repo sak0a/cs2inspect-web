@@ -10,7 +10,7 @@
             :key="level"
             class="w-3 h-3 rounded-sm"
             :style="{ backgroundColor: getColorForLevel(level) }"
-          ></div>
+          />
         </div>
         <span>More</span>
       </div>
@@ -19,7 +19,7 @@
     <div class="chart-container glass-container p-4 relative overflow-x-auto">
       <!-- Loading state -->
       <div v-if="loading" class="flex items-center justify-center min-h-[150px]">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div>
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500" />
       </div>
 
       <!-- Heatmap grid -->
@@ -60,7 +60,7 @@
                 :title="day ? `${day.date}: ${day.value} activities` : ''"
                 @mouseenter="showTooltip($event, day)"
                 @mouseleave="hideTooltip"
-              ></div>
+              />
             </div>
           </div>
         </div>
@@ -151,7 +151,7 @@ const weeks = computed(() => {
   adjustedEnd.setDate(adjustedEnd.getDate() + (6 - adjustedEnd.getDay()));
 
   const weeksArray: (HeatmapDataPoint | null)[][] = [];
-  let currentDate = new Date(adjustedStart);
+  const currentDate = new Date(adjustedStart);
 
   while (currentDate <= adjustedEnd) {
     const week: (HeatmapDataPoint | null)[] = [];
