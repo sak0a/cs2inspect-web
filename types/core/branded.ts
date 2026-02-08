@@ -306,43 +306,12 @@ export type ISOTimestamp = string & { readonly __brand: 'ISOTimestamp' }
 // ============================================================================
 
 /**
- * Branded type for hex color codes
- *
- * @description CSS hex color format: #RRGGBB or #RRGGBBAA
- * @example "#FF5500", "#FF550080"
- *
- * @deprecated Limited practical benefit - CSS colors don't require branding
- * for type safety in this application. Consider using plain strings.
- */
-export type HexColor = string & { readonly __brand: 'HexColor' }
-
-/**
  * Branded type for normalized coordinates
  *
  * @description Value between 0.0 and 1.0 representing a normalized position.
  * Used for sticker/keychain positioning on weapons.
  */
 export type NormalizedCoordinate = number & { readonly __brand: 'NormalizedCoordinate' }
-
-/**
- * Branded type for percentage values
- *
- * @description Value between 0 and 100 representing a percentage.
- *
- * @deprecated Rarely needed in the codebase - consider using plain numbers
- * with explicit range documentation instead.
- */
-export type Percentage = number & { readonly __brand: 'Percentage' }
-
-/**
- * Branded type for item rarity identifiers
- *
- * @description String identifier for item rarity levels (e.g., "covert", "classified")
- *
- * @deprecated String ID with no real constraints - the ItemRarity interface
- * in core/common.ts provides better type safety with structured data.
- */
-export type RarityId = string & { readonly __brand: 'RarityId' }
 
 // ============================================================================
 // TIER 1: CONVERSION HELPERS
@@ -484,26 +453,6 @@ export function toISOTimestamp(value: Date | string): ISOTimestamp {
     return dateStr as ISOTimestamp
 }
 
-// ============================================================================
-// TIER 3: CONVERSION HELPERS
-// ============================================================================
-
-/**
- * Convert a string to a HexColor with validation
- *
- * @param value - Hex color string to convert
- * @returns Branded HexColor
- * @throws Error if the format is invalid
- *
- * @deprecated Use plain strings for CSS colors instead
- */
-export function toHexColor(value: string): HexColor {
-    if (!isValidHexColor(value)) {
-        throw new Error('Invalid hex color format. Must be #RRGGBB or #RRGGBBAA')
-    }
-    return value as HexColor
-}
-
 /**
  * Convert a number to a NormalizedCoordinate with validation
  * 
@@ -526,34 +475,6 @@ export function toNormalizedCoordinate(value: number): NormalizedCoordinate {
  */
 export function toNormalizedCoordinateClamped(value: number): NormalizedCoordinate {
     return Math.max(0, Math.min(1, value)) as NormalizedCoordinate
-}
-
-/**
- * Convert a number to a Percentage with validation
- *
- * @param value - Percentage value to convert
- * @returns Branded Percentage
- * @throws Error if the value is out of range
- *
- * @deprecated Use plain numbers with explicit range documentation instead
- */
-export function toPercentage(value: number): Percentage {
-    if (!isValidPercentage(value)) {
-        throw new Error('Percentage must be between 0 and 100')
-    }
-    return value as Percentage
-}
-
-/**
- * Convert a string or number to a RarityId
- *
- * @param value - Rarity identifier to convert
- * @returns Branded RarityId
- *
- * @deprecated Use ItemRarity interface from core/common.ts instead
- */
-export function toRarityId(value: string | number): RarityId {
-    return String(value) as RarityId
 }
 
 // ============================================================================
@@ -624,33 +545,11 @@ export function isValidISOTimestamp(value: unknown): value is ISOTimestamp {
     return !isNaN(date.getTime()) && value === date.toISOString()
 }
 
-// ============================================================================
-// TIER 3: TYPE GUARDS
-// ============================================================================
-
-/**
- * Check if a value is a valid HexColor
- *
- * @deprecated Use plain strings for CSS colors instead
- */
-export function isValidHexColor(value: unknown): value is HexColor {
-    return typeof value === 'string' && /^#[0-9A-Fa-f]{6}([0-9A-Fa-f]{2})?$/.test(value)
-}
-
 /**
  * Check if a value is a valid NormalizedCoordinate
  */
 export function isValidNormalizedCoordinate(value: unknown): value is NormalizedCoordinate {
     return typeof value === 'number' && value >= 0 && value <= 1
-}
-
-/**
- * Check if a value is a valid Percentage
- *
- * @deprecated Use plain numbers with explicit range documentation instead
- */
-export function isValidPercentage(value: unknown): value is Percentage {
-    return typeof value === 'number' && value >= 0 && value <= 100
 }
 
 // ============================================================================
@@ -697,10 +596,71 @@ export function teamIdToName(teamId: TeamId): 'Terrorist' | 'Counter-Terrorist' 
 
 /**
  * Get team abbreviation from TeamId
- * 
+ *
  * @param teamId - Team identifier
  * @returns Team abbreviation (T or CT)
  */
 export function teamIdToAbbr(teamId: TeamId): 'T' | 'CT' {
     return teamId === 1 ? 'T' : 'CT'
+}
+
+// ============================================================================
+// ADMIN TYPES
+// ============================================================================
+
+/**
+ * Branded type for admin user ID
+ */
+export type AdminId = number & { readonly __brand: 'AdminId' }
+
+/**
+ * Branded type for ban record ID
+ */
+export type BanId = number & { readonly __brand: 'BanId' }
+
+/**
+ * Branded type for setting key
+ */
+export type SettingKey = string & { readonly __brand: 'SettingKey' }
+
+/**
+ * Convert a number to an AdminId
+ */
+export function toAdminId(value: number): AdminId {
+    return value as AdminId
+}
+
+/**
+ * Convert a number to a BanId
+ */
+export function toBanId(value: number): BanId {
+    return value as BanId
+}
+
+/**
+ * Convert a string to a SettingKey
+ */
+export function toSettingKey(value: string): SettingKey {
+    return value as SettingKey
+}
+
+/**
+ * Check if a value is a valid AdminId
+ */
+export function isValidAdminId(value: unknown): value is AdminId {
+    return typeof value === 'number' && Number.isInteger(value) && value > 0
+}
+
+/**
+ * Check if a value is a valid BanId
+ */
+export function isValidBanId(value: unknown): value is BanId {
+    return typeof value === 'number' && Number.isInteger(value) && value > 0
+}
+
+/**
+ * Check if a value is a valid SettingKey
+ */
+export function isValidSettingKey(value: unknown): value is SettingKey {
+    return typeof value === 'string' && value.length > 0 && value.length <= 64
 }

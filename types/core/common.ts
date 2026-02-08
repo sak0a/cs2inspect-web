@@ -43,10 +43,12 @@ export {
   type ISOTimestamp,
 
   // Tier 3: Visual and UX types
-  type HexColor,
   type NormalizedCoordinate,
-  type Percentage,
-  type RarityId,
+
+  // Admin types
+  type AdminId,
+  type BanId,
+  type SettingKey,
 
   // Conversion helpers - Original
   toLoadoutId,
@@ -74,11 +76,13 @@ export {
   toISOTimestamp,
 
   // Conversion helpers - Tier 3
-  toHexColor,
   toNormalizedCoordinate,
   toNormalizedCoordinateClamped,
-  toPercentage,
-  toRarityId,
+
+  // Conversion helpers - Admin
+  toAdminId,
+  toBanId,
+  toSettingKey,
 
   // Type guards - Original
   isValidLoadoutId,
@@ -98,9 +102,12 @@ export {
   isValidISOTimestamp,
 
   // Type guards - Tier 3
-  isValidHexColor,
   isValidNormalizedCoordinate,
-  isValidPercentage,
+
+  // Type guards - Admin
+  isValidAdminId,
+  isValidBanId,
+  isValidSettingKey,
 
   // Utility functions
   floatValueToCondition,
@@ -245,7 +252,9 @@ export interface ErrorInfo {
   /** Human-readable error message */
   message: string
   /** Additional error details */
-  details?: Record<string, unknown>
+  details?: unknown
+  /** Field-specific validation errors */
+  fieldErrors?: Record<string, string[]>
   /** Stack trace (development only) */
   stack?: string
 }
@@ -286,12 +295,20 @@ export interface PaginationOptions {
 
 /**
  * Pagination metadata for API responses
- * 
+ *
  * @description Provides pagination context in API responses
  */
-export interface PaginationMeta extends PaginationOptions {
+export interface PaginationMeta {
+  /** Current page number (1-based) */
+  currentPage: number
   /** Total number of pages available */
   totalPages: number
+  /** Total number of items across all pages */
+  totalItems: number
+  /** Number of items per page */
+  limit: number
+  /** Number of items in current response */
+  count: number
   /** Whether there is a next page */
   hasNext: boolean
   /** Whether there is a previous page */

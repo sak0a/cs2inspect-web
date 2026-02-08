@@ -19,17 +19,6 @@ export type {
   APIPaginatedResponse,
   APICollectionResponse,
 
-  // Specialized response types
-  APICreateResponse,
-  APIUpdateResponse,
-  APIDeleteResponse,
-  APIBatchResponse,
-
-  // Error response types
-  APIValidationErrorResponse,
-  APIAuthErrorResponse,
-  APIRateLimitErrorResponse,
-
   // Utility types
   AnyAPIResponse,
   ExtractAPIResponseData

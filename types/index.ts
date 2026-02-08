@@ -76,10 +76,12 @@ export type {
   ISOTimestamp,
 
   // Branded types - Tier 3: Visual and UX
-  HexColor,
   NormalizedCoordinate,
-  Percentage,
-  RarityId,
+
+  // Branded types - Admin
+  AdminId,
+  BanId,
+  SettingKey,
 
   // Team and side definitions
   TeamAvailability,
@@ -137,11 +139,13 @@ export {
   toISOTimestamp,
 
   // Branded type conversion helpers - Tier 3
-  toHexColor,
   toNormalizedCoordinate,
   toNormalizedCoordinateClamped,
-  toPercentage,
-  toRarityId,
+
+  // Branded type conversion helpers - Admin
+  toAdminId,
+  toBanId,
+  toSettingKey,
 
   // Type guards - Original
   isValidLoadoutId,
@@ -161,9 +165,12 @@ export {
   isValidISOTimestamp,
 
   // Type guards - Tier 3
-  isValidHexColor,
   isValidNormalizedCoordinate,
-  isValidPercentage,
+
+  // Type guards - Admin
+  isValidAdminId,
+  isValidBanId,
+  isValidSettingKey,
 
   // Utility functions
   floatValueToCondition,
@@ -182,13 +189,6 @@ export type {
   APIResponse,
   APIPaginatedResponse,
   APICollectionResponse,
-  APICreateResponse,
-  APIUpdateResponse,
-  APIDeleteResponse,
-  APIBatchResponse,
-  APIValidationErrorResponse,
-  APIAuthErrorResponse,
-  APIRateLimitErrorResponse,
   AnyAPIResponse,
   ExtractAPIResponseData,
 
@@ -223,6 +223,24 @@ export {
   isAPIAgent,
   isAPIMusicKit
 } from './api'
+
+// Admin types
+export type {
+  AdminOverviewStats,
+  AdminUserDetails,
+  AdminUserSummary,
+  AdminActivityData,
+  AdminHeatmapData,
+  AdminTopUser,
+  AdminSetting,
+  AdminInfo,
+  AdminActivityLogEntry,
+  AdminBanUserRequest,
+  AdminUpdateSettingRequest,
+  AdminAddAdminRequest,
+  AdminUserSearchParams,
+  AdminActivityParams
+} from './api/admin'
 
 // Re-export APISkin from api/items for backward compatibility
 export type { APISkin } from './api/items'
@@ -403,6 +421,9 @@ export type {
   IMappedDBWeapon,
   IDefaultItem
 } from '~/server/types/items'
+
+// Re-export KeychainJSON from server/types for use in component code
+export type { KeychainJSON } from '~/server/types/jsonSchemas'
 
 // ============================================================================
 // TYPE UTILITIES
