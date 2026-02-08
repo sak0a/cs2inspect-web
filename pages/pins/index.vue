@@ -202,7 +202,7 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
             <div
               v-for="i in 12"
               :key="i"
-              class="rounded-xl border border-[#313030] bg-[#101010] p-4 flex flex-col"
+              class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4 flex flex-col"
               style="height: 300px"
             >
               <NSkeleton height="128px" />

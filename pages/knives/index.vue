@@ -281,11 +281,11 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
       <!-- Knife Type Groups -->
       <div v-if="!error && user && loadoutStore.selectedLoadoutId">
         <!-- Skeleton Loading State -->
-        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
           <div
             v-for="i in 8"
             :key="i"
-            class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
           >
             <NSkeleton height="128px" />
             <div class="mt-3">
@@ -308,7 +308,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                   v-model:value="ctKnifeType"
                   :options="knifeOptions"
                   placeholder="Select knife type"
-                  class="w-44"
+                  class="w-72"
                   @update:value="handleKnifeTypeChange('ct', $event)"
               />
             </div>
@@ -320,7 +320,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                   v-model:value="tKnifeType"
                   :options="knifeOptions"
                   placeholder="Select knife type"
-                  class="w-44"
+                  class="w-72"
                   @update:value="handleKnifeTypeChange('t', $event)"
               />
             </div>
@@ -329,7 +329,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
           <TransitionGroup
             name="card-fade"
             tag="div"
-            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 pt-4"
             appear
           >
             <KnifeTabs

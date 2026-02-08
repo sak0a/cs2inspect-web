@@ -259,7 +259,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
 </script>
 
 <template>
-  <div class="px-4 pb-4 ">
+  <div class="p-4">
     <div class="max-w-7xl mx-auto content-fade-in">
       <SkinPageLayout
           title="Agents"
@@ -290,7 +290,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 v-model:value="ctAgentType"
                 :options="ctAgentOptions"
                 placeholder="Select agent"
-                class="w-96!"
+                class="w-72"
                 @update:value="handleCtAgentDropdownChange"
             />
           </div>
@@ -313,7 +313,7 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
                 v-model:value="tAgentType"
                 :options="tAgentOptions"
                 placeholder="Select agent"
-                class="w-96!"
+                class="w-72"
                 @update:value="handleTAgentDropdownChange"
             />
           </div>

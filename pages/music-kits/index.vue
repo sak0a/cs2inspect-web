@@ -228,7 +228,7 @@ watch(() => searchQuery.value, () => {
           <div
             v-for="i in 8"
             :key="i"
-            class="rounded-xl border border-[#313030] bg-[#101010] p-4 flex flex-col"
+            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4 flex flex-col"
             style="height: 300px"
           >
             <NSkeleton height="128px" />
@@ -313,7 +313,7 @@ watch(() => searchQuery.value, () => {
 .music-kit-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
   margin-bottom: 2rem;
 }

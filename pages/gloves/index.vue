@@ -248,11 +248,11 @@ watch(() => showSkinModal.value, (isVisible) => {
       <!-- Glove Type Groups -->
       <div v-if="!error && user && loadoutStore.selectedLoadoutId">
         <!-- Skeleton Loading State -->
-        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2">
+        <div v-if="isLoading" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4">
           <div
             v-for="i in 8"
             :key="i"
-            class="rounded-xl border border-[#313030] bg-[#101010] p-4"
+            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
           >
             <NSkeleton height="128px" />
             <div class="mt-3">
@@ -275,7 +275,7 @@ watch(() => showSkinModal.value, (isVisible) => {
                   v-model:value="ctGloveType"
                   :options="gloveOptions"
                   placeholder="Select glove type"
-                  class="w-48!"
+                  class="w-72"
                   @update:value="handleGloveTypeChange('ct', $event)"
               />
             </div>
@@ -287,7 +287,7 @@ watch(() => showSkinModal.value, (isVisible) => {
                   v-model:value="tGloveType"
                   :options="gloveOptions"
                   placeholder="Select glove type"
-                  class="w-48!"
+                  class="w-72"
                   @update:value="handleGloveTypeChange('t', $event)"
               />
             </div>
@@ -296,7 +296,7 @@ watch(() => showSkinModal.value, (isVisible) => {
           <TransitionGroup
             name="card-fade"
             tag="div"
-            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-2 pt-4"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 pt-4"
             appear
           >
             <GloveTabs
