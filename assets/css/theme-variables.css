@@ -20,8 +20,10 @@
 
   /* Background colors */
   --bg-primary: #121212;
+  --bg-dark: #101010;
   --bg-secondary: #1a1a1a;
   --bg-tertiary: #242424;
+  --bg-hover: #2a2a2a;
   --bg-quaternary: #2c2c2c;
 
   /* Component backgrounds */
@@ -39,6 +41,7 @@
 
   /* Border colors */
   --border-color: #333333;
+  --border-subtle: #313030;
   --border-light: #444444;
 
   /* UI element colors */
@@ -53,13 +56,13 @@
   --primary-color-pressed: #CA8A04;
 
   /* Glassmorphism variables */
-  --glass-bg-primary: rgba(16, 16, 16, 0.85);
-  --glass-bg-secondary: rgba(36, 36, 36, 0.8);
+  --glass-bg-primary: rgba(16, 16, 16, 0.70);
+  --glass-bg-secondary: rgba(36, 36, 36, 0.65);
   --glass-border: rgba(255, 255, 255, 0.1);
   --glass-border-light: rgba(255, 255, 255, 0.08);
-  --glass-blur-strong: blur(20px);
-  --glass-blur-medium: blur(16px);
-  --glass-blur-light: blur(8px);
+  --glass-blur-strong: blur(12px);
+  --glass-blur-medium: blur(10px);
+  --glass-blur-light: blur(6px);
   --glass-saturation: saturate(180%);
 
   /* Skin card backgrounds */
@@ -72,8 +75,10 @@
 .light-theme {
   /* Background colors */
   --bg-primary: #f8f8f8;
+  --bg-dark: #f0f0f0;
   --bg-secondary: #f0f0f0;
   --bg-tertiary: #e5e5e5;
+  --bg-hover: #e0e0e0;
   --bg-quaternary: #d8d8d8;
 
   /* Component backgrounds */
@@ -91,6 +96,7 @@
 
   /* Border colors */
   --border-color: #d4d4d4;
+  --border-subtle: #c8c8c8;
   --border-light: #e5e5e5;
 
   /* UI element colors */
@@ -105,13 +111,13 @@
   --primary-color-pressed: #CA8A04;
 
   /* Glassmorphism variables for light theme */
-  --glass-bg-primary: rgba(255, 255, 255, 0.85);
-  --glass-bg-secondary: rgba(240, 240, 240, 0.8);
+  --glass-bg-primary: rgba(255, 255, 255, 0.70);
+  --glass-bg-secondary: rgba(240, 240, 240, 0.65);
   --glass-border: rgba(0, 0, 0, 0.1);
   --glass-border-light: rgba(0, 0, 0, 0.08);
-  --glass-blur-strong: blur(20px);
-  --glass-blur-medium: blur(16px);
-  --glass-blur-light: blur(8px);
+  --glass-blur-strong: blur(12px);
+  --glass-blur-medium: blur(10px);
+  --glass-blur-light: blur(6px);
   --glass-saturation: saturate(180%);
 
   /* Skin card backgrounds */
