@@ -1,7 +1,7 @@
-import { defineEventHandler, createError, getQuery, readBody, type H3Event } from 'h3'
+import { defineEventHandler, createError, readBody, type H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
-import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
+import { parseBodyWithSchema, parseQueryWithSchema } from '~/server/utils/validation/zodHelpers'
+import { saveItemQuerySchema } from '~/server/utils/validation/querySchemas'
 import {
     weaponSaveBodySchema,
     knifeSaveBodySchema,
@@ -31,10 +31,8 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
         saveFunction: saveWeapon,
         requiresType: true,
         getSaveParams: (body, query) => {
-            const type = query.type as string
-            validateRequiredRequestData(type, 'Type')
-            const table = validateWeaponDatabaseTable(type)
-            return [table, query.steamId as string, query.loadoutId as string, body]
+            const table = validateWeaponDatabaseTable(query.type!)
+            return [table, query.steamId, String(query.loadoutId), body]
         }
     },
     knife: {
@@ -46,7 +44,7 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
         saveFunction: saveKnife,
         requiresType: false,
         getSaveParams: (body, query) => {
-            return [query.steamId as string, query.loadoutId as string, body]
+            return [query.steamId, String(query.loadoutId), body]
         }
     },
     glove: {
@@ -56,7 +54,7 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
         saveFunction: saveGlove,
         requiresType: false,
         getSaveParams: (body, query) => {
-            return [query.steamId as string, query.loadoutId as string, body]
+            return [query.steamId, String(query.loadoutId), body]
         }
     }
 }
@@ -67,26 +65,29 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
  */
 export function createSaveHandler(itemType: ItemType) {
     return defineEventHandler(async (event: H3Event) => {
-        const query = getQuery(event)
         const config = ITEM_SAVE_CONFIG[itemType]
 
         Logger.header(`${event.method} ${event.req.url}`)
 
-        // Validate required query parameters
-        const steamId = query.steamId as string
-        validateRequiredRequestData(steamId, 'Steam ID')
-
-        const loadoutId = query.loadoutId as string
-        validateRequiredRequestData(loadoutId, 'Loadout ID')
+        // Validate query parameters with Zod
+        const query = parseQueryWithSchema(saveItemQuerySchema, event)
 
         // Validate type parameter if required
-        if (config.requiresType) {
-            validateRequiredRequestData(query.type, 'Type')
+        if (config.requiresType && !query.type) {
+            throw createError({
+                statusCode: 400,
+                message: 'Validation failed: type: Type is required'
+            })
         }
 
         // Read and validate body
         const body = await readBody(event)
-        validateRequiredRequestData(body, 'Body')
+        if (!body) {
+            throw createError({
+                statusCode: 400,
+                message: 'Request body is required'
+            })
+        }
 
         try {
             // Handle reset case
