@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LucideLogOut as LogOutIcon, LucidePanelLeft as PanelLeftIcon, LucidePanelTop as PanelTopIcon, LucideLanguages as LanguagesIcon, LucideSettings as SettingsIcon } from 'lucide-vue-next'
+import { LucideLogOut as LogOutIcon, LucidePanelLeft as PanelLeftIcon, LucidePanelTop as PanelTopIcon, LucideLanguages as LanguagesIcon } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 
@@ -182,44 +182,6 @@ function handleLanguageSelect(key: string) {
   }
 }
 
-// Settings dropdown for top bar (combines language + logout + future settings)
-const settingsDropdownOptions = computed(() => {
-  const current = getLocale()
-  const langChildren = getLocales().map(loc => {
-    const isActive = loc.code === current
-    const text = `${getFlag(loc.code)} ${loc.displayName || loc.code}`
-    return {
-      label: isActive
-        ? () => h('span', { style: 'color: var(--n-option-text-color-active, #63e2b7); font-weight: 600' }, text)
-        : text,
-      key: `lang:${loc.code}`,
-      props: isActive ? { class: 'lang-option-active' } : undefined,
-    }
-  })
-
-  return [
-    {
-      label: String(t('navigation.language') || 'Language'),
-      key: 'language',
-      icon: () => h(NIcon, { size: 16 }, { default: () => h(LanguagesIcon) }),
-      children: langChildren,
-    },
-    { type: 'divider' as const, key: 'd1' },
-    {
-      label: () => h('span', { style: 'color: #e88080' }, String(t('auth.logoutButton'))),
-      key: 'logout',
-      icon: () => h(NIcon, { color: '#e88080' }, { default: () => h(LogOutIcon) }),
-    },
-  ]
-})
-
-function handleSettingsSelect(key: string) {
-  if (key.startsWith('lang:')) {
-    handleLanguageSelect(key.slice(5))
-  } else if (key === 'logout') {
-    showLogoutModal.value = true
-  }
-}
 </script>
 <template>
   <SLayout :has-sider="sidebarMode === 'left'" :sider-position="sidebarMode">
@@ -490,23 +452,13 @@ function handleSettingsSelect(key: string) {
               </NTooltip>
 
               <!-- Settings (language, logout, future settings) -->
-              <NDropdown
-                  :options="settingsDropdownOptions"
+              <SettingsDropdown
                   trigger="hover"
-                  :menu-props="() => ({ class: 'glassmorphism-dropdown' })"
-                  @select="handleSettingsSelect"
-              >
-                <NButton
-                    quaternary
-                    circle
-                    size="medium"
-                    :aria-label="t('navigation.settings') || 'Settings'"
-                >
-                  <template #icon>
-                    <NIcon size="20"><SettingsIcon/></NIcon>
-                  </template>
-                </NButton>
-              </NDropdown>
+                  variant="icon"
+                  size="medium"
+                  :aria-label="t('navigation.settings') || 'Settings'"
+                  @logout="showLogoutModal = true"
+              />
             </div>
 
             <!-- Center: All navigation menus -->
