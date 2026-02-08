@@ -29,6 +29,13 @@
       "when": 1769542347703,
       "tag": "0003_little_puppet_master",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1770095318925,
+      "tag": "0004_bitter_penance",
+      "breakpoints": true
     }
   ]
 }
