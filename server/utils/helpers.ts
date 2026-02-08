@@ -1,5 +1,6 @@
 import { Logger } from "~/server/utils/logger";
 import { createError, type H3Event } from "h3";
+import type { IDefaultItem } from '~/server/types';
 
 export const validateRequiredRequestData = (param: unknown, paramName: string, allowZero = false) => {
     if (allowZero && param === 0) return

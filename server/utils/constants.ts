@@ -1,3 +1,5 @@
+import type { IDefaultItem } from '~/server/types'
+
 // ============================================================================
 // API CONFIGURATION CONSTANTS
 // ============================================================================
@@ -18,8 +20,41 @@ export const PROTECTED_API_PATHS = [
     '/api/items/weapons/save',
     '/api/inspect',
     '/api/items/weapons/[type]',
-    '/api/auth/'
+    '/api/auth/',
+    '/api/admin/'
 ];
+
+/**
+ * Admin API paths that require admin role
+ */
+export const ADMIN_API_PATHS = [
+    '/api/admin/'
+];
+
+/**
+ * Admin-specific error codes
+ */
+export const ADMIN_ERROR_CODES = {
+    ADMIN_AUTH_ERROR: 'ADMIN_AUTH_ERROR',
+    ADMIN_NOT_FOUND: 'ADMIN_NOT_FOUND',
+    ADMIN_FORBIDDEN: 'ADMIN_FORBIDDEN',
+    USER_NOT_FOUND: 'USER_NOT_FOUND',
+    BAN_ERROR: 'BAN_ERROR',
+    SETTING_ERROR: 'SETTING_ERROR',
+    STATS_ERROR: 'STATS_ERROR',
+} as const;
+
+/**
+ * Default application settings
+ */
+export const DEFAULT_APP_SETTINGS = {
+    MAINTENANCE_MODE: { value: 'false', type: 'boolean', description: 'Enable maintenance mode to block user access' },
+    REGISTRATION_ENABLED: { value: 'true', type: 'boolean', description: 'Allow new user registrations' },
+    MAX_LOADOUTS_PER_USER: { value: '10', type: 'number', description: 'Maximum loadouts per user' },
+    FEATURE_INSPECT_URLS: { value: 'true', type: 'boolean', description: 'Enable inspect URL generation' },
+    FEATURE_STICKERS: { value: 'true', type: 'boolean', description: 'Enable sticker customization' },
+    FEATURE_KEYCHAINS: { value: 'true', type: 'boolean', description: 'Enable keychain customization' },
+} as const;
 
 /**
  * External API URLs for CS2 data

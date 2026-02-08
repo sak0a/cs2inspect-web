@@ -1,13 +1,13 @@
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
 import type {
-    BaseAPIResponse,
-    PaginatedAPIResponse,
-    CollectionAPIResponse,
+    APIResponse,
+    APIPaginatedResponse,
+    APICollectionResponse,
     PaginationMeta,
-    ResponseMeta,
+    APIResponseMeta,
     ErrorInfo
-} from '~/server/utils/interfaces';
+} from '~/types';
 import { API_VERSION, PAGINATION_DEFAULTS } from '~/server/utils/constants';
 
 /**
@@ -18,8 +18,8 @@ import { API_VERSION, PAGINATION_DEFAULTS } from '~/server/utils/constants';
 export function createResponseMeta(
     startTime?: number,
     additionalMeta: Record<string, unknown> = {}
-): ResponseMeta {
-    const meta: ResponseMeta = {
+): APIResponseMeta {
+    const meta: APIResponseMeta = {
         timestamp: new Date().toISOString(),
         apiVersion: API_VERSION,
         ...additionalMeta
@@ -66,9 +66,9 @@ export function createPaginationMeta(
  */
 export function createSuccessResponse<T>(
     data: T,
-    meta: ResponseMeta,
+    meta: APIResponseMeta,
     message?: string
-): BaseAPIResponse<T> {
+): APIResponse<T> {
     return {
         success: true,
         data,
@@ -89,11 +89,11 @@ export function createSuccessResponse<T>(
 export function createPaginatedResponse<T>(
     data: T[],
     pagination: PaginationMeta,
-    meta: ResponseMeta,
+    meta: APIResponseMeta,
     appliedFilters?: Record<string, unknown>,
     availableFilters?: Record<string, unknown[]>,
     message?: string
-): PaginatedAPIResponse<T> {
+): APIPaginatedResponse<T> {
     return {
         success: true,
         data,
@@ -117,11 +117,11 @@ export function createPaginatedResponse<T>(
 export function createCollectionResponse<T>(
     data: T[],
     totalCount: number,
-    meta: ResponseMeta,
+    meta: APIResponseMeta,
     categories?: string[],
     filters?: Record<string, unknown[]>,
     message?: string
-): CollectionAPIResponse<T> {
+): APICollectionResponse<T> {
     return {
         success: true,
         data,
@@ -143,10 +143,10 @@ export function createCollectionResponse<T>(
  */
 export function createErrorResponse(
     error: ErrorInfo,
-    meta: ResponseMeta,
+    meta: APIResponseMeta,
     statusCode: number = 500
 ): never {
-    const errorResponse: BaseAPIResponse<null> = {
+    const errorResponse: APIResponse<null> = {
         success: false,
         data: null,
         meta,
