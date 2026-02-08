@@ -178,3 +178,27 @@ function handleSelect(key: string) {
     </NButton>
   </NDropdown>
 </template>
+
+<style lang="sass">
+.glassmorphism-dropdown
+  background-color: var(--glass-bg-primary, rgba(16, 16, 16, 0.6)) !important
+  backdrop-filter: blur(16px) !important
+  -webkit-backdrop-filter: blur(16px) !important
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08)) !important
+  border-radius: 12px !important
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important
+
+.glassmorphism-dropdown .n-dropdown-option
+  color: white !important
+  border-radius: 8px !important
+  margin: 0 4px !important
+
+.glassmorphism-dropdown .n-dropdown-option .n-dropdown-option-body::before
+  background-color: transparent !important
+
+.glassmorphism-dropdown .n-dropdown-option:hover
+  background-color: rgba(255, 255, 255, 0.1) !important
+
+.lang-option-active .n-dropdown-option-body::before
+  background-color: rgba(99, 226, 183, 0.1) !important
+</style>

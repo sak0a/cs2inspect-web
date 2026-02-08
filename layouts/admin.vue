@@ -134,7 +134,7 @@ onMounted(() => {
         <SettingsDropdown
           trigger="hover"
           variant="icon"
-          size="small"
+          size="medium"
           @logout="handleLogout"
         />
         <NTooltip placement="bottom">
