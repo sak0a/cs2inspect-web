@@ -2,7 +2,7 @@
 import { h } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 import type { AdminUserSummary } from '~/types'
-import type { DataTableColumns } from 'naive-ui'
+import { NButton, type DataTableColumns } from 'naive-ui'
 
 interface Props {
   users: AdminUserSummary[]

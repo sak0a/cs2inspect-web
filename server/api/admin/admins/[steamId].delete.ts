@@ -11,6 +11,7 @@ import { eq } from 'drizzle-orm'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { useDatabase } from '~/server/utils/database'
 import { adminUsers, adminActivityLog } from '~/server/database/schema'
+import { getSteamIdParam } from '~/server/utils/request/routeParams'
 import {
     createSuccessResponse,
     createResponseMeta,
@@ -27,7 +28,7 @@ export default useErrorHandling(async (event) => {
         })
     }
 
-    const targetSteamId = event.context.params?.steamId
+    const targetSteamId = getSteamIdParam(event)
 
     if (!targetSteamId) {
         throw createError({

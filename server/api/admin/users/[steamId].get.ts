@@ -23,6 +23,7 @@ import {
     createResponseMeta
 } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling } from '~/server/utils/errorHandler'
+import { getSteamIdParam } from '~/server/utils/request/routeParams'
 import { ADMIN_ERROR_CODES } from '~/server/utils/constants'
 import { Logger } from '~/server/utils/logger'
 
@@ -63,7 +64,7 @@ export default useErrorHandling(async (event) => {
         })
     }
 
-    const steamId = event.context.params?.steamId as string
+    const steamId = getSteamIdParam(event)
     if (!steamId) {
         throw createError({
             statusCode: 400,
