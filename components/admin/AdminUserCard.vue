@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import {
-  LucideEye as ViewIcon,
   LucideBan as BanIcon,
   LucideShieldCheck as UnbanIcon,
   LucideTrash2 as DeleteIcon,
-  LucidePackage as PackageIcon,
-  LucideSword as SwordIcon,
-  LucideCalendar as CalendarIcon,
   LucideAlertCircle as AlertIcon
 } from 'lucide-vue-next'
 import type { AdminUserDetails } from '~/types'
@@ -17,12 +13,10 @@ interface Props {
   user: AdminUserDetails
 }
 
-const props = defineProps<Props>()
+defineProps<Props>()
 
 // Emits
 const emit = defineEmits<{
-  /** Emitted when view details button is clicked */
-  'view-details': [user: AdminUserDetails]
   /** Emitted when ban button is clicked */
   'ban': [user: AdminUserDetails]
   /** Emitted when unban button is clicked */
@@ -30,12 +24,6 @@ const emit = defineEmits<{
   /** Emitted when delete button is clicked */
   'delete': [user: AdminUserDetails]
 }>()
-
-// Computed properties
-const totalItems = computed(() => {
-  const counts = props.user.itemCounts
-  return counts.weapons + counts.knives + counts.gloves + counts.agents + counts.musicKits + counts.pins
-})
 
 // Format date
 function formatDate(isoDate: string): string {
@@ -69,23 +57,6 @@ function formatRelativeTime(isoDate: string): string {
   if (diffDays < 30) return `${Math.floor(diffDays / 7)} week${Math.floor(diffDays / 7) !== 1 ? 's' : ''} ago`
   return formatDate(isoDate)
 }
-
-// Event handlers
-function handleViewDetails() {
-  emit('view-details', props.user)
-}
-
-function handleBan() {
-  emit('ban', props.user)
-}
-
-function handleUnban() {
-  emit('unban', props.user)
-}
-
-function handleDelete() {
-  emit('delete', props.user)
-}
 </script>
 
 <template>
@@ -95,8 +66,8 @@ function handleDelete() {
     :class="{ 'admin-user-card--banned': user.isBanned }"
   >
     <NSpace vertical :size="16">
-      <!-- Header: Steam ID and Status -->
-      <NSpace align="center" justify="space-between">
+      <!-- Header: Steam ID, Status, and Actions -->
+      <div class="flex items-center justify-between flex-wrap gap-3">
         <NSpace align="center" :size="12">
           <div class="user-avatar">
             {{ user.steamId.slice(-2).toUpperCase() }}
@@ -112,7 +83,48 @@ function handleDelete() {
             </NTag>
           </NSpace>
         </NSpace>
-      </NSpace>
+
+        <!-- Action Buttons -->
+        <NSpace :size="8">
+          <NButton
+            v-if="user.isBanned"
+            type="success"
+            secondary
+            size="small"
+            @click="emit('unban', user)"
+          >
+            <template #icon>
+              <NIcon :component="UnbanIcon" />
+            </template>
+            Unban
+          </NButton>
+
+          <NButton
+            v-else
+            type="warning"
+            secondary
+            size="small"
+            @click="emit('ban', user)"
+          >
+            <template #icon>
+              <NIcon :component="BanIcon" />
+            </template>
+            Ban
+          </NButton>
+
+          <NButton
+            type="error"
+            secondary
+            size="small"
+            @click="emit('delete', user)"
+          >
+            <template #icon>
+              <NIcon :component="DeleteIcon" />
+            </template>
+            Delete
+          </NButton>
+        </NSpace>
+      </div>
 
       <!-- Ban Info (if banned) -->
       <div v-if="user.isBanned && user.banInfo" class="ban-info">
@@ -132,112 +144,6 @@ function handleDelete() {
           Permanent ban
         </span>
       </div>
-
-      <!-- Stats Grid -->
-      <div class="stats-grid">
-        <div class="stat-item">
-          <NIcon :component="PackageIcon" :size="16" />
-          <span class="stat-value">{{ user.loadoutCount }}</span>
-          <span class="stat-label">Loadouts</span>
-        </div>
-        <div class="stat-item">
-          <NIcon :component="SwordIcon" :size="16" />
-          <span class="stat-value">{{ totalItems }}</span>
-          <span class="stat-label">Items</span>
-        </div>
-      </div>
-
-      <!-- Item Breakdown -->
-      <div class="item-breakdown">
-        <NSpace :size="8" :wrap="true">
-          <NTag size="small" :bordered="false">
-            {{ user.itemCounts.weapons }} Weapons
-          </NTag>
-          <NTag size="small" :bordered="false">
-            {{ user.itemCounts.knives }} Knives
-          </NTag>
-          <NTag size="small" :bordered="false">
-            {{ user.itemCounts.gloves }} Gloves
-          </NTag>
-          <NTag size="small" :bordered="false">
-            {{ user.itemCounts.agents }} Agents
-          </NTag>
-          <NTag size="small" :bordered="false">
-            {{ user.itemCounts.musicKits }} Music Kits
-          </NTag>
-          <NTag size="small" :bordered="false">
-            {{ user.itemCounts.pins }} Pins
-          </NTag>
-        </NSpace>
-      </div>
-
-      <!-- Activity Dates -->
-      <NSpace vertical :size="4" class="activity-dates">
-        <NSpace align="center" :size="8">
-          <NIcon :component="CalendarIcon" :size="14" class="opacity-50" />
-          <span class="text-sm opacity-70">
-            First seen: {{ formatDate(user.firstActivity) }}
-          </span>
-        </NSpace>
-        <NSpace align="center" :size="8">
-          <NIcon :component="CalendarIcon" :size="14" class="opacity-50" />
-          <span class="text-sm opacity-70">
-            Last active: {{ formatRelativeTime(user.lastActivity) }}
-          </span>
-        </NSpace>
-      </NSpace>
-
-      <!-- Action Buttons -->
-      <NSpace :size="8" class="action-buttons">
-        <NButton
-          secondary
-          size="small"
-          @click="handleViewDetails"
-        >
-          <template #icon>
-            <NIcon :component="ViewIcon" />
-          </template>
-          View Details
-        </NButton>
-
-        <NButton
-          v-if="user.isBanned"
-          type="success"
-          secondary
-          size="small"
-          @click="handleUnban"
-        >
-          <template #icon>
-            <NIcon :component="UnbanIcon" />
-          </template>
-          Unban
-        </NButton>
-
-        <NButton
-          v-else
-          type="warning"
-          secondary
-          size="small"
-          @click="handleBan"
-        >
-          <template #icon>
-            <NIcon :component="BanIcon" />
-          </template>
-          Ban
-        </NButton>
-
-        <NButton
-          type="error"
-          secondary
-          size="small"
-          @click="handleDelete"
-        >
-          <template #icon>
-            <NIcon :component="DeleteIcon" />
-          </template>
-          Delete
-        </NButton>
-      </NSpace>
     </NSpace>
   </NCard>
 </template>
@@ -250,10 +156,6 @@ function handleDelete() {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
   border-radius: 16px !important
-
-  &:hover
-    transform: translateY(-2px)
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12)
 
   &--banned
     border-left: 4px solid #ef4444
@@ -285,41 +187,4 @@ function handleDelete() {
   display: flex
   flex-direction: column
   gap: 4px
-
-.stats-grid
-  display: grid
-  grid-template-columns: repeat(2, 1fr)
-  gap: 12px
-
-.stat-item
-  display: flex
-  align-items: center
-  gap: 8px
-  padding: 12px
-  border-radius: 10px
-  background: rgba(255, 255, 255, 0.04)
-  color: rgba(255, 255, 255, 0.7)
-
-  .stat-value
-    font-size: 18px
-    font-weight: 700
-    color: rgba(255, 255, 255, 0.95)
-    font-variant-numeric: tabular-nums
-
-  .stat-label
-    font-size: 12px
-    opacity: 0.6
-
-.item-breakdown
-  padding: 12px
-  border-radius: 10px
-  background: rgba(255, 255, 255, 0.02)
-
-.activity-dates
-  padding-top: 8px
-  border-top: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08))
-
-.action-buttons
-  padding-top: 8px
-  flex-wrap: wrap
 </style>

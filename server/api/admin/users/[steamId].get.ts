@@ -31,16 +31,12 @@ interface UserDetailResponse {
     steamId: string
     loadoutCount: number
     itemCounts: {
-        pistols: number
-        rifles: number
-        smgs: number
-        heavys: number
+        weapons: number
         knives: number
         gloves: number
         agents: number
-        music: number
+        musicKits: number
         pins: number
-        total: number
     }
     firstActivity: string | null
     lastActivity: string | null
@@ -140,19 +136,14 @@ export default useErrorHandling(async (event) => {
         .where(eq(pins.steamid, steamId))
 
     const itemCounts = {
-        pistols: Number(pistolCount?.count || 0),
-        rifles: Number(rifleCount?.count || 0),
-        smgs: Number(smgCount?.count || 0),
-        heavys: Number(heavyCount?.count || 0),
+        weapons: Number(pistolCount?.count || 0) + Number(rifleCount?.count || 0) +
+                 Number(smgCount?.count || 0) + Number(heavyCount?.count || 0),
         knives: Number(knifeCount?.count || 0),
         gloves: Number(gloveCount?.count || 0),
         agents: Number(agentCount?.count || 0),
-        music: Number(musicCount?.count || 0),
-        pins: Number(pinCount?.count || 0),
-        total: 0
+        musicKits: Number(musicCount?.count || 0),
+        pins: Number(pinCount?.count || 0)
     }
-
-    itemCounts.total = Object.values(itemCounts).reduce((sum, count) => sum + count, 0)
 
     // Check ban status
     const [banRecord] = await db

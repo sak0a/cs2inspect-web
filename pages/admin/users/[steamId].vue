@@ -27,6 +27,13 @@ const showDeleteModal = ref(false)
 // Get steam ID from route
 const steamId = computed(() => ((route.params as Record<string, string | string[]>).steamId as string) ?? '')
 
+// Total items computed
+const totalItems = computed(() => {
+  if (!user.value) return 0
+  const counts = user.value.itemCounts
+  return counts.weapons + counts.knives + counts.gloves + counts.agents + counts.musicKits + counts.pins
+})
+
 // Check for action query param (for deep linking from user list)
 onMounted(async () => {
   await fetchUserDetails()
@@ -77,11 +84,6 @@ async function handleUnbanFromCard(_user: AdminUserDetails) {
 // Handle delete from card
 function handleDeleteFromCard(_user: AdminUserDetails) {
   showDeleteModal.value = true
-}
-
-// Handle view details (already on detail page)
-function handleViewDetails(_user: AdminUserDetails) {
-  // Already on detail page, could scroll to specific section
 }
 
 // Handle ban confirmation
@@ -154,25 +156,24 @@ function formatDate(isoDate: string): string {
 
       <!-- User Content -->
       <template v-else-if="user">
-        <!-- User Info Card -->
+        <!-- User Identity & Status Card -->
         <AdminUserCard
           :user="user"
-          @view-details="handleViewDetails"
           @ban="handleBanFromCard"
           @unban="handleUnbanFromCard"
           @delete="handleDeleteFromCard"
         />
 
-        <!-- Loadouts Section -->
+        <!-- Loadouts & Items Section -->
         <div class="glass-card p-6">
           <div class="flex items-center gap-3 mb-4">
             <div class="w-10 h-10 rounded-lg flex items-center justify-center admin-accent-chip">
               <NIcon :component="LoadoutIcon" :size="20" color="var(--admin-accent)" />
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-white">Loadouts</h3>
+              <h3 class="text-lg font-semibold text-white">Loadouts & Items</h3>
               <p class="text-sm text-gray-400">
-                {{ user.loadoutCount }} loadout{{ user.loadoutCount !== 1 ? 's' : '' }}
+                {{ user.loadoutCount }} loadout{{ user.loadoutCount !== 1 ? 's' : '' }} &middot; {{ totalItems }} item{{ totalItems !== 1 ? 's' : '' }}
               </p>
             </div>
           </div>
@@ -229,35 +230,8 @@ function formatDate(isoDate: string): string {
           </div>
         </div>
 
-        <!-- Quick Actions -->
-        <div class="glass-card p-6">
-          <h3 class="text-lg font-semibold text-white mb-4">Quick Actions</h3>
-          <div class="flex flex-wrap gap-3">
-            <NButton
-              v-if="!user.isBanned"
-              type="warning"
-              secondary
-              @click="showBanModal = true"
-            >
-              Ban User
-            </NButton>
-            <NButton
-              v-else
-              type="success"
-              secondary
-              @click="handleUnbanFromCard(user)"
-            >
-              Unban User
-            </NButton>
-            <NButton
-              type="error"
-              secondary
-              @click="showDeleteModal = true"
-            >
-              Delete All Data
-            </NButton>
-          </div>
-        </div>
+        <!-- Individual Loadout Management -->
+        <AdminLoadoutTable :steam-id="steamId" />
       </template>
 
       <!-- Ban Modal -->

@@ -50,7 +50,6 @@ export interface AdminUserDetails {
     lastActivity: ISOTimestamp;
     isBanned: boolean;
     banInfo?: {
-        id: number;
         reason: string | null;
         bannedAt: ISOTimestamp;
         bannedBy: SteamId;
