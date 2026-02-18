@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# Configuration
+# ─── Shared Styling ──────────────────────────────────────────────────────────
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/lib/style.sh"
+
+# ─── Configuration ────────────────────────────────────────────────────────────
+
 EXCLUDED_PATHS=(
   "services/sticker-scraper"
   "services/charm-scraper"
@@ -18,58 +23,55 @@ TEMP_BRANCH="temp-deploy-sync-$(date +%s)"
 # Exit on any error
 set -e
 
-echo "Starting deployment sync from $SOURCE_BRANCH to $TARGET_BRANCH..."
+print_header "Deploy: $SOURCE_BRANCH → $TARGET_BRANCH"
 
 # 1. Ensure we are on $SOURCE_BRANCH and up to date
-echo "Switching to $SOURCE_BRANCH..."
+print_step "Switching to $SOURCE_BRANCH and pulling latest..."
 git checkout "$SOURCE_BRANCH"
 git pull origin "$SOURCE_BRANCH"
 
 # 2. Create a temporary 'sync' branch that matches $SOURCE_BRANCH exactly
-echo "Creating temporary branch $TEMP_BRANCH..."
+print_step "Creating temporary branch..."
 git checkout -b "$TEMP_BRANCH"
 
 # SAFETY GUARD: Hard exit if we are still on the source branch
 CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$CURRENT_BRANCH" == "$SOURCE_BRANCH" ]; then
-    echo "SAFETY ERROR: Failed to switch branches! Current branch is still $CURRENT_BRANCH."
-    echo "Aborting to prevent accidental deletion of files on $SOURCE_BRANCH."
+    print_error "Failed to switch branches! Current branch is still $CURRENT_BRANCH."
+    print_error "Aborting to prevent accidental deletion of files on $SOURCE_BRANCH."
     exit 1
 fi
 
 # 3. Remove the directories you don't want in production
-echo "Removing excluded directories..."
+print_step "Removing excluded directories..."
 for path in "${EXCLUDED_PATHS[@]}"; do
-  
-  # Check if path exists in the current branch's file system
   if [ -e "$path" ] || [ -d "$path" ]; then
-    echo "  - Removing $path"
-    git rm -rf "$path"
+    print_dim "Removing $path"
+    git rm -rf "$path" > /dev/null 2>&1
   else
-    echo "  - Skipping $path (not found)"
+    print_dim "Skipping $path (not found)"
   fi
 done
 
 # 4. Commit the removal
-echo "Committing changes..."
+print_step "Committing changes..."
 
-# Grab the last message from master to make the deploy commit more informative
 ORIGINAL_MSG=$(git log "$SOURCE_BRANCH" -1 --pretty=%s)
 
-# Check if there are changes to commit
 if git diff-index --quiet HEAD --; then
-    echo "No changes to commit (folders might have been already removed)."
+    print_warning "No changes to commit (folders might have been already removed)"
 else
-    git commit -m "deploy $SOURCE_BRANCH -> $TARGET_BRANCH: $ORIGINAL_MSG"
+    git commit -m "deploy $SOURCE_BRANCH -> $TARGET_BRANCH: $ORIGINAL_MSG" > /dev/null
 fi
 
 # 5. Push to the remote $TARGET_BRANCH branch
-echo "Pushing to $TARGET_BRANCH branch..."
+print_step "Force-pushing to $TARGET_BRANCH..."
 git push origin "$TEMP_BRANCH":"$TARGET_BRANCH" --force
 
 # 6. Clean up
-echo "Cleaning up..."
+print_step "Cleaning up temporary branch..."
 git checkout "$SOURCE_BRANCH"
-git branch -D "$TEMP_BRANCH"
+git branch -D "$TEMP_BRANCH" > /dev/null 2>&1
 
-echo "Success! Branch '$TARGET_BRANCH' is now up to date with '$SOURCE_BRANCH' (excluding directories)."
+print_done "Branch '$TARGET_BRANCH' synced from '$SOURCE_BRANCH'"
+print_elapsed
