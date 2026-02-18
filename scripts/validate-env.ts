@@ -1,7 +1,6 @@
 #!/usr/bin/env bun
 
 import * as p from '@clack/prompts'
-import { isCancel } from '@clack/core'
 import chalk from 'chalk'
 import { readFileSync, existsSync, accessSync, constants } from 'fs'
 import { resolve } from 'path'

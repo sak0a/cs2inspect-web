@@ -26,6 +26,9 @@ interface Category {
   commands: Command[]
 }
 
+interface HealthCheck { name: string; status: string; latency_ms?: number }
+interface HealthResponse { status?: string; uptime?: number; checks?: HealthCheck[] }
+
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const PROJECT_ROOT = resolve(import.meta.dirname, '..')
@@ -371,8 +374,9 @@ async function runHealthCheck(): Promise<void> {
       const lines: string[] = []
       if ('status' in data) lines.push(`${chalk.dim('Status:')}   ${data.status}`)
       if ('uptime' in data) lines.push(`${chalk.dim('Uptime:')}   ${data.uptime}s`)
-      if (Array.isArray((data as any).checks)) {
-        for (const check of (data as any).checks) {
+      const healthData = data as HealthResponse
+      if (Array.isArray(healthData.checks)) {
+        for (const check of healthData.checks) {
           const icon = check.status === 'ok' ? chalk.green('\u2713') : chalk.red('\u2717')
           lines.push(`${icon} ${check.name}${check.latency_ms ? chalk.dim(` (${check.latency_ms}ms)`) : ''}`)
         }
