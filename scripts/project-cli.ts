@@ -301,11 +301,12 @@ function exec(cmd: string): string {
   }
 }
 
-function handleCancel(value: unknown): asserts value is Exclude<typeof value, symbol> {
+function handleCancel<T>(value: T | symbol): T {
   if (isCancel(value)) {
     p.cancel('Goodbye!')
     process.exit(0)
   }
+  return value
 }
 
 async function runCommand(cmd: string | string[]): Promise<number> {
@@ -341,8 +342,7 @@ async function confirmDangerous(dangerMessage: string): Promise<boolean> {
   const shouldContinue = await p.confirm({
     message: 'Are you sure you want to continue?',
   })
-  handleCancel(shouldContinue)
-  return shouldContinue
+  return handleCancel(shouldContinue)
 }
 
 function findCommand(id: string): { category: Category; command: Command } | undefined {
@@ -362,7 +362,7 @@ async function runHealthCheck(): Promise<void> {
   try {
     const response = await fetch('http://localhost:3210/api/health/ready')
     if (!response.ok) {
-      s.stop(chalk.red('Application returned an error'), 1)
+      s.stop(chalk.red('Application returned an error'))
       p.log.info(`Status: ${response.status} ${response.statusText}`)
       return
     }
@@ -386,7 +386,7 @@ async function runHealthCheck(): Promise<void> {
       }
     }
   } catch {
-    s.stop(chalk.red('Application is not running'), 1)
+    s.stop(chalk.red('Application is not running'))
     p.log.info('Start it with: ' + chalk.cyan('bun run dev'))
   }
 }
@@ -548,7 +548,7 @@ async function runDirect(commandId: string): Promise<void> {
     // Suggest similar commands
     const allIds = categories.flatMap((c) => c.commands.map((cmd) => cmd.id))
     const suggestions = allIds.filter((id) =>
-      id.includes(commandId) || commandId.includes(id.split(':')[0]),
+      id.includes(commandId) || commandId.includes(id.split(':')[0] ?? ''),
     )
     if (suggestions.length > 0) {
       p.log.info(`Did you mean: ${suggestions.map((s) => chalk.cyan(s)).join(', ')}?`)
@@ -566,7 +566,7 @@ async function runDirect(commandId: string): Promise<void> {
 // ─── Interactive Mode ────────────────────────────────────────────────────────
 
 async function showSubMenu(category: Category): Promise<void> {
-  const commandId = await p.select({
+  const commandId = handleCancel(await p.select({
     message: `${category.emoji} ${category.label}`,
     options: [
       ...category.commands.map((cmd) => ({
@@ -576,8 +576,7 @@ async function showSubMenu(category: Category): Promise<void> {
       })),
       { value: '__back', label: chalk.dim('\u2190 Back to main menu'), hint: '' },
     ],
-  })
-  handleCancel(commandId)
+  }))
 
   if (commandId === '__back') return
 
@@ -592,7 +591,7 @@ async function showMainMenu(): Promise<void> {
 
   // Main loop
   while (true) {
-    const categoryId = await p.select({
+    const categoryId = handleCancel(await p.select({
       message: 'What would you like to do?',
       options: [
         ...categories.map((cat) => ({
@@ -602,8 +601,7 @@ async function showMainMenu(): Promise<void> {
         })),
         { value: '__quit', label: '\u{1F44B}  Quit', hint: 'Exit the CLI' },
       ],
-    })
-    handleCancel(categoryId)
+    }))
 
     if (categoryId === '__quit') {
       p.outro('See you later!')
@@ -639,8 +637,9 @@ async function main(): Promise<void> {
   }
 
   // Direct command mode
-  if (args.length > 0 && !args[0].startsWith('-')) {
-    await runDirect(args[0])
+  const firstArg = args[0]
+  if (firstArg && !firstArg.startsWith('-')) {
+    await runDirect(firstArg)
     return
   }
 

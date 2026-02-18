@@ -115,7 +115,7 @@ export default defineNuxtConfig({
     plugins: [
       Components({
         resolvers: [NaiveUiResolver()]
-      })
+      }) as any
     ]
   },
   tailwindcss: {

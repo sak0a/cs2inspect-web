@@ -15,11 +15,12 @@ const ENV_PATH = resolve(PROJECT_ROOT, '.env')
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function handleCancel(value: unknown): asserts value is Exclude<typeof value, symbol> {
+function handleCancel<T>(value: T | symbol): T {
   if (isCancel(value)) {
     p.cancel('Setup cancelled.')
     process.exit(0)
   }
+  return value
 }
 
 function generateSecret(): string {
@@ -45,7 +46,7 @@ function testDbConnection(host: string, port: string, user: string, password: st
     s.stop(chalk.green('Database connection successful'))
     return true
   } catch {
-    s.stop(chalk.red('Database connection failed'), 1)
+    s.stop(chalk.red('Database connection failed'))
     return false
   }
 }
@@ -87,32 +88,30 @@ async function stepServer(): Promise<Pick<WizardConfig, 'PORT' | 'HOST' | 'NODE_
   p.log.step(chalk.bold('Step 1: Server Configuration'))
   p.log.info('Configure the network settings for the application.')
 
-  const PORT = await p.text({
+  const PORT = handleCancel(await p.text({
     message: 'Server port',
     defaultValue: '3000',
     placeholder: '3000',
     validate: (val) => {
+      if (!val) return 'Port is required'
       const n = Number(val)
       if (isNaN(n) || n < 1 || n > 65535) return 'Port must be between 1 and 65535'
     },
-  })
-  handleCancel(PORT)
+  }))
 
-  const HOST = await p.text({
+  const HOST = handleCancel(await p.text({
     message: 'Server host',
     defaultValue: '0.0.0.0',
     placeholder: '0.0.0.0 (all interfaces)',
-  })
-  handleCancel(HOST)
+  }))
 
-  const NODE_ENV = await p.select({
+  const NODE_ENV = handleCancel(await p.select({
     message: 'Environment',
     options: [
-      { value: 'production', label: 'Production', hint: 'Optimized for deployment' },
-      { value: 'development', label: 'Development', hint: 'Debug mode with HMR' },
+      { value: 'production' as const, label: 'Production', hint: 'Optimized for deployment' },
+      { value: 'development' as const, label: 'Development', hint: 'Debug mode with HMR' },
     ],
-  })
-  handleCancel(NODE_ENV)
+  }))
 
   p.log.success('Server configuration complete')
   return { PORT, HOST, NODE_ENV }
@@ -122,33 +121,29 @@ async function stepJwt(): Promise<Pick<WizardConfig, 'JWT_TOKEN' | 'JWT_EXPIRY'>
   p.log.step(chalk.bold('Step 2: JWT Configuration'))
   p.log.info('JWT tokens are used for API authentication.')
 
-  const autoGenerate = await p.confirm({
+  const autoGenerate = handleCancel(await p.confirm({
     message: 'Generate a secure JWT secret automatically?',
     initialValue: true,
-  })
-  handleCancel(autoGenerate)
+  }))
 
   let JWT_TOKEN: string
   if (autoGenerate) {
     JWT_TOKEN = generateSecret()
     p.log.success(`Generated secure secret (${JWT_TOKEN.length} chars)`)
   } else {
-    const token = await p.password({
+    JWT_TOKEN = handleCancel(await p.password({
       message: 'JWT secret (minimum 32 characters)',
       validate: (val) => {
-        if (val.length < 32) return `Must be at least 32 characters (currently ${val.length})`
+        if (!val || val.length < 32) return `Must be at least 32 characters (currently ${val?.length ?? 0})`
       },
-    })
-    handleCancel(token)
-    JWT_TOKEN = token
+    }))
   }
 
-  const JWT_EXPIRY = await p.text({
+  const JWT_EXPIRY = handleCancel(await p.text({
     message: 'Token expiry (e.g., 1h, 24h, 7d, 30d)',
     defaultValue: '7d',
     placeholder: '7d',
-  })
-  handleCancel(JWT_EXPIRY)
+  }))
 
   p.log.success('JWT configuration complete')
   return { JWT_TOKEN, JWT_EXPIRY }
@@ -158,62 +153,57 @@ async function stepDatabase(): Promise<Pick<WizardConfig, 'DATABASE_HOST' | 'DAT
   p.log.step(chalk.bold('Step 3: Database Configuration'))
   p.log.info('Configure your MariaDB/MySQL database connection.')
 
-  const DATABASE_HOST = await p.text({
+  const DATABASE_HOST = handleCancel(await p.text({
     message: 'Database host',
     defaultValue: 'localhost',
     placeholder: 'localhost',
-  })
-  handleCancel(DATABASE_HOST)
+  }))
 
-  const DATABASE_PORT = await p.text({
+  const DATABASE_PORT = handleCancel(await p.text({
     message: 'Database port',
     defaultValue: '3306',
     placeholder: '3306',
     validate: (val) => {
+      if (!val) return 'Port is required'
       const n = Number(val)
       if (isNaN(n) || n < 1 || n > 65535) return 'Port must be between 1 and 65535'
     },
-  })
-  handleCancel(DATABASE_PORT)
+  }))
 
-  const DATABASE_NAME = await p.text({
+  const DATABASE_NAME = handleCancel(await p.text({
     message: 'Database name',
     defaultValue: 'csinspect',
     placeholder: 'csinspect',
-  })
-  handleCancel(DATABASE_NAME)
+  }))
 
-  const DATABASE_USER = await p.text({
+  const DATABASE_USER = handleCancel(await p.text({
     message: 'Database user',
     defaultValue: 'csinspect',
     placeholder: 'csinspect',
-  })
-  handleCancel(DATABASE_USER)
+  }))
 
-  const DATABASE_PASSWORD = await p.password({
+  const DATABASE_PASSWORD = handleCancel(await p.password({
     message: 'Database password',
-  })
-  handleCancel(DATABASE_PASSWORD)
+  }))
 
-  const DATABASE_CONNECTION_LIMIT = await p.text({
+  const DATABASE_CONNECTION_LIMIT = handleCancel(await p.text({
     message: 'Connection pool limit',
     defaultValue: '5',
     placeholder: '5',
     validate: (val) => {
+      if (!val) return 'Connection limit is required'
       const n = Number(val)
       if (isNaN(n) || n < 1) return 'Must be a positive number'
     },
-  })
-  handleCancel(DATABASE_CONNECTION_LIMIT)
+  }))
 
   // Test connection
   const connected = testDbConnection(DATABASE_HOST, DATABASE_PORT, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME)
   if (!connected) {
-    const continueAnyway = await p.confirm({
+    const continueAnyway = handleCancel(await p.confirm({
       message: 'Connection failed. Continue anyway?',
       initialValue: false,
-    })
-    handleCancel(continueAnyway)
+    }))
     if (!continueAnyway) {
       p.cancel('Fix your database settings and try again.')
       process.exit(1)
@@ -238,13 +228,12 @@ async function stepSteamApi(): Promise<Pick<WizardConfig, 'STEAM_API_KEY'>> {
     'Steam API Key',
   )
 
-  const STEAM_API_KEY = await p.text({
+  const STEAM_API_KEY = handleCancel(await p.text({
     message: 'Steam API key (32 characters)',
     validate: (val) => {
-      if (val.length !== 32) return `Must be exactly 32 characters (currently ${val.length})`
+      if (!val || val.length !== 32) return `Must be exactly 32 characters (currently ${val?.length ?? 0})`
     },
-  })
-  handleCancel(STEAM_API_KEY)
+  }))
 
   p.log.success('Steam API configuration complete')
   return { STEAM_API_KEY }
@@ -256,26 +245,23 @@ async function stepSteamBot(): Promise<Pick<WizardConfig, 'STEAM_USERNAME' | 'ST
   p.log.warning('Use a dedicated account WITHOUT Steam Guard (2FA)')
   p.log.warning('Deprecated: Consider using Steam Service instead (Step 6)')
 
-  const useSteamBot = await p.confirm({
+  const useSteamBot = handleCancel(await p.confirm({
     message: 'Configure a Steam bot account?',
     initialValue: false,
-  })
-  handleCancel(useSteamBot)
+  }))
 
   if (!useSteamBot) {
     p.log.info('Skipped — some inspect features will be limited')
     return {}
   }
 
-  const STEAM_USERNAME = await p.text({
+  const STEAM_USERNAME = handleCancel(await p.text({
     message: 'Steam username (not email)',
-  })
-  handleCancel(STEAM_USERNAME)
+  }))
 
-  const STEAM_PASSWORD = await p.password({
+  const STEAM_PASSWORD = handleCancel(await p.password({
     message: 'Steam password',
-  })
-  handleCancel(STEAM_PASSWORD)
+  }))
 
   p.log.success('Steam bot account configured')
   return { STEAM_USERNAME, STEAM_PASSWORD }
@@ -285,33 +271,30 @@ async function stepSteamService(): Promise<Pick<WizardConfig, 'STEAM_SERVICE_URL
   p.log.step(chalk.bold('Step 6: Steam Service (Optional, Recommended)'))
   p.log.info('A separate Steam service provides better scalability and separation of concerns.')
 
-  const useSteamService = await p.confirm({
+  const useSteamService = handleCancel(await p.confirm({
     message: 'Configure Steam Service?',
     initialValue: false,
-  })
-  handleCancel(useSteamService)
+  }))
 
   if (!useSteamService) {
     p.log.info('Skipped')
     return {}
   }
 
-  const STEAM_SERVICE_URL = await p.text({
+  const STEAM_SERVICE_URL = handleCancel(await p.text({
     message: 'Steam Service URL',
     defaultValue: 'http://127.0.0.1:3655',
     placeholder: 'http://127.0.0.1:3655',
-  })
-  handleCancel(STEAM_SERVICE_URL)
+  }))
 
   const STEAM_SERVICE_API_KEY = generateSecret()
   p.log.success(`Generated Steam Service API key (${STEAM_SERVICE_API_KEY.length} chars)`)
 
-  const STEAM_SERVICE_PORT = await p.text({
+  const STEAM_SERVICE_PORT = handleCancel(await p.text({
     message: 'Steam Service port',
     defaultValue: '3655',
     placeholder: '3655',
-  })
-  handleCancel(STEAM_SERVICE_PORT)
+  }))
 
   p.log.success('Steam Service configured')
   return { STEAM_SERVICE_URL, STEAM_SERVICE_API_KEY, STEAM_SERVICE_PORT }
@@ -320,22 +303,20 @@ async function stepSteamService(): Promise<Pick<WizardConfig, 'STEAM_SERVICE_URL
 async function stepLogging(): Promise<Pick<WizardConfig, 'LOG_API_REQUESTS' | 'LOG_LEVEL'>> {
   p.log.step(chalk.bold('Step 7: Logging'))
 
-  const logRequests = await p.confirm({
+  const logRequests = handleCancel(await p.confirm({
     message: 'Enable API request logging?',
     initialValue: true,
-  })
-  handleCancel(logRequests)
+  }))
 
-  const LOG_LEVEL = await p.select({
+  const LOG_LEVEL = handleCancel(await p.select({
     message: 'Log level',
     options: [
-      { value: 'info', label: 'Info', hint: 'Standard operational messages' },
-      { value: 'debug', label: 'Debug', hint: 'Verbose output for troubleshooting' },
-      { value: 'warn', label: 'Warn', hint: 'Only warnings and errors' },
-      { value: 'error', label: 'Error', hint: 'Only critical errors' },
+      { value: 'info' as const, label: 'Info', hint: 'Standard operational messages' },
+      { value: 'debug' as const, label: 'Debug', hint: 'Verbose output for troubleshooting' },
+      { value: 'warn' as const, label: 'Warn', hint: 'Only warnings and errors' },
+      { value: 'error' as const, label: 'Error', hint: 'Only critical errors' },
     ],
-  })
-  handleCancel(LOG_LEVEL)
+  }))
 
   p.log.success('Logging configuration complete')
   return { LOG_API_REQUESTS: logRequests ? 'true' : 'false', LOG_LEVEL }
@@ -412,11 +393,10 @@ async function main(): Promise<void> {
   if (existsSync(ENV_PATH)) {
     p.log.warning('.env file already exists')
 
-    const overwrite = await p.confirm({
+    const overwrite = handleCancel(await p.confirm({
       message: 'Do you want to overwrite it? (a backup will be created)',
       initialValue: false,
-    })
-    handleCancel(overwrite)
+    }))
 
     if (!overwrite) {
       p.outro('Existing .env file preserved.')
