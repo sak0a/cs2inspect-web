@@ -187,7 +187,8 @@ export function useItemModal(options: UseItemModalOptions) {
             console.log(`useItemModal(${itemType}): Fetching skins for:`, itemName)
 
             const response = await api.get<{ skins: APIWeaponSkin[] }>('/api/data/skins', {
-                weapon: itemName
+                weapon: itemName,
+                limit: 500
             })
 
             // Handle both old and new API response formats

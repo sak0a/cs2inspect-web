@@ -178,7 +178,7 @@ export function useAutoSave<T>(
         await saveFn(data)
 
         // Success
-        lastSavedData = structuredClone(data)
+        lastSavedData = JSON.parse(JSON.stringify(data))
         pendingData = null
         isDirty.value = false
         status.value = 'saved'
