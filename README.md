@@ -112,21 +112,7 @@ bun run db:push
 bun run dev  # or npm run dev
 ```
 
-#### Option 4: Using Makefile
-
-```bash
-# View all available commands
-make help
-
-# Install and setup
-make install
-make setup
-
-# Start development
-make dev
-```
-
-#### Option 5: Docker Deployment
+#### Option 4: Docker Deployment
 
 ```bash
 # Development
@@ -135,8 +121,6 @@ docker-compose -f docker-compose.dev.yml up -d
 # Production
 docker-compose -f docker-compose.prod.yml up -d
 ```
-
-See [SELF_HOSTING.md](docs/SELF_HOSTING.md) for complete production deployment guide.
 
 The app will be available at `http://localhost:3000`.
 
@@ -153,20 +137,6 @@ The app will be available at `http://localhost:3000`.
 | `bun test` | Run tests |
 | `bun run db:push` | Push database schema |
 | `bun run db:studio` | Open Drizzle Studio |
-| `bun run docs:dev` | Start documentation site |
-
-### Makefile Commands
-
-For a complete list of Makefile commands, run `make help`
-
-**Common commands:**
-- `make install` - Install dependencies
-- `make setup` - Run interactive setup wizard
-- `make dev` - Start development server
-- `make build` - Build for production
-- `make test` - Run all tests
-- `make docker-up` - Start Docker containers
-- `make deploy` - Deploy to production
 
 ### Shell Scripts
 
@@ -181,7 +151,6 @@ For a complete list of Makefile commands, run `make help`
 ├── assets/           # CSS, JS, SVG assets
 ├── components/       # Vue components (modals, tabs, customizers)
 ├── composables/      # Vue composables (useItems, useInspectItem, etc.)
-├── docs/             # Project documentation
 ├── layouts/          # Nuxt layouts
 ├── locales/          # i18n translation files
 ├── middleware/       # Route middleware
@@ -197,20 +166,6 @@ For a complete list of Makefile commands, run `make help`
 └── utils/            # Shared utilities
 ```
 
-## 📖 Documentation
-
-Comprehensive documentation is available in the [`/docs`](./docs) directory:
-
-- [Setup Guide](./docs/setup.md) – Development environment setup
-- [Self-Hosting Guide](./docs/SELF_HOSTING.md) – Complete production deployment guide
-- [GitHub Actions CI/CD](./docs/github-actions.md) – Automated workflows and deployment
-- [Coolify Deployment](./services/docs-site/coolify.md) – Deploy with Coolify platform
-- [Architecture](./docs/architecture.md) – System architecture overview
-- [API Reference](./docs/api.md) – API endpoint documentation
-- [Components](./docs/components.md) – Component reference
-- [Recommendations](./docs/RECOMMENDATIONS.md) – Best practices and improvements
-- [Contributing](./docs/contributing.md) – Contribution guidelines
-
 ## 🔄 CI/CD & Automation
 
 This project uses GitHub Actions for automated CI/CD:
@@ -221,7 +176,6 @@ This project uses GitHub Actions for automated CI/CD:
 - **🐳 Docker Images** – Multi-platform images published to GitHub Container Registry
 - **📊 Status Monitoring** – Real-time workflow status and build reports
 
-See [GitHub Actions Documentation](./docs/github-actions.md) for complete details.
 
 **Workflows:**
 - `ci.yml` – Test, lint, and build on every push
@@ -231,7 +185,7 @@ See [GitHub Actions Documentation](./docs/github-actions.md) for complete detail
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please read the [Contributing Guide](./docs/contributing.md) before submitting a pull request.
+Contributions are welcome!
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
