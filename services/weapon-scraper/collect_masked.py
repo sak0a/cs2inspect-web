@@ -2,6 +2,7 @@
 """
 Collect all masked videos into a single directory.
 Copies masked videos from downloads/*/masked/ to masked-videos/
+Removes '_masked' suffix from filenames during copy.
 """
 
 import argparse
@@ -63,20 +64,22 @@ def collect_masked_videos(
     errors = 0
 
     for video in sorted(videos):
-        dest = output_dir / video.name
+        # Remove '_masked' suffix from filename
+        output_name = video.name.replace("_masked.webm", ".webm")
+        dest = output_dir / output_name
 
         if dest.exists() and not force:
-            logger.debug(f"Skipping (exists): {video.name}")
+            logger.debug(f"Skipping (exists): {output_name}")
             skipped += 1
             continue
 
         if dry_run:
-            logger.info(f"[DRY RUN] Would copy: {video} -> {dest}")
+            logger.info(f"[DRY RUN] Would copy: {video.name} -> {output_name}")
             copied += 1
         else:
             try:
                 shutil.copy2(video, dest)
-                logger.info(f"Copied: {video.name}")
+                logger.info(f"Copied: {video.name} -> {output_name}")
                 copied += 1
             except Exception as e:
                 logger.error(f"Failed to copy {video.name}: {e}")
