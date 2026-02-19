@@ -3,7 +3,7 @@ FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY package.json bun.lockb* ./
+COPY package.json bun.lock ./
 COPY tsconfig.json ./
 
 # Install dependencies
@@ -18,8 +18,8 @@ RUN bun run build
 # Production stage
 FROM node:20-alpine
 
-# Install wget for health checks
-RUN apk add --no-cache wget
+# Install curl for health checks
+RUN apk add --no-cache curl
 
 WORKDIR /app
 
@@ -35,7 +35,7 @@ EXPOSE 3000
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-3000}/api/health/live || exit 1
+  CMD curl -fsS http://localhost:${PORT:-3000}/api/health/ready || exit 1
 
 # Start the service
 CMD ["node", "dist/index.js"]

@@ -1,0 +1,50 @@
+# Dependencies (installed in container)
+node_modules
+
+# Build outputs (built in container)
+.output
+.nuxt
+.nitro
+dist
+
+# Dev/cache
+.data
+.cache
+.fleet
+.idea
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Environment files (passed via docker-compose)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs
+*.log
+
+# Services (built separately)
+services/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Docker files (not needed inside container)
+docker-compose*.yml
+Dockerfile
+
+# Scraped/generated assets
+public/img/charms
+public/img/weapons
+public/img/stickers
+
+# Misc
+backups/
+storage/
+todos_manager.html
