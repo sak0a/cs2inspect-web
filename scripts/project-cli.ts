@@ -186,6 +186,54 @@ const categories: Category[] = [
     ],
   },
   {
+    id: 'services',
+    emoji: '\u{1F9E9}',
+    label: 'Services',
+    description: 'Deploy individual services to standalone branches',
+    commands: [
+      {
+        id: 'deploy:weapon-scraper',
+        label: 'Deploy weapon-scraper',
+        hint: 'Extracts weapon-scraper to weapon-scraper-only branch',
+        run: './scripts/deploy-service.sh weapon-scraper',
+        dangerous: true,
+        dangerMessage: 'force-push weapon-scraper to weapon-scraper-only branch',
+      },
+      {
+        id: 'deploy:charm-scraper',
+        label: 'Deploy charm-scraper',
+        hint: 'Extracts charm-scraper to charm-scraper-only branch',
+        run: './scripts/deploy-service.sh charm-scraper',
+        dangerous: true,
+        dangerMessage: 'force-push charm-scraper to charm-scraper-only branch',
+      },
+      {
+        id: 'deploy:sticker-scraper',
+        label: 'Deploy sticker-scraper',
+        hint: 'Extracts sticker-scraper to sticker-scraper-only branch',
+        run: './scripts/deploy-service.sh sticker-scraper',
+        dangerous: true,
+        dangerMessage: 'force-push sticker-scraper to sticker-scraper-only branch',
+      },
+      {
+        id: 'deploy:steam-service',
+        label: 'Deploy steam-service',
+        hint: 'Extracts steam-service to steam-service-only branch',
+        run: './scripts/deploy-service.sh steam-service',
+        dangerous: true,
+        dangerMessage: 'force-push steam-service to steam-service-only branch',
+      },
+      {
+        id: 'deploy:docs-site',
+        label: 'Deploy docs-site',
+        hint: 'Extracts docs-site to docs-site-only branch',
+        run: './scripts/deploy-service.sh docs-site',
+        dangerous: true,
+        dangerMessage: 'force-push docs-site to docs-site-only branch',
+      },
+    ],
+  },
+  {
     id: 'setup',
     emoji: '\u{2699}\u{FE0F}',
     label: 'Setup & Config',
@@ -482,11 +530,12 @@ async function executeCommand(command: Command): Promise<void> {
     }
   }
 
-  // Check shell script exists
+  // Check shell script exists (extract just the script path, ignore arguments)
   if (typeof command.run === 'string' && command.run.startsWith('./scripts/')) {
-    const scriptPath = resolve(PROJECT_ROOT, command.run)
+    const scriptFile = command.run.split(' ')[0]
+    const scriptPath = resolve(PROJECT_ROOT, scriptFile)
     if (!existsSync(scriptPath)) {
-      p.log.error(`Script not found: ${command.run}`)
+      p.log.error(`Script not found: ${scriptFile}`)
       return
     }
   }
