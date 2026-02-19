@@ -34,7 +34,7 @@ COPY --from=builder /app/dist ./dist
 EXPOSE 3000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=30s \
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s \
   CMD curl -fsS http://localhost:${PORT:-3000}/api/health/ready || exit 1
 
 # Start the service
