@@ -32,6 +32,13 @@ services/sticker-scraper/assets
 public/img/charms/sticker_slab
 public/img/stickers
 
+# Weapon Scraper
+services/weapon-scraper/downloads
+services/weapon-scraper/tracking.json
+services/weapon-scraper/masked-videos
+services/weapon-scraper/masked-videos-optimized
+services/weapon-scraper/__pycache__
+
 # Build artifacts
 server/assets/_locales
 storage/
