@@ -4,8 +4,12 @@ import { eq, and } from 'drizzle-orm'
 import { PROTECTED_API_PATHS } from "~/server/utils/constants";
 import { bannedUsers } from '~/server/database/schema';
 import { useDatabase } from '~/server/utils/database';
+import { Logger } from '~/server/utils/logger';
 
-const JWT_SECRET = process.env.JWT_TOKEN || 'your-secret-key' // Make sure to set this in production
+const JWT_SECRET = process.env.JWT_TOKEN
+if (!JWT_SECRET) {
+    throw new Error('JWT_TOKEN environment variable is required. Set it before starting the server.')
+}
 
 export default defineEventHandler(async (event) => {
     const path = event.node.req.url
@@ -14,13 +18,10 @@ export default defineEventHandler(async (event) => {
         return;
     }
 
-    // Debug logging for admin routes
     const isAdminRoute = path.startsWith('/api/admin/');
     if (isAdminRoute) {
-        console.log('\n' + '─'.repeat(60));
-        console.log('[auth] ADMIN ROUTE AUTHENTICATION');
-        console.log('─'.repeat(60));
-        console.log('[auth] Path:', path);
+        Logger.header('ADMIN ROUTE AUTHENTICATION');
+        Logger.info(`Path: ${path}`, 'auth');
     }
 
     const cookies: Record<string, string> = parseCookies(event);
@@ -28,9 +29,8 @@ export default defineEventHandler(async (event) => {
 
     if (!token) {
         if (isAdminRoute) {
-            console.log('[auth] ✗ FAILED - No auth_token cookie found');
-            console.log('[auth] User needs to log in first');
-            console.log('─'.repeat(60));
+            Logger.error('FAILED - No auth_token cookie found', 'auth');
+            Logger.info('User needs to log in first', 'auth');
         }
         throw createError({
             statusCode: 401,
@@ -47,8 +47,7 @@ export default defineEventHandler(async (event) => {
         event.context.auth = decoded
 
         if (isAdminRoute) {
-            console.log('[auth] ✓ JWT valid - Steam ID:', decoded.steamId);
-            console.log('─'.repeat(60));
+            Logger.success(`JWT valid - Steam ID: ${decoded.steamId}`, 'auth');
         }
 
         // Check if user is banned
@@ -80,9 +79,8 @@ export default defineEventHandler(async (event) => {
             throw error
         }
         if (isAdminRoute) {
-            console.log('[auth] ✗ FAILED - JWT verification error');
-            console.log('[auth] Error:', error instanceof Error ? error.message : error);
-            console.log('─'.repeat(60));
+            Logger.error('FAILED - JWT verification error', 'auth');
+            Logger.error(`Error: ${error instanceof Error ? error.message : error}`, 'auth');
         }
         throw createError({
             statusCode: 401,

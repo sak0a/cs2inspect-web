@@ -94,8 +94,15 @@ const STICKER_MAX_HEIGHT_PX = computed(() => assetSizes.value.sticker.height)
 const KEYCHAIN_MAX_WIDTH_PX = computed(() => assetSizes.value.keychain.width)
 const KEYCHAIN_MAX_HEIGHT_PX = computed(() => assetSizes.value.keychain.height)
 
-// Image cache
+// Image cache with LRU eviction
+const IMAGE_CACHE_MAX = 50
 const imageCache = new Map<string, HTMLImageElement>()
+const evictOldestCacheEntry = () => {
+  if (imageCache.size > IMAGE_CACHE_MAX) {
+    const firstKey = imageCache.keys().next().value
+    if (firstKey) imageCache.delete(firstKey)
+  }
+}
 
 // Quick Settings State (Phase 5)
 const showQuickSettings = ref(false)
@@ -131,7 +138,7 @@ const copyCalibrationConfig = () => {
     window.navigator.clipboard.writeText(config).then(() => {
         message.success('Config copied to clipboard')
     }).catch(err => {
-        console.error('Failed to copy', err)
+        _debugWarn('Failed to copy', err)
         message.error('Failed to copy config')
     })
 }
@@ -321,21 +328,19 @@ const updateElementZ = (value: number | null) => {
 const toCanvasSafeUrl = (url: string) => {
   try {
     if (!url) {
-        console.warn('toCanvasSafeUrl: Empty URL')
+        _debugWarn('toCanvasSafeUrl: Empty URL')
         return ''
     }
 
-    // Direct string check for assets server to avoid any parsing/runtime config issues
-    if (url.includes('assets.cu.sakoa.xyz')) {
-        return url
-    }
-
     const u = new URL(url, window.location.origin)
-    
+
     // Allow same-origin requests
     if (u.origin === window.location.origin) return u.toString()
-    
-    // Check if it's the assets server - direct access (CORS should be enabled on assets server)
+
+    // Allow assets server by hostname check (not string includes, to prevent spoofing)
+    if (u.hostname === 'assets.cu.sakoa.xyz') return u.toString()
+
+    // Check if it's the assets server via runtime config
     try {
         const config = useRuntimeConfig()
         const assetsUrl = config.public.assetsUrl as string
@@ -352,7 +357,7 @@ const toCanvasSafeUrl = (url: string) => {
     }
     return url
   } catch (_e) {
-    console.warn('toCanvasSafeUrl: Invalid URL', url, _e)
+    _debugWarn('toCanvasSafeUrl: Invalid URL', url, _e)
     return url
   }
 }
@@ -380,13 +385,19 @@ const processQueue = () => {
     // CRITICAL FIX: Do NOT set crossOrigin for our assets server.
     // The server does not send CORS headers, so asking for 'anonymous' causes the load to fail.
     // By not setting it, we get an opaque response (tainted canvas), which is fine for display.
-    if (!finalUrl.includes('assets.cu.sakoa.xyz')) {
+    try {
+        const parsed = new URL(finalUrl, window.location.origin)
+        if (parsed.hostname !== 'assets.cu.sakoa.xyz') {
+            img.crossOrigin = 'anonymous'
+        }
+    } catch {
         img.crossOrigin = 'anonymous'
     }
 
     img.onload = () => {
         activeLoadCount.value--
         imageCache.set(url, img)
+        evictOldestCacheEntry()
 
         resolve(img)
         processQueue() // Process next
@@ -401,7 +412,7 @@ const processQueue = () => {
                  processQueue()
              }, RETRY_DELAY)
         } else {
-            console.warn(`[InlineVisualCustomizer] Failed to load image after ${MAX_RETRIES + 1} attempts:`, finalUrl)
+            _debugWarn(`[InlineVisualCustomizer] Failed to load image after ${MAX_RETRIES + 1} attempts:`, finalUrl)
             reject(new Error(`Failed to load image after ${MAX_RETRIES + 1} attempts: ${finalUrl}`))
             processQueue()
         }
@@ -447,7 +458,7 @@ const loadAllElementImages = async () => {
                 .then(() => {
                     renderCanvas() // Re-render when an image loads
                 })
-                .catch(err => console.warn(`[InlineVisualCustomizer] Element image failed:`, err))
+                .catch(err => _debugWarn(`[InlineVisualCustomizer] Element image failed:`, err))
         })
     await Promise.allSettled(promises)
 
@@ -525,7 +536,7 @@ const initializeCanvas = async () => {
 const initializeWeaponBackground = async () => {
 
   if (!props.weaponSkin || !video.value || !ctx.value) {
-    console.warn('[InlineVisualCustomizer] Missing props or refs', { skin: !!props.weaponSkin, video: !!video.value, ctx: !!ctx.value })
+    _debugWarn('[InlineVisualCustomizer] Missing props or refs', { skin: !!props.weaponSkin, video: !!video.value, ctx: !!ctx.value })
     return
   }
   
@@ -577,7 +588,7 @@ const initializeWeaponBackground = async () => {
 
       }
   } catch (e) {
-      console.warn('[InlineVisualCustomizer] Video initialization failed', e)
+      _debugWarn('[InlineVisualCustomizer] Video initialization failed', e)
       videoReady = false
   }
   
@@ -592,11 +603,11 @@ const initializeWeaponBackground = async () => {
               await loadImage(imageUrl)
 
           } catch (e) {
-              console.error('[InlineVisualCustomizer] Static image load failed', e)
+              _debugWarn('[InlineVisualCustomizer] Static image load failed', e)
           }
            renderCanvas()
       } else {
-          console.error('[InlineVisualCustomizer] No static image available')
+          _debugWarn('[InlineVisualCustomizer] No static image available')
       }
   }
   isVideoLoading.value = false
@@ -617,7 +628,7 @@ const convertExistingCustomizations = () => {
     if (sticker) {
       const element = stickerToCanvasElement(sticker, index, 10 + index, weaponName)
       if (element) {
-        console.log(`[InlineVisualCustomizer] 🏷️ Converted sticker ${index}:`, {
+        _debugLog(`[InlineVisualCustomizer] Converted sticker ${index}:`, {
           id: element.assetId,
           imageUrl: element.apiData?.image,
           wear: element.wear
@@ -711,7 +722,7 @@ const renderStaticBackground = () => {
             }
         }
         img.onerror = (e) => {
-             console.error('[InlineVisualCustomizer] Error drawing static background image', e)
+             _debugWarn('[InlineVisualCustomizer] Error drawing static background image', e)
              // Fallback logic
              const fallbackImg = new Image()
              fallbackImg.onload = () => {
@@ -1241,10 +1252,16 @@ onUnmounted(() => {
   handleSave(true) // Auto-save on exit
   window.removeEventListener('resize', handleResize)
   window.removeEventListener('keydown', handleKeyDown)
+  if (video.value) {
+    video.value.pause()
+    video.value.removeAttribute('src')
+    video.value.load() // Release network resources
+  }
   if (videoManager.value) {
     videoManager.value.destroy()
     videoManager.value = null
   }
+  imageCache.clear()
 })
 
 // Expose refreshCanvas for parent

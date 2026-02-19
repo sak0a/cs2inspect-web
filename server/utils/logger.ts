@@ -27,8 +27,10 @@ export const Logger = {
         }
     },
     responseTime(startTime: number): void {
-        const responseTime = Date.now() - startTime;
-        console.log(`Response Time: ${responseTime}ms`);
+        if (process.env.NODE_ENV !== 'production') {
+            const responseTime = Date.now() - startTime;
+            console.log(`Response Time: ${responseTime}ms`);
+        }
     }
 } as const;
 

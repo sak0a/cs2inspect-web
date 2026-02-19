@@ -39,29 +39,6 @@ export type TrackedConfiguration = WeaponConfiguration | KnifeConfiguration | Gl
 // ============================================================================
 
 /**
- * Check if two values are deeply equal
- */
-function _deepEqual(a: unknown, b: unknown): boolean {
-  if (a === b) return true
-  if (a === null || b === null) return a === b
-  if (typeof a !== 'object' || typeof b !== 'object') return false
-
-  const keysA = Object.keys(a as object)
-  const keysB = Object.keys(b as object)
-
-  if (keysA.length !== keysB.length) return false
-
-  for (const key of keysA) {
-    if (!keysB.includes(key)) return false
-    if (!_deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
-      return false
-    }
-  }
-
-  return true
-}
-
-/**
  * Check if a configuration has stickers (is a weapon configuration)
  */
 function hasStickers(config: TrackedConfiguration): config is WeaponConfiguration {

@@ -12,6 +12,7 @@
  */
 
 import { ref, computed, watch, onBeforeUnmount, type Ref, type WatchSource } from 'vue'
+import { deepEqual } from '~/utils/deepEqual'
 
 // ============================================================================
 // TYPES AND INTERFACES
@@ -132,29 +133,6 @@ export function useAutoSave<T>(
   // ============================================================================
 
   /**
-   * Deep compare two objects for equality
-   */
-  function deepEqual(a: unknown, b: unknown): boolean {
-    if (a === b) return true
-    if (a === null || b === null) return a === b
-    if (typeof a !== 'object' || typeof b !== 'object') return false
-
-    const keysA = Object.keys(a as object)
-    const keysB = Object.keys(b as object)
-
-    if (keysA.length !== keysB.length) return false
-
-    for (const key of keysA) {
-      if (!keysB.includes(key)) return false
-      if (!deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
-        return false
-      }
-    }
-
-    return true
-  }
-
-  /**
    * Sleep for a given duration
    */
   function sleep(ms: number): Promise<void> {
@@ -200,7 +178,7 @@ export function useAutoSave<T>(
         await saveFn(data)
 
         // Success
-        lastSavedData = JSON.parse(JSON.stringify(data)) // Deep clone
+        lastSavedData = structuredClone(data)
         pendingData = null
         isDirty.value = false
         status.value = 'saved'

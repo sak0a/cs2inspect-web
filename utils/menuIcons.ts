@@ -1,3 +1,6 @@
+// SAFETY: innerHTML is used below with static, trusted SVG strings hardcoded in this file.
+// These are NOT from user input or external sources. If SVG content is ever loaded
+// dynamically, this must be refactored to use proper Vue components or v-html with sanitization.
 export const menuIcons = {
     rifles: h('div', {
         innerHTML: "" +

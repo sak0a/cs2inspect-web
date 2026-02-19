@@ -134,15 +134,9 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@pinia/nuxt',
     'nuxt-i18n-micro',
-    //'@nuxtjs/seo',
-    //'@vite-pwa/nuxt',
+    // TODO: Enable @nuxtjs/seo once OG images and site metadata are finalized
+    // TODO: Enable @vite-pwa/nuxt once service worker strategy is validated (see pwa config below)
   ],
-  // site: { // Commented out until @nuxtjs/seo is enabled
-  //   url: 'https://cs2inspect.com',
-  //   name: 'CS2 Inspect',
-  //   description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
-  //   defaultLocale: 'en',
-  // },
   runtimeConfig: {
     public: {
       assetsUrl: process.env.ASSETS_URL || 'https://assets.cu.sakoa.xyz/cs2inspect',
@@ -151,33 +145,16 @@ export default defineNuxtConfig({
       assetsWeaponsPath: process.env.ASSETS_WEAPONS_PATH || '/weapons',
     }
   },
-  /*pwa: {
-    manifest: {
-      name: 'CS2 Inspect',
-      short_name: 'CS2 Inspect',
-      description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
-      theme_color: '#000000',
-      icons: [
-        {
-          src: 'android-chrome-192x192.png',
-          sizes: '192x192',
-          type: 'image/png',
-        },
-        {
-          src: 'android-chrome-512x512.png',
-          sizes: '512x512',
-          type: 'image/png',
-        },
-      ],
-    },
-    workbox: {
-      navigateFallback: '/',
-    },
-    devOptions: {
-      enabled: true,
-      type: 'module',
-    },
-  },*/
+  // PWA config ready to enable — uncomment @vite-pwa/nuxt module above and this block
+  // pwa: {
+  //   manifest: {
+  //     name: 'CS2 Inspect',
+  //     short_name: 'CS2 Inspect',
+  //     description: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
+  //     theme_color: '#000000',
+  //   },
+  //   workbox: { navigateFallback: '/' },
+  // },
   i18n: {
     locales: [
       { code: 'en', iso: 'en-US', displayName: 'English' },
