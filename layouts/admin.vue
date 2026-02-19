@@ -135,6 +135,7 @@ onMounted(() => {
           trigger="hover"
           variant="icon"
           size="medium"
+          :show-tutorials="false"
           @logout="handleLogout"
         />
         <NTooltip placement="bottom">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import {
+  LucideGraduationCap as TutorialsIcon,
   LucideLanguages as LanguagesIcon,
   LucideLogOut as LogOutIcon,
   LucideSettings as SettingsIcon
@@ -31,6 +32,7 @@ interface Props {
   variant?: ButtonVariant
   size?: ButtonSize
   showLogout?: boolean
+  showTutorials?: boolean
   ariaLabel?: string
 }
 
@@ -40,11 +42,13 @@ const props = withDefaults(defineProps<Props>(), {
   variant: 'icon',
   size: 'small',
   showLogout: true,
+  showTutorials: true,
   ariaLabel: 'Settings'
 })
 
 const emit = defineEmits<{
   (e: 'logout'): void
+  (e: 'tutorials'): void
 }>()
 
 const { t, getLocale, switchLocale, getLocales } = useI18n()
@@ -99,6 +103,15 @@ const dropdownOptions = computed(() => {
     }
   ]
 
+
+  if (props.showTutorials) {
+    options.unshift({
+      label: String(t('tutorials.launcher.title') || 'Tutorials'),
+      key: 'tutorials',
+      icon: () => h(NIcon, { size: 16 }, { default: () => h(TutorialsIcon) }),
+    })
+  }
+
   if (props.showLogout) {
     options.push({ type: 'divider', key: 'divider' })
     options.push({
@@ -134,6 +147,8 @@ function handleLanguageSelect(key: string) {
 function handleSelect(key: string) {
   if (key.startsWith('lang:')) {
     handleLanguageSelect(key.slice(5))
+  } else if (key === 'tutorials') {
+    emit('tutorials')
   } else if (key === 'logout') {
     emit('logout')
   }

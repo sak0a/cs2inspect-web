@@ -444,5 +444,73 @@
     "decodeSuccess": "Inspect-Link erfolgreich dekodiert",
     "generateSuccess": "Inspect-Link erfolgreich generiert",
     "copySuccess": "Inspect-Link in die Zwischenablage kopiert"
+  },
+  "tutorials": {
+    "launcher": {
+      "title": "Tutorials",
+      "start": "Start",
+      "resume": "Resume",
+      "completed": "Completed",
+      "estimatedTime": "{minutes} min",
+      "stopCurrent": "Stop current tutorial"
+    },
+    "overlay": {
+      "stepCounter": "Step {current} of {total}",
+      "back": "Back",
+      "next": "Next",
+      "stop": "Stop"
+    },
+    "difficulty": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "advanced": "Advanced"
+    },
+    "toasts": {
+      "stopCurrentFirst": "Please stop the current tutorial first."
+    },
+    "catalog": {
+      "quickNavigation": {
+        "title": "Quick navigation tour",
+        "description": "Learn where settings and core navigation are located."
+      },
+      "loadoutBasics": {
+        "title": "Loadout basics",
+        "description": "Understand loadout switching and weapon navigation."
+      },
+      "inspectWorkflow": {
+        "title": "Inspect workflow",
+        "description": "Find inspect related actions and complete flow overview."
+      }
+    },
+    "steps": {
+      "welcome": {
+        "title": "Welcome to guided mode",
+        "body": "This tutorial highlights the key controls and keeps you focused step by step."
+      },
+      "openSettings": {
+        "title": "Settings button",
+        "body": "Use this button to access language options and tutorials anytime."
+      },
+      "homeMenu": {
+        "title": "Home navigation",
+        "body": "This section leads to your main dashboard and primary workflows."
+      },
+      "loadoutSelector": {
+        "title": "Loadout selector",
+        "body": "Switch between loadouts here to edit different presets quickly."
+      },
+      "weaponsMenu": {
+        "title": "Weapons navigation",
+        "body": "Open weapon categories to customize skins, wear and patterns."
+      },
+      "extrasMenu": {
+        "title": "Extras navigation",
+        "body": "Find inspect tools, agents, pins and other extra modules here."
+      },
+      "finish": {
+        "title": "Tutorial complete",
+        "body": "Great job. You can restart any tutorial from Settings whenever you want."
+      }
+    }
   }
 }

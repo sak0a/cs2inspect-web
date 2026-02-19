@@ -5,6 +5,7 @@ import { steamAuth, type SteamUser } from '@/services/steamAuth'
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
+const showTutorialLauncher = ref(false)
 const user = ref<SteamUser | null>(null)
 
 const {
@@ -84,6 +85,11 @@ function handleLogout() {
   user.value = null
   showLogoutModal.value = false
   window.location.href = '/'
+}
+
+
+function handleTutorialsOpen() {
+  showTutorialLauncher.value = true
 }
 
 async function handleLogin() {
@@ -457,6 +463,8 @@ function handleLanguageSelect(key: string) {
                   variant="icon"
                   size="medium"
                   :aria-label="t('navigation.settings') || 'Settings'"
+                  data-tutorial="settings-button"
+                  @tutorials="handleTutorialsOpen"
                   @logout="showLogoutModal = true"
               />
             </div>
@@ -469,6 +477,7 @@ function handleLanguageSelect(key: string) {
                   :icon-size="24"
                   :options="translatedHomeMenuOptions"
                   :value="selectedKey"
+                  data-tutorial="home-menu"
                   class="text-[14px] top-bar-menu"
                   @update:value="handleSelect"
               />
@@ -479,6 +488,7 @@ function handleLanguageSelect(key: string) {
                   :icon-size="36"
                   :options="translatedWeaponMenuOptions"
                   :value="selectedKey"
+                  data-tutorial="weapons-menu"
                   class="text-[14px] top-bar-menu"
                   @update:value="handleSelect"
               />
@@ -499,6 +509,7 @@ function handleLanguageSelect(key: string) {
                   :icon-size="24"
                   :options="translatedExtrasMenuOptions"
                   :value="selectedKey"
+                  data-tutorial="extras-menu"
                   class="text-[14px] top-bar-menu"
                   @update:value="handleSelect"
               />
@@ -506,7 +517,7 @@ function handleLanguageSelect(key: string) {
 
             <!-- Right side: Loadout, Mode toggle -->
             <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0 justify-end">
-              <LoadoutSelector v-if="user" />
+              <LoadoutSelector v-if="user" data-tutorial="loadout-selector" />
 
               <!-- Mode toggle -->
               <NTooltip placement="bottom">
@@ -609,6 +620,9 @@ function handleLanguageSelect(key: string) {
           </div>
         </template>
       </NModal>
+
+      <TutorialLauncher v-model:show="showTutorialLauncher" />
+      <TutorialOverlay />
     </SLayout>
 </template>
 
