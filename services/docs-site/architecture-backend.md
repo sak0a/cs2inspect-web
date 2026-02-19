@@ -11,32 +11,99 @@ The backend uses Nitro server (part of Nuxt 3) for API routes and server-side lo
 ```
 server/
 ├── api/
+│   ├── admin/                        # Admin panel endpoints
+│   │   ├── activity-log.get.ts       # Admin action audit log
+│   │   ├── admins/
+│   │   │   ├── [steamId].delete.ts   # Remove admin
+│   │   │   ├── index.get.ts          # List admins
+│   │   │   └── index.post.ts         # Add admin
+│   │   ├── settings/
+│   │   │   ├── index.get.ts          # Get app settings
+│   │   │   └── index.put.ts          # Update setting
+│   │   ├── stats/
+│   │   │   ├── activity.get.ts       # Activity analytics
+│   │   │   ├── items.get.ts          # Item statistics
+│   │   │   ├── overview.get.ts       # Dashboard overview
+│   │   │   └── users.get.ts          # Top users
+│   │   └── users/
+│   │       ├── [steamId].ban.post.ts   # Ban user
+│   │       ├── [steamId].delete.ts     # Delete user data
+│   │       ├── [steamId].get.ts        # User details
+│   │       ├── [steamId].unban.post.ts # Unban user
+│   │       └── index.get.ts            # List users
 │   ├── auth/
-│   │   ├── steam-login.get.ts      # Steam OpenID authentication
-│   │   ├── steam-callback.get.ts   # Steam auth callback
-│   │   ├── logout.post.ts          # Logout endpoint
-│   │   └── validate.post.ts        # Session validation
-│   ├── loadouts/
-│   │   ├── index.get.ts            # Get all loadouts
-│   │   ├── index.post.ts           # Create loadout
-│   │   ├── [id].get.ts             # Get specific loadout
-│   │   ├── [id].put.ts             # Update loadout
-│   │   └── [id].delete.ts          # Delete loadout
-│   ├── weapons/
-│   │   ├── skins.get.ts            # Get weapon skins
-│   │   ├── config.get.ts           # Get weapon config
-│   │   └── config.post.ts          # Save weapon config
+│   │   └── validate.ts               # JWT session validation
+│   ├── data/
+│   │   ├── agents.ts                 # Agent data
+│   │   ├── collectibles.ts           # Collectible/pin data
+│   │   ├── keychains.ts              # Keychain data
+│   │   ├── musickits.ts              # Music kit data
+│   │   ├── skins.ts                  # Skin data
+│   │   └── stickers.ts               # Sticker data
+│   ├── health/
+│   │   ├── details.ts                # Detailed health info
+│   │   ├── history.ts                # Historical health data
+│   │   ├── live.ts                   # Liveness probe
+│   │   ├── proxy.ts                  # Proxy health check
+│   │   └── ready.ts                  # Readiness probe
 │   ├── inspect/
-│   │   └── parse.post.ts           # Parse inspect URL
-│   └── health/
-│       └── index.get.ts            # Health check endpoint
+│   │   └── index.ts                  # Inspect URL processing
+│   ├── items/
+│   │   ├── gloves/
+│   │   │   ├── index.ts              # Get gloves
+│   │   │   └── save.post.ts          # Save glove config
+│   │   ├── history/
+│   │   │   ├── [itemType].get.ts     # Get item history
+│   │   │   ├── restore.post.ts       # Restore from history
+│   │   │   └── snapshot.post.ts      # Create snapshot
+│   │   ├── knives/
+│   │   │   ├── index.ts              # Get knives
+│   │   │   └── save.post.ts          # Save knife config
+│   │   ├── pins/
+│   │   │   └── index.ts              # Get pins
+│   │   └── weapons/
+│   │       ├── [type].ts             # Get weapons by category
+│   │       └── save.post.ts          # Save weapon config
+│   ├── loadouts/
+│   │   ├── [id].delete.ts            # Delete loadout
+│   │   ├── [id].put.ts               # Update loadout
+│   │   ├── activate.post.ts          # Activate loadout
+│   │   ├── clear.post.ts             # Clear loadout items
+│   │   ├── default.post.ts           # Set default loadout
+│   │   ├── duplicate.post.ts         # Duplicate loadout
+│   │   ├── equipped.get.ts           # Get equipped loadout
+│   │   ├── import.post.ts            # Import loadout
+│   │   ├── index.get.ts              # Get all loadouts
+│   │   ├── index.post.ts             # Create loadout
+│   │   ├── select.post.ts            # Select loadout
+│   │   └── share.post.ts             # Share loadout
+│   └── proxy/
+│       └── image.ts                  # Image proxy
 ├── middleware/
-│   ├── auth.ts                     # Authentication middleware
-│   └── cors.ts                     # CORS configuration
+│   ├── 01.steam-auth.ts              # Steam OpenID auth
+│   ├── 02.auth.ts                    # JWT validation
+│   └── 03.admin-auth.ts              # Admin authorization
+├── database/
+│   ├── schema/                       # Drizzle ORM schema
+│   │   ├── admin.ts                  # Admin tables
+│   │   ├── agents.ts                 # Agent table
+│   │   ├── gloves.ts                 # Glove table
+│   │   ├── health.ts                 # Health check tables
+│   │   ├── itemHistory.ts            # Item history table
+│   │   ├── knives.ts                 # Knife table
+│   │   ├── loadouts.ts               # Loadout table
+│   │   ├── music.ts                  # Music kit table
+│   │   ├── pins.ts                   # Pin table
+│   │   └── weapons.ts                # Weapon tables (4)
+│   ├── adminHelpers.ts               # Admin DB operations
+│   ├── client.ts                     # Database connection
+│   ├── loadoutHelpers.ts             # Loadout DB operations
+│   └── migrate.ts                    # Migration runner
 └── utils/
-    ├── db.ts                       # Database connection
-    ├── steam.ts                    # Steam API utilities
-    └── inspect.ts                  # CS2 inspect utilities
+    ├── database/                     # DB utility functions
+    ├── validation/
+    │   └── adminSchemas.ts           # Zod validation schemas
+    └── constants.ts                  # Shared constants
 ```
 
 ### Authentication Flow
@@ -63,16 +130,24 @@ sequenceDiagram
 
 ### Middleware
 
-**Authentication Middleware** (`server/middleware/auth.ts`):
-- Validates JWT tokens
-- Checks session expiry
-- Attaches user context to request
-- Rejects unauthorized requests
+Middlewares execute in numbered order on every request:
 
-**CORS Middleware** (`server/middleware/cors.ts`):
-- Configures allowed origins
-- Sets appropriate headers
-- Handles preflight requests
+**`01.steam-auth.ts`** — Steam OpenID Authentication:
+- Handles Steam OpenID login flow and callback
+- Validates Steam authentication responses
+- Creates user sessions
+
+**`02.auth.ts`** — JWT Authentication:
+- Validates JWT tokens from cookies/headers
+- Checks session expiry
+- Attaches `event.context.auth` with `steamId`
+- Rejects unauthorized requests to protected routes
+
+**`03.admin-auth.ts`** — Admin Authorization:
+- Intercepts `/api/admin/*` routes only
+- Checks `admin_users` table for the authenticated Steam ID
+- Sets `event.context.admin` with `{ steamId, role, permissions }`
+- Returns 401 (not authenticated) or 403 (not admin)
 
 ### CS2 Integration
 
@@ -91,186 +166,70 @@ sequenceDiagram
 
 ## Database Schema
 
-CS2Inspect uses MariaDB (MySQL-compatible) for data storage.
+CS2Inspect uses MariaDB with [Drizzle ORM](https://orm.drizzle.team/) for data storage. Schema definitions are in `server/database/schema/`.
 
 ### Core Tables
 
-#### `users`
+| Table | Schema File | Description |
+|-------|-------------|-------------|
+| `wp_player_loadouts` | `loadouts.ts` | Loadout metadata with team-specific selections (knife, glove, agent per side), share codes, default flag |
+| `wp_player_pistols` | `weapons.ts` | Pistol configurations (defindex, paintindex, paintseed, paintwear, stattrak, nametag, 5 sticker JSON slots, keychain JSON) |
+| `wp_player_rifles` | `weapons.ts` | Rifle configurations (same fields as pistols) |
+| `wp_player_smgs` | `weapons.ts` | SMG configurations (same fields as pistols) |
+| `wp_player_heavys` | `weapons.ts` | Heavy weapon configurations (same fields as pistols) |
+| `wp_player_knifes` | `knives.ts` | Knife configurations (defindex, paintindex, paintseed, paintwear, stattrak, nametag) |
+| `wp_player_gloves` | `gloves.ts` | Glove configurations (defindex, paintindex, paintseed, paintwear) |
+| `wp_player_agents` | `agents.ts` | Agent selections per team |
+| `wp_player_music` | `music.ts` | Music kit selections |
+| `wp_player_pins` | `pins.ts` | Pin/collectible selections |
 
-Stores user authentication and profile data.
+### History & Health Tables
 
-```sql
-CREATE TABLE users (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  steam_id VARCHAR(20) UNIQUE NOT NULL,
-  steam_name VARCHAR(100),
-  avatar_url VARCHAR(255),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_steam_id (steam_id)
-);
-```
+| Table | Schema File | Description |
+|-------|-------------|-------------|
+| `item_history` | `itemHistory.ts` | Version history snapshots for item configurations (supports restore) |
+| `health_check_history` | `health.ts` | Health check execution logs with status and latency |
+| `health_check_config` | `health.ts` | Health check configuration (thresholds, enabled state) |
 
-#### `loadouts`
+### Admin Tables
 
-Stores loadout configurations.
+| Table | Schema File | Description |
+|-------|-------------|-------------|
+| `admin_users` | `admin.ts` | Admin accounts with roles (admin/superadmin) and permissions |
+| `banned_users` | `admin.ts` | User ban records with reason, duration, and active status |
+| `app_settings` | `admin.ts` | Application configuration key-value store |
+| `admin_activity_log` | `admin.ts` | Audit trail for admin actions |
 
-```sql
-CREATE TABLE loadouts (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  user_id BIGINT UNSIGNED NOT NULL,
-  name VARCHAR(100) NOT NULL,
-  is_active BOOLEAN DEFAULT FALSE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  INDEX idx_user_id (user_id),
-  INDEX idx_active (user_id, is_active)
-);
-```
-
-#### `weapon_configs`
-
-Stores weapon customization configurations.
-
-```sql
-CREATE TABLE weapon_configs (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  loadout_id BIGINT UNSIGNED NOT NULL,
-  weapon_defindex INT NOT NULL,
-  paint_index INT DEFAULT 0,
-  paint_wear FLOAT DEFAULT 0.0,
-  pattern_seed INT DEFAULT 0,
-  stattrak BOOLEAN DEFAULT FALSE,
-  stattrak_count INT DEFAULT 0,
-  name_tag VARCHAR(50),
-  stickers JSON,
-  keychains JSON,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (loadout_id) REFERENCES loadouts(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_weapon_per_loadout (loadout_id, weapon_defindex),
-  INDEX idx_loadout_id (loadout_id)
-);
-```
-
-#### `knife_configs`
-
-Stores knife configurations (T and CT side).
-
-```sql
-CREATE TABLE knife_configs (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  loadout_id BIGINT UNSIGNED NOT NULL,
-  team ENUM('T', 'CT') NOT NULL,
-  knife_defindex INT NOT NULL,
-  paint_index INT DEFAULT 0,
-  paint_wear FLOAT DEFAULT 0.0,
-  pattern_seed INT DEFAULT 0,
-  stattrak BOOLEAN DEFAULT FALSE,
-  stattrak_count INT DEFAULT 0,
-  name_tag VARCHAR(50),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (loadout_id) REFERENCES loadouts(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_knife_per_team (loadout_id, team),
-  INDEX idx_loadout_id (loadout_id)
-);
-```
-
-#### `glove_configs`
-
-Stores glove configurations (T and CT side).
-
-```sql
-CREATE TABLE glove_configs (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  loadout_id BIGINT UNSIGNED NOT NULL,
-  team ENUM('T', 'CT') NOT NULL,
-  glove_defindex INT NOT NULL,
-  paint_index INT DEFAULT 0,
-  paint_wear FLOAT DEFAULT 0.0,
-  pattern_seed INT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (loadout_id) REFERENCES loadouts(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_glove_per_team (loadout_id, team),
-  INDEX idx_loadout_id (loadout_id)
-);
-```
-
-#### `agent_configs`
-
-Stores agent selections (T and CT side).
-
-```sql
-CREATE TABLE agent_configs (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  loadout_id BIGINT UNSIGNED NOT NULL,
-  team ENUM('T', 'CT') NOT NULL,
-  agent_defindex INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (loadout_id) REFERENCES loadouts(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_agent_per_team (loadout_id, team),
-  INDEX idx_loadout_id (loadout_id)
-);
-```
-
-#### `music_kit_configs`
-
-Stores music kit selections.
-
-```sql
-CREATE TABLE music_kit_configs (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  loadout_id BIGINT UNSIGNED NOT NULL,
-  music_kit_defindex INT NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (loadout_id) REFERENCES loadouts(id) ON DELETE CASCADE,
-  UNIQUE KEY unique_music_kit_per_loadout (loadout_id),
-  INDEX idx_loadout_id (loadout_id)
-);
-```
-
-#### `pin_configs`
-
-Stores pin collections.
-
-```sql
-CREATE TABLE pin_configs (
-  id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
-  loadout_id BIGINT UNSIGNED NOT NULL,
-  pin_defindex INT NOT NULL,
-  position INT DEFAULT 0,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  FOREIGN KEY (loadout_id) REFERENCES loadouts(id) ON DELETE CASCADE,
-  INDEX idx_loadout_id (loadout_id)
-);
-```
+See the [Admin Panel documentation](./admin.md#database-tables) for detailed admin table schemas.
 
 ### Database Relationships
 
 ```
-users
-  └─── loadouts (1:many)
-        ├─── weapon_configs (1:many)
-        ├─── knife_configs (1:2, T+CT)
-        ├─── glove_configs (1:2, T+CT)
-        ├─── agent_configs (1:2, T+CT)
-        ├─── music_kit_configs (1:1)
-        └─── pin_configs (1:many)
+wp_player_loadouts (identified by steamid)
+  ├─── wp_player_pistols (1:many)
+  ├─── wp_player_rifles (1:many)
+  ├─── wp_player_smgs (1:many)
+  ├─── wp_player_heavys (1:many)
+  ├─── wp_player_knifes (1:2, T+CT)
+  ├─── wp_player_gloves (1:2, T+CT)
+  ├─── wp_player_agents (1:2, T+CT)
+  ├─── wp_player_music (1:1)
+  ├─── wp_player_pins (1:many)
+  └─── item_history (1:many)
+
+admin_users ──── admin_activity_log (1:many)
+banned_users (standalone, referenced by steamid)
+app_settings (standalone key-value store)
+health_check_history / health_check_config (standalone)
 ```
 
 ### Migrations
 
-**Automatic Migrations**: Database schema migrations run automatically on application startup.
+**Automatic Migrations**: Database schema migrations run automatically on application startup via `server/database/migrate.ts`.
 
 **Migration Files**: `server/database/migrations/`
 
-**Migration System**: Custom migration runner using `mysql2` library.
+**Migration System**: Custom migration runner that tracks executed migrations in a `_migrations` table and executes pending `.sql` files in order.
 
 ## Related Documentation
 

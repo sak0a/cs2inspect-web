@@ -287,11 +287,19 @@ function groupByCategory(endpoints: EndpointInfo[]): Map<string, CategoryInfo> {
 }
 
 /**
+ * Escape characters that conflict with Vue's template compiler in VitePress.
+ * Curly braces are interpreted as mustache template syntax.
+ */
+function escapeForVitePress(text: string): string {
+  return text.replace(/\{/g, '&#123;').replace(/\}/g, '&#125;');
+}
+
+/**
  * Generate markdown for a single endpoint
  */
 function generateEndpointMarkdown(endpoint: EndpointInfo): string {
   let md = `### ${endpoint.method} \`${endpoint.path}\`\n\n`;
-  md += `${endpoint.description}\n\n`;
+  md += `${escapeForVitePress(endpoint.description)}\n\n`;
 
   // Auth badge
   if (endpoint.auth) {
@@ -348,7 +356,7 @@ function generateCategoryMarkdown(category: CategoryInfo): string {
   for (const endpoint of category.endpoints) {
     const authIcon = endpoint.auth ? '🔒' : '🔓';
     const shortDesc = endpoint.description.substring(0, 50) + (endpoint.description.length > 50 ? '...' : '');
-    md += `| \`${endpoint.method}\` | \`${endpoint.path}\` | ${authIcon} | ${shortDesc} |\n`;
+    md += `| \`${endpoint.method}\` | \`${endpoint.path}\` | ${authIcon} | ${escapeForVitePress(shortDesc)} |\n`;
   }
 
   md += '\n## Endpoints\n\n';

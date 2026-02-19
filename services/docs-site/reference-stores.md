@@ -7,6 +7,7 @@ CS2Inspect uses [Pinia](https://pinia.vuejs.org/) for state management. This doc
 ## Available Stores
 
 1. [loadoutStore](#loadoutstore) - Manages user loadouts and item customizations
+2. [adminStore](#adminstore) - Manages admin panel state, user management, and analytics
 
 ---
 
@@ -800,9 +801,9 @@ describe('loadoutStore', () => {
 ## Related Documentation
 
 - [Composables Reference](./reference-composables.md) - Vue composables
-- [API Reference](../api/) - Backend API documentation
+- [API Reference](./api/) - Backend API documentation
 - [TypeScript Types](./reference-types.md) - Type definitions
-- [Components](../components.md) - Component documentation
+- [Components](./components.md) - Component documentation
 
 ---
 
@@ -863,3 +864,288 @@ When modifying the loadout store:
 3. **Add Error Handling**: Catch and handle all errors
 4. **Update Tests**: Add tests for new functionality
 5. **Document Changes**: Update this documentation
+
+---
+
+## adminStore
+
+**Location**: `/stores/adminStore.ts`
+
+**Purpose**: Centralized state management for the admin panel. Handles dashboard statistics, user management, settings, activity logs, and admin user management with built-in caching (5-minute TTL).
+
+### Import
+
+```typescript
+import { useAdminStore } from '~/stores/adminStore'
+```
+
+### Usage
+
+```vue
+<script setup>
+const adminStore = useAdminStore()
+
+// Check admin status
+await adminStore.checkAdminStatus()
+
+// Fetch dashboard data
+await adminStore.fetchOverviewStats()
+
+// Manage users
+await adminStore.fetchUsers({ search: '', page: 1 })
+await adminStore.banUser(steamId, 'Violation of TOS', 72)
+</script>
+```
+
+---
+
+### State
+
+```typescript
+interface AdminState {
+  // Auth
+  isAdmin: boolean
+  adminRole: 'admin' | 'superadmin' | null
+  adminPermissions: string[]
+
+  // Dashboard data
+  overviewStats: AdminOverviewStats | null
+  users: AdminUserSummary[]
+  usersTotal: number
+  activityData: AdminActivityData | null
+  topUsers: AdminTopUser[]
+  settings: AdminSetting[]
+  activityLog: AdminActivityLogEntry[]
+  activityLogTotal: number
+  adminUsers: AdminInfo[]
+
+  // Loading states
+  isLoading: boolean
+  isLoadingStats: boolean
+  isLoadingUsers: boolean
+  isLoadingSettings: boolean
+  isLoadingActivity: boolean
+
+  // Error & cache
+  error: string | null
+  lastUsersQuery: string | null
+  lastActivityLogQuery: string | null
+  lastActivityRange: '7d' | '30d' | '90d' | null
+  lastFetch: {
+    adminStatus: number | null
+    stats: number | null
+    users: number | null
+    settings: number | null
+    activity: number | null
+    activityLog: number | null
+    adminUsers: number | null
+  }
+}
+```
+
+---
+
+### Getters
+
+#### `isSuperAdmin`
+```typescript
+ComputedRef<boolean>
+```
+Whether the current admin has superadmin role.
+
+#### `isStatsCacheStale`
+```typescript
+ComputedRef<boolean>
+```
+Whether overview stats cache is older than 5 minutes.
+
+#### `isUsersCacheStale`
+```typescript
+ComputedRef<boolean>
+```
+Whether users data cache is older than 5 minutes.
+
+#### `isSettingsCacheStale`
+```typescript
+ComputedRef<boolean>
+```
+Whether settings cache is older than 5 minutes.
+
+#### `totalItems`
+```typescript
+ComputedRef<number>
+```
+Sum of all item categories from overview stats.
+
+---
+
+### Actions
+
+#### Authentication
+
+##### `checkAdminStatus()`
+Verify current user's admin status and fetch role/permissions.
+
+**Returns**: `Promise<boolean>` - Whether the user is an admin.
+
+##### `fetchCurrentAdminInfo(forceRefresh?)`
+Fetch current admin's detailed role and permissions.
+
+**Parameters**:
+- `forceRefresh?: boolean` - Bypass cache
+
+**Returns**: `Promise<void>`
+
+#### Statistics
+
+##### `fetchOverviewStats(forceRefresh?)`
+Fetch dashboard overview statistics (total users, active users, loadouts, items, banned count).
+
+**Parameters**:
+- `forceRefresh?: boolean` - Bypass cache
+
+**Returns**: `Promise<void>`
+
+##### `fetchActivityData(range, force?)`
+Fetch activity chart data for a time range.
+
+**Parameters**:
+- `range: '7d' | '30d' | '90d'` - Time range
+- `force?: boolean` - Bypass cache
+
+**Returns**: `Promise<void>`
+
+##### `fetchTopUsers(limit?)`
+Fetch top users for leaderboard display.
+
+**Parameters**:
+- `limit?: number` - Max users (default: 10)
+
+**Returns**: `Promise<void>`
+
+#### User Management
+
+##### `fetchUsers(params)`
+Fetch paginated user list with optional search.
+
+**Parameters**:
+- `params: { search?, page?, limit?, force? }`
+
+**Returns**: `Promise<void>`
+
+##### `fetchUserDetails(steamId)`
+Fetch detailed information for a single user.
+
+**Parameters**:
+- `steamId: string`
+
+**Returns**: `Promise<AdminUserDetails | null>`
+
+##### `banUser(steamId, reason, durationHours?, options?)`
+Ban a user. Logs action in activity log.
+
+**Parameters**:
+- `steamId: string`
+- `reason: string`
+- `durationHours?: number` - Omit for permanent ban
+- `options?: { refreshUsers?: boolean }`
+
+**Returns**: `Promise<void>`
+
+##### `unbanUser(steamId, options?)`
+Unban a user. Logs action in activity log.
+
+**Parameters**:
+- `steamId: string`
+- `options?: { refreshUsers?: boolean }`
+
+**Returns**: `Promise<void>`
+
+##### `deleteUserData(steamId)`
+Delete all data for a user. Logs action in activity log.
+
+**Parameters**:
+- `steamId: string`
+
+**Returns**: `Promise<void>`
+
+#### Settings (Superadmin)
+
+##### `fetchSettings(forceRefresh?)`
+Fetch all application settings.
+
+**Returns**: `Promise<void>`
+
+##### `updateSetting(key, value)`
+Update a single application setting. Logs action in activity log.
+
+**Parameters**:
+- `key: string`
+- `value: string | number | boolean`
+
+**Returns**: `Promise<void>`
+
+#### Activity Log
+
+##### `fetchActivityLog(params)`
+Fetch paginated admin activity audit log.
+
+**Parameters**:
+- `params: { page?, limit?, action?, force? }`
+
+**Returns**: `Promise<void>`
+
+#### Admin Management (Superadmin)
+
+##### `fetchAdminUsers(forceRefresh?)`
+Fetch all admin users.
+
+**Returns**: `Promise<void>`
+
+##### `addAdmin(steamId, role)`
+Grant admin privileges to a user. Logs action.
+
+**Parameters**:
+- `steamId: string`
+- `role: 'admin' | 'superadmin'`
+
+**Returns**: `Promise<void>`
+
+##### `removeAdmin(steamId)`
+Revoke admin privileges. Logs action.
+
+**Parameters**:
+- `steamId: string`
+
+**Returns**: `Promise<void>`
+
+#### Utilities
+
+##### `clearCache()`
+Clear all cached data (keeps auth state).
+
+##### `reset()`
+Reset store to initial state (clears everything including auth).
+
+---
+
+### Caching Behavior
+
+The admin store caches all fetched data with a 5-minute TTL (`CACHE_DURATION = 300000`). Each data category has its own cache timestamp. Actions with a `forceRefresh` parameter bypass the cache when set to `true`.
+
+```typescript
+// Uses cache if fresh
+await adminStore.fetchOverviewStats()
+
+// Always fetches from server
+await adminStore.fetchOverviewStats(true)
+```
+
+---
+
+### Related Documentation
+
+- [Admin Panel](./admin.md) - Admin panel overview
+- [Admin API](./api/admin.md) - API endpoint documentation
+- [useAdminAuth](./reference-composables.md#useadminauth) - Admin auth composable
+- [useAdminStats](./reference-composables.md#useadminstats) - Admin stats composable

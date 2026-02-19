@@ -499,6 +499,119 @@ borderRadius: '20px'
 
 ---
 
+### Admin Components
+
+All admin components are located in `components/admin/`. They require admin authentication.
+
+#### AdminLayout.vue
+
+**Purpose**: Main layout wrapper for admin panel with responsive sidebar navigation.
+
+**Props**: `title` (optional string, default: `'Admin Panel'`)
+
+**Features**:
+- Responsive mobile sidebar with hamburger toggle
+- Dynamic navigation items based on admin role
+- Admin management link visible only for superadmins
+
+#### AdminUserTable.vue
+
+**Purpose**: Paginated user list table with search and management actions.
+
+**Props**: `users` (array), `loading` (bool), `total` (number), `page` (number), `pageSize` (number)
+
+**Events**: `page-change`, `search`, `view`, `ban`, `unban`
+
+**Features**: Debounced search (300ms), ban status badges, pagination controls
+
+#### AdminLoadoutTable.vue
+
+**Purpose**: Displays a user's loadouts with item counts and management actions.
+
+**Props**: `steamId` (string)
+
+**Features**: Rename, delete, share, clear, and import actions with confirmation modals
+
+#### AdminStatsCard.vue
+
+**Purpose**: Dashboard statistic card with icon and optional trend indicator.
+
+**Props**: `title` (string), `value` (number|string), `icon` (string), `trend` (optional object with `value` and `direction`), `loading` (bool)
+
+#### AdminUserCard.vue
+
+**Purpose**: Detailed user info card with action buttons.
+
+**Props**: `user` (AdminUserDetails)
+
+**Events**: `ban`, `unban`, `delete`
+
+**Features**: Date formatting, relative time display, ban status indicator
+
+#### AdminActivityChart.vue
+
+**Purpose**: Line chart showing activity trends over time (Chart.js).
+
+**Features**: Time range selector (7d / 30d / 90d), loading state, empty data message
+
+#### AdminHeatmapChart.vue
+
+**Purpose**: GitHub-style calendar heatmap for daily activity patterns.
+
+**Features**: Month and day labels, color-coded intensity levels, horizontal scroll
+
+#### AdminLeaderboardChart.vue
+
+**Purpose**: Bar chart displaying top users by loadout/item count (Chart.js).
+
+#### AdminPieChart.vue
+
+**Purpose**: Doughnut chart showing item distribution by category (Chart.js).
+
+**Features**: Custom legend with counts and color-coded segments
+
+#### AdminAddModal.vue
+
+**Purpose**: Modal for adding new admin users.
+
+**Props**: `show` (bool)
+
+**Events**: `update:show`, `confirm` (payload: `{ steamId, role }`), `cancel`
+
+**Features**: Steam ID validation (17-digit format), role selection (admin / superadmin)
+
+#### AdminBanModal.vue
+
+**Purpose**: Modal for banning users with reason and optional duration.
+
+**Props**: `show` (bool), `steamId` (string)
+
+**Events**: `update:show`, `confirm` (payload: `{ reason, durationHours? }`), `cancel`
+
+**Validation**: Reason required, minimum 5 characters
+
+#### AdminDeleteModal.vue
+
+**Purpose**: Confirmation modal for deleting user data.
+
+**Props**: `show` (bool), `steamId` (string)
+
+**Events**: `update:show`, `confirm`, `cancel`
+
+**Safety**: Requires typing the exact Steam ID to confirm deletion
+
+#### AdminSettingItem.vue
+
+**Purpose**: Inline settings editor for application configuration.
+
+**Props**: `setting` (AdminSetting with key, value, type)
+
+**Events**: `save` (payload: `{ key, value }`)
+
+**Features**: Type-aware editing (toggle for boolean, number input for number, textarea for JSON)
+
+---
+
 ### Shared UI Patterns
 
 #### Selection States

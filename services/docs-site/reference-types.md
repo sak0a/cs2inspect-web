@@ -181,6 +181,29 @@ import {
 
 ---
 
+#### Admin & Utility IDs
+
+```typescript
+type AdminId = number & { readonly __brand: 'AdminId' }
+type BanId = number & { readonly __brand: 'BanId' }
+type SettingKey = string & { readonly __brand: 'SettingKey' }
+type ISOTimestamp = string & { readonly __brand: 'ISOTimestamp' }
+```
+
+**Converters**:
+```typescript
+import {
+  toAdminId,
+  toBanId,
+  toSettingKey,
+  toISOTimestamp
+} from '~/types/core/branded'
+```
+
+**Type Guards**: `isValidAdminId()`, `isValidBanId()`, `isValidSettingKey()`, `isValidISOTimestamp()`
+
+---
+
 ## Item Configuration Types
 
 **Location**: `/types/business/items.ts`
@@ -422,6 +445,84 @@ interface APIWeaponSkin {
 interface APISkin extends APIWeaponSkin {
   // Alias for backward compatibility
 }
+```
+
+### Admin API Types
+
+**Location**: `/types/api/admin.ts`
+
+```typescript
+/** Dashboard overview statistics */
+interface AdminOverviewStats {
+  totalUsers: number
+  activeUsers7d: number
+  activeUsers30d: number
+  totalLoadouts: number
+  totalItems: { weapons: number; knives: number; gloves: number; agents: number; musicKits: number; pins: number }
+  bannedUsers: number
+}
+
+/** User details for admin view */
+interface AdminUserDetails {
+  steamId: SteamId
+  loadoutCount: number
+  itemCounts: { weapons: number; knives: number; gloves: number; agents: number; musicKits: number; pins: number }
+  firstActivity: ISOTimestamp
+  lastActivity: ISOTimestamp
+  isBanned: boolean
+  banInfo?: { reason: string | null; bannedAt: ISOTimestamp; bannedBy: SteamId; expiresAt: ISOTimestamp | null }
+}
+
+/** User list item (summary for table display) */
+interface AdminUserSummary {
+  steamId: SteamId
+  loadoutCount: number
+  totalItems: number
+  lastActivity: ISOTimestamp | null
+  isBanned: boolean
+}
+
+/** Activity data point for time-series charts */
+interface AdminActivityData {
+  date: string
+  newUsers: number
+  activeUsers: number
+  loadoutsCreated: number
+  itemsSaved: number
+}
+
+/** Heatmap data for calendar visualization */
+interface AdminHeatmapData { date: string; value: number }
+
+/** Top user for leaderboard display */
+interface AdminTopUser { steamId: SteamId; loadoutCount: number; totalItems: number }
+
+/** Application setting */
+interface AdminSetting {
+  key: string; value: string; type: 'string' | 'boolean' | 'number' | 'json'
+  description: string | null; updatedAt: ISOTimestamp; updatedBy: SteamId | null
+}
+
+/** Admin user info */
+interface AdminInfo {
+  id: number; steamId: SteamId; role: 'admin' | 'superadmin'
+  permissions: string[]; createdBy: SteamId | null; createdAt: ISOTimestamp
+}
+
+/** Admin activity log entry */
+interface AdminActivityLogEntry {
+  id: number; adminSteamId: SteamId; action: string
+  targetSteamId: SteamId | null; details: Record<string, unknown> | null; createdAt: ISOTimestamp
+}
+
+/** Request types */
+interface AdminBanUserRequest { reason: string; duration?: number }
+interface AdminUpdateSettingRequest { key: string; value: string | number | boolean }
+interface AdminAddAdminRequest { steamId: string; role: 'admin' | 'superadmin' }
+
+/** Query parameter types */
+interface AdminUserSearchParams { search?: string; page?: number; limit?: number; bannedOnly?: boolean }
+interface AdminActivityParams { range: '7d' | '30d' | '90d' }
 ```
 
 ---
@@ -844,8 +945,8 @@ type LoadoutId = string & { readonly __brand: 'LoadoutId' }
 
 - [Composables Reference](./reference-composables.md) - Composable APIs using these types
 - [Stores Reference](./reference-stores.md) - Pinia stores using these types
-- [API Reference](../api/) - API endpoints and their types
-- [Components](../components.md) - Component prop types
+- [API Reference](./api/) - API endpoints and their types
+- [Components](./components.md) - Component prop types
 
 ---
 

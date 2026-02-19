@@ -707,6 +707,58 @@ npm outdated
 rm -rf .nuxt .output node_modules/.cache
 ```
 
+### CLI Tools
+
+The project includes interactive CLI tools for common operations:
+
+#### Project CLI
+
+```bash
+bun run cli
+```
+
+**File**: `scripts/project-cli.ts`
+
+Interactive menu-driven CLI with categorized commands:
+
+- **Development**: Start dev server, build, preview, generate
+- **Database**: Push schema, generate/run migrations, open Drizzle Studio
+- **Testing & Quality**: Run tests, watch mode, coverage, lint, typecheck
+- **Deployment**: Deploy to app branch
+- **Health**: Check application health status
+
+#### Setup Wizard
+
+```bash
+bun run setup
+```
+
+**File**: `scripts/setup-wizard.ts`
+
+Interactive first-time configuration wizard:
+
+- Prompts for server configuration (port, host, environment)
+- Generates secure JWT token automatically
+- Configures database connection and tests connectivity
+- Sets up Steam API key
+- Writes `.env` file with all configured values
+
+#### Environment Validator
+
+```bash
+bun run validate-env
+```
+
+**File**: `scripts/validate-env.ts`
+
+Validates your `.env` file against required variables:
+
+- Checks for missing required variables
+- Validates format and types with Zod schemas
+- Reports errors, warnings, and suggestions
+
+---
+
 ### VS Code Settings
 
 Create `.vscode/settings.json`:

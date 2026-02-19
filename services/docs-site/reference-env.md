@@ -739,7 +739,7 @@ NODE_ENV=production
 
 ## Validation
 
-The application uses `@t3-oss/env-nuxt` for environment variable validation.
+The application uses `@t3-oss/env-nuxt` with Zod schemas for environment variable validation. The validation is defined in `server/env.ts` using `createEnv()` with Zod schemas for type-safe runtime validation.
 
 **Validation rules**:
 - Required variables must be set

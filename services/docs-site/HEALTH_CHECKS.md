@@ -417,8 +417,8 @@ The health check system uses these environment variables:
 - `DATABASE_PORT` - Database port (default: 3306)
 - `DATABASE_CONNECTION_LIMIT` - Max connections (default: 5)
 - `STEAM_API_KEY` - Steam API key
-- `STEAM_USERNAME` - Steam account username
-- `STEAM_PASSWORD` - Steam account password
+- `STEAM_USERNAME` - Steam account username (deprecated, use `STEAM_SERVICE_URL` instead)
+- `STEAM_PASSWORD` - Steam account password (deprecated, use `STEAM_SERVICE_URL` instead)
 - `LOG_API_REQUESTS` - Enable request logging (default: false)
 
 ---

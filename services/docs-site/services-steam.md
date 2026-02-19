@@ -605,10 +605,10 @@ Consider setting up alerts for:
 
 ## Related Documentation
 
-- [Main Architecture](../architecture.md) - Overall system architecture
-- [API Reference](../api/) - Main app API documentation
-- [Deployment Guide](../deployment.md) - Deployment strategies
-- [Self-Hosting Guide](../self-hosting.md) - Self-hosting instructions
+- [Main Architecture](./architecture.md) - Overall system architecture
+- [API Reference](./api/) - Main app API documentation
+- [Deployment Guide](./deployment.md) - Deployment strategies
+- [Self-Hosting Guide](./self-hosting.md) - Self-hosting instructions
 
 ## Contributing
 

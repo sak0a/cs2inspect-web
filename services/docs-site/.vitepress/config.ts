@@ -46,6 +46,12 @@ export default withMermaid({
           ]
         },
         {
+          text: 'Admin Panel',
+          items: [
+            { text: 'Admin Overview', link: '/admin' }
+          ]
+        },
+        {
           text: 'Services',
           items: [
             { text: 'Steam Service', link: '/services-steam' },
@@ -100,6 +106,7 @@ export default withMermaid({
             { text: 'Loadouts', link: '/api/loadouts' },
             { text: 'Items', link: '/api/items' },
             { text: 'Inspect System', link: '/api/inspect' },
+            { text: 'Admin API', link: '/api/admin' },
             { text: 'Error Handling', link: '/api/errors' }
           ]
         },
@@ -134,7 +141,7 @@ export default withMermaid({
 
     footer: {
       message: 'Built with ❤️ by the CS2Inspect community',
-      copyright: 'Copyright © 2025 CS2Inspect'
+      copyright: 'Copyright © 2026 CS2Inspect'
     },
 
     editLink: {

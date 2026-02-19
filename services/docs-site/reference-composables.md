@@ -9,6 +9,13 @@ CS2Inspect uses Vue 3 composables to encapsulate and reuse stateful logic across
 1. [useInspectItem](#useinspectitem) - Inspect link processing and item management
 2. [useItemModal](#useitemmodal) - Shared modal state management
 3. [useItems (useOtherTeamSkin, useGroupedWeapons)](#useitems) - Item utilities and grouping
+4. [useFilterSort](#usefiltersort) - Filter, sort, and pagination for item modals
+5. [useSidebarMode](#usesidebarmode) - Sidebar layout and collapse state
+6. [useTeamBadge](#useteambadge) - Team label and badge styling
+7. [useAutoSave](#useautosave) - Automatic saving with debouncing
+8. [useChangeTracker](#usechangetracker) - Change detection between configurations
+9. [useAdminAuth](#useadminauth) - Admin authentication and authorization
+10. [useAdminStats](#useadminstats) - Admin statistics with caching
 
 ---
 
@@ -488,6 +495,384 @@ const groupedWeapons = useGroupedWeapons(weaponsList)
 //   }
 // }
 ```
+
+---
+
+## useFilterSort
+
+**Location**: `/composables/useFilterSort.ts`
+
+**Purpose**: Shared filter, sort, and pagination logic for item-selection modals (Sticker, Keychain, WrappedSticker modals).
+
+### Import
+
+```typescript
+import { useFilterSort } from '~/composables/useFilterSort'
+```
+
+### Usage
+
+```vue
+<script setup>
+const {
+  sortBy, sortDir, rarityFilterIds, effectFilterIds,
+  availableRarities, availableEffects,
+  filteredItems, sortedItems, paginatedItems, totalPages,
+  toggleSortDir, toggleRarityFilter, toggleEffectFilter, resetFilters
+} = useFilterSort({
+  items: allStickers,
+  searchQuery: searchRef,
+  currentPage: pageRef,
+  pageSize: 20,
+  sortKeys: ['name', 'rarity'],
+  hasEffects: false
+})
+</script>
+```
+
+### Options
+
+```typescript
+interface UseFilterSortOptions<T> {
+  items: Ref<T[]> | ComputedRef<T[]>              // All items
+  searchQuery: Ref<string> | ComputedRef<string>   // Search query
+  currentPage: Ref<number> | WritableComputedRef<number>  // Current page (mutated on filter changes)
+  pageSize: number                                  // Items per page
+  sortKeys: string[]                                // Available sort keys (e.g., 'name', 'rarity')
+  hasEffects?: boolean                              // Enable effect filtering
+}
+```
+
+### Returns
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `sortBy` | `Ref<string>` | Current sort key |
+| `sortDir` | `Ref<'asc' \| 'desc'>` | Sort direction |
+| `rarityFilterIds` | `Ref<Set<string>>` | Active rarity filters |
+| `effectFilterIds` | `Ref<Set<string>>` | Active effect filters |
+| `availableRarities` | `ComputedRef` | Rarities present in items |
+| `availableEffects` | `ComputedRef` | Effects present in items |
+| `filteredItems` | `ComputedRef<T[]>` | Items after search + rarity/effect filters |
+| `sortedItems` | `ComputedRef<T[]>` | Filtered items after sorting |
+| `paginatedItems` | `ComputedRef<T[]>` | Current page slice |
+| `totalPages` | `ComputedRef<number>` | Total page count |
+| `toggleSortDir()` | Method | Toggle asc/desc |
+| `toggleRarityFilter(id)` | Method | Toggle a rarity filter on/off |
+| `toggleEffectFilter(id)` | Method | Toggle an effect filter on/off |
+| `resetFilters()` | Method | Clear all filters |
+
+---
+
+## useSidebarMode
+
+**Location**: `/composables/useSidebarMode.ts`
+
+**Purpose**: Manages sidebar collapse/expand state and layout mode with persistent cookies and hover expansion. SSR-safe.
+
+### Import
+
+```typescript
+import { useSidebarMode } from '~/composables/useSidebarMode'
+```
+
+### Usage
+
+```vue
+<script setup>
+const {
+  sidebarCollapsed,
+  sidebarMode,
+  hoverExpanded,
+  isReady,
+  isEffectivelyExpanded,
+  toggleCollapsed,
+  toggleMode,
+  onMouseEnter,
+  onMouseLeave
+} = useSidebarMode()
+</script>
+```
+
+### Returns
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `sidebarCollapsed` | `Ref<boolean>` | Whether sidebar is collapsed |
+| `sidebarMode` | `Ref<'left' \| 'top'>` | Sidebar layout mode |
+| `hoverExpanded` | `Ref<boolean>` | Temporarily expanded on hover |
+| `isReady` | `Ref<boolean>` | Initial render complete (suppresses transitions) |
+| `isEffectivelyExpanded` | `ComputedRef<boolean>` | True if not collapsed OR hover-expanded |
+| `toggleCollapsed()` | Method | Toggle collapse state |
+| `toggleMode()` | Method | Toggle between left/top mode |
+| `onMouseEnter()` | Method | Expand on hover (when collapsed) |
+| `onMouseLeave()` | Method | Collapse after hover ends |
+
+State is persisted to cookies for SSR compatibility. Migrates from legacy localStorage automatically.
+
+---
+
+## useTeamBadge
+
+**Location**: `/composables/useTeamBadge.ts`
+
+**Purpose**: Returns reactive team label text and badge CSS classes based on team number.
+
+### Import
+
+```typescript
+import { useTeamBadge } from '~/composables/useTeamBadge'
+```
+
+### Usage
+
+```vue
+<script setup>
+const { teamLabel, teamBadgeClasses } = useTeamBadge(teamRef)
+</script>
+
+<template>
+  <span :class="teamBadgeClasses">{{ teamLabel }}</span>
+</template>
+```
+
+### Parameters
+
+- `team: Ref<number | undefined> | (() => number | undefined)` — Team value (1=Terrorist, 2=Counter-Terrorist)
+
+### Returns
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `teamLabel` | `ComputedRef<string \| null>` | Localized team name (i18n), or null |
+| `teamBadgeClasses` | `ComputedRef<string>` | Tailwind CSS classes (orange for T, blue for CT) |
+
+---
+
+## useAutoSave
+
+**Location**: `/composables/useAutoSave.ts`
+
+**Purpose**: Automatic saving with debouncing, retry logic, status tracking, and offline handling.
+
+### Import
+
+```typescript
+import { useAutoSave, useWatchAutoSave } from '~/composables/useAutoSave'
+```
+
+### Usage
+
+```vue
+<script setup>
+const { status, isDirty, isSaving, triggerSave, saveNow, retry } = useAutoSave(
+  async (data) => {
+    await api.post('/api/items/weapons/save', data)
+  },
+  { debounceMs: 1500, retryAttempts: 3 }
+)
+
+// Trigger debounced save
+triggerSave(weaponConfig)
+
+// Or use the watch wrapper
+useWatchAutoSave(
+  () => weaponConfig.value,
+  async (data) => { await api.post('/api/items/weapons/save', data) }
+)
+</script>
+```
+
+### Options
+
+```typescript
+interface AutoSaveOptions {
+  debounceMs?: number        // Default: 1500
+  retryAttempts?: number     // Default: 3
+  retryDelayMs?: number      // Default: 1000
+  savedDisplayMs?: number    // How long to show "saved" status (default: 2000)
+  onSaveStart?: () => void
+  onSaveSuccess?: () => void
+  onSaveError?: (error: Error) => void
+}
+```
+
+### Returns
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `status` | `Ref<'idle' \| 'saving' \| 'saved' \| 'error'>` | Current save status |
+| `isDirty` | `Ref<boolean>` | Unsaved changes exist |
+| `isSaving` | `ComputedRef<boolean>` | Currently saving |
+| `hasPending` | `ComputedRef<boolean>` | Pending save operation |
+| `errorMessage` | `Ref<string \| null>` | Last error message |
+| `triggerSave(data)` | Method | Debounced save |
+| `saveNow(data)` | Method | Immediate save (returns Promise) |
+| `flushPending()` | Method | Execute pending save immediately |
+| `cancelPending()` | Method | Cancel pending operation |
+| `retry()` | Method | Retry failed save |
+| `markAsSaved()` | Method | Mark as saved (external save) |
+| `resetStatus()` | Method | Reset to idle |
+
+---
+
+## useChangeTracker
+
+**Location**: `/composables/useChangeTracker.ts`
+
+**Purpose**: Detects and describes changes between item configuration states for the version history feature.
+
+### Import
+
+```typescript
+import { useChangeTracker } from '~/composables/useChangeTracker'
+```
+
+### Usage
+
+```typescript
+const { detectChanges, getPrimaryChangeType, getCombinedDescription, configToSnapshot } = useChangeTracker()
+
+const changes = detectChanges(oldConfig, newConfig)
+const type = getPrimaryChangeType(changes)        // e.g., 'paint_changed'
+const desc = getCombinedDescription(changes)       // e.g., 'Asiimov -> Dragon Lore'
+const snapshot = configToSnapshot(currentConfig)   // For history storage
+```
+
+### Returns
+
+| Method | Parameters | Returns | Description |
+|--------|-----------|---------|-------------|
+| `detectChanges` | `(old, new)` | `DetectedChange[]` | Detect all changes between two configurations |
+| `getPrimaryChangeType` | `(changes)` | `ChangeType` | Get the primary change type (or `multiple_changes`) |
+| `getCombinedDescription` | `(changes)` | `string` | Human-readable change summary |
+| `configToSnapshot` | `(config)` | `ItemHistorySnapshot` | Convert config to snapshot format for storage |
+
+### Change Types
+
+`initial_save`, `paint_changed`, `wear_changed`, `pattern_changed`, `active_toggled`, `stattrak_toggled`, `stattrak_count_changed`, `nametag_changed`, `sticker_added`, `sticker_removed`, `sticker_modified`, `keychain_added`, `keychain_removed`, `keychain_modified`, `multiple_changes`
+
+Functions are also exported standalone for server-side use.
+
+---
+
+## useAdminAuth
+
+**Location**: `/composables/useAdminAuth.ts`
+
+**Purpose**: Admin authentication and authorization with role-based access control.
+
+### Import
+
+```typescript
+import { useAdminAuth, adminNavigationGuard, superAdminNavigationGuard } from '~/composables/useAdminAuth'
+```
+
+### Usage
+
+```vue
+<script setup>
+const { isAdmin, isSuperAdmin, adminRole, isChecking, checkAdminStatus, requireAdmin, hasPermission } = useAdminAuth()
+
+await checkAdminStatus()
+
+if (isSuperAdmin.value) {
+  // Show admin management UI
+}
+</script>
+```
+
+### Returns
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `isAdmin` | `ComputedRef<boolean>` | User is an admin |
+| `isSuperAdmin` | `ComputedRef<boolean>` | User is a superadmin |
+| `adminRole` | `ComputedRef<'admin' \| 'superadmin' \| null>` | Current role |
+| `isChecking` | `ComputedRef<boolean>` | Status check in progress |
+| `checkAdminStatus()` | Method | Verify admin status from server |
+| `requireAdmin()` | Method | Throws if not admin |
+| `requireSuperAdmin()` | Method | Throws if not superadmin |
+| `hasPermission(perm)` | Method | Check specific permission string |
+
+### Route Guards
+
+```typescript
+// Use in page middleware
+definePageMeta({
+  middleware: [adminNavigationGuard]
+})
+
+// Or for superadmin-only pages
+definePageMeta({
+  middleware: [superAdminNavigationGuard]
+})
+```
+
+---
+
+## useAdminStats
+
+**Location**: `/composables/useAdminStats.ts`
+
+**Purpose**: Fetch and cache admin dashboard statistics with auto-refresh capability.
+
+### Import
+
+```typescript
+import { useAdminStats, formatNumber, getTimeRangeLabel } from '~/composables/useAdminStats'
+```
+
+### Usage
+
+```vue
+<script setup>
+const {
+  overviewStats, activityData, topUsers,
+  timeRange, isLoading, error,
+  fetchStats, fetchActivity, fetchTopUsers, refreshAll, setTimeRange
+} = useAdminStats({
+  fetchOnMount: true,
+  defaultTimeRange: '30d'
+})
+</script>
+```
+
+### Options
+
+```typescript
+interface UseAdminStatsOptions {
+  fetchOnMount?: boolean          // Fetch on composable creation (default: true)
+  autoRefreshInterval?: number    // ms, 0 = disabled (default: 0)
+  defaultTimeRange?: '7d' | '30d' | '90d'  // Default: '30d'
+}
+```
+
+### Returns
+
+| Value | Type | Description |
+|-------|------|-------------|
+| `overviewStats` | `ComputedRef<AdminOverviewStats \| null>` | Dashboard metrics |
+| `activityData` | `ComputedRef<AdminActivityData \| null>` | Chart data |
+| `topUsers` | `ComputedRef<AdminTopUser[]>` | Leaderboard data |
+| `timeRange` | `Ref<'7d' \| '30d' \| '90d'>` | Current time range |
+| `isLoadingStats` | `ComputedRef<boolean>` | Stats loading |
+| `isLoadingActivity` | `ComputedRef<boolean>` | Activity loading |
+| `isLoading` | `ComputedRef<boolean>` | Any loading |
+| `error` | `ComputedRef<string \| null>` | Error message |
+| `fetchStats(force?)` | Method | Fetch overview stats |
+| `fetchActivity(range?, force?)` | Method | Fetch activity data |
+| `fetchTopUsers(limit?)` | Method | Fetch top users |
+| `refreshAll(force?)` | Method | Refresh all data in parallel |
+| `setTimeRange(range)` | Method | Change range and re-fetch |
+
+### Utility Exports
+
+- `formatNumber(n)` — Format with locale separators
+- `calculatePercentChange(old, new)` — Percent change calculation
+- `formatPercent(value)` — Format as percentage string
+- `getTimeRangeLabel(range)` — Human-readable label ("Last 7 days", etc.)
+- `getDaysFromRange(range)` — Convert range to day count
 
 ---
 

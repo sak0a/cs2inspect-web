@@ -2,12 +2,13 @@
 
 ## Overview
 
-The CS2Inspect project includes two automated asset scraping services that download and optimize CS2 item images for use in the web application. These services ensure that all sticker and charm assets are available locally or via CDN for fast, reliable access.
+The CS2Inspect project includes automated asset scraping services that download and optimize CS2 item assets for use in the web application. These services ensure that all sticker, charm, and weapon skin assets are available locally or via CDN for fast, reliable access.
 
 ## Services
 
 ### 1. Sticker Scraper
 ### 2. Charm Scraper
+### 3. Weapon Skin Video Scraper
 
 ---
 
@@ -639,9 +640,9 @@ Total: 51,565 images, 2.3 GB, Success rate: 99.2%
 
 ## Related Documentation
 
-- [Architecture](../architecture.md) - System architecture
-- [Deployment Guide](../deployment.md) - Deployment strategies
-- [Self-Hosting](../self-hosting.md) - Self-hosting instructions
+- [Architecture](./architecture.md) - System architecture
+- [Deployment Guide](./deployment.md) - Deployment strategies
+- [Self-Hosting](./self-hosting.md) - Self-hosting instructions
 
 ## Future Enhancements
 
@@ -671,3 +672,72 @@ When contributing to scrapers:
 ## License
 
 See the main project's LICENSE file.
+
+---
+
+## Weapon Skin Video Scraper
+
+### Purpose
+
+Downloads and processes CS2 weapon skin showcase videos for visual previews. The pipeline scrapes videos, removes blue backgrounds using mask-based processing, and optimizes the output for web delivery.
+
+### Location
+
+```
+services/weapon-scraper/
+├── skins_scraper.py              # Main scraper - download by weapon type
+├── skins_scraper-collection.py   # Download by collection
+├── skins_scraper-container.py    # Download by container/case
+├── mask_based_remover.py         # Remove backgrounds using weapon masks
+├── optimize_masked_videos.py     # Compress and optimize videos
+├── collect_masked.py             # Collect processed videos with corrected filenames
+├── tracking.py                   # Track download progress
+├── tracking.json                 # Download state persistence
+├── requirements.txt              # Python dependencies
+├── README_PIPELINE.md            # Detailed pipeline documentation
+└── masks/                        # 75+ PNG weapon masks for background removal
+```
+
+### Tech Stack
+
+- **Language**: Python 3
+- **Dependencies**: OpenCV, Pillow, NumPy, requests, BeautifulSoup4
+- **Install**: `pip install -r requirements.txt`
+
+### Pipeline
+
+The scraping process follows three stages:
+
+1. **Scrape** — Download skin showcase videos from source CDN
+   - Multi-threaded downloading with configurable worker count
+   - Request delay handling for rate limiting
+   - Progress tracking to avoid duplicate downloads
+
+2. **Mask** — Remove blue backgrounds using weapon-specific PNG masks
+   - Per-weapon mask files in `masks/` directory
+   - Produces transparent-background videos
+
+3. **Optimize** — Compress and convert videos for web use
+   - Codec conversion and quality settings
+   - File size optimization for fast loading
+
+### Usage
+
+```bash
+# Install dependencies
+pip install -r requirements.txt
+
+# Scrape skins by weapon type
+python skins_scraper.py
+
+# Remove backgrounds
+python mask_based_remover.py
+
+# Optimize output
+python optimize_masked_videos.py
+
+# Collect final files
+python collect_masked.py
+```
+
+See `README_PIPELINE.md` in the service directory for detailed pipeline documentation.
