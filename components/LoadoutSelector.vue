@@ -11,7 +11,8 @@ import {
   LucideStar as DefaultIcon,
   LucideEraser as ClearIcon,
   LucideDownload as ImportIcon,
-  LucideEllipsisVertical as MenuIcon
+  LucideEllipsisVertical as MenuIcon,
+  LucideRefreshCw as RefreshIcon
 } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
 import { toSteamId, toLoadoutId } from '~/types/core/branded'
@@ -144,8 +145,7 @@ const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete' | 'dup
         message.success(t('modals.loadout.duplicate.success') as string, { duration: 2 })
         return
       case 'share': {
-        const code = await loadoutStore.shareLoadout(toSteamId(user.steamId), loadoutId!)
-        formInputs.value.shareCode = code
+        formInputs.value.shareCode = loadoutStore.selectedLoadout?.share_code || ''
         showModal.value.share = true
         return
       }
@@ -214,6 +214,48 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId, oldLoadoutId) =
 const copyToClipboard = () => {
     navigator.clipboard.writeText(formInputs.value.shareCode)
     message.success(t('general.copiedToClipboard') as string)
+}
+
+const handleDeleteShareCode = async () => {
+    const user = steamAuth.getSavedUser()
+    if (!user || !loadoutStore.selectedLoadoutId) return
+    try {
+        await loadoutStore.deleteShareCode(
+            toSteamId(user.steamId),
+            loadoutStore.selectedLoadoutId
+        )
+        formInputs.value.shareCode = ''
+        if (loadoutStore.selectedLoadout) {
+            loadoutStore.selectedLoadout.share_code = null
+        }
+        message.success(t('modals.loadout.share.deleted') as string, { duration: 2 })
+    } catch {
+        message.error(t('modals.loadout.share.deleteError') as string, { duration: 2 })
+    }
+}
+
+const handleGenerateShareCode = async () => {
+    const user = steamAuth.getSavedUser()
+    if (!user || !loadoutStore.selectedLoadoutId) return
+    try {
+        // If a share code already exists, delete it first so the API generates a new one
+        if (formInputs.value.shareCode) {
+            await loadoutStore.deleteShareCode(
+                toSteamId(user.steamId),
+                loadoutStore.selectedLoadoutId
+            )
+        }
+        const code = await loadoutStore.shareLoadout(
+            toSteamId(user.steamId),
+            loadoutStore.selectedLoadoutId
+        )
+        formInputs.value.shareCode = code
+        if (loadoutStore.selectedLoadout) {
+            loadoutStore.selectedLoadout.share_code = code
+        }
+    } catch {
+        message.error(t('modals.loadout.share.generateError') as string, { duration: 2 })
+    }
 }
 
 const dropdownOptions = computed(() => {
@@ -436,7 +478,7 @@ onMounted(async () => {
     </template>
   </NModal>
 
-  <!-- Share Modal (Existing) -->
+  <!-- Share Modal -->
   <NModal
       v-model:show="showModal.share"
       preset="card"
@@ -446,13 +488,35 @@ onMounted(async () => {
       :title="t('modals.loadout.share.title', { name: loadoutStore.selectedLoadout?.name || '' }) as string"
   >
       <div class="flex flex-col gap-4">
-          <p>{{ t('modals.loadout.share.description') }}</p>
-          <NInputGroup>
-              <NInput v-model:value="formInputs.shareCode" readonly />
-              <NButton type="primary" ghost @click="copyToClipboard">
-                  <template #icon><NIcon><DuplicateIcon /></NIcon></template>
+          <!-- State: Has share code -->
+          <template v-if="formInputs.shareCode">
+              <p>{{ t('modals.loadout.share.description') }}</p>
+              <NInputGroup>
+                  <NInput v-model:value="formInputs.shareCode" readonly />
+                  <NButton type="primary" ghost @click="copyToClipboard">
+                      <template #icon><NIcon><DuplicateIcon /></NIcon></template>
+                  </NButton>
+              </NInputGroup>
+              <div class="flex gap-2">
+                  <NButton type="warning" secondary size="small" @click="handleGenerateShareCode">
+                      <template #icon><NIcon><RefreshIcon /></NIcon></template>
+                      {{ t('modals.loadout.share.regenerateButton') }}
+                  </NButton>
+                  <NButton type="error" secondary size="small" @click="handleDeleteShareCode">
+                      <template #icon><NIcon><DeleteIcon /></NIcon></template>
+                      {{ t('modals.loadout.share.deleteButton') }}
+                  </NButton>
+              </div>
+          </template>
+
+          <!-- State: No share code -->
+          <template v-else>
+              <p>{{ t('modals.loadout.share.noCode') }}</p>
+              <NButton type="primary" secondary @click="handleGenerateShareCode">
+                  <template #icon><NIcon><ShareIcon /></NIcon></template>
+                  {{ t('modals.loadout.share.generateButton') }}
               </NButton>
-          </NInputGroup>
+          </template>
       </div>
   </NModal>
 

@@ -330,6 +330,18 @@ export const useLoadoutStore = defineStore('loadout', {
             }
         },
 
+        async deleteShareCode(steamId: SteamId, loadoutId: LoadoutId): Promise<void> {
+            this.isLoading = true;
+            try {
+                await api.post('/api/loadouts/share-delete', {
+                    steamId: String(steamId),
+                    loadoutId: String(loadoutId)
+                });
+            } finally {
+                this.isLoading = false;
+            }
+        },
+
         async setLoadoutAsDefault(steamId: SteamId, loadoutId: LoadoutId) {
             this.isLoading = true;
             try {

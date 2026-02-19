@@ -226,7 +226,14 @@
       },
       "share": {
         "title": "Share Loadout {name}",
-        "description": "Copy the code below to share this loadout with others:"
+        "description": "Copy the code below to share this loadout with others:",
+        "noCode": "This loadout doesn't have a share code yet. Generate one to share it with others.",
+        "generateButton": "Generate Share Code",
+        "regenerateButton": "Generate New Code",
+        "generateError": "Failed to generate share code",
+        "deleteButton": "Delete Share Code",
+        "deleted": "Share code deleted",
+        "deleteError": "Failed to delete share code"
       },
       "duplicate": {
         "success": "Loadout duplicated successfully"

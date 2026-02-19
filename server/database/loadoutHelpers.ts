@@ -251,6 +251,12 @@ export const setShareCode = async (loadoutId: string, steamId: string, shareCode
         .where(and(eq(loadouts.id, toLoadoutId(loadoutId)), eq(loadouts.steamid, steamId)));
 };
 
+export const clearShareCode = async (loadoutId: string, steamId: string): Promise<void> => {
+    await db.update(loadouts)
+        .set({ share_code: null })
+        .where(and(eq(loadouts.id, toLoadoutId(loadoutId)), eq(loadouts.steamid, steamId)));
+};
+
 export const getLoadoutByShareCode = async (shareCode: string): Promise<DBLoadout | undefined> => {
     const result = await db.select()
         .from(loadouts)

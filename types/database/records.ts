@@ -123,6 +123,8 @@ export interface DBLoadout extends DBUserRecord {
   selected_music: number | null
   /** Selected pin ID */
   selected_pin: number | null
+  /** Share code for sharing this loadout with others */
+  share_code: string | null
 }
 
 // ============================================================================

@@ -204,6 +204,17 @@
         "warning": "Tous les skins de ce loadout seront supprimés et ne pourront pas être restaurés",
         "confirmText": "Tapez '{name}' pour confirmer la suppression :",
         "confirmPlaceholder": "Entrez le nom du loadout pour confirmer"
+      },
+      "share": {
+        "title": "Partager le loadout {name}",
+        "description": "Copiez le code ci-dessous pour partager ce loadout avec d'autres :",
+        "noCode": "Ce loadout n'a pas encore de code de partage. Générez-en un pour le partager.",
+        "generateButton": "Générer un code",
+        "regenerateButton": "Générer un nouveau code",
+        "generateError": "Échec de la génération du code",
+        "deleteButton": "Supprimer le code",
+        "deleted": "Code supprimé",
+        "deleteError": "Échec de la suppression du code"
       }
     },
     "weaponSkin": {

@@ -226,7 +226,14 @@
       },
       "share": {
         "title": "Compartir Loadout {name}",
-        "description": "Copia el código siguiente para compartir este loadout:"
+        "description": "Copia el código siguiente para compartir este loadout:",
+        "noCode": "Este loadout aún no tiene código para compartir. Genera uno para compartirlo.",
+        "generateButton": "Generar código",
+        "regenerateButton": "Generar nuevo código",
+        "generateError": "Error al generar el código",
+        "deleteButton": "Eliminar código",
+        "deleted": "Código eliminado",
+        "deleteError": "Error al eliminar el código"
       },
       "duplicate": {
         "success": "Loadout duplicado correctamente"

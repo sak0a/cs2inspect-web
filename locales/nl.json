@@ -204,6 +204,17 @@
         "warning": "Alle skins van dit loadout worden verwijderd en kunnen niet worden hersteld",
         "confirmText": "Typ '{name}' om verwijdering te bevestigen:",
         "confirmPlaceholder": "Voer loadoutnaam in om te bevestigen"
+      },
+      "share": {
+        "title": "Loadout delen {name}",
+        "description": "Kopieer de code hieronder om dit loadout met anderen te delen:",
+        "noCode": "Dit loadout heeft nog geen deelcode. Maak er een aan om het te delen.",
+        "generateButton": "Deelcode aanmaken",
+        "regenerateButton": "Nieuwe code aanmaken",
+        "generateError": "Aanmaken van deelcode mislukt",
+        "deleteButton": "Deelcode verwijderen",
+        "deleted": "Deelcode verwijderd",
+        "deleteError": "Verwijderen van deelcode mislukt"
       }
     },
     "weaponSkin": {

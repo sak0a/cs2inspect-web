@@ -59,6 +59,17 @@
         "warning": "Alle Skins dieses Loadouts werden gelöscht und können nicht wiederhergestellt werden",
         "confirmText": "Gib '{name}' ein, um das Löschen zu bestätigen:",
         "confirmPlaceholder": "Loadout-Namen zur Bestätigung eingeben"
+      },
+      "share": {
+        "title": "Loadout teilen {name}",
+        "description": "Kopiere den Code unten, um dieses Loadout mit anderen zu teilen:",
+        "noCode": "Dieses Loadout hat noch keinen Freigabecode. Erstelle einen, um es mit anderen zu teilen.",
+        "generateButton": "Freigabecode erstellen",
+        "regenerateButton": "Neuen Code erstellen",
+        "generateError": "Freigabecode konnte nicht erstellt werden",
+        "deleteButton": "Freigabecode löschen",
+        "deleted": "Freigabecode gelöscht",
+        "deleteError": "Freigabecode konnte nicht gelöscht werden"
       }
     },
     "inspectUrl": {
