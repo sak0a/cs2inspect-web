@@ -6,7 +6,10 @@
     "actions": "ACTIONS",
     "language": "Language",
     "loadout": "Loadout",
-    "theme": "Theme"
+    "theme": "Theme",
+    "mainNav": "Main navigation",
+    "settings": "Settings",
+    "switchToSidebar": "Switch to sidebar"
   },
   "weapons": {
     "rifles": "Rifles",
@@ -70,7 +73,8 @@
       "question": "Are you sure you want to duplicate this {itemType} configuration to the other team?",
       "type": {
         "weapon": "Weapon",
-        "knife": "Knife"
+        "knife": "Knife",
+        "glove": "Glove"
       }
     },
     "knifeSkin": {
@@ -96,6 +100,8 @@
         "itemActive": "Active",
         "itemInactive": "Inactive"
       },
+      "invalidInspectLink": "Invalid inspect link",
+      "importFailed": "Failed to import knife configuration",
       "importFailedDefault": "Failed to import knife configuration",
       "importFailedNoMatchingWeapon": "Inspect URL does not match selected knife",
       "importSuccess": "Successfully imported knife configuration",
@@ -125,6 +131,8 @@
         "itemActive": "Active",
         "itemInactive": "Inactive"
       },
+      "invalidInspectLink": "Invalid inspect link",
+      "importFailed": "Failed to import glove configuration",
       "importFailedDefault": "Failed to import Glove configuration",
       "importFailedNoMatchingWeapon": "Inspect URL does not match selected Glove",
       "importSuccess": "Successfully imported Glove configuration",
@@ -378,6 +386,7 @@
       "messages": {
         "maxStickers": "Maximum 5 stickers allowed",
         "selectSkinFirst": "Please select a weapon skin first",
+        "saved": "Visual customization saved",
         "saveSuccess": "Visual customization applied successfully",
         "failedToLoadAssets": "Failed to load stickers and keychains"
       }
@@ -404,6 +413,7 @@
     }
   },
   "auth": {
+    "login": "Sign In",
     "loginButton": "Sign In",
     "logoutButton": "Logout",
     "loginRequired": "To access this website, please login with your Steam account.",

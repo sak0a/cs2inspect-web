@@ -8,6 +8,10 @@
   "pinUpdated": "Pin actualizado",
   "resetToDefault": "Restablecer al pin por defecto",
   "failedToUpdate": "Error al actualizar el pin",
-  "failedToLoad": "Error al cargar los pins"
+  "failedToLoad": "Error al cargar los pins",
+  "pins": {
+    "noResultsSearch": "No se encontraron pins para \"{query}\"",
+    "noPinsAvailable": "No hay pins disponibles"
+  }
 }
 

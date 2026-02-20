@@ -6,7 +6,10 @@
     "actions": "ACCIONES",
     "language": "Idioma",
     "loadout": "Loadout",
-    "theme": "Tema"
+    "theme": "Tema",
+    "mainNav": "Navegación principal",
+    "settings": "Ajustes",
+    "switchToSidebar": "Cambiar a barra lateral"
   },
   "weapons": {
     "rifles": "Rifles",
@@ -70,7 +73,8 @@
       "question": "¿Estás seguro de que quieres duplicar esta configuración de {itemType} al otro equipo?",
       "type": {
         "weapon": "Arma",
-        "knife": "Cuchillo"
+        "knife": "Cuchillo",
+        "glove": "Guante"
       }
     },
     "knifeSkin": {
@@ -96,6 +100,8 @@
         "itemActive": "Activo",
         "itemInactive": "Inactivo"
       },
+      "invalidInspectLink": "Enlace de inspección no válido",
+      "importFailed": "Error al importar la configuración del cuchillo",
       "importFailedDefault": "Error al importar la configuración del cuchillo",
       "importFailedNoMatchingWeapon": "La URL de inspección no coincide con el cuchillo seleccionado",
       "importSuccess": "Configuración del cuchillo importada correctamente",
@@ -125,6 +131,8 @@
         "itemActive": "Activo",
         "itemInactive": "Inactivo"
       },
+      "invalidInspectLink": "Enlace de inspección no válido",
+      "importFailed": "Error al importar la configuración de los guantes",
       "importFailedDefault": "Error al importar la configuración de los guantes",
       "importFailedNoMatchingWeapon": "La URL de inspección no coincide con los guantes seleccionados",
       "importSuccess": "Configuración de los guantes importada correctamente",
@@ -291,7 +299,8 @@
             "rotate": "Rot",
             "wear": "Desgaste",
             "remove": "Eliminar"
-          }
+          },
+          "selectHint": "Selecciona una pegatina o llavero para editar"
         }
       },
       "sort": {
@@ -377,6 +386,7 @@
       "messages": {
         "maxStickers": "Máximo 5 pegatinas permitidas",
         "selectSkinFirst": "Por favor, selecciona primero un skin de arma",
+        "saved": "Personalización visual guardada",
         "saveSuccess": "Personalización visual aplicada correctamente",
         "failedToLoadAssets": "Error al cargar pegatinas y llaveros"
       }
@@ -403,6 +413,7 @@
     }
   },
   "auth": {
+    "login": "Iniciar sesión",
     "loginButton": "Iniciar sesión",
     "logoutButton": "Cerrar sesión",
     "loginRequired": "Para acceder a este sitio web, por favor inicia sesión con tu cuenta de Steam.",
@@ -411,6 +422,9 @@
     "rejectAction": "Inicia sesión para ejecutar esta acción",
     "authenticating": "Autenticando...",
     "openSteamProfile": "Abrir perfil de Steam"
+  },
+  "general": {
+    "copiedToClipboard": "Copiado al portapapeles"
   },
   "autoSave": {
     "saving": "Guardando...",
@@ -463,7 +477,21 @@
     "selectAll": "Seleccionar todo",
     "noResults": "No se encontraron resultados",
     "pleaseSelectLoadout": "Por favor, selecciona primero un loadout",
-    "for": "por"
+    "for": "por",
+    "copy": "Copiar"
+  },
+  "inspectLink": {
+    "title": "Decodificador/Codificador de enlaces de inspección",
+    "description": "Decodifica un enlace de inspección a JSON o genera un enlace de inspección a partir de datos JSON.",
+    "importButton": "Decodificar enlace",
+    "generateButton": "Generar enlace",
+    "inspectUrlLabel": "Enlace de inspección",
+    "decodedJsonLabel": "Datos JSON decodificados",
+    "placeholder": "Pega tu enlace de inspección aquí...",
+    "invalidJson": "Datos JSON no válidos",
+    "decodeSuccess": "Enlace de inspección decodificado correctamente",
+    "generateSuccess": "Enlace de inspección generado correctamente",
+    "copySuccess": "Enlace de inspección copiado al portapapeles"
   },
   "tutorial": {
     "menuTitle": "Tutoriales",

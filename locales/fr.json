@@ -6,7 +6,10 @@
     "actions": "ACTIONS",
     "language": "Langue",
     "loadout": "Loadout",
-    "theme": "Thème"
+    "theme": "Thème",
+    "mainNav": "Navigation principale",
+    "settings": "Paramètres",
+    "switchToSidebar": "Passer à la barre latérale"
   },
   "weapons": {
     "rifles": "Fusils",
@@ -70,7 +73,8 @@
       "question": "Êtes-vous sûr de vouloir dupliquer cette configuration {itemType} vers l'autre équipe ?",
       "type": {
         "weapon": "Arme",
-        "knife": "Couteau"
+        "knife": "Couteau",
+        "glove": "Gant"
       }
     },
     "knifeSkin": {
@@ -96,6 +100,8 @@
         "itemActive": "Actif",
         "itemInactive": "Inactif"
       },
+      "invalidInspectLink": "Lien d'inspection invalide",
+      "importFailed": "Échec de l'importation de la configuration du couteau",
       "importFailedDefault": "Échec de l'importation de la configuration du couteau",
       "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas au couteau sélectionné",
       "importSuccess": "Configuration du couteau importée avec succès",
@@ -125,6 +131,8 @@
         "itemActive": "Actif",
         "itemInactive": "Inactif"
       },
+      "invalidInspectLink": "Lien d'inspection invalide",
+      "importFailed": "Échec de l'importation de la configuration des gants",
       "importFailedDefault": "Échec de l'importation de la configuration des gants",
       "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas aux gants sélectionnés",
       "importSuccess": "Configuration des gants importée avec succès",
@@ -215,6 +223,31 @@
         "deleteButton": "Supprimer le code",
         "deleted": "Code supprimé",
         "deleteError": "Échec de la suppression du code"
+      },
+      "import": {
+        "title": "Importer un loadout",
+        "description": "Entrez un code de partage pour importer un loadout.",
+        "placeholder": "Code de partage",
+        "cancel": "Annuler",
+        "confirm": "Importer",
+        "success": "Loadout importé avec succès"
+      },
+      "clear": {
+        "title": "Vider le loadout {name}",
+        "question": "Êtes-vous sûr de vouloir vider les objets de ce loadout ?",
+        "selectCategories": "Sélectionnez les catégories à vider :",
+        "warning": "Cette action ne peut pas être annulée !",
+        "confirmText": "Veuillez taper \"{name}\" pour confirmer.",
+        "confirmPlaceholder": "Entrez le nom du loadout pour confirmer",
+        "cancel": "Annuler",
+        "confirm": "Vider les objets",
+        "successMessage": "Objets du loadout vidés avec succès"
+      },
+      "duplicate": {
+        "success": "Loadout dupliqué avec succès"
+      },
+      "default": {
+        "success": "Loadout par défaut défini avec succès"
       }
     },
     "weaponSkin": {
@@ -266,7 +299,8 @@
             "rotate": "Rot",
             "wear": "Usure",
             "remove": "Supprimer"
-          }
+          },
+          "selectHint": "Sélectionnez un autocollant ou un porte-clés à modifier"
         }
       },
       "sort": {
@@ -352,6 +386,7 @@
       "messages": {
         "maxStickers": "Maximum 5 autocollants autorisés",
         "selectSkinFirst": "Veuillez d'abord sélectionner un skin d'arme",
+        "saved": "Personnalisation visuelle enregistrée",
         "saveSuccess": "Personnalisation visuelle appliquée avec succès",
         "failedToLoadAssets": "Échec du chargement des autocollants et porte-clés"
       }
@@ -366,9 +401,19 @@
     "confirmDeleteWarning": "Tous les skins de ce loadout seront supprimés et ne pourront pas être restaurés",
     "nameRequired": "Veuillez entrer un nom de loadout",
     "nameTooLong": "Le nom du loadout doit contenir moins de 20 caractères",
-    "selectLoadoutFirst": "Veuillez d'abord sélectionner un loadout"
+    "selectLoadoutFirst": "Veuillez d'abord sélectionner un loadout",
+    "import": "Importer",
+    "actions": {
+      "rename": "Renommer",
+      "duplicate": "Dupliquer",
+      "share": "Partager",
+      "setDefault": "Définir par défaut",
+      "clear": "Vider le loadout",
+      "delete": "Supprimer"
+    }
   },
   "auth": {
+    "login": "Se connecter",
     "loginButton": "Se connecter",
     "logoutButton": "Déconnexion",
     "loginRequired": "Pour accéder à ce site web, veuillez vous connecter avec votre compte Steam.",
@@ -377,6 +422,9 @@
     "rejectAction": "Connectez-vous pour exécuter cette action",
     "authenticating": "Authentification...",
     "openSteamProfile": "Ouvrir le profil Steam"
+  },
+  "general": {
+    "copiedToClipboard": "Copié dans le presse-papiers"
   },
   "autoSave": {
     "saving": "Enregistrement...",
@@ -429,7 +477,21 @@
     "selectAll": "Tout sélectionner",
     "noResults": "Aucun résultat trouvé",
     "pleaseSelectLoadout": "Veuillez d'abord sélectionner un loadout",
-    "for": "pour"
+    "for": "pour",
+    "copy": "Copier"
+  },
+  "inspectLink": {
+    "title": "Décodeur/Encodeur de liens d'inspection",
+    "description": "Décodez un lien d'inspection en JSON ou générez un lien d'inspection à partir de données JSON.",
+    "importButton": "Décoder le lien",
+    "generateButton": "Générer le lien",
+    "inspectUrlLabel": "Lien d'inspection",
+    "decodedJsonLabel": "Données JSON décodées",
+    "placeholder": "Collez votre lien d'inspection ici...",
+    "invalidJson": "Données JSON invalides",
+    "decodeSuccess": "Lien d'inspection décodé avec succès",
+    "generateSuccess": "Lien d'inspection généré avec succès",
+    "copySuccess": "Lien d'inspection copié dans le presse-papiers"
   },
   "tutorial": {
     "menuTitle": "Tutoriels",

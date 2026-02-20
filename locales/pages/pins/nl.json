@@ -8,6 +8,10 @@
   "pinUpdated": "Pin bijgewerkt",
   "resetToDefault": "Resetten naar standaard pin",
   "failedToUpdate": "Fout bij bijwerken pin",
-  "failedToLoad": "Fout bij laden pins"
+  "failedToLoad": "Fout bij laden pins",
+  "pins": {
+    "noResultsSearch": "Geen pins gevonden voor \"{query}\"",
+    "noPinsAvailable": "Geen pins beschikbaar"
+  }
 }
 

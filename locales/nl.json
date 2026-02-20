@@ -6,7 +6,10 @@
     "actions": "ACTIES",
     "language": "Taal",
     "loadout": "Loadout",
-    "theme": "Thema"
+    "theme": "Thema",
+    "mainNav": "Hoofdnavigatie",
+    "settings": "Instellingen",
+    "switchToSidebar": "Overschakelen naar zijbalk"
   },
   "weapons": {
     "rifles": "Geweren",
@@ -70,7 +73,8 @@
       "question": "Weet je zeker dat je deze {itemType}-configuratie naar het andere team wilt dupliceren?",
       "type": {
         "weapon": "Wapen",
-        "knife": "Mes"
+        "knife": "Mes",
+        "glove": "Handschoen"
       }
     },
     "knifeSkin": {
@@ -96,6 +100,8 @@
         "itemActive": "Actief",
         "itemInactive": "Inactief"
       },
+      "invalidInspectLink": "Ongeldige inspectielink",
+      "importFailed": "Fout bij importeren mesconfiguratie",
       "importFailedDefault": "Fout bij importeren mesconfiguratie",
       "importFailedNoMatchingWeapon": "Inspectie-URL komt niet overeen met geselecteerd mes",
       "importSuccess": "Mesconfiguratie succesvol geïmporteerd",
@@ -125,6 +131,8 @@
         "itemActive": "Actief",
         "itemInactive": "Inactief"
       },
+      "invalidInspectLink": "Ongeldige inspectielink",
+      "importFailed": "Fout bij importeren handschoenconfiguratie",
       "importFailedDefault": "Fout bij importeren handschoenconfiguratie",
       "importFailedNoMatchingWeapon": "Inspectie-URL komt niet overeen met geselecteerde handschoenen",
       "importSuccess": "Handschoenconfiguratie succesvol geïmporteerd",
@@ -215,6 +223,31 @@
         "deleteButton": "Deelcode verwijderen",
         "deleted": "Deelcode verwijderd",
         "deleteError": "Verwijderen van deelcode mislukt"
+      },
+      "import": {
+        "title": "Loadout importeren",
+        "description": "Voer een deelcode in om een loadout te importeren.",
+        "placeholder": "Deelcode",
+        "cancel": "Annuleren",
+        "confirm": "Importeren",
+        "success": "Loadout succesvol geïmporteerd"
+      },
+      "clear": {
+        "title": "Loadout legen {name}",
+        "question": "Weet je zeker dat je items uit dit loadout wilt verwijderen?",
+        "selectCategories": "Selecteer categorieën om te legen:",
+        "warning": "Deze actie kan niet ongedaan worden gemaakt!",
+        "confirmText": "Typ \"{name}\" om te bevestigen.",
+        "confirmPlaceholder": "Voer loadoutnaam in om te bevestigen",
+        "cancel": "Annuleren",
+        "confirm": "Items legen",
+        "successMessage": "Loadout-items succesvol geleegd"
+      },
+      "duplicate": {
+        "success": "Loadout succesvol gedupliceerd"
+      },
+      "default": {
+        "success": "Standaard loadout succesvol ingesteld"
       }
     },
     "weaponSkin": {
@@ -266,7 +299,8 @@
             "rotate": "Rot",
             "wear": "Slijtage",
             "remove": "Verwijderen"
-          }
+          },
+          "selectHint": "Selecteer een sticker of sleutelhanger om te bewerken"
         }
       },
       "sort": {
@@ -352,6 +386,7 @@
       "messages": {
         "maxStickers": "Maximaal 5 stickers toegestaan",
         "selectSkinFirst": "Selecteer eerst een wapenskin",
+        "saved": "Visuele aanpassing opgeslagen",
         "saveSuccess": "Visuele aanpassing succesvol toegepast",
         "failedToLoadAssets": "Fout bij het laden van stickers en sleutelhangers"
       }
@@ -366,9 +401,19 @@
     "confirmDeleteWarning": "Alle skins van dit loadout worden verwijderd en kunnen niet worden hersteld",
     "nameRequired": "Voer een loadoutnaam in",
     "nameTooLong": "Loadoutnaam moet minder dan 20 tekens zijn",
-    "selectLoadoutFirst": "Selecteer eerst een loadout"
+    "selectLoadoutFirst": "Selecteer eerst een loadout",
+    "import": "Importeren",
+    "actions": {
+      "rename": "Hernoemen",
+      "duplicate": "Dupliceren",
+      "share": "Delen",
+      "setDefault": "Als standaard instellen",
+      "clear": "Loadout legen",
+      "delete": "Verwijderen"
+    }
   },
   "auth": {
+    "login": "Inloggen",
     "loginButton": "Inloggen",
     "logoutButton": "Uitloggen",
     "loginRequired": "Om toegang te krijgen tot deze website, log in met je Steam-account.",
@@ -377,6 +422,9 @@
     "rejectAction": "Log in om deze actie uit te voeren",
     "authenticating": "Authenticeren...",
     "openSteamProfile": "Steam-profiel openen"
+  },
+  "general": {
+    "copiedToClipboard": "Gekopieerd naar klembord"
   },
   "autoSave": {
     "saving": "Opslaan...",
@@ -429,7 +477,21 @@
     "selectAll": "Alles selecteren",
     "noResults": "Geen resultaten gevonden",
     "pleaseSelectLoadout": "Selecteer eerst een loadout",
-    "for": "voor"
+    "for": "voor",
+    "copy": "Kopiëren"
+  },
+  "inspectLink": {
+    "title": "Inspectielink Decoder/Encoder",
+    "description": "Decodeer een inspectielink naar JSON of genereer een inspectielink vanuit JSON-gegevens.",
+    "importButton": "Link decoderen",
+    "generateButton": "Link genereren",
+    "inspectUrlLabel": "Inspectielink",
+    "decodedJsonLabel": "Gedecodeerde JSON-gegevens",
+    "placeholder": "Plak je inspectielink hier...",
+    "invalidJson": "Ongeldige JSON-gegevens",
+    "decodeSuccess": "Inspectielink succesvol gedecodeerd",
+    "generateSuccess": "Inspectielink succesvol gegenereerd",
+    "copySuccess": "Inspectielink gekopieerd naar klembord"
   },
   "tutorial": {
     "menuTitle": "Tutorials",

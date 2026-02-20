@@ -1,1 +1,16 @@
-{}
+{
+  "title": "Значки",
+  "description": "Выберите и настройте свои значки",
+  "defaultPin": "Стандартный значок",
+  "selectPin": "Выбрать значок",
+  "searchPlaceholder": "Поиск значков...",
+  "noResults": "Значки не найдены по вашему запросу",
+  "pinUpdated": "Значок обновлён",
+  "resetToDefault": "Сбросить на стандартный значок",
+  "failedToUpdate": "Ошибка обновления значка",
+  "failedToLoad": "Ошибка загрузки значков",
+  "pins": {
+    "noResultsSearch": "Значки не найдены для \"{query}\"",
+    "noPinsAvailable": "Значки недоступны"
+  }
+}

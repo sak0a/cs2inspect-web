@@ -6,7 +6,10 @@
     "actions": "AKTIONEN",
     "language": "Sprache",
     "loadout": "Loadout",
-    "theme": "Thema"
+    "theme": "Thema",
+    "mainNav": "Hauptnavigation",
+    "settings": "Einstellungen",
+    "switchToSidebar": "Zur Seitenleiste wechseln"
   },
   "weapons": {
     "rifles": "Gewehre",
@@ -70,6 +73,31 @@
         "deleteButton": "Freigabecode löschen",
         "deleted": "Freigabecode gelöscht",
         "deleteError": "Freigabecode konnte nicht gelöscht werden"
+      },
+      "import": {
+        "title": "Loadout importieren",
+        "description": "Gib einen Freigabecode ein, um ein Loadout zu importieren.",
+        "placeholder": "Freigabecode",
+        "cancel": "Abbrechen",
+        "confirm": "Importieren",
+        "success": "Loadout erfolgreich importiert"
+      },
+      "clear": {
+        "title": "Loadout leeren {name}",
+        "question": "Bist du sicher, dass du Items aus diesem Loadout entfernen möchtest?",
+        "selectCategories": "Wähle Kategorien zum Leeren:",
+        "warning": "Diese Aktion kann nicht rückgängig gemacht werden!",
+        "confirmText": "Bitte gib \"{name}\" zur Bestätigung ein.",
+        "confirmPlaceholder": "Loadout-Namen zur Bestätigung eingeben",
+        "cancel": "Abbrechen",
+        "confirm": "Items leeren",
+        "successMessage": "Loadout-Items erfolgreich geleert"
+      },
+      "duplicate": {
+        "success": "Loadout erfolgreich dupliziert"
+      },
+      "default": {
+        "success": "Standard-Loadout erfolgreich festgelegt"
       }
     },
     "inspectUrl": {
@@ -94,7 +122,8 @@
       "question": "Bist du sicher, dass du diese {itemType}-Konfiguration für das andere Team duplizieren möchtest?",
       "type": {
         "weapon": "Waffe",
-        "knife": "Messer"
+        "knife": "Messer",
+        "glove": "Handschuh"
       }
     },
     "knifeSkin": {
@@ -120,6 +149,8 @@
         "itemActive": "Aktiv",
         "itemInactive": "Inaktiv"
       },
+      "invalidInspectLink": "Ungültiger Inspect-Link",
+      "importFailed": "Fehler beim Import der Messer-Konfiguration",
       "importFailedDefault": "Fehler beim Import der Messer-Konfiguration",
       "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit dem ausgewählten Messer überein",
       "importSuccess": "Messer-Konfiguration erfolgreich importiert",
@@ -149,6 +180,8 @@
         "itemActive": "Aktiv",
         "itemInactive": "Inaktiv"
       },
+      "invalidInspectLink": "Ungültiger Inspect-Link",
+      "importFailed": "Fehler beim Import der Handschuh-Konfiguration",
       "importFailedDefault": "Fehler beim Import der Handschuh-Konfiguration",
       "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit dem ausgewählten Handschuh überein",
       "importSuccess": "Handschuh-Konfiguration erfolgreich importiert",
@@ -211,7 +244,8 @@
             "rotate": "Rot",
             "wear": "Abnutzung",
             "remove": "Entfernen"
-          }
+          },
+          "selectHint": "Wähle einen Sticker oder Schlüsselanhänger zum Bearbeiten"
         }
       },
       "sort": {
@@ -341,6 +375,7 @@
       "messages": {
         "maxStickers": "Maximal 5 Sticker erlaubt",
         "selectSkinFirst": "Bitte wähle zuerst einen Waffen-Skin aus",
+        "saved": "Visuelle Anpassung gespeichert",
         "saveSuccess": "Visuelle Anpassung erfolgreich angewendet",
         "failedToLoadAssets": "Fehler beim Laden von Stickern und Schlüsselanhängern"
       }
@@ -355,7 +390,16 @@
     "confirmDeleteWarning": "Alle Skins dieses Loadouts werden gelöscht und können nicht wiederhergestellt werden",
     "nameRequired": "Bitte einen Loadout-Namen eingeben",
     "nameTooLong": "Der Name des Loadouts darf maximal 20 Zeichen lang sein",
-    "selectLoadoutFirst": "Bitte zuerst ein Loadout auswählen"
+    "selectLoadoutFirst": "Bitte zuerst ein Loadout auswählen",
+    "import": "Importieren",
+    "actions": {
+      "rename": "Umbenennen",
+      "duplicate": "Duplizieren",
+      "share": "Teilen",
+      "setDefault": "Als Standard festlegen",
+      "clear": "Loadout leeren",
+      "delete": "Löschen"
+    }
   },
   "teams": {
     "terrorists": "Terroristen",
@@ -369,6 +413,7 @@
     "battleScarred": "Kampfspuren"
   },
   "auth": {
+    "login": "Anmelden",
     "loginButton": "Anmelden",
     "logoutButton": "Abmelden",
     "loginRequired": "Um auf diese Website zuzugreifen, melde dich bitte mit deinem Steam-Konto an.",
@@ -377,6 +422,9 @@
     "rejectAction": "Melde dich an, um diese Aktion auszuführen",
     "authenticating": "Authentifiziere...",
     "openSteamProfile": "Steam-Profil öffnen"
+  },
+  "general": {
+    "copiedToClipboard": "In die Zwischenablage kopiert"
   },
   "autoSave": {
     "saving": "Speichert...",

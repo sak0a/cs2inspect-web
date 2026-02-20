@@ -6,7 +6,10 @@
     "actions": "ДЕЙСТВИЯ",
     "language": "Язык",
     "loadout": "Снаряжение",
-    "theme": "Тема"
+    "theme": "Тема",
+    "mainNav": "Главная навигация",
+    "settings": "Настройки",
+    "switchToSidebar": "Переключить на боковую панель"
   },
   "weapons": {
     "rifles": "Винтовки",
@@ -59,7 +62,8 @@
       "question": "Вы уверены, что хотите дублировать настройку {itemType} для другой команды?",
       "type": {
         "weapon": "оружия",
-        "knife": "ножа"
+        "knife": "ножа",
+        "glove": "перчаток"
       }
     },
     "knifeSkin": {
@@ -85,6 +89,8 @@
         "itemActive": "Активно",
         "itemInactive": "Неактивно"
       },
+      "invalidInspectLink": "Недействительная inspect-ссылка",
+      "importFailed": "Ошибка импорта конфигурации ножа",
       "importFailedDefault": "Ошибка импорта конфигурации ножа",
       "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному ножу",
       "importSuccess": "Конфигурация ножа успешно импортирована",
@@ -114,6 +120,8 @@
         "itemActive": "Активно",
         "itemInactive": "Неактивно"
       },
+      "invalidInspectLink": "Недействительная inspect-ссылка",
+      "importFailed": "Ошибка импорта конфигурации перчаток",
       "importFailedDefault": "Ошибка импорта конфигурации перчаток",
       "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранным перчаткам",
       "importSuccess": "Конфигурация перчаток успешно импортирована",
@@ -204,6 +212,31 @@
         "deleteButton": "Удалить код",
         "deleted": "Код удалён",
         "deleteError": "Не удалось удалить код"
+      },
+      "import": {
+        "title": "Импорт снаряжения",
+        "description": "Введите код для импорта снаряжения.",
+        "placeholder": "Код обмена",
+        "cancel": "Отмена",
+        "confirm": "Импортировать",
+        "success": "Снаряжение успешно импортировано"
+      },
+      "clear": {
+        "title": "Очистить снаряжение {name}",
+        "question": "Вы уверены, что хотите очистить предметы из этого снаряжения?",
+        "selectCategories": "Выберите категории для очистки:",
+        "warning": "Это действие нельзя отменить!",
+        "confirmText": "Введите \"{name}\" для подтверждения.",
+        "confirmPlaceholder": "Введите название снаряжения для подтверждения",
+        "cancel": "Отмена",
+        "confirm": "Очистить предметы",
+        "successMessage": "Предметы снаряжения успешно очищены"
+      },
+      "duplicate": {
+        "success": "Снаряжение успешно дублировано"
+      },
+      "default": {
+        "success": "Снаряжение по умолчанию успешно установлено"
       }
     },
     "reset": {
@@ -261,7 +294,8 @@
             "rotate": "Поворот",
             "wear": "Износ",
             "remove": "Удалить"
-          }
+          },
+          "selectHint": "Выберите наклейку или брелок для редактирования"
         }
       },
       "sort": {
@@ -341,6 +375,7 @@
       "messages": {
         "maxStickers": "Максимум 5 наклеек разрешено",
         "selectSkinFirst": "Пожалуйста, сначала выберите скин оружия",
+        "saved": "Визуальная настройка сохранена",
         "saveSuccess": "Визуальная настройка успешно применена",
         "failedToLoadAssets": "Ошибка загрузки наклеек и брелков"
       }
@@ -355,7 +390,16 @@
     "confirmDeleteWarning": "Все скины этого снаряжения будут удалены и не подлежат восстановлению",
     "nameRequired": "Введите название снаряжения",
     "nameTooLong": "Название снаряжения должно содержать не более 20 символов",
-    "selectLoadoutFirst": "Сначала выберите снаряжение"
+    "selectLoadoutFirst": "Сначала выберите снаряжение",
+    "import": "Импорт",
+    "actions": {
+      "rename": "Переименовать",
+      "duplicate": "Дублировать",
+      "share": "Поделиться",
+      "setDefault": "Установить по умолчанию",
+      "clear": "Очистить снаряжение",
+      "delete": "Удалить"
+    }
   },
   "teams": {
     "terrorists": "Террористы",
@@ -369,6 +413,7 @@
     "battleScarred": "Закалённое в боях"
   },
   "auth": {
+    "login": "Войти",
     "loginButton": "Войти",
     "logoutButton": "Выйти",
     "loginRequired": "Чтобы получить доступ к этому сайту, войдите в систему через Steam.",
@@ -377,6 +422,9 @@
     "rejectAction": "Войдите, чтобы выполнить это действие",
     "authenticating": "Авторизация...",
     "openSteamProfile": "Открыть профиль Steam"
+  },
+  "general": {
+    "copiedToClipboard": "Скопировано в буфер обмена"
   },
   "autoSave": {
     "saving": "Сохранение...",
@@ -429,7 +477,21 @@
     "selectAll": "Выбрать всё",
     "noResults": "Результаты не найдены",
     "pleaseSelectLoadout": "Сначала выберите снаряжение",
-    "for": "для"
+    "for": "для",
+    "copy": "Копировать"
+  },
+  "inspectLink": {
+    "title": "Декодер/Кодер Inspect-ссылок",
+    "description": "Декодируйте inspect-ссылку в JSON или сгенерируйте inspect-ссылку из JSON-данных.",
+    "importButton": "Декодировать ссылку",
+    "generateButton": "Сгенерировать ссылку",
+    "inspectUrlLabel": "Inspect-ссылка",
+    "decodedJsonLabel": "Декодированные JSON-данные",
+    "placeholder": "Вставьте вашу inspect-ссылку сюда...",
+    "invalidJson": "Неверные JSON-данные",
+    "decodeSuccess": "Inspect-ссылка успешно декодирована",
+    "generateSuccess": "Inspect-ссылка успешно сгенерирована",
+    "copySuccess": "Inspect-ссылка скопирована в буфер обмена"
   },
   "tutorial": {
     "menuTitle": "Обучение",
