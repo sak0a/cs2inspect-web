@@ -49,7 +49,7 @@ function highlightStep() {
     const el = document.querySelector(`[data-tutorial="${step.target}"]`)
     if (el) {
       // Scroll element into view so it's visible before highlighting
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      el.scrollIntoView({ behavior: 'smooth', block: step.scrollBlock ?? 'center' })
 
       // Wait for smooth scroll to settle, then measure
       setTimeout(() => {

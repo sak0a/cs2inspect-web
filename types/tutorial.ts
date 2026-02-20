@@ -22,6 +22,8 @@ export interface TutorialStep {
   afterStep?: () => Promise<void> | void
   /** Extra padding around the spotlight in pixels (default: 8) */
   spotlightPadding?: number
+  /** scrollIntoView block option (default: 'center') */
+  scrollBlock?: ScrollLogicalPosition
 }
 
 export interface TutorialDefinition {

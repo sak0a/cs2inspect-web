@@ -80,6 +80,7 @@ const tutorials: TutorialDefinition[] = [
         target: 'weapon-card',
         popoverPosition: 'bottom',
         type: 'info',
+        beforeStep: () => requestAction('close-weapon-modal'),
       },
       // Step 2: Click to open modal (or Next button opens it automatically)
       {
@@ -89,6 +90,7 @@ const tutorials: TutorialDefinition[] = [
         popoverPosition: 'bottom',
         type: 'action',
         actionTrigger: 'click',
+        beforeStep: () => requestAction('close-weapon-modal'),
         afterStep: () => requestAction('open-weapon-modal'),
       },
       // Step 3: Search bar (inside modal)
@@ -132,6 +134,7 @@ const tutorials: TutorialDefinition[] = [
         target: 'wear-slider',
         popoverPosition: 'top',
         type: 'info',
+        scrollBlock: 'end',
       },
       // Step 8: Paint index override
       {
