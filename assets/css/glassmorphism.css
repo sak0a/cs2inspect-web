@@ -499,7 +499,7 @@
 
 /* --- Select Menu (dropdown) - Glassmorphism --- */
 .n-base-select-menu {
-  padding: 0 4px !important;
+  padding: 2px 4px 4px 4px !important;
   background: var(--glass-bg-secondary) !important;
   backdrop-filter: var(--glass-blur-medium) !important;
   -webkit-backdrop-filter: var(--glass-blur-medium) !important;
@@ -518,9 +518,7 @@
 
 /* Override Naive UI's default hover background to prevent double background */
 .n-base-select-option:hover {
-  background: rgba(255, 255, 255, 0.06) !important;
-  transform: translateX(2px) scale(1.01) !important;
-  margin-right: 2px !important;
+  background: rgba(255, 255, 255, 0.06) !important;  
 }
 
 /* Remove any nested background elements that might cause double background */
@@ -536,6 +534,7 @@
 
 .n-base-select-option--selected {
   background: rgba(250, 204, 21, 0.12) !important;
+  transform: scale(0.99);
   border: 1px solid rgba(250, 204, 21, 0.25) !important;
 }
 
