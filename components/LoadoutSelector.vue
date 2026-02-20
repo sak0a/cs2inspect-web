@@ -110,6 +110,19 @@ const formInputs = ref({
 
 const availableCategories = ['Knives', 'Gloves', 'Pistols', 'Rifles', 'SMGs', 'Heavys', 'Agents', 'Music', 'Pins']
 
+// Tutorial integration: open/close create modal when tutorial requests it
+const tutorialStore = useTutorialStore()
+watch(() => tutorialStore.pendingAction, (action) => {
+  if (action === 'open-loadout-create') {
+    tutorialStore.clearAction()
+    showModal.value.create = true
+  } else if (action === 'close-loadout-create') {
+    tutorialStore.clearAction()
+    showModal.value.create = false
+    formInputs.value.newName = ''
+  }
+})
+
 const handleLoadoutAction = async (action: 'create' | 'rename' | 'delete' | 'duplicate' | 'share' | 'default' | 'clear' | 'import') => {
   const user = steamAuth.getSavedUser()
 
@@ -312,6 +325,7 @@ onMounted(async () => {
     <NSpace align="center">
       <div
           v-if="loadoutStore.hasLoadouts"
+          data-tutorial="loadout-selector"
           @mouseenter="onHoverEnter"
           @mouseleave="onHoverLeave"
       >
@@ -334,7 +348,7 @@ onMounted(async () => {
           :menu-props="menuProps"
           @select="handleDropdownSelect"
       >
-          <NButton circle strong secondary :aria-label="t('loadout.manage') as string">
+          <NButton circle strong secondary data-tutorial="loadout-create" :aria-label="t('loadout.manage') as string">
               <template #icon><NIcon><MenuIcon /></NIcon></template>
           </NButton>
       </NDropdown>
@@ -355,6 +369,7 @@ onMounted(async () => {
         v-model:value="formInputs.newName"
         :minlength="1"
         :placeholder="t('modals.loadout.create.formPlaceholder') as string"
+        data-tutorial="loadout-name-input"
     />
     <template #footer>
       <div class="flex justify-end gap-4">

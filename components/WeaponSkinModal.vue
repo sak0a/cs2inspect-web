@@ -1082,6 +1082,7 @@ onUnmounted(() => {
         </span>
         <!-- Auto-save status indicator (fixed position like NaiveUI messages) -->
         <SaveStatusIndicator
+          data-tutorial="auto-save"
           :status="autoSave.status.value"
           :show-retry="autoSave.status.value === 'error'"
           fixed
@@ -1098,6 +1099,7 @@ onUnmounted(() => {
           type="error"
           :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
+          data-tutorial="reset-button"
           @click="state.showResetConfirm = true"
         >
           <template #icon>
@@ -1117,6 +1119,7 @@ onUnmounted(() => {
           type="default"
           :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('history.title'))"
+          data-tutorial="history-button"
           @click="weaponState.showHistoryPanel = true"
         >
           <template #icon>
@@ -1131,12 +1134,13 @@ onUnmounted(() => {
         <NDivider vertical />
 
         <!-- Import Weapon by Inspect Link -->
-        <NButton 
-          :loading="state.isImporting" 
-          secondary 
-          type="default" 
+        <NButton
+          :loading="state.isImporting"
+          secondary
+          type="default"
           :disabled="!selectedSkin"
           :aria-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
+          data-tutorial="import-button"
           @click="state.showImportModal = true"
         >
           <template #icon>
@@ -1153,6 +1157,7 @@ onUnmounted(() => {
           type="default"
           :disabled="!selectedSkin || customization.paintindex === 0"
           :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
+          data-tutorial="save-button"
           @click="handleCreateInspectLink"
         >
           <template #icon>
@@ -1167,6 +1172,7 @@ onUnmounted(() => {
             v-model:value="state.searchQuery"
             :placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
             class="pl-1 w-96"
+            data-tutorial="skin-search"
         />
       </template>
       <template v-else>
@@ -1289,7 +1295,7 @@ onUnmounted(() => {
               </div>
 
             <!-- Wear Slider -->
-            <div class="w-full">
+            <div class="w-full" data-tutorial="wear-slider">
               <div class="flex items-start justify-between">
                 <h4 class="font-bold">{{ t('modals.weaponSkin.labels.wear') }}</h4>
               </div>
@@ -1302,7 +1308,7 @@ onUnmounted(() => {
 
             <!-- Paint Settings & Active Toggle -->
             <div class="flex flex-wrap items-end gap-4 w-full">
-              <div class="flex flex-col gap-1">
+              <div class="flex flex-col gap-1" data-tutorial="paint-index-override">
                 <div class="flex items-center gap-2">
                   <span class="text-sm font-medium">{{ t('modals.weaponSkin.labels.paintIndex') }}</span>
                   <NSwitch v-model:value="customization.paintIndexOverride" size="small" />
@@ -1329,7 +1335,7 @@ onUnmounted(() => {
               </div>
 
               <!-- Active/Inactive Toggle & Duplicate -->
-              <div class="flex items-center gap-4 flex-1">
+              <div class="flex items-center gap-4 flex-1" data-tutorial="active-switch">
                 <NSwitch v-model:value="customization.active" size="medium">
                   <template #checked>
                     {{ t('modals.weaponSkin.labels.itemActive') }}
@@ -1373,9 +1379,9 @@ onUnmounted(() => {
         </div>
 
         <!-- Sticker and Keychain customization-->
-        <div class="grid grid-cols-6 gap-4 auto-rows-fr" :class="{ 'h-[0px]': apiState.showDetails }">
+        <div class="grid grid-cols-6 gap-4 auto-rows-fr" data-tutorial="sticker-section" :class="{ 'h-[0px]': apiState.showDetails }">
           <!-- Stickers -->
-          <div class="col-span-5 lg:col-span-5 md:col-span-3 mt-4">
+          <div class="col-span-5 lg:col-span-5 md:col-span-3 mt-4" data-tutorial="sticker-slots">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.stickers.title') }}</h4>
             <div class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-x-1.5 min-h-32 max-h-32">
               <div
@@ -1430,7 +1436,7 @@ onUnmounted(() => {
             </div>
           </div>
           <!-- Keychain -->
-          <div class="col-span-1 lg:col-span-1 md:col-span-3 sm:col-span-2 mt-4">
+          <div class="col-span-1 lg:col-span-1 md:col-span-3 sm:col-span-2 mt-4" data-tutorial="keychain-section">
             <h4 class="font-bold mb-1">{{ t('modals.weaponSkin.keychain.title') }}</h4>
             <div
                 class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
@@ -1471,7 +1477,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Skin list controls (Phase 2) -->
-      <div class="flex flex-wrap items-center justify-between gap-3 my-3">
+      <div class="flex flex-wrap items-center justify-between gap-3 my-3" data-tutorial="sort-filter">
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.sort.label') }}</span>
           <NSelect
@@ -1529,7 +1535,7 @@ onUnmounted(() => {
         </div>
       </div>
 
-      <div v-else class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4">
+      <div v-else class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4" data-tutorial="skin-grid">
         <NCard
             v-for="skin in paginatedSkins"
             :key="skin.id"
@@ -1564,7 +1570,7 @@ onUnmounted(() => {
       </div>
 
       <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex justify-center mt-4">
+      <div v-if="totalPages > 1" class="flex justify-center mt-4" data-tutorial="skin-pagination">
         <NPagination
             v-model:page="state.currentPage"
             :page-count="totalPages"

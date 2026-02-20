@@ -2,9 +2,11 @@
 import {
   LucideLanguages as LanguagesIcon,
   LucideLogOut as LogOutIcon,
-  LucideSettings as SettingsIcon
+  LucideSettings as SettingsIcon,
+  LucideBookOpen as TutorialIcon
 } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
+import { getAllTutorials } from '~/utils/tutorialDefinitions'
 
 type DropdownTrigger = 'click' | 'hover'
 type DropdownPlacement =
@@ -48,6 +50,7 @@ const emit = defineEmits<{
 }>()
 
 const { t, getLocale, switchLocale, getLocales } = useI18n()
+const tutorialStore = useTutorialStore()
 
 const getFlag = (code: string) => {
   switch (code) {
@@ -89,6 +92,21 @@ const languageOptions = computed(() => {
   })
 })
 
+const tutorialOptions = computed(() => {
+  return getAllTutorials().map(tutorial => {
+    const completed = tutorialStore.isTutorialCompleted(tutorial.id)
+    const label = String(t(tutorial.nameKey) || tutorial.id)
+    const displayLabel = completed ? `✓ ${label}` : label
+    return {
+      label: completed
+        ? () => h('span', { style: 'color: #22c55e' }, displayLabel)
+        : displayLabel,
+      key: `tutorial:${tutorial.id}`,
+      disabled: tutorialStore.isActive,
+    }
+  })
+})
+
 const dropdownOptions = computed(() => {
   const options: Array<Record<string, unknown>> = [
     {
@@ -96,6 +114,12 @@ const dropdownOptions = computed(() => {
       key: 'language',
       icon: () => h(NIcon, { size: 16 }, { default: () => h(LanguagesIcon) }),
       children: languageOptions.value,
+    },
+    {
+      label: String(t('tutorial.menuTitle') || 'Tutorials'),
+      key: 'tutorials',
+      icon: () => h(NIcon, { size: 16 }, { default: () => h(TutorialIcon) }),
+      children: tutorialOptions.value,
     }
   ]
 
@@ -134,6 +158,8 @@ function handleLanguageSelect(key: string) {
 function handleSelect(key: string) {
   if (key.startsWith('lang:')) {
     handleLanguageSelect(key.slice(5))
+  } else if (key.startsWith('tutorial:')) {
+    tutorialStore.startTutorial(key.slice(9))
   } else if (key === 'logout') {
     emit('logout')
   }

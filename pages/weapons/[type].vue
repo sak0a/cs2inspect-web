@@ -236,6 +236,30 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
     await fetchLoadoutSkins()
   }
 }, { immediate: true })
+
+// Tutorial integration: open/close weapon modal when tutorial requests it
+const tutorialStore = useTutorialStore()
+watch(() => tutorialStore.pendingAction, (action) => {
+  if (action === 'open-weapon-modal') {
+    tutorialStore.clearAction()
+    // Click the first weapon card to open the modal naturally
+    const card = document.querySelector('.weapon-card') as HTMLElement | null
+    if (card) {
+      card.click()
+    }
+  } else if (action === 'close-weapon-modal') {
+    tutorialStore.clearAction()
+    showSkinModal.value = false
+  }
+})
+
+// Close weapon modal when tutorial stops (e.g. ESC / Skip)
+watch(() => tutorialStore.isActive, (active) => {
+  if (!active && tutorialStore.activeTutorialId === null && showSkinModal.value) {
+    // Only close if it was opened by the tutorial (customize-weapon)
+    showSkinModal.value = false
+  }
+})
 </script>
 
 <template>

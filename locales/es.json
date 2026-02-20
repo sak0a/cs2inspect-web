@@ -464,5 +464,158 @@
     "noResults": "No se encontraron resultados",
     "pleaseSelectLoadout": "Por favor, selecciona primero un loadout",
     "for": "por"
+  },
+  "tutorial": {
+    "menuTitle": "Tutoriales",
+    "next": "Siguiente",
+    "back": "Atrás",
+    "skip": "Saltar tutorial",
+    "finish": "Finalizar",
+    "stepOf": "{current} / {total}",
+    "completed": "Completado",
+    "navigateApp": {
+      "name": "Explorar la aplicación",
+      "description": "Conoce la navegación y las áreas principales",
+      "steps": {
+        "sidebar": {
+          "title": "Barra lateral",
+          "description": "Aquí encontrarás todas las categorías de armas: rifles, pistolas, cuchillos y más. Haz clic en una categoría para ver las armas disponibles."
+        },
+        "settings": {
+          "title": "Ajustes",
+          "description": "Este menú te permite cambiar el idioma, iniciar tutoriales y cerrar sesión."
+        },
+        "loadout": {
+          "title": "Zona de loadout",
+          "description": "Los loadouts son tus configuraciones de armas guardadas. Crea varios loadouts para diferentes setups."
+        },
+        "weapons": {
+          "title": "Tarjetas de armas",
+          "description": "Cada tarjeta muestra un arma con su skin actual. Haz clic en una tarjeta para personalizar el skin."
+        },
+        "teamTabs": {
+          "title": "Pestañas de equipo",
+          "description": "Algunas armas pueden ser usadas por ambos equipos (CT y T). En ese caso, verás dos pestañas — una para cada equipo. Cada equipo tiene su propia configuración de skin."
+        },
+        "ready": {
+          "title": "¡Listo para explorar!",
+          "description": "Ya conoces lo básico. Usa la barra lateral para explorar las categorías de armas y personalizar tu loadout."
+        }
+      }
+    },
+    "customizeWeapon": {
+      "name": "Personalizar arma",
+      "description": "Conoce todas las funciones del diálogo de personalización de armas",
+      "steps": {
+        "grid": {
+          "title": "Cuadrícula de armas",
+          "description": "Aquí se muestran todas las armas de la categoría actual. Cada tarjeta muestra el skin equipado o el arma predeterminada."
+        },
+        "click": {
+          "title": "Abrir personalización",
+          "description": "Haz clic en una tarjeta de arma para abrir el diálogo de personalización. También puedes usar el botón Siguiente."
+        },
+        "search": {
+          "title": "Búsqueda de skins",
+          "description": "Busca un skin específico aquí. Escribe un nombre para filtrar la lista."
+        },
+        "sortFilter": {
+          "title": "Ordenar y filtrar",
+          "description": "Ordena skins por nombre, rareza u otros criterios. Usa los filtros de rareza para mostrar solo skins de una calidad específica."
+        },
+        "skins": {
+          "title": "Galería de skins",
+          "description": "Explora los skins disponibles. Haz clic en uno para seleccionarlo. El skin seleccionado se resaltará con un anillo amarillo."
+        },
+        "pagination": {
+          "title": "Paginación",
+          "description": "Si hay más skins de los que caben en una página, usa los botones de paginación para navegar por las páginas adicionales."
+        },
+        "wear": {
+          "title": "Control de desgaste",
+          "description": "Ajusta el valor float para controlar el desgaste del skin. Valores más bajos significan menos desgaste. El rango depende del float mínimo y máximo del skin. La imagen de vista previa del arma se actualiza automáticamente al cambiar el valor."
+        },
+        "paintIndex": {
+          "title": "Anulación de Paint Index",
+          "description": "Activa este interruptor para establecer manualmente el valor del paint index. Es una función avanzada que permite especificar un ID de skin exacto en lugar de seleccionar de la galería."
+        },
+        "activeSwitch": {
+          "title": "Interruptor activo",
+          "description": "Alterna el arma entre activa e inactiva. Las armas inactivas no se incluirán al generar tu loadout. Útil para mantener un skin configurado sin usarlo."
+        },
+        "stickers": {
+          "title": "Ranuras de pegatinas",
+          "description": "Tu arma tiene 5 ranuras de pegatinas. Haz clic en una ranura para buscar y aplicar pegatinas. Arrastra pegatinas entre ranuras para reposicionarlas."
+        },
+        "keychain": {
+          "title": "Llavero",
+          "description": "Adjunta un llavero a tu arma. Haz clic en la ranura para explorar los llaveros disponibles. Cada arma puede tener un llavero."
+        },
+        "reset": {
+          "title": "Restablecer arma",
+          "description": "Restablece el arma a su estado predeterminado. Esto elimina el skin, pegatinas, llavero y todas las personalizaciones."
+        },
+        "history": {
+          "title": "Historial de versiones",
+          "description": "Consulta el historial de cambios de esta arma. Puedes restaurar cualquier versión anterior con un solo clic."
+        },
+        "import": {
+          "title": "Importar enlace de inspección",
+          "description": "Importa una configuración de arma desde un enlace de inspección de CS2. Pega un enlace para aplicar el skin, pegatinas, desgaste y otros ajustes."
+        },
+        "generate": {
+          "title": "Generar enlace de inspección",
+          "description": "Genera un enlace de inspección de CS2 para tu configuración de arma actual. El enlace se puede compartir o usar para previsualizar el arma en el juego."
+        },
+        "autoSave": {
+          "title": "Guardado automático",
+          "description": "Tus cambios se guardan automáticamente. El indicador de guardado muestra el estado actual — no necesitas guardar nada manualmente."
+        }
+      }
+    },
+    "inspectLink": {
+      "name": "Herramienta Inspect Link",
+      "description": "Aprende a decodificar y generar enlaces de inspección de CS2",
+      "steps": {
+        "input": {
+          "title": "Entrada de enlace de inspección",
+          "description": "Pega aquí un enlace de inspección de CS2. Estos enlaces comienzan con 'steam://rungame' y contienen datos de arma codificados."
+        },
+        "decode": {
+          "title": "Decodificar enlace",
+          "description": "Haz clic aquí para convertir el enlace de inspección en datos JSON legibles."
+        },
+        "editor": {
+          "title": "Editor JSON",
+          "description": "Aquí se muestran los datos del arma decodificados. Puedes editar los valores directamente para personalizar tu arma."
+        },
+        "generate": {
+          "title": "Generar enlace",
+          "description": "Haz clic aquí para crear un nuevo enlace de inspección a partir de los datos actuales."
+        }
+      }
+    },
+    "createLoadout": {
+      "name": "Crear loadout",
+      "description": "Aprende a crear y gestionar loadouts",
+      "steps": {
+        "selector": {
+          "title": "Selector de loadout",
+          "description": "Aquí puedes cambiar entre tus loadouts. Un loadout es un conjunto de todas tus configuraciones de armas."
+        },
+        "create": {
+          "title": "Gestionar loadouts",
+          "description": "Este botón abre el menú de gestión de loadouts. Desde aquí puedes crear, renombrar, duplicar, compartir, importar y eliminar loadouts."
+        },
+        "name": {
+          "title": "Nombrar loadout",
+          "description": "Dale un nombre a tu loadout, por ejemplo «Setup Torneo» o «Casual»."
+        },
+        "done": {
+          "title": "¡Hecho!",
+          "description": "Tu nuevo loadout está listo. Ahora puedes añadir skins de armas y cambiar entre loadouts."
+        }
+      }
+    }
   }
 }

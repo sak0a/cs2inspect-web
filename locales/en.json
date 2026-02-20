@@ -482,5 +482,158 @@
     "decodeSuccess": "Successfully decoded inspect link",
     "generateSuccess": "Successfully generated inspect link",
     "copySuccess": "Inspect link copied to clipboard"
+  },
+  "tutorial": {
+    "menuTitle": "Tutorials",
+    "next": "Next",
+    "back": "Back",
+    "skip": "Skip Tutorial",
+    "finish": "Finish",
+    "stepOf": "{current} / {total}",
+    "completed": "Completed",
+    "navigateApp": {
+      "name": "Navigate the App",
+      "description": "Learn the basics of navigating CS2Inspect",
+      "steps": {
+        "sidebar": {
+          "title": "Navigation",
+          "description": "This is your main navigation. Browse through weapons, melee items, and extras like agents, pins, and music kits."
+        },
+        "settings": {
+          "title": "Settings",
+          "description": "Access settings here to change your language, start tutorials, or log out of your account."
+        },
+        "loadout": {
+          "title": "Loadout Selector",
+          "description": "Switch between your loadouts here. Each loadout stores a complete set of weapon skins, stickers, and customizations."
+        },
+        "weapons": {
+          "title": "Weapon Cards",
+          "description": "These cards represent your weapons. Click any card to open the skin customization modal where you can select skins, adjust wear, and add stickers."
+        },
+        "teamTabs": {
+          "title": "Team Tabs",
+          "description": "Some weapons can be used by both teams (CT and T). When that's the case, you'll see two tabs here — one for each team. Each team has its own separate skin configuration."
+        },
+        "ready": {
+          "title": "You're Ready!",
+          "description": "You now know the basics of navigating CS2Inspect. Explore the app and customize your loadout!"
+        }
+      }
+    },
+    "customizeWeapon": {
+      "name": "Customize a Weapon",
+      "description": "Learn all features of the weapon customization modal",
+      "steps": {
+        "grid": {
+          "title": "Weapon Grid",
+          "description": "These are the weapon cards for your current loadout. Each card shows the weapon with its currently applied skin."
+        },
+        "click": {
+          "title": "Open Customization",
+          "description": "Click on a weapon card to open the skin customization modal. You can also use the Next button to continue."
+        },
+        "search": {
+          "title": "Search Skins",
+          "description": "Use the search bar to quickly find skins by name. Start typing to filter the skin list."
+        },
+        "sortFilter": {
+          "title": "Sort & Filter",
+          "description": "Sort skins by name, rarity, or other criteria. Use the rarity filter buttons to show only skins of a specific quality."
+        },
+        "skins": {
+          "title": "Skin Gallery",
+          "description": "Browse available skins here. Click on a skin to select it. The selected skin will be highlighted with a yellow ring."
+        },
+        "pagination": {
+          "title": "Pagination",
+          "description": "If there are more skins than fit on one page, use the pagination buttons to browse through additional pages."
+        },
+        "wear": {
+          "title": "Wear Slider",
+          "description": "Adjust the wear (float value) of your skin. Lower values mean less wear and a cleaner appearance. The slider range depends on the skin's minimum and maximum float. The weapon preview image updates automatically as you change the value."
+        },
+        "paintIndex": {
+          "title": "Paint Index Override",
+          "description": "Enable this toggle to manually set the paint index value. This is an advanced feature that lets you specify an exact skin ID instead of selecting from the gallery."
+        },
+        "activeSwitch": {
+          "title": "Active Toggle",
+          "description": "Toggle the weapon active or inactive. Inactive weapons won't be included when generating your loadout. Useful for keeping a skin configured without using it."
+        },
+        "stickers": {
+          "title": "Sticker Slots",
+          "description": "Your weapon has 5 sticker slots. Click any slot to browse and apply stickers. You can drag stickers between slots to reposition them. Hover over a sticker to see the remove button."
+        },
+        "keychain": {
+          "title": "Keychain",
+          "description": "Attach a keychain charm to your weapon. Click the slot to browse available keychains. Each weapon can have one keychain."
+        },
+        "reset": {
+          "title": "Reset Weapon",
+          "description": "Reset the weapon back to its default state. This removes the skin, stickers, keychain, and all customizations."
+        },
+        "history": {
+          "title": "Version History",
+          "description": "View the history of changes made to this weapon. You can restore any previous version with a single click."
+        },
+        "import": {
+          "title": "Import Inspect Link",
+          "description": "Import a weapon configuration from a CS2 inspect link. Paste a link to apply its skin, stickers, wear, and other settings to this weapon."
+        },
+        "generate": {
+          "title": "Generate Inspect Link",
+          "description": "Generate a CS2 inspect link for your current weapon configuration. The link can be shared or used to preview the weapon in-game."
+        },
+        "autoSave": {
+          "title": "Auto-Save",
+          "description": "Your changes are automatically saved as you make them. The save indicator shows the current status — no need to manually save anything."
+        }
+      }
+    },
+    "inspectLink": {
+      "name": "Inspect Link Tool",
+      "description": "Learn how to decode and generate inspect links",
+      "steps": {
+        "input": {
+          "title": "Inspect Link Input",
+          "description": "Paste a CS2 inspect link here. These links start with 'steam://rungame/' and contain encoded item data."
+        },
+        "decode": {
+          "title": "Decode Button",
+          "description": "Click this button to decode the inspect link into readable JSON data. The decoded data will appear in the editor below."
+        },
+        "editor": {
+          "title": "JSON Editor",
+          "description": "View and edit the decoded item data here. You can modify values like paintindex, paintwear, stickers, and more."
+        },
+        "generate": {
+          "title": "Generate Link",
+          "description": "After editing the JSON data, click here to generate a new inspect link. The link will be copied to your clipboard automatically."
+        }
+      }
+    },
+    "createLoadout": {
+      "name": "Create a Loadout",
+      "description": "Learn how to create and manage your loadouts",
+      "steps": {
+        "selector": {
+          "title": "Loadout Selector",
+          "description": "This dropdown shows all your loadouts. A loadout is a complete set of weapon skins, stickers, and customizations that you can switch between."
+        },
+        "create": {
+          "title": "Manage Loadouts",
+          "description": "This button opens the loadout management menu. From here you can create, rename, duplicate, share, import, and delete loadouts."
+        },
+        "name": {
+          "title": "Name Your Loadout",
+          "description": "Enter a name for your new loadout. Choose something descriptive like 'Tournament Setup' or 'Favorite Skins'."
+        },
+        "done": {
+          "title": "All Set!",
+          "description": "Your new loadout is ready to use. You can now switch between loadouts using the selector and start customizing your weapons."
+        }
+      }
+    }
   }
 }
