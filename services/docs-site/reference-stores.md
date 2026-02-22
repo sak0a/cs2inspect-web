@@ -8,6 +8,7 @@ CS2Inspect uses [Pinia](https://pinia.vuejs.org/) for state management. This doc
 
 1. [loadoutStore](#loadoutstore) - Manages user loadouts and item customizations
 2. [adminStore](#adminstore) - Manages admin panel state, user management, and analytics
+3. [tutorialStore](#tutorialstore) - Manages interactive tutorial state and step progression
 
 ---
 
@@ -1149,3 +1150,92 @@ await adminStore.fetchOverviewStats(true)
 - [Admin API](./api/admin.md) - API endpoint documentation
 - [useAdminAuth](./reference-composables.md#useadminauth) - Admin auth composable
 - [useAdminStats](./reference-composables.md#useadminstats) - Admin stats composable
+
+---
+
+## tutorialStore
+
+**Location**: `/stores/tutorialStore.ts`
+
+**Purpose**: Manages the interactive tutorial system state including active tutorial tracking, step progression, completion persistence, and cross-component modal control via the `pendingAction` mechanism.
+
+### Import
+
+```typescript
+import { useTutorialStore } from '~/stores/tutorialStore'
+```
+
+### State
+
+```typescript
+interface TutorialState {
+  activeTutorialId: string | null    // ID of the running tutorial
+  currentStepIndex: number           // zero-based step index
+  isActive: boolean                  // whether a tutorial is running
+  completedTutorials: string[]       // IDs of completed tutorials
+  targetRect: DOMRect | null         // bounding rect of the current target element
+  pendingAction: TutorialAction      // signal for components to open/close modals
+}
+
+type TutorialAction =
+  | 'open-weapon-modal'
+  | 'close-weapon-modal'
+  | 'open-loadout-create'
+  | 'close-loadout-create'
+  | null
+```
+
+### Getters
+
+| Getter | Return Type | Description |
+| --- | --- | --- |
+| `activeTutorial` | `TutorialDefinition \| null` | The full tutorial definition for the active tutorial |
+| `currentStep` | `TutorialStep \| null` | The current step object |
+| `totalSteps` | `number` | Total steps in the active tutorial |
+| `progressLabel` | `string` | Formatted string like `"3 / 10"` |
+| `isLastStep` | `boolean` | Whether the current step is the final one |
+| `isTutorialCompleted` | `(id: string) => boolean` | Check if a specific tutorial was completed |
+
+### Actions
+
+| Action | Parameters | Description |
+| --- | --- | --- |
+| `startTutorial` | `tutorialId: string` | Start a tutorial, navigate to its start route |
+| `nextStep` | none | Advance forward (runs `afterStep` hook, completes on last step) |
+| `previousStep` | none | Go back one step (runs `afterStep` hook) |
+| `stopTutorial` | none | Stop the tutorial, reset state, clear highlights |
+| `completeTutorial` | `tutorialId: string` | Mark a tutorial as completed and persist |
+| `updateTargetRect` | `rect: DOMRect \| null` | Update the stored target element rect |
+| `requestAction` | `action: TutorialAction` | Signal a component to perform an action (e.g. open modal) |
+| `clearAction` | none | Clear the pending action after it's been handled |
+| `loadPersistedState` | none | Load completed tutorials from localStorage |
+| `persistState` | none | Save completed tutorials to localStorage |
+
+### pendingAction Pattern
+
+The `pendingAction` field enables tutorials to programmatically control modals in other components:
+
+```typescript
+// In tutorialDefinitions.ts — a step hook requests an action
+beforeStep: () => {
+  const store = useTutorialStore()
+  store.requestAction('open-weapon-modal')
+}
+
+// In the target component — a watcher responds
+watch(() => tutorialStore.pendingAction, (action) => {
+  if (action === 'open-weapon-modal') {
+    tutorialStore.clearAction()
+    // Open the modal
+  }
+})
+```
+
+### Persistence
+
+Completed tutorial IDs are stored in localStorage under the key `cs2inspect_tutorial_completions` as a JSON array of strings.
+
+### Related
+
+- [Tutorial System Guide](./tutorial-system.md) - Full architecture documentation
+- [useTutorial](./reference-composables.md#usetutorial) - Composable wrapper

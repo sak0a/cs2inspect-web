@@ -11,6 +11,7 @@ The application follows a modular component architecture with clear separation o
 - **Modal Components**: Handle item selection and customization
 - **Tab Components**: Organize items by category/team
 - **Display Components**: Show item previews and information
+- **Tutorial Components**: Interactive step-by-step user guidance
 - **Utility Components**: Provide common functionality (theme, language, etc.)
 
 ## Frontend Components
@@ -435,6 +436,53 @@ interface LoadoutSelectorProps {
 - `create` - New loadout created
 - `delete` - Loadout deleted
 - `rename` - Loadout renamed
+
+---
+
+### Tutorial Components
+
+#### TutorialOverlay.vue
+**Location**: `components/tutorial/TutorialOverlay.vue`
+
+**Purpose**: Full-screen SVG overlay that spotlights the current tutorial target element with a dark backdrop and yellow (#FACC15) highlight border.
+
+**Features**:
+- SVG mask-based spotlight cutout around the target element
+- Auto-scrolls target element into view (`scrollIntoView` with configurable `scrollBlock`)
+- Polls for elements not yet in the DOM (e.g. inside modals that haven't opened)
+- Updates spotlight rect on scroll, resize, and element size changes via `ResizeObserver`
+- Runs `beforeStep` lifecycle hooks before activating each step
+- Listens for clicks on action step targets to auto-advance
+- ESC key exits the tutorial
+
+**Key Implementation Details**:
+- Uses `document.querySelector('[data-tutorial="..."]')` to find target elements
+- 350ms delay after smooth scroll before measuring element position
+- `requestAnimationFrame` polling (up to 3 seconds) for elements not yet in DOM
+- Adds/removes `tutorial-highlight-active` CSS class on target elements
+
+#### TutorialPopover.vue
+**Location**: `components/tutorial/TutorialPopover.vue`
+
+**Purpose**: Glassmorphism-styled popover that displays step information and navigation controls, positioned relative to the spotlight target.
+
+**Features**:
+- Step title and description (i18n-aware)
+- Next / Back / Skip / Finish navigation buttons
+- Progress indicator (e.g. "Step 3 of 16")
+- Configurable positioning: top, bottom, left, right, auto
+- Auto-repositioning to stay within viewport bounds
+
+**Props**:
+- `step: TutorialStep | null` - Current step definition
+- `targetRect: { x, y, width, height }` - Bounding rect of the spotlight
+- `stepIndex: number` - Current step index
+- `totalSteps: number` - Total steps
+- `isLastStep: boolean` - Shows "Finish" instead of "Next" on last step
+
+**Emits**: `next`, `previous`, `stop`
+
+**Related**: See [Tutorial System Guide](./tutorial-system.md) for full architecture, adding new tutorials, and the `pendingAction` modal control pattern.
 
 ---
 

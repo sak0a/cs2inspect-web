@@ -16,6 +16,7 @@ CS2Inspect uses Vue 3 composables to encapsulate and reuse stateful logic across
 8. [useChangeTracker](#usechangetracker) - Change detection between configurations
 9. [useAdminAuth](#useadminauth) - Admin authentication and authorization
 10. [useAdminStats](#useadminstats) - Admin statistics with caching
+11. [useTutorial](#usetutorial) - Interactive tutorial system controls
 
 ---
 
@@ -958,6 +959,82 @@ enum LoadingState {
 ### ItemConfiguration
 
 See [TypeScript Types Documentation](./reference-types.md) for complete type definitions.
+
+---
+
+## useTutorial
+
+**Location**: `/composables/useTutorial.ts`
+
+**Purpose**: Provides reactive state and controls for the interactive tutorial system. Wraps the tutorial Pinia store with a clean composable API.
+
+### Import
+
+```typescript
+import { useTutorial } from '~/composables/useTutorial'
+```
+
+### Usage
+
+```vue
+<script setup>
+const {
+  isActive,
+  activeTutorialId,
+  currentStep,
+  currentStepIndex,
+  totalSteps,
+  progressLabel,
+  isLastStep,
+  start,
+  stop,
+  next,
+  previous,
+  isCompleted,
+  resetAll
+} = useTutorial()
+
+// Start a tutorial
+start('customize-weapon')
+
+// Check completion
+if (isCompleted('navigate-app')) {
+  console.log('User has completed the navigation tutorial')
+}
+</script>
+```
+
+### Return Values
+
+| Property             | Type                                | Description                                       |
+| -------------------- | ----------------------------------- | ------------------------------------------------- |
+| `isActive`           | `ComputedRef<boolean>`              | Whether a tutorial is currently running            |
+| `activeTutorialId`   | `ComputedRef<string \| null>`       | ID of the active tutorial                          |
+| `currentStep`        | `ComputedRef<TutorialStep \| null>` | The current step definition                        |
+| `currentStepIndex`   | `ComputedRef<number>`               | Zero-based index of the current step               |
+| `totalSteps`         | `ComputedRef<number>`               | Total number of steps in the active tutorial       |
+| `progressLabel`      | `ComputedRef<string>`               | Formatted progress string (e.g. `"3 / 10"`)       |
+| `isLastStep`         | `ComputedRef<boolean>`              | Whether the current step is the last one           |
+
+### Methods
+
+| Method                  | Parameters            | Description                                                    |
+| ----------------------- | --------------------- | -------------------------------------------------------------- |
+| `start(tutorialId)`     | `tutorialId: string`  | Start a tutorial by ID. Navigates to the tutorial's start route |
+| `stop()`                | none                  | Stop the active tutorial without marking it complete            |
+| `next()`                | none                  | Advance to the next step (completes tutorial if on last step)   |
+| `previous()`            | none                  | Go back to the previous step                                   |
+| `isCompleted(id)`       | `tutorialId: string`  | Check if a tutorial has been completed                          |
+| `resetAll()`            | none                  | Clear all completion records from localStorage                  |
+
+### Persistence
+
+Loads completed tutorial IDs from `localStorage` on mount. Completion state survives page reloads and browser restarts.
+
+### Related
+
+- [Tutorial System Guide](./tutorial-system.md) - Full architecture and step-by-step guide
+- [tutorialStore](./reference-stores.md#tutorialstore) - Underlying Pinia store
 
 ---
 
