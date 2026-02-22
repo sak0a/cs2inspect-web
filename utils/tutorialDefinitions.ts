@@ -2,8 +2,10 @@ import type { TutorialDefinition } from '~/types/tutorial'
 import { useTutorialStore } from '~/stores/tutorialStore'
 
 /**
- * Helper: request an action on the store and wait for DOM to settle.
- * Components watch `pendingAction` and respond (e.g. open/close modals).
+ * Request a tutorial-related action on the store and allow the UI to settle.
+ *
+ * @param action - One of: 'open-weapon-modal', 'close-weapon-modal', 'open-loadout-create', or 'close-loadout-create'; triggers components observing the tutorial store to open/close the corresponding UI elements.
+ * @returns Void after the store action is requested and the UI has had time to update.
  */
 function requestAction(action: 'open-weapon-modal' | 'close-weapon-modal' | 'open-loadout-create' | 'close-loadout-create') {
   const store = useTutorialStore()
@@ -289,10 +291,21 @@ const tutorials: TutorialDefinition[] = [
   },
 ]
 
+/**
+ * Retrieve all tutorial definitions.
+ *
+ * @returns An array containing every tutorial definition available in the module.
+ */
 export function getAllTutorials(): TutorialDefinition[] {
   return tutorials
 }
 
+/**
+ * Retrieve a tutorial definition by its identifier.
+ *
+ * @param id - The tutorial identifier to look up
+ * @returns The `TutorialDefinition` with a matching `id`, or `undefined` if not found
+ */
 export function getTutorialById(id: string): TutorialDefinition | undefined {
   return tutorials.find(t => t.id === id)
 }
