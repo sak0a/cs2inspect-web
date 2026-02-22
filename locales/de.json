@@ -6,7 +6,10 @@
     "actions": "AKTIONEN",
     "language": "Sprache",
     "loadout": "Loadout",
-    "theme": "Thema"
+    "theme": "Thema",
+    "mainNav": "Hauptnavigation",
+    "settings": "Einstellungen",
+    "switchToSidebar": "Zur Seitenleiste wechseln"
   },
   "weapons": {
     "rifles": "Gewehre",
@@ -70,6 +73,31 @@
         "deleteButton": "Freigabecode löschen",
         "deleted": "Freigabecode gelöscht",
         "deleteError": "Freigabecode konnte nicht gelöscht werden"
+      },
+      "import": {
+        "title": "Loadout importieren",
+        "description": "Gib einen Freigabecode ein, um ein Loadout zu importieren.",
+        "placeholder": "Freigabecode",
+        "cancel": "Abbrechen",
+        "confirm": "Importieren",
+        "success": "Loadout erfolgreich importiert"
+      },
+      "clear": {
+        "title": "Loadout leeren {name}",
+        "question": "Bist du sicher, dass du Items aus diesem Loadout entfernen möchtest?",
+        "selectCategories": "Wähle Kategorien zum Leeren:",
+        "warning": "Diese Aktion kann nicht rückgängig gemacht werden!",
+        "confirmText": "Bitte gib \"{name}\" zur Bestätigung ein.",
+        "confirmPlaceholder": "Loadout-Namen zur Bestätigung eingeben",
+        "cancel": "Abbrechen",
+        "confirm": "Items leeren",
+        "successMessage": "Loadout-Items erfolgreich geleert"
+      },
+      "duplicate": {
+        "success": "Loadout erfolgreich dupliziert"
+      },
+      "default": {
+        "success": "Standard-Loadout erfolgreich festgelegt"
       }
     },
     "inspectUrl": {
@@ -94,7 +122,8 @@
       "question": "Bist du sicher, dass du diese {itemType}-Konfiguration für das andere Team duplizieren möchtest?",
       "type": {
         "weapon": "Waffe",
-        "knife": "Messer"
+        "knife": "Messer",
+        "glove": "Handschuh"
       }
     },
     "knifeSkin": {
@@ -120,6 +149,8 @@
         "itemActive": "Aktiv",
         "itemInactive": "Inaktiv"
       },
+      "invalidInspectLink": "Ungültiger Inspect-Link",
+      "importFailed": "Fehler beim Import der Messer-Konfiguration",
       "importFailedDefault": "Fehler beim Import der Messer-Konfiguration",
       "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit dem ausgewählten Messer überein",
       "importSuccess": "Messer-Konfiguration erfolgreich importiert",
@@ -149,6 +180,8 @@
         "itemActive": "Aktiv",
         "itemInactive": "Inaktiv"
       },
+      "invalidInspectLink": "Ungültiger Inspect-Link",
+      "importFailed": "Fehler beim Import der Handschuh-Konfiguration",
       "importFailedDefault": "Fehler beim Import der Handschuh-Konfiguration",
       "importFailedNoMatchingWeapon": "Inspect-URL stimmt nicht mit dem ausgewählten Handschuh überein",
       "importSuccess": "Handschuh-Konfiguration erfolgreich importiert",
@@ -211,7 +244,8 @@
             "rotate": "Rot",
             "wear": "Abnutzung",
             "remove": "Entfernen"
-          }
+          },
+          "selectHint": "Wähle einen Sticker oder Schlüsselanhänger zum Bearbeiten"
         }
       },
       "sort": {
@@ -341,6 +375,7 @@
       "messages": {
         "maxStickers": "Maximal 5 Sticker erlaubt",
         "selectSkinFirst": "Bitte wähle zuerst einen Waffen-Skin aus",
+        "saved": "Visuelle Anpassung gespeichert",
         "saveSuccess": "Visuelle Anpassung erfolgreich angewendet",
         "failedToLoadAssets": "Fehler beim Laden von Stickern und Schlüsselanhängern"
       }
@@ -355,7 +390,16 @@
     "confirmDeleteWarning": "Alle Skins dieses Loadouts werden gelöscht und können nicht wiederhergestellt werden",
     "nameRequired": "Bitte einen Loadout-Namen eingeben",
     "nameTooLong": "Der Name des Loadouts darf maximal 20 Zeichen lang sein",
-    "selectLoadoutFirst": "Bitte zuerst ein Loadout auswählen"
+    "selectLoadoutFirst": "Bitte zuerst ein Loadout auswählen",
+    "import": "Importieren",
+    "actions": {
+      "rename": "Umbenennen",
+      "duplicate": "Duplizieren",
+      "share": "Teilen",
+      "setDefault": "Als Standard festlegen",
+      "clear": "Loadout leeren",
+      "delete": "Löschen"
+    }
   },
   "teams": {
     "terrorists": "Terroristen",
@@ -369,6 +413,7 @@
     "battleScarred": "Kampfspuren"
   },
   "auth": {
+    "login": "Anmelden",
     "loginButton": "Anmelden",
     "logoutButton": "Abmelden",
     "loginRequired": "Um auf diese Website zuzugreifen, melde dich bitte mit deinem Steam-Konto an.",
@@ -377,6 +422,9 @@
     "rejectAction": "Melde dich an, um diese Aktion auszuführen",
     "authenticating": "Authentifiziere...",
     "openSteamProfile": "Steam-Profil öffnen"
+  },
+  "general": {
+    "copiedToClipboard": "In die Zwischenablage kopiert"
   },
   "autoSave": {
     "saving": "Speichert...",
@@ -444,5 +492,158 @@
     "decodeSuccess": "Inspect-Link erfolgreich dekodiert",
     "generateSuccess": "Inspect-Link erfolgreich generiert",
     "copySuccess": "Inspect-Link in die Zwischenablage kopiert"
+  },
+  "tutorial": {
+    "menuTitle": "Tutorials",
+    "next": "Weiter",
+    "back": "Zurück",
+    "skip": "Tutorial überspringen",
+    "finish": "Fertig",
+    "stepOf": "{current} / {total}",
+    "completed": "Abgeschlossen",
+    "navigateApp": {
+      "name": "App erkunden",
+      "description": "Lerne die Navigation und die wichtigsten Bereiche kennen",
+      "steps": {
+        "sidebar": {
+          "title": "Seitenleisten-Navigation",
+          "description": "Hier findest du alle Waffenkategorien – Gewehre, Pistolen, Nahkampfwaffen und mehr. Klicke auf eine Kategorie, um die verfügbaren Waffen zu sehen."
+        },
+        "settings": {
+          "title": "Einstellungen",
+          "description": "Über dieses Menü kannst du die Sprache ändern, Tutorials starten und dich abmelden."
+        },
+        "loadout": {
+          "title": "Loadout-Bereich",
+          "description": "Loadouts sind deine gespeicherten Waffenkonfigurationen. Erstelle mehrere Loadouts für verschiedene Setups."
+        },
+        "weapons": {
+          "title": "Waffenkarten",
+          "description": "Jede Karte zeigt eine Waffe mit dem aktuellen Skin. Klicke auf eine Karte, um den Skin anzupassen."
+        },
+        "teamTabs": {
+          "title": "Team-Tabs",
+          "description": "Manche Waffen können von beiden Teams (CT und T) benutzt werden. In diesem Fall siehst du hier zwei Tabs – einen für jedes Team. Jedes Team hat eine eigene Skin-Konfiguration."
+        },
+        "ready": {
+          "title": "Bereit zum Erkunden!",
+          "description": "Du kennst jetzt die Grundlagen. Nutze die Seitenleiste, um verschiedene Waffenkategorien zu durchstöbern und dein Loadout anzupassen."
+        }
+      }
+    },
+    "customizeWeapon": {
+      "name": "Waffe anpassen",
+      "description": "Lerne alle Funktionen des Waffen-Anpassungsdialogs kennen",
+      "steps": {
+        "grid": {
+          "title": "Waffenraster",
+          "description": "Hier siehst du alle Waffen in der aktuellen Kategorie. Jede Karte zeigt den ausgerüsteten Skin oder die Standardwaffe."
+        },
+        "click": {
+          "title": "Anpassung öffnen",
+          "description": "Klicke auf eine Waffenkarte, um den Anpassungsdialog zu öffnen. Du kannst auch den Weiter-Button nutzen."
+        },
+        "search": {
+          "title": "Skin-Suche",
+          "description": "Suche hier nach einem bestimmten Skin. Tippe einen Namen ein, um die Liste zu filtern."
+        },
+        "sortFilter": {
+          "title": "Sortieren & Filtern",
+          "description": "Sortiere Skins nach Name, Seltenheit oder anderen Kriterien. Nutze die Seltenheitsfilter, um nur Skins einer bestimmten Qualität anzuzeigen."
+        },
+        "skins": {
+          "title": "Skin-Galerie",
+          "description": "Durchstöbere die verfügbaren Skins. Klicke auf einen, um ihn auszuwählen. Der gewählte Skin wird mit einem gelben Ring hervorgehoben."
+        },
+        "pagination": {
+          "title": "Seitennavigation",
+          "description": "Wenn mehr Skins vorhanden sind als auf eine Seite passen, nutze die Seitennavigation, um durch weitere Seiten zu blättern."
+        },
+        "wear": {
+          "title": "Abnutzungsregler",
+          "description": "Passe den Float-Wert an, um die Abnutzung des Skins zu steuern. Niedrigere Werte bedeuten weniger Abnutzung. Der Bereich hängt vom minimalen und maximalen Float des Skins ab. Das Vorschaubild der Waffe aktualisiert sich automatisch, wenn du den Wert änderst."
+        },
+        "paintIndex": {
+          "title": "Paint-Index-Override",
+          "description": "Aktiviere diesen Schalter, um den Paint-Index manuell festzulegen. Dies ist eine erweiterte Funktion, mit der du eine exakte Skin-ID angeben kannst, anstatt aus der Galerie auszuwählen."
+        },
+        "activeSwitch": {
+          "title": "Aktiv-Schalter",
+          "description": "Schalte die Waffe aktiv oder inaktiv. Inaktive Waffen werden beim Generieren deines Loadouts nicht berücksichtigt. Nützlich, um einen Skin konfiguriert zu behalten, ohne ihn zu verwenden."
+        },
+        "stickers": {
+          "title": "Sticker-Slots",
+          "description": "Deine Waffe hat 5 Sticker-Slots. Klicke auf einen Slot, um Sticker zu durchsuchen und anzuwenden. Du kannst Sticker per Drag & Drop zwischen Slots verschieben."
+        },
+        "keychain": {
+          "title": "Schlüsselanhänger",
+          "description": "Befestige einen Schlüsselanhänger an deiner Waffe. Klicke auf den Slot, um verfügbare Anhänger zu durchsuchen. Jede Waffe kann einen Anhänger haben."
+        },
+        "reset": {
+          "title": "Waffe zurücksetzen",
+          "description": "Setze die Waffe auf den Standardzustand zurück. Dadurch werden Skin, Sticker, Anhänger und alle Anpassungen entfernt."
+        },
+        "history": {
+          "title": "Versionshistorie",
+          "description": "Sieh dir die Änderungshistorie dieser Waffe an. Du kannst jede vorherige Version mit einem Klick wiederherstellen."
+        },
+        "import": {
+          "title": "Inspect-Link importieren",
+          "description": "Importiere eine Waffenkonfiguration aus einem CS2-Inspect-Link. Füge einen Link ein, um Skin, Sticker, Abnutzung und andere Einstellungen zu übernehmen."
+        },
+        "generate": {
+          "title": "Inspect-Link generieren",
+          "description": "Generiere einen CS2-Inspect-Link für deine aktuelle Waffenkonfiguration. Der Link kann geteilt oder zur Vorschau im Spiel verwendet werden."
+        },
+        "autoSave": {
+          "title": "Automatisches Speichern",
+          "description": "Deine Änderungen werden automatisch gespeichert. Die Speicheranzeige zeigt den aktuellen Status – du musst nichts manuell speichern."
+        }
+      }
+    },
+    "inspectLink": {
+      "name": "Inspect-Link-Tool",
+      "description": "Lerne, wie du CS2-Inspect-Links dekodierst und generierst",
+      "steps": {
+        "input": {
+          "title": "Inspect-Link-Eingabe",
+          "description": "Füge hier einen CS2-Inspect-Link ein. Diese Links beginnen mit 'steam://rungame' und enthalten kodierte Waffendaten."
+        },
+        "decode": {
+          "title": "Link dekodieren",
+          "description": "Klicke hier, um den Inspect-Link in lesbare JSON-Daten umzuwandeln."
+        },
+        "editor": {
+          "title": "JSON-Editor",
+          "description": "Hier siehst du die dekodierten Waffendaten. Du kannst die Werte direkt bearbeiten, um deine Waffe anzupassen."
+        },
+        "generate": {
+          "title": "Link generieren",
+          "description": "Klicke hier, um aus den aktuellen Daten einen neuen Inspect-Link zu erstellen."
+        }
+      }
+    },
+    "createLoadout": {
+      "name": "Loadout erstellen",
+      "description": "Lerne, wie du Loadouts erstellst und verwaltest",
+      "steps": {
+        "selector": {
+          "title": "Loadout-Auswahl",
+          "description": "Hier wechselst du zwischen deinen Loadouts. Ein Loadout ist eine Sammlung aller Waffenkonfigurationen."
+        },
+        "create": {
+          "title": "Loadout verwalten",
+          "description": "Über diesen Button öffnest du das Loadout-Verwaltungsmenü. Hier kannst du Loadouts erstellen, umbenennen, duplizieren, teilen, importieren und löschen."
+        },
+        "name": {
+          "title": "Loadout benennen",
+          "description": "Gib deinem Loadout einen Namen, z. B. 'Turnier-Setup' oder 'Casual'."
+        },
+        "done": {
+          "title": "Geschafft!",
+          "description": "Dein neues Loadout ist bereit. Du kannst jetzt Waffen-Skins hinzufügen und zwischen Loadouts wechseln."
+        }
+      }
+    }
   }
 }

@@ -6,7 +6,10 @@
     "actions": "ACTIONS",
     "language": "Langue",
     "loadout": "Loadout",
-    "theme": "Thème"
+    "theme": "Thème",
+    "mainNav": "Navigation principale",
+    "settings": "Paramètres",
+    "switchToSidebar": "Passer à la barre latérale"
   },
   "weapons": {
     "rifles": "Fusils",
@@ -70,7 +73,8 @@
       "question": "Êtes-vous sûr de vouloir dupliquer cette configuration {itemType} vers l'autre équipe ?",
       "type": {
         "weapon": "Arme",
-        "knife": "Couteau"
+        "knife": "Couteau",
+        "glove": "Gant"
       }
     },
     "knifeSkin": {
@@ -96,6 +100,8 @@
         "itemActive": "Actif",
         "itemInactive": "Inactif"
       },
+      "invalidInspectLink": "Lien d'inspection invalide",
+      "importFailed": "Échec de l'importation de la configuration du couteau",
       "importFailedDefault": "Échec de l'importation de la configuration du couteau",
       "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas au couteau sélectionné",
       "importSuccess": "Configuration du couteau importée avec succès",
@@ -125,6 +131,8 @@
         "itemActive": "Actif",
         "itemInactive": "Inactif"
       },
+      "invalidInspectLink": "Lien d'inspection invalide",
+      "importFailed": "Échec de l'importation de la configuration des gants",
       "importFailedDefault": "Échec de l'importation de la configuration des gants",
       "importFailedNoMatchingWeapon": "L'URL d'inspection ne correspond pas aux gants sélectionnés",
       "importSuccess": "Configuration des gants importée avec succès",
@@ -215,6 +223,31 @@
         "deleteButton": "Supprimer le code",
         "deleted": "Code supprimé",
         "deleteError": "Échec de la suppression du code"
+      },
+      "import": {
+        "title": "Importer un loadout",
+        "description": "Entrez un code de partage pour importer un loadout.",
+        "placeholder": "Code de partage",
+        "cancel": "Annuler",
+        "confirm": "Importer",
+        "success": "Loadout importé avec succès"
+      },
+      "clear": {
+        "title": "Vider le loadout {name}",
+        "question": "Êtes-vous sûr de vouloir vider les objets de ce loadout ?",
+        "selectCategories": "Sélectionnez les catégories à vider :",
+        "warning": "Cette action ne peut pas être annulée !",
+        "confirmText": "Veuillez taper \"{name}\" pour confirmer.",
+        "confirmPlaceholder": "Entrez le nom du loadout pour confirmer",
+        "cancel": "Annuler",
+        "confirm": "Vider les objets",
+        "successMessage": "Objets du loadout vidés avec succès"
+      },
+      "duplicate": {
+        "success": "Loadout dupliqué avec succès"
+      },
+      "default": {
+        "success": "Loadout par défaut défini avec succès"
       }
     },
     "weaponSkin": {
@@ -266,7 +299,8 @@
             "rotate": "Rot",
             "wear": "Usure",
             "remove": "Supprimer"
-          }
+          },
+          "selectHint": "Sélectionnez un autocollant ou un porte-clés à modifier"
         }
       },
       "sort": {
@@ -352,6 +386,7 @@
       "messages": {
         "maxStickers": "Maximum 5 autocollants autorisés",
         "selectSkinFirst": "Veuillez d'abord sélectionner un skin d'arme",
+        "saved": "Personnalisation visuelle enregistrée",
         "saveSuccess": "Personnalisation visuelle appliquée avec succès",
         "failedToLoadAssets": "Échec du chargement des autocollants et porte-clés"
       }
@@ -366,9 +401,19 @@
     "confirmDeleteWarning": "Tous les skins de ce loadout seront supprimés et ne pourront pas être restaurés",
     "nameRequired": "Veuillez entrer un nom de loadout",
     "nameTooLong": "Le nom du loadout doit contenir moins de 20 caractères",
-    "selectLoadoutFirst": "Veuillez d'abord sélectionner un loadout"
+    "selectLoadoutFirst": "Veuillez d'abord sélectionner un loadout",
+    "import": "Importer",
+    "actions": {
+      "rename": "Renommer",
+      "duplicate": "Dupliquer",
+      "share": "Partager",
+      "setDefault": "Définir par défaut",
+      "clear": "Vider le loadout",
+      "delete": "Supprimer"
+    }
   },
   "auth": {
+    "login": "Se connecter",
     "loginButton": "Se connecter",
     "logoutButton": "Déconnexion",
     "loginRequired": "Pour accéder à ce site web, veuillez vous connecter avec votre compte Steam.",
@@ -377,6 +422,9 @@
     "rejectAction": "Connectez-vous pour exécuter cette action",
     "authenticating": "Authentification...",
     "openSteamProfile": "Ouvrir le profil Steam"
+  },
+  "general": {
+    "copiedToClipboard": "Copié dans le presse-papiers"
   },
   "autoSave": {
     "saving": "Enregistrement...",
@@ -429,6 +477,173 @@
     "selectAll": "Tout sélectionner",
     "noResults": "Aucun résultat trouvé",
     "pleaseSelectLoadout": "Veuillez d'abord sélectionner un loadout",
-    "for": "pour"
+    "for": "pour",
+    "copy": "Copier"
+  },
+  "inspectLink": {
+    "title": "Décodeur/Encodeur de liens d'inspection",
+    "description": "Décodez un lien d'inspection en JSON ou générez un lien d'inspection à partir de données JSON.",
+    "importButton": "Décoder le lien",
+    "generateButton": "Générer le lien",
+    "inspectUrlLabel": "Lien d'inspection",
+    "decodedJsonLabel": "Données JSON décodées",
+    "placeholder": "Collez votre lien d'inspection ici...",
+    "invalidJson": "Données JSON invalides",
+    "decodeSuccess": "Lien d'inspection décodé avec succès",
+    "generateSuccess": "Lien d'inspection généré avec succès",
+    "copySuccess": "Lien d'inspection copié dans le presse-papiers"
+  },
+  "tutorial": {
+    "menuTitle": "Tutoriels",
+    "next": "Suivant",
+    "back": "Retour",
+    "skip": "Passer le tutoriel",
+    "finish": "Terminer",
+    "stepOf": "{current} / {total}",
+    "completed": "Terminé",
+    "navigateApp": {
+      "name": "Explorer l'application",
+      "description": "Découvrez la navigation et les zones principales",
+      "steps": {
+        "sidebar": {
+          "title": "Barre latérale",
+          "description": "Vous trouverez ici toutes les catégories d'armes — fusils, pistolets, armes de mêlée et plus. Cliquez sur une catégorie pour voir les armes disponibles."
+        },
+        "settings": {
+          "title": "Paramètres",
+          "description": "Ce menu vous permet de changer la langue, lancer des tutoriels et vous déconnecter."
+        },
+        "loadout": {
+          "title": "Zone de loadout",
+          "description": "Les loadouts sont vos configurations d'armes sauvegardées. Créez plusieurs loadouts pour différents setups."
+        },
+        "weapons": {
+          "title": "Cartes d'armes",
+          "description": "Chaque carte montre une arme avec son skin actuel. Cliquez sur une carte pour personnaliser le skin."
+        },
+        "teamTabs": {
+          "title": "Onglets d'équipe",
+          "description": "Certaines armes peuvent être utilisées par les deux équipes (CT et T). Dans ce cas, vous verrez deux onglets — un pour chaque équipe. Chaque équipe a sa propre configuration de skin."
+        },
+        "ready": {
+          "title": "Prêt à explorer !",
+          "description": "Vous connaissez maintenant les bases. Utilisez la barre latérale pour parcourir les catégories d'armes et personnaliser votre loadout."
+        }
+      }
+    },
+    "customizeWeapon": {
+      "name": "Personnaliser une arme",
+      "description": "Découvrez toutes les fonctionnalités du dialogue de personnalisation",
+      "steps": {
+        "grid": {
+          "title": "Grille d'armes",
+          "description": "Voici toutes les armes de la catégorie actuelle. Chaque carte affiche le skin équipé ou l'arme par défaut."
+        },
+        "click": {
+          "title": "Ouvrir la personnalisation",
+          "description": "Cliquez sur une carte d'arme pour ouvrir le dialogue de personnalisation. Vous pouvez aussi utiliser le bouton Suivant."
+        },
+        "search": {
+          "title": "Recherche de skins",
+          "description": "Recherchez un skin spécifique ici. Tapez un nom pour filtrer la liste."
+        },
+        "sortFilter": {
+          "title": "Tri et filtres",
+          "description": "Triez les skins par nom, rareté ou autres critères. Utilisez les filtres de rareté pour afficher uniquement les skins d'une qualité spécifique."
+        },
+        "skins": {
+          "title": "Galerie de skins",
+          "description": "Parcourez les skins disponibles. Cliquez sur un skin pour le sélectionner. Le skin sélectionné sera mis en évidence avec un anneau jaune."
+        },
+        "pagination": {
+          "title": "Pagination",
+          "description": "S'il y a plus de skins qu'une page ne peut afficher, utilisez les boutons de pagination pour parcourir les pages supplémentaires."
+        },
+        "wear": {
+          "title": "Curseur d'usure",
+          "description": "Ajustez la valeur float pour contrôler l'usure du skin. Des valeurs plus basses signifient moins d'usure. La plage dépend du float minimum et maximum du skin. L'image de prévisualisation de l'arme se met à jour automatiquement lorsque vous changez la valeur."
+        },
+        "paintIndex": {
+          "title": "Remplacement du Paint Index",
+          "description": "Activez ce commutateur pour définir manuellement la valeur du paint index. C'est une fonctionnalité avancée qui permet de spécifier un ID de skin exact au lieu de sélectionner dans la galerie."
+        },
+        "activeSwitch": {
+          "title": "Basculer actif/inactif",
+          "description": "Activez ou désactivez l'arme. Les armes inactives ne seront pas incluses lors de la génération de votre loadout. Utile pour garder un skin configuré sans l'utiliser."
+        },
+        "stickers": {
+          "title": "Emplacements de stickers",
+          "description": "Votre arme dispose de 5 emplacements de stickers. Cliquez sur un emplacement pour parcourir et appliquer des stickers. Glissez-déposez les stickers entre les emplacements."
+        },
+        "keychain": {
+          "title": "Porte-clés",
+          "description": "Attachez un porte-clés à votre arme. Cliquez sur l'emplacement pour parcourir les porte-clés disponibles. Chaque arme peut avoir un porte-clés."
+        },
+        "reset": {
+          "title": "Réinitialiser l'arme",
+          "description": "Réinitialisez l'arme à son état par défaut. Cela supprime le skin, les stickers, le porte-clés et toutes les personnalisations."
+        },
+        "history": {
+          "title": "Historique des versions",
+          "description": "Consultez l'historique des modifications de cette arme. Vous pouvez restaurer n'importe quelle version précédente en un seul clic."
+        },
+        "import": {
+          "title": "Importer un lien d'inspection",
+          "description": "Importez une configuration d'arme à partir d'un lien d'inspection CS2. Collez un lien pour appliquer le skin, les stickers, l'usure et d'autres paramètres."
+        },
+        "generate": {
+          "title": "Générer un lien d'inspection",
+          "description": "Générez un lien d'inspection CS2 pour votre configuration d'arme actuelle. Le lien peut être partagé ou utilisé pour prévisualiser l'arme en jeu."
+        },
+        "autoSave": {
+          "title": "Sauvegarde automatique",
+          "description": "Vos modifications sont sauvegardées automatiquement. L'indicateur de sauvegarde montre le statut actuel — pas besoin de sauvegarder manuellement."
+        }
+      }
+    },
+    "inspectLink": {
+      "name": "Outil Inspect Link",
+      "description": "Apprenez à décoder et générer des liens d'inspection CS2",
+      "steps": {
+        "input": {
+          "title": "Saisie du lien d'inspection",
+          "description": "Collez ici un lien d'inspection CS2. Ces liens commencent par 'steam://rungame' et contiennent des données d'arme encodées."
+        },
+        "decode": {
+          "title": "Décoder le lien",
+          "description": "Cliquez ici pour convertir le lien d'inspection en données JSON lisibles."
+        },
+        "editor": {
+          "title": "Éditeur JSON",
+          "description": "Voici les données d'arme décodées. Vous pouvez modifier les valeurs directement pour personnaliser votre arme."
+        },
+        "generate": {
+          "title": "Générer le lien",
+          "description": "Cliquez ici pour créer un nouveau lien d'inspection à partir des données actuelles."
+        }
+      }
+    },
+    "createLoadout": {
+      "name": "Créer un loadout",
+      "description": "Apprenez à créer et gérer des loadouts",
+      "steps": {
+        "selector": {
+          "title": "Sélecteur de loadout",
+          "description": "Ici vous pouvez basculer entre vos loadouts. Un loadout est un ensemble de toutes vos configurations d'armes."
+        },
+        "create": {
+          "title": "Gérer les loadouts",
+          "description": "Ce bouton ouvre le menu de gestion des loadouts. Vous pouvez y créer, renommer, dupliquer, partager, importer et supprimer des loadouts."
+        },
+        "name": {
+          "title": "Nommer le loadout",
+          "description": "Donnez un nom à votre loadout, par exemple « Setup Tournoi » ou « Casual »."
+        },
+        "done": {
+          "title": "C'est fait !",
+          "description": "Votre nouveau loadout est prêt. Vous pouvez maintenant ajouter des skins et basculer entre les loadouts."
+        }
+      }
+    }
   }
 }

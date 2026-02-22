@@ -192,7 +192,7 @@ function handleLanguageSelect(key: string) {
           :width="200"
           show-trigger
           :mode="sidebarMode"
-          
+          data-tutorial="sidebar-nav"
           :hover-expanded="hoverExpanded"
           :enable-transitions="isReady"
           @mouseenter="onMouseEnter"
@@ -452,13 +452,15 @@ function handleLanguageSelect(key: string) {
               </NTooltip>
 
               <!-- Settings (language, logout, future settings) -->
-              <SettingsDropdown
-                  trigger="hover"
-                  variant="icon"
-                  size="medium"
-                  :aria-label="t('navigation.settings') || 'Settings'"
-                  @logout="showLogoutModal = true"
-              />
+              <div data-tutorial="settings-dropdown">
+                <SettingsDropdown
+                    trigger="hover"
+                    variant="icon"
+                    size="medium"
+                    :aria-label="t('navigation.settings') || 'Settings'"
+                    @logout="showLogoutModal = true"
+                />
+              </div>
             </div>
 
             <!-- Center: All navigation menus -->
@@ -506,7 +508,9 @@ function handleLanguageSelect(key: string) {
 
             <!-- Right side: Loadout, Mode toggle -->
             <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0 justify-end">
-              <LoadoutSelector v-if="user" />
+              <div v-if="user" data-tutorial="loadout-area">
+                <LoadoutSelector />
+              </div>
 
               <!-- Mode toggle -->
               <NTooltip placement="bottom">
@@ -609,6 +613,9 @@ function handleLanguageSelect(key: string) {
           </div>
         </template>
       </NModal>
+
+      <!-- Tutorial Overlay (rendered globally) -->
+      <LazyTutorialOverlay />
     </SLayout>
 </template>
 

@@ -151,6 +151,7 @@ onMounted(() => {
                     size="large"
                     :placeholder="trans.placeholder.value"
                     class="main-input"
+                    data-tutorial="inspect-input"
                   />
                   <div class="absolute inset-0 rounded-xl border border-blue-500/0 group-focus-within:border-blue-500/50 transition-all pointer-events-none"/>
                 </div>
@@ -159,6 +160,7 @@ onMounted(() => {
                   size="large"
                   :loading="isLoading"
                   class="decode-button px-8 font-bold"
+                  data-tutorial="decode-button"
                   @click="handleDecode"
                 >
                   <template #icon>
@@ -202,7 +204,7 @@ onMounted(() => {
                   </NButton>
                 </div>
               </div>
-              <div class="relative group rounded-2xl overflow-hidden shadow-inner bg-black/20 border border-white/5">
+              <div class="relative group rounded-2xl overflow-hidden shadow-inner bg-black/20 border border-white/5" data-tutorial="inspect-editor">
                 <NInput
                   v-model:value="decodedJson"
                   type="textarea"
@@ -228,6 +230,7 @@ onMounted(() => {
                 :loading="isGenerating"
                 :disabled="!decodedJson"
                 class="generate-button px-10 shadow-lg shadow-blue-500/20"
+                data-tutorial="generate-button"
                 @click="handleGenerate"
               >
                 <template #icon>

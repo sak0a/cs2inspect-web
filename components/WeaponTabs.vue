@@ -157,8 +157,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
 
 <template>
   <!-- For weapons that both teams can use (like AWP) -->
-  <div v-if="weaponData.availableTeams === 'both'" >
-    <NTabs v-model:value="currentTeamTab" type="line" animated size="small" @update:value="(v) => setTeamCookie(v as 'ct' | 't')">
+  <div v-if="weaponData.availableTeams === 'both'" data-tutorial="weapon-card">
+    <NTabs v-model:value="currentTeamTab" type="line" animated size="small" data-tutorial="team-tabs" @update:value="(v) => setTeamCookie(v as 'ct' | 't')">
       <NTabPane name="ct" :tab="String(t('teams.counterTerrorists'))">
         <!-- Default weapon if no skin selected -->
         <NCard

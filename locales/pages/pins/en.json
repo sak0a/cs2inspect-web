@@ -8,5 +8,9 @@
   "pinUpdated": "Pin updated",
   "resetToDefault": "Reset to default pin",
   "failedToUpdate": "Failed to update Pin",
-  "failedToLoad": "Failed to load pins"
+  "failedToLoad": "Failed to load pins",
+  "pins": {
+    "noResultsSearch": "No pins found matching \"{query}\"",
+    "noPinsAvailable": "No pins available"
+  }
 }

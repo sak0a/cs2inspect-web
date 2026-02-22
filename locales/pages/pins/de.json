@@ -1,1 +1,16 @@
-{}
+{
+  "title": "Pins",
+  "description": "Wähle und passe deine Pins an",
+  "defaultPin": "Standard-Pin",
+  "selectPin": "Pin auswählen",
+  "searchPlaceholder": "Pins suchen...",
+  "noResults": "Keine Pins gefunden, die deiner Suche entsprechen",
+  "pinUpdated": "Pin aktualisiert",
+  "resetToDefault": "Auf Standard-Pin zurücksetzen",
+  "failedToUpdate": "Pin konnte nicht aktualisiert werden",
+  "failedToLoad": "Pins konnten nicht geladen werden",
+  "pins": {
+    "noResultsSearch": "Keine Pins gefunden für \"{query}\"",
+    "noPinsAvailable": "Keine Pins verfügbar"
+  }
+}
