@@ -10,6 +10,7 @@ EXCLUDED_PATHS=(
   "services/sticker-scraper"
   "services/charm-scraper"
   "services/steam-service"
+  "services/weapon-scraper"
   "services/docs-site"
   "public/img/stickers"
   "public/img/charms"

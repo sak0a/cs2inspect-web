@@ -27,8 +27,9 @@ dist
 logs
 *.log
 
-# Services (built separately)
+# Services (built separately) – keep steamAuth.ts for Nuxt build
 services/
+!services/steamAuth.ts
 
 # Documentation
 docs/
