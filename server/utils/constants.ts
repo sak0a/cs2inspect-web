@@ -21,7 +21,8 @@ export const PROTECTED_API_PATHS = [
     '/api/inspect',
     '/api/items/weapons/[type]',
     '/api/auth/',
-    '/api/admin/'
+    '/api/admin/',
+    '/api/sync/'
 ];
 
 /**

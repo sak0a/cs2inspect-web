@@ -6,6 +6,7 @@ import { Logger } from '~/server/utils/logger'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
 import { toLoadoutId } from '~/types/core/common'
 import { recordWeaponHistory, recordKnifeHistory, recordGloveHistory } from './historyHelpers'
+import { notifyPluginOfWebChange, type SyncItemType, type SyncItemCategory } from '~/server/utils/sync/notifySync'
 import type { ItemHistorySnapshot } from '~/server/database/schema/itemHistory'
 import type {
     WeaponCustomization,
@@ -131,6 +132,11 @@ interface SaveItemConfig<TBody> {
     buildSnapshot: (body: TBody) => ItemHistorySnapshot
     /** Record history before save */
     recordHistory: (steamId: string, loadoutId: string, defindex: number, team: number, snapshot: ItemHistorySnapshot) => Promise<void>
+    /** Sync metadata for real-time plugin notifications */
+    syncMeta?: {
+        itemType: SyncItemType
+        itemCategory?: SyncItemCategory
+    }
 }
 
 /**
@@ -156,6 +162,9 @@ async function saveItem<TBody extends { defindex: number; team: number; reset?: 
                 eq(table.defindex, body.defindex)
             ))
             Logger.success(`${itemLabel} deleted successfully`)
+            if (config.syncMeta) {
+                notifyPluginOfWebChange(steamId, loadoutIdNum, config.syncMeta.itemType, config.syncMeta.itemCategory).catch(() => {})
+            }
             return { success: true, message: `${itemLabel} deleted successfully` }
         }
 
@@ -185,10 +194,16 @@ async function saveItem<TBody extends { defindex: number; team: number; reset?: 
                     eq(table.team, body.team)
                 ))
             Logger.success(`${itemLabel} updated successfully`)
+            if (config.syncMeta) {
+                notifyPluginOfWebChange(steamId, loadoutIdNum, config.syncMeta.itemType, config.syncMeta.itemCategory).catch(() => {})
+            }
             return { success: true, message: `${itemLabel} updated successfully` }
         } else {
             await db.insert(table).values(config.buildInsertFields(body, steamId, loadoutIdNum))
             Logger.success(`${itemLabel} created successfully`)
+            if (config.syncMeta) {
+                notifyPluginOfWebChange(steamId, loadoutIdNum, config.syncMeta.itemType, config.syncMeta.itemCategory).catch(() => {})
+            }
             return { success: true, message: `${itemLabel} created successfully` }
         }
     } catch (error: unknown) {
@@ -230,6 +245,7 @@ export const saveWeapon = async (
     return saveItem({
         itemLabel: 'Weapon',
         table,
+        syncMeta: { itemType: 'weapon', itemCategory: category },
         buildSnapshot: (b) => ({
             paintindex: b.paintindex,
             paintseed: b.paintseed,
@@ -292,6 +308,7 @@ export const saveKnife = async (
     return saveItem({
         itemLabel: 'Knife',
         table: knives,
+        syncMeta: { itemType: 'knife' },
         buildSnapshot: (b) => ({
             paintindex: b.paintindex,
             paintseed: b.paintseed,
@@ -338,6 +355,7 @@ export const saveGlove = async (
     return saveItem({
         itemLabel: 'Glove',
         table: gloves,
+        syncMeta: { itemType: 'glove' },
         buildSnapshot: (b) => ({
             paintindex: b.paintindex,
             paintseed: b.paintseed,
@@ -372,12 +390,16 @@ export const handleWeaponReset = async (
     body: Record<string, unknown>
 ) => {
     const table = weaponTableMap[tableName];
+    const loadoutIdNum = toLoadoutId(loadoutId)
     await db.delete(table).where(and(
         eq(table.steamid, steamId),
-        eq(table.loadoutid, toLoadoutId(loadoutId)),
+        eq(table.loadoutid, loadoutIdNum),
         eq(table.team, body.team as number),
         eq(table.defindex, body.defindex as number)
     ));
+
+    const category = tableName.replace('wp_player_', '') as SyncItemCategory
+    notifyPluginOfWebChange(steamId, loadoutIdNum, 'weapon', category).catch(() => {})
 
     Logger.success('weapon deleted successfully')
     return {
