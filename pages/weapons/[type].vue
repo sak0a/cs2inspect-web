@@ -200,9 +200,24 @@ const handleWeaponClickWrapper = (weapon: WeaponItemData) => {
 
 // No animation code
 
+// Real-time sync: listen for plugin-originated changes
+const { connect: connectSync, onSyncEvent } = useSyncEvents()
+
+onSyncEvent((event) => {
+  if (event.type !== 'item_changed') return
+  if (event.itemType === 'weapon' && event.itemCategory === WEAPON_TYPE) {
+    showSkinModal.value = false
+    fetchLoadoutSkins()
+  } else if (event.itemType === 'loadout') {
+    showSkinModal.value = false
+    fetchLoadoutSkins()
+  }
+})
+
 onMounted(async () => {
   user.value = steamAuth.getSavedUser();
   if (user.value?.steamId) {
+    connectSync()
     try {
       await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       if (loadoutStore.selectedLoadoutId) {

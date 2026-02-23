@@ -174,7 +174,7 @@ export function useItemModal(options: UseItemModalOptions) {
      * @param itemName - Name of the item (weapon_name from props)
      * @param onError - Optional error callback
      */
-    async function fetchSkins(itemName: string, onError?: (error: string) => void) {
+    async function fetchSkins(itemName: string, onError?: (error: string) => void, defaultImage?: string) {
         if (!itemName) {
             console.warn(`useItemModal(${itemType}): No item name provided for skin fetching`)
             return
@@ -193,7 +193,21 @@ export function useItemModal(options: UseItemModalOptions) {
 
             // Handle both old and new API response formats
             const skins = response.data?.skins || (Array.isArray(response.data) ? response.data : [])
-            apiState.value.skins = skins
+
+            // Prepend a synthetic "Default" skin entry so users can reset to default via the picker
+            const defaultSkin: APIWeaponSkin = {
+                id: 'default',
+                name: 'Default',
+                image: defaultImage || '',
+                paint_index: '0',
+                min_float: 0,
+                max_float: 1,
+                rarity: { id: 'default', name: 'Default', color: '#B0C3D9' },
+                weapon: { id: itemName, name: itemName, weapon_id: '0' },
+                category: { id: 'default', name: 'Default' },
+                pattern: { id: 'default', name: 'Default' },
+            }
+            apiState.value.skins = [defaultSkin, ...skins]
 
             if (skins.length === 0) {
                 console.warn(`useItemModal(${itemType}): No skins found for:`, itemName)

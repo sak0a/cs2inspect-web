@@ -18,6 +18,9 @@ export { pistols, rifles, smgs, heavys } from './weapons';
 export { healthCheckHistory, healthCheckConfig } from './health';
 export { migrations } from './migrations';
 
+// Sync tables
+export { syncNotifications } from './syncNotifications';
+
 // History tables
 export { itemHistory } from './itemHistory';
 export type { ItemHistorySnapshot, ChangeType, HistoryItemType, HistoryItemCategory, ItemHistoryRecord, NewItemHistoryRecord } from './itemHistory';

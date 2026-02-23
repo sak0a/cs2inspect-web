@@ -122,7 +122,7 @@ const fetchAvailableSkinsForKnife = async () => {
     console.warn('KnifeSkinModal: No weapon provided for skin fetching')
     return
   }
-  await fetchSkins(props.weapon.weapon_name, (error) => emit('error', error))
+  await fetchSkins(props.weapon.weapon_name, (error) => emit('error', error), props.weapon.defaultImage)
 }
 
 /**

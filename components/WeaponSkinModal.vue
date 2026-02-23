@@ -1010,7 +1010,7 @@ watch(() => props.weapon, () => {
       autoSave.resetStatus()
 
       // Then fetch new data and initialize state
-      fetchSkins(props.weapon.weapon_name, (err) => emit('error', err))
+      fetchSkins(props.weapon.weapon_name, (err) => emit('error', err), props.weapon.defaultImage)
       selectedSkin.value = props.weapon
 
       const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
