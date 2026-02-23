@@ -25,7 +25,8 @@ const groupedGloves = useGroupedWeapons(skins)
 
 const gloveOptions = computed(() => {
   return [
-    { label: 'Default Gloves', value: -1 },
+    { label: 'Player Inventory', value: -1 },
+    { label: 'Default', value: 0 },
     ...Object.entries(groupedGloves.value).map(([gloveName, gloveData]) => ({
       label: gloveName,
       value: gloveData.weapons[0]?.weapon_defindex
@@ -98,9 +99,11 @@ const updateSelectedGloves = () => {
   selectedTeamGloves.value.terrorists = findGloveInGroups(loadoutStore.selectedLoadout.selected_glove_t) ?? null
   selectedTeamGloves.value.counterTerrorists = findGloveInGroups(loadoutStore.selectedLoadout.selected_glove_ct) ?? null
 
-  // Set initial glove types based on selected gloves
-  tGloveType.value = selectedTeamGloves.value.terrorists?.weapon_defindex || -1;
-  ctGloveType.value = selectedTeamGloves.value.counterTerrorists?.weapon_defindex || -1;
+  // Set dropdown values: null→-1 (Player Inventory), 0→0 (Default), positive→defindex
+  const selectedT = loadoutStore.selectedLoadout.selected_glove_t
+  tGloveType.value = selectedT ?? -1
+  const selectedCT = loadoutStore.selectedLoadout.selected_glove_ct
+  ctGloveType.value = selectedCT ?? -1
 }
 
 const handleGloveClick = (glove: IEnhancedGlove) => {

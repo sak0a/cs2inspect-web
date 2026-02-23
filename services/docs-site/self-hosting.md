@@ -123,10 +123,10 @@ curl http://localhost:3000/api/health/ready
 
 ```bash
 # Run migrations
-docker compose exec web npm run db:push
+docker compose exec web bun run db:push
 
 # Verify database
-docker compose exec web npm run db:studio
+docker compose exec web bun run db:studio
 ```
 
 Your application should now be running at `http://localhost:3000`!
@@ -211,17 +211,17 @@ git clone https://github.com/sak0a/cs2inspect-web.git
 cd cs2inspect-web
 
 # Install dependencies
-npm install --production
+bun install --production
 
 # Configure environment
 cp .env.example .env
 nano .env  # Edit with your settings
 
 # Build application
-npm run build
+bun run build
 
 # Test run
-npm run preview
+bun run preview
 ```
 
 #### Step 5: Setup Process Manager (PM2)
@@ -681,14 +681,14 @@ long_query_time = 2
 ### Run Migrations
 
 ```bash
-# Using npm
-npm run db:push
+# Using bun
+bun run db:push
 
 # Or with docker
-docker compose exec web npm run db:push
+docker compose exec web bun run db:push
 
 # Open database studio
-npm run db:studio
+bun run db:studio
 ```
 
 ---
@@ -1066,10 +1066,10 @@ sudo apt update && sudo apt upgrade -y
 
 # Update Node.js dependencies
 cd ~/cs2inspect-web
-npm update
+bun install
 
 # Rebuild application
-npm run build
+bun run build
 
 # Restart with PM2
 pm2 restart cs2inspect

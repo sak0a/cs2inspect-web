@@ -7,16 +7,13 @@ hero:
   tagline: A comprehensive web application for customizing and managing CS2 weapon loadouts, skins, stickers, and more
   actions:
     - theme: brand
-      text: Get Started
+      text: User Guide
       link: /user-guide
     - theme: alt
-      text: Setup Guide
-      link: /setup
+      text: Server Setup
+      link: /self-hosting
     - theme: alt
-      text: Plugin Repository
-      link: https://github.com/sak0a/CS2Inspect-Plugin
-    - theme: alt
-      text: View on GitHub
+      text: GitHub
       link: https://github.com/sak0a/cs2inspect-web
 
 features:

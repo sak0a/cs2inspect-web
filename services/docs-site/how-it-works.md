@@ -11,6 +11,20 @@ CS2Inspect is a **two-part system** that works together:
 **The CS2Inspect web application requires the CS2Inspect Plugin to be installed on your CS2 server.** Both components share the same database. Players configure loadouts on the web, and the plugin automatically applies them when they join the server.
 :::
 
+### Shared Database Architecture
+
+```mermaid
+graph LR
+    Browser["Web Browser"] --> WebApp["CS2Inspect Web App"]
+    CS2["CS2 Game Client"] --> Plugin["CS2Inspect Plugin"]
+    WebApp <-->|"Read/Write"| DB[("MariaDB")]
+    Plugin <-->|"Read/Write"| DB
+```
+
+::: info No HTTP API Between Systems
+The web application and the CS2 plugin both connect **directly** to the same MariaDB database. There is no HTTP API, webhook, or network communication between them. Players configure loadouts on the web, and the plugin reads those configurations from the database when players connect or use [in-game commands](./plugin/commands.md).
+:::
+
 ## User Flows and Core Features
 
 This document explains the key user journeys and how the CS2Inspect application works from a user's perspective, with technical implementation details.

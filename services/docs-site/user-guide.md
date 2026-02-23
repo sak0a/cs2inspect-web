@@ -162,14 +162,20 @@ To use your loadouts in CS2 servers, the server must have the **CS2Inspect Plugi
 Once you're on a server with the plugin:
 
 1. **Your loadout loads automatically** when you join
-2. Your configured weapons, knives, gloves, and agents will appear in-game
-3. Use server commands (if available) to:
-   - Refresh your loadout: `!loadout` or `!refresh`
-   - Check weapon skin: `!ws`
-   - Apply saved loadout: `!skins`
+2. Your configured weapons, knives, gloves, agents, music kit, and pin will appear in-game
+3. Use in-game commands to manage your items:
+   - **Switch loadout**: `!loadout <name>` or `!switch <name>`
+   - **List loadouts**: `!loadouts`
+   - **Change knife**: `!knife <type>` (e.g., `!knife karambit`)
+   - **Change gloves**: `!glove <type>`
+   - **Change agent**: `!agent <type>`
+   - **Configure weapon**: `!g <weapon> <config>` (e.g., `!g ak47 printstream .02`)
+   - **View all commands**: `!cs2inspect`
+   - **Use Steam inventory items**: `!knife inventory`, `!glove inventory`, etc.
+   - **Reset to vanilla**: `!knife default`, `!glove default`, etc.
 
-::: tip Server Commands
-Specific commands may vary by server. Ask your server administrator for the exact commands available.
+::: tip Full Command Reference
+For the complete list of commands including the advanced weapon configuration syntax, per-knife shortcuts, and admin commands, see the [Plugin Commands](plugin/commands.md) documentation.
 :::
 
 ## Importing from Inspect Links
@@ -219,7 +225,9 @@ You can import item configurations from CS2 inspect links:
 ### I don't see my loadout in-game
 
 - Make sure the server has the CS2Inspect Plugin installed
-- Try using the `!loadout` or `!refresh` command in-game
+- Try using `!knife` or `!glove` to refresh your items
+- Use `!loadouts` to check which loadout is active
+- Use `!loadout <name>` to switch to the correct loadout
 - Verify you're logged into the same Steam account on the website
 - Contact the server administrator if the issue persists
 

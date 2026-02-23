@@ -25,7 +25,8 @@ const groupedKnives = useGroupedWeapons(skins)
 
 const knifeOptions = computed(() => {
   return [
-    { label: 'Default Knife', value: -1 },
+    { label: 'Player Inventory', value: -1 },
+    { label: 'Default', value: 0 },
     ...Object.entries(groupedKnives.value).map(([knifeName, knifeData]) => ({
       label: knifeName,
       value: knifeData.weapons[0]?.weapon_defindex ?? -1
@@ -98,9 +99,11 @@ const updateSelectedKnives = () => {
   selectedTeamKnives.value.terrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_t) ?? null
   selectedTeamKnives.value.counterTerrorists = findKnifeInGroups(loadoutStore.selectedLoadout.selected_knife_ct) ?? null
 
-  // Set initial knife types based on selected knives
-  tKnifeType.value = selectedTeamKnives.value.terrorists?.weapon_defindex || -1;
-  ctKnifeType.value = selectedTeamKnives.value.counterTerrorists?.weapon_defindex || -1;
+  // Set dropdown values: null→-1 (Player Inventory), 0→0 (Default), positive→defindex
+  const selectedT = loadoutStore.selectedLoadout.selected_knife_t
+  tKnifeType.value = selectedT ?? -1
+  const selectedCT = loadoutStore.selectedLoadout.selected_knife_ct
+  ctKnifeType.value = selectedCT ?? -1
 }
 
 const handleKnifeClick = (knife: IEnhancedKnife) => {

@@ -260,10 +260,10 @@ For detailed plugin installation, configuration, and usage instructions, see the
 Check that your configuration is correct:
 
 ```bash
-# Test database connection
-npm run db:test
+# Push schema to database (verifies connection)
+bun run db:push
 
-# Or manually test:
+# Or manually test the connection:
 mysql -h 127.0.0.1 -u csinspect -p csinspect -e "SHOW TABLES;"
 ```
 

@@ -17,7 +17,8 @@ export default withMermaid({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'User Guide', link: '/user-guide' },
-      { text: 'Setup', link: '/setup' },
+      { text: 'Deploy', link: '/self-hosting' },
+      { text: 'Plugin', link: '/plugin/' },
       { text: 'API', link: '/api/' },
       { text: 'GitHub', link: 'https://github.com/sak0a/cs2inspect-web' }
     ],
@@ -25,30 +26,40 @@ export default withMermaid({
     sidebar: {
       '/': [
         {
-          text: 'Getting Started',
+          text: 'Web Application',
           items: [
             { text: 'Overview', link: '/' },
             { text: 'User Guide', link: '/user-guide' },
-            { text: 'Setup Guide', link: '/setup' },
             { text: 'How It Works', link: '/how-it-works' },
-            { text: 'Plugin Integration', link: '/plugin-integration' },
             { text: 'FAQ', link: '/faq' }
           ]
         },
         {
-          text: 'Technical Documentation',
+          text: 'Server Setup',
           items: [
+            { text: 'Self-Hosting Guide', link: '/self-hosting' },
+            { text: 'Deployment Options', link: '/deployment' },
+            { text: 'Coolify Deployment', link: '/coolify' }
+          ]
+        },
+        {
+          text: 'Features',
+          items: [
+            { text: 'Version History', link: '/version-history' },
+            { text: 'Admin Panel', link: '/admin' }
+          ]
+        },
+        {
+          text: 'Development',
+          items: [
+            { text: 'Development Setup', link: '/setup' },
             { text: 'Architecture', link: '/architecture' },
             { text: 'Frontend Architecture', link: '/architecture-frontend' },
             { text: 'Backend Architecture', link: '/architecture-backend' },
             { text: 'Deployment Architecture', link: '/architecture-deployment' },
-            { text: 'Components', link: '/components' }
-          ]
-        },
-        {
-          text: 'Admin Panel',
-          items: [
-            { text: 'Admin Overview', link: '/admin' }
+            { text: 'Components', link: '/components' },
+            { text: 'GitHub Actions CI/CD', link: '/github-actions' },
+            { text: 'Contributing Guide', link: '/contributing' }
           ]
         },
         {
@@ -64,34 +75,37 @@ export default withMermaid({
             { text: 'Composables', link: '/reference-composables' },
             { text: 'Pinia Stores', link: '/reference-stores' },
             { text: 'TypeScript Types', link: '/reference-types' },
-            { text: 'Environment Variables', link: '/reference-env' }
-          ]
-        },
-        {
-          text: 'Deployment & Contributing',
-          items: [
-            { text: 'Self-Hosting Guide', link: '/self-hosting' },
-            { text: 'Deployment Guide', link: '/deployment' },
-            { text: 'Coolify Deployment', link: '/coolify' },
-            { text: 'GitHub Actions CI/CD', link: '/github-actions' },
-            { text: 'Contributing Guide', link: '/contributing' },
-            { text: 'Recommendations', link: '/recommendations' },
-            { text: 'Improvements Summary', link: '/improvements-summary' }
-          ]
-        },
-        {
-          text: 'Features',
-          items: [
-            { text: 'Version History', link: '/version-history' }
+            { text: 'Environment Variables', link: '/reference-env' },
+            { text: 'Health Checks', link: '/HEALTH_CHECKS' }
           ]
         },
         {
           text: 'Additional Resources',
           items: [
-            { text: 'Health Checks', link: '/HEALTH_CHECKS' },
             { text: 'Theme Customization', link: '/theme-customization' },
             { text: 'Sticker Slots', link: '/StickerSlots' },
-            { text: 'Glassmorphism', link: '/GLASSMORPHISM' }
+            { text: 'Glassmorphism', link: '/GLASSMORPHISM' },
+            { text: 'Recommendations', link: '/recommendations' },
+            { text: 'Improvements Summary', link: '/improvements-summary' }
+          ]
+        }
+      ],
+      '/plugin/': [
+        {
+          text: 'CS2 Plugin',
+          items: [
+            { text: 'Overview', link: '/plugin/' },
+            { text: 'Commands', link: '/plugin/commands' },
+            { text: 'Configuration', link: '/plugin/configuration' },
+            { text: 'Config Generator', link: '/plugin/config-generator' }
+          ]
+        },
+        {
+          text: 'Web Application',
+          items: [
+            { text: 'User Guide', link: '/user-guide' },
+            { text: 'Self-Hosting Guide', link: '/self-hosting' },
+            { text: 'How It Works', link: '/how-it-works' }
           ]
         }
       ],

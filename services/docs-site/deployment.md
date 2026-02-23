@@ -743,8 +743,8 @@ tar -czf cs2inspect_files_$(date +%Y%m%d).tar.gz \
    ```bash
    # Revert to previous build
    git checkout <previous-commit-hash>
-   npm ci
-   npm run build
+   bun install --frozen-lockfile
+   bun run build
    pm2 restart cs2inspect
    ```
 

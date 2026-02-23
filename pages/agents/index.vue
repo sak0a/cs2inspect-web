@@ -32,7 +32,8 @@ const ctAgents = computed(() => {
 // Create options for the dropdowns
 const tAgentOptions = computed(() => {
   return [
-    { label: 'Default Agent', value: -1 },
+    { label: 'Player Inventory', value: -1 },
+    { label: 'Default', value: 0 },
     ...(tAgents.value || []).map(agent => ({
       label: agent.name,
       value: parseInt(agent.id.replace('agent-', ''))
@@ -42,7 +43,8 @@ const tAgentOptions = computed(() => {
 
 const ctAgentOptions = computed(() => {
   return [
-    { label: 'Default Agent', value: -1 },
+    { label: 'Player Inventory', value: -1 },
+    { label: 'Default', value: 0 },
     ...(ctAgents.value || []).map(agent => ({
       label: agent.name,
       value: parseInt(agent.id.replace('agent-', ''))
@@ -143,8 +145,8 @@ const fetchAgents = async () => {
 
     // Set initial selected agents if available in loadout
     if (loadoutStore.selectedLoadout) {
-      tAgentType.value = loadoutStore.selectedLoadout.selected_agent_t || -1
-      ctAgentType.value = loadoutStore.selectedLoadout.selected_agent_ct || -1
+      tAgentType.value = loadoutStore.selectedLoadout.selected_agent_t ?? -1
+      ctAgentType.value = loadoutStore.selectedLoadout.selected_agent_ct ?? -1
     }
   } catch (error) {
     console.error('Error fetching agents:', error)
@@ -251,8 +253,8 @@ watch(() => loadoutStore.selectedLoadoutId, async (newLoadoutId) => {
   if (newLoadoutId !== null && agents.value.length > 0) {
     // Update selected agents based on loadout
     if (loadoutStore.selectedLoadout) {
-      tAgentType.value = loadoutStore.selectedLoadout.selected_agent_t || -1
-      ctAgentType.value = loadoutStore.selectedLoadout.selected_agent_ct || -1
+      tAgentType.value = loadoutStore.selectedLoadout.selected_agent_t ?? -1
+      ctAgentType.value = loadoutStore.selectedLoadout.selected_agent_ct ?? -1
     }
   }
 })

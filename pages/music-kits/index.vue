@@ -58,7 +58,8 @@ const musicKitOptions = computed(() => {
   })
 
   return [
-    { label: 'Default Music Kit', value: -1 },
+    { label: 'Player Inventory', value: -1 },
+    { label: 'Default', value: 0 },
     ...Array.from(uniqueKits.values()).map(kit => ({
       label: kit.name,
       value: getMusicKitBaseId(kit)
@@ -130,7 +131,7 @@ const fetchMusicKits = async () => {
 
     // Get the selected music kit from the loadout
     if (loadoutStore.selectedLoadout) {
-      selectedMusicKit.value = loadoutStore.selectedLoadout.selected_music || -1
+      selectedMusicKit.value = loadoutStore.selectedLoadout.selected_music ?? -1
     } else {
       selectedMusicKit.value = -1
     }

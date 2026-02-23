@@ -47,7 +47,8 @@ const pinGrid = computed(() => {
 // Create options for the dropdown
 const pinOptions = computed(() => {
   return [
-    { label: 'Default Pin', value: -1 },
+    { label: 'Player Inventory', value: -1 },
+    { label: 'Default', value: 0 },
     ...filteredCollectibles.value.map(pin => ({
       label: pin.name,
       value: getCollectibleBaseId(pin)
@@ -92,7 +93,7 @@ const handlePinTypeChange = async (pinId: number) => {
   } catch (error) {
     console.error('Error updating pin:', error)
     // Revert the local state on error
-    selectedPin.value = loadoutStore.selectedLoadout?.selected_pin || -1
+    selectedPin.value = loadoutStore.selectedLoadout?.selected_pin ?? -1
     message.error('Failed to update pin. Please try again.')
   }
 }
@@ -121,7 +122,7 @@ const fetchCollectibles = async () => {
 
     // Get the selected pin from the loadout
     if (loadoutStore.selectedLoadout) {
-      selectedPin.value = loadoutStore.selectedLoadout.selected_pin || -1
+      selectedPin.value = loadoutStore.selectedLoadout.selected_pin ?? -1
     } else {
       selectedPin.value = -1
     }
