@@ -167,7 +167,9 @@ Once you're on a server with the plugin:
    - **Switch loadout**: `!loadout <name>` or `!switch <name>`
    - **List loadouts**: `!loadouts`
    - **Change knife**: `!knife <type>` (e.g., `!knife karambit`)
+   - **Change knife + customize**: `!karambit doppler4 .02 s991 t444` (switch and configure in one command)
    - **Change gloves**: `!glove <type>`
+   - **Change gloves + customize**: `!sport superconductor .02 s991` (switch and configure in one command)
    - **Change agent**: `!agent <type>`
    - **Configure weapon**: `!g <weapon> <config>` (e.g., `!g ak47 printstream .02`)
    - **View all commands**: `!cs2inspect`

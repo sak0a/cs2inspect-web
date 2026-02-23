@@ -62,6 +62,25 @@ When `Additional.KnifeShortCommandsEnabled` is `true`, you can use direct shortc
 !talon       !classic     !nomad       !skeleton    !kukri
 ```
 
+#### Knife Inline Customization
+
+Knife shortcuts accept the same modular arguments as the `!g` command. This lets you switch knife type **and** configure it in a single command:
+
+```bash
+!karambit                                      # Switch to karambit (no customization)
+!karambit doppler4                             # Switch + set paint by name
+!karambit doppler4 .02 s991 "oh my god" t444   # Switch + full customization
+!butterfly p415                                # Switch + set paint by index
+!m9 default                                    # Reset m9 properties to defaults (keeps m9 selected)
+!karambit reset                                # Full config reset for karambit
+```
+
+Arguments are **position-independent** — you can provide wear, paint, seed, StatTrak, nametag, stickers, and keychains in any order. All property tokens from the `!g` command work here.
+
+::: info Cross-Category Paint Names
+If a paint name isn't found in the knife category but exists for another weapon type (e.g., rifles), it is still applied and a warning is shown telling you where the paint was found.
+:::
+
 ::: tip Disabling Specific Shortcuts
 Individual shortcuts can be disabled via the `Additional.DisabledKnifeCommands` array in config. Additional configurable shortcuts are available via the `KnifeCommands` config block.
 :::
@@ -80,7 +99,30 @@ Individual shortcuts can be disabled via the `Additional.DisabledKnifeCommands` 
 | `!glove inventory` | Use player's Steam inventory gloves |
 | `!glove default` | Force vanilla CS2 gloves |
 
-Per-glove shortcuts can be configured via the `GloveCommands` config block.
+### Per-Glove Shortcuts
+
+Per-glove shortcuts (e.g., `!sport`, `!driver`, `!hand`, `!moto`, `!specialist`, `!hydra`, `!bloodhound`) can be configured via the `GloveCommands` config block.
+
+#### Glove Inline Customization
+
+Glove shortcuts accept the same modular arguments as the `!g` command:
+
+```bash
+!sport                            # Switch to Sport Gloves (no customization)
+!sport superconductor .02 s991    # Switch + set paint, wear and seed
+!driver p10077                    # Switch + set paint by index
+!sport default                    # Reset glove properties to defaults
+```
+
+Arguments are **position-independent** — paint, wear, and seed can appear in any order.
+
+::: info Glove Limitations
+Gloves do not support StatTrak (`t`) or custom nametags (`n"..."`/`"..."`). Only paint, wear, and seed are applicable.
+:::
+
+::: info Cross-Category Paint Names
+If a paint name isn't found in the glove category but exists for another weapon type, it is still applied and a warning is shown telling you where the paint was found.
+:::
 
 ---
 

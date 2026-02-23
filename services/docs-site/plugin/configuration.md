@@ -208,6 +208,8 @@ Additional configurable knife shortcuts beyond the built-in ones (`!karambit`, e
 }
 ```
 
+Both built-in and configurable knife shortcuts support **inline customization** — you can append the same modular arguments used by `!g` to switch knife type and configure it in one command (e.g., `!karambit doppler4 .02 s991 t444`). See [Plugin Commands](./commands.md) for details and examples.
+
 ---
 
 ## Glove Command Shortcuts (`GloveCommands`)
@@ -220,6 +222,8 @@ Configurable glove shortcuts:
   "Gloves": {}
 }
 ```
+
+Glove shortcuts also support **inline customization** with the same modular syntax (e.g., `!sport superconductor .02 s991`). Note that gloves do not support StatTrak or nametags. See [Plugin Commands](./commands.md) for details.
 
 ---
 
