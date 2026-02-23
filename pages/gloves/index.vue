@@ -215,6 +215,7 @@ const { connect: connectSync, onSyncEvent } = useSyncEvents()
 onSyncEvent((event) => {
   if (event.type !== 'item_changed') return
   if (event.itemType === 'glove' || event.itemType === 'loadout') {
+    showSkinModal.value = false
     fetchLoadoutGloves()
   }
 })

@@ -240,6 +240,7 @@ const { connect: connectSync, onSyncEvent } = useSyncEvents()
 onSyncEvent((event) => {
   if (event.type !== 'item_changed') return
   if (event.itemType === 'knife' || event.itemType === 'loadout') {
+    showSkinModal.value = false
     fetchLoadoutKnives()
   }
 })

@@ -7,6 +7,7 @@ import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from "~/server/utils/constants";
 import { toLoadoutId } from '~/types/core/common';
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
+import { notifyPluginOfWebChange } from '~/server/utils/sync/notifySync'
 
 type SelectionType = 'knife' | 'glove' | 'agent' | 'music' | 'pin'
 
@@ -45,6 +46,7 @@ export default useErrorHandling(async (event) => {
             .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 
         Logger.success(`Updated music kit selection for loadout ${loadoutId}`)
+        notifyPluginOfWebChange(steamId, loadoutIdNum, 'music').catch(() => {})
         return { message: `Updated music kit selection for loadout ${loadoutId}` }
     }
 
@@ -58,6 +60,7 @@ export default useErrorHandling(async (event) => {
                 .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 
             Logger.success(`Updated pin selection for loadout ${loadoutId}`)
+            notifyPluginOfWebChange(steamId, loadoutIdNum, 'pin').catch(() => {})
             return { message: `Updated pin selection for loadout ${loadoutId}` }
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : String(error)
@@ -130,5 +133,6 @@ export default useErrorHandling(async (event) => {
         .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 
     Logger.success(`Updated ${type} selection for loadout ${loadoutId}`)
+    notifyPluginOfWebChange(steamId, loadoutIdNum, type).catch(() => {})
     return { message: `Updated ${type} selection for loadout ${loadoutId}` }
 }, ErrorCodes.LOADOUT_SELECT_ERROR)

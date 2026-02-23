@@ -206,8 +206,10 @@ const { connect: connectSync, onSyncEvent } = useSyncEvents()
 onSyncEvent((event) => {
   if (event.type !== 'item_changed') return
   if (event.itemType === 'weapon' && event.itemCategory === WEAPON_TYPE) {
+    showSkinModal.value = false
     fetchLoadoutSkins()
   } else if (event.itemType === 'loadout') {
+    showSkinModal.value = false
     fetchLoadoutSkins()
   }
 })
