@@ -172,10 +172,12 @@ function detectChangeType(
     if (skinsData) {
       const oldSkin = findSkinByPaintIndex(oldSnapshot.paintindex, skinsData)
       const newSkin = findSkinByPaintIndex(newSnapshot.paintindex, skinsData)
-      if (oldSkin && newSkin) {
-        skinChangeDesc = `${extractSkinName(oldSkin.name)} → ${extractSkinName(newSkin.name)}`
-      } else if (newSkin) {
-        skinChangeDesc = `→ ${extractSkinName(newSkin.name)}`
+      const oldName = oldSkin ? extractSkinName(oldSkin.name) : (oldSnapshot.paintindex === 0 ? 'Default' : null)
+      const newName = newSkin ? extractSkinName(newSkin.name) : (newSnapshot.paintindex === 0 ? 'Default' : null)
+      if (oldName && newName) {
+        skinChangeDesc = `${oldName} → ${newName}`
+      } else if (newName) {
+        skinChangeDesc = `→ ${newName}`
       }
     }
     changes.push(skinChangeDesc)

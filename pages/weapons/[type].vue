@@ -50,7 +50,7 @@ const handleAutoSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     throw new Error('No loadout or user selected')
   }
-  if (customization.paintindex === null || customization.paintindex === 0) {
+  if (customization.paintindex === null) {
     return // Don't auto-save without a paint selected
   }
   const test = {
@@ -87,7 +87,7 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
     message.error(t('loadout.selectLoadoutFirst') as string)
     return
   }
-  if (customization.paintindex === null || customization.paintindex === 0) {
+  if (customization.paintindex === null) {
     message.error('Please select a paint to save the weapon')
     return
   }

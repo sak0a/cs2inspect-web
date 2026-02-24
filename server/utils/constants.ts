@@ -464,10 +464,10 @@ export const DEFAULT_WEAPONS: IDefaultItem[] = [
     },
     {
         weapon_defindex: 39,
-        weapon_name: "weapon_sg556",
+        weapon_name: "weapon_sg553",
         paintindex: 0,
         defaultImage:
-            IMAGE_BASE_URL + "weapon_sg556.webp",
+            IMAGE_BASE_URL + "weapon_sg553.webp",
         defaultName: "SG 553",
         category: "rifles",
         availableTeams: "terrorists"
@@ -829,7 +829,7 @@ export const DEFINDEXES = {
     weapon_p250: 36,
     weapon_shield: 37,
     weapon_scar20: 38,
-    weapon_sg556: 39,
+    weapon_sg553: 39,
     weapon_ssg08: 40,
     weapon_knifegg: 41,
     weapon_knife: 42,

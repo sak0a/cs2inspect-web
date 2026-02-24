@@ -91,10 +91,11 @@ export default useErrorHandling(async (event) => {
                 Logger.info(`No matching skin found for ${baseGlove.defaultName} with paintindex ${databaseResult.paintindex}`);
             }
 
+            const isDefaultSkin = !skinInfo
             const enhancedGlove = {
                 weapon_defindex: baseGlove.weapon_defindex,
                 weapon_name: baseGlove.weapon_name,
-                name: skinInfo?.name || baseGlove.defaultName,
+                name: skinInfo?.name || `${baseGlove.defaultName} | Default`,
                 defaultName: baseGlove.defaultName,
                 image: skinInfo?.image || baseGlove.defaultImage,
                 defaultImage: baseGlove.defaultImage,
@@ -102,7 +103,7 @@ export default useErrorHandling(async (event) => {
                 minFloat: skinInfo?.min_float || 0,
                 maxFloat: skinInfo?.max_float || 1,
                 paintindex: skinInfo?.paint_index || baseGlove.paintindex,
-                rarity: skinInfo?.rarity,
+                rarity: skinInfo?.rarity || (isDefaultSkin ? { id: 'default', name: 'Default', color: '#B0C3D9' } : undefined),
                 availableTeams: 'both',
                 team: null,
                 databaseInfo: {

@@ -8,6 +8,7 @@ import {
   canvasElementToSticker,
   generateFlatImageUrl,
   generateFallbackWeaponImageUrl,
+  generateDefaultFlatImageUrl,
   getDefaultStickerPosition,
   createCoordinateTransform,
   getExternalNormalizationRefs,
@@ -539,7 +540,23 @@ const initializeWeaponBackground = async () => {
     _debugWarn('[InlineVisualCustomizer] Missing props or refs', { skin: !!props.weaponSkin, video: !!video.value, ctx: !!ctx.value })
     return
   }
-  
+
+  // Default skin (paintindex=0): skip video, use flat PNG directly
+  if (props.weaponSkin.paintindex === 0) {
+    isVideoMode.value = false
+    isVideoLoading.value = false
+    const weaponName = props.weaponSkin.name.split(' | ')[0] || 'weapon'
+    const flatUrl = generateDefaultFlatImageUrl(weaponName)
+    canvasState.value.weaponImage = flatUrl
+    try {
+      await loadImage(flatUrl)
+    } catch (e) {
+      _debugWarn('[InlineVisualCustomizer] Default flat image load failed', e)
+    }
+    renderCanvas()
+    return
+  }
+
   const weaponName = props.weaponSkin.name.split(' | ')[0] || 'weapon'
   const skinName = props.weaponSkin.name.split(' | ')[1] || 'skin'
   videoUrl.value = generateVideoUrl(weaponName, skinName)

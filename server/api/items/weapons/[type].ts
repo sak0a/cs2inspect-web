@@ -221,9 +221,9 @@ export default useErrorHandling(async (event) => {
             } else {
                 // Default weapon (paint index 0 or no custom skin)
                 displayImage = baseWeapon.defaultImage;
-                displayName = baseWeapon.defaultName;
+                displayName = `${baseWeapon.defaultName} | Default`;
                 paintIndexToUse = 0;
-                rarityToUse = undefined;
+                rarityToUse = { id: 'default', name: 'Default', color: '#B0C3D9' };
             }
 
             /**

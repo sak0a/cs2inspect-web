@@ -88,7 +88,7 @@ const handleDefaultWeaponClick = (team: number): void => {
     const defaultWeapon: WeaponItemData = {
       type: 'weapon',
       id: `default-${firstWeapon.id || 'weapon'}`,
-      name: props.weaponData.defaultName,
+      name: `${props.weaponData.defaultName} | Default`,
       defaultName: props.weaponData.defaultName,
       image: firstWeapon.defaultImage,
       defaultImage: firstWeapon.defaultImage,
@@ -97,7 +97,7 @@ const handleDefaultWeaponClick = (team: number): void => {
       minFloat: firstWeapon.minFloat || 0,
       maxFloat: firstWeapon.maxFloat || 1,
       availableTeams: firstWeapon.availableTeams || 'both',
-      rarity: firstWeapon.rarity,
+      rarity: { id: 'default', name: 'Default', color: '#B0C3D9' },
       // Add the missing weapon_name field from the first weapon
       weapon_name: firstWeapon.weapon_name,
       weapon_defindex: firstWeapon.weapon_defindex || firstWeapon.databaseInfo?.defindex || 0,
@@ -164,8 +164,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         <NCard
             v-if="!weaponData.weapons.some((w: WeaponItemData) => w.databaseInfo?.team === 2)"
             :style="{
-              borderColor: '#313030',
-              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
+              borderColor: '#B0C3D9',
+              background: 'linear-gradient(135deg, #101010, ' + hexToRgba('#B0C3D9', '0.15') + ')'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
             @click="handleDefaultWeaponClick(2)"
@@ -178,8 +178,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
                 loading="lazy"
             >
             <div class="w-full">
-              <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <p class="text-sm text-white truncate">{{ weaponData.defaultName }} | Default</p>
+              <div class="h-1 mt-2" :style="{ background: '#B0C3D9' }" />
             </div>
           </div>
         </NCard>
@@ -215,8 +215,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         <NCard
             v-if="!weaponData.weapons.some((w: WeaponItemData) => w.databaseInfo?.team === 1)"
             :style="{
-              borderColor: '#313030',
-              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
+              borderColor: '#B0C3D9',
+              background: 'linear-gradient(135deg, #101010, ' + hexToRgba('#B0C3D9', '0.15') + ')'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
             @click="handleDefaultWeaponClick(1)"
@@ -229,8 +229,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
                 loading="lazy"
             >
             <div class="w-full">
-              <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <p class="text-sm text-white truncate">{{ weaponData.defaultName }} | Default</p>
+              <div class="h-1 mt-2" :style="{ background: '#B0C3D9' }" />
             </div>
           </div>
         </NCard>
@@ -274,8 +274,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
         <NCard
             v-if="!weaponData.weapons.some((w: WeaponItemData) => w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2))"
             :style="{
-              borderColor: '#313030',
-              background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))'
+              borderColor: '#B0C3D9',
+              background: 'linear-gradient(135deg, #101010, ' + hexToRgba('#B0C3D9', '0.15') + ')'
             }"
             class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
             @click="handleDefaultWeaponClick(
@@ -289,8 +289,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
                 loading="lazy"
             >
             <div class="w-full">
-              <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+              <p class="text-sm text-white truncate">{{ weaponData.defaultName }} | Default</p>
+              <div class="h-1 mt-2" :style="{ background: '#B0C3D9' }" />
             </div>
           </div>
         </NCard>

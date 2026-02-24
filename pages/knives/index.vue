@@ -143,7 +143,7 @@ const handleAutoSave = async (knife: IEnhancedKnife, customization: KnifeConfigu
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     throw new Error('No loadout or user selected')
   }
-  if (customization.paintindex === null || customization.paintindex === 0) {
+  if (customization.paintindex === null) {
     return // Don't auto-save without a paint selected
   }
   await $fetch<{ success?: boolean; message: string }>(`/api/items/knives/save?steamId=${user.value.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}`, {

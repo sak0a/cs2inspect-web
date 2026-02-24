@@ -113,6 +113,7 @@ export interface VisualCustomizerProps {
     name: string
     image: string
     defindex: number
+    paintindex?: number
   }
   /** Current sticker customizations */
   stickers: (StickerConfiguration | null)[]

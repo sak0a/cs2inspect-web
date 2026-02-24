@@ -20,7 +20,7 @@ import { steamAuth } from "~/services/steamAuth"
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import { useAutoSave } from '~/composables/useAutoSave'
 import SaveStatusIndicator from './SaveStatusIndicator.vue'
-import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
+import { generateFlatKeychainUrl, generateDefaultFlatImageUrl } from '~/utils/canvasCoordinates'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
 
@@ -151,6 +151,15 @@ const previewVideoManager = ref<VideoCanvasManager | null>(null)
 const isPreviewVideoMode = ref(false)
 const isPreviewVideoLoading = ref(false)
 
+// Preview image: use flat default PNG when paintindex=0, otherwise selected skin image
+const previewImageUrl = computed(() => {
+  if (customization.value.paintindex === 0 && selectedSkin.value) {
+    const weaponName = selectedSkin.value.name.split(' | ')[0] || ''
+    return generateDefaultFlatImageUrl(weaponName)
+  }
+  return selectedSkin.value?.image || ''
+})
+
 // Watch customization changes for auto-save
 watch(
   () => customization.value,
@@ -160,7 +169,7 @@ watch(
     // 2. A skin is selected
     // 3. A paint index is set (user has chosen a skin)
     // 4. Modal is visible
-    if (!isInitializing.value && selectedSkin.value && newVal.paintindex > 0 && props.visible) {
+    if (!isInitializing.value && selectedSkin.value && newVal.paintindex !== null && props.visible) {
       autoSave.triggerSave({ ...newVal })
     }
   },
@@ -215,6 +224,13 @@ const skinSortOptions = computed(() => [
  */
 const initializePreviewVideo = async () => {
   if (!selectedSkin.value || !previewVideo.value || !previewCanvas.value) return
+
+  // Default skin (paintindex=0): skip video, use flat image directly
+  if (customization.value.paintindex === 0) {
+    isPreviewVideoMode.value = false
+    isPreviewVideoLoading.value = false
+    return
+  }
 
   // Get canvas context
   previewCtx.value = previewCanvas.value.getContext('2d')
@@ -923,7 +939,7 @@ const handleSave = () => {
 const handleClose = async () => {
   // Flush any pending auto-save before closing
   // This ensures changes are saved even if the user closes before debounce completes
-  if (selectedSkin.value && customization.value.paintindex > 0) {
+  if (selectedSkin.value && customization.value.paintindex !== null) {
     await autoSave.flushPending()
   }
 
@@ -1010,7 +1026,8 @@ watch(() => props.weapon, () => {
       autoSave.resetStatus()
 
       // Then fetch new data and initialize state
-      fetchSkins(props.weapon.weapon_name, (err) => emit('error', err), props.weapon.defaultImage)
+      const displayName = props.weapon.name.split(' | ')[0] || props.weapon.weapon_name
+      fetchSkins(props.weapon.weapon_name, (err) => emit('error', err), props.weapon.defaultImage, displayName)
       selectedSkin.value = props.weapon
 
       const dbInfo = props.weapon.databaseInfo as IMappedDBWeapon
@@ -1117,7 +1134,7 @@ onUnmounted(() => {
         <NButton
           secondary
           type="default"
-          :disabled="!selectedSkin || customization.paintindex == 0"
+          :disabled="!selectedSkin"
           :aria-label="String(t('history.title'))"
           data-tutorial="history-button"
           @click="weaponState.showHistoryPanel = true"
@@ -1196,7 +1213,8 @@ onUnmounted(() => {
             :weapon-skin="{
               name: selectedSkin?.name || '',
               image: selectedSkin?.image || '',
-              defindex: selectedSkin?.weapon_defindex || 0
+              defindex: selectedSkin?.weapon_defindex || 0,
+              paintindex: customization.paintindex ?? undefined
             }"
             :stickers="customization.stickers"
             :keychain="customization.keychain"
@@ -1232,7 +1250,7 @@ onUnmounted(() => {
                 <!-- Static image fallback (shown when no video or loading) -->
                 <img
                     v-show="!isPreviewVideoMode || isPreviewVideoLoading"
-                    :src="selectedSkin?.image"
+                    :src="previewImageUrl"
                     :alt="selectedSkin?.name"
                     class="w-full h-64 object-contain"
                 >
@@ -1545,7 +1563,7 @@ onUnmounted(() => {
               ', ' + (hexToRgba(skin.rarity?.color, '0.15') || '#313030') + ')'}"
             :class="[
             'hover:shadow-lg cursor-pointer transition-all rounded-xl',
-            selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
+            customization.paintindex === Number(skin.paint_index) ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
           ]"
             @click="handleSkinSelect(skin)"
         >

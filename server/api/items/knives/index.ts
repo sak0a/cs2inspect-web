@@ -108,9 +108,9 @@ export default useErrorHandling(async (event) => {
             } else {
                 // Default knife (paint index 0 or no custom skin)
                 displayImage = baseKnife.defaultImage;
-                displayName = baseKnife.defaultName;
+                displayName = `★ ${baseKnife.defaultName} | Default`;
                 paintIndexToUse = baseKnife.paintindex;
-                rarityToUse = undefined;
+                rarityToUse = { id: 'default', name: 'Default', color: '#B0C3D9' };
             }
 
             data.push({

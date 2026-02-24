@@ -804,7 +804,7 @@ export function generateFallbackWeaponImageUrl(weaponName: string): string {
     'famas': 'weapon_famas',
     'galil-ar': 'weapon_galilar',
     'aug': 'weapon_aug',
-    'sg-553': 'weapon_sg556',
+    'sg-553': 'weapon_sg553',
     'ssg-08': 'weapon_ssg08',
     'scar-20': 'weapon_scar20',
     'g3sg1': 'weapon_g3sg1',
@@ -820,6 +820,32 @@ export function generateFallbackWeaponImageUrl(weaponName: string): string {
   const defaultImageName = weaponMapping[cleanWeaponName] || 'weapon_ak47' // fallback to AK-47
 
   return `/img/defaults/${defaultImageName}.webp`
+}
+
+/**
+ * Generate flat image URL for default weapon skin (paintindex=0)
+ * Uses the new flat PNG files in public/img/defaults/
+ */
+export function generateDefaultFlatImageUrl(weaponDisplayName: string): string {
+  const cleanName = weaponDisplayName.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')
+
+  let baseUrl = ''
+  let weaponsPath = ''
+
+  try {
+    const config = useRuntimeConfig()
+    baseUrl = (config.public.assetsUrl as string) || ''
+    weaponsPath = (config.public.assetsWeaponsPath as string) || ''
+  } catch {
+    baseUrl = ''
+    weaponsPath = ''
+  }
+
+  if (baseUrl) {
+    return `${baseUrl}${weaponsPath}/${cleanName}-default.png`
+  }
+
+  return `/img/defaults/${cleanName}-default.png`
 }
 
 /**

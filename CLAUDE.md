@@ -4,18 +4,6 @@
 
 CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players to customize loadouts with real-time preview. Steam OpenID auth, MariaDB storage.
 
-## Commands
-
-```bash
-bun install              # Install dependencies
-bun run dev              # Start dev server (localhost:3210)
-bun run build            # Production build
-bun test                 # Run tests (Vitest)
-bun run lint             # ESLint
-bun run typecheck        # TypeScript check
-bun run db:push          # Push schema changes
-bun run db:migrate       # Run migrations
-```
 
 ## Tech Stack
 

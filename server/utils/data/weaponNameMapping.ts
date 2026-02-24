@@ -37,7 +37,7 @@ export const WEAPON_NAME_MAPPINGS: Record<string, string[]> = {
     'weapon_nova': ['weapon_nova'],
     'weapon_p250': ['weapon_p250'],
     'weapon_scar20': ['weapon_scar20'],
-    'weapon_sg556': ['weapon_sg556'],
+    'weapon_sg553': ['weapon_sg553'],
     'weapon_ssg08': ['weapon_ssg08'],
     'weapon_m4a1_silencer': ['weapon_m4a1_silencer'],
     'weapon_usp_silencer': ['weapon_usp_silencer'],

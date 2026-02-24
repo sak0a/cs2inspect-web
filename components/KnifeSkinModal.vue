@@ -107,7 +107,7 @@ const isInitializing = ref(false)
 watch(
   () => customization.value,
   (newVal) => {
-    if (!isInitializing.value && selectedSkin.value && newVal.paintindex > 0 && props.visible) {
+    if (!isInitializing.value && selectedSkin.value && newVal.paintindex !== null && props.visible) {
       autoSave.triggerSave({ ...newVal })
     }
   },
@@ -122,7 +122,8 @@ const fetchAvailableSkinsForKnife = async () => {
     console.warn('KnifeSkinModal: No weapon provided for skin fetching')
     return
   }
-  await fetchSkins(props.weapon.weapon_name, (error) => emit('error', error), props.weapon.defaultImage)
+  const displayName = props.weapon.name.split(' | ')[0] || props.weapon.weapon_name
+  await fetchSkins(props.weapon.weapon_name, (error) => emit('error', error), props.weapon.defaultImage, displayName)
 }
 
 /**
@@ -349,7 +350,7 @@ const handleCreateInspectLink = async () => {
 
 const handleClose = async () => {
   // Flush any pending auto-save before closing
-  if (selectedSkin.value && customization.value.paintindex > 0) {
+  if (selectedSkin.value && customization.value.paintindex !== null) {
     await autoSave.flushPending()
   }
 
@@ -660,7 +661,7 @@ watch(() => props.weapon, () => {
           }"
             :class="[
             'hover:shadow-lg cursor-pointer transition-all rounded-xl',
-            selectedSkin?.name === skin.name ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
+            customization.paintindex === Number(skin.paint_index) ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85' : ''
           ]"
             @click="handleSkinSelect(skin)"
         >

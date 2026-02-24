@@ -174,7 +174,7 @@ export function useItemModal(options: UseItemModalOptions) {
      * @param itemName - Name of the item (weapon_name from props)
      * @param onError - Optional error callback
      */
-    async function fetchSkins(itemName: string, onError?: (error: string) => void, defaultImage?: string) {
+    async function fetchSkins(itemName: string, onError?: (error: string) => void, defaultImage?: string, weaponDisplayName?: string) {
         if (!itemName) {
             console.warn(`useItemModal(${itemType}): No item name provided for skin fetching`)
             return
@@ -195,10 +195,15 @@ export function useItemModal(options: UseItemModalOptions) {
             const skins = response.data?.skins || (Array.isArray(response.data) ? response.data : [])
 
             // Prepend a synthetic "Default" skin entry so users can reset to default via the picker
+            // Grid thumbnail uses the non-flat default image; flat image is loaded on selection
+            const thumbnailUrl = defaultImage || ''
+            const displayName = weaponDisplayName
+                ? `${weaponDisplayName} | Default`
+                : 'Default'
             const defaultSkin: APIWeaponSkin = {
                 id: 'default',
-                name: 'Default',
-                image: defaultImage || '',
+                name: displayName,
+                image: thumbnailUrl,
                 paint_index: '0',
                 min_float: 0,
                 max_float: 1,
