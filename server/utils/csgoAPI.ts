@@ -36,6 +36,8 @@ type ApiFileConfig = {
     url: string;
     path: string;
     processor?: <T>(data: T[]) => T[];
+    /** Transform applied to raw API data before saving to cache (runs only on fresh fetch) */
+    postFetchTransform?: (data: unknown) => unknown;
 };
 
 // Define the API files with their configurations
@@ -43,7 +45,12 @@ const API_FILES: Record<string, ApiFileConfig> = {
     skins: {
         url: EXTERNAL_API_URLS.SKINS,
         path: path.join(STORAGE_DIR, 'skins.json'),
-        processor: processSkinData as <T>(data: T[]) => T[]
+        processor: processSkinData as <T>(data: T[]) => T[],
+        // The API returns "sg556" but the game uses "sg553" (weapon ID, pattern IDs, etc.)
+        postFetchTransform: (data: unknown) => {
+            const json = JSON.stringify(data);
+            return JSON.parse(json.replaceAll('sg556', 'sg553'));
+        }
     },
     stickers: {
         url: EXTERNAL_API_URLS.STICKERS,
@@ -174,7 +181,7 @@ function isFileValid(filePath: string): boolean {
 /**
  * Fetches data from API and saves it to a file
  */
-async function fetchAndSaveData(url: string, filePath: string): Promise<unknown> {
+async function fetchAndSaveData(url: string, filePath: string, postFetchTransform?: (data: unknown) => unknown): Promise<unknown> {
     try {
         console.log(`Fetching data from ${url}`);
         const response = await fetch(url);
@@ -183,7 +190,12 @@ async function fetchAndSaveData(url: string, filePath: string): Promise<unknown>
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
-        const data = await response.json();
+        let data = await response.json();
+
+        // Apply post-fetch transform before caching (e.g. fix API inconsistencies)
+        if (postFetchTransform) {
+            data = postFetchTransform(data);
+        }
 
         // Try to save to file, but don't fail if we can't (serverless environment)
         try {
@@ -230,7 +242,7 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
             data = readDataFromFile(config.path) as T[];
         } else {
             console.log(`Fetching fresh ${type} data`);
-            data = await fetchAndSaveData(config.url, config.path) as T[];
+            data = await fetchAndSaveData(config.url, config.path, config.postFetchTransform) as T[];
         }
 
         // Apply processor function if provided
