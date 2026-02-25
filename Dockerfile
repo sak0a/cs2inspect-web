@@ -38,7 +38,10 @@ COPY --from=build /app/package.json ./
 # Copy the built Nitro output
 COPY --from=build /app/.output ./.output
 
-# Copy drizzle config + schema for db:push / db:migrate at runtime
+# Copy drizzle migration files (SQL + journal) for auto-migrate on startup
+COPY --from=build /app/server/database/drizzle ./server/database/drizzle
+
+# Copy drizzle config + schema for manual db:push / db:migrate
 COPY --from=build /app/drizzle.config.ts ./
 COPY --from=build /app/server/database/schema ./server/database/schema
 

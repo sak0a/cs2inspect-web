@@ -72,6 +72,8 @@ services:
       - STEAM_MAX_QUEUE_SIZE=${SS_STEAM_MAX_QUEUE_SIZE:-100}
       - STEAM_REQUEST_TIMEOUT=${SS_STEAM_REQUEST_TIMEOUT:-10000}
       - STEAM_QUEUE_TIMEOUT=${SS_STEAM_QUEUE_TIMEOUT:-30000}
+    expose:
+      - "${SS_PORT:-3001}"
     networks:
       - internal
     healthcheck:
@@ -112,8 +114,8 @@ services:
       - ASSETS_STICKER_PATH=${WEB_ASSETS_STICKER_PATH:-/stickers}
       - ASSETS_CHARMS_PATH=${WEB_ASSETS_CHARMS_PATH:-/charms}
       - ASSETS_WEAPONS_PATH=${WEB_ASSETS_WEAPONS_PATH:-/weapons}
-    ports:
-      - "${WEB_PORT:-3000}:${WEB_PORT:-3000}"
+    expose:
+      - "${WEB_PORT:-3000}"
     depends_on:
       database:
         condition: service_healthy
