@@ -38,6 +38,10 @@ COPY --from=build /app/package.json ./
 # Copy the built Nitro output
 COPY --from=build /app/.output ./.output
 
+# Copy drizzle config + schema for db:push / db:migrate at runtime
+COPY --from=build /app/drizzle.config.ts ./
+COPY --from=build /app/server/database/schema ./server/database/schema
+
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
