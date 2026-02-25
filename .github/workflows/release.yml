@@ -1,9 +1,11 @@
 name: Create Release
 
-# Creates a GitHub Release with version tag.
-# The tag push then triggers docker.yml to build :v1.2.3 images.
+# Creates a GitHub Release with version tag, then triggers docker.yml to build images.
 #
 # Usage: Actions → Create Release → Enter version (e.g. 1.2.3) → Run
+#
+# Flow: Validate → Tag → Release → Trigger Docker Build
+# The docker workflow runs with the tag ref, producing :v1.2.3 and :1.2 images.
 
 on:
   workflow_dispatch:
@@ -29,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
 
     steps:
       - name: Validate version format
@@ -100,7 +103,7 @@ jobs:
 
             ### Coolify
 
-            Set `WEB_IMAGE_TAG=v${{ inputs.version }}` in your Coolify environment variables to deploy this version.
+            Set `WEB_IMAGE_TAG=v${{ inputs.version }}` and `SS_IMAGE_TAG=v${{ inputs.version }}` in your Coolify environment variables to deploy this version.
 
             ---
 
@@ -111,9 +114,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Trigger Docker image build
+        run: gh workflow run docker.yml --ref "v${{ inputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Summary
         run: |
           echo "## Release v${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "Tag \`v${{ inputs.version }}\` created on master." >> $GITHUB_STEP_SUMMARY
-          echo "Docker images will be built by the **Build Docker Images** workflow." >> $GITHUB_STEP_SUMMARY
+          echo "Docker image build has been triggered — check the **Build Docker Images** workflow." >> $GITHUB_STEP_SUMMARY

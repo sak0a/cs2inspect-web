@@ -5,9 +5,8 @@ name: Build Docker Images
 # Triggers:
 #   - Push to master        → :latest, :master, :master-{sha}
 #   - Push to dev           → :dev, :dev-{sha}
-#   - Version tag (v1.2.3)  → :v1.2.3, :1.2, :1  (direct tag push)
-#   - Release published     → :v1.2.3, :1.2, :1  (from release workflow)
-#   - Manual dispatch        → tags based on current branch/ref
+#   - Tag push (v1.2.3)    → :v1.2.3, :1.2  (direct tag push or triggered by release workflow)
+#   - Manual dispatch       → tags based on current branch/ref
 #
 # Images:
 #   ghcr.io/sak0a/cs2inspect-web:<tag>
@@ -24,8 +23,6 @@ on:
       - dev
     tags:
       - 'v*'
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       platforms:
@@ -64,7 +61,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ github.repository }}
           tags: |
             type=ref,event=branch
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,enable=${{ startsWith(github.ref, 'refs/heads/') }}
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern=v{{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -115,7 +112,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ github.repository }}-steam-service
           tags: |
             type=ref,event=branch
-            type=sha,prefix={{branch}}-
+            type=sha,prefix={{branch}}-,enable=${{ startsWith(github.ref, 'refs/heads/') }}
             type=raw,value=latest,enable={{is_default_branch}}
             type=semver,pattern=v{{version}}
             type=semver,pattern={{major}}.{{minor}}
