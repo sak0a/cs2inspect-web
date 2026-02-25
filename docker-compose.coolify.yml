@@ -1,138 +1,101 @@
-# Coolify All-in-One Docker Compose (Service Stack)
-# Deploys the complete stack: MariaDB + Web App + Steam Service
-#
-# Uses pre-built images from GHCR (built by GitHub Actions on push to master).
-# → ghcr.io/sak0a/cs2inspect-web:latest
-# → ghcr.io/sak0a/cs2inspect-web-steam-service:latest
-#
-# Usage in Coolify:
-#   1. New Resource → Docker Compose Empty (Service Stack)
-#   2. Paste this file (or point to repo)
-#   3. Configure env vars in Coolify's Environment Variables tab
-#   4. Set domains in Coolify UI (include container port!):
-#      - web:           https://your-domain.com:3210
-#      - steam-service: https://your-steam-api.com:3211
-#      The :port tells Coolify's proxy which container port to route to.
-#      External users still access https://your-domain.com on port 443.
-#   5. Deploy
-#
-# NOTE: Do NOT define custom networks — Coolify manages networking automatically.
-# All services can reach each other by service name (e.g., http://database:3306).
-# Coolify's proxy (Traefik) is injected into the network to handle SSL + routing.
-#
-# Environment variable prefixes (all shown in one global tab in Coolify):
-#   DB_*     → MariaDB database service
-#   SS_*     → Steam Service
-#   WEB_*    → Web application
-#   SHARED_* → Used by multiple services (must match)
-#
-# IMPORTANT: SHARED_* values are used by both web and database/steam-service.
-#   Make sure they stay consistent — changing one without the other will break connections.
-
 services:
-
-  # ─── MariaDB Database ──────────────────────────────────────
   database:
-    image: mariadb:${DB_VERSION:-11}
+    image: 'mariadb:${DB_VERSION:-11}'
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-changeme-root-password}
-      - MYSQL_DATABASE=${SHARED_DB_NAME:-cs2inspect}
-      - MYSQL_USER=${SHARED_DB_USER:-cs2inspect}
-      - MYSQL_PASSWORD=${SHARED_DB_PASSWORD:-changeme-db-password}
+      - 'MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD:-changeme-root-password}'
+      - 'MYSQL_DATABASE=${SHARED_DB_NAME:-cs2inspect}'
+      - 'MYSQL_USER=${SHARED_DB_USER:-cs2inspect}'
+      - 'MYSQL_PASSWORD=${SHARED_DB_PASSWORD:-changeme-db-password}'
     volumes:
-      - db_data:/var/lib/mysql
+      - 'db_data:/var/lib/mysql'
     ports:
-      # External port for plugin / external tool access (bypasses proxy).
-      # Internal services use 'database:3306' via Docker DNS.
-      - "${DB_PORT_PUBLIC:-3306}:3306"
+      - '${DB_PORT_PUBLIC:-3306}:3306'
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test:
+        - CMD
+        - healthcheck.sh
+        - '--connect'
+        - '--innodb_initialized'
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 30s
     command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --max-connections=${DB_MAX_CONNECTIONS:-100}
-
-  # ─── Steam Service ─────────────────────────────────────────
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
+      - '--max-connections=${DB_MAX_CONNECTIONS:-100}'
   steam-service:
-    image: ghcr.io/sak0a/cs2inspect-web-steam-service:${SS_IMAGE_TAG:-latest}
+    image: 'ghcr.io/sak0a/cs2inspect-web-steam-service:${SS_IMAGE_TAG:-latest}'
     restart: always
     environment:
       - NODE_ENV=production
-      - PORT=${SS_PORT:-3211}
+      - 'PORT=${SS_PORT:-3211}'
       - HOST=0.0.0.0
-      - CORS_ORIGINS=${SS_CORS_ORIGINS:-}
-      - STEAM_API_KEY=${SHARED_STEAM_API_KEY:-changeme-steam-api-key}
-      - API_KEYS=${SS_API_KEYS:-changeme-internal-api-key}
-      - STEAM_USERNAME=${SS_STEAM_USERNAME:-}
-      - STEAM_PASSWORD=${SS_STEAM_PASSWORD:-}
-      - LOG_API_REQUESTS=${SS_LOG_API_REQUESTS:-false}
-      - RATE_LIMIT_MAX=${SS_RATE_LIMIT_MAX:-100}
-      - RATE_LIMIT_WINDOW=${SS_RATE_LIMIT_WINDOW:-60000}
-      - STEAM_RATE_LIMIT_DELAY=${SS_STEAM_RATE_LIMIT_DELAY:-1500}
-      - STEAM_MAX_QUEUE_SIZE=${SS_STEAM_MAX_QUEUE_SIZE:-100}
-      - STEAM_REQUEST_TIMEOUT=${SS_STEAM_REQUEST_TIMEOUT:-10000}
-      - STEAM_QUEUE_TIMEOUT=${SS_STEAM_QUEUE_TIMEOUT:-30000}
+      - 'CORS_ORIGINS=${SS_CORS_ORIGINS:-}'
+      - 'STEAM_API_KEY=${SHARED_STEAM_API_KEY:-changeme-steam-api-key}'
+      - 'API_KEYS=${SS_API_KEYS:-changeme-internal-api-key}'
+      - 'STEAM_USERNAME=${SS_STEAM_USERNAME:-}'
+      - 'STEAM_PASSWORD=${SS_STEAM_PASSWORD:-}'
+      - 'LOG_API_REQUESTS=${SS_LOG_API_REQUESTS:-false}'
+      - 'RATE_LIMIT_MAX=${SS_RATE_LIMIT_MAX:-100}'
+      - 'RATE_LIMIT_WINDOW=${SS_RATE_LIMIT_WINDOW:-60000}'
+      - 'STEAM_RATE_LIMIT_DELAY=${SS_STEAM_RATE_LIMIT_DELAY:-1500}'
+      - 'STEAM_MAX_QUEUE_SIZE=${SS_STEAM_MAX_QUEUE_SIZE:-100}'
+      - 'STEAM_REQUEST_TIMEOUT=${SS_STEAM_REQUEST_TIMEOUT:-10000}'
+      - 'STEAM_QUEUE_TIMEOUT=${SS_STEAM_QUEUE_TIMEOUT:-30000}'
     expose:
-      - "${SS_PORT:-3211}"
+      - '${SS_PORT:-3211}'
     healthcheck:
-      # Liveness only: steam login readiness can be temporarily unavailable.
-      test: ["CMD", "curl", "-fsS", "http://localhost:${SS_PORT:-3211}/api/health/live"]
+      test:
+        - CMD
+        - curl
+        - '-fsS'
+        - 'http://localhost:${SS_PORT:-3211}/api/health/live'
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 30s
-
-  # ─── Web Application ───────────────────────────────────────
   web:
-    image: ghcr.io/sak0a/cs2inspect-web:${WEB_IMAGE_TAG:-latest}
+    image: 'ghcr.io/sak0a/cs2inspect-web:${WEB_IMAGE_TAG:-latest}'
     restart: always
     environment:
-      # Core
       - NODE_ENV=production
-      - PORT=${WEB_PORT:-3210}
+      - 'PORT=${WEB_PORT:-3210}'
       - HOST=0.0.0.0
-      # JWT (generate with: openssl rand -hex 32)
-      - JWT_TOKEN=${WEB_JWT_TOKEN:-changeme-jwt-token}
-      - JWT_EXPIRY=${WEB_JWT_EXPIRY:-7d}
-      # Database — uses SHARED_* values to stay in sync with 'database' service
+      - 'JWT_TOKEN=${WEB_JWT_TOKEN:-changeme-jwt-token}'
+      - 'JWT_EXPIRY=${WEB_JWT_EXPIRY:-7d}'
       - DATABASE_HOST=database
       - DATABASE_PORT=3306
-      - DATABASE_USER=${SHARED_DB_USER:-cs2inspect}
-      - DATABASE_PASSWORD=${SHARED_DB_PASSWORD:-changeme-db-password}
-      - DATABASE_NAME=${SHARED_DB_NAME:-cs2inspect}
-      - DATABASE_CONNECTION_LIMIT=${WEB_DB_CONNECTION_LIMIT:-10}
-      # Steam API key — uses SHARED_* to stay in sync with 'steam-service'
-      - STEAM_API_KEY=${SHARED_STEAM_API_KEY:-changeme-steam-api-key}
-      # Steam Service connection — internal hostname, no TLS needed
-      - STEAM_SERVICE_URL=${WEB_STEAM_SERVICE_URL:-http://steam-service:${SS_PORT:-3211}}
-      - STEAM_SERVICE_API_KEY=${WEB_STEAM_SERVICE_API_KEY:-changeme-internal-api-key}
-      # Logging
-      - LOG_API_REQUESTS=${WEB_LOG_API_REQUESTS:-false}
-      # Assets
-      - ASSETS_URL=${WEB_ASSETS_URL:-}
-      - ASSETS_STICKER_PATH=${WEB_ASSETS_STICKER_PATH:-/stickers}
-      - ASSETS_CHARMS_PATH=${WEB_ASSETS_CHARMS_PATH:-/charms}
-      - ASSETS_WEAPONS_PATH=${WEB_ASSETS_WEAPONS_PATH:-/weapons}
+      - 'DATABASE_USER=${SHARED_DB_USER:-cs2inspect}'
+      - 'DATABASE_PASSWORD=${SHARED_DB_PASSWORD:-changeme-db-password}'
+      - 'DATABASE_NAME=${SHARED_DB_NAME:-cs2inspect}'
+      - 'DATABASE_CONNECTION_LIMIT=${WEB_DB_CONNECTION_LIMIT:-10}'
+      - 'STEAM_API_KEY=${SHARED_STEAM_API_KEY:-changeme-steam-api-key}'
+      - 'STEAM_SERVICE_URL=${WEB_STEAM_SERVICE_URL:-http://steam-service:${SS_PORT:-3211}}'
+      - 'STEAM_SERVICE_API_KEY=${WEB_STEAM_SERVICE_API_KEY:-changeme-internal-api-key}'
+      - 'LOG_API_REQUESTS=${WEB_LOG_API_REQUESTS:-false}'
+      - 'ASSETS_URL=${WEB_ASSETS_URL:-}'
+      - 'ASSETS_STICKER_PATH=${WEB_ASSETS_STICKER_PATH:-/stickers}'
+      - 'ASSETS_CHARMS_PATH=${WEB_ASSETS_CHARMS_PATH:-/charms}'
+      - 'ASSETS_WEAPONS_PATH=${WEB_ASSETS_WEAPONS_PATH:-/weapons}'
     expose:
-      - "${WEB_PORT:-3210}"
+      - '${WEB_PORT:-3210}'
     depends_on:
       database:
         condition: service_healthy
       steam-service:
-        # Do not block web startup on steam readiness.
         condition: service_started
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:${WEB_PORT:-3210}/api/health/ready"]
+      test:
+        - CMD
+        - curl
+        - '-fsS'
+        - 'http://localhost:${WEB_PORT:-3210}/api/health/live'
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 60s
-
 volumes:
   db_data:
     driver: local
