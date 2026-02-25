@@ -20,9 +20,10 @@ CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players t
 
 ## Git Workflow
 
-- **Main branch**: `master`
-- **Production branch**: `app` (auto-synced, do not edit directly)
-- **Deploy**: `bun run deploy:app`
+- **Main branch**: `master` (all development happens here)
+- **Releases**: Git tags (`v1.2.3`) on master — triggers Docker image builds
+- **Docker images**: Built by GitHub Actions, pushed to GHCR
+- **Deployment**: Coolify pulls images by tag (`WEB_IMAGE_TAG=latest` or `=v1.2.3`)
 
 The role of this file is to tdescribe common mistakes and confusion points that agents might encounter as they work in this project.
 If you ever encounter something in the project that surprises you, please alert the developer working with you and indicate that this the case in the AGENTS.MD / CLAUDE.md file to help prevent future agents from having the same issue.

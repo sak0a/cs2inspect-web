@@ -275,32 +275,28 @@ Set in Coolify UI:
 
 ## 🔄 Deployment Workflows
 
-### Automatic Deployments
+### How Deployments Work
 
-Enable in Coolify:
+1. Push code to `master` → GitHub Actions builds Docker images → tagged `:latest` and `:master`
+2. Create a release (`v1.2.3`) → images also tagged `:v1.2.3`
+3. Coolify pulls images by tag and deploys
 
-1. Go to your deployment
-2. Click **"Settings"**
-3. Enable **"Automatic Deployment"**
-4. Select trigger: `Push to branch: master`
+### Environment Strategy
 
-Now every push to master triggers automatic deployment!
+| Environment | `WEB_IMAGE_TAG` | Updated when |
+| ----------- | --------------- | ------------ |
+| **Dev** | `latest` | Every push to master |
+| **Production** | `v1.2.3` | Manual release via GitHub Actions |
 
-### Manual Deployments
+### Updating Production
 
-```bash
-# Push to trigger
-git push origin master
-
-# Or redeploy in Coolify UI
-Click "Redeploy" button
-```
+1. Run the **Create Release** workflow in GitHub Actions with a version number
+2. In Coolify, update `WEB_IMAGE_TAG` to the new version (e.g., `v1.2.3`)
+3. Click **"Redeploy"**
 
 ### Rollback
 
-1. Go to **"Deployments"** tab
-2. Find previous successful deployment
-3. Click **"Redeploy"**
+Change `WEB_IMAGE_TAG` back to the previous version tag and redeploy.
 
 ---
 
