@@ -5,40 +5,34 @@
 # Usage in Coolify:
 #   1. Create a Docker Compose resource
 #   2. Point to this repo, set Compose File to: docker-compose.coolify.yml
-#   3. Set environment variables (see below)
-#   4. Deploy
+#   3. Deploy — each service appears separately in Coolify with its own env panel
+#   4. Configure environment variables per service (see comments below)
 #   5. Run `bun run db:push` in the web container after first deploy
 #
-# Required environment variables:
-#   DATABASE_ROOT_PASSWORD, DATABASE_NAME, DATABASE_USER, DATABASE_PASSWORD
-#   JWT_TOKEN
-#   STEAM_API_KEY
-#   STEAM_SERVICE_API_KEYS  (comma-separated keys the web app uses to auth with steam-service)
-#   STEAM_SERVICE_API_KEY    (the key the web app sends — must be in STEAM_SERVICE_API_KEYS)
-#
-# Optional:
-#   STEAM_USERNAME, STEAM_PASSWORD  (for unmasked inspect URLs)
-#   PORT (default 3000), STEAM_SERVICE_PORT (default 3001)
-#   DATABASE_PORT_PUBLIC (external port for MariaDB, default 3306 — needed for plugin/external access)
-#   STEAM_SERVICE_URL (default: http://steam-service:<STEAM_SERVICE_PORT>)
-#   MARIADB_VERSION (default 10.11), MARIADB_MAX_CONNECTIONS (default 100)
+# IMPORTANT: Some values must match across services:
+#   - DATABASE_PASSWORD + DATABASE_USER + DATABASE_NAME → same on 'database' and 'web'
+#   - STEAM_API_KEY → same on 'web' and 'steam-service'
+#   - API key for steam-service auth → API_KEYS on 'steam-service', STEAM_SERVICE_API_KEY on 'web'
 
 services:
+
+  # ─── MariaDB Database ──────────────────────────────────────
+  # Configure in Coolify: click on 'database' → Environment Variables
   database:
-    image: mariadb:${MARIADB_VERSION:-11}
+    image: mariadb:11
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE_NAME:-csinspect}
-      MYSQL_USER: ${DATABASE_USER:-csinspect}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD:-csinspect-pw}
+      - MYSQL_ROOT_PASSWORD=changeme-root-password
+      - MYSQL_DATABASE=cs2inspect
+      - MYSQL_USER=cs2inspect
+      - MYSQL_PASSWORD=changeme-db-password
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      # Exposed externally so the plugin / external tools can connect.
-      # Change DATABASE_PORT_PUBLIC to use a non-standard port (e.g. 5766).
-      # Internal services (web) always use the 'database' hostname on port 3306.
-      - "${DATABASE_PORT_PUBLIC:-3306}:3306"
+      # External port for plugin / external tool access.
+      # Change the left side to a non-standard port (e.g. 5766:3306) if needed.
+      # Internal services (web) always use 'database:3306' on the shared network.
+      - "3306:3306"
     networks:
       - internal
     healthcheck:
@@ -50,8 +44,10 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-      - --max-connections=${MARIADB_MAX_CONNECTIONS:-100}
+      - --max-connections=100
 
+  # ─── Steam Service ─────────────────────────────────────────
+  # Configure in Coolify: click on 'steam-service' → Environment Variables
   steam-service:
     build:
       context: ./services/steam-service
@@ -59,26 +55,36 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - PORT=${STEAM_SERVICE_PORT:-3001}
+      - PORT=3001
       - HOST=0.0.0.0
-      - STEAM_USERNAME=${STEAM_USERNAME:-}
-      - STEAM_PASSWORD=${STEAM_PASSWORD:-}
-      - STEAM_API_KEY=${STEAM_API_KEY}
-      - API_KEYS=${STEAM_SERVICE_API_KEYS}
-      - LOG_API_REQUESTS=${LOG_API_REQUESTS:-false}
-      - STEAM_RATE_LIMIT_DELAY=${STEAM_RATE_LIMIT_DELAY:-1500}
-      - STEAM_MAX_QUEUE_SIZE=${STEAM_MAX_QUEUE_SIZE:-100}
-      - STEAM_REQUEST_TIMEOUT=${STEAM_REQUEST_TIMEOUT:-10000}
-      - STEAM_QUEUE_TIMEOUT=${STEAM_QUEUE_TIMEOUT:-30000}
+      # CORS Allowed Origins
+      - CORS_ORIGINS=
+      # Steam API key (must match the one on 'web')
+      - STEAM_API_KEY=your_steam_api_key
+      # Comma-separated API keys that clients must send to authenticate
+      - API_KEYS=your_service_api_key
+      # Steam bot account (optional — needed for unmasked inspect URLs)
+      - STEAM_USERNAME=
+      - STEAM_PASSWORD=
+      # Logging & tuning
+      - LOG_API_REQUESTS=false
+      - RATE_LIMIT_MAX=100
+      - RATE_LIMIT_WINDOW=60000
+      - STEAM_RATE_LIMIT_DELAY=1500
+      - STEAM_MAX_QUEUE_SIZE=100
+      - STEAM_REQUEST_TIMEOUT=10000
+      - STEAM_QUEUE_TIMEOUT=30000
     networks:
       - internal
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:${STEAM_SERVICE_PORT:-3001}/api/health/ready"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:3001/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 30s
 
+  # ─── Web Application ───────────────────────────────────────
+  # Configure in Coolify: click on 'web' → Environment Variables
   web:
     build:
       context: .
@@ -87,32 +93,39 @@ services:
     environment:
       # Core
       - NODE_ENV=production
-      - PORT=${PORT:-3000}
+      - PORT=3000
       - HOST=0.0.0.0
 
-      # JWT
-      - JWT_TOKEN=${JWT_TOKEN}
-      - JWT_EXPIRY=${JWT_EXPIRY:-7d}
+      # JWT (generate with: openssl rand -hex 32)
+      - JWT_TOKEN=changeme-jwt-token
+      - JWT_EXPIRY=7d
 
-      # Database — uses the 'database' service name on the internal network
+      # Database — must match the values on 'database' service
       - DATABASE_HOST=database
       - DATABASE_PORT=3306
-      - DATABASE_USER=${DATABASE_USER:-csinspect}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD:-csinspect-pw}
-      - DATABASE_NAME=${DATABASE_NAME:-csinspect}
-      - DATABASE_CONNECTION_LIMIT=${DATABASE_CONNECTION_LIMIT:-10}
+      - DATABASE_USER=cs2inspect
+      - DATABASE_PASSWORD=changeme-db-password
+      - DATABASE_NAME=cs2inspect
+      - DATABASE_CONNECTION_LIMIT=10
 
-      # Steam
-      - STEAM_API_KEY=${STEAM_API_KEY}
+      # Steam API key (must match the one on 'steam-service')
+      - STEAM_API_KEY=your_steam_api_key
 
-      # Steam Service — defaults to internal network hostname, override for external
-      - STEAM_SERVICE_URL=${STEAM_SERVICE_URL:-http://steam-service:${STEAM_SERVICE_PORT:-3001}}
-      - STEAM_SERVICE_API_KEY=${STEAM_SERVICE_API_KEY}
+      # Steam Service connection — internal hostname, no TLS needed
+      - STEAM_SERVICE_URL=http://steam-service:3001
+      # API key to authenticate with steam-service (must be listed in API_KEYS on 'steam-service')
+      - STEAM_SERVICE_API_KEY=your_service_api_key
 
       # Logging
-      - LOG_API_REQUESTS=${LOG_API_REQUESTS:-false}
+      - LOG_API_REQUESTS=false
+
+      # Assets
+      - ASSETS_URL=
+      - ASSETS_STICKER_PATH=/stickers
+      - ASSETS_CHARMS_PATH=/charms
+      - ASSETS_WEAPONS_PATH=/weapons
     ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+      - "3000:3000"
     depends_on:
       database:
         condition: service_healthy
@@ -121,11 +134,11 @@ services:
     networks:
       - internal
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:${PORT:-3000}/api/health/ready"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      start_period: 60s
 
 networks:
   internal:

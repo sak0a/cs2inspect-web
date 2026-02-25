@@ -39,51 +39,48 @@ Deploy the entire stack (web + database + Steam service) with a single configura
 - `docker-compose.yml` - Web + Steam Service only (requires external/Coolify-managed database)
 - `docker-compose.prod.yml` - Full production stack (for non-Coolify servers)
 
-#### Step 3: Environment Variables
+#### Step 3: Configure Per-Service Environment Variables
 
-Click **"Environment Variables"** and add:
+Each service appears separately in Coolify. Click on a service → **"Environment Variables"** to configure it.
+
+::: warning Values that must match
+Some values are shared across services and **must be identical**:
+
+- `DATABASE_PASSWORD`, `DATABASE_USER`, `DATABASE_NAME` → same on **database** and **web**
+- `STEAM_API_KEY` → same on **web** and **steam-service**
+- Steam service auth key → `API_KEYS` on **steam-service** must contain the value set as `STEAM_SERVICE_API_KEY` on **web**
+:::
+
+**database** service:
 
 ```bash
-# ── Required ──────────────────────────────────────────────
+MYSQL_ROOT_PASSWORD=your_root_password
+MYSQL_DATABASE=csinspect
+MYSQL_USER=csinspect
+MYSQL_PASSWORD=your_secure_db_password
+```
 
-# JWT (generate with: openssl rand -hex 32)
-JWT_TOKEN=your_64_character_secure_random_key
+**steam-service** service:
 
-# Database
-DATABASE_ROOT_PASSWORD=your_root_password
-DATABASE_USER=csinspect
-DATABASE_PASSWORD=your_secure_db_password
-DATABASE_NAME=csinspect
-
-# Steam API
+```bash
 STEAM_API_KEY=your_steam_api_key
-
-# Steam Service auth (API_KEYS on the service side, API_KEY on the web side)
-STEAM_SERVICE_API_KEYS=your_service_api_key
-STEAM_SERVICE_API_KEY=your_service_api_key
-
-# ── Optional ──────────────────────────────────────────────
-
-# Server (defaults are fine for most setups)
-# PORT=3000
-# STEAM_SERVICE_PORT=3001
-
-# External DB access (e.g. for plugin on another server)
-# DATABASE_PORT_PUBLIC=5766
-
-# Steam bot account (needed for unmasked inspect URLs)
+API_KEYS=your_service_api_key       # comma-separated keys clients use to auth
+# Optional — needed for unmasked inspect URLs:
 # STEAM_USERNAME=your_bot_username
 # STEAM_PASSWORD=your_bot_password
+```
 
-# Override steam service URL (defaults to internal: http://steam-service:3001)
-# STEAM_SERVICE_URL=http://steam-service:3001
+**web** service:
 
-# Logging (default: false)
-# LOG_API_REQUESTS=true
+```bash
+JWT_TOKEN=your_64_character_secure_random_key    # generate with: openssl rand -hex 32
+DATABASE_PASSWORD=your_secure_db_password         # must match database service
+STEAM_API_KEY=your_steam_api_key                  # must match steam-service
+STEAM_SERVICE_API_KEY=your_service_api_key        # must be listed in API_KEYS on steam-service
 ```
 
 ::: tip
-`DATABASE_HOST` and `DATABASE_PORT` are **not needed** — the compose file automatically connects the web app to the database service internally via `database:3306`.
+`DATABASE_HOST` and `STEAM_SERVICE_URL` are pre-configured in the compose file to use internal Docker hostnames (`database:3306` and `http://steam-service:3001`). You don't need to set these unless you have a custom setup.
 :::
 
 #### Step 4: Deploy
@@ -314,7 +311,7 @@ The repository includes a ready-to-use Coolify compose file: **`docker-compose.c
 
 This file deploys all three services (MariaDB, Web App, Steam Service) on a shared internal Docker network. The web app connects to the steam-service via `http://steam-service:3001` internally — no TLS issues, no proxy hops.
 
-Set `docker-compose.coolify.yml` as the Compose File in Coolify and configure the environment variables listed in [Step 3](#step-3-environment-variables) above.
+Set `docker-compose.coolify.yml` as the Compose File in Coolify and configure the environment variables listed in [Step 3](#step-3-configure-per-service-environment-variables) above.
 
 ---
 
