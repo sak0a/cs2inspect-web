@@ -522,7 +522,7 @@ async function executeCommand(command: Command): Promise<void> {
 
   // Check shell script exists (extract just the script path, ignore arguments)
   if (typeof command.run === 'string' && command.run.startsWith('./scripts/')) {
-    const scriptFile = command.run.split(' ')[0]
+    const scriptFile = command.run.split(' ')[0]!
     const scriptPath = resolve(PROJECT_ROOT, scriptFile)
     if (!existsSync(scriptPath)) {
       p.log.error(`Script not found: ${scriptFile}`)
