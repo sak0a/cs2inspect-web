@@ -4,7 +4,7 @@ dotenv.config();
 
 export const config = {
   server: {
-    port: parseInt(process.env.PORT || '3000', 10),
+    port: parseInt(process.env.PORT || '3211', 10),
     host: process.env.HOST || '0.0.0.0',
     nodeEnv: process.env.NODE_ENV || 'development',
   },
@@ -25,7 +25,7 @@ export const config = {
     keys: (process.env.API_KEYS || '').split(',').filter(Boolean),
   },
   cors: {
-    origins: (process.env.CORS_ORIGINS || 'http://localhost:3000').split(',').filter(Boolean),
+    origins: (process.env.CORS_ORIGINS || 'http://localhost:3210,http://localhost:3211').split(',').filter(Boolean),
   },
   rateLimit: {
     max: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),

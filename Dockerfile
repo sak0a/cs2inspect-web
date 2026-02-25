@@ -46,14 +46,14 @@ COPY --from=build /app/drizzle.config.ts ./
 COPY --from=build /app/server/database/schema ./server/database/schema
 
 ENV NODE_ENV=production
-ENV PORT=3000
+ENV PORT=3210
 ENV HOST=0.0.0.0
 
-EXPOSE 3000
+EXPOSE 3210
 
 # Health check configuration
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -fsS http://localhost:3000/api/health/ready || exit 1
+  CMD curl -fsS http://localhost:${PORT:-3210}/api/health/ready || exit 1
 
 # Start Nitro server with Bun runtime
 CMD ["bun", "run", ".output/server/index.mjs"]

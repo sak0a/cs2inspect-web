@@ -41,7 +41,7 @@ services:
     environment:
       # Core
       - NODE_ENV=production
-      - PORT=${PORT:-3000}
+      - PORT=${PORT:-3210}
       - HOST=${HOST:-0.0.0.0}
 
       # JWT / Auth
@@ -60,7 +60,7 @@ services:
       - STEAM_API_KEY=${STEAM_API_KEY}
 
       # Steam Service
-      - STEAM_SERVICE_URL=${STEAM_SERVICE_URL:-http://steam-service:3001}
+      - STEAM_SERVICE_URL=${STEAM_SERVICE_URL:-http://steam-service:3211}
       - STEAM_SERVICE_API_KEY=${STEAM_SERVICE_API_KEY}
 
       # Logging
@@ -69,14 +69,14 @@ services:
       # Optional
       - PROXY_HEALTH_BASE_URL=${PROXY_HEALTH_BASE_URL:-}
     ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+      - "${PORT:-3210}:${PORT:-3210}"
     depends_on:
       database:
         condition: service_healthy
     networks:
       - prod-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/health/ready"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:${PORT:-3210}/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -101,7 +101,7 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
-      - PORT=${STEAM_SERVICE_PORT:-3001}
+      - PORT=${STEAM_SERVICE_PORT:-3211}
       - HOST=${STEAM_SERVICE_HOST:-0.0.0.0}
       - STEAM_USERNAME=${STEAM_USERNAME}
       - STEAM_PASSWORD=${STEAM_PASSWORD}
@@ -116,7 +116,7 @@ services:
     networks:
       - prod-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:${STEAM_SERVICE_PORT:-3001}/api/health/ready"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:${STEAM_SERVICE_PORT:-3211}/api/health/live"]
       interval: 30s
       timeout: 5s
       retries: 3

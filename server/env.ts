@@ -22,7 +22,7 @@ export const env = createEnv({
      */
     server: {
         // Server Configuration
-        PORT: z.string().default('3000').transform(Number),
+        PORT: z.string().default('3210').transform(Number),
         HOST: z.string().default('127.0.0.1'),
 
         // JWT Configuration

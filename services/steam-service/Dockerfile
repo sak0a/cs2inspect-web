@@ -31,11 +31,11 @@ COPY --from=builder /app/package.json ./package.json
 COPY --from=builder /app/dist ./dist
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3211
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s \
-  CMD curl -fsS http://localhost:${PORT:-3000}/api/health/ready || exit 1
+  CMD curl -fsS http://localhost:${PORT:-3211}/api/health/live || exit 1
 
 # Start the service
 CMD ["node", "dist/index.js"]

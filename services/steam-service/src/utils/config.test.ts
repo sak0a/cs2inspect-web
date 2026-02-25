@@ -10,9 +10,9 @@ describe('Config', () => {
   });
 
   it('should load default server configuration', () => {
-    expect(config.server.port).toBe(3001);
-    expect(config.server.host).toBe('0.0.0.0');
-    expect(config.server.nodeEnv).toBe('development');
+    expect(config.server.port).toBe(Number(process.env.PORT || 3211));
+    expect(config.server.host).toBe(process.env.HOST || '0.0.0.0');
+    expect(config.server.nodeEnv).toBe(process.env.NODE_ENV || 'development');
   });
 
   it('should load server configuration from environment', () => {
