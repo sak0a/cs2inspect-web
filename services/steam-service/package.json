@@ -18,9 +18,9 @@
     "bun": ">=1.0.0"
   },
   "dependencies": {
-    "fastify": "^4.29.1",
-    "@fastify/cors": "^8.5.0",
-    "@fastify/rate-limit": "^9.1.0",
+    "fastify": "^5.7.4",
+    "@fastify/cors": "^11.2.0",
+    "@fastify/rate-limit": "^10.3.0",
     "cs2-inspect-lib": "^3.2.0",
     "dotenv": "^16.6.1"
   },
