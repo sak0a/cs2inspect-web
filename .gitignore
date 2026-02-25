@@ -24,7 +24,6 @@ logs
 !.env.example
 
 public/img/charms
-public/img/weapons
 
 # Charm Scraper
 services/charm-scraper/assets
