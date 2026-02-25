@@ -381,7 +381,7 @@ function generateIndexMarkdown(categories: Map<string, CategoryInfo>): string {
   md += `The CS2Inspect API provides RESTful endpoints for managing user loadouts, weapon customizations, and CS2 item data.\n\n`;
 
   md += `### Base URL\n\n`;
-  md += `\`\`\`\nDevelopment: http://localhost:3000/api\nProduction:  https://your-domain.com/api\n\`\`\`\n\n`;
+  md += `\`\`\`\nDevelopment: http://localhost:3210/api\nProduction:  https://your-domain.com/api\n\`\`\`\n\n`;
 
   md += `## Categories\n\n`;
 

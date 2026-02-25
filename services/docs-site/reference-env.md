@@ -31,7 +31,7 @@ cp .env.example .env
 
 **Type**: `number`
 **Required**: Yes
-**Default**: `3000`
+**Default**: `3210`
 
 Port number on which the server will listen for incoming connections.
 
@@ -42,7 +42,7 @@ PORT=3210
 
 **Notes**:
 - Use non-privileged ports (1024-65535) for security
-- Common choices: 3000, 3210, 8080
+- Default is `3210` for the web app, `3211` for the steam service
 - Must be available (not used by another service)
 - Firewall must allow this port
 
@@ -165,8 +165,8 @@ Database server hostname or IP address.
 # Local development
 DATABASE_HOST=127.0.0.1
 
-# Docker Compose service
-DATABASE_HOST=mariadb
+# Docker Compose service (Coolify)
+DATABASE_HOST=database
 
 # Remote server
 DATABASE_HOST=db.example.com
@@ -341,10 +341,10 @@ Base URL of the Steam Service Client API (microservice for Steam interactions).
 **Example**:
 ```env
 # Local development
-STEAM_SERVICE_URL=http://127.0.0.1:3655
+STEAM_SERVICE_URL=http://127.0.0.1:3211
 
-# Docker Compose
-STEAM_SERVICE_URL=http://steam-service:3001
+# Docker Compose (Coolify)
+STEAM_SERVICE_URL=http://steam-service:3211
 
 # Production
 STEAM_SERVICE_URL=https://steam-service.yourdomain.com
@@ -552,7 +552,7 @@ Base URL used for image proxy health check endpoint.
 **Example**:
 ```env
 # Local development
-PROXY_HEALTH_BASE_URL=http://127.0.0.1:3000
+PROXY_HEALTH_BASE_URL=http://127.0.0.1:3210
 
 # Production with reverse proxy
 PROXY_HEALTH_BASE_URL=https://your-domain.com
@@ -632,7 +632,7 @@ DATABASE_CONNECTION_LIMIT=5
 STEAM_API_KEY=YOUR_STEAM_API_KEY_HERE
 
 ########## Steam Service ##########
-STEAM_SERVICE_URL=http://127.0.0.1:3655
+STEAM_SERVICE_URL=http://127.0.0.1:3211
 STEAM_SERVICE_API_KEY=dev_service_key_123
 
 ########## Assets ##########
@@ -695,7 +695,11 @@ NUXT_TELEMETRY_DISABLED=true
 
 ---
 
-### Docker Compose
+### Docker Compose (Coolify)
+
+::: tip Coolify Env Var Prefixes
+When deploying with `docker-compose.coolify.yml`, environment variables use prefixes (`SHARED_*`, `DB_*`, `SS_*`, `WEB_*`) to avoid name collisions. The compose file maps them to the underlying variable names shown here. See the [Coolify Deployment Guide](./coolify.md) for details.
+:::
 
 ```env
 ########## Server ##########
@@ -707,7 +711,7 @@ JWT_TOKEN=docker_token_RANDOM_STRING_HERE
 JWT_EXPIRY=7d
 
 ########## Database ##########
-DATABASE_HOST=mariadb
+DATABASE_HOST=database
 DATABASE_PORT=3306
 DATABASE_USER=csinspect
 DATABASE_PASSWORD=DOCKER_DB_PASSWORD
@@ -718,7 +722,7 @@ DATABASE_CONNECTION_LIMIT=10
 STEAM_API_KEY=YOUR_STEAM_API_KEY
 
 ########## Steam Service ##########
-STEAM_SERVICE_URL=http://steam-service:3001
+STEAM_SERVICE_URL=http://steam-service:3211
 STEAM_SERVICE_API_KEY=DOCKER_SERVICE_KEY
 
 ########## Assets ##########

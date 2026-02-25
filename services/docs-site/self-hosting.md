@@ -1,5 +1,11 @@
 # Self-Hosting Guide
 
+::: tip Recommended: Coolify Deployment
+For the easiest production deployment, we recommend using **Coolify** with pre-built Docker images from GHCR. See the [Coolify Deployment Guide](./coolify.md).
+
+This page documents alternative self-hosting options for advanced users who prefer manual server management.
+:::
+
 Complete guide for deploying CS2Inspect on your own infrastructure. This guide covers multiple deployment scenarios from simple Docker setups to production-ready cloud deployments.
 
 ## 📋 Table of Contents
@@ -31,7 +37,7 @@ Complete guide for deploying CS2Inspect on your own infrastructure. This guide c
 
 - **Domain**: Registered domain name pointing to your server
 - **Steam API Key**: Get from [Steam Developer Portal](https://steamcommunity.com/dev/apikey)
-- **Database**: MariaDB 10.x or MySQL 8.x
+- **Database**: MariaDB 11
 
 ### Optional but Recommended
 
@@ -87,7 +93,7 @@ nano .env
 
 ```env
 # Server
-PORT=3000
+PORT=3210
 HOST=0.0.0.0
 
 # JWT (generate with: openssl rand -hex 32)
@@ -116,7 +122,7 @@ docker compose up -d
 docker compose logs -f
 
 # Verify health
-curl http://localhost:3000/api/health/ready
+curl http://localhost:3210/api/health/ready
 ```
 
 ### 5. Setup Database
@@ -129,7 +135,7 @@ docker compose exec web bun run db:push
 docker compose exec web bun run db:studio
 ```
 
-Your application should now be running at `http://localhost:3000`!
+Your application should now be running at `http://localhost:3210`!
 
 ---
 
@@ -240,7 +246,7 @@ module.exports = {
     exec_mode: 'cluster',
     env: {
       NODE_ENV: 'production',
-      PORT: 3000,
+      PORT: 3210,
       HOST: '0.0.0.0'
     },
     error_file: './logs/err.log',
@@ -287,7 +293,7 @@ sudo nano /etc/nginx/sites-available/cs2inspect
 # /etc/nginx/sites-available/cs2inspect
 
 upstream cs2inspect_backend {
-    server 127.0.0.1:3000;
+    server 127.0.0.1:3210;
     keepalive 64;
 }
 
@@ -407,7 +413,7 @@ cat > /home/cs2inspect/monitor.sh << 'EOF'
 #!/bin/bash
 
 # Check if application is responding
-HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health/ready)
+HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3210/api/health/ready)
 
 if [ "$HEALTH_CHECK" != "200" ]; then
     echo "Health check failed! Restarting application..."
@@ -434,7 +440,7 @@ For deployment without Docker on a dedicated server.
 
 - Ubuntu 22.04 LTS or Debian 12
 - Node.js 20.x
-- MariaDB 10.x
+- MariaDB 11
 - Nginx (reverse proxy)
 - 8GB RAM minimum
 - 40GB+ storage
@@ -471,14 +477,14 @@ Optimized Docker Compose setup for production.
 
 #### Create Production Compose File
 
-Create `docker-compose.prod.yml`:
+Create `docker-compose.coolify.yml`:
 
 ```yaml
 version: "3.9"
 
 services:
   database:
-    image: mariadb:10.11
+    image: mariadb:11
     container_name: cs2inspect-db
     restart: unless-stopped
     environment:
@@ -512,7 +518,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - PORT=${PORT:-3000}
+      - PORT=${PORT:-3210}
       - HOST=${HOST:-0.0.0.0}
       - JWT_TOKEN=${JWT_TOKEN}
       - JWT_EXPIRY=${JWT_EXPIRY}
@@ -526,14 +532,14 @@ services:
       - STEAM_SERVICE_URL=${STEAM_SERVICE_URL}
       - LOG_API_REQUESTS=${LOG_API_REQUESTS}
     ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+      - "${PORT:-3210}:${PORT:-3210}"
     depends_on:
       database:
         condition: service_healthy
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/health/ready"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:3210/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -550,7 +556,7 @@ services:
     restart: unless-stopped
     environment:
       - NODE_ENV=production
-      - PORT=${STEAM_SERVICE_PORT:-3001}
+      - PORT=${STEAM_SERVICE_PORT:-3211}
       - HOST=${STEAM_SERVICE_HOST:-0.0.0.0}
       - STEAM_USERNAME=${STEAM_USERNAME}
       - STEAM_PASSWORD=${STEAM_PASSWORD}
@@ -558,11 +564,11 @@ services:
       - API_KEYS=${STEAM_SERVICE_API_KEYS}
       - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
     ports:
-      - "${STEAM_SERVICE_PORT:-3001}:${STEAM_SERVICE_PORT:-3001}"
+      - "${STEAM_SERVICE_PORT:-3211}:${STEAM_SERVICE_PORT:-3211}"
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3001/api/health/ready"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:3211/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -606,16 +612,16 @@ volumes:
 
 ```bash
 # Build images
-docker compose -f docker-compose.prod.yml build
+docker compose -f docker-compose.coolify.yml build
 
 # Start services
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.coolify.yml up -d
 
 # View logs
-docker compose -f docker-compose.prod.yml logs -f
+docker compose -f docker-compose.coolify.yml logs -f
 
 # Check status
-docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.coolify.yml ps
 ```
 
 ---
@@ -699,7 +705,7 @@ bun run db:studio
 
 ```env
 ########## Server Configuration ##########
-PORT=3000
+PORT=3210
 HOST=0.0.0.0
 NODE_ENV=production
 
@@ -728,9 +734,9 @@ STEAM_USERNAME=your_bot_username
 STEAM_PASSWORD=your_bot_password
 
 ########## Steam Service Configuration ##########
-STEAM_SERVICE_URL=http://localhost:3001
+STEAM_SERVICE_URL=http://localhost:3211
 STEAM_SERVICE_API_KEY=your_service_api_key_here
-STEAM_SERVICE_PORT=3001
+STEAM_SERVICE_PORT=3211
 STEAM_SERVICE_HOST=0.0.0.0
 
 ########## Rate Limiting ##########
@@ -1091,7 +1097,7 @@ pm2 list
 pm2 logs cs2inspect --lines 100
 
 # Check if port is in use
-sudo lsof -i :3000
+sudo lsof -i :3210
 
 # Check environment variables
 pm2 env 0
@@ -1172,8 +1178,8 @@ sudo tail -f /var/log/nginx/cs2inspect.access.log | grep -E "POST|GET"
 
 ```bash
 # Manual health check
-curl http://localhost:3000/api/health/ready
-curl http://localhost:3000/api/health/details
+curl http://localhost:3210/api/health/ready
+curl http://localhost:3210/api/health/details
 
 # Check application logs
 pm2 logs cs2inspect --lines 50

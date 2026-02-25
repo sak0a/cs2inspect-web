@@ -49,17 +49,11 @@ A comprehensive overhaul of developer and user experience with focus on easy sel
   - `make deploy` - Deploy to production
   - And many more...
 
-### Docker Configurations
-- **`docker-compose.dev.yml`** - Development environment
-  - Hot reload enabled
-  - Exposed ports for debugging
-  - Volume mounts for live changes
-
-- **`docker-compose.prod.yml`** - Production environment
-  - Optimized for performance
-  - Resource limits
-  - Security hardening
+### Docker Configuration
+- **`docker-compose.coolify.yml`** - Production deployment (Coolify)
+  - Pre-built GHCR images
   - Health checks
+  - Environment variable prefixes (SHARED_*, DB_*, SS_*, WEB_*)
 
 ---
 
@@ -136,7 +130,7 @@ nano .env
 docker compose up -d
 
 # Initialize database
-docker compose exec web npm run db:push
+docker compose exec web bun run db:push
 ```
 
 **Time**: ~3 minutes
@@ -174,7 +168,7 @@ make clean             # Clean build artifacts
 ./scripts/install.sh       # Full installation
 ./scripts/setup-wizard.sh  # Interactive setup
 ./scripts/validate-env.sh  # Validate configuration
-./scripts/deploy-app.sh    # Deploy to app branch
+./scripts/validate-env.sh  # Validate before deploying
 ```
 
 ---
@@ -321,7 +315,7 @@ scripts/
 ├── install.sh (NEW)            # Automated installation
 ├── setup-wizard.sh (NEW)       # Interactive setup
 ├── validate-env.sh (NEW)       # Environment validation
-└── deploy-app.sh               # Deployment script (existing)
+└── validate-env.sh (NEW)       # Environment validation
 ```
 
 ---
@@ -339,7 +333,7 @@ scripts/
 3. Check: `docs/RECOMMENDATIONS.md` for improvements
 
 ### For DevOps
-1. Study: `docker-compose.prod.yml`
+1. Study: `docker-compose.coolify.yml`
 2. Review: Security checklist in `SELF_HOSTING.md`
 3. Implement: Monitoring section in docs
 
@@ -352,7 +346,7 @@ scripts/
 2. ✅ Validate documentation accuracy
 3. ⏳ Add Prettier for code formatting
 4. ⏳ Setup pre-commit hooks with Husky
-5. ⏳ Add GitHub Actions CI/CD
+5. ✅ GitHub Actions CI/CD (ci.yml, docker.yml, release.yml)
 
 ### Short-term (This Week)
 1. Create video installation tutorial

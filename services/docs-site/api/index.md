@@ -11,7 +11,7 @@ This API reference includes both manually curated documentation and auto-generat
 ## Base URL
 
 ```
-Development: http://localhost:3000/api
+Development: http://localhost:3210/api
 Production:  https://your-domain.com/api
 ```
 

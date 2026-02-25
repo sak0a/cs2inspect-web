@@ -98,7 +98,7 @@ Create `.env` file based on `.env.example`:
 
 ```env
 # Server Configuration
-PORT=3001
+PORT=3211
 NODE_ENV=production
 HOST=0.0.0.0
 
@@ -362,36 +362,61 @@ bun test:all
 The steam-service can be deployed as a standalone Docker container:
 
 ```dockerfile
-FROM oven/bun:latest
+FROM oven/bun:1-alpine AS builder
 
 WORKDIR /app
 
 # Copy package files
 COPY package.json bun.lock ./
+COPY tsconfig.json ./
 
 # Install dependencies
-RUN bun install --production
+RUN bun install --frozen-lockfile
 
-# Copy source
-COPY . .
+# Copy source code
+COPY src ./src
 
 # Build TypeScript
 RUN bun run build
 
+# Production stage
+FROM node:20-alpine
+
+# Install curl for health checks
+RUN apk add --no-cache curl
+
+WORKDIR /app
+
+# Copy package + installed deps from builder (includes prod deps)
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+
+# Copy built files from builder
+COPY --from=builder /app/dist ./dist
+
 # Expose port
-EXPOSE 3001
+EXPOSE 3211
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3001/api/health/live', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 --start-period=60s \
+  CMD curl -fsS http://localhost:${PORT:-3211}/api/health/live || exit 1
 
-# Start server
-CMD ["bun", "start"]
+# Start the service
+CMD ["node", "dist/index.js"]
 ```
 
 ### Git Subtree Deployment
 
-The service is deployed using Git Subtree to the `steam-service-only` branch:
+::: warning Deprecated
+Git subtree deployment is deprecated. The recommended approach is to use pre-built GHCR images:
+
+```bash
+docker pull ghcr.io/sak0a/cs2inspect-web-steam-service:latest
+```
+
+:::
+
+The service was previously deployed using Git Subtree to the `steam-service-only` branch:
 
 ```bash
 # Push updates from monorepo to deployment branch
@@ -405,7 +430,7 @@ git subtree pull --prefix=services/steam-service origin steam-service-only
 
 ```env
 # Server
-PORT=3001
+PORT=3211
 NODE_ENV=production
 HOST=0.0.0.0
 
@@ -438,7 +463,7 @@ The main CS2Inspect web application communicates with the Steam Service via HTTP
 In the main app's `.env`:
 
 ```env
-STEAM_SERVICE_URL=http://localhost:3001
+STEAM_SERVICE_URL=http://localhost:3211
 STEAM_SERVICE_API_KEY=your_api_key_here
 ```
 

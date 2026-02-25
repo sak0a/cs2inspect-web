@@ -77,12 +77,12 @@ Production deployment, security measures, and performance optimization.
 
 ## System Overview
 
-CS2Inspect is a full-stack web application built with Nuxt 3 that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. The application provides a comprehensive interface for weapon skins, knives, gloves, agents, music kits, and pins customization with real-time preview capabilities.
+CS2Inspect is a full-stack web application built with Nuxt 4 that allows Counter-Strike 2 players to customize and manage their in-game item loadouts. The application provides a comprehensive interface for weapon skins, knives, gloves, agents, music kits, and pins customization with real-time preview capabilities.
 
 ## Technology Stack
 
 ### Frontend <Badge type="tip" text="Modern Stack" />
-- **Framework**: Nuxt 3 (Vue 3 + TypeScript)
+- **Framework**: Nuxt 4 (Vue 3 + TypeScript)
 - **UI Library**: Naive UI
 - **Styling**: Tailwind CSS with custom SASS
 - **State Management**: Pinia
@@ -117,7 +117,7 @@ graph TB
         PWA[Progressive Web App]
     end
     
-    subgraph "Frontend - Nuxt 3"
+    subgraph "Frontend - Nuxt 4"
         Pages[Pages/Routes]
         Components[Vue Components]
         Stores[Pinia Stores]

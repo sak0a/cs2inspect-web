@@ -1,6 +1,6 @@
 # Frontend Architecture <Badge type="tip" text="Modern Stack" />
 
-Detailed documentation of the CS2Inspect frontend architecture built with Nuxt 3.
+Detailed documentation of the CS2Inspect frontend architecture built with Nuxt 4.
 
 ## Page Structure
 
@@ -148,7 +148,7 @@ See: [Theme Customization Guide](theme-customization.md)
 
 ## Client-Side Routing
 
-**Framework**: Nuxt 3 file-based routing
+**Framework**: Nuxt 4 file-based routing
 
 **Routes**:
 - `/` - Main dashboard
