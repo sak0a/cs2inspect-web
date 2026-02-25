@@ -1,6 +1,5 @@
 # Coolify All-in-One Docker Compose (Service Stack)
 # Deploys the complete stack: MariaDB + Web App + Steam Service
-# All services share a single Docker network — no TLS/proxy issues.
 #
 # Uses pre-built images from GHCR (built by GitHub Actions on push to master).
 # → ghcr.io/sak0a/cs2inspect-web:latest
@@ -10,8 +9,16 @@
 #   1. New Resource → Docker Compose Empty (Service Stack)
 #   2. Paste this file (or point to repo)
 #   3. Configure env vars in Coolify's Environment Variables tab
-#   4. Deploy
-#   5. Run `bun run db:push` in the web container after first deploy
+#   4. Set domains in Coolify UI (include container port!):
+#      - web:           https://your-domain.com:3000
+#      - steam-service: https://your-steam-api.com:3001
+#      The :port tells Coolify's proxy which container port to route to.
+#      External users still access https://your-domain.com on port 443.
+#   5. Deploy
+#
+# NOTE: Do NOT define custom networks — Coolify manages networking automatically.
+# All services can reach each other by service name (e.g., http://database:3306).
+# Coolify's proxy (Traefik) is injected into the network to handle SSL + routing.
 #
 # Environment variable prefixes (all shown in one global tab in Coolify):
 #   DB_*     → MariaDB database service
@@ -36,11 +43,9 @@ services:
     volumes:
       - db_data:/var/lib/mysql
     ports:
-      # External port for plugin / external tool access.
-      # Internal services always use 'database:3306' on the shared network.
+      # External port for plugin / external tool access (bypasses proxy).
+      # Internal services use 'database:3306' via Docker DNS.
       - "${DB_PORT_PUBLIC:-3306}:3306"
-    networks:
-      - internal
     healthcheck:
       test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
       interval: 30s
@@ -74,8 +79,6 @@ services:
       - STEAM_QUEUE_TIMEOUT=${SS_STEAM_QUEUE_TIMEOUT:-30000}
     expose:
       - "${SS_PORT:-3001}"
-    networks:
-      - internal
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:${SS_PORT:-3001}/api/health/ready"]
       interval: 30s
@@ -121,18 +124,12 @@ services:
         condition: service_healthy
       steam-service:
         condition: service_healthy
-    networks:
-      - internal
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost:${WEB_PORT:-3000}/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 60s
-
-networks:
-  internal:
-    driver: bridge
 
 volumes:
   db_data:
