@@ -10,10 +10,10 @@ FROM node:20-alpine AS build
 WORKDIR /app
 
 # Install build dependencies and Bun
-RUN apk add --no-cache curl ca-certificates unzip \
- && curl -fsSL https://bun.sh/install | sh \
+RUN apk add --no-cache curl ca-certificates unzip bash \
+ && curl -fsSL https://bun.sh/install | bash \
  && mv /root/.bun/bin/bun /usr/local/bin/bun \
- && apk del unzip
+ && apk del unzip bash
 
 # Install dependencies via Bun (respects bun.lock)
 COPY package.json bun.lock ./
