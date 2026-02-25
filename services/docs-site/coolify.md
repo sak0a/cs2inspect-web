@@ -16,77 +16,76 @@ Complete guide for deploying CS2Inspect on Coolify - the self-hosted alternative
 
 ## 🚀 Deployment Options
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Docker Compose — Service Stack (Recommended)
 
-Deploy the entire stack (web + database + Steam service) with a single configuration.
+Deploy the entire stack (web + database + Steam service) as a **Service Stack** in Coolify. Each service gets its own settings panel.
 
-#### Step 1: Create New Project in Coolify
-
-1. Log into your Coolify dashboard
-2. Click **"New Project"**
-3. Name it: `cs2inspect`
-4. Click **"New Resource"** → **"Docker Compose"**
-
-#### Step 2: Configure Docker Compose
-
-**Resource Type**: Docker Compose  
-**Source**: GitHub Repository  
-**Repository**: `https://github.com/sak0a/cs2inspect-web`  
-**Branch**: `master`  
-**Compose File**: Choose your deployment type:
-
-- `docker-compose.coolify.yml` - **All-in-one for Coolify** (recommended — includes MariaDB, Web, Steam Service on a shared internal network)
-- `docker-compose.yml` - Web + Steam Service only (requires external/Coolify-managed database)
-- `docker-compose.prod.yml` - Full production stack (for non-Coolify servers)
-
-#### Step 3: Configure Per-Service Environment Variables
-
-Each service appears separately in Coolify. Click on a service → **"Environment Variables"** to configure it.
-
-::: warning Values that must match
-Some values are shared across services and **must be identical**:
-
-- `DATABASE_PASSWORD`, `DATABASE_USER`, `DATABASE_NAME` → same on **database** and **web**
-- `STEAM_API_KEY` → same on **web** and **steam-service**
-- Steam service auth key → `API_KEYS` on **steam-service** must contain the value set as `STEAM_SERVICE_API_KEY` on **web**
+::: info How it works
+The `docker-compose.coolify.yml` uses pre-built Docker images from GHCR (built automatically by GitHub Actions on every push to `master`). This means Coolify doesn't need to build anything — it just pulls images and starts the services.
 :::
 
-**database** service:
+#### Step 1: Ensure Docker Images Are Built
+
+Images are built automatically by the `Build Docker Images` workflow on push to `master`. Verify they exist:
 
 ```bash
-MYSQL_ROOT_PASSWORD=your_root_password
-MYSQL_DATABASE=csinspect
-MYSQL_USER=csinspect
-MYSQL_PASSWORD=your_secure_db_password
+# Web app image
+docker pull ghcr.io/sak0a/cs2inspect-web:latest
+
+# Steam service image
+docker pull ghcr.io/sak0a/cs2inspect-web-steam-service:latest
 ```
 
-**steam-service** service:
+::: warning Private repository?
+If your GitHub repo is private, GHCR packages are private too. Either:
 
-```bash
-STEAM_API_KEY=your_steam_api_key
-API_KEYS=your_service_api_key       # comma-separated keys clients use to auth
-# Optional — needed for unmasked inspect URLs:
-# STEAM_USERNAME=your_bot_username
-# STEAM_PASSWORD=your_bot_password
-```
+- **Make packages public**: Go to GitHub → Packages → Package Settings → Change visibility
+- **Or** add a Docker registry login in Coolify: Settings → Docker Registries → Add GHCR with a Personal Access Token
+:::
 
-**web** service:
+#### Step 2: Create Service Stack in Coolify
 
-```bash
-JWT_TOKEN=your_64_character_secure_random_key    # generate with: openssl rand -hex 32
-DATABASE_PASSWORD=your_secure_db_password         # must match database service
-STEAM_API_KEY=your_steam_api_key                  # must match steam-service
-STEAM_SERVICE_API_KEY=your_service_api_key        # must be listed in API_KEYS on steam-service
-```
+1. Log into your Coolify dashboard
+2. Click **"New Project"** → Name it: `cs2inspect`
+3. Click **"New Resource"** → **"Docker Compose Empty"**
+4. Paste the contents of `docker-compose.coolify.yml` (or point to the repo file)
+
+Each service (database, steam-service, web) appears separately — like a Service Stack.
+
+#### Step 3: Configure Environment Variables
+
+Each service has its own environment panel in Coolify. The compose file uses `${VAR:-default}` syntax, so Coolify auto-detects all variables and shows them in the UI with their defaults.
+
+**Required variables to set** (replace the defaults):
+
+| Service | Variable | Description |
+| ------- | -------- | ----------- |
+| database | `MYSQL_ROOT_PASSWORD` | MariaDB root password |
+| database | `MYSQL_PASSWORD` | App database password |
+| steam-service | `STEAM_API_KEY` | Your Steam Web API key |
+| steam-service | `API_KEYS` | Comma-separated keys for auth |
+| web | `JWT_TOKEN` | 64-char secret (`openssl rand -hex 32`) |
+| web | `DATABASE_PASSWORD` | Must match `MYSQL_PASSWORD` on database |
+| web | `STEAM_API_KEY` | Must match steam-service |
+| web | `STEAM_SERVICE_API_KEY` | Must be listed in `API_KEYS` on steam-service |
+
+::: warning Values that must match across services
+
+- `MYSQL_PASSWORD` (database) = `DATABASE_PASSWORD` (web)
+- `MYSQL_USER` (database) = `DATABASE_USER` (web)
+- `MYSQL_DATABASE` (database) = `DATABASE_NAME` (web)
+- `STEAM_API_KEY` → same on **web** and **steam-service**
+- `API_KEYS` (steam-service) must contain `STEAM_SERVICE_API_KEY` (web)
+:::
 
 ::: tip
-`DATABASE_HOST` and `STEAM_SERVICE_URL` are pre-configured in the compose file to use internal Docker hostnames (`database:3306` and `http://steam-service:3001`). You don't need to set these unless you have a custom setup.
+`DATABASE_HOST` and `STEAM_SERVICE_URL` are pre-configured to use internal Docker hostnames (`database:3306` and `http://steam-service:3001`). No need to change these.
 :::
 
 #### Step 4: Deploy
 
 1. Click **"Deploy"**
-2. Wait for build to complete (~5-10 minutes)
+2. Wait for images to pull and start (~1-2 minutes)
 3. Access your app at the provided URL
 
 #### Step 5: Run Database Migrations
@@ -311,7 +310,7 @@ The repository includes a ready-to-use Coolify compose file: **`docker-compose.c
 
 This file deploys all three services (MariaDB, Web App, Steam Service) on a shared internal Docker network. The web app connects to the steam-service via `http://steam-service:3001` internally — no TLS issues, no proxy hops.
 
-Set `docker-compose.coolify.yml` as the Compose File in Coolify and configure the environment variables listed in [Step 3](#step-3-configure-per-service-environment-variables) above.
+Set `docker-compose.coolify.yml` as the Compose File in Coolify and configure the environment variables listed in [Step 3](#step-3-configure-environment-variables) above.
 
 ---
 
