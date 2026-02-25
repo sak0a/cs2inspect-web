@@ -4,23 +4,28 @@ name: Build Docker Images
 #
 # Triggers:
 #   - Push to master        → :latest, :master, :master-{sha}
-#   - Version tag (v1.2.3)  → :v1.2.3, :1.2, :1
-#   - Manual dispatch        → :master (or current branch)
+#   - Push to dev           → :dev, :dev-{sha}
+#   - Version tag (v1.2.3)  → :v1.2.3, :1.2, :1  (direct tag push)
+#   - Release published     → :v1.2.3, :1.2, :1  (from release workflow)
+#   - Manual dispatch        → tags based on current branch/ref
 #
 # Images:
 #   ghcr.io/sak0a/cs2inspect-web:<tag>
 #   ghcr.io/sak0a/cs2inspect-web-steam-service:<tag>
 #
-# In Coolify, set WEB_IMAGE_TAG and STEAM_SERVICE_IMAGE_TAG to pick which tag to deploy.
-#   Dev:  WEB_IMAGE_TAG=latest
-#   Prod: WEB_IMAGE_TAG=v1.2.3
+# In Coolify, set WEB_IMAGE_TAG and SS_IMAGE_TAG to pick which tag to deploy.
+#   Dev:  WEB_IMAGE_TAG=dev        (auto-built on push to dev branch)
+#   Prod: WEB_IMAGE_TAG=v1.2.3     (built when you create a release)
 
 on:
   push:
     branches:
       - master
+      - dev
     tags:
       - 'v*'
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       platforms:
