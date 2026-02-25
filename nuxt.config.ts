@@ -116,7 +116,7 @@ export default defineNuxtConfig({
     plugins: [
       Components({
         resolvers: [NaiveUiResolver()]
-      }) as any
+      }) as unknown as { name: string }
     ]
   },
   tailwindcss: {

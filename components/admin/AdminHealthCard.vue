@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import {
     LucideRefreshCw as RefreshIcon,
-    LucideChevronDown as ChevronDownIcon,
 } from 'lucide-vue-next'
 import type { HealthCheck } from '~/composables/useAdminHealth'
 

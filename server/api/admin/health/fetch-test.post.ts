@@ -46,7 +46,7 @@ export default useErrorHandling(async (event) => {
 
     let responseStatus = 0
     let responseStatusText = ''
-    let responseHeaders: Record<string, string> = {}
+    const responseHeaders: Record<string, string> = {}
     let responseBody = ''
     let errorMessage: string | null = null
     let errorCode: string | null = null

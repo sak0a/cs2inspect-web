@@ -219,7 +219,7 @@ function tryFormatJson(str: string): string {
         <!-- Health Check Cards -->
         <div class="health-cards">
             <template v-if="isLoading && healthChecks.length === 0">
-                <div class="loading-placeholder" v-for="i in 6" :key="i">
+                <div v-for="i in 6" :key="i" class="loading-placeholder">
                     <NSkeleton :height="120" :sharp="false" />
                 </div>
             </template>
