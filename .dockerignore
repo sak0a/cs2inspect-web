@@ -45,7 +45,11 @@ public/img/charms
 public/img/weapons
 public/img/stickers
 
+# Plugin (separate project, not part of web image)
+cs2-plugin/
+
 # Misc
 backups/
 storage/
+scripts/
 todos_manager.html

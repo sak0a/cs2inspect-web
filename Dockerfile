@@ -20,8 +20,9 @@ COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 
 # Copy source and build
+# JWT_TOKEN is required by Nuxt prerender — dummy value is safe, only used at build time
 COPY . .
-RUN bun run build
+RUN JWT_TOKEN=build-placeholder bun run build
 
 # 2) Runtime stage (Bun)
 FROM oven/bun:1-alpine AS runner
