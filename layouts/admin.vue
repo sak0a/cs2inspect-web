@@ -3,6 +3,7 @@ import { h } from 'vue'
 import {
   LucideLayoutDashboard as DashboardIcon,
   LucideUsers as UsersIcon,
+  LucideHeartPulse as HealthIcon,
   LucideSettings as SettingsIcon,
   LucideActivity as ActivityIcon,
   LucideShield as ShieldIcon,
@@ -26,6 +27,7 @@ const navigationItems = computed(() => {
   const items = [
     { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon, path: '/admin' },
     { key: 'users', label: 'Users', icon: UsersIcon, path: '/admin/users' },
+    { key: 'health', label: 'System Health', icon: HealthIcon, path: '/admin/health' },
     { key: 'settings', label: 'Settings', icon: SettingsIcon, path: '/admin/settings' },
     { key: 'activity', label: 'Activity Log', icon: ActivityIcon, path: '/admin/activity' }
   ]

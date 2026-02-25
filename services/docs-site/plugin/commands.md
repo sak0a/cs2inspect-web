@@ -75,7 +75,15 @@ Knife shortcuts accept the same modular arguments as the `!g` command. This lets
 !karambit reset                                # Full config reset for karambit
 ```
 
-Arguments are **position-independent** — you can provide wear, paint, seed, StatTrak, nametag, stickers, and keychains in any order. All property tokens from the `!g` command work here.
+Arguments are **position-independent** — you can provide wear, paint, seed, StatTrak, and nametag in any order. All property tokens from the `!g` command work here.
+
+::: warning Unsupported Properties
+Knives do **not** support stickers or keychains. Using these will show an error. Supported: paint, wear, seed, StatTrak, nametag.
+:::
+
+::: tip Partial Updates
+Specifying only some properties (e.g. `!butterfly s222`) preserves the existing skin configuration — only the specified property is changed.
+:::
 
 ::: info Cross-Category Paint Names
 If a paint name isn't found in the knife category but exists for another weapon type (e.g., rifles), it is still applied and a warning is shown telling you where the paint was found.
@@ -116,8 +124,8 @@ Glove shortcuts accept the same modular arguments as the `!g` command:
 
 Arguments are **position-independent** — paint, wear, and seed can appear in any order.
 
-::: info Glove Limitations
-Gloves do not support StatTrak (`t`) or custom nametags (`n"..."`/`"..."`). Only paint, wear, and seed are applicable.
+::: warning Glove Limitations
+Gloves do not support StatTrak (`t`), custom nametags (`n"..."`/`"..."`), stickers, or keychains. Only paint, wear, and seed are applicable. Using unsupported properties will show an error.
 :::
 
 ::: info Cross-Category Paint Names
@@ -253,6 +261,22 @@ Stickers are applied to slots 0-4. Multiple formats supported:
 1234                       # Simple keychain ID
 1234x.1y.2z.3s42         # With offsets and seed
 @k:s42                    # Modify existing keychain seed
+```
+
+#### Sticker Slab & Highlight Reel Keychains
+
+Special keychain types use additional property prefixes:
+
+| Prefix | Meaning | Example |
+|--------|---------|---------|
+| `i<id>` | Wrapped sticker ID (Sticker Slab) | `1234i5020` |
+| `h<id>` | Highlight Reel ID (Souvenir charm) | `1234h9012` |
+
+```bash
+!g ak 1234i5020                  # Keychain with wrapped sticker
+!g ak 1234x.1y.2z.3s42i5020     # Full keychain with sticker slab
+!g ak @k:i5020                   # Update existing keychain's wrapped sticker
+!g ak @k:h9012                   # Update existing keychain's highlight reel
 ```
 
 ### Reset Behavior
