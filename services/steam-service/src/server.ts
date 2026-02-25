@@ -97,8 +97,8 @@ export async function createServer() {
   });
 
   // Root endpoint
-  fastify.get('/', async (request, reply) => {
-    return reply.send({
+  fastify.get('/', async () => {
+    return {
       service: 'Steam Service',
       version: '1.0.0',
       status: 'running',
@@ -107,7 +107,7 @@ export async function createServer() {
         status: '/api/status',
         inspect: '/api/inspect/*',
       },
-    });
+    };
   });
 
   return fastify;

@@ -20,7 +20,8 @@ async function ensureMigrationJournal(): Promise<void> {
              WHERE table_schema = DATABASE() AND table_name = '__drizzle_migrations'`
         ) as [Array<{ cnt: number }>, unknown];
 
-        const journalExists = rows[0]?.cnt > 0;
+        const journalCount = rows[0]?.cnt ?? 0;
+        const journalExists = journalCount > 0;
 
         if (journalExists) {
             // Journal exists — migrate() will handle the rest
@@ -33,7 +34,8 @@ async function ensureMigrationJournal(): Promise<void> {
              WHERE table_schema = DATABASE() AND table_name = 'wp_player_loadouts'`
         ) as [Array<{ cnt: number }>, unknown];
 
-        const hasExistingTables = tableRows[0]?.cnt > 0;
+        const existingTableCount = tableRows[0]?.cnt ?? 0;
+        const hasExistingTables = existingTableCount > 0;
 
         if (!hasExistingTables) {
             // Fresh database — migrate() will create everything from scratch

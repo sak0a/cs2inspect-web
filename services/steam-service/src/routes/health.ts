@@ -32,7 +32,8 @@ export async function healthRoutes(fastify: FastifyInstance) {
       checks,
     };
 
-    return reply.code(overallStatus === 'ok' ? 200 : 503).send(response);
+    reply.code(overallStatus === 'ok' ? 200 : 503);
+    return response;
   });
 
   // Readiness probe
@@ -58,21 +59,16 @@ export async function healthRoutes(fastify: FastifyInstance) {
       checks,
     };
 
-    return reply.code(ready ? 200 : 503).send(response);
+    reply.code(ready ? 200 : 503);
+    return response;
   });
 
   // Liveness probe
-  fastify.get('/health/live', async (request: FastifyRequest, reply: FastifyReply) => {
-    try {
-      return reply.send({
-        status: 'ok',
-        alive: true,
-        timestamp: new Date().toISOString(),
-      });
-    } catch (error) {
-      // If reply already sent, just return
-      if (reply.sent) return;
-      throw error;
-    }
+  fastify.get('/health/live', async (_request: FastifyRequest, _reply: FastifyReply) => {
+    return {
+      status: 'ok',
+      alive: true,
+      timestamp: new Date().toISOString(),
+    };
   });
 }

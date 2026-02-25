@@ -36,8 +36,8 @@ export async function inspectRoutes(fastify: FastifyInstance) {
         } as Sticker] : undefined;
 
         // Convert rarity to number if needed (EconItem expects number)
-        const rarityValue = typeof rarity === 'number' 
-          ? rarity 
+        const rarityValue = typeof rarity === 'number'
+          ? rarity
           : (typeof rarity === 'string' ? parseInt(rarity, 10) || 1 : 1);
 
         const itemData: EconItem = {
@@ -57,7 +57,7 @@ export async function inspectRoutes(fastify: FastifyInstance) {
 
         logger.info(`Created ${itemType} inspect URL`);
 
-        const response: ApiResponse<{ inspectUrl: string; itemData: EconItem; itemType: string }> = {
+        return {
           success: true,
           data: {
             inspectUrl,
@@ -65,18 +65,16 @@ export async function inspectRoutes(fastify: FastifyInstance) {
             itemType,
           },
         };
-
-        return reply.send(response);
       } catch (error) {
         logger.error('Error creating inspect URL:', error);
-        const response: ApiResponse = {
+        reply.code(500);
+        return {
           success: false,
           error: {
             code: 'CREATE_URL_ERROR',
             message: error instanceof Error ? error.message : 'Failed to create inspect URL',
           },
         };
-        return reply.code(500).send(response);
       }
     }
   );
@@ -91,28 +89,28 @@ export async function inspectRoutes(fastify: FastifyInstance) {
         const { inspectUrl, itemType } = request.body;
 
         if (!inspectUrl) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_REQUEST',
               message: 'inspectUrl is required',
             },
           };
-          return reply.code(400).send(response);
         }
 
         const client = steamClientService.getClient();
         const urlInfo = analyzeUrl(inspectUrl);
 
         if (!urlInfo) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_INSPECT_URL',
               message: 'Invalid inspect URL format',
             },
           };
-          return reply.code(400).send(response);
         }
 
         // Queue the inspect request
@@ -130,16 +128,14 @@ export async function inspectRoutes(fastify: FastifyInstance) {
 
         logger.info(`Inspected ${itemType || 'item'} successfully`);
 
-        const response: ApiResponse<unknown> = {
+        return {
           success: true,
           data: itemData,
         };
-
-        return reply.send(response);
       } catch (error) {
         logger.error('Error inspecting item:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        
+
         let code = 'INSPECT_ERROR';
         if (errorMessage.includes('not ready') || errorMessage.includes('not initialized')) {
           code = 'STEAM_CLIENT_UNAVAILABLE';
@@ -147,14 +143,14 @@ export async function inspectRoutes(fastify: FastifyInstance) {
           code = 'REQUEST_TIMEOUT';
         }
 
-        const response: ApiResponse = {
+        reply.code(500);
+        return {
           success: false,
           error: {
             code,
             message: errorMessage,
           },
         };
-        return reply.code(500).send(response);
       }
     }
   );
@@ -167,49 +163,47 @@ export async function inspectRoutes(fastify: FastifyInstance) {
         const { inspectUrl } = request.body;
 
         if (!inspectUrl) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_REQUEST',
               message: 'inspectUrl is required',
             },
           };
-          return reply.code(400).send(response);
         }
 
         const urlInfo = analyzeUrl(inspectUrl);
 
         if (!urlInfo || urlInfo.url_type !== 'masked' || !urlInfo.hex_data) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_MASKED_URL',
               message: 'URL is not a masked inspect URL',
             },
           };
-          return reply.code(400).send(response);
         }
 
         const itemData = decodeMaskedData(urlInfo.hex_data);
 
         logger.info('Decoded masked URL successfully');
 
-        const response: ApiResponse<unknown> = {
+        return {
           success: true,
           data: itemData,
         };
-
-        return reply.send(response);
       } catch (error) {
         logger.error('Error decoding masked URL:', error);
-        const response: ApiResponse = {
+        reply.code(500);
+        return {
           success: false,
           error: {
             code: 'DECODE_ERROR',
             message: error instanceof Error ? error.message : 'Failed to decode masked URL',
           },
         };
-        return reply.code(500).send(response);
       }
     }
   );
@@ -222,36 +216,34 @@ export async function inspectRoutes(fastify: FastifyInstance) {
         const { hexData } = request.body;
 
         if (!hexData) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_REQUEST',
               message: 'hexData is required',
             },
           };
-          return reply.code(400).send(response);
         }
 
         const itemData = decodeMaskedData(hexData);
 
         logger.info('Decoded hex data successfully');
 
-        const response: ApiResponse<unknown> = {
+        return {
           success: true,
           data: itemData,
         };
-
-        return reply.send(response);
       } catch (error) {
         logger.error('Error decoding hex data:', error);
-        const response: ApiResponse = {
+        reply.code(500);
+        return {
           success: false,
           error: {
             code: 'DECODE_ERROR',
             message: error instanceof Error ? error.message : 'Failed to decode hex data',
           },
         };
-        return reply.code(500).send(response);
       }
     }
   );
@@ -264,19 +256,19 @@ export async function inspectRoutes(fastify: FastifyInstance) {
         const { inspectUrl } = request.body;
 
         if (!inspectUrl) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_REQUEST',
               message: 'inspectUrl is required',
             },
           };
-          return reply.code(400).send(response);
         }
 
         const validationResult = validateUrl(inspectUrl);
         const urlInfo = analyzeUrl(inspectUrl);
-        
+
         // validateUrl returns a ValidationResult object, extract the valid property
         const isValid = typeof validationResult === 'object' && validationResult !== null && 'valid' in validationResult
           ? (validationResult as { valid: boolean }).valid
@@ -284,7 +276,7 @@ export async function inspectRoutes(fastify: FastifyInstance) {
 
         logger.info(`Validated URL: ${isValid ? 'valid' : 'invalid'}`);
 
-        const response: ApiResponse<{ valid: boolean; urlInfo: unknown; validation: unknown }> = {
+        return {
           success: true,
           data: {
             valid: isValid,
@@ -292,18 +284,16 @@ export async function inspectRoutes(fastify: FastifyInstance) {
             validation: validationResult,
           },
         };
-
-        return reply.send(response);
       } catch (error) {
         logger.error('Error validating URL:', error);
-        const response: ApiResponse = {
+        reply.code(500);
+        return {
           success: false,
           error: {
             code: 'VALIDATE_ERROR',
             message: error instanceof Error ? error.message : 'Failed to validate URL',
           },
         };
-        return reply.code(500).send(response);
       }
     }
   );
@@ -316,47 +306,45 @@ export async function inspectRoutes(fastify: FastifyInstance) {
         const { inspectUrl } = request.body;
 
         if (!inspectUrl) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_REQUEST',
               message: 'inspectUrl is required',
             },
           };
-          return reply.code(400).send(response);
         }
 
         const urlInfo = analyzeUrl(inspectUrl);
 
         if (!urlInfo) {
-          const response: ApiResponse = {
+          reply.code(400);
+          return {
             success: false,
             error: {
               code: 'INVALID_URL_FORMAT',
               message: 'Unable to analyze URL format',
             },
           };
-          return reply.code(400).send(response);
         }
 
         logger.info('Analyzed URL successfully');
 
-        const response: ApiResponse<unknown> = {
+        return {
           success: true,
           data: urlInfo,
         };
-
-        return reply.send(response);
       } catch (error) {
         logger.error('Error analyzing URL:', error);
-        const response: ApiResponse = {
+        reply.code(500);
+        return {
           success: false,
           error: {
             code: 'ANALYZE_ERROR',
             message: error instanceof Error ? error.message : 'Failed to analyze URL',
           },
         };
-        return reply.code(500).send(response);
       }
     }
   );

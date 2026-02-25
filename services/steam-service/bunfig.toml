@@ -5,3 +5,4 @@ production = false
 [test]
 # Test configuration
 timeout = 30000
+preload = ["./src/test-setup.ts"]

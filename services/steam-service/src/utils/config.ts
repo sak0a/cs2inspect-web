@@ -22,7 +22,9 @@ export const config = {
     initRetries: parseInt(process.env.STEAM_INIT_RETRIES || '2', 10),
   },
   api: {
-    keys: (process.env.API_KEYS || '').split(',').filter(Boolean),
+    get keys() {
+      return (process.env.API_KEYS || '').split(',').filter(Boolean);
+    },
   },
   cors: {
     origins: (process.env.CORS_ORIGINS || 'http://localhost:3210,http://localhost:3211').split(',').filter(Boolean),

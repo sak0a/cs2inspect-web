@@ -1,4 +1,4 @@
-import type { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
+import type { FastifyInstance } from 'fastify';
 import { steamClientService } from '../services/steamClient.js';
 import { requestQueue } from '../services/queue.js';
 import type { ServiceStatus } from '../types/index.js';
@@ -8,7 +8,7 @@ const SERVICE_VERSION = '1.0.0';
 
 export async function statusRoutes(fastify: FastifyInstance) {
   // General status
-  fastify.get('/status', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/status', async () => {
     const steamStatus = steamClientService.getStatus();
     const queueStats = requestQueue.getStats();
     const serverUptime = Date.now() - serviceStartTime;
@@ -30,18 +30,16 @@ export async function statusRoutes(fastify: FastifyInstance) {
       },
     };
 
-    return reply.send(response);
+    return response;
   });
 
   // Steam client status
-  fastify.get('/status/steam-client', async (request: FastifyRequest, reply: FastifyReply) => {
-    const steamStatus = steamClientService.getStatus();
-    return reply.send(steamStatus);
+  fastify.get('/status/steam-client', async () => {
+    return steamClientService.getStatus();
   });
 
   // Queue status
-  fastify.get('/status/queue', async (request: FastifyRequest, reply: FastifyReply) => {
-    const queueStats = requestQueue.getStats();
-    return reply.send(queueStats);
+  fastify.get('/status/queue', async () => {
+    return requestQueue.getStats();
   });
 }
