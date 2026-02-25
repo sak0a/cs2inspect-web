@@ -761,14 +761,14 @@ export function generateFlatImageUrl(weaponName: string, skinName: string): stri
     weaponsPath = (config.public.assetsWeaponsPath as string) || ''
   } catch {
     baseUrl = ''
-    weaponsPath = '/img/weapons/flat'
+    weaponsPath = '/img/weapons'
   }
 
   // Try flat image first, fallback to default weapon image
   if (baseUrl) {
-    return `${baseUrl}${weaponsPath}/flat/${cleanWeaponName}-${cleanSkinName}.png`
+    return `${baseUrl}${weaponsPath}/${cleanWeaponName}-${cleanSkinName}.png`
   }
-  const flatImageUrl = `/img/weapons/flat/${cleanWeaponName}-${cleanSkinName}.png`
+  const flatImageUrl = `/img/weapons/${cleanWeaponName}-${cleanSkinName}.png`
 
   return flatImageUrl
 }

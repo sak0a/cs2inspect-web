@@ -305,7 +305,7 @@ export function generateVideoUrl(weaponName: string, skinName: string): string {
     return `${baseUrl}${weaponsPath}/${cleanWeaponName}-${cleanSkinName}.webm`
   }
 
-  return `/img/weapons/flat/${cleanWeaponName}-${cleanSkinName}.webm`
+  return `/img/weapons/${cleanWeaponName}-${cleanSkinName}.webm`
 }
 
 /**
