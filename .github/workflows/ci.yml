@@ -41,10 +41,14 @@ jobs:
           path: |
             ~/.bun/install/cache
             node_modules
+            services/steam-service/node_modules
           key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
           restore-keys: ${{ runner.os }}-bun-
 
       - run: bun install
+      - name: Install steam-service dependencies
+        run: bun install
+        working-directory: services/steam-service
       - run: bun run typecheck
       - run: bun run lint
       - run: bun test
