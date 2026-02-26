@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
   imports: {
-    dirs: ['stores', 'composables', 'utils', 'server/utils', 'middleware'],
+    dirs: ['stores', 'composables', 'utils', '../server/utils', 'middleware'],
     presets: [
       {
         from: 'naive-ui',
