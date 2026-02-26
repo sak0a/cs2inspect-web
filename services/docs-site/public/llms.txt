@@ -1,0 +1,70 @@
+# CS2Inspect Documentation
+
+> CS2Inspect is a full-stack Nuxt 4 web application for Counter-Strike 2 players to customize and manage their in-game item loadouts with real-time preview. Built with Vue 3, Naive UI, Tailwind CSS, Pinia, Nitro (H3), MariaDB, and Drizzle ORM. Authentication via Steam OpenID + JWT. Deployed with Docker images on Coolify.
+
+## Getting Started
+
+- [Overview](https://sak0a.github.io/cs2inspect-web/): Project homepage and feature overview
+- [User Guide](https://sak0a.github.io/cs2inspect-web/user-guide): How to use the application as an end user
+- [How It Works](https://sak0a.github.io/cs2inspect-web/how-it-works): Core concepts, user flows, and system overview
+- [FAQ](https://sak0a.github.io/cs2inspect-web/faq): Frequently asked questions and troubleshooting
+
+## Server Setup
+
+- [Self-Hosting Guide](https://sak0a.github.io/cs2inspect-web/self-hosting): Complete guide to self-hosting CS2Inspect
+- [Deployment Options](https://sak0a.github.io/cs2inspect-web/deployment): Alternative deployment methods (Vercel, VPS, Docker)
+- [Coolify Deployment](https://sak0a.github.io/cs2inspect-web/coolify): Recommended production deployment with Coolify and pre-built Docker images
+
+## Development
+
+- [Development Setup](https://sak0a.github.io/cs2inspect-web/setup): Local development environment setup, prerequisites, and configuration
+- [Architecture Overview](https://sak0a.github.io/cs2inspect-web/architecture): System architecture and technology stack
+- [Frontend Architecture](https://sak0a.github.io/cs2inspect-web/architecture-frontend): Vue 3, Nuxt 4, component structure, state management
+- [Backend Architecture](https://sak0a.github.io/cs2inspect-web/architecture-backend): Nitro server, API design, database schema, Drizzle ORM
+- [Deployment Architecture](https://sak0a.github.io/cs2inspect-web/architecture-deployment): Infrastructure, Docker, CI/CD pipeline
+- [Components](https://sak0a.github.io/cs2inspect-web/components): Frontend and backend component reference
+- [GitHub Actions CI/CD](https://sak0a.github.io/cs2inspect-web/github-actions): CI pipeline, Docker image builds, release workflow, docs deployment
+- [Contributing Guide](https://sak0a.github.io/cs2inspect-web/contributing): How to contribute, code style, PR process
+
+## Services
+
+- [Steam Service](https://sak0a.github.io/cs2inspect-web/services-steam): Standalone Steam bot service for inspect URL processing
+- [Asset Scrapers](https://sak0a.github.io/cs2inspect-web/services-scrapers): Scraping tools for weapon skins, stickers, and other game assets
+
+## API Reference
+
+- [API Overview](https://sak0a.github.io/cs2inspect-web/api/): API structure, base URL, and conventions
+- [Authentication](https://sak0a.github.io/cs2inspect-web/api/authentication): Steam OpenID login, JWT tokens, session management
+- [Health Checks](https://sak0a.github.io/cs2inspect-web/api/health): Health monitoring endpoints (live, ready, detailed)
+- [Data Endpoints](https://sak0a.github.io/cs2inspect-web/api/data): Static data endpoints for weapons, skins, stickers
+- [Loadouts](https://sak0a.github.io/cs2inspect-web/api/loadouts): CRUD operations for loadout management
+- [Items](https://sak0a.github.io/cs2inspect-web/api/items): Item configuration and customization endpoints
+- [Inspect System](https://sak0a.github.io/cs2inspect-web/api/inspect): Inspect URL parsing and generation
+- [Admin API](https://sak0a.github.io/cs2inspect-web/api/admin): Administrative endpoints
+- [Error Handling](https://sak0a.github.io/cs2inspect-web/api/errors): Error response format and common error codes
+- [All Endpoints (Auto-Generated)](https://sak0a.github.io/cs2inspect-web/api/api-reference): Complete auto-generated API reference from source code
+
+## Reference
+
+- [Composables](https://sak0a.github.io/cs2inspect-web/reference-composables): Vue composables reference (useItems, useInspectItem, etc.)
+- [Pinia Stores](https://sak0a.github.io/cs2inspect-web/reference-stores): State management stores reference
+- [TypeScript Types](https://sak0a.github.io/cs2inspect-web/reference-types): Type definitions and branded types
+- [Environment Variables](https://sak0a.github.io/cs2inspect-web/reference-env): Complete environment variable reference with defaults and examples
+- [Health Checks](https://sak0a.github.io/cs2inspect-web/HEALTH_CHECKS): Health monitoring system documentation
+
+## CS2 Plugin
+
+- [Plugin Overview](https://sak0a.github.io/cs2inspect-web/plugin/): CounterStrikeSharp plugin integration
+- [Commands](https://sak0a.github.io/cs2inspect-web/plugin/commands): In-game plugin commands
+- [Configuration](https://sak0a.github.io/cs2inspect-web/plugin/configuration): Plugin configuration options
+- [Config Generator](https://sak0a.github.io/cs2inspect-web/plugin/config-generator): Interactive config generator tool
+
+## Optional
+
+- [Version History](https://sak0a.github.io/cs2inspect-web/version-history): Release notes and changelog
+- [Admin Panel](https://sak0a.github.io/cs2inspect-web/admin): Admin panel documentation
+- [Theme Customization](https://sak0a.github.io/cs2inspect-web/theme-customization): UI theming and styling guide
+- [Sticker Slots](https://sak0a.github.io/cs2inspect-web/StickerSlots): Sticker slot configuration details
+- [Glassmorphism](https://sak0a.github.io/cs2inspect-web/GLASSMORPHISM): Glass effect UI styling guide
+- [Recommendations](https://sak0a.github.io/cs2inspect-web/recommendations): Feature recommendations and roadmap
+- [Improvements Summary](https://sak0a.github.io/cs2inspect-web/improvements-summary): Summary of improvements made
