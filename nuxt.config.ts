@@ -171,7 +171,7 @@ export default defineNuxtConfig({
       { code: 'nl', iso: 'nl-NL', displayName: 'Nederlands' },
     ],
     defaultLocale: 'en',
-    translationDir: 'locales',
+    translationDir: 'app/locales',
     meta: true,
     localeCookie: 'i18n_locale',
     strategy: 'no_prefix'
