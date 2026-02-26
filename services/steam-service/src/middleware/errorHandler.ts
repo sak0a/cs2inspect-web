@@ -6,7 +6,7 @@ export function errorHandler(
   request: FastifyRequest,
   reply: FastifyReply
 ) {
-  if (reply.raw.writableEnded) {
+  if (reply.sent || reply.raw.headersSent || reply.raw.writableEnded) {
     return;
   }
 

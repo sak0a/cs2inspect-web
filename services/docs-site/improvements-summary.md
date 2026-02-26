@@ -193,7 +193,7 @@ make clean             # Clean build artifacts
 - ✅ **Code organization**: Improved structure
 
 ### Infrastructure
-- ✅ **Docker configs**: 1 → 3 (dev/prod/original)
+- ✅ **Docker configs**: 3 → 1 (consolidated to docker-compose.coolify.yml)
 - ✅ **Deployment options**: 1 → 5 (Docker/VPS/Bare metal/etc)
 - ✅ **Monitoring**: Basic → Comprehensive
 - ✅ **Security**: Good → Excellent
@@ -313,7 +313,6 @@ docs/
 scripts/
 ├── install.sh (NEW)            # Automated installation
 ├── setup-wizard.sh (NEW)       # Interactive setup
-├── validate-env.sh (NEW)       # Environment validation
 └── validate-env.sh (NEW)       # Environment validation
 ```
 
