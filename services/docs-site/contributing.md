@@ -453,7 +453,7 @@ Before submitting a pull request, ensure:
 - [ ] New tests added for new features
 - [ ] Documentation updated if needed
 - [ ] Commit messages are clear and descriptive
-- [ ] Branch is up to date with `main`
+- [ ] Branch is up to date with `master`
 - [ ] No merge conflicts
 - [ ] Screenshots included for UI changes
 

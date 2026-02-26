@@ -20,7 +20,7 @@ graph LR
     end
 
     subgraph "Web Application"
-        WebApp["CS2Inspect Web App<br/>(Nuxt 3 + Nitro)"]
+        WebApp["CS2Inspect Web App<br/>(Nuxt 4 + Nitro)"]
     end
 
     subgraph "CS2 Game Server"

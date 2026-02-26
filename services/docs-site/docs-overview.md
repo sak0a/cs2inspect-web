@@ -107,7 +107,7 @@ For comprehensive architecture documentation including diagrams, component detai
 :::
 
 ```
-Frontend (Nuxt 3 + Vue 3)
+Frontend (Nuxt 4 + Vue 3)
 ├── Pages & Components
 ├── Pinia Stores
 ├── Composables
@@ -177,7 +177,7 @@ See the [Architecture Guide](architecture.md) for:
 - **Team-Based Configuration**: Separate T/CT configurations for knives, gloves, and agents
 
 ### Technical Features
-- **Server-Side Rendering**: Nuxt 3 SSR for optimal performance
+- **Server-Side Rendering**: Nuxt 4 SSR for optimal performance
 - **Real-Time Validation**: Client and server-side validation
 - **Type Safety**: Full TypeScript implementation
 - **Internationalization**: Multi-language support (EN, DE, RU)
@@ -195,7 +195,7 @@ For comprehensive technology stack information, architecture diagrams, and syste
 :::
 
 ### Frontend
-- **Framework**: Nuxt 3 (Vue 3 + TypeScript)
+- **Framework**: Nuxt 4 (Vue 3 + TypeScript)
 - **UI Library**: Naive UI
 - **Styling**: Tailwind CSS + SASS
 - **State**: Pinia
@@ -254,7 +254,7 @@ See the [Contributing Guide](contributing.md) for detailed instructions on addin
 
 ### Dependencies & Libraries
 This project is built with the help of many excellent open-source libraries:
-- **Nuxt 3** - Vue.js framework
+- **Nuxt 4** - Vue.js framework
 - **Naive UI** - Vue 3 component library
 - **cs2-inspect-lib** - CS2 item inspection
 - **node-cs2** - Steam Game Coordinator integration

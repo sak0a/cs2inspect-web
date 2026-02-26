@@ -58,28 +58,35 @@ Each service has its own environment panel in Coolify. The compose file uses `${
 
 **Required variables to set** (replace the defaults):
 
-| Service | Variable | Description |
-| ------- | -------- | ----------- |
-| database | `MYSQL_ROOT_PASSWORD` | MariaDB root password |
-| database | `MYSQL_PASSWORD` | App database password |
-| steam-service | `STEAM_API_KEY` | Your Steam Web API key |
-| steam-service | `API_KEYS` | Comma-separated keys for auth |
-| web | `JWT_TOKEN` | 64-char secret (`openssl rand -hex 32`) |
-| web | `DATABASE_PASSWORD` | Must match `MYSQL_PASSWORD` on database |
-| web | `STEAM_API_KEY` | Must match steam-service |
-| web | `STEAM_SERVICE_API_KEY` | Must be listed in `API_KEYS` on steam-service |
+All environment variables use prefixes to avoid name collisions in Coolify's single env panel:
 
-::: warning Values that must match across services
+| Variable | Description |
+| -------- | ----------- |
+| `DB_ROOT_PASSWORD` | MariaDB root password |
+| `SHARED_DB_PASSWORD` | App database password (shared between database + web) |
+| `SHARED_DB_USER` | Database user (shared between database + web) |
+| `SHARED_DB_NAME` | Database name (shared between database + web) |
+| `SHARED_STEAM_API_KEY` | Steam Web API key (shared between web + steam-service) |
+| `SS_API_KEYS` | Comma-separated API keys for steam-service auth |
+| `SS_STEAM_USERNAME` | Steam bot username (optional) |
+| `SS_STEAM_PASSWORD` | Steam bot password (optional) |
+| `WEB_JWT_TOKEN` | 64-char secret (`openssl rand -hex 32`) |
+| `WEB_STEAM_SERVICE_API_KEY` | Must be listed in `SS_API_KEYS` |
+| `WEB_IMAGE_TAG` | Docker image tag for web (e.g., `latest`, `v1.2.3`, `dev`) |
+| `SS_IMAGE_TAG` | Docker image tag for steam-service |
 
-- `MYSQL_PASSWORD` (database) = `DATABASE_PASSWORD` (web)
-- `MYSQL_USER` (database) = `DATABASE_USER` (web)
-- `MYSQL_DATABASE` (database) = `DATABASE_NAME` (web)
-- `STEAM_API_KEY` → same on **web** and **steam-service**
-- `API_KEYS` (steam-service) must contain `STEAM_SERVICE_API_KEY` (web)
+::: warning SHARED_* values must stay in sync
+Variables prefixed with `SHARED_*` are used by multiple services. Changing one without the other will break connections:
+
+- `SHARED_DB_PASSWORD` → used by both `database` and `web`
+- `SHARED_DB_USER` → used by both `database` and `web`
+- `SHARED_DB_NAME` → used by both `database` and `web`
+- `SHARED_STEAM_API_KEY` → used by both `web` and `steam-service`
+- `SS_API_KEYS` (steam-service) must contain `WEB_STEAM_SERVICE_API_KEY` (web)
 :::
 
 ::: tip
-`DATABASE_HOST` and `STEAM_SERVICE_URL` are pre-configured to use internal Docker hostnames (`database:3306` and `http://steam-service:3001`). No need to change these.
+`DATABASE_HOST` and `STEAM_SERVICE_URL` are pre-configured to use internal Docker hostnames (`database:3306` and `http://steam-service:3211`). No need to change these.
 :::
 
 #### Step 4: Deploy
@@ -115,13 +122,13 @@ Deploy just the web application (requires external database).
 
 **Build Command**: (leave empty, Nixpacks auto-detects)  
 **Start Command**: `bun run .output/server/index.mjs`  
-**Port**: `3000`
+**Port**: `3210`
 
 #### Step 3: Add Database
 
 1. Go to **"New Resource"** → **"Database"**
 2. Select **"MariaDB"**
-3. Set version: `10.11`
+3. Set version: `11`
 4. Create database: `csinspect`
 
 #### Step 4: Environment Variables
@@ -138,7 +145,7 @@ DATABASE_NAME=csinspect
 
 # Add these manually
 NODE_ENV=production
-PORT=3000
+PORT=3210
 HOST=0.0.0.0
 JWT_TOKEN=your_secure_jwt_token
 STEAM_API_KEY=your_steam_api_key
@@ -161,7 +168,7 @@ Use custom Dockerfile for optimized builds.
 1. **Build Pack**: Dockerfile
 2. **Dockerfile Location**: `Dockerfile` (root)
 3. **Build Context**: `.`
-4. **Port**: `3000`
+4. **Port**: `3210`
 
 Rest follows same pattern as Nixpacks deployment.
 
@@ -172,14 +179,14 @@ Rest follows same pattern as Nixpacks deployment.
 ### Web Application
 
 **Resource Type**: Application or Docker Compose Service  
-**Port**: `3000`  
+**Port**: `3210`  
 **Health Check**: `/api/health/ready`  
 **Health Check Interval**: `30s`
 
 **Environment Variables**:
 ```bash
 NODE_ENV=production
-PORT=3000
+PORT=3210
 HOST=0.0.0.0
 JWT_TOKEN=<secret>
 DATABASE_HOST=database
@@ -189,7 +196,7 @@ STEAM_API_KEY=<key>
 ### MariaDB Database
 
 **Resource Type**: Database or Docker Compose Service
-**Version**: `11` (default, configurable via `MARIADB_VERSION`)
+**Version**: `11` (default, configurable via `DB_VERSION`)
 **Internal Port**: `3306` (always available to web/steam-service via `database:3306`)
 **External Port**: Configurable via `DATABASE_PORT_PUBLIC` (default `3306`) — needed for plugin or external tool access
 
@@ -198,18 +205,18 @@ STEAM_API_KEY=<key>
 
 **Configuration**:
 ```bash
-DATABASE_ROOT_PASSWORD=<secret>
-DATABASE_NAME=csinspect
-DATABASE_USER=csinspect
-DATABASE_PASSWORD=<secret>
-# DATABASE_PORT_PUBLIC=5766    # external access port
-# MARIADB_MAX_CONNECTIONS=100
+DB_ROOT_PASSWORD=<secret>
+SHARED_DB_NAME=csinspect
+SHARED_DB_USER=csinspect
+SHARED_DB_PASSWORD=<secret>
+# DB_PORT_PUBLIC=3306          # external access port (for plugin)
+# DB_MAX_CONNECTIONS=100
 ```
 
 ### Steam Service
 
 **Resource Type**: Docker Compose Service
-**Port**: `3001` (internal only — web app connects via `http://steam-service:3001`)
+**Port**: `3211` (internal only — web app connects via `http://steam-service:3211`)
 **Build Context**: `services/steam-service`
 **Health Check**: `/api/health/ready`
 
@@ -237,7 +244,7 @@ STEAM_PASSWORD=<bot_password>
 **Coolify Auto-Configuration**:
 ```yaml
 healthcheck:
-  test: ["CMD", "curl", "-fsS", "http://localhost:3000/api/health/ready"]
+  test: ["CMD", "curl", "-fsS", "http://localhost:3210/api/health/ready"]
   interval: 30s
   timeout: 5s
   retries: 3
@@ -278,14 +285,16 @@ Set in Coolify UI:
 ### How Deployments Work
 
 1. Push code to `master` → GitHub Actions builds Docker images → tagged `:latest` and `:master`
-2. Create a release (`v1.2.3`) → images also tagged `:v1.2.3`
-3. Coolify pulls images by tag and deploys
+2. Push code to `dev` → images tagged `:dev`
+3. Create a release (`v1.2.3`) → images also tagged `:v1.2.3` and `:1.2`
+4. Coolify pulls images by tag and deploys
 
 ### Environment Strategy
 
-| Environment | `WEB_IMAGE_TAG` | Updated when |
-| ----------- | --------------- | ------------ |
-| **Dev** | `latest` | Every push to master |
+| Environment | `WEB_IMAGE_TAG` / `SS_IMAGE_TAG` | Updated when |
+| ----------- | -------------------------------- | ------------ |
+| **Dev/Staging** | `dev` | Every push to `dev` branch |
+| **Latest** | `latest` | Every push to `master` branch |
 | **Production** | `v1.2.3` | Manual release via GitHub Actions |
 
 ### Updating Production
@@ -304,7 +313,7 @@ Change `WEB_IMAGE_TAG` back to the previous version tag and redeploy.
 
 The repository includes a ready-to-use Coolify compose file: **`docker-compose.coolify.yml`**
 
-This file deploys all three services (MariaDB, Web App, Steam Service) on a shared internal Docker network. The web app connects to the steam-service via `http://steam-service:3001` internally — no TLS issues, no proxy hops.
+This file deploys all three services (MariaDB, Web App, Steam Service) on a shared internal Docker network. The web app connects to the steam-service via `http://steam-service:3211` internally — no TLS issues, no proxy hops.
 
 Set `docker-compose.coolify.yml` as the Compose File in Coolify and configure the environment variables listed in [Step 3](#step-3-configure-environment-variables) above.
 
@@ -357,7 +366,7 @@ Instead of routing through the public domain, use the container's internal hostn
 # STEAM_SERVICE_URL=https://steam-service.example.com  ← WRONG
 
 # Use the internal container name + port instead:
-STEAM_SERVICE_URL=http://steam-service:3001
+STEAM_SERVICE_URL=http://steam-service:3211
 ```
 
 For this to work, both containers must be on the same Docker network. Options:
@@ -452,7 +461,7 @@ Monitor: `https://your-domain.com/api/health/ready`
 ```yaml
 services:
   backup:
-    image: mariadb:10.11
+    image: mariadb:11
     depends_on:
       - database
     volumes:
@@ -464,8 +473,8 @@ services:
         sleep 86400
       done"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${SHARED_DB_NAME}
 ```
 
 2. Backups saved to `./backups` folder

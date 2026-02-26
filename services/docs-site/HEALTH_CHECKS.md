@@ -135,7 +135,7 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
         "present_vars_count": 5,
         "missing_vars": [],
         "node_env": "production",
-        "port": "3000"
+        "port": "3210"
       },
       "checked_at": "2024-10-21T00:00:00.000Z"
     }
@@ -290,29 +290,31 @@ Stores configuration for health checks:
 For complete database setup instructions including Docker, local MariaDB installation, and initial configuration, see the [Setup Guide - Database Setup](../setup.md#3-database-setup).
 :::
 
-**Migrations run automatically on server startup!**
+**Migrations run automatically on server startup via Drizzle ORM!**
 
-When you start the server, it will automatically:
-1. Create the `_migrations` tracking table (if needed)
-2. Check for pending migrations
-3. Execute them in order (000_initial.sql, 001_add_health_checks.sql, etc.)
-4. Skip already-executed migrations
+When you start the server, Drizzle ORM will automatically:
+1. Check the current schema state
+2. Apply any pending migrations from `server/database/drizzle/`
+3. Create or update all required tables
 
 **For new installations:**
-- Just start the server - all migrations will run automatically
+- Just start the server - Drizzle ORM migrations will run automatically
 - The system will create all required tables
 
 **For existing installations:**
-- Start the server - only new migrations will be executed
-- Already-existing tables are safely skipped (thanks to `IF NOT EXISTS`)
+- Start the server - only new migrations will be applied
+- Drizzle ORM tracks migration state and skips already-applied changes
 
 **Manual migration (if needed for troubleshooting):**
 ```bash
-# Apply a specific migration manually
-mysql -h <host> -u <user> -p <database> < server/database/migrations/001_add_health_checks.sql
+# Generate a new migration after schema changes
+npx drizzle-kit generate
+
+# Apply pending migrations manually
+npx drizzle-kit migrate
 ```
 
-See the [Setup Guide - Database Management](../setup.md#database-management) for more details on the migration system.
+See the [Setup Guide - Database Management](../setup.md#database-management) for more details on the Drizzle ORM migration system.
 
 ---
 
@@ -396,7 +398,7 @@ Recommended alert conditions:
 - Insufficient permissions
 
 **Solutions:**
-- Run health_schema.sql to create tables
+- Restart the server to trigger Drizzle ORM migrations (tables are created automatically on startup)
 - Check server logs for sampler errors
 - Verify database user has INSERT permissions on health_check_history table
 

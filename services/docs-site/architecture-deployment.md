@@ -6,54 +6,77 @@ Production deployment architecture, security measures, and performance optimizat
 
 ```mermaid
 graph LR
-    subgraph "User's Browser"
-        UI[Web UI<br/>Vue/Nuxt App]
+    subgraph "Source"
+        GH[GitHub<br/>Repository]
     end
-    
-    subgraph "Hosting Platform"
-        Vercel[Vercel<br/>Static + Serverless]
-        CDN[Global CDN]
+
+    subgraph "CI/CD"
+        GHA[GitHub Actions<br/>CI + Docker Build]
     end
-    
-    subgraph "Database"
+
+    subgraph "Registry"
+        GHCR[GHCR<br/>Container Registry]
+    end
+
+    subgraph "Deployment"
+        Coolify[Coolify<br/>Pulls Images]
+    end
+
+    subgraph "Services"
+        Web[Web App<br/>Nuxt :3210]
+        Steam[Steam Service<br/>:3211]
         MariaDB[(MariaDB<br/>Persistent Storage)]
     end
-    
+
     subgraph "External APIs"
         SteamAPI[Steam Web API]
         SteamGC[Steam GC]
     end
-    
-    UI -->|HTTPS| CDN
-    CDN -->|Route| Vercel
-    Vercel -->|Query| MariaDB
-    Vercel -->|Auth/Data| SteamAPI
-    Vercel -->|Item Inspect| SteamGC
-    
-    style UI fill:#4299e1
-    style Vercel fill:#48bb78
+
+    subgraph "User's Browser"
+        UI[Web UI<br/>Vue/Nuxt App]
+    end
+
+    GH -->|Push / Tag| GHA
+    GHA -->|Build & Push| GHCR
+    GHCR -->|Pull Image| Coolify
+    Coolify -->|Deploy| Web
+    Coolify -->|Deploy| Steam
+    Coolify -->|Deploy| MariaDB
+    Web -->|Query| MariaDB
+    Steam -->|Auth/Data| SteamAPI
+    Steam -->|Item Inspect| SteamGC
+    UI -->|HTTPS| Web
+
+    style GH fill:#333
+    style GHA fill:#2088FF
+    style GHCR fill:#333
+    style Coolify fill:#48bb78
+    style Web fill:#4299e1
+    style Steam fill:#667eea
     style MariaDB fill:#ed8936
-    style SteamAPI fill:#667eea
+    style SteamAPI fill:#9f7aea
     style SteamGC fill:#9f7aea
+    style UI fill:#4299e1
 ```
 
 ### Recommended Platforms
 
-1. **Vercel** (Recommended)
-   - Automatic HTTPS
-   - Global CDN
-   - Serverless functions
-   - Zero-config deployment
+1. **Coolify** (Docker Compose with pre-built GHCR images) — Recommended
+   - Pulls tagged images from GHCR automatically
+   - Docker Compose orchestration for all services
+   - Automatic HTTPS via built-in reverse proxy
+   - Simple environment variable management
 
-2. **Docker**
-   - Full control
-   - Easy scaling
+2. **Docker** (manual Docker Compose setup)
+   - Full control over container configuration
+   - Easy scaling with Docker Compose profiles
    - Health check support
    - Multi-container orchestration
 
-3. **Node.js + PM2**
+3. **Other** (VPS with PM2, etc.) — for advanced users
    - Traditional VPS deployment
-   - Process management
+   - Process management with PM2
    - Auto-restart on crash
    - Cluster mode support
 
@@ -177,7 +200,7 @@ NODE_ENV=production
 - Minified JavaScript and CSS
 - Gzip/Brotli compression
 - Tree-shaking unused code
-- Image optimization with CDN
+- Image optimization (optional CDN can be added in front)
 
 **Lazy Loading**:
 ```vue
@@ -225,8 +248,7 @@ const pool = mysql.createPool({
 
 **Server-Side**:
 - API response caching
-- Static asset caching
-- CDN edge caching
+- Static asset caching (via reverse proxy or optional CDN)
 - Database query result caching
 
 ### API Response Times
@@ -244,10 +266,10 @@ const pool = mysql.createPool({
 ### Horizontal Scaling
 
 **Application Tier**:
-- Stateless serverless functions
-- Load balancer distribution
-- Auto-scaling based on traffic
-- Multi-region deployment
+- Stateless Docker containers
+- Load balancer distribution (via Coolify or external reverse proxy)
+- Scale by running additional container replicas
+- Multi-region deployment possible with container orchestration
 
 **Database Tier**:
 - Read replicas for queries
@@ -261,7 +283,7 @@ const pool = mysql.createPool({
 - CPU: 2+ cores recommended
 - RAM: 2GB+ for application
 - Disk: SSD for database
-- Network: High bandwidth for CDN
+- Network: High bandwidth for serving traffic
 
 ### Performance Monitoring
 

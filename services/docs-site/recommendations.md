@@ -115,19 +115,12 @@ make check         # Run all quality checks
 - 📦 Smaller Docker images
 - ⚡ Faster build and deploy times
 
-### 6. Docker Compose Variations
+### 6. Docker Compose
 
-**Created**:
-- `docker-compose.dev.yml` - Development environment
-- `docker-compose.prod.yml` - Production environment
+**Active**:
+- `docker-compose.coolify.yml` - Production deployment (Coolify Service Stack)
 
-**Development Features**:
-- Hot reload enabled
-- Exposed database ports for debugging
-- Volume mounts for live code changes
-- Debug-friendly configuration
-
-**Production Features**:
+**Features**:
 - Multi-service orchestration
 - Health checks for all services
 - Resource limits and reservations
@@ -136,8 +129,8 @@ make check         # Run all quality checks
 - Automatic restarts
 
 **Impact**:
-- 🔄 Separate dev/prod configurations
 - 🛡️ Production-ready by default
+- 🔄 Single consolidated deployment file
 - 📊 Better resource management
 
 ### 7. Updated Documentation

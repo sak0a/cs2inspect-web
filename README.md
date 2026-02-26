@@ -5,8 +5,8 @@ A full-stack web application for Counter-Strike 2 players to customize and manag
 ![Nuxt](https://img.shields.io/badge/Nuxt-4.x-00DC82?style=flat-square&logo=nuxt.js)
 ![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-square&logo=vue.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)
-![MariaDB](https://img.shields.io/badge/MariaDB-10.x-003545?style=flat-square&logo=mariadb)
-![CI/CD](https://github.com/sak0a/cs2inspect-web/workflows/CI%2FCD%20Pipeline/badge.svg)
+![MariaDB](https://img.shields.io/badge/MariaDB-11-003545?style=flat-square&logo=mariadb)
+![CI](https://github.com/sak0a/cs2inspect-web/workflows/CI/badge.svg)
 ![Docker](https://github.com/sak0a/cs2inspect-web/workflows/Build%20Docker%20Images/badge.svg)
 
 ## ✨ Features
@@ -103,7 +103,12 @@ cp .env.example .env
 # Edit .env with your settings
 
 # Start database (Docker)
-docker-compose up -d
+docker run -d --name csinspect-db -p 3306:3306 \
+  -e MYSQL_ROOT_PASSWORD=rootpass \
+  -e MYSQL_DATABASE=csinspect \
+  -e MYSQL_USER=csinspect \
+  -e MYSQL_PASSWORD=devpass \
+  mariadb:11
 
 # Run database migrations
 bun run db:push
@@ -112,17 +117,14 @@ bun run db:push
 bun run dev  # or npm run dev
 ```
 
-#### Option 4: Docker Deployment
+#### Option 4: Docker Deployment (Coolify)
 
 ```bash
-# Development
-docker-compose -f docker-compose.dev.yml up -d
-
-# Production
-docker-compose -f docker-compose.prod.yml up -d
+# Production with Docker Compose
+docker-compose -f docker-compose.coolify.yml up -d
 ```
 
-The app will be available at `http://localhost:3000`.
+The app will be available at `http://localhost:3210`.
 
 ## 📜 Available Scripts
 
@@ -143,7 +145,6 @@ The app will be available at `http://localhost:3000`.
 - `./scripts/install.sh` - Automated installation script
 - `./scripts/setup-wizard.sh` - Interactive configuration wizard
 - `./scripts/validate-env.sh` - Validate environment configuration
-- `./scripts/deploy-app.sh` - Deploy to app branch
 
 ## 📁 Project Structure
 
@@ -170,18 +171,16 @@ The app will be available at `http://localhost:3000`.
 
 This project uses GitHub Actions for automated CI/CD:
 
-- **✅ Automated Testing** – Tests run on every push and PR
-- **📦 Build Artifacts** – Production-ready builds generated automatically
-- **🚀 Auto Deployment** – Master branch automatically syncs to app branch
-- **🐳 Docker Images** – Multi-platform images published to GitHub Container Registry
-- **📊 Status Monitoring** – Real-time workflow status and build reports
-
+- **✅ Automated Testing** – Tests, lint, and build on every push and PR
+- **🐳 Docker Images** – Pre-built images published to GitHub Container Registry
+- **🏷️ Releases** – Manual release workflow creates tags and triggers Docker builds
+- **📄 Documentation** – VitePress docs auto-deployed to GitHub Pages
 
 **Workflows:**
-- `ci.yml` – Test, lint, and build on every push
-- `auto-deploy.yml` – Automatically deploy master to app branch
-- `deploy-app.yml` – Build and package deployment artifacts
-- `docker.yml` – Build and publish Docker images
+- `ci.yml` – Test, lint, and build on push to `master`/`dev`
+- `docker.yml` – Build and publish Docker images to GHCR
+- `release.yml` – Create releases and trigger Docker builds
+- `deploy-docs.yml` – Build and deploy documentation to GitHub Pages
 
 ## 🤝 Contributing
 

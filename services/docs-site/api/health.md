@@ -241,13 +241,13 @@ spec:
     livenessProbe:
       httpGet:
         path: /api/health/live
-        port: 3000
+        port: 3210
       initialDelaySeconds: 10
       periodSeconds: 10
     readinessProbe:
       httpGet:
         path: /api/health/ready
-        port: 3000
+        port: 3210
       initialDelaySeconds: 5
       periodSeconds: 5
 ```
@@ -258,7 +258,7 @@ spec:
 services:
   app:
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health/ready"]
+      test: ["CMD", "curl", "-f", "http://localhost:3210/api/health/ready"]
       interval: 30s
       timeout: 10s
       retries: 3

@@ -4,10 +4,9 @@
 
 CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players to customize loadouts with real-time preview. Steam OpenID auth, MariaDB storage.
 
-
 ## Tech Stack
 
-- **Frontend**: Nuxt 3, Vue 3, Naive UI, Tailwind CSS, Pinia
+- **Frontend**: Nuxt 4, Vue 3, Naive UI, Tailwind CSS, Pinia
 - **Backend**: Nitro (H3), MariaDB, Drizzle ORM
 - **Auth**: Steam OpenID + JWT
 
@@ -25,5 +24,20 @@ CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players t
 - **Docker images**: Built by GitHub Actions, pushed to GHCR
 - **Deployment**: Coolify pulls images by tag (`WEB_IMAGE_TAG=latest` or `=v1.2.3`)
 
-The role of this file is to tdescribe common mistakes and confusion points that agents might encounter as they work in this project.
-If you ever encounter something in the project that surprises you, please alert the developer working with you and indicate that this the case in the AGENTS.MD / CLAUDE.md file to help prevent future agents from having the same issue.
+## Agent Gotchas
+
+- Do NOT use `structuredClone()` on Vue reactive objects — it throws `DataCloneError` on Proxy objects. Use `JSON.parse(JSON.stringify())` instead.
+- Do NOT reference `docker-compose.yml`, `docker-compose.dev.yml`, or `docker-compose.prod.yml` — they don't exist. Only `docker-compose.coolify.yml` exists.
+- Do NOT reference `auto-deploy.yml` or `deploy-app.yml` workflows — they don't exist. Actual workflows: `ci.yml`, `docker.yml`, `release.yml`, `deploy-docs.yml`.
+- Correct ports: web app = **3210**, steam service = **3211** (not 3000, 3001, or 3655).
+- Docker service name for the database is `database`, not `db` or `mariadb`.
+- The branch is `master`, not `main`.
+- GITHUB_TOKEN events don't trigger other workflows. The release workflow uses `gh workflow run docker.yml` to work around this.
+
+## Pre-existing Issues
+
+These are known failures — don't chase them:
+
+- 18 test failures in `services/steam-service/src/services/queue.test.ts`
+- 1 lint error: `@typescript-eslint/no-explicit-any` in `nuxt.config.ts:118`
+- 1 typecheck error in `scripts/project-cli.ts:536`

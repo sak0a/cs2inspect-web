@@ -78,6 +78,11 @@
   --vp-c-bg-alt: #2c2c2c;
 }
 
+/* PageActions positioning context */
+.VPDoc .content-container {
+  position: relative;
+}
+
 /* Home page hero customization */
 .VPHome .VPHero .name {
   background: linear-gradient(135deg, #FACC15 0%, #F59E0B 100%);

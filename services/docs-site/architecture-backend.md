@@ -4,7 +4,7 @@ Detailed documentation of the CS2Inspect backend architecture and database schem
 
 ## Backend Architecture
 
-The backend uses Nitro server (part of Nuxt 3) for API routes and server-side logic.
+The backend uses Nitro server (part of Nuxt 4) for API routes and server-side logic.
 
 ### API Structure
 
@@ -227,9 +227,9 @@ health_check_history / health_check_config (standalone)
 
 **Automatic Migrations**: Database schema migrations run automatically on application startup via `server/database/migrate.ts`.
 
-**Migration Files**: `server/database/migrations/`
+**Migration Files**: `server/database/drizzle/`
 
-**Migration System**: Custom migration runner that tracks executed migrations in a `_migrations` table and executes pending `.sql` files in order.
+**Migration System**: Drizzle ORM migration runner that tracks executed migrations in the `__drizzle_migrations` table. Migrations run automatically on app startup via `server/database/migrate.ts`.
 
 ## Related Documentation
 

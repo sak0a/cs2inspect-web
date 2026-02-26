@@ -1,14 +1,20 @@
 # Deployment Guide
 
+::: tip Recommended Deployment
+For production deployment, we recommend using **Coolify** with pre-built Docker images. See the [Coolify Deployment Guide](./coolify.md) for a complete setup guide.
+
+The options below are alternative deployment methods for reference.
+:::
+
 ## Overview
 
-This guide covers deploying the CS2Inspect application to production environments. The application is a Nuxt 3 server-side rendered (SSR) application with a backend API and requires a MariaDB database and optionally a Steam bot account.
+This guide covers deploying the CS2Inspect application to production environments. The application is a Nuxt 4 server-side rendered (SSR) application with a backend API and requires a MariaDB database and optionally a Steam bot account.
 
 ## Deployment Options
 
-### 1. Vercel (Recommended)
+### 1. Vercel (Alternative)
 
-Vercel provides seamless Nuxt 3 deployment with automatic builds, serverless functions, and edge caching.
+Vercel provides seamless Nuxt 4 deployment with automatic builds, serverless functions, and edge caching.
 
 #### Prerequisites
 - Vercel account
@@ -43,7 +49,7 @@ Vercel provides seamless Nuxt 3 deployment with automatic builds, serverless fun
    
    ```
    # Server Configuration
-   PORT=3000
+   PORT=3210
    HOST=0.0.0.0
    
    # JWT Configuration
@@ -125,7 +131,7 @@ Deploy using Docker containers for full control and portability.
 
 2. **Docker Compose Setup**:
    
-   Create `docker-compose.prod.yml`:
+   Create `docker-compose.coolify.yml`:
    ```yaml
    version: '3.8'
    
@@ -135,11 +141,11 @@ Deploy using Docker containers for full control and portability.
        container_name: cs2inspect-app
        restart: unless-stopped
        ports:
-         - "3000:3000"
+         - "3210:3210"
        environment:
-         - PORT=3000
+         - PORT=3210
          - HOST=0.0.0.0
-         - DATABASE_HOST=db
+         - DATABASE_HOST=database
          - DATABASE_PORT=3306
          - DATABASE_USER=csinspect
          - DATABASE_PASSWORD=${DATABASE_PASSWORD}
@@ -151,7 +157,7 @@ Deploy using Docker containers for full control and portability.
        depends_on:
          - db
        healthcheck:
-         test: ["CMD", "curl", "-f", "http://localhost:3000/api/health/ready"]
+         test: ["CMD", "curl", "-f", "http://localhost:3210/api/health/ready"]
          interval: 30s
          timeout: 5s
          retries: 3
@@ -160,7 +166,7 @@ Deploy using Docker containers for full control and portability.
          - cs2inspect-network
    
      db:
-       image: mariadb:10.11
+       image: mariadb:11
        container_name: cs2inspect-db
        restart: unless-stopped
        environment:
@@ -209,7 +215,7 @@ Deploy using Docker containers for full control and portability.
    
    http {
      upstream app {
-       server app:3000;
+       server app:3210;
      }
    
      server {
@@ -249,10 +255,10 @@ Deploy using Docker containers for full control and portability.
    # Edit .env with production values
    
    # Start services
-   docker-compose -f docker-compose.prod.yml up -d
+   docker-compose -f docker-compose.coolify.yml up -d
    
    # View logs
-   docker-compose -f docker-compose.prod.yml logs -f
+   docker-compose -f docker-compose.coolify.yml logs -f
    ```
 
 5. **SSL Certificate** (Let's Encrypt):
@@ -336,7 +342,7 @@ For detailed installation and setup instructions, see the [Setup Guide](../setup
        exec_mode: 'cluster',
        env: {
          NODE_ENV: 'production',
-         PORT: 3000,
+         PORT: 3210,
          HOST: '127.0.0.1'
        },
        error_file: './logs/error.log',
@@ -368,7 +374,7 @@ For detailed installation and setup instructions, see the [Setup Guide](../setup
      server_name your-domain.com;
      
      location / {
-       proxy_pass http://127.0.0.1:3000;
+       proxy_pass http://127.0.0.1:3210;
        proxy_http_version 1.1;
        proxy_set_header Upgrade $http_upgrade;
        proxy_set_header Connection 'upgrade';
@@ -389,9 +395,9 @@ For detailed installation and setup instructions, see the [Setup Guide](../setup
 
 ### 4. Other Platforms
 
-CS2Inspect is built with **Nuxt 3**, which can be deployed to many different platforms. For detailed deployment options beyond the ones listed above, please refer to the official Nuxt deployment documentation:
+CS2Inspect is built with **Nuxt 4**, which can be deployed to many different platforms. For detailed deployment options beyond the ones listed above, please refer to the official Nuxt deployment documentation:
 
-**[Nuxt 3 Deployment Documentation](https://nuxt.com/docs/getting-started/deployment)**
+**[Nuxt 4 Deployment Documentation](https://nuxt.com/docs/getting-started/deployment)**
 
 The Nuxt docs provide comprehensive guides for deploying to platforms including:
 - **Cloudflare Pages**
@@ -463,50 +469,15 @@ The application uses automatic database migrations. You don't need to manually i
 
 ### GitHub Actions
 
-Create `.github/workflows/deploy.yml`:
+The project uses GitHub Actions for CI/CD:
 
 ```yaml
-name: Deploy to Production
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-      
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-      
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
-        with:
-          bun-version: latest
-      
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-      
-      - name: Run tests
-        run: bun test
-      
-      - name: Build application
-        run: bun run build
-      
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          vercel-args: '--prod'
+# The project uses 4 CI/CD workflows:
+# - ci.yml: Tests, lints, and builds on push to master/dev
+# - docker.yml: Builds Docker images on push to master/dev and tag pushes
+# - release.yml: Creates releases and triggers Docker builds
+# - deploy-docs.yml: Builds and deploys VitePress docs to GitHub Pages
+# See the GitHub Actions documentation for details.
 ```
 
 ### Manual Deployment Script
@@ -519,7 +490,7 @@ Create `scripts/deploy.sh`:
 echo "🚀 Starting deployment..."
 
 # Pull latest code
-git pull origin main
+git pull origin master
 
 # Install dependencies (using Bun)
 bun install
@@ -553,7 +524,7 @@ chmod +x scripts/deploy.sh
 ### Development
 ```env
 NODE_ENV=development
-PORT=3000
+PORT=3210
 HOST=127.0.0.1
 LOG_API_REQUESTS=true
 ```
@@ -561,7 +532,7 @@ LOG_API_REQUESTS=true
 ### Staging
 ```env
 NODE_ENV=staging
-PORT=3000
+PORT=3210
 HOST=0.0.0.0
 LOG_API_REQUESTS=true
 ```
@@ -569,7 +540,7 @@ LOG_API_REQUESTS=true
 ### Production
 ```env
 NODE_ENV=production
-PORT=3000
+PORT=3210
 HOST=0.0.0.0
 LOG_API_REQUESTS=false
 ```
@@ -599,7 +570,7 @@ The application includes a comprehensive health monitoring system:
 The Dockerfile includes a built-in HEALTHCHECK:
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD curl -fsS http://localhost:3000/api/health/ready || exit 1
+  CMD curl -fsS http://localhost:3210/api/health/ready || exit 1
 ```
 
 **Health Check Configuration**:
@@ -752,7 +723,7 @@ tar -czf cs2inspect_files_$(date +%Y%m%d).tar.gz \
    ```bash
    # Use previous image
    docker pull cs2inspect-web:previous-tag
-   docker-compose -f docker-compose.prod.yml up -d
+   docker-compose -f docker-compose.coolify.yml up -d
    ```
 
 3. **Vercel Rollback**:
