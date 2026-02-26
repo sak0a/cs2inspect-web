@@ -11,8 +11,9 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const DOCS_DIR = join(dirname(import.meta.url.replace('file://', '')), '..');
+const DOCS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT_DIR = join(DOCS_DIR, 'public');
 const OUTPUT_FILE = join(OUTPUT_DIR, 'llms-full.txt');
 

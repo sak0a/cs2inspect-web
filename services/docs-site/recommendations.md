@@ -120,13 +120,7 @@ make check         # Run all quality checks
 **Active**:
 - `docker-compose.coolify.yml` - Production deployment (Coolify Service Stack)
 
-**Development Features**:
-- Hot reload enabled
-- Exposed database ports for debugging
-- Volume mounts for live code changes
-- Debug-friendly configuration
-
-**Production Features**:
+**Features**:
 - Multi-service orchestration
 - Health checks for all services
 - Resource limits and reservations
@@ -135,8 +129,8 @@ make check         # Run all quality checks
 - Automatic restarts
 
 **Impact**:
-- 🔄 Separate dev/prod configurations
 - 🛡️ Production-ready by default
+- 🔄 Single consolidated deployment file
 - 📊 Better resource management
 
 ### 7. Updated Documentation

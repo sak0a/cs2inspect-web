@@ -244,7 +244,7 @@ services/charm-scraper/
 const SEEDS = [1, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000];
 
 // Source URL
-const envUrl = process.env.SCRAPE_URL || 'localhost:3210';
+const envUrl = process.env.SCRAPE_URL || 'http://localhost:3210';
 
 // Asset directory
 const ASSETS_DIR = path.join(__dirname, 'assets');

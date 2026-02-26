@@ -20,7 +20,8 @@ The project uses GitHub Actions for automated testing, building, deployment, and
 **Triggers:**
 - Push to `master` or `dev` branch
 - Pull requests to `master` or `dev`
-- Ignores: markdown files, `docs/`, `services/docs-site/`, workflow files (`docker.yml`, `release.yml`)
+- Ignores: markdown files, `docs/`, `services/docs-site/`
+- Ignores (push only): workflow files (`docker.yml`, `release.yml`)
 
 **Jobs:**
 

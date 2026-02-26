@@ -103,10 +103,10 @@ cp .env.example .env
 # Edit .env with your settings
 
 # Start database (Docker)
-docker run -d --name cs2inspect-db -p 3306:3306 \
+docker run -d --name csinspect-db -p 3306:3306 \
   -e MYSQL_ROOT_PASSWORD=rootpass \
-  -e MYSQL_DATABASE=cs2inspect \
-  -e MYSQL_USER=cs2inspect \
+  -e MYSQL_DATABASE=csinspect \
+  -e MYSQL_USER=csinspect \
   -e MYSQL_PASSWORD=devpass \
   mariadb:11
 

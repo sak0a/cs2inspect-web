@@ -15,6 +15,7 @@
     "test:all": "bun test && STEAM_TEST_ENABLED=true bun test src/**/*.integration.test.ts"
   },
   "engines": {
+    "node": ">=20",
     "bun": ">=1.0.0"
   },
   "dependencies": {

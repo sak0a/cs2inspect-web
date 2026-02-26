@@ -206,8 +206,8 @@ STEAM_API_KEY=<key>
 **Configuration**:
 ```bash
 DB_ROOT_PASSWORD=<secret>
-SHARED_DB_NAME=cs2inspect
-SHARED_DB_USER=cs2inspect
+SHARED_DB_NAME=csinspect
+SHARED_DB_USER=csinspect
 SHARED_DB_PASSWORD=<secret>
 # DB_PORT_PUBLIC=3306          # external access port (for plugin)
 # DB_MAX_CONNECTIONS=100
@@ -473,8 +473,8 @@ services:
         sleep 86400
       done"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${SHARED_DB_NAME}
 ```
 
 2. Backups saved to `./backups` folder

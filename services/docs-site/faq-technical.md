@@ -179,7 +179,7 @@ Yes! CS2Inspect is open source. See the [Setup Guide](setup.md) and [Deployment 
 
 **Minimum**:
 - Node.js 20+
-- MariaDB/MySQL 11+
+- MariaDB 11+
 - 1GB RAM
 - 10GB disk space
 

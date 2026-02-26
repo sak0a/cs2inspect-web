@@ -127,10 +127,10 @@ cp .env.example .env
 nano .env
 
 # Start everything
-docker compose up -d
+docker compose -f docker-compose.coolify.yml up -d
 
 # Initialize database
-docker compose exec web bun run db:push
+docker compose -f docker-compose.coolify.yml exec web bun run db:push
 ```
 
 **Time**: ~3 minutes
@@ -168,7 +168,6 @@ make clean             # Clean build artifacts
 ./scripts/install.sh       # Full installation
 ./scripts/setup-wizard.sh  # Interactive setup
 ./scripts/validate-env.sh  # Validate configuration
-./scripts/validate-env.sh  # Validate before deploying
 ```
 
 ---

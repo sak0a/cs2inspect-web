@@ -20,8 +20,9 @@ function flash(key: string) { copied.value = key; setTimeout(() => copied.value 
 
 async function copyPage() {
   try {
-    const text = await (await fetch(rawUrl.value)).text()
-    await navigator.clipboard.writeText(text)
+    const res = await fetch(rawUrl.value)
+    if (!res.ok) throw new Error()
+    await navigator.clipboard.writeText(await res.text())
   } catch { await navigator.clipboard.writeText(pageUrl.value) }
   flash('page'); close()
 }
@@ -29,7 +30,7 @@ async function copyLink() {
   await navigator.clipboard.writeText(`[${pageTitle.value}](${pageUrl.value})`)
   flash('link'); close()
 }
-function openUrl(url: string) { window.open(url, '_blank'); close() }
+function openUrl(url: string) { window.open(url, '_blank', 'noopener,noreferrer'); close() }
 function aiUrl(base: string) {
   return `${base}${encodeURIComponent(`Read ${rawUrl.value} so I can ask questions about it.`)}`
 }

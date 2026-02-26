@@ -13,8 +13,9 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-const DOCS_DIR = join(dirname(import.meta.url.replace('file://', '')), '..');
+const DOCS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
 const DIST_DIR = join(DOCS_DIR, '.vitepress', 'dist');
 const RAW_DIR = join(DIST_DIR, 'raw');
 

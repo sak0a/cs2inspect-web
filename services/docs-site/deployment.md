@@ -472,10 +472,11 @@ The application uses automatic database migrations. You don't need to manually i
 The project uses GitHub Actions for CI/CD:
 
 ```yaml
-# The project uses 3 CI/CD workflows:
+# The project uses 4 CI/CD workflows:
 # - ci.yml: Tests, lints, and builds on push to master/dev
 # - docker.yml: Builds Docker images on push to master/dev and tag pushes
 # - release.yml: Creates releases and triggers Docker builds
+# - deploy-docs.yml: Builds and deploys VitePress docs to GitHub Pages
 # See the GitHub Actions documentation for details.
 ```
 

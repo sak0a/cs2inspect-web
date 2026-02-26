@@ -1833,7 +1833,7 @@ Yes! CS2Inspect is open source. See the [Setup Guide](setup.md) and [Deployment 
 
 **Minimum**:
 - Node.js 20+
-- MariaDB/MySQL 11+
+- MariaDB 11+
 - 1GB RAM
 - 10GB disk space
 
@@ -2453,7 +2453,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3210/api/health/ready"]
+      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3210}/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -2482,7 +2482,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3211/api/health/ready"]
+      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3211}/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -3674,10 +3674,11 @@ The application uses automatic database migrations. You don't need to manually i
 The project uses GitHub Actions for CI/CD:
 
 ```yaml
-# The project uses 3 CI/CD workflows:
+# The project uses 4 CI/CD workflows:
 # - ci.yml: Tests, lints, and builds on push to master/dev
 # - docker.yml: Builds Docker images on push to master/dev and tag pushes
 # - release.yml: Creates releases and triggers Docker builds
+# - deploy-docs.yml: Builds and deploys VitePress docs to GitHub Pages
 # See the GitHub Actions documentation for details.
 ```
 
@@ -4183,8 +4184,8 @@ STEAM_API_KEY=<key>
 **Configuration**:
 ```bash
 DB_ROOT_PASSWORD=<secret>
-SHARED_DB_NAME=cs2inspect
-SHARED_DB_USER=cs2inspect
+SHARED_DB_NAME=csinspect
+SHARED_DB_USER=csinspect
 SHARED_DB_PASSWORD=<secret>
 # DB_PORT_PUBLIC=3306          # external access port (for plugin)
 # DB_MAX_CONNECTIONS=100
@@ -4448,8 +4449,8 @@ services:
         sleep 86400
       done"
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${DATABASE_NAME}
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${SHARED_DB_NAME}
 ```
 
 2. Backups saved to `./backups` folder
@@ -5729,7 +5730,7 @@ lsof -i :3210
 kill -9 <PID>
 
 # Or use a different port
-PORT=3211 npm run dev
+PORT=3212 npm run dev
 ```
 
 #### 4. Missing Dependencies
@@ -7981,7 +7982,8 @@ The project uses GitHub Actions for automated testing, building, deployment, and
 **Triggers:**
 - Push to `master` or `dev` branch
 - Pull requests to `master` or `dev`
-- Ignores: markdown files, `docs/`, `services/docs-site/`, workflow files (`docker.yml`, `release.yml`)
+- Ignores: markdown files, `docs/`, `services/docs-site/`
+- Ignores (push only): workflow files (`docker.yml`, `release.yml`)
 
 **Jobs:**
 
@@ -9916,7 +9918,7 @@ services/charm-scraper/
 const SEEDS = [1, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000];
 
 // Source URL
-const envUrl = process.env.SCRAPE_URL || 'localhost:3210';
+const envUrl = process.env.SCRAPE_URL || 'http://localhost:3210';
 
 // Asset directory
 const ASSETS_DIR = path.join(__dirname, 'assets');
@@ -17096,7 +17098,7 @@ X-Response-Time: 45ms
 This documentation is auto-generated from the source code.
 
 **Last Updated**
-2026-02-26T01:04:38.989Z
+2026-02-26T01:35:46.516Z
 
 ## Overview
 
@@ -18872,13 +18874,7 @@ make check         # Run all quality checks
 **Active**:
 - `docker-compose.coolify.yml` - Production deployment (Coolify Service Stack)
 
-**Development Features**:
-- Hot reload enabled
-- Exposed database ports for debugging
-- Volume mounts for live code changes
-- Debug-friendly configuration
-
-**Production Features**:
+**Features**:
 - Multi-service orchestration
 - Health checks for all services
 - Resource limits and reservations
@@ -18887,8 +18883,8 @@ make check         # Run all quality checks
 - Automatic restarts
 
 **Impact**:
-- 🔄 Separate dev/prod configurations
 - 🛡️ Production-ready by default
+- 🔄 Single consolidated deployment file
 - 📊 Better resource management
 
 ### 7. Updated Documentation
@@ -19534,10 +19530,10 @@ cp .env.example .env
 nano .env
 
 # Start everything
-docker compose up -d
+docker compose -f docker-compose.coolify.yml up -d
 
 # Initialize database
-docker compose exec web bun run db:push
+docker compose -f docker-compose.coolify.yml exec web bun run db:push
 ```
 
 **Time**: ~3 minutes
@@ -19575,7 +19571,6 @@ make clean             # Clean build artifacts
 ./scripts/install.sh       # Full installation
 ./scripts/setup-wizard.sh  # Interactive setup
 ./scripts/validate-env.sh  # Validate configuration
-./scripts/validate-env.sh  # Validate before deploying
 ```
 
 ---

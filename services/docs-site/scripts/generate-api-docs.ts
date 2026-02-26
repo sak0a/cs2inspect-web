@@ -7,11 +7,13 @@
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, readdirSync, statSync } from 'fs';
 import { join, dirname, relative } from 'path';
+import { fileURLToPath } from 'url';
 
 // Root paths
-const ROOT_DIR = join(dirname(import.meta.url.replace('file://', '')), '../../..');
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const ROOT_DIR = join(__dirname, '../../..');
 const API_DIR = join(ROOT_DIR, 'server/api');
-const DOCS_OUTPUT_DIR = join(dirname(import.meta.url.replace('file://', '')), '../api');
+const DOCS_OUTPUT_DIR = join(__dirname, '../api');
 
 interface EndpointInfo {
   path: string;

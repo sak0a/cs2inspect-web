@@ -629,7 +629,7 @@ lsof -i :3210
 kill -9 <PID>
 
 # Or use a different port
-PORT=3211 npm run dev
+PORT=3212 npm run dev
 ```
 
 #### 4. Missing Dependencies

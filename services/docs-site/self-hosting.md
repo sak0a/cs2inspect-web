@@ -539,7 +539,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3210/api/health/ready"]
+      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3210}/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -568,7 +568,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "http://localhost:3211/api/health/ready"]
+      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3211}/api/health/ready"]
       interval: 30s
       timeout: 5s
       retries: 3
