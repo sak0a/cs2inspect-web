@@ -1,13 +1,18 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import Components from 'unplugin-vue-components/vite'
 import { defineNuxtConfig } from "nuxt/config";
+import { fileURLToPath } from 'node:url'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
+  srcDir: 'app/',
+  alias: {
+    '~/server': fileURLToPath(new URL('./server', import.meta.url)),
+  },
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
   imports: {
-    dirs: ['stores', 'composables', 'utils', 'server/utils', 'middleware'],
+    dirs: ['stores', 'composables', 'utils', '../server/utils', 'middleware'],
     presets: [
       {
         from: 'naive-ui',

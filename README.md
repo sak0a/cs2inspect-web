@@ -149,22 +149,23 @@ The app will be available at `http://localhost:3210`.
 ## 📁 Project Structure
 
 ```
-├── assets/           # CSS, JS, SVG assets
-├── components/       # Vue components (modals, tabs, customizers)
-├── composables/      # Vue composables (useItems, useInspectItem, etc.)
-├── layouts/          # Nuxt layouts
-├── locales/          # i18n translation files
-├── middleware/       # Route middleware
-├── pages/            # Nuxt pages (auto-routed)
+├── app/              # Nuxt 4 app source root
+│   ├── assets/       # CSS, JS, SVG assets
+│   ├── components/   # Vue components (modals, tabs, customizers)
+│   ├── composables/  # Vue composables (useItems, useInspectItem, etc.)
+│   ├── layouts/      # Nuxt layouts
+│   ├── locales/      # i18n translation files
+│   ├── middleware/   # Route middleware
+│   ├── pages/        # Nuxt pages (auto-routed)
+│   ├── stores/       # Pinia stores
+│   ├── types/        # TypeScript type definitions
+│   └── utils/        # Shared utilities
 ├── public/           # Static files
 ├── server/           # Backend (API routes, database, utils)
 │   ├── api/          # API endpoints
 │   ├── database/     # Drizzle schema & helpers
 │   └── utils/        # Server utilities
-├── services/         # External services (Steam, scrapers)
-├── stores/           # Pinia stores
-├── types/            # TypeScript type definitions
-└── utils/            # Shared utilities
+└── services/         # External services (Steam, scrapers)
 ```
 
 ## 🔄 CI/CD & Automation
