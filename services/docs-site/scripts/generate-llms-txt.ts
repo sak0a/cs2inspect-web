@@ -1,11 +1,10 @@
 /**
- * llms-full.txt Generator
+ * LLM Documentation Generator
  *
- * Concatenates all VitePress documentation markdown files into a single
- * llms-full.txt file, following the llms.txt specification (https://llmstxt.org/).
+ * 1. llms-full.txt: Concatenates all docs into one file for full-context LLM consumption.
+ * 2. raw/*.md: Individual clean markdown files served at /raw/{path}.md for AI "Read URL" prompts.
  *
- * This allows LLMs to ingest the entire documentation in one request.
- * The output is placed in public/ so VitePress serves it as a static file.
+ * Output placed in public/ so VitePress serves them as static files.
  *
  * Run: bun run scripts/generate-llms-txt.ts
  */

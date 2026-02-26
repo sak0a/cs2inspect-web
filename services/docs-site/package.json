@@ -5,12 +5,13 @@
   "type": "module",
   "scripts": {
     "dev": "vitepress dev",
-    "build": "bun run generate && vitepress build",
+    "build": "bun run generate && vitepress build && bun run postbuild",
     "serve": "vitepress serve",
     "preview": "vitepress preview",
     "generate": "bun run generate:api && bun run generate:llms",
     "generate:api": "bun run scripts/generate-api-docs.ts",
     "generate:llms": "bun run scripts/generate-llms-txt.ts",
+    "postbuild": "bun run scripts/generate-raw-md.ts",
     "generate:types": "typedoc"
   },
   "devDependencies": {

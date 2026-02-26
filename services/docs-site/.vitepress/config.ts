@@ -5,6 +5,7 @@ export default withMermaid({
   title: 'CS2Inspect Documentation',
   description: 'Comprehensive documentation for CS2Inspect - Counter-Strike 2 weapon inspection and loadout management',
   base: '/cs2inspect-web/',
+  appearance: false,
   
   head: [
     ['link', { rel: 'icon', href: '/cs2inspect-web/favicon.ico' }],
@@ -19,8 +20,7 @@ export default withMermaid({
       { text: 'User Guide', link: '/user-guide' },
       { text: 'Deploy', link: '/self-hosting' },
       { text: 'Plugin', link: '/plugin/' },
-      { text: 'API', link: '/api/' },
-      { text: 'GitHub', link: 'https://github.com/sak0a/cs2inspect-web' }
+      { text: 'API', link: '/api/' }
     ],
 
     sidebar: {
