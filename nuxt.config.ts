@@ -5,7 +5,6 @@ import { fileURLToPath } from 'node:url'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
-  srcDir: 'app/',
   alias: {
     '~/server': fileURLToPath(new URL('./server', import.meta.url)),
   },
