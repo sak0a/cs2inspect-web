@@ -5,6 +5,7 @@
 import { defineEventHandler, getQuery } from 'h3';
 import { getHealthCheckHistory } from '~/server/utils/health/history';
 import type { HealthHistoryQuery, HistoricalHealthData } from '~/server/types/health';
+import { Logger } from '~/server/utils/logger';
 
 export default defineEventHandler(async (event): Promise<HistoricalHealthData[]> => {
     const query = getQuery(event);
@@ -32,7 +33,7 @@ export default defineEventHandler(async (event): Promise<HistoricalHealthData[]>
         return history;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Failed to fetch health check history:', errorMessage);
+        Logger.error(`History endpoint failed error=${errorMessage}`, 'healthcheck');
         return [];
     }
 });

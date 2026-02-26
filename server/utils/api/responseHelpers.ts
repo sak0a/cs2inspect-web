@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3';
 import { createError } from 'h3';
+import { useEvent } from 'nitropack/runtime/context';
 import type {
     APIResponse,
     APIPaginatedResponse,
@@ -9,6 +10,20 @@ import type {
     ErrorInfo
 } from '~/types';
 import { API_VERSION, PAGINATION_DEFAULTS } from '~/server/utils/constants';
+import { getRequestLogger } from '~/server/logging/request';
+
+function resolveRequestId(event?: H3Event): string | undefined {
+    if (event?.context.requestId) {
+        return event.context.requestId;
+    }
+
+    try {
+        const currentEvent = useEvent();
+        return currentEvent?.context.requestId;
+    } catch {
+        return undefined;
+    }
+}
 
 /**
  * Creates standardized response metadata
@@ -17,7 +32,8 @@ import { API_VERSION, PAGINATION_DEFAULTS } from '~/server/utils/constants';
  */
 export function createResponseMeta(
     startTime?: number,
-    additionalMeta: Record<string, unknown> = {}
+    additionalMeta: Record<string, unknown> = {},
+    event?: H3Event
 ): APIResponseMeta {
     const meta: APIResponseMeta = {
         timestamp: new Date().toISOString(),
@@ -27,6 +43,11 @@ export function createResponseMeta(
 
     if (startTime) {
         meta.processingTime = Date.now() - startTime;
+    }
+
+    const requestId = resolveRequestId(event);
+    if (requestId && meta.requestId === undefined) {
+        meta.requestId = requestId;
     }
 
     return meta;
@@ -198,11 +219,24 @@ export function withErrorHandling<R>(
         try {
             return await fn(event);
         } catch (error: unknown) {
-            const meta = createResponseMeta(startTime);
+            const meta = createResponseMeta(startTime, {}, event);
 
             // If it's already a structured error, re-throw it
             if (error && typeof error === 'object' && 'statusCode' in error && 'data' in error) {
                 throw error;
+            }
+
+            const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500;
+
+            if (statusCode >= 500) {
+                getRequestLogger(event).error(
+                    {
+                        errorCode,
+                        requestId: meta.requestId,
+                        err: error,
+                    },
+                    'Unhandled API error'
+                );
             }
 
             // Create standardized error response
@@ -212,7 +246,6 @@ export function withErrorHandling<R>(
                 error
             );
 
-            const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500;
             createErrorResponse(errorInfo, meta, statusCode);
         }
     };

@@ -5,6 +5,7 @@ import { eq, and, gte, lte, desc, sql } from 'drizzle-orm';
 import { db } from '~/server/database/client';
 import { healthCheckHistory } from '~/server/database/schema';
 import type { HealthCheckResult, HistoricalHealthData, HealthHistoryQuery } from '~/server/types/health';
+import { Logger } from '~/server/utils/logger';
 
 /**
  * Save health check result to history
@@ -22,7 +23,7 @@ export async function saveHealthCheckResult(result: HealthCheckResult): Promise<
     } catch (error: unknown) {
         // Don't throw - health check persistence failures shouldn't break the app
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Failed to save health check result:', errorMessage);
+        Logger.error(`Save result failed error=${errorMessage}`, 'healthcheck');
     }
 }
 
@@ -97,7 +98,7 @@ export async function getHealthCheckHistory(query: HealthHistoryQuery): Promise<
         return Array.from(grouped.values());
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Failed to fetch health check history:', errorMessage);
+        Logger.error(`Fetch history failed error=${errorMessage}`, 'healthcheck');
         return [];
     }
 }
@@ -118,7 +119,7 @@ export async function cleanupHealthCheckHistory(daysToKeep: number = 7): Promise
         return affectedRows;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Failed to cleanup health check history:', errorMessage);
+        Logger.error(`Cleanup history failed error=${errorMessage}`, 'healthcheck');
         return 0;
     }
 }
@@ -145,7 +146,7 @@ export async function getAverageLatency(checkName: string, minutes: number = 60)
         return null;
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('Failed to calculate average latency:', errorMessage);
+        Logger.error(`Latency calc failed error=${errorMessage}`, 'healthcheck');
         return null;
     }
 }

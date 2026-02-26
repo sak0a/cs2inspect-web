@@ -359,9 +359,12 @@ async function recordItemHistory(
       is_snapshot: 0
     })
 
-    Logger.info(`Recorded ${config.itemType} history [${versionId}]: ${description}`)
+    Logger.info(`History save item=${config.itemType} version=${versionId} change=${description}`, 'db')
   } catch (error) {
-    Logger.error(`Failed to record ${config.itemType} history: ${error instanceof Error ? error.message : String(error)}`)
+    Logger.error(
+      `History save failed item=${config.itemType} error=${error instanceof Error ? error.message : String(error)}`,
+      'db'
+    )
     // Don't throw - history recording should not block saves
   }
 }

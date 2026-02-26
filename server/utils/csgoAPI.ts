@@ -2,6 +2,7 @@ import type { APISkin, APISticker, APIAgent, APIKeychain, APIMusicKit, APICollec
 import { EXTERNAL_API_URLS, CACHE_PERIODS, DATA_STALENESS_THRESHOLD } from './constants';
 import { processSkinData } from './data/skinUtils';
 import { processKeychainData } from './data/keychainUtils';
+import { Logger } from '~/server/utils/logger';
 import fs from 'fs';
 import path from 'path';
 
@@ -156,11 +157,11 @@ function ensureStorageDirectoryExists(): boolean {
     try {
         if (!fs.existsSync(STORAGE_DIR)) {
             fs.mkdirSync(STORAGE_DIR, { recursive: true });
-            console.log(`Created storage directory: ${STORAGE_DIR}`);
+            Logger.info(`Created storage directory: ${STORAGE_DIR}`, 'csgo-api');
         }
         return true;
     } catch {
-        console.warn(`Cannot create storage directory (read-only filesystem): ${STORAGE_DIR}`);
+        Logger.warn(`Cannot create storage directory (read-only filesystem): ${STORAGE_DIR}`, 'csgo-api');
         return false;
     }
 }
@@ -183,7 +184,7 @@ function isFileValid(filePath: string): boolean {
  */
 async function fetchAndSaveData(url: string, filePath: string, postFetchTransform?: (data: unknown) => unknown): Promise<unknown> {
     try {
-        console.log(`Fetching data from ${url}`);
+        Logger.info(`Fetching data from ${url}`, 'csgo-api');
         const response = await fetch(url);
 
         if (!response.ok) {
@@ -200,14 +201,14 @@ async function fetchAndSaveData(url: string, filePath: string, postFetchTransfor
         // Try to save to file, but don't fail if we can't (serverless environment)
         try {
             fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
-            console.log(`Saved data to ${filePath}`);
+            Logger.debug(`Saved data to ${filePath}`, 'csgo-api');
         } catch {
-            console.warn(`Cannot save data to ${filePath} (read-only filesystem), using in-memory cache`);
+            Logger.warn(`Cannot save data to ${filePath} (read-only filesystem), using in-memory cache`, 'csgo-api');
         }
 
         return data;
     } catch (error) {
-        console.error(`Error fetching data from ${url}:`, error);
+        Logger.error(`Error fetching data from ${url}: ${error instanceof Error ? error.message : String(error)}`, 'csgo-api');
         throw error;
     }
 }
@@ -220,7 +221,7 @@ function readDataFromFile(filePath: string): unknown {
         const data = fs.readFileSync(filePath, 'utf8');
         return JSON.parse(data);
     } catch (error) {
-        console.error(`Error reading data from ${filePath}:`, error);
+        Logger.error(`Error reading data from ${filePath}: ${error instanceof Error ? error.message : String(error)}`, 'csgo-api');
         throw error;
     }
 }
@@ -238,10 +239,10 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
         const isServerless = process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME;
 
         if (!isServerless && isFileValid(config.path)) {
-            console.log(`Using cached ${type} data from ${config.path}`);
+            Logger.debug(`Using cached ${type} data from ${config.path}`, 'csgo-api');
             data = readDataFromFile(config.path) as T[];
         } else {
-            console.log(`Fetching fresh ${type} data`);
+            Logger.debug(`Fetching fresh ${type} data`, 'csgo-api');
             data = await fetchAndSaveData(config.url, config.path, config.postFetchTransform) as T[];
         }
 
@@ -252,11 +253,11 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
 
         return data;
     } catch (error) {
-        console.error(`Failed to load ${type} data:`, error);
+        Logger.error(`Failed to load ${type} data: ${error instanceof Error ? error.message : String(error)}`, 'csgo-api');
 
         // If file exists but is invalid or we failed to fetch, try to use it anyway
         if (fs.existsSync(config.path)) {
-            console.log(`Falling back to existing ${type} data file`);
+            Logger.warn(`Falling back to existing ${type} data file`, 'csgo-api');
             return readDataFromFile(config.path) as T[];
         }
 
@@ -271,13 +272,13 @@ export async function initCSGOApiData() {
         // Check if we already have fresh data in memory (for serverless environments)
         const now = Date.now();
         if (isDataInitialized && (now - lastCacheTime) < CACHE_DURATION) {
-            console.log('Using cached data from memory');
+            Logger.debug('Using cached data from memory', 'csgo-api');
             return;
         }
 
         const canWriteToStorage = ensureStorageDirectoryExists();
         if (!canWriteToStorage) {
-            console.log('Running in serverless environment - using in-memory caching only');
+            Logger.info('Running in serverless environment - using in-memory caching only', 'csgo-api');
         }
 
         // Load all data types in parallel
@@ -308,9 +309,9 @@ export async function initCSGOApiData() {
         isDataInitialized = true;
         lastCacheTime = Date.now();
 
-        console.log('CSGO API data loaded successfully');
+        Logger.info('CSGO API data loaded successfully', 'csgo-api');
     } catch (error) {
-        console.error('Failed to initialize CSGO API data:', error);
+        Logger.error(`Failed to initialize CSGO API data: ${error instanceof Error ? error.message : String(error)}`, 'csgo-api');
         // Reset promise on error so it can be retried
         initializationPromise = null;
         throw error;
@@ -332,7 +333,7 @@ export function startDataInitialization(): Promise<void> {
 
     initializationPromise = initCSGOApiData()
         .catch((error) => {
-            console.error('Data initialization failed:', error);
+            Logger.error(`Data initialization failed: ${error instanceof Error ? error.message : String(error)}`, 'csgo-api');
             // Reset promise so it can be retried
             initializationPromise = null;
             throw error;

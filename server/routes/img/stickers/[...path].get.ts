@@ -1,6 +1,7 @@
 import { createReadStream, statSync, existsSync } from 'fs'
 import { join, extname } from 'path'
 import { sendStream, setHeader, createError } from 'h3'
+import { Logger } from '~/server/utils/logger'
 
 export default defineEventHandler(async (event) => {
   const path = getRouterParam(event, 'path')
@@ -38,7 +39,7 @@ export default defineEventHandler(async (event) => {
     const stream = createReadStream(filePath)
     return sendStream(event, stream)
   } catch (err) {
-    console.error('Error serving sticker:', err)
+    Logger.error(`Error serving sticker: ${err instanceof Error ? err.message : String(err)}`, 'stickers')
     throw createError({ statusCode: 500, message: 'Error serving sticker' })
   }
 })

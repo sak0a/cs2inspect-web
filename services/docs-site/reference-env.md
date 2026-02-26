@@ -503,6 +503,61 @@ ASSETS_WEAPONS_PATH=/weapons
 
 ## Logging & Monitoring
 
+### `LOG_LEVEL`
+
+**Type**: `string`
+**Required**: No
+**Default**: `info`
+
+Server log level.
+
+**Allowed values**:
+- `fatal`
+- `error`
+- `warn`
+- `info`
+- `debug`
+- `trace`
+
+**Example**:
+```env
+LOG_LEVEL=info
+```
+
+**Recommendations**:
+- Development: `debug` or `info`
+- Production: `info` or `warn`
+
+---
+
+### `LOG_FORMAT`
+
+**Type**: `string`
+**Required**: No
+**Default**: `pretty` in development, `json` in production
+
+Log output format.
+
+**Allowed values**:
+- `pretty` - human-readable output
+- `json` - structured output for log aggregation
+
+**Pretty output behavior**:
+- Server logs are prefixed with compact tags like `[Health]`, `[Auth]`, `[DB]`, `[Boot]`, `[Sync]`
+- Prefixes are generated from structured `tag/context` metadata
+- Avoid manual `[Tag]` text in message strings
+
+**Example**:
+```env
+# Development
+LOG_FORMAT=pretty
+
+# Production
+LOG_FORMAT=json
+```
+
+---
+
 ### `LOG_API_REQUESTS`
 
 **Type**: `boolean`
@@ -529,6 +584,45 @@ LOG_API_REQUESTS=false
 - Logs include request method, path, params
 - Can increase log volume significantly
 - May contain sensitive data
+
+### Log Tag Catalog (Server)
+
+| Context | Pretty Prefix |
+|---------|---------------|
+| `healthcheck` | `[Health]` |
+| `auth` | `[Auth]` |
+| `migrations`, `db`, `database` | `[DB]` |
+| `startup` | `[Boot]` |
+| `sync-cleanup`, `sync` | `[Sync]` |
+| `csgo-api` | `[Data]` |
+| `gloves-api` | `[Gloves]` |
+| `skin-match` | `[Skin]` |
+| `stickers` | `[Img]` |
+| request logger default | `[Req]` |
+
+Compact style example:
+- `Sampler start interval=60s`
+- `Request done statusCode=200 durationMs=12`
+
+---
+
+### `LOG_HEALTH_REQUESTS`
+
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+
+Enable access logs for health endpoints (`/api/health`, `/health`, `/status`).
+
+**Example**:
+```env
+LOG_HEALTH_REQUESTS=false
+```
+
+**Recommendations**:
+- Development: `false` (unless debugging health probes)
+- Staging: `true` (optional)
+- Production: `false` (enable temporarily for incident debugging)
 
 ---
 
@@ -642,7 +736,10 @@ ASSETS_CHARMS_PATH=/charms
 ASSETS_WEAPONS_PATH=/weapons
 
 ########## Logging ##########
+LOG_LEVEL=debug
+LOG_FORMAT=pretty
 LOG_API_REQUESTS=true
+LOG_HEALTH_REQUESTS=false
 PROXY_HEALTH_BASE_URL=http://127.0.0.1:3210
 
 ########## Advanced ##########
@@ -685,7 +782,10 @@ ASSETS_CHARMS_PATH=/charms
 ASSETS_WEAPONS_PATH=/weapons
 
 ########## Logging ##########
+LOG_LEVEL=info
+LOG_FORMAT=json
 LOG_API_REQUESTS=false
+LOG_HEALTH_REQUESTS=false
 PROXY_HEALTH_BASE_URL=https://cs2inspect.yourdomain.com
 
 ########## Advanced ##########
@@ -732,7 +832,10 @@ ASSETS_CHARMS_PATH=/charms
 ASSETS_WEAPONS_PATH=/weapons
 
 ########## Logging ##########
+LOG_LEVEL=info
+LOG_FORMAT=json
 LOG_API_REQUESTS=true
+LOG_HEALTH_REQUESTS=false
 PROXY_HEALTH_BASE_URL=http://localhost:3210
 
 ########## Advanced ##########

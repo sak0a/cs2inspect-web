@@ -67,7 +67,7 @@ export function createSaveHandler(itemType: ItemType) {
     return defineEventHandler(async (event: H3Event) => {
         const config = ITEM_SAVE_CONFIG[itemType]
 
-        Logger.header(`${event.method} ${event.req.url}`)
+        Logger.info(`Save start item=${itemType} method=${event.method} path=${event.req.url}`, 'db')
 
         // Validate query parameters with Zod
         const query = parseQueryWithSchema(saveItemQuerySchema, event)
@@ -109,7 +109,7 @@ export function createSaveHandler(itemType: ItemType) {
                 throw error
             }
             const errorMessage = error instanceof Error ? error.message : `Failed to save ${itemType}`
-            Logger.error(`Failed to save ${itemType}: ${errorMessage}`)
+            Logger.error(`Save handler failed item=${itemType} error=${errorMessage}`, 'db')
             throw createError({
                 statusCode: 500,
                 message: `Failed to save ${itemType}`

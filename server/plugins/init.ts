@@ -1,5 +1,6 @@
 import type { SteamClientConfig } from 'cs2-inspect-lib';
 import { CS2Inspect } from 'cs2-inspect-lib';
+import { Logger } from '~/server/utils/logger';
 
 let cs2InspectInstance: CS2Inspect | null = null;
 
@@ -34,9 +35,12 @@ export async function initializeSteamClient() {
         }
 
         steamClientInitialized = true;
-        console.log('[CS2 Inspect] CS2 Inspect client initialized successfully');
+        Logger.info('CS2 inspect client ready', 'startup');
     } catch (error) {
-        console.error('[CS2 Inspect] Failed to initialize CS2 Inspect client:', error);
+        Logger.error(
+            `CS2 inspect init failed error=${error instanceof Error ? error.message : String(error)}`,
+            'startup'
+        );
         throw error;
     }
 }
@@ -54,7 +58,10 @@ export default defineNitroPlugin(async () => {
         const { runMigrations } = await import('../database/migrate');
         await runMigrations();
     } catch (error) {
-        console.error('Failed to run database migrations:', error);
+        Logger.error(
+            `Migration bootstrap failed error=${error instanceof Error ? error.message : String(error)}`,
+            'startup'
+        );
         // Don't throw - allow server to start even if migrations fail
         // This allows manual intervention if needed
     }
@@ -64,7 +71,7 @@ export default defineNitroPlugin(async () => {
     // The promise is tracked in csgoAPI.ts so API endpoints can wait for it if needed
     const { startDataInitialization } = await import('../utils/csgoAPI');
     startDataInitialization().catch(error => {
-        console.error('Failed to initialize CSGO API data', error);
+        Logger.error(`Data init failed error=${error instanceof Error ? error.message : String(error)}`, 'startup');
     });
 
     // Initialize Steam client only if steam service is not configured
@@ -74,10 +81,13 @@ export default defineNitroPlugin(async () => {
     if (!useSteamService) {
         // Initialize Steam client in the background (non-blocking)
         initializeSteamClient().catch(error => {
-            console.error('Failed to initialize CS2 Inspect client', error);
+            Logger.error(
+                `CS2 inspect background init failed error=${error instanceof Error ? error.message : String(error)}`,
+                'startup'
+            );
         });
     } else {
-        console.log('Steam service configured - using external service instead of local client');
+        Logger.info('Steam service enabled mode=external', 'startup');
     }
 
     // Import health check sampler dynamically to avoid circular dependencies
@@ -85,5 +95,5 @@ export default defineNitroPlugin(async () => {
 
     // Start health check sampler with 60 second interval
     startHealthCheckSampler(60000);
-    console.log('Health check sampler started');
+    Logger.info('Health sampler start interval=60s', 'startup');
 });

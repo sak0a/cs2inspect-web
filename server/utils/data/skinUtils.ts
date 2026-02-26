@@ -1,5 +1,6 @@
 import type { APISkin, IDefaultItem, IEnhancedItem } from '~/server/types';
 import { hexToRgba } from '#shared/utils/hexToRgba';
+import { Logger } from '~/server/utils/logger';
 
 // ============================================================================
 // SKIN MATCHING AND FINDING UTILITIES
@@ -22,24 +23,33 @@ export function findMatchingSkin<T extends { weapon_name: string }, U extends { 
     // Convert paintindex to string for consistent comparison
     const paintIndexStr = databaseItem.paintindex.toString();
 
-    console.log('findMatchingSkin: Looking for skin with weapon_name:', baseItem.weapon_name, 'paintindex:', paintIndexStr);
+    Logger.debug(
+        `Match lookup weapon=${baseItem.weapon_name} paintindex=${paintIndexStr}`,
+        'skin-match'
+    );
 
     const matchingSkin = skinsData.find(skin => {
         const weaponMatch = skin.weapon?.id === baseItem.weapon_name;
         const paintMatch = skin.paint_index === paintIndexStr;
 
         if (weaponMatch && paintMatch) {
-            console.log('findMatchingSkin: Found matching skin:', skin.name, 'for weapon:', baseItem.weapon_name);
+            Logger.debug(
+                `Match found weapon=${baseItem.weapon_name} skin=${skin.name}`,
+                'skin-match'
+            );
         }
 
         return weaponMatch && paintMatch;
     });
 
     if (!matchingSkin) {
-        console.warn('findMatchingSkin: No matching skin found for weapon:', baseItem.weapon_name, 'paintindex:', paintIndexStr);
+        Logger.debug(
+            `Match missing weapon=${baseItem.weapon_name} paintindex=${paintIndexStr}`,
+            'skin-match'
+        );
         // Log available skins for this weapon to help debug
         // const weaponSkins = skinsData.filter(skin => skin.weapon?.id === baseItem.weapon_name);
-        //console.log('findMatchingSkin: Available skins for', baseItem.weapon_name, ':', weaponSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
+        // Logger.debug(`Match candidates weapon=${baseItem.weapon_name} skins=${weaponSkins.map(s => `${s.name}:${s.paint_index}`).join(',')}`, 'skin-match');
     }
 
     return matchingSkin;

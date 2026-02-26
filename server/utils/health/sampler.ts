@@ -3,6 +3,7 @@
  */
 import { runAllHealthChecks } from './probes';
 import { saveHealthCheckResults, cleanupHealthCheckHistory } from './history';
+import { Logger } from '~/server/utils/logger';
 
 let samplerInterval: NodeJS.Timeout | null = null;
 let cleanupInterval: NodeJS.Timeout | null = null;
@@ -14,11 +15,12 @@ let cleanupInterval: NodeJS.Timeout | null = null;
 export function startHealthCheckSampler(intervalMs: number = 60000): void {
     // Don't start multiple samplers
     if (samplerInterval) {
-        console.log('[Healthcheck] Sampler already running');
+        Logger.debug('Sampler already running', 'healthcheck');
         return;
     }
 
-    console.log(`[Healthcheck] Starting sampler with ${intervalMs}ms interval`);
+    const interval = intervalMs % 1000 === 0 ? `${intervalMs / 1000}s` : `${intervalMs}ms`;
+    Logger.info(`Sampler start interval=${interval}`, 'healthcheck');
 
     // Run immediately on start
     runHealthCheckSample();
@@ -39,13 +41,13 @@ export function stopHealthCheckSampler(): void {
     if (samplerInterval) {
         clearInterval(samplerInterval);
         samplerInterval = null;
-        console.log('[Healthcheck] Sampler stopped');
+        Logger.info('Sampler stop', 'healthcheck');
     }
 
     if (cleanupInterval) {
         clearInterval(cleanupInterval);
         cleanupInterval = null;
-        console.log('[Healthcheck] Cleanup job stopped');
+        Logger.info('Cleanup stop', 'healthcheck');
     }
 }
 
@@ -64,10 +66,13 @@ async function runHealthCheckSample(): Promise<void> {
             fail: results.filter(r => r.status === 'fail').length,
         };
 
-        console.log(`[Healthcheck] Sample completed: ${statusCounts.ok} ok, ${statusCounts.degraded} degraded, ${statusCounts.fail} fail`);
+        Logger.info(
+            `Sample ok=${statusCounts.ok} degraded=${statusCounts.degraded} fail=${statusCounts.fail}`,
+            'healthcheck'
+        );
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('[Healthcheck] Sample failed:', errorMessage);
+        Logger.error(`Sample failed error=${errorMessage}`, 'healthcheck');
     }
 }
 
@@ -81,10 +86,10 @@ function startCleanupJob(): void {
     cleanupInterval = setInterval(async () => {
         try {
             const deleted = await cleanupHealthCheckHistory(7); // Keep 7 days
-            console.log(`[Healthcheck] Cleaned up ${deleted} old records`);
+            Logger.info(`Cleanup removed=${deleted}`, 'healthcheck');
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            console.error('[Healthcheck] Cleanup failed:', errorMessage);
+            Logger.error(`Cleanup failed error=${errorMessage}`, 'healthcheck');
         }
     }, oneDayMs);
 }

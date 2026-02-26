@@ -15,6 +15,16 @@ describe('Logger', () => {
         expect(() => Logger.error('test error', 'context')).not.toThrow();
     });
 
+    it('warn should execute without throwing', () => {
+        expect(() => Logger.warn('test warn')).not.toThrow();
+        expect(() => Logger.warn('test warn', 'context')).not.toThrow();
+    });
+
+    it('debug should execute without throwing', () => {
+        expect(() => Logger.debug('test debug')).not.toThrow();
+        expect(() => Logger.debug('test debug', 'context')).not.toThrow();
+    });
+
     it('success should execute without throwing', () => {
         expect(() => Logger.success('test success')).not.toThrow();
         expect(() => Logger.success('test success', 'context')).not.toThrow();

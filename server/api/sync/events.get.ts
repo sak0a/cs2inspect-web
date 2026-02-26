@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
                 lastId = notification.id
             }
         } catch (error) {
-            Logger.error(`SSE poll error for ${steamId}: ${error instanceof Error ? error.message : error}`)
+            Logger.error(`SSE poll failed steamId=${steamId} error=${error instanceof Error ? error.message : error}`, 'sync')
         }
     }, 3000)
 

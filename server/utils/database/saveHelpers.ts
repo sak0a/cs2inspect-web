@@ -42,7 +42,7 @@ type WeaponTableName = keyof typeof weaponTableMap;
  */
 export const validateWeaponDefindex = (defindex: number) => {
     if (!VALID_WEAPON_DEFINDEXES[defindex]) {
-        Logger.error('Invalid Weapon Defindex')
+        Logger.warn(`Invalid weapon defindex=${defindex}`, 'db')
         throw createError({
             statusCode: 400,
             message: `Invalid Weapon Defindex: ${defindex}`
@@ -55,7 +55,7 @@ export const validateWeaponDefindex = (defindex: number) => {
  */
 export const validateKnifeDefindex = (defindex: number) => {
     if (!VALID_KNIFE_DEFINDEXES[defindex]) {
-        Logger.error('Invalid Knife Defindex')
+        Logger.warn(`Invalid knife defindex=${defindex}`, 'db')
         throw createError({
             statusCode: 400,
             message: `Invalid Knife Defindex: ${defindex}`
@@ -162,7 +162,7 @@ async function saveItem<TBody extends { defindex: number; team: number; reset?: 
                 eq(table.team, body.team),
                 eq(table.defindex, body.defindex)
             ))
-            Logger.success(`${itemLabel} deleted successfully`)
+            Logger.debug(`${itemLabel} delete ok`, 'db')
             if (config.syncMeta) {
                 notifyPluginOfWebChange(steamId, loadoutIdNum, config.syncMeta.itemType, config.syncMeta.itemCategory).catch(() => {})
             }
@@ -194,14 +194,14 @@ async function saveItem<TBody extends { defindex: number; team: number; reset?: 
                     eq(table.defindex, body.defindex),
                     eq(table.team, body.team)
                 ))
-            Logger.success(`${itemLabel} updated successfully`)
+            Logger.debug(`${itemLabel} update ok`, 'db')
             if (config.syncMeta) {
                 notifyPluginOfWebChange(steamId, loadoutIdNum, config.syncMeta.itemType, config.syncMeta.itemCategory).catch(() => {})
             }
             return { success: true, message: `${itemLabel} updated successfully` }
         } else {
             await db.insert(table).values(config.buildInsertFields(body, steamId, loadoutIdNum))
-            Logger.success(`${itemLabel} created successfully`)
+            Logger.debug(`${itemLabel} create ok`, 'db')
             if (config.syncMeta) {
                 notifyPluginOfWebChange(steamId, loadoutIdNum, config.syncMeta.itemType, config.syncMeta.itemCategory).catch(() => {})
             }
@@ -213,7 +213,7 @@ async function saveItem<TBody extends { defindex: number; team: number; reset?: 
             throw error
         }
         const errorMessage = error instanceof Error ? error.message : String(error)
-        Logger.error(`Failed to save ${config.itemLabel}: ${errorMessage}`)
+        Logger.error(`Save failed item=${config.itemLabel} error=${errorMessage}`, 'db')
         throw createError({
             statusCode: 500,
             message: `Failed to save ${config.itemLabel}: ${errorMessage}`
@@ -402,7 +402,7 @@ export const handleWeaponReset = async (
     const category = tableName.replace('wp_player_', '') as SyncItemCategory
     notifyPluginOfWebChange(steamId, loadoutIdNum, 'weapon', category).catch(() => {})
 
-    Logger.success('weapon deleted successfully')
+    Logger.debug('Weapon delete ok', 'db')
     return {
         success: true,
         message: 'weapon deleted successfully'

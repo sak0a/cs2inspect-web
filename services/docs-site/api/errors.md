@@ -241,7 +241,7 @@ async function fetchWithRetry(url: string, retries = 3) {
 
 ### Request ID
 
-All responses include an `X-Request-ID` header for debugging:
+All API responses include an `X-Request-ID` header for debugging:
 
 ```http
 X-Request-ID: abc123-def456-ghi789
@@ -251,7 +251,7 @@ Include this ID when reporting issues.
 
 ### Response Time
 
-Responses include timing information:
+API responses include timing information via `X-Response-Time`:
 
 ```http
 X-Response-Time: 45ms

@@ -94,6 +94,8 @@ X-Request-ID: {unique-id}
 X-Response-Time: {ms}
 ```
 
+`X-Request-ID` and `X-Response-Time` are attached by the server logging middleware on every API response.
+
 ## Related Documentation
 
 - [Architecture](../architecture) - System architecture

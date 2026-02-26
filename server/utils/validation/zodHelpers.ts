@@ -10,7 +10,7 @@ export function parseBodyWithSchema<T extends z.ZodType>(schema: T, body: unknow
     const result = schema.safeParse(body)
     if (!result.success) {
         const details = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ')
-        Logger.error(`Validation failed: ${details}`)
+        Logger.warn(`Body validation failed details=${details}`, 'validation')
         throw createError({
             statusCode: 400,
             message: `Validation failed: ${details}`
@@ -28,7 +28,7 @@ export function parseQueryWithSchema<T extends z.ZodType>(schema: T, event: H3Ev
     const result = schema.safeParse(query)
     if (!result.success) {
         const details = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ')
-        Logger.error(`Query validation failed: ${details}`)
+        Logger.warn(`Query validation failed details=${details}`, 'validation')
         throw createError({
             statusCode: 400,
             message: `Validation failed: ${details}`

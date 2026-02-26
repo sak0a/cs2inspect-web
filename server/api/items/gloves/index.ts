@@ -20,7 +20,7 @@ export default useErrorHandling(async (event) => {
     const startTime = Date.now();
     const query = getQuery(event);
 
-    Logger.header(`Gloves API request: ${event.method} ${event.req.url}`);
+    Logger.debug(`Request start method=${event.method} path=${event.req.url}`, 'gloves-api');
 
     const steamId = query.steamId as string;
     validateRequiredRequestData(steamId, 'Steam ID');
@@ -30,7 +30,7 @@ export default useErrorHandling(async (event) => {
 
     const skinData = await getSkinsDataAsync();
 
-    Logger.info(`Fetching gloves for Steam ID: ${steamId}`);
+    Logger.debug(`Fetch start steamId=${steamId} loadoutId=${loadoutId}`, 'gloves-api');
     // Fetch all gloves from the database for the given loadout using Drizzle
     const glovesData = await db.select()
         .from(gloves)
@@ -39,7 +39,7 @@ export default useErrorHandling(async (event) => {
             eq(gloves.loadoutid, toLoadoutId(loadoutId))
         ));
 
-    Logger.info(`Found ${glovesData.length} glove entries in database:` + JSON.stringify(glovesData, null, 2));
+    Logger.debug(`Found ${glovesData.length} glove entries in database`, 'gloves-api');
 
     // Fetch all glove skins from the skin data
     // Include all glove types: those with 'glove' in the name AND handwraps
@@ -48,33 +48,33 @@ export default useErrorHandling(async (event) => {
         return weaponId.includes('glove') || weaponId === 'leather_handwraps';
     });
 
-    Logger.info(`Found ${gloveSkins.length} glove skins in API data`);
+    Logger.debug(`Found ${gloveSkins.length} glove skins in API data`, 'gloves-api');
 
     // Log handwraps specifically
     const handwrapsSkins = gloveSkins.filter(skin => skin.weapon?.id === 'leather_handwraps');
-    Logger.info(`Found ${handwrapsSkins.length} handwraps skins:` + handwrapsSkins.map(s => ({ name: s.name, paint_index: s.paint_index })));
+    Logger.debug(`Found ${handwrapsSkins.length} handwraps skins`, 'gloves-api');
 
     // Map through default gloves and enhance them with skin data
     const enhancedGloves = DEFAULT_GLOVES.map((baseGlove: IDefaultItem) => {
-        Logger.info(`Processing glove: ${baseGlove.defaultName} (defindex: ${baseGlove.weapon_defindex}, weapon_name: ${baseGlove.weapon_name})`);
+        Logger.debug(`Processing glove: ${baseGlove.defaultName} (defindex: ${baseGlove.weapon_defindex})`, 'gloves-api');
 
         // Find the database entries for this glove defindex if they exist
         const matchingDatabaseResults = glovesData.filter(
             (glove) => glove.defindex === baseGlove.weapon_defindex
         );
 
-        Logger.info(`Found ${matchingDatabaseResults.length} database entries for ${baseGlove.defaultName}:` + matchingDatabaseResults);
+        Logger.debug(`Found ${matchingDatabaseResults.length} database entries for ${baseGlove.defaultName}`, 'gloves-api');
 
         // If no custom skins found, return the default glove
         if (matchingDatabaseResults.length === 0) {
-            Logger.info(`No custom skins for ${baseGlove.defaultName}, returning default`);
+            Logger.debug(`No custom skins for ${baseGlove.defaultName}, returning default`, 'gloves-api');
             return createDefaultItem<IEnhancedGlove>(baseGlove);
         }
 
         const data: IEnhancedGlove[] = [];
         // Get for each matching database result the API Skin info
         for (const databaseResult of matchingDatabaseResults) {
-            Logger.info(`Processing database result for ${baseGlove.defaultName}:` + databaseResult);
+            Logger.debug(`Processing database result for ${baseGlove.defaultName}`, 'gloves-api');
 
             // Create a compatible object for findMatchingSkin
             const dbResultForSkin = {
@@ -86,9 +86,9 @@ export default useErrorHandling(async (event) => {
             const skinInfo = findMatchingSkin(baseGlove, dbResultForSkin, gloveSkins);
 
             if (skinInfo) {
-                Logger.info(`Found matching skin for ${baseGlove.defaultName}:` + { name: skinInfo.name, image: skinInfo.image, paint_index: skinInfo.paint_index });
+                Logger.debug(`Found matching skin for ${baseGlove.defaultName}: ${skinInfo.name}`, 'gloves-api');
             } else {
-                Logger.info(`No matching skin found for ${baseGlove.defaultName} with paintindex ${databaseResult.paintindex}`);
+                Logger.debug(`No matching skin found for ${baseGlove.defaultName} with paintindex ${databaseResult.paintindex}`, 'gloves-api');
             }
 
             const isDefaultSkin = !skinInfo
@@ -112,12 +112,7 @@ export default useErrorHandling(async (event) => {
                 }
             } as IEnhancedGlove;
 
-            Logger.info(`Created enhanced glove for ${baseGlove.defaultName}:` + {
-                name: enhancedGlove.name,
-                image: enhancedGlove.image,
-                paintindex: enhancedGlove.paintindex,
-                usingSkinImage: !!skinInfo?.image
-            });
+            Logger.debug(`Created enhanced glove for ${baseGlove.defaultName}: ${enhancedGlove.name}`, 'gloves-api');
 
             data.push(enhancedGlove);
         }
@@ -126,7 +121,7 @@ export default useErrorHandling(async (event) => {
         return data;
     });
 
-    Logger.success(`Fetched ${glovesData.length} gloves for Steam ID: ${steamId}`);
+    Logger.debug(`Fetch done rows=${glovesData.length} steamId=${steamId}`, 'gloves-api');
 
     const meta = createResponseMeta(startTime, {
         steamId,

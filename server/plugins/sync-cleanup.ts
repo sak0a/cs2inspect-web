@@ -1,6 +1,7 @@
 import { db } from '~/server/database/client'
 import { syncNotifications } from '~/server/database/schema/syncNotifications'
 import { lt, sql } from 'drizzle-orm'
+import { Logger } from '~/server/utils/logger'
 
 let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
@@ -11,11 +12,14 @@ export default defineNitroPlugin(() => {
             await db.delete(syncNotifications)
                 .where(lt(syncNotifications.created_at, sql`NOW() - INTERVAL 5 MINUTE`))
         } catch (error) {
-            console.error('[Sync Cleanup] Failed to clean up old notifications:', error)
+            Logger.error(
+                `Notification cleanup failed error=${error instanceof Error ? error.message : String(error)}`,
+                'sync-cleanup'
+            )
         }
     }, 5 * 60 * 1000)
 
-    console.log('[Sync Cleanup] Notification cleanup scheduled (every 5 minutes)')
+    Logger.info('Notification cleanup schedule interval=5m', 'sync-cleanup')
 })
 
 // Nitro calls this on shutdown

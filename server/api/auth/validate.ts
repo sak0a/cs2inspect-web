@@ -3,7 +3,7 @@ import { Logger } from '~/server/utils/logger'
 
 export default defineEventHandler(async (event) => {
     const query = getQuery(event)
-    Logger.header(`Auth validation request: ${event.method} ${event.req.url}`)
+    Logger.info(`Validate start method=${event.method} path=${event.req.url}`, 'auth')
 
     const steamId = query.steamId as string
     validateRequiredRequestData(steamId, 'Steam ID')
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Authentication validation failed'
         const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500
-        Logger.error(`Auth validation failed: ${errorMessage}`)
+        Logger.error(`Validate failed error=${errorMessage}`, 'auth')
         throw createError({
             statusCode,
             message: errorMessage

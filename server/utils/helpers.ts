@@ -5,7 +5,7 @@ import type { IDefaultItem } from '~/server/types';
 export const validateRequiredRequestData = (param: unknown, paramName: string, allowZero = false) => {
     if (allowZero && param === 0) return
     if (!param) {
-        Logger.error(`${paramName} is required`)
+        Logger.warn(`Required param missing name=${paramName}`, 'validation')
         throw createError({
             statusCode: 400,
             message: `${paramName} is required`
@@ -16,13 +16,13 @@ export const validateRequiredRequestData = (param: unknown, paramName: string, a
 export const verifyUserAccess = (steamId: string, event: H3Event) => {
     const auth = (event.context as { auth?: { steamId?: string } })?.auth
     if (!auth || auth.steamId !== steamId) {
-        Logger.error('Unauthorized access')
+        Logger.warn(`Access denied steamId=${steamId}`, 'auth')
         throw createError({
             statusCode: 401,
             message: 'Unauthorized access'
         })
     }
-    Logger.info(`User access verified for Steam ID: ${steamId}`)
+    Logger.debug(`Access granted steamId=${steamId}`, 'auth')
 }
 
 export function createDefaultEnhancedKnife<T>(baseItem: IDefaultItem): T[] {

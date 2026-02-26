@@ -20,8 +20,7 @@ export default defineEventHandler(async (event) => {
 
     const isAdminRoute = path.startsWith('/api/admin/');
     if (isAdminRoute) {
-        Logger.header('ADMIN ROUTE AUTHENTICATION');
-        Logger.info(`Path: ${path}`, 'auth');
+        Logger.debug(`Admin auth check path=${path}`, 'auth');
     }
 
     const cookies: Record<string, string> = parseCookies(event);
@@ -29,8 +28,7 @@ export default defineEventHandler(async (event) => {
 
     if (!token) {
         if (isAdminRoute) {
-            Logger.error('FAILED - No auth_token cookie found', 'auth');
-            Logger.info('User needs to log in first', 'auth');
+            Logger.warn('Auth deny reason=no_token', 'auth');
         }
         throw createError({
             statusCode: 401,
@@ -47,7 +45,7 @@ export default defineEventHandler(async (event) => {
         event.context.auth = decoded
 
         if (isAdminRoute) {
-            Logger.success(`JWT valid - Steam ID: ${decoded.steamId}`, 'auth');
+            Logger.debug(`JWT valid steamId=${decoded.steamId}`, 'auth');
         }
 
         // Check if user is banned
@@ -79,8 +77,7 @@ export default defineEventHandler(async (event) => {
             throw error
         }
         if (isAdminRoute) {
-            Logger.error('FAILED - JWT verification error', 'auth');
-            Logger.error(`Error: ${error instanceof Error ? error.message : error}`, 'auth');
+            Logger.warn(`Auth deny reason=invalid_token error=${error instanceof Error ? error.message : error}`, 'auth');
         }
         throw createError({
             statusCode: 401,

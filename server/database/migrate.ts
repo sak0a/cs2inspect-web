@@ -4,6 +4,7 @@
  */
 import { migrate } from 'drizzle-orm/mysql2/migrator';
 import { db, pool } from './client';
+import { Logger } from '~/server/utils/logger';
 
 /**
  * Ensure the Drizzle migration journal table exists and is seeded.
@@ -43,7 +44,7 @@ async function ensureMigrationJournal(): Promise<void> {
         }
 
         // DB has tables but no journal — seed the journal with all migrations
-        console.log('[Drizzle] Existing database detected without migration journal — seeding journal...');
+        Logger.info('Journal missing, seeding from applied schema', 'migrations');
 
         // Read the migration journal to get all migration entries
         const fs = await import('fs');
@@ -75,7 +76,7 @@ async function ensureMigrationJournal(): Promise<void> {
             );
         }
 
-        console.log(`[Drizzle] Seeded ${journal.entries.length} migrations into journal`);
+        Logger.info(`Journal seeded count=${journal.entries.length}`, 'migrations');
     } finally {
         connection.release();
     }
@@ -86,7 +87,7 @@ async function ensureMigrationJournal(): Promise<void> {
  */
 export async function runMigrations(): Promise<void> {
     try {
-        console.log('[Drizzle] Starting migration check...');
+        Logger.info('Migration check start', 'migrations');
 
         // Ensure the journal is set up before running migrations
         await ensureMigrationJournal();
@@ -96,10 +97,10 @@ export async function runMigrations(): Promise<void> {
             migrationsFolder: './server/database/drizzle'
         });
 
-        console.log('[Drizzle] Migrations complete');
+        Logger.info('Migration check done', 'migrations');
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('[Drizzle] Failed to run migrations:', errorMessage);
+        Logger.error(`Migration check failed error=${errorMessage}`, 'migrations');
         throw error;
     }
 }
@@ -111,9 +112,9 @@ export async function runMigrations(): Promise<void> {
 export async function closeConnection(): Promise<void> {
     try {
         await pool.end();
-        console.log('[Drizzle] Database connection pool closed');
+        Logger.info('Connection pool closed', 'migrations');
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('[Drizzle] Failed to close connection pool:', errorMessage);
+        Logger.error(`Connection pool close failed error=${errorMessage}`, 'migrations');
     }
 }

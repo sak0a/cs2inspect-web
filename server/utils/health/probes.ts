@@ -7,6 +7,7 @@ import { getCS2Client } from '~/server/plugins/init';
 import type { HealthCheckResult, HealthStatus } from '~/server/types/health';
 import { $fetch } from 'ofetch';
 import { steamServiceClient } from '~/server/utils/api/steamServiceClient';
+import { Logger } from '~/server/utils/logger';
 
 /**
  * Calculate uptime percentage for a check based on historical data
@@ -36,7 +37,7 @@ async function calculateUptimePercentage(checkName: string, minutes: number = 60
         return 100; // Default to 100% if no historical data
     } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        console.error('[Healthcheck] Failed to calculate uptime:', errorMessage);
+        Logger.error(`Uptime calc failed error=${errorMessage}`, 'healthcheck');
         return 100; // Default to 100% on error
     }
 }

@@ -49,7 +49,11 @@ export const env = createEnv({
         STEAM_SERVICE_API_KEY: z.string().optional(),
 
         // Logging
+        LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
+        LOG_FORMAT: z.enum(['pretty', 'json']).optional()
+            .transform((val) => val ?? (process.env.NODE_ENV === 'production' ? 'json' : 'pretty')),
         LOG_API_REQUESTS: z.string().default('false').transform((val) => val === 'true'),
+        LOG_HEALTH_REQUESTS: z.string().default('false').transform((val) => val === 'true'),
 
         // Proxy Health Check
         PROXY_HEALTH_BASE_URL: z.string().url().optional(),

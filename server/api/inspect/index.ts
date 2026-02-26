@@ -98,7 +98,7 @@ export default useErrorHandling(async (event) => {
     const query = getQuery(event)
     const body = await readBody(event) as InspectRequest
 
-    Logger.header(`Unified Inspect API request: ${event.method} ${event.req.url}`)
+    Logger.info(`Request start method=${event.method} path=${event.req.url}`, 'inspect')
 
     const action = query.action as InspectAction
     validateRequiredRequestData(action, 'Action')
@@ -145,7 +145,7 @@ export default useErrorHandling(async (event) => {
 
                 const inspectUrl = createInspectUrl(itemData as EconItem);
 
-                Logger.success(`Created ${itemType} inspect URL`)
+                Logger.debug(`Create URL ok itemType=${itemType}`, 'inspect')
                 return {
                     success: true,
                     inspectUrl,
@@ -171,7 +171,7 @@ export default useErrorHandling(async (event) => {
                         });
                     }
 
-                    Logger.success(`Analyzed inspect URL via service`)
+                    Logger.debug('Analyze URL ok source=service', 'inspect')
                     return {
                         success: true,
                         analysis: response.data,
@@ -181,7 +181,7 @@ export default useErrorHandling(async (event) => {
                     try {
                         const analyzed = analyzeUrl(urlBody.inspectUrl);
 
-                        Logger.success(`Analyzed inspect URL`)
+                        Logger.debug('Analyze URL ok source=local', 'inspect')
                         return {
                             success: true,
                             analysis: analyzed,
@@ -219,7 +219,7 @@ export default useErrorHandling(async (event) => {
                         });
                     }
 
-                    Logger.success(`Inspected ${analyzed.url_type} URL successfully via service`)
+                    Logger.debug(`Inspect item ok urlType=${analyzed.url_type} source=service`, 'inspect')
                     return {
                         success: true,
                         urlType: analyzed.url_type,
@@ -237,7 +237,7 @@ export default useErrorHandling(async (event) => {
 
                     const itemInfo = await client!.inspectItem(urlBody.inspectUrl);
 
-                    Logger.success(`Inspected ${analyzed.url_type} URL successfully`)
+                    Logger.debug(`Inspect item ok urlType=${analyzed.url_type} source=local`, 'inspect')
                     return {
                         success: true,
                         urlType: analyzed.url_type,
@@ -270,7 +270,7 @@ export default useErrorHandling(async (event) => {
                         });
                     }
 
-                    Logger.success(`Decoded masked URL offline via service`)
+                    Logger.debug('Decode masked ok source=service', 'inspect')
                     return {
                         success: true,
                         urlType: 'masked',
@@ -282,7 +282,7 @@ export default useErrorHandling(async (event) => {
                     try {
                         const decodedItem = client!.decodeMaskedUrl(urlBody.inspectUrl);
 
-                        Logger.success(`Decoded masked URL offline`)
+                        Logger.debug('Decode masked ok source=local', 'inspect')
                         return {
                             success: true,
                             urlType: 'masked',
@@ -319,7 +319,7 @@ export default useErrorHandling(async (event) => {
                         });
                     }
 
-                    Logger.success(`Decoded hex data directly via service`)
+                    Logger.debug('Decode hex ok source=service', 'inspect')
                     return {
                         success: true,
                         item: response.data,
@@ -331,7 +331,7 @@ export default useErrorHandling(async (event) => {
                         // Use optimized static method - no instance creation needed
                         const decodedItem = decodeMaskedData(hexBody.hexData);
 
-                        Logger.success(`Decoded hex data directly`)
+                        Logger.debug('Decode hex ok source=local', 'inspect')
                         return {
                             success: true,
                             item: decodedItem,
@@ -365,7 +365,7 @@ export default useErrorHandling(async (event) => {
                         });
                     }
 
-                    Logger.info(`URL validation result via service: ${response.data?.valid ? 'valid' : 'invalid'}`)
+                    Logger.info(`Validate URL result=${response.data?.valid ? 'valid' : 'invalid'} source=service`, 'inspect')
                     return {
                         success: true,
                         isValid: response.data?.valid || false,
@@ -380,7 +380,7 @@ export default useErrorHandling(async (event) => {
                         const validation = validateUrl(urlBody.inspectUrl);
                         const needsSteam = requiresSteamClient(urlBody.inspectUrl);
 
-                        Logger.info(`URL validation result: valid ${analyzed.url_type} URL`)
+                        Logger.info(`Validate URL result=valid urlType=${analyzed.url_type} source=local`, 'inspect')
                         return {
                             success: true,
                             isValid: true,
@@ -397,7 +397,7 @@ export default useErrorHandling(async (event) => {
                         const validation = validateUrl(urlBody.inspectUrl);
                         const errorMessage = error instanceof Error ? error.message : 'Invalid URL'
 
-                        Logger.info(`URL validation result: invalid`)
+                        Logger.info('Validate URL result=invalid source=local', 'inspect')
                         return {
                             success: true,
                             isValid: false,
@@ -421,7 +421,10 @@ export default useErrorHandling(async (event) => {
                         });
                     }
 
-                    Logger.info(`Steam service status: ${response.data?.steamClient.available ? 'Ready' : 'Not Ready'}`)
+                    Logger.info(
+                        `Client status=${response.data?.steamClient.available ? 'ready' : 'not_ready'} source=service`,
+                        'inspect'
+                    )
                     return {
                         success: true,
                         steamClient: {
@@ -435,7 +438,7 @@ export default useErrorHandling(async (event) => {
                 } else {
                     const stats = client!.getSteamClientStats();
 
-                    Logger.info(`Steam client status: ${stats.isAvailable ? 'Ready' : 'Not Ready'}`)
+                    Logger.info(`Client status=${stats.isAvailable ? 'ready' : 'not_ready'} source=local`, 'inspect')
                     return {
                         success: true,
                         steamClient: {
@@ -455,7 +458,7 @@ export default useErrorHandling(async (event) => {
                 });
         }
     } catch (error) {
-        Logger.error(`Inspect API error: ${error}`)
+        Logger.error(`Request failed error=${error instanceof Error ? error.message : String(error)}`, 'inspect')
         throw error
     }
 }, ErrorCodes.INSPECT_ERROR)
