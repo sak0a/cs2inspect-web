@@ -6,7 +6,8 @@ import { Logger } from '~/server/utils/logger'
 import { VALID_WEAPON_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
 import { toLoadoutId } from '~/types/core/common'
 import { recordWeaponHistory, recordKnifeHistory, recordGloveHistory } from './historyHelpers'
-import { notifyPluginOfWebChange, type SyncItemType, type SyncItemCategory } from '~/server/utils/sync/notifySync'
+import { notifyPluginOfWebChange } from '~/server/utils/sync/notifySync'
+import type { SyncItemType, SyncItemCategory } from '#shared/types/sync'
 import type { ItemHistorySnapshot } from '~/server/database/schema/itemHistory'
 import type {
     WeaponCustomization,

@@ -11,7 +11,7 @@ export default defineNuxtConfig({
   $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
   ssr: true,
   imports: {
-    dirs: ['stores', 'composables', 'utils', '../server/utils', 'middleware'],
+    dirs: ['stores', 'composables', 'utils', 'middleware'],
     presets: [
       {
         from: 'naive-ui',
@@ -30,6 +30,8 @@ export default defineNuxtConfig({
   },
   experimental: {
     typedPages: true,
+    buildCache: true,
+    asyncContext: true,
   },
   nitro: {
     experimental: {
@@ -185,5 +187,13 @@ export default defineNuxtConfig({
     }
   },
   
-  compatibilityDate: '2024-10-12'
+  routeRules: {
+    '/admin/**': { ssr: false },
+    '/auth/**': { ssr: false },
+    '/dev': { ssr: false },
+    '/status': { swr: 60 },
+    '/api/data/**': { swr: 300 },
+  },
+
+  compatibilityDate: '2025-04-01'
 })

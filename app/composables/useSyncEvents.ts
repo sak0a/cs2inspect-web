@@ -1,5 +1,5 @@
 import { ref, onBeforeUnmount } from 'vue'
-import type { SyncItemType } from '~/server/utils/sync/notifySync'
+import type { SyncItemType } from '#shared/types/sync'
 
 interface SyncEvent {
     type: 'connected' | 'item_changed'

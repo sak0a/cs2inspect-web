@@ -12,7 +12,7 @@
  */
 
 import { ref, computed, watch, onBeforeUnmount, type Ref, type WatchSource } from 'vue'
-import { deepEqual } from '~/utils/deepEqual'
+// deepEqual is auto-imported from shared/utils/
 
 // ============================================================================
 // TYPES AND INTERFACES

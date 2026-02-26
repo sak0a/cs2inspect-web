@@ -108,19 +108,7 @@ export function clamp(value: number, min: number, max: number): number {
     return Math.min(Math.max(value, min), max);
 }
 
-/**
- * Converts a hex color to RGBA format
- * @param hex Hex color string (e.g., '#FF0000')
- * @param alpha Alpha value (0-1)
- * @returns RGBA color string
- */
-export function hexToRgba(hex: string, alpha: string | number = '1'): string {
-    const cleanHex = hex.replace('#', '');
-    const r = parseInt(cleanHex.substr(0, 2), 16);
-    const g = parseInt(cleanHex.substr(2, 2), 16);
-    const b = parseInt(cleanHex.substr(4, 2), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
+// hexToRgba moved to shared/utils/hexToRgba.ts — auto-imported in both app and server
 
 // ============================================================================
 // STICKER AND KEYCHAIN UTILITIES

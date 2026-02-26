@@ -5,7 +5,8 @@
  * Displays a timeline of changes and allows restoring previous versions.
  */
 
-import type { ItemHistoryRecord, HistoryItemType, HistoryItemCategory } from '~/server/database/schema/itemHistory'
+import type { HistoryItemType, HistoryItemCategory } from '#shared/types/history'
+import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 
 interface Props {
   visible: boolean

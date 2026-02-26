@@ -1,5 +1,5 @@
 import type { APISkin, IDefaultItem, IEnhancedItem } from '~/server/types';
-import { hexToRgba } from '~/server/utils/commonUtils';
+import { hexToRgba } from '#shared/utils/hexToRgba';
 
 // ============================================================================
 // SKIN MATCHING AND FINDING UTILITIES

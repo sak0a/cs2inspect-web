@@ -2,8 +2,7 @@ import { db } from '~/server/database/client'
 import { syncNotifications } from '~/server/database/schema/syncNotifications'
 import { Logger } from '~/server/utils/logger'
 
-export type SyncItemType = 'knife' | 'glove' | 'weapon' | 'agent' | 'music' | 'pin' | 'loadout'
-export type SyncItemCategory = 'rifles' | 'pistols' | 'smgs' | 'heavys' | null
+import type { SyncItemType, SyncItemCategory } from '#shared/types/sync'
 
 /**
  * Insert a sync notification so the plugin knows the web changed something.

@@ -15,7 +15,8 @@ import type {
   StickerConfiguration,
   KeychainConfiguration
 } from '~/types'
-import type { ChangeType, ItemHistorySnapshot } from '~/server/database/schema/itemHistory'
+import type { ChangeType } from '#shared/types/history'
+import type { ItemHistorySnapshot } from '~/server/database/schema/itemHistory'
 
 // ============================================================================
 // TYPES

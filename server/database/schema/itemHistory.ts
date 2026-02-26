@@ -48,36 +48,11 @@ export interface ItemHistorySnapshot {
   active?: boolean;
 }
 
-/**
- * Types of changes that can be tracked
- */
-export type ChangeType =
-  | 'sticker_added'
-  | 'sticker_removed'
-  | 'sticker_modified'
-  | 'keychain_added'
-  | 'keychain_removed'
-  | 'keychain_modified'
-  | 'wear_changed'
-  | 'pattern_changed'
-  | 'paint_changed'
-  | 'nametag_changed'
-  | 'stattrak_toggled'
-  | 'stattrak_count_changed'
-  | 'active_toggled'
-  | 'multiple_changes'
-  | 'initial_save'
-  | 'reset';
+// Re-export shared types so existing server imports continue to work
+export type { ChangeType, HistoryItemType, HistoryItemCategory } from '#shared/types/history'
 
-/**
- * Item types that can have history tracked
- */
-export type HistoryItemType = 'weapon' | 'knife' | 'glove';
-
-/**
- * Weapon categories for more specific tracking
- */
-export type HistoryItemCategory = 'rifles' | 'pistols' | 'smgs' | 'heavys' | null;
+// Import for local use in this file's schema definition
+import type { ChangeType, HistoryItemType, HistoryItemCategory } from '#shared/types/history'
 
 /**
  * Item History Table
