@@ -235,10 +235,12 @@ onMounted(() => {
   flex-wrap: wrap
   gap: 16px
   padding: 20px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
 .icon-container
   display: flex
@@ -251,28 +253,30 @@ onMounted(() => {
   color: var(--admin-accent)
 
 .table-container
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
   overflow: hidden
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
 .activity-table
   :deep(.n-data-table-wrapper)
     background: transparent
 
   :deep(.n-data-table-thead)
-    background: rgba(255, 255, 255, 0.03)
+    background: rgba(255, 255, 255, 0.02)
 
   :deep(.n-data-table-th)
     background: transparent
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1)
-    color: rgba(255, 255, 255, 0.7)
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+    color: rgba(255, 255, 255, 0.55)
     font-weight: 600
 
   :deep(.n-data-table-td)
     background: transparent
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05)
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04)
 
   :deep(.n-data-table-tr:hover .n-data-table-td)
     background: rgba(255, 255, 255, 0.03)
@@ -292,8 +296,10 @@ onMounted(() => {
   flex-wrap: wrap
   gap: 16px
   padding: 16px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 </style>

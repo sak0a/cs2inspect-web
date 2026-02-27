@@ -15,6 +15,13 @@ import { Logger } from '~/server/utils/logger';
 async function ensureMigrationJournal(): Promise<void> {
     const connection = await pool.getConnection();
     try {
+        const fs = await import('fs');
+        const path = await import('path');
+        const crypto = await import('crypto');
+
+        const journalPath = path.resolve('./server/database/drizzle/meta/_journal.json');
+        const journal = JSON.parse(fs.readFileSync(journalPath, 'utf-8'));
+
         // Check if Drizzle's migration journal table exists
         const [rows] = await connection.query(
             `SELECT COUNT(*) as cnt FROM information_schema.tables
@@ -25,7 +32,9 @@ async function ensureMigrationJournal(): Promise<void> {
         const journalExists = journalCount > 0;
 
         if (journalExists) {
-            // Journal exists — migrate() will handle the rest
+            // Journal exists — check for gap migrations (tables created via db:push
+            // after the journal was initially seeded)
+            await seedGapMigrations(connection, journal, fs, path, crypto);
             return;
         }
 
@@ -46,12 +55,6 @@ async function ensureMigrationJournal(): Promise<void> {
         // DB has tables but no journal — seed the journal with all migrations
         Logger.info('Journal missing, seeding from applied schema', 'migrations');
 
-        // Read the migration journal to get all migration entries
-        const fs = await import('fs');
-        const path = await import('path');
-        const journalPath = path.resolve('./server/database/drizzle/meta/_journal.json');
-        const journal = JSON.parse(fs.readFileSync(journalPath, 'utf-8'));
-
         // Create the journal table (same schema Drizzle uses)
         await connection.query(`
             CREATE TABLE \`__drizzle_migrations\` (
@@ -64,11 +67,8 @@ async function ensureMigrationJournal(): Promise<void> {
         // Mark all existing migrations as applied
         for (const entry of journal.entries) {
             const migrationPath = path.resolve(`./server/database/drizzle/${entry.tag}.sql`);
-            const sql = fs.readFileSync(migrationPath, 'utf-8');
-
-            // Drizzle uses a hash of the SQL content
-            const crypto = await import('crypto');
-            const hash = crypto.createHash('sha256').update(sql).digest('hex');
+            const sqlContent = fs.readFileSync(migrationPath, 'utf-8');
+            const hash = crypto.createHash('sha256').update(sqlContent).digest('hex');
 
             await connection.query(
                 `INSERT INTO \`__drizzle_migrations\` (\`hash\`, \`created_at\`) VALUES (?, ?)`,
@@ -79,6 +79,66 @@ async function ensureMigrationJournal(): Promise<void> {
         Logger.info(`Journal seeded count=${journal.entries.length}`, 'migrations');
     } finally {
         connection.release();
+    }
+}
+
+/**
+ * Seed migrations that were applied via db:push after the journal was initially created.
+ * For each migration not in __drizzle_migrations, check if its first CREATE TABLE
+ * target already exists. If so, mark it as applied to prevent re-execution.
+ */
+async function seedGapMigrations(
+    connection: import('mysql2/promise').PoolConnection,
+    journal: { entries: Array<{ idx: number; tag: string; when: number }> },
+    fs: typeof import('fs'),
+    path: typeof import('path'),
+    crypto: typeof import('crypto'),
+): Promise<void> {
+    // Get all hashes currently in the journal table
+    const [appliedRows] = await connection.query(
+        `SELECT hash FROM \`__drizzle_migrations\``
+    ) as [Array<{ hash: string }>, unknown];
+    const appliedHashes = new Set(appliedRows.map(r => r.hash));
+
+    let seededCount = 0;
+
+    for (const entry of journal.entries) {
+        const migrationPath = path.resolve(`./server/database/drizzle/${entry.tag}.sql`);
+        const sqlContent = fs.readFileSync(migrationPath, 'utf-8');
+        const hash = crypto.createHash('sha256').update(sqlContent).digest('hex');
+
+        if (appliedHashes.has(hash)) {
+            continue; // Already applied
+        }
+
+        // Extract the first CREATE TABLE name from the migration SQL
+        const tableMatch = sqlContent.match(/CREATE TABLE [`"]?(\w+)[`"]?/i);
+        if (!tableMatch) {
+            continue; // No CREATE TABLE — let migrate() handle it
+        }
+
+        const tableName = tableMatch[1];
+
+        // Check if this table already exists in the database
+        const [tableCheck] = await connection.query(
+            `SELECT COUNT(*) as cnt FROM information_schema.tables
+             WHERE table_schema = DATABASE() AND table_name = ?`,
+            [tableName]
+        ) as [Array<{ cnt: number }>, unknown];
+
+        if ((tableCheck[0]?.cnt ?? 0) > 0) {
+            // Table exists but migration isn't recorded — seed it
+            await connection.query(
+                `INSERT INTO \`__drizzle_migrations\` (\`hash\`, \`created_at\`) VALUES (?, ?)`,
+                [hash, entry.when]
+            );
+            seededCount++;
+            Logger.info(`Gap migration seeded: ${entry.tag} (table ${tableName} already exists)`, 'migrations');
+        }
+    }
+
+    if (seededCount > 0) {
+        Logger.info(`Gap migrations seeded count=${seededCount}`, 'migrations');
     }
 }
 

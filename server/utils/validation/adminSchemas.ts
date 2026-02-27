@@ -28,6 +28,12 @@ export const adminUserSearchSchema = z.object({
         (val) => val === 'true' || val === '1' || val === true,
         z.boolean().optional()
     ),
+    activeOnly: z.preprocess(
+        (val) => val === 'true' || val === '1' || val === true,
+        z.boolean().optional()
+    ),
+    sortBy: z.enum(['name', 'loadouts', 'items', 'lastActivity']).optional(),
+    sortDir: z.enum(['asc', 'desc']).optional(),
 });
 
 // ============================================================================

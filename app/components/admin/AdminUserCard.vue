@@ -69,10 +69,17 @@ function formatRelativeTime(isoDate: string): string {
       <!-- Header: Steam ID, Status, and Actions -->
       <div class="flex items-center justify-between flex-wrap gap-3">
         <NSpace align="center" :size="12">
-          <div class="user-avatar">
+          <img
+            v-if="user.avatarFull"
+            :src="user.avatarFull"
+            :alt="user.personaName || user.steamId"
+            class="user-avatar-img"
+          >
+          <div v-else class="user-avatar">
             {{ user.steamId.slice(-2).toUpperCase() }}
           </div>
           <NSpace vertical :size="2">
+            <span v-if="user.personaName" class="user-persona-name">{{ user.personaName }}</span>
             <span class="user-steam-id font-mono">{{ user.steamId }}</span>
             <NTag
               :type="user.isBanned ? 'error' : 'success'"
@@ -150,16 +157,23 @@ function formatRelativeTime(isoDate: string): string {
 
 <style scoped lang="sass">
 .admin-user-card
-  backdrop-filter: blur(16px) saturate(160%)
-  background: var(--glass-bg-secondary, rgba(30, 30, 30, 0.7)) !important
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08))
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  backdrop-filter: var(--admin-glass-blur) saturate(160%)
+  -webkit-backdrop-filter: var(--admin-glass-blur) saturate(160%)
+  background: var(--admin-glass-bg) !important
+  border: 1px solid var(--admin-glass-border)
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), var(--admin-glass-inset)
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
   border-radius: 16px !important
 
   &--banned
     border-left: 4px solid #ef4444
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), var(--glass-bg-secondary, rgba(30, 30, 30, 0.7))) !important
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(255, 255, 255, 0.02)) !important
+
+.user-avatar-img
+  width: 44px
+  height: 44px
+  border-radius: 10px
+  object-fit: cover
 
 .user-avatar
   width: 44px
@@ -173,6 +187,11 @@ function formatRelativeTime(isoDate: string): string {
   font-weight: 700
   color: var(--admin-accent)
   text-transform: uppercase
+
+.user-persona-name
+  font-size: 15px
+  font-weight: 600
+  color: rgba(255, 255, 255, 0.95)
 
 .user-steam-id
   font-size: 13px

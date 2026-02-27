@@ -154,7 +154,8 @@ watch(() => props.show, (newValue) => {
 
 <style scoped lang="sass">
 :deep(.n-card)
-  background: var(--glass-bg-secondary) !important
-  border: 1px solid var(--glass-border)
-  backdrop-filter: var(--glass-blur-medium) saturate(160%)
+  background: rgba(12, 12, 12, 0.7) !important
+  border: 1px solid var(--admin-glass-border)
+  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
+  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
 </style>

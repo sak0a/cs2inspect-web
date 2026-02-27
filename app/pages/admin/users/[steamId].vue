@@ -256,10 +256,16 @@ function formatDate(isoDate: string): string {
 
 <style scoped lang="sass">
 .glass-card
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
-  border-radius: 12px
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
+  border-radius: 14px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
+  transition: border-color 0.3s ease
+
+  &:hover
+    border-color: var(--admin-glass-border-hover)
 
 .admin-accent-chip
   background: linear-gradient(135deg, rgba(var(--admin-accent-rgb), 0.2), rgba(var(--admin-accent-rgb), 0.1))
@@ -270,13 +276,16 @@ function formatDate(isoDate: string): string {
   flex-direction: column
   align-items: center
   padding: 16px
-  background: rgba(255, 255, 255, 0.03)
+  background: rgba(255, 255, 255, 0.02)
   border-radius: 10px
-  border: 1px solid rgba(255, 255, 255, 0.06)
+  border: 1px solid rgba(255, 255, 255, 0.05)
   transition: all 0.2s ease
+  backdrop-filter: var(--admin-glass-blur-light)
+  -webkit-backdrop-filter: var(--admin-glass-blur-light)
 
   &:hover
-    background: rgba(255, 255, 255, 0.06)
+    background: rgba(255, 255, 255, 0.04)
+    border-color: rgba(255, 255, 255, 0.08)
 
 .item-stat-value
   font-size: 24px

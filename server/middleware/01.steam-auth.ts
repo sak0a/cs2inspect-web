@@ -2,6 +2,9 @@
 import { defineEventHandler, readBody, getQuery } from 'h3'
 import jwt from "jsonwebtoken";
 import type { SignOptions } from 'jsonwebtoken';
+import { sql } from 'drizzle-orm'
+import { db } from '~/server/database/client'
+import { userProfiles } from '~/server/database/schema'
 
 
 const JWT_SECRET = process.env.JWT_TOKEN || ''
@@ -47,9 +50,37 @@ export default defineEventHandler(async (event) => {
     if (url?.startsWith('/api/steam/user')) {
         const query = getQuery(event)
         const apiKey = process.env.STEAM_API_KEY
-        const userData = await $fetch(
+        const userData = await $fetch<{
+            response: {
+                players: Array<{
+                    steamid: string
+                    personaname: string
+                    avatarfull: string
+                }>
+            }
+        }>(
             `https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=${apiKey}&steamids=${query.steamid}`
         )
+
+        // Upsert profile to database (fire-and-forget)
+        const player = userData?.response?.players?.[0]
+        if (player) {
+            db.insert(userProfiles)
+                .values({
+                    steamid: player.steamid,
+                    personaname: player.personaname,
+                    avatarfull: player.avatarfull,
+                })
+                .onDuplicateKeyUpdate({
+                    set: {
+                        personaname: sql`VALUES(personaname)`,
+                        avatarfull: sql`VALUES(avatarfull)`,
+                    }
+                })
+                .then(() => {})
+                .catch((err: unknown) => console.error('Failed to upsert user profile:', err))
+        }
+
         return userData
     }
 })

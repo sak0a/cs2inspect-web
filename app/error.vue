@@ -103,92 +103,90 @@ function handleGoHome() {
     <div class="error-bg" />
 
     <div class="error-container">
+      <!-- Icon -->
       <div
-        class="error-card"
-        :style="{ borderLeftColor: errorConfig.color }"
+        class="error-icon"
+        :style="{
+          background: `rgba(${errorConfig.colorRgb}, 0.1)`,
+          borderColor: `rgba(${errorConfig.colorRgb}, 0.15)`,
+        }"
       >
-        <!-- Icon -->
-        <div
-          class="icon-wrapper"
-          :style="{
-            background: `rgba(${errorConfig.colorRgb}, 0.1)`,
-            borderColor: `rgba(${errorConfig.colorRgb}, 0.2)`,
-          }"
-        >
-          <component
-            :is="errorConfig.icon"
-            :size="48"
-            :color="errorConfig.color"
-          />
+        <component
+          :is="errorConfig.icon"
+          :size="32"
+          :color="errorConfig.color"
+        />
+      </div>
+
+      <!-- Error code -->
+      <div
+        class="error-code"
+        :style="{ color: errorConfig.color }"
+      >
+        {{ error.status }}
+      </div>
+
+      <!-- Title -->
+      <h1 class="error-title">
+        {{ errorConfig.title }}
+      </h1>
+
+      <!-- Message -->
+      <p class="error-message">
+        {{ error.statusText || errorConfig.message }}
+      </p>
+
+      <!-- Debug panel (dev only) -->
+      <div v-if="isDev" class="debug-panel">
+        <div class="debug-header">
+          Debug
         </div>
-
-        <!-- Error code -->
-        <div
-          class="error-code"
-          :style="{ color: errorConfig.color }"
-        >
-          {{ error.status }}
+        <div class="debug-row">
+          <span class="debug-key">Status</span>
+          <span class="debug-value">{{ error.status }}</span>
         </div>
-
-        <!-- Title -->
-        <h1 class="error-title">
-          {{ errorConfig.title }}
-        </h1>
-
-        <!-- Message -->
-        <p class="error-message">
-          {{ error.statusText || errorConfig.message }}
-        </p>
-
-        <!-- Debug panel (dev only) -->
-        <div v-if="isDev" class="debug-panel">
-          <div class="debug-header">
-            Debug Info
-          </div>
-          <div class="debug-row">
-            <span class="debug-key">Status:</span>
-            <span class="debug-value">{{ error.status }}</span>
-          </div>
-          <div class="debug-row">
-            <span class="debug-key">Status Text:</span>
-            <span class="debug-value">{{ error.statusText || '(none)' }}</span>
-          </div>
-          <div class="debug-row">
-            <span class="debug-key">Message:</span>
-            <span class="debug-value">{{ error.message || '(none)' }}</span>
-          </div>
-          <div v-if="error.stack" class="debug-stack">
-            <div class="debug-key">
-              Stack Trace:
-            </div>
-            <pre class="debug-stack-content">{{ error.stack }}</pre>
-          </div>
+        <div class="debug-row">
+          <span class="debug-key">Status Text</span>
+          <span class="debug-value">{{ error.statusText || '(none)' }}</span>
         </div>
-
-        <!-- Actions -->
-        <div class="action-buttons">
-          <button class="btn btn-secondary" @click="handleGoBack">
-            <LucideArrowLeft :size="18" />
-            Go Back
-          </button>
-          <button class="btn btn-primary" @click="handleGoHome">
-            <LucideHome :size="18" />
-            Go Home
-          </button>
+        <div class="debug-row">
+          <span class="debug-key">Message</span>
+          <span class="debug-value">{{ error.message || '(none)' }}</span>
         </div>
+        <div v-if="error.stack" class="debug-stack">
+          <div class="debug-key">
+            Stack Trace
+          </div>
+          <pre class="debug-stack-content">{{ error.stack }}</pre>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="error-actions">
+        <button class="btn btn-secondary" @click="handleGoBack">
+          <LucideArrowLeft :size="16" />
+          Go Back
+        </button>
+        <button class="btn btn-primary" @click="handleGoHome">
+          <LucideHome :size="16" />
+          Go Home
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="sass">
+// Full-page blurred backdrop with dot grid
 .error-page
   min-height: 100vh
   display: flex
   align-items: center
   justify-content: center
   padding: 24px
-  background: #0a0a0a
+  background: rgba(0, 0, 0, 0.6)
+  backdrop-filter: blur(8px) saturate(120%)
+  -webkit-backdrop-filter: blur(8px) saturate(120%)
   position: relative
   overflow: hidden
 
@@ -203,36 +201,43 @@ function handleGoHome() {
   mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
   -webkit-mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
 
+// Glass card (matches .n-modal > .n-card)
 .error-container
   width: 100%
-  max-width: 520px
+  max-width: 440px
   position: relative
   z-index: 1
-  animation: errorFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1)
-
-.error-card
-  backdrop-filter: var(--glass-blur-medium) saturate(160%)
-  background: var(--glass-bg-secondary) !important
-  border: 1px solid var(--glass-border)
-  border-left: 4px solid #FACC15
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-  border-radius: 16px
-  padding: 48px 40px
+  backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
+  -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
+  background: var(--glass-bg-primary, rgba(16, 16, 16, 0.70))
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1))
+  border-radius: 18px
+  padding: 40px 36px
   text-align: center
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.9), 0 16px 32px rgba(0, 0, 0, 0.7), 0 8px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)
 
-.icon-wrapper
-  width: 88px
-  height: 88px
+@keyframes cardIn
+  from
+    opacity: 0
+    transform: scale(0.95) translateY(12px)
+  to
+    opacity: 1
+    transform: scale(1) translateY(0)
+
+.error-icon
+  width: 64px
+  height: 64px
   display: flex
   align-items: center
   justify-content: center
-  border: 1px solid rgba(255, 255, 255, 0.2)
-  border-radius: 50%
-  margin: 0 auto 24px
+  border: 1px solid
+  border-radius: 16px
+  margin: 0 auto 20px
 
 .error-code
   font-family: 'JetBrains Mono', monospace
-  font-size: 72px
+  font-size: 64px
   font-weight: 800
   line-height: 1
   margin-bottom: 8px
@@ -240,47 +245,44 @@ function handleGoHome() {
   text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5)
 
 .error-title
-  font-size: 24px
+  font-size: 20px
   font-weight: 700
-  color: var(--text-primary)
-  margin: 0 0 12px
+  color: rgba(255, 255, 255, 0.95)
+  margin: 0 0 8px
+  line-height: 1.3
 
 .error-message
-  font-size: 15px
-  color: var(--text-secondary)
-  margin: 0 0 32px
-  line-height: 1.6
+  font-size: 14px
+  color: rgba(255, 255, 255, 0.55)
+  margin: 0 0 28px
+  line-height: 1.5
 
+// Debug
 .debug-panel
   text-align: left
   font-family: 'JetBrains Mono', monospace
   font-size: 11px
-  background: rgba(0, 0, 0, 0.4)
-  border: 1px solid rgba(255, 255, 255, 0.08)
-  border-radius: 8px
-  padding: 12px
+  background: rgba(0, 0, 0, 0.3)
+  border: 1px solid rgba(255, 255, 255, 0.06)
+  border-radius: 10px
+  padding: 10px 12px
   margin-bottom: 28px
 
 .debug-header
-  color: var(--text-tertiary)
+  color: rgba(255, 255, 255, 0.3)
   font-size: 10px
   text-transform: uppercase
   letter-spacing: 0.5px
-  margin-bottom: 8px
-  padding-bottom: 8px
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+  margin-bottom: 6px
 
 .debug-row
   display: flex
   justify-content: space-between
   gap: 12px
-  padding: 4px 0
-
-  &:not(:last-child)
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03)
+  padding: 3px 0
 
 .debug-key
-  color: var(--text-tertiary)
+  color: rgba(255, 255, 255, 0.3)
   flex-shrink: 0
 
 .debug-value
@@ -305,72 +307,58 @@ function handleGoHome() {
   background: rgba(0, 0, 0, 0.3)
   border-radius: 4px
 
-.action-buttons
+// Actions — side by side
+.error-actions
   display: flex
-  gap: 12px
-  justify-content: center
+  gap: 10px
 
-  @media (max-width: 480px)
+  @media (max-width: 400px)
     flex-direction: column
 
 .btn
-  display: inline-flex
+  display: flex
+  flex: 1
   align-items: center
   justify-content: center
   gap: 8px
-  padding: 12px 24px
-  border-radius: 200px
-  font-size: 14px
+  padding: 11px 20px
+  border: none
+  border-radius: 10px
+  font-size: 13px
   font-weight: 600
   cursor: pointer
-  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s cubic-bezier(0.2, 0.8, 0.2, 1)
-  border: none
-  outline: none
+  transition: all 0.2s ease
+  backdrop-filter: var(--glass-blur-light)
+  -webkit-backdrop-filter: var(--glass-blur-light)
   font-family: inherit
 
-  &:hover
-    transform: translateY(-1px) scale(1.01)
-
   &:active
-    transform: translateY(0) scale(0.995)
-
-  &:focus-visible
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 8px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.10)
+    transform: scale(0.98)
 
 .btn-primary
   background: linear-gradient(180deg, rgba(250, 204, 21, 0.18), rgba(250, 204, 21, 0.06)), rgba(16, 16, 16, 0.55)
   color: #FACC15
-  box-shadow: 0 6px 18px rgba(250, 204, 21, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.12)
+  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.12)
 
   &:hover
-    box-shadow: 0 10px 24px rgba(250, 204, 21, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.16)
+    box-shadow: 0 6px 16px rgba(250, 204, 21, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.16)
 
 .btn-secondary
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)), rgba(16, 16, 16, 0.55)
-  color: var(--text-secondary, #d4d4d4)
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  color: rgba(255, 255, 255, 0.75)
+  border: 1px solid rgba(255, 255, 255, 0.14)
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)
 
   &:hover
-    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12)
-
-@keyframes errorFadeIn
-  from
-    opacity: 0
-    transform: scale(0.95) translateY(20px)
-  to
-    opacity: 1
-    transform: scale(1) translateY(0)
+    border-color: rgba(255, 255, 255, 0.18)
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12)
 
 @media (max-width: 480px)
-  .error-card
+  .error-container
     padding: 32px 24px
 
   .error-code
-    font-size: 56px
-
-  .icon-wrapper
-    width: 72px
-    height: 72px
+    font-size: 48px
 
 @media (prefers-reduced-motion: reduce)
   .error-container

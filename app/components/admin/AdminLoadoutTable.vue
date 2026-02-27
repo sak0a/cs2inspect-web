@@ -527,36 +527,45 @@ const columns: DataTableColumns<DBLoadout> = [
 
 <style scoped lang="sass">
 .glass-card
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
-  border-radius: 12px
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
+  border-radius: 14px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
+  transition: border-color 0.3s ease
+
+  &:hover
+    border-color: var(--admin-glass-border-hover)
 
 .admin-loadout-table
   :deep(.n-data-table)
+    --n-td-color: transparent
+    --n-td-color-hover: rgba(200, 180, 130, 0.06)
+    --n-td-color-striped: transparent
+    --n-th-color: rgba(255, 255, 255, 0.02)
+    --n-th-color-hover: rgba(200, 180, 130, 0.04)
+    --n-merged-td-color: transparent
+    --n-merged-td-color-hover: rgba(200, 180, 130, 0.06)
     background: transparent !important
-    border: 1px solid var(--glass-border)
+    border: 1px solid rgba(255, 255, 255, 0.05)
     border-radius: 12px
+    overflow: hidden
 
     .n-data-table-wrapper
       background: transparent
 
-    .n-data-table-thead
-      background: rgba(255, 255, 255, 0.03)
+    .n-data-table-table
+      background: transparent
 
     .n-data-table-th
-      background: transparent
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1)
-      color: rgba(255, 255, 255, 0.7)
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+      color: rgba(255, 255, 255, 0.55)
       font-weight: 600
 
     .n-data-table-td
-      background: transparent
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05)
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04)
 
     .n-data-table-tr
       transition: background 0.2s ease
-
-    .n-data-table-tr:hover .n-data-table-td
-      background: rgba(255, 255, 255, 0.03)
 </style>

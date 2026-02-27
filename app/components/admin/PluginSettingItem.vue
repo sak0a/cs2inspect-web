@@ -243,15 +243,16 @@ const displayValue = computed(() => {
 
 <style scoped lang="sass">
 .plugin-setting-item
-  background: var(--glass-bg-secondary)
-  border: 1px solid var(--glass-border)
-  backdrop-filter: var(--glass-blur-medium) saturate(160%)
+  background: rgba(255, 255, 255, 0.02)
+  border: 1px solid rgba(255, 255, 255, 0.05)
+  backdrop-filter: var(--admin-glass-blur-light) saturate(160%)
+  -webkit-backdrop-filter: var(--admin-glass-blur-light) saturate(160%)
   border-radius: 12px
   transition: all 0.2s ease
 
   &:hover
-    border-color: rgba(255, 255, 255, 0.15)
-    background: rgba(255, 255, 255, 0.05)
+    border-color: var(--admin-glass-border-hover)
+    background: rgba(255, 255, 255, 0.04)
 
 .value-display
   padding-left: 2px

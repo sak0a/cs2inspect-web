@@ -16,7 +16,8 @@ import {
     agents,
     music,
     pins,
-    bannedUsers
+    bannedUsers,
+    userProfiles
 } from '~/server/database/schema'
 import {
     createSuccessResponse,
@@ -29,6 +30,8 @@ import { Logger } from '~/server/utils/logger'
 
 interface UserDetailResponse {
     steamId: string
+    personaName: string | null
+    avatarFull: string | null
     loadoutCount: number
     itemCounts: {
         weapons: number
@@ -167,6 +170,16 @@ export default useErrorHandling(async (event) => {
         )
         .limit(1)
 
+    // Fetch profile data
+    const [profile] = await db
+        .select({
+            personaname: userProfiles.personaname,
+            avatarfull: userProfiles.avatarfull,
+        })
+        .from(userProfiles)
+        .where(eq(userProfiles.steamid, steamId))
+        .limit(1)
+
     const isBanned = !!banRecord
     const banInfo = banRecord
         ? {
@@ -179,6 +192,8 @@ export default useErrorHandling(async (event) => {
 
     const response: UserDetailResponse = {
         steamId,
+        personaName: profile?.personaname ?? null,
+        avatarFull: profile?.avatarfull ?? null,
         loadoutCount: Number(userLoadouts.count),
         itemCounts,
         firstActivity: userLoadouts.firstActivity,

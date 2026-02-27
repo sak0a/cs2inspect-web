@@ -65,6 +65,16 @@
   --glass-blur-light: blur(6px);
   --glass-saturation: saturate(180%);
 
+  /* Admin glassmorphism (more transparent, stronger blur) */
+  --admin-glass-bg: rgba(255, 255, 255, 0.025);
+  --admin-glass-bg-hover: rgba(255, 255, 255, 0.045);
+  --admin-glass-border: rgba(255, 255, 255, 0.07);
+  --admin-glass-border-hover: rgba(255, 255, 255, 0.12);
+  --admin-glass-blur: blur(20px);
+  --admin-glass-blur-strong: blur(28px);
+  --admin-glass-blur-light: blur(14px);
+  --admin-glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
   /* Skin card backgrounds */
   --skin-card-bg: #242424;
   --skin-card-gradient-start: #1a1a1a;

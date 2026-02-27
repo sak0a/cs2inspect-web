@@ -118,16 +118,18 @@ const displayValue = computed(() => {
 
 <style scoped lang="sass">
 .admin-stats-card
-  backdrop-filter: blur(16px) saturate(160%)
-  background: var(--glass-bg-secondary, rgba(30, 30, 30, 0.7)) !important
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08))
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  backdrop-filter: var(--admin-glass-blur) saturate(160%)
+  -webkit-backdrop-filter: var(--admin-glass-blur) saturate(160%)
+  background: var(--admin-glass-bg) !important
+  border: 1px solid var(--admin-glass-border)
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), var(--admin-glass-inset)
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
   border-radius: 16px !important
 
   &:hover
     transform: translateY(-2px)
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12)
+    border-color: var(--admin-glass-border-hover)
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.06)
 
 .stats-loading
   padding: 4px 0

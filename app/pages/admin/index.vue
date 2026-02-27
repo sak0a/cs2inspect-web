@@ -278,17 +278,19 @@ const handleRefresh = async () => {
 
 // Chart Card with glassmorphism
 .chart-card
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(16px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
   padding: 20px
   overflow: hidden
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
   &:hover
-    border-color: rgba(255, 255, 255, 0.15)
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2)
+    border-color: var(--admin-glass-border-hover)
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06)
 
   @media (max-width: 640px)
     padding: 16px
@@ -314,17 +316,19 @@ const handleRefresh = async () => {
   align-items: center
   gap: 16px
   padding: 20px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(16px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
   text-decoration: none
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
   &:hover
     transform: translateY(-2px)
-    border-color: rgba(255, 255, 255, 0.2)
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3)
+    border-color: var(--admin-glass-border-hover)
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.06)
 
     .quick-action-arrow
       transform: translateX(4px)

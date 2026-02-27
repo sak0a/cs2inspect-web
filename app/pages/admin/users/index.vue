@@ -14,6 +14,16 @@ const router = useRouter()
 const currentPage = ref(1)
 const pageSize = ref(20)
 const searchQuery = ref('')
+const sortBy = ref<string>('lastActivity')
+const sortDir = ref<'asc' | 'desc'>('desc')
+const statusFilter = ref<'all' | 'active' | 'banned'>('all')
+
+const sortOptions = [
+  { label: 'Name', value: 'name' },
+  { label: 'Loadouts', value: 'loadouts' },
+  { label: 'Items', value: 'items' },
+  { label: 'Last Activity', value: 'lastActivity' }
+]
 
 // Fetch users on mount
 onMounted(async () => {
@@ -25,7 +35,11 @@ async function fetchUsers() {
   await adminStore.fetchUsers({
     search: searchQuery.value || undefined,
     page: currentPage.value,
-    limit: pageSize.value
+    limit: pageSize.value,
+    sortBy: sortBy.value,
+    sortDir: sortDir.value,
+    bannedOnly: statusFilter.value === 'banned' || undefined,
+    activeOnly: statusFilter.value === 'active' || undefined
   })
 }
 
@@ -38,9 +52,27 @@ function handlePageChange(page: number) {
 // Handle search
 function handleSearch(query: string) {
   searchQuery.value = query
-  currentPage.value = 1 // Reset to first page on search
+  currentPage.value = 1
   fetchUsers()
 }
+
+// Toggle sort direction
+function toggleSortDir() {
+  sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
+  currentPage.value = 1
+  fetchUsers()
+}
+
+// Watch sort and filter changes
+watch(sortBy, () => {
+  currentPage.value = 1
+  fetchUsers()
+})
+
+watch(statusFilter, () => {
+  currentPage.value = 1
+  fetchUsers()
+})
 
 // Handle view user
 function handleViewUser(steamId: string) {
@@ -49,7 +81,6 @@ function handleViewUser(steamId: string) {
 
 // Handle ban user
 async function handleBanUser(steamId: string) {
-  // Navigate to user detail page where ban modal is available
   router.push(`/admin/users/${steamId}?action=ban`)
 }
 
@@ -110,59 +141,95 @@ async function handleUnbanUser(steamId: string) {
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="adminStore.isLoadingUsers" class="glass-card p-6">
-        <div class="flex items-center justify-between mb-6">
-          <NSkeleton text style="width: 160px" />
-          <NSkeleton text style="width: 120px" />
-        </div>
-        <div class="space-y-3">
-          <div v-for="i in 6" :key="i" class="grid grid-cols-12 gap-3 items-center">
-            <NSkeleton text class="col-span-6 md:col-span-4" />
-            <NSkeleton text class="col-span-3 md:col-span-2" />
-            <NSkeleton text class="col-span-3 md:col-span-2" />
-            <NSkeleton text class="hidden md:block md:col-span-2" />
-            <NSkeleton text class="hidden md:block md:col-span-2" />
+      <!-- Sort & Filter Controls (always visible) -->
+      <div class="glass-card p-6">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-400">Sort by</span>
+            <NSelect
+              v-model:value="sortBy"
+              size="small"
+              class="w-40"
+              :options="sortOptions"
+            />
+            <NButton size="small" secondary @click="toggleSortDir">
+              {{ sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc' }}
+            </NButton>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-sm text-gray-400">Status</span>
+            <NButton
+              size="small"
+              :type="statusFilter === 'all' ? 'primary' : 'default'"
+              secondary
+              @click="statusFilter = 'all'"
+            >
+              All
+            </NButton>
+            <NButton
+              size="small"
+              :type="statusFilter === 'active' ? 'primary' : 'default'"
+              secondary
+              @click="statusFilter = 'active'"
+            >
+              Active
+            </NButton>
+            <NButton
+              size="small"
+              :type="statusFilter === 'banned' ? 'primary' : 'default'"
+              secondary
+              @click="statusFilter = 'banned'"
+            >
+              Banned
+            </NButton>
           </div>
         </div>
-      </div>
 
-      <!-- Error State -->
-      <div
-        v-else-if="adminStore.error"
-        class="glass-card p-6 text-center"
-      >
-        <p class="text-red-400">{{ adminStore.error }}</p>
-        <NButton
-          class="mt-4"
-          secondary
-          @click="fetchUsers"
+        <!-- Loading State -->
+        <div v-if="adminStore.isLoadingUsers">
+          <div class="space-y-3">
+            <div v-for="i in 6" :key="i" class="grid grid-cols-12 gap-3 items-center">
+              <NSkeleton text class="col-span-6 md:col-span-4" />
+              <NSkeleton text class="col-span-3 md:col-span-2" />
+              <NSkeleton text class="col-span-3 md:col-span-2" />
+              <NSkeleton text class="hidden md:block md:col-span-2" />
+              <NSkeleton text class="hidden md:block md:col-span-2" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="adminStore.error" class="py-6 text-center">
+          <p class="text-red-400">{{ adminStore.error }}</p>
+          <NButton
+            class="mt-4"
+            secondary
+            @click="fetchUsers"
+          >
+            Try Again
+          </NButton>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          v-else-if="(adminStore.users?.length ?? 0) === 0"
+          class="py-8 text-center"
         >
-          Try Again
-        </NButton>
-      </div>
+          <NIcon :component="UsersIcon" :size="48" class="opacity-30 mb-4" />
+          <p class="text-gray-400">
+            {{ searchQuery ? 'No users found matching your search.' : 'No users found.' }}
+          </p>
+        </div>
 
-      <!-- Empty State -->
-      <div
-        v-else-if="(adminStore.users?.length ?? 0) === 0"
-        class="glass-card p-12 text-center"
-      >
-        <NIcon :component="UsersIcon" :size="48" class="opacity-30 mb-4" />
-        <p class="text-gray-400">
-          {{ searchQuery ? 'No users found matching your search.' : 'No users found.' }}
-        </p>
-      </div>
-
-      <!-- User Table -->
-      <div v-else class="glass-card p-6">
+        <!-- User Table -->
         <AdminUserTable
+          v-else
           :users="adminStore.users"
           :loading="adminStore.isLoadingUsers"
           :total="adminStore.usersTotal"
           :page="currentPage"
           :page-size="pageSize"
           @page-change="handlePageChange"
-          @search="handleSearch"
           @view="handleViewUser"
           @ban="handleBanUser"
           @unban="handleUnbanUser"
@@ -173,10 +240,16 @@ async function handleUnbanUser(steamId: string) {
 
 <style scoped lang="sass">
 .glass-card
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
-  border-radius: 12px
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
+  border-radius: 14px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
+  transition: border-color 0.3s ease
+
+  &:hover
+    border-color: var(--admin-glass-border-hover)
 
 .admin-accent-chip
   background: linear-gradient(135deg, rgba(var(--admin-accent-rgb), 0.2), rgba(var(--admin-accent-rgb), 0.1))

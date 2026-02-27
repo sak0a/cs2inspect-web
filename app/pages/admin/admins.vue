@@ -279,9 +279,10 @@ function formatDate(dateStr: string) {
 
 .warning-banner
   padding: 16px 20px
-  background: rgba(251, 146, 60, 0.1)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(251, 146, 60, 0.2)
+  background: rgba(251, 146, 60, 0.06)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid rgba(251, 146, 60, 0.15)
   border-radius: 12px
 
 .access-denied
@@ -290,9 +291,10 @@ function formatDate(dateStr: string) {
   align-items: center
   justify-content: center
   padding: 80px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
   text-align: center
 
@@ -303,10 +305,12 @@ function formatDate(dateStr: string) {
   flex-wrap: wrap
   gap: 16px
   padding: 20px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
 .icon-container
   display: flex
@@ -324,9 +328,10 @@ function formatDate(dateStr: string) {
   align-items: center
   justify-content: center
   padding: 64px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
 
 .admin-list
@@ -336,15 +341,17 @@ function formatDate(dateStr: string) {
 
 .admin-card
   padding: 20px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
-  border-radius: 12px
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
+  border-radius: 14px
   transition: all 0.2s ease
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
   &:hover
-    background: rgba(255, 255, 255, 0.08)
-    border-color: rgba(255, 255, 255, 0.15)
+    background: var(--admin-glass-bg-hover)
+    border-color: var(--admin-glass-border-hover)
 
 .avatar
   display: flex
@@ -368,9 +375,10 @@ function formatDate(dateStr: string) {
   align-items: center
   justify-content: center
   padding: 64px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
   text-align: center
 </style>

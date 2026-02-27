@@ -454,19 +454,20 @@ function tryFormatJson(str: string): string {
     padding: 16px 20px
     border-radius: 14px
     margin-bottom: 24px
-    backdrop-filter: blur(12px)
-    border: 1px solid rgba(255, 255, 255, 0.08)
+    backdrop-filter: var(--admin-glass-blur)
+    -webkit-backdrop-filter: var(--admin-glass-blur)
+    border: 1px solid var(--admin-glass-border)
 
     &--ok
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.04))
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.02))
         border-left: 4px solid #10b981
 
     &--degraded
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(245, 158, 11, 0.04))
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.02))
         border-left: 4px solid #f59e0b
 
     &--fail
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.04))
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.02))
         border-left: 4px solid #ef4444
 
 .status-banner-left
@@ -510,12 +511,14 @@ function tryFormatJson(str: string): string {
 
 // Fetch Tester
 .fetch-tester-section
-    background: rgba(255, 255, 255, 0.03)
-    backdrop-filter: blur(12px)
-    border: 1px solid rgba(255, 255, 255, 0.06)
+    background: var(--admin-glass-bg)
+    backdrop-filter: var(--admin-glass-blur)
+    -webkit-backdrop-filter: var(--admin-glass-blur)
+    border: 1px solid var(--admin-glass-border)
     border-radius: 16px
     padding: 20px
     margin-bottom: 32px
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
 .fetch-input-row
     display: flex
@@ -658,11 +661,13 @@ function tryFormatJson(str: string): string {
 
 // History Section
 .history-section
-    background: rgba(255, 255, 255, 0.03)
-    backdrop-filter: blur(12px)
-    border: 1px solid rgba(255, 255, 255, 0.06)
+    background: var(--admin-glass-bg)
+    backdrop-filter: var(--admin-glass-blur)
+    -webkit-backdrop-filter: var(--admin-glass-blur)
+    border: 1px solid var(--admin-glass-border)
     border-radius: 16px
     padding: 20px
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
 .history-header
     display: flex

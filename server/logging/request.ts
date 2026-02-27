@@ -21,7 +21,6 @@ export function isHealthPath(path: string): boolean {
   return path.startsWith('/api/health')
     || path.startsWith('/api/status')
     || path === '/health'
-    || path.startsWith('/status')
 }
 
 export function isApiPath(path: string): boolean {

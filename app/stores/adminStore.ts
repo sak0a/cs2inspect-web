@@ -20,6 +20,7 @@ import type {
     APIResponse
 } from '~/types'
 import { toISOTimestamp } from '~/types'
+import { APP_SETTING_CATEGORIES, SETTING_KEY_TO_CATEGORY } from '~/utils/settingsCategories'
 
 // ============================================================================
 // INTERFACES
@@ -174,6 +175,36 @@ export const useAdminStore = defineStore('admin', {
             for (const cat of Object.keys(grouped) as PluginSettingCategory[]) {
                 grouped[cat].sort((a, b) => a.sortOrder - b.sortOrder)
             }
+            return grouped
+        },
+
+        /** App settings grouped by category using the frontend category map */
+        settingsByCategory: (state): Record<string, AdminSetting[]> => {
+            const grouped: Record<string, AdminSetting[]> = {}
+
+            for (const cat of APP_SETTING_CATEGORIES) {
+                grouped[cat.key] = []
+            }
+
+            for (const setting of state.settings) {
+                const category = SETTING_KEY_TO_CATEGORY[setting.key] || 'other'
+                if (!grouped[category]) grouped[category] = []
+                grouped[category]!.push(setting)
+            }
+
+            for (const cat of APP_SETTING_CATEGORIES) {
+                const order = cat.settingKeys
+                grouped[cat.key]?.sort((a, b) => {
+                    const ai = order.indexOf(a.key)
+                    const bi = order.indexOf(b.key)
+                    return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi)
+                })
+            }
+
+            for (const key of Object.keys(grouped)) {
+                if (grouped[key]?.length === 0) delete grouped[key]
+            }
+
             return grouped
         },
 
@@ -352,9 +383,9 @@ export const useAdminStore = defineStore('admin', {
         /**
          * Search/fetch users with pagination
          */
-        async fetchUsers(params: { search?: string; page?: number; limit?: number; force?: boolean } = {}): Promise<void> {
-            const { search, page = 1, limit = 20, force = false } = params
-            const queryKey = `${search || ''}|${page}|${limit}`
+        async fetchUsers(params: { search?: string; page?: number; limit?: number; force?: boolean; sortBy?: string; sortDir?: string; bannedOnly?: boolean; activeOnly?: boolean } = {}): Promise<void> {
+            const { search, page = 1, limit = 20, force = false, sortBy, sortDir, bannedOnly, activeOnly } = params
+            const queryKey = `${search || ''}|${page}|${limit}|${sortBy || ''}|${sortDir || ''}|${bannedOnly || ''}|${activeOnly || ''}`
 
             if (!force && !this.isUsersCacheStale && this.users.length > 0 && this.lastUsersQuery === queryKey) {
                 return
@@ -369,6 +400,10 @@ export const useAdminStore = defineStore('admin', {
                     limit: String(limit)
                 }
                 if (search) queryParams.search = search
+                if (sortBy) queryParams.sortBy = sortBy
+                if (sortDir) queryParams.sortDir = sortDir
+                if (bannedOnly) queryParams.bannedOnly = 'true'
+                if (activeOnly) queryParams.activeOnly = 'true'
 
                 const response = await api.get<PaginatedPayload<AdminUserSummary, 'users'>>(
                     '/api/admin/users',

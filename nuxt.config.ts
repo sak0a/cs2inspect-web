@@ -2,6 +2,8 @@
 import Components from 'unplugin-vue-components/vite'
 import { defineNuxtConfig } from "nuxt/config";
 import { fileURLToPath } from 'node:url'
+import { existsSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
@@ -120,6 +122,19 @@ export default defineNuxtConfig({
       }
     },
     plugins: [
+      // Fix Vite resolving node_modules .vue files without project root prefix
+      {
+        name: 'fix-node-modules-path',
+        enforce: 'pre' as const,
+        load(id: string) {
+          if (id.startsWith('/node_modules/') && id.endsWith('.vue') && !existsSync(id)) {
+            const resolved = resolve(process.cwd(), id.slice(1))
+            if (existsSync(resolved)) {
+              return readFileSync(resolved, 'utf-8')
+            }
+          }
+        },
+      },
       Components({
         resolvers: [NaiveUiResolver()]
       }) as unknown as { name: string }
@@ -191,7 +206,6 @@ export default defineNuxtConfig({
     '/admin/**': { ssr: false },
     '/auth/**': { ssr: false },
     '/dev': { ssr: false },
-    '/status': { swr: 60 },
     '/api/data/**': { swr: 300 },
   },
 

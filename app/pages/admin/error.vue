@@ -3,71 +3,65 @@ import {
   LucideShieldAlert as ShieldAlertIcon,
   LucideLogIn as LogInIcon,
   LucideHome as HomeIcon,
-  LucideRefreshCw as RefreshIcon
+  LucideRefreshCw as RefreshIcon,
+  LucideArrowLeft as ArrowLeftIcon
 } from 'lucide-vue-next'
-import { steamAuth } from '~/services/steamAuth'
+import { steamAuth, type SteamUser } from '~/services/steamAuth'
 
-// Don't apply admin middleware to error page - use blank layout for full page
 definePageMeta({
   layout: 'blank'
 })
 
 const route = useRoute()
 const router = useRouter()
-
-// Check if in development mode
 const isDev = import.meta.dev
 
-// Get current user's steamId from localStorage
-const currentSteamId = ref<string | null>(null)
+const user = ref<SteamUser | null>(null)
 onMounted(() => {
-  const savedUser = steamAuth.getSavedUser()
-  currentSteamId.value = savedUser?.steamId ?? null
+  user.value = steamAuth.getSavedUser()
 })
 
-// Get error details from query params
+const isLoggedIn = computed(() => !!user.value)
+
 const errorType = computed(() => route.query.error as string || 'unknown')
 const redirectPath = computed(() => route.query.redirect as string || '/admin')
 
 const errorInfo = computed(() => {
   switch (errorType.value) {
     case 'admin_required':
-      return {
-        title: 'Admin Access Required',
-        message: 'You need administrator privileges to access this page.',
-        details: 'Either you are not logged in, or your account does not have admin access.',
-        showLogin: true,
-        showRetry: true
-      }
+      return isLoggedIn.value
+        ? {
+            title: 'Admin Access Required',
+            message: 'Your account does not have administrator privileges.',
+            details: 'Contact a server admin if you believe this is a mistake.'
+          }
+        : {
+            title: 'Authentication Required',
+            message: 'Please sign in with Steam to access the admin panel.',
+            details: 'You need to be signed in with an account that has admin access.'
+          }
     case 'superadmin_required':
       return {
-        title: 'Super Admin Access Required',
+        title: 'Super Admin Required',
         message: 'This page requires super administrator privileges.',
-        details: 'Your account has admin access, but this specific page requires super admin permissions.',
-        showLogin: false,
-        showRetry: false
+        details: 'Your account has admin access but this page requires elevated permissions.'
       }
     case 'not_authenticated':
       return {
         title: 'Authentication Required',
-        message: 'Please log in to access the admin panel.',
-        details: 'You need to be signed in with Steam to access admin features.',
-        showLogin: true,
-        showRetry: false
+        message: 'Please sign in with Steam to access the admin panel.',
+        details: 'You need to be signed in with an account that has admin access.'
       }
     default:
       return {
         title: 'Access Denied',
         message: 'You do not have permission to access this resource.',
-        details: `Error type: ${errorType.value}`,
-        showLogin: true,
-        showRetry: true
+        details: `Error: ${errorType.value}`
       }
   }
 })
 
 function handleLogin() {
-  // Redirect to Steam login with return URL
   window.location.href = `/api/auth/steam?returnTo=${encodeURIComponent(redirectPath.value)}`
 }
 
@@ -82,215 +76,230 @@ function handleGoHome() {
 
 <template>
   <div class="admin-error-page">
+    <div class="error-bg" />
     <div class="error-container">
-      <div class="error-card">
-        <!-- Icon -->
-        <div class="icon-wrapper">
-          <NIcon :component="ShieldAlertIcon" :size="48" color="#ef4444" />
+      <!-- Icon -->
+      <div class="error-icon">
+        <NIcon :component="ShieldAlertIcon" :size="32" />
+      </div>
+
+      <!-- Title & message -->
+      <h1 class="error-title">
+        {{ errorInfo.title }}
+      </h1>
+      <p class="error-message">
+        {{ errorInfo.message }}
+      </p>
+
+      <!-- User card (logged in) -->
+      <div v-if="isLoggedIn && user" class="user-card">
+        <img
+          :src="user.avatarFull"
+          :alt="user.personaName"
+          class="user-card-avatar"
+        >
+        <div class="user-card-info">
+          <span class="user-card-name">{{ user.personaName }}</span>
+          <code class="user-card-steamid">{{ user.steamId }}</code>
         </div>
+      </div>
 
-        <!-- Title -->
-        <h1 class="error-title">
-          {{ errorInfo.title }}
-        </h1>
+      <!-- Details -->
+      <p class="error-details">
+        {{ errorInfo.details }}
+      </p>
 
-        <!-- Message -->
-        <p class="error-message">
-          {{ errorInfo.message }}
-        </p>
-
-        <!-- Details -->
-        <div class="error-details">
-          {{ errorInfo.details }}
+      <!-- Debug panel (dev only) -->
+      <div v-if="isDev" class="debug-panel">
+        <div class="debug-header">Debug</div>
+        <div class="debug-row">
+          <span class="debug-key">Error</span>
+          <span class="debug-value">{{ errorType }}</span>
         </div>
-
-        <!-- Steam ID Info -->
-        <div v-if="currentSteamId" class="steamid-info">
-          <span class="steamid-label">Your Steam ID:</span>
-          <code class="steamid-value">{{ currentSteamId }}</code>
+        <div class="debug-row">
+          <span class="debug-key">Redirect</span>
+          <span class="debug-value">{{ redirectPath }}</span>
         </div>
-        <div v-else class="steamid-info steamid-none">
-          <span class="steamid-label">Not logged in</span>
+        <div class="debug-row">
+          <span class="debug-key">Steam ID</span>
+          <span class="debug-value">{{ user?.steamId || 'null' }}</span>
         </div>
+      </div>
 
-        <!-- Debug Info (development only) -->
-        <div v-if="isDev" class="debug-panel">
-          <div class="debug-header">Debug Info</div>
-          <div class="debug-row">
-            <span class="debug-key">Error Type:</span>
-            <span class="debug-value">{{ errorType }}</span>
-          </div>
-          <div class="debug-row">
-            <span class="debug-key">Redirect Path:</span>
-            <span class="debug-value">{{ redirectPath }}</span>
-          </div>
-          <div class="debug-row">
-            <span class="debug-key">Steam ID:</span>
-            <span class="debug-value">{{ currentSteamId || 'null' }}</span>
-          </div>
-          <div class="debug-row">
-            <span class="debug-key">Full Query:</span>
-            <span class="debug-value">{{ JSON.stringify(route.query) }}</span>
-          </div>
-        </div>
+      <!-- Actions -->
+      <div class="error-actions">
+        <button v-if="!isLoggedIn" class="btn btn-primary" @click="handleLogin">
+          <NIcon :component="LogInIcon" :size="16" />
+          Sign in with Steam
+        </button>
 
-        <!-- Actions -->
-        <div class="action-buttons">
-          <NButton
-            v-if="errorInfo.showLogin"
-            type="primary"
-            size="large"
-            round
-            @click="handleLogin"
-          >
-            <template #icon>
-              <NIcon :component="LogInIcon" />
-            </template>
-            Sign in with Steam
-          </NButton>
+        <button v-if="isLoggedIn" class="btn btn-secondary" @click="handleRetry">
+          <NIcon :component="RefreshIcon" :size="16" />
+          Try Again
+        </button>
 
-          <NButton
-            v-if="errorInfo.showRetry"
-            secondary
-            size="large"
-            round
-            @click="handleRetry"
-          >
-            <template #icon>
-              <NIcon :component="RefreshIcon" />
-            </template>
-            Try Again
-          </NButton>
+        <button
+          v-if="isLoggedIn && errorType === 'superadmin_required'"
+          class="btn btn-ghost"
+          @click="router.push('/admin')"
+        >
+          <NIcon :component="ArrowLeftIcon" :size="16" />
+          Back to Dashboard
+        </button>
 
-          <NButton
-            quaternary
-            size="large"
-            round
-            @click="handleGoHome"
-          >
-            <template #icon>
-              <NIcon :component="HomeIcon" />
-            </template>
-            Go Home
-          </NButton>
-        </div>
+        <button class="btn btn-ghost" @click="handleGoHome">
+          <NIcon :component="HomeIcon" :size="16" />
+          Go Home
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped lang="sass">
+// Full-page blurred backdrop with dot grid
 .admin-error-page
   min-height: 100vh
   display: flex
   align-items: center
   justify-content: center
   padding: 24px
-  background: #0a0a0a
+  background: rgba(0, 0, 0, 0.6)
+  backdrop-filter: blur(8px) saturate(120%)
+  -webkit-backdrop-filter: blur(8px) saturate(120%)
+  position: relative
+  overflow: hidden
 
+.error-bg
+  position: absolute
+  inset: 0
+  z-index: 0
+  background: #000000
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.5px, transparent 1.5px)
+  background-size: 40px 40px
+  background-position: 0 0
+  mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
+  -webkit-mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
+
+// Glass card (matches .n-modal > .n-card)
 .error-container
   width: 100%
-  max-width: 480px
-
-.error-card
-  backdrop-filter: var(--glass-blur-medium) saturate(160%)
-  background: var(--glass-bg-secondary) !important
-  border: 1px solid var(--glass-border)
-  border-left: 4px solid #ef4444
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-  border-radius: 16px
-  padding: 40px
+  max-width: 400px
+  position: relative
+  z-index: 1
+  backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
+  -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
+  background: var(--glass-bg-primary, rgba(16, 16, 16, 0.70))
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1))
+  border-radius: 18px
+  padding: 32px
   text-align: center
+  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.9), 0 16px 32px rgba(0, 0, 0, 0.7), 0 8px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+  animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)
 
-.icon-wrapper
-  width: 80px
-  height: 80px
+@keyframes cardIn
+  from
+    opacity: 0
+    transform: scale(0.95) translateY(12px)
+  to
+    opacity: 1
+    transform: scale(1) translateY(0)
+
+.error-icon
+  width: 56px
+  height: 56px
   display: flex
   align-items: center
   justify-content: center
   background: rgba(239, 68, 68, 0.1)
-  border: 1px solid rgba(239, 68, 68, 0.2)
-  border-radius: 50%
-  margin: 0 auto 24px
+  border: 1px solid rgba(239, 68, 68, 0.15)
+  border-radius: 14px
+  margin: 0 auto 20px
+  color: #ef4444
 
 .error-title
-  font-size: 24px
+  font-size: 20px
   font-weight: 700
-  color: var(--text-primary)
-  margin: 0 0 12px
+  color: rgba(255, 255, 255, 0.95)
+  margin: 0 0 8px
+  line-height: 1.3
 
 .error-message
-  font-size: 15px
-  color: var(--text-secondary)
-  margin: 0 0 16px
+  font-size: 14px
+  color: rgba(255, 255, 255, 0.55)
+  margin: 0 0 20px
   line-height: 1.5
 
-.error-details
-  font-size: 13px
-  color: var(--text-tertiary)
-  background: rgba(255, 255, 255, 0.03)
-  border: 1px solid rgba(255, 255, 255, 0.06)
-  border-radius: 8px
-  padding: 12px 16px
-  margin-bottom: 20px
-
-.steamid-info
+// User card — matches admin nav compact card
+.user-card
   display: flex
   align-items: center
-  justify-content: center
-  gap: 8px
-  padding: 12px
-  background: rgba(var(--admin-accent-rgb, 250, 204, 21), 0.08)
-  border: 1px solid rgba(var(--admin-accent-rgb, 250, 204, 21), 0.2)
-  border-radius: 8px
-  margin-bottom: 20px
+  gap: 12px
+  padding: 10px 14px
+  border-radius: 12px
+  background: rgba(255, 255, 255, 0.04)
+  border: 1px solid rgba(255, 255, 255, 0.08)
+  margin-bottom: 16px
+  text-align: left
 
-  &.steamid-none
-    background: rgba(245, 158, 11, 0.08)
-    border-color: rgba(245, 158, 11, 0.2)
+.user-card-avatar
+  width: 36px
+  height: 36px
+  border-radius: 50%
+  flex-shrink: 0
+  object-fit: cover
 
-.steamid-label
+.user-card-info
+  display: flex
+  flex-direction: column
+  min-width: 0
+  gap: 2px
+
+.user-card-name
   font-size: 13px
-  color: var(--text-secondary)
+  font-weight: 600
+  color: rgba(255, 255, 255, 0.92)
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
 
-.steamid-value
+.user-card-steamid
   font-family: 'JetBrains Mono', monospace
-  font-size: 13px
-  color: var(--admin-accent, var(--primary-color))
-  background: rgba(var(--admin-accent-rgb, 250, 204, 21), 0.15)
-  padding: 4px 8px
-  border-radius: 4px
+  font-size: 11px
+  color: rgba(255, 255, 255, 0.4)
 
+.error-details
+  font-size: 12px
+  color: rgba(255, 255, 255, 0.35)
+  margin: 0 0 24px
+  line-height: 1.5
+
+// Debug
 .debug-panel
   text-align: left
   font-family: 'JetBrains Mono', monospace
   font-size: 11px
-  background: rgba(0, 0, 0, 0.4)
-  border: 1px solid rgba(255, 255, 255, 0.08)
-  border-radius: 8px
-  padding: 12px
+  background: rgba(0, 0, 0, 0.3)
+  border: 1px solid rgba(255, 255, 255, 0.06)
+  border-radius: 10px
+  padding: 10px 12px
   margin-bottom: 24px
 
 .debug-header
-  color: var(--text-tertiary)
+  color: rgba(255, 255, 255, 0.3)
   font-size: 10px
   text-transform: uppercase
   letter-spacing: 0.5px
-  margin-bottom: 8px
-  padding-bottom: 8px
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+  margin-bottom: 6px
 
 .debug-row
   display: flex
   justify-content: space-between
   gap: 12px
-  padding: 4px 0
-
-  &:not(:last-child)
-    border-bottom: 1px solid rgba(255, 255, 255, 0.03)
+  padding: 3px 0
 
 .debug-key
-  color: var(--text-tertiary)
+  color: rgba(255, 255, 255, 0.3)
   flex-shrink: 0
 
 .debug-value
@@ -298,12 +307,56 @@ function handleGoHome() {
   word-break: break-all
   text-align: right
 
-.action-buttons
+// Actions
+.error-actions
   display: flex
   flex-direction: column
-  gap: 12px
+  gap: 8px
 
-  @media (min-width: 480px)
-    flex-direction: row
-    justify-content: center
+.btn
+  display: flex
+  align-items: center
+  justify-content: center
+  gap: 8px
+  width: 100%
+  padding: 10px 16px
+  border: none
+  border-radius: 10px
+  font-size: 13px
+  font-weight: 600
+  cursor: pointer
+  transition: all 0.2s ease
+  backdrop-filter: var(--glass-blur-light)
+  -webkit-backdrop-filter: var(--glass-blur-light)
+
+  &:active
+    transform: scale(0.98)
+
+.btn-primary
+  background: linear-gradient(180deg, rgba(250, 204, 21, 0.95), rgba(250, 204, 21, 0.85))
+  color: #0a0a0a
+  border: 1px solid rgba(250, 204, 21, 0.3)
+  box-shadow: 0 4px 8px rgba(250, 204, 21, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)
+
+  &:hover
+    background: linear-gradient(180deg, rgba(253, 224, 71, 0.95), rgba(250, 204, 21, 0.9))
+    box-shadow: 0 6px 12px rgba(250, 204, 21, 0.25), 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25)
+
+.btn-secondary
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)), rgba(16, 16, 16, 0.55)
+  color: rgba(255, 255, 255, 0.85)
+  border: 1px solid rgba(255, 255, 255, 0.14)
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)
+
+  &:hover
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)), rgba(16, 16, 16, 0.55)
+    border-color: rgba(255, 255, 255, 0.18)
+
+.btn-ghost
+  background: transparent
+  color: rgba(255, 255, 255, 0.5)
+
+  &:hover
+    color: rgba(255, 255, 255, 0.75)
+    background: rgba(255, 255, 255, 0.04)
 </style>

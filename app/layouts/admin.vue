@@ -177,12 +177,10 @@ onMounted(() => {
   min-height: 100vh
   height: 100vh
   overflow: hidden
-  background: #0a0a0a
+  background: #080808
   color: var(--text-primary)
   --admin-accent: var(--primary-color)
   --admin-accent-rgb: 250, 204, 21
-  --admin-glass-bg: rgba(0, 0, 0, 0.35)
-  --admin-glass-bg-strong: rgba(0, 0, 0, 0.55)
 
 // Top Bar
 .admin-topbar
@@ -191,10 +189,11 @@ onMounted(() => {
   align-items: center
   gap: 24px
   padding: 14px 24px
-  background: var(--admin-glass-bg-strong)
-  backdrop-filter: var(--glass-blur-medium) var(--glass-saturation)
-  -webkit-backdrop-filter: var(--glass-blur-medium) var(--glass-saturation)
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08)
+  background: rgba(10, 10, 10, 0.5)
+  backdrop-filter: var(--admin-glass-blur-strong) var(--glass-saturation)
+  -webkit-backdrop-filter: var(--admin-glass-blur-strong) var(--glass-saturation)
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4)
   position: sticky
   top: 0
   z-index: 120
@@ -249,8 +248,10 @@ onMounted(() => {
   gap: 10px
   padding: 6px 10px
   border-radius: 12px
-  background: rgba(255, 255, 255, 0.04)
-  border: 1px solid rgba(255, 255, 255, 0.08)
+  background: rgba(255, 255, 255, 0.03)
+  border: 1px solid rgba(255, 255, 255, 0.06)
+  backdrop-filter: var(--admin-glass-blur-light)
+  -webkit-backdrop-filter: var(--admin-glass-blur-light)
 
 .admin-user-avatar
   flex-shrink: 0

@@ -41,6 +41,10 @@ export type {
     AdminAction
 } from './admin';
 
+// User profile tables
+export { userProfiles } from './userProfiles';
+export type { UserProfile, NewUserProfile } from './userProfiles';
+
 // Plugin settings tables
 export { pluginSettings } from './pluginSettings';
 export type {

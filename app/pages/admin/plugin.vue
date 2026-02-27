@@ -200,10 +200,12 @@ function handleReset() {
   justify-content: space-between
   align-items: center
   padding: 20px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
   @media (max-width: 640px)
     flex-direction: column
@@ -226,17 +228,20 @@ function handleReset() {
   align-items: center
   justify-content: center
   padding: 64px 24px
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
 
 .settings-container
-  background: rgba(255, 255, 255, 0.05)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: var(--admin-glass-bg)
+  backdrop-filter: var(--admin-glass-blur)
+  -webkit-backdrop-filter: var(--admin-glass-blur)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 16px
   padding: 20px 24px
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.15), var(--admin-glass-inset)
 
 .settings-list
   display: flex
@@ -257,9 +262,10 @@ function handleReset() {
   display: flex
   align-items: center
   padding: 12px 20px
-  background: rgba(15, 15, 15, 0.95)
-  backdrop-filter: blur(12px)
-  border: 1px solid rgba(255, 255, 255, 0.1)
+  background: rgba(10, 10, 10, 0.85)
+  backdrop-filter: var(--admin-glass-blur-strong)
+  -webkit-backdrop-filter: var(--admin-glass-blur-strong)
+  border: 1px solid var(--admin-glass-border)
   border-radius: 12px
   z-index: 100
 </style>

@@ -49,12 +49,27 @@ export const ADMIN_ERROR_CODES = {
  * Default application settings
  */
 export const DEFAULT_APP_SETTINGS = {
+    // General
     MAINTENANCE_MODE: { value: 'false', type: 'boolean', description: 'Enable maintenance mode to block user access' },
     REGISTRATION_ENABLED: { value: 'true', type: 'boolean', description: 'Allow new user registrations' },
-    MAX_LOADOUTS_PER_USER: { value: '10', type: 'number', description: 'Maximum loadouts per user' },
+    SITE_ANNOUNCEMENT: { value: '', type: 'string', description: 'Announcement banner text shown to all users (leave empty to hide)' },
+
+    // Features
     FEATURE_INSPECT_URLS: { value: 'true', type: 'boolean', description: 'Enable inspect URL generation' },
     FEATURE_STICKERS: { value: 'true', type: 'boolean', description: 'Enable sticker customization' },
     FEATURE_KEYCHAINS: { value: 'true', type: 'boolean', description: 'Enable keychain customization' },
+    FEATURE_TUTORIALS: { value: 'true', type: 'boolean', description: 'Enable the tutorial system for users' },
+    FEATURE_SHARE_CODES: { value: 'true', type: 'boolean', description: 'Enable loadout share codes for sharing between users' },
+
+    // Tutorials
+    TUTORIAL_NAVIGATE_APP: { value: 'true', type: 'boolean', description: "Enable 'Navigate the App' tutorial" },
+    TUTORIAL_CUSTOMIZE_WEAPON: { value: 'true', type: 'boolean', description: "Enable 'Customize a Weapon' tutorial" },
+    TUTORIAL_INSPECT_LINK: { value: 'true', type: 'boolean', description: "Enable 'Inspect Link' tutorial" },
+    TUTORIAL_CREATE_LOADOUT: { value: 'true', type: 'boolean', description: "Enable 'Create a Loadout' tutorial" },
+
+    // Limits
+    MAX_LOADOUTS_PER_USER: { value: '10', type: 'number', description: 'Maximum loadouts per user' },
+    MAX_LOADOUT_NAME_LENGTH: { value: '25', type: 'number', description: 'Maximum character length for loadout names' },
 } as const;
 
 /**

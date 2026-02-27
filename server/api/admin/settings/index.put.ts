@@ -16,6 +16,7 @@ import {
 } from '~/server/utils/api/responseHelpers'
 import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
 import { adminUpdateSettingSchema } from '~/server/utils/validation/adminSchemas'
+import { DEFAULT_APP_SETTINGS } from '~/server/utils/constants'
 
 export default useErrorHandling(async (event) => {
     const startTime = Date.now()
@@ -63,11 +64,13 @@ export default useErrorHandling(async (event) => {
             })
             .where(eq(appSettings.key, key))
     } else {
-        // Insert new setting
+        // Insert new setting — include description from defaults if available
+        const defaultDef = DEFAULT_APP_SETTINGS[key as keyof typeof DEFAULT_APP_SETTINGS]
         await db.insert(appSettings).values({
             key,
             value: stringValue,
             type: valueType,
+            description: defaultDef?.description ?? null,
             updated_by: adminSteamId,
         })
     }

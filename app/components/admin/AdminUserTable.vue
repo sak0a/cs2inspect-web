@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { h } from 'vue'
-import { useDebounceFn } from '@vueuse/core'
 import type { AdminUserSummary } from '~/types'
 import { NButton, type DataTableColumns } from 'naive-ui'
 
@@ -16,17 +15,8 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'page-change', page: number): void
-  (e: 'search' | 'view' | 'ban' | 'unban', value: string): void
+  (e: 'view' | 'ban' | 'unban', value: string): void
 }>()
-
-const searchQuery = ref('')
-const debouncedSearch = useDebounceFn((query: string) => {
-  emit('search', query)
-}, 300)
-
-watch(searchQuery, (newValue) => {
-  debouncedSearch(newValue)
-})
 
 const handlePageChange = (page: number) => {
   emit('page-change', page)
@@ -46,11 +36,31 @@ const formatDate = (dateStr: string | null) => {
 
 const columns: DataTableColumns<AdminUserSummary> = [
   {
-    title: 'Steam ID',
+    title: 'User',
     key: 'steamId',
-    width: 200,
+    width: 280,
     render(row) {
-      return h('span', { class: 'font-mono text-sm' }, row.steamId)
+      const avatar = row.avatarFull
+        ? h('img', {
+            src: row.avatarFull,
+            class: 'w-8 h-8 rounded-lg object-cover flex-shrink-0',
+            alt: row.personaName || row.steamId,
+            loading: 'lazy',
+          })
+        : h('div', {
+            class: 'w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 text-xs font-bold opacity-50'
+          }, row.steamId.slice(-2).toUpperCase())
+
+      const nameElements = []
+      if (row.personaName) {
+        nameElements.push(h('span', { class: 'text-sm text-white truncate' }, row.personaName))
+      }
+      nameElements.push(h('span', { class: 'font-mono text-xs text-gray-400 truncate' }, row.steamId))
+
+      return h('div', { class: 'flex items-center gap-3' }, [
+        avatar,
+        h('div', { class: 'flex flex-col min-w-0' }, nameElements)
+      ])
     }
   },
   {
@@ -141,34 +151,6 @@ const totalPages = computed(() => Math.ceil(props.total / props.pageSize))
 
 <template>
   <div class="admin-user-table">
-    <!-- Search Header -->
-    <div class="mb-4">
-      <NInput
-        v-model:value="searchQuery"
-        placeholder="Search by Steam ID..."
-        clearable
-        class="max-w-md"
-      >
-        <template #prefix>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="opacity-50"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-        </template>
-      </NInput>
-    </div>
-
     <!-- Data Table -->
     <NDataTable
       :columns="columns"
@@ -199,20 +181,34 @@ const totalPages = computed(() => Math.ceil(props.total / props.pageSize))
 <style scoped lang="sass">
 .admin-user-table
   :deep(.n-data-table)
-    background: var(--glass-bg-secondary) !important
-    border: 1px solid var(--glass-border)
-    backdrop-filter: var(--glass-blur-medium) saturate(160%)
-    border-radius: 12px
+    --n-td-color: transparent
+    --n-td-color-hover: rgba(200, 180, 130, 0.06)
+    --n-td-color-striped: transparent
+    --n-th-color: rgba(255, 255, 255, 0.02)
+    --n-th-color-hover: rgba(200, 180, 130, 0.04)
+    --n-merged-td-color: transparent
+    --n-merged-td-color-hover: rgba(200, 180, 130, 0.06)
+    background: transparent !important
+    border: 1px solid var(--admin-glass-border)
+    backdrop-filter: var(--admin-glass-blur) saturate(160%)
+    -webkit-backdrop-filter: var(--admin-glass-blur) saturate(160%)
+    border-radius: 14px
+    overflow: hidden
 
-    .n-data-table-thead
-      background: rgba(255, 255, 255, 0.03)
+    .n-data-table-wrapper
+      background: transparent
+
+    .n-data-table-table
+      background: transparent
+
+    .n-data-table-th
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06)
+      color: rgba(255, 255, 255, 0.55)
+      font-weight: 600
 
     .n-data-table-tr
       transition: background 0.2s ease
 
-      &:hover
-        background: rgba(255, 255, 255, 0.05)
-
     .n-data-table-td
-      border-bottom: 1px solid var(--glass-border)
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04)
 </style>

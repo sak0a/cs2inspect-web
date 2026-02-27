@@ -37,6 +37,8 @@ export interface AdminOverviewStats {
  */
 export interface AdminUserDetails {
     steamId: SteamId;
+    personaName: string | null;
+    avatarFull: string | null;
     loadoutCount: number;
     itemCounts: {
         weapons: number;
@@ -62,6 +64,8 @@ export interface AdminUserDetails {
  */
 export interface AdminUserSummary {
     steamId: SteamId;
+    personaName: string | null;
+    avatarFull: string | null;
     loadoutCount: number;
     totalItems: number;
     lastActivity: ISOTimestamp | null;
@@ -214,6 +218,9 @@ export interface AdminUserSearchParams {
     page?: number;
     limit?: number;
     bannedOnly?: boolean;
+    activeOnly?: boolean;
+    sortBy?: 'name' | 'loadouts' | 'items' | 'lastActivity';
+    sortDir?: 'asc' | 'desc';
 }
 
 /**
