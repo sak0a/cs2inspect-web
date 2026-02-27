@@ -20,7 +20,7 @@ import { pins } from './pins'
 // ============================================================================
 
 export const insertLoadoutSchema = createInsertSchema(loadouts, {
-    name: z.string().min(1, 'Loadout name is required').max(25, 'Loadout name must be at most 25 characters'),
+    name: z.string().min(1, 'Loadout name is required').max(100, 'Loadout name is too long'),
     steamid: z.string().min(1, 'Steam ID is required'),
 })
 
@@ -33,7 +33,7 @@ export const loadoutCreateBodySchema = insertLoadoutSchema.pick({
 
 /** Schema for loadout update request body */
 export const loadoutUpdateBodySchema = z.object({
-    name: z.string().min(1, 'Loadout name is required').max(25, 'Loadout name must be at most 25 characters'),
+    name: z.string().min(1, 'Loadout name is required').max(100, 'Loadout name is too long'),
     steamId: z.string().min(1, 'Steam ID is required').optional(),
 })
 

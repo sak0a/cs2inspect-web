@@ -1,11 +1,41 @@
 <script setup lang="ts">
-import { LucideLogOut as LogOutIcon, LucidePanelLeft as PanelLeftIcon, LucidePanelTop as PanelTopIcon, LucideLanguages as LanguagesIcon } from 'lucide-vue-next'
+import { LucideLogOut as LogOutIcon, LucidePanelLeft as PanelLeftIcon, LucidePanelTop as PanelTopIcon, LucideLanguages as LanguagesIcon, LucideX as XIcon, LucideConstruction as ConstructionIcon } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 
 const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
 const user = ref<SteamUser | null>(null)
+
+// App settings
+const { fetchSettings, getSetting, isFeatureEnabled, loaded: settingsLoaded } = useAppSettings()
+const announcementDismissed = ref(false)
+const dismissedAnnouncementText = ref('')
+
+const siteAnnouncement = computed(() => {
+  if (!settingsLoaded.value) return ''
+  return getSetting<string>('SITE_ANNOUNCEMENT', '')
+})
+
+const showAnnouncement = computed(() => {
+  const text = siteAnnouncement.value
+  if (!text) return false
+  // Reset dismiss if the announcement text changed
+  if (dismissedAnnouncementText.value !== text) {
+    announcementDismissed.value = false
+  }
+  return !announcementDismissed.value
+})
+
+const isMaintenanceMode = computed(() => {
+  if (!settingsLoaded.value) return false
+  return isFeatureEnabled('MAINTENANCE_MODE')
+})
+
+function dismissAnnouncement() {
+  announcementDismissed.value = true
+  dismissedAnnouncementText.value = siteAnnouncement.value
+}
 
 const {
   sidebarCollapsed,
@@ -98,6 +128,9 @@ const route = useRoute()
 const isDevPage = computed(() => route.path === '/dev' && import.meta.env.DEV)
 
 onMounted(async () => {
+  // Fetch public app settings
+  fetchSettings()
+
   if (!selectedKey.value) {
     selectedKey.value = window.location.pathname
   }
@@ -535,7 +568,16 @@ function handleLanguageSelect(key: string) {
       </SLayoutSider>
       <SLayoutContent :sider-position="sidebarMode" class="min-w-0 min-h-0 flex-1">
 
-        <div v-if="!isLoggedIn && !isDevPage" class="flex items-center justify-center flex-col text-xl h-full relative">
+        <!-- Maintenance Mode Overlay -->
+        <div v-if="isMaintenanceMode" class="flex items-center justify-center flex-col h-full text-center px-4">
+          <NIcon :size="64" color="#f59e0b" class="mb-4">
+            <ConstructionIcon />
+          </NIcon>
+          <h1 class="text-2xl font-bold mb-2">Under Maintenance</h1>
+          <p class="text-gray-400 text-lg">The site is currently undergoing maintenance. Please check back later.</p>
+        </div>
+
+        <div v-else-if="!isLoggedIn && !isDevPage" class="flex items-center justify-center flex-col text-xl h-full relative">
           <!-- Language Switcher in top-right corner for login screen -->
           <div class="absolute top-4 right-4">
             <LanguageSwitcher />
@@ -567,6 +609,15 @@ function handleLanguageSelect(key: string) {
               </div>
             </div>
             <!-- Secondary Menu End -->
+            <!-- Site Announcement Banner -->
+            <div v-if="showAnnouncement" class="announcement-banner">
+              <span>{{ siteAnnouncement }}</span>
+              <NButton quaternary circle size="tiny" class="ml-2 flex-shrink-0" @click="dismissAnnouncement">
+                <template #icon>
+                  <NIcon :size="14"><XIcon /></NIcon>
+                </template>
+              </NButton>
+            </div>
             <div class="flex flex-col min-h-full">
               <div class="flex-1">
                 <slot />
@@ -731,4 +782,17 @@ body
 // Active language option highlight in dropdown
 .lang-option-active .n-dropdown-option-body::before
   background-color: rgba(99, 226, 183, 0.1) !important
+
+// Announcement banner
+.announcement-banner
+  display: flex
+  align-items: center
+  justify-content: center
+  padding: 8px 16px
+  background: rgba(245, 158, 11, 0.15)
+  border-bottom: 1px solid rgba(245, 158, 11, 0.3)
+  color: #fbbf24
+  font-size: 14px
+  text-align: center
+  z-index: 5
 </style>

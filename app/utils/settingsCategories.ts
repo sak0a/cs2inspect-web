@@ -48,6 +48,7 @@ export const APP_SETTING_CATEGORIES: AppSettingCategoryConfig[] = [
         settingKeys: [
             'MAX_LOADOUTS_PER_USER',
             'MAX_LOADOUT_NAME_LENGTH',
+            'MAX_VERSION_HISTORY_PER_ITEM',
         ],
     },
 ]

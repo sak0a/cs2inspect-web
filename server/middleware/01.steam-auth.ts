@@ -2,9 +2,10 @@
 import { defineEventHandler, readBody, getQuery } from 'h3'
 import jwt from "jsonwebtoken";
 import type { SignOptions } from 'jsonwebtoken';
-import { sql } from 'drizzle-orm'
+import { eq, sql } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { userProfiles } from '~/server/database/schema'
+import { getCachedSetting } from '~/server/utils/settingsCache'
 
 
 const JWT_SECRET = process.env.JWT_TOKEN || ''
@@ -25,6 +26,20 @@ export default defineEventHandler(async (event) => {
             // Extract Steam ID from the validation response
             const steamId = body['openid.claimed_id']?.match(/(\d+)$/)?.[1]
             if (steamId) {
+                // Check if this is a new user and registration is disabled
+                const [existingUser] = await db
+                    .select({ steamid: userProfiles.steamid })
+                    .from(userProfiles)
+                    .where(eq(userProfiles.steamid, steamId))
+                    .limit(1)
+
+                if (!existingUser) {
+                    const registrationEnabled = await getCachedSetting('REGISTRATION_ENABLED', true)
+                    if (!registrationEnabled) {
+                        return 'is_valid:false\nregistration_disabled:true'
+                    }
+                }
+
                 const payload: { steamId: string; type: string } = {
                     steamId,
                     type: 'steam_auth'
@@ -63,22 +78,38 @@ export default defineEventHandler(async (event) => {
         )
 
         // Upsert profile to database (fire-and-forget)
+        // Skip insert for new users when registration is disabled
         const player = userData?.response?.players?.[0]
         if (player) {
-            db.insert(userProfiles)
-                .values({
-                    steamid: player.steamid,
-                    personaname: player.personaname,
-                    avatarfull: player.avatarfull,
-                })
-                .onDuplicateKeyUpdate({
-                    set: {
-                        personaname: sql`VALUES(personaname)`,
-                        avatarfull: sql`VALUES(avatarfull)`,
-                    }
-                })
-                .then(() => {})
-                .catch((err: unknown) => console.error('Failed to upsert user profile:', err))
+            const [existingProfile] = await db
+                .select({ steamid: userProfiles.steamid })
+                .from(userProfiles)
+                .where(eq(userProfiles.steamid, player.steamid))
+                .limit(1)
+
+            if (existingProfile) {
+                // Update existing user's profile data
+                db.update(userProfiles)
+                    .set({
+                        personaname: player.personaname,
+                        avatarfull: player.avatarfull,
+                    })
+                    .where(eq(userProfiles.steamid, player.steamid))
+                    .then(() => {})
+                    .catch((err: unknown) => console.error('Failed to update user profile:', err))
+            } else {
+                const registrationEnabled = await getCachedSetting('REGISTRATION_ENABLED', true)
+                if (registrationEnabled) {
+                    db.insert(userProfiles)
+                        .values({
+                            steamid: player.steamid,
+                            personaname: player.personaname,
+                            avatarfull: player.avatarfull,
+                        })
+                        .then(() => {})
+                        .catch((err: unknown) => console.error('Failed to insert user profile:', err))
+                }
+            }
         }
 
         return userData

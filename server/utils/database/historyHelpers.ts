@@ -6,7 +6,8 @@
 
 import { db } from '~/server/database/client'
 import { itemHistory, pistols, rifles, smgs, heavys, knives, gloves } from '~/server/database/schema'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, asc, count } from 'drizzle-orm'
+import { getSettingTyped } from '~/server/database/adminHelpers'
 import { toLoadoutId } from '~/types/core/common'
 import { Logger } from '~/server/utils/logger'
 import { generateVersionId } from '~/server/utils/versionIdGenerator'
@@ -360,12 +361,75 @@ async function recordItemHistory(
     })
 
     Logger.info(`History save item=${config.itemType} version=${versionId} change=${description}`, 'db')
+
+    // Prune oldest history entries if over the limit
+    await pruneItemHistory(steamId, loadoutIdNum, config.itemType, defindex, team)
   } catch (error) {
     Logger.error(
       `History save failed item=${config.itemType} error=${error instanceof Error ? error.message : String(error)}`,
       'db'
     )
     // Don't throw - history recording should not block saves
+  }
+}
+
+// ============================================================================
+// HISTORY PRUNING
+// ============================================================================
+
+/**
+ * Remove oldest history entries for an item if the count exceeds the configured limit.
+ * The limit is read from the MAX_VERSION_HISTORY_PER_ITEM app setting (0 = unlimited).
+ */
+async function pruneItemHistory(
+  steamId: string,
+  loadoutId: number,
+  itemType: HistoryItemType,
+  defindex: number,
+  team: number
+): Promise<void> {
+  try {
+    const maxHistory = await getSettingTyped<number>('MAX_VERSION_HISTORY_PER_ITEM', 50)
+    if (maxHistory <= 0) return // 0 = unlimited
+
+    const whereCondition = and(
+      eq(itemHistory.steamid, steamId),
+      eq(itemHistory.loadoutid, loadoutId),
+      eq(itemHistory.item_type, itemType),
+      eq(itemHistory.defindex, defindex),
+      eq(itemHistory.team, team)
+    )
+
+    // Count total entries for this item
+    const countResult = await db
+      .select({ total: count() })
+      .from(itemHistory)
+      .where(whereCondition)
+
+    const total = countResult[0]?.total ?? 0
+    if (total <= maxHistory) return
+
+    // Find the IDs of the oldest entries that exceed the limit
+    const excess = total - maxHistory
+    const oldestEntries = await db
+      .select({ id: itemHistory.id })
+      .from(itemHistory)
+      .where(whereCondition)
+      .orderBy(asc(itemHistory.created_at))
+      .limit(excess)
+
+    if (oldestEntries.length > 0) {
+      for (const entry of oldestEntries) {
+        await db.delete(itemHistory).where(eq(itemHistory.id, entry.id))
+      }
+      Logger.info(`Pruned ${oldestEntries.length} old history entries for item=${itemType} defindex=${defindex}`, 'db')
+    }
+  } catch (error) {
+    Logger.error(
+      `History prune failed item=${itemType} error=${error instanceof Error ? error.message : String(error)}`,
+      'db'
+    )
+    // Don't throw - pruning should not block saves
   }
 }
 

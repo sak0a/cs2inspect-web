@@ -5,6 +5,7 @@ import { mapCustomizationToRepresentation, type CustomizationInput } from '~/ser
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { createError, getQuery, readBody } from 'h3'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
+import { getCachedSetting } from '~/server/utils/settingsCache'
 import type {
     EconItem,
     CS2Inspect
@@ -103,6 +104,17 @@ export default useErrorHandling(async (event) => {
     const action = query.action as InspectAction
     validateRequiredRequestData(action, 'Action')
 
+    // Enforce FEATURE_INSPECT_URLS for URL generation actions
+    if (action === 'create-url') {
+        const inspectUrlsEnabled = await getCachedSetting<boolean>('FEATURE_INSPECT_URLS', true)
+        if (!inspectUrlsEnabled) {
+            throw createError({
+                statusCode: 403,
+                message: 'Inspect URL generation is currently disabled',
+            })
+        }
+    }
+
     // Use steam service if configured, otherwise fall back to local client
     const useService = USE_STEAM_SERVICE;
     const client: CS2Inspect | null = useService ? null : getCS2Client();
@@ -127,6 +139,10 @@ export default useErrorHandling(async (event) => {
                     keychain = representation.keychain as unknown as typeof keychain;
                 }
 
+                // Check feature flags for stickers and keychains
+                const stickersEnabled = await getCachedSetting<boolean>('FEATURE_STICKERS', true)
+                const keychainsEnabled = await getCachedSetting<boolean>('FEATURE_KEYCHAINS', true)
+
                 const itemData = {
                     defindex: createUrlBody.defindex || config.defaultDefindex,
                     paintindex: createUrlBody.paintindex || config.defaultPaintindex,
@@ -136,9 +152,11 @@ export default useErrorHandling(async (event) => {
                     killeaterscoretype: (config.supportsStatTrak && createUrlBody.stattrak_enabled) ? 1 : 0,
                     killeatervalue: (config.supportsStatTrak && createUrlBody.stattrak_count) || 0,
                     customname: (config.supportsNameTag && createUrlBody.nametag) || '',
-                    // Only include stickers and keychains for supported item types
-                    ...(config.supportsStickers && {
+                    // Only include stickers and keychains for supported item types + feature enabled
+                    ...(config.supportsStickers && stickersEnabled && {
                         stickers: stickers,
+                    }),
+                    ...(config.supportsKeychains && keychainsEnabled && {
                         keychains: keychain ? [keychain] : undefined,
                     })
                 };

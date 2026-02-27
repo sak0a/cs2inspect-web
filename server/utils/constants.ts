@@ -70,6 +70,7 @@ export const DEFAULT_APP_SETTINGS = {
     // Limits
     MAX_LOADOUTS_PER_USER: { value: '10', type: 'number', description: 'Maximum loadouts per user' },
     MAX_LOADOUT_NAME_LENGTH: { value: '25', type: 'number', description: 'Maximum character length for loadout names' },
+    MAX_VERSION_HISTORY_PER_ITEM: { value: '50', type: 'number', description: 'Maximum version history entries per item (oldest removed when exceeded, 0 = unlimited)' },
 } as const;
 
 /**

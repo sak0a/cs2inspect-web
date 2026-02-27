@@ -9,6 +9,7 @@ import {
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers';
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
+import { getCachedSetting } from '~/server/utils/settingsCache'
 
 // Helper to generate random code
 const generateShareCode = () => {
@@ -35,6 +36,15 @@ export default useErrorHandling(async (event: H3Event) => {
 
     validateRequiredRequestData(loadoutId, 'Loadout ID')
     validateRequiredRequestData(steamId, 'Steam ID')
+
+    // Enforce FEATURE_SHARE_CODES
+    const shareCodesEnabled = await getCachedSetting<boolean>('FEATURE_SHARE_CODES', true)
+    if (!shareCodesEnabled) {
+        throw createError({
+            statusCode: 403,
+            message: 'Share codes feature is currently disabled',
+        })
+    }
 
     const loadout = await getLoadout(loadoutId, steamId)
     if (!loadout) {

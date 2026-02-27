@@ -2,7 +2,7 @@
 import { getQuery, readBody, createError } from 'h3'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
-import { createLoadout, getLoadoutByName } from "~/server/database/loadoutHelpers"
+import { createLoadout, getLoadoutByName, getLoadoutsBySteamId } from "~/server/database/loadoutHelpers"
 import {
     createSuccessResponse,
     createResponseMeta,
@@ -10,6 +10,7 @@ import {
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
 import { loadoutCreateBodySchema } from '~/server/database/schema/zod'
+import { getCachedSetting } from '~/server/utils/settingsCache'
 
 /**
  * POST /api/loadouts
@@ -26,6 +27,25 @@ export default useErrorHandling(async (event) => {
     validateRequiredRequestData(steamId, 'Steam ID')
 
     const { name } = parseBodyWithSchema(loadoutCreateBodySchema, body)
+
+    // Enforce MAX_LOADOUT_NAME_LENGTH
+    const maxNameLength = await getCachedSetting<number>('MAX_LOADOUT_NAME_LENGTH', 25)
+    if (name.length > maxNameLength) {
+        throw createError({
+            statusCode: 400,
+            message: `Loadout name must be at most ${maxNameLength} characters`,
+        })
+    }
+
+    // Enforce MAX_LOADOUTS_PER_USER
+    const maxLoadouts = await getCachedSetting<number>('MAX_LOADOUTS_PER_USER', 10)
+    const existing = await getLoadoutsBySteamId(steamId)
+    if (existing.length >= maxLoadouts) {
+        throw createError({
+            statusCode: 403,
+            message: `Maximum number of loadouts (${maxLoadouts}) reached`,
+        })
+    }
 
     await createLoadout(steamId, name)
     Logger.success(`Loadout created successfully!`)

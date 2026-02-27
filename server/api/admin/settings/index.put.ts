@@ -17,6 +17,7 @@ import {
 import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
 import { adminUpdateSettingSchema } from '~/server/utils/validation/adminSchemas'
 import { DEFAULT_APP_SETTINGS } from '~/server/utils/constants'
+import { invalidateSettingsCache } from '~/server/utils/settingsCache'
 
 export default useErrorHandling(async (event) => {
     const startTime = Date.now()
@@ -74,6 +75,9 @@ export default useErrorHandling(async (event) => {
             updated_by: adminSteamId,
         })
     }
+
+    // Invalidate cache so the new value takes effect immediately
+    invalidateSettingsCache(key)
 
     // Log action to adminActivityLog
     await db.insert(adminActivityLog).values({

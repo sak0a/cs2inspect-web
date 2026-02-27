@@ -51,6 +51,12 @@ const emit = defineEmits<{
 
 const { t, getLocale, switchLocale, getLocales } = useI18n()
 const tutorialStore = useTutorialStore()
+const { isFeatureEnabled, loaded: settingsLoaded } = useAppSettings()
+
+// Map tutorial id (kebab-case) to settings key (SCREAMING_SNAKE_CASE)
+function tutorialSettingKey(id: string): string {
+  return 'TUTORIAL_' + id.toUpperCase().replace(/-/g, '_')
+}
 
 const getFlag = (code: string) => {
   switch (code) {
@@ -93,18 +99,24 @@ const languageOptions = computed(() => {
 })
 
 const tutorialOptions = computed(() => {
-  return getAllTutorials().map(tutorial => {
-    const completed = tutorialStore.isTutorialCompleted(tutorial.id)
-    const label = String(t(tutorial.nameKey) || tutorial.id)
-    const displayLabel = completed ? `✓ ${label}` : label
-    return {
-      label: completed
-        ? () => h('span', { style: 'color: #22c55e' }, displayLabel)
-        : displayLabel,
-      key: `tutorial:${tutorial.id}`,
-      disabled: tutorialStore.isActive,
-    }
-  })
+  return getAllTutorials()
+    .filter(tutorial => {
+      // Filter out tutorials whose individual setting is disabled
+      if (!settingsLoaded.value) return true
+      return isFeatureEnabled(tutorialSettingKey(tutorial.id))
+    })
+    .map(tutorial => {
+      const completed = tutorialStore.isTutorialCompleted(tutorial.id)
+      const label = String(t(tutorial.nameKey) || tutorial.id)
+      const displayLabel = completed ? `✓ ${label}` : label
+      return {
+        label: completed
+          ? () => h('span', { style: 'color: #22c55e' }, displayLabel)
+          : displayLabel,
+        key: `tutorial:${tutorial.id}`,
+        disabled: tutorialStore.isActive,
+      }
+    })
 })
 
 const dropdownOptions = computed(() => {
@@ -115,13 +127,18 @@ const dropdownOptions = computed(() => {
       icon: () => h(NIcon, { size: 16 }, { default: () => h(LanguagesIcon) }),
       children: languageOptions.value,
     },
-    {
+  ]
+
+  // Only show tutorials submenu when the feature is enabled and there are tutorials
+  const tutorialsEnabled = !settingsLoaded.value || isFeatureEnabled('FEATURE_TUTORIALS')
+  if (tutorialsEnabled && tutorialOptions.value.length > 0) {
+    options.push({
       label: String(t('tutorial.menuTitle') || 'Tutorials'),
       key: 'tutorials',
       icon: () => h(NIcon, { size: 16 }, { default: () => h(TutorialIcon) }),
       children: tutorialOptions.value,
-    }
-  ]
+    })
+  }
 
   if (props.showLogout) {
     options.push({ type: 'divider', key: 'divider' })

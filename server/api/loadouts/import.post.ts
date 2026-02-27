@@ -1,13 +1,14 @@
-import { getQuery, readBody } from 'h3'
+import { getQuery, readBody, createError } from 'h3'
 import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
-import { importLoadoutFromShareCode } from "~/server/database/loadoutHelpers";
+import { importLoadoutFromShareCode, getLoadoutsBySteamId } from "~/server/database/loadoutHelpers";
 import { validateRequiredRequestData } from "~/server/utils/helpers";
 import {
     createSuccessResponse,
     createResponseMeta,
 } from '~/server/utils/api/responseHelpers';
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
+import { getCachedSetting } from '~/server/utils/settingsCache'
 
 /**
  * POST /api/loadouts/import
@@ -25,6 +26,25 @@ export default useErrorHandling(async (event: H3Event) => {
 
     validateRequiredRequestData(steamId, 'Steam ID');
     validateRequiredRequestData(shareCode, 'Share Code');
+
+    // Enforce FEATURE_SHARE_CODES
+    const shareCodesEnabled = await getCachedSetting<boolean>('FEATURE_SHARE_CODES', true)
+    if (!shareCodesEnabled) {
+        throw createError({
+            statusCode: 403,
+            message: 'Share codes feature is currently disabled',
+        })
+    }
+
+    // Enforce MAX_LOADOUTS_PER_USER
+    const maxLoadouts = await getCachedSetting<number>('MAX_LOADOUTS_PER_USER', 10)
+    const existing = await getLoadoutsBySteamId(steamId)
+    if (existing.length >= maxLoadouts) {
+        throw createError({
+            statusCode: 403,
+            message: `Maximum number of loadouts (${maxLoadouts}) reached`,
+        })
+    }
 
     const newLoadout = await importLoadoutFromShareCode(steamId, shareCode)
 

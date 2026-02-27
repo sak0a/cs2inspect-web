@@ -1,5 +1,5 @@
 // server/api/loadouts/[id].put.ts
-import { getQuery, readBody } from 'h3'
+import { getQuery, readBody, createError } from 'h3'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
 import { updateLoadout, getLoadout } from "~/server/database/loadoutHelpers"
@@ -10,6 +10,7 @@ import {
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
 import { loadoutUpdateBodySchema } from '~/server/database/schema/zod'
+import { getCachedSetting } from '~/server/utils/settingsCache'
 
 /**
  * PUT /api/loadouts/:id
@@ -28,6 +29,15 @@ export default useErrorHandling(async (event) => {
     const parsed = parseBodyWithSchema(loadoutUpdateBodySchema, body)
     const steamId: string = (query.steamId as string) || parsed.steamId || ''
     validateRequiredRequestData(steamId, 'Steam ID')
+
+    // Enforce MAX_LOADOUT_NAME_LENGTH
+    const maxNameLength = await getCachedSetting<number>('MAX_LOADOUT_NAME_LENGTH', 25)
+    if (parsed.name.length > maxNameLength) {
+        throw createError({
+            statusCode: 400,
+            message: `Loadout name must be at most ${maxNameLength} characters`,
+        })
+    }
 
     await updateLoadout(id, steamId, parsed.name)
     Logger.success(`Loadout ${id} updated successfully!`)
