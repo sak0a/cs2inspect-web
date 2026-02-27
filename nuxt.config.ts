@@ -207,6 +207,7 @@ export default defineNuxtConfig({
     '/auth/**': { ssr: false },
     '/dev': { ssr: false },
     '/api/data/**': { swr: 300 },
+    '/_locales/**': { ssr: false },
   },
 
   compatibilityDate: '2025-04-01'
