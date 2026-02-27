@@ -5,11 +5,15 @@ export default defineEventHandler(async (event) => {
     const path = event.node.req.url
     if (!path) return
 
-    // Always allow auth, admin, and public settings routes
+    // Skip during prerendering (no database available)
+    if (import.meta.prerender) return
+
+    // Always allow auth, admin, public settings, and locale routes
     if (
         path.startsWith('/api/steam/') ||
         path.startsWith('/api/admin/') ||
-        path.startsWith('/api/public/')
+        path.startsWith('/api/public/') ||
+        path.startsWith('/_locales/')
     ) return
 
     const maintenance = await getCachedSetting('MAINTENANCE_MODE', false)
