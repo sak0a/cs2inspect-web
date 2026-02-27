@@ -2,6 +2,7 @@
 import Components from 'unplugin-vue-components/vite'
 import { defineNuxtConfig } from "nuxt/config";
 import { fileURLToPath } from 'node:url'
+import { existsSync, readFileSync } from 'node:fs'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
@@ -95,6 +96,19 @@ export default defineNuxtConfig({
     }
   },
   vite: {
+    vue: {
+      script: {
+        // Force the SFC compiler's type resolver to use Node.js's real filesystem.
+        // Without this, type resolution for defineProps<ImportedType>() fails in
+        // Docker builds due to path alias resolution issues with the default ts.sys.
+        fs: {
+          fileExists: (file: string) => existsSync(file),
+          readFile: (file: string) => {
+            try { return readFileSync(file, 'utf-8') } catch { return undefined }
+          },
+        },
+      },
+    },
     optimizeDeps: {
       exclude: ['oxc-parser']
     },
