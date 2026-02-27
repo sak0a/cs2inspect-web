@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Removed unused computed import
-import type { APIMusicKit } from "~/server/types"
+import type { APIMusicKit } from "~/server/types";
 
 interface Props {
   musicKit: APIMusicKit

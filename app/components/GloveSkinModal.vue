@@ -18,7 +18,7 @@ import type { EconItem } from 'cs2-inspect-lib'
 /**
  * Props interface using new type system with backward compatibility
  */
-interface Props extends /* @vue-ignore */ Omit<GloveModalProps, 'weapon' | 'user'> {
+interface Props extends Omit<GloveModalProps, 'weapon' | 'user'> {
   // Maintain backward compatibility with existing prop names
   weapon: IEnhancedGlove | null
   isLoading?: boolean

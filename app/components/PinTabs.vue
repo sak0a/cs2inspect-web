@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Removed unused computed import
-import type { APICollectible } from "~/server/types"
+import type { APICollectible } from "~/server/types";
 
 interface Props {
   collectible: APICollectible

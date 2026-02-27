@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { APISticker } from "~/server/types"
+import type { APISticker } from "~/server/types";
 
 interface Props {
   visible: boolean

@@ -18,7 +18,7 @@ import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 /**
  * Props interface using new type system with backward compatibility
  */
-interface Props extends /* @vue-ignore */ Omit<KnifeModalProps, 'weapon' | 'user'> {
+interface Props extends Omit<KnifeModalProps, 'weapon' | 'user'> {
   // Maintain backward compatibility with existing prop names
   weapon: IEnhancedKnife | null
   isLoading?: boolean

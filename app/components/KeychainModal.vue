@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { APIKeychain, APISticker } from "~/server/types"
-import type { IEnhancedWeaponKeychain } from '~/types'
+import type { APIKeychain, IEnhancedWeaponKeychain, APISticker } from "~/server/types";
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates';
 import WrappedStickerModal from './WrappedStickerModal.vue';
 import { digitOnlyInputProps } from '~/utils/inputProps'

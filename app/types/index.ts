@@ -521,30 +521,6 @@ export type {
 } from './canvas'
 
 // ============================================================================
-// TUTORIAL TYPES
-// ============================================================================
-
-export type {
-  TutorialStep,
-  PopoverPosition,
-  StepType,
-  TutorialDefinition
-} from './tutorial'
-
-// ============================================================================
-// HISTORY TYPES
-// ============================================================================
-
-export type {
-  HistoryItemType,
-  HistoryItemCategory,
-  ChangeType
-} from '#shared/types/history'
-
-// Re-export ItemHistoryRecord for component use
-export type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
-
-// ============================================================================
 // VERSION INFORMATION
 // ============================================================================
 
