@@ -8,6 +8,7 @@
 import { mysqlTable, int, varchar, tinyint, timestamp, index, json } from 'drizzle-orm/mysql-core';
 import { loadouts } from './loadouts';
 import type { StickerJSON, KeychainJSON } from '~/server/types/jsonSchemas';
+import type { ChangeType, HistoryItemType, HistoryItemCategory } from '#shared/types/history'
 
 /**
  * Snapshot of an item's configuration stored as JSON
@@ -50,9 +51,6 @@ export interface ItemHistorySnapshot {
 
 // Re-export shared types so existing server imports continue to work
 export type { ChangeType, HistoryItemType, HistoryItemCategory } from '#shared/types/history'
-
-// Import for local use in this file's schema definition
-import type { ChangeType, HistoryItemType, HistoryItemCategory } from '#shared/types/history'
 
 /**
  * Item History Table

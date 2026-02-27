@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test'
 import { createApp, createError, eventHandler, toNodeListener } from 'h3'
-import { fetchNodeRequestHandler } from 'node-mock-http'
+import { fetchNodeRequestHandler, type NodeRequestHandler } from 'node-mock-http'
 import { withErrorHandling } from '~/server/utils/api/responseHelpers'
 import {
   getRequestLogger,
@@ -61,10 +61,10 @@ describe('request logging helpers', () => {
       throw createError({ statusCode: 500, message: 'boom' })
     }))
 
-    const handler = toNodeListener(app)
+    const handler = toNodeListener(app) as NodeRequestHandler
 
-    const okResponse = await fetchNodeRequestHandler(handler as any, '/api/ok')
-    const failResponse = await fetchNodeRequestHandler(handler as any, '/api/fail')
+    const okResponse = await fetchNodeRequestHandler(handler, '/api/ok')
+    const failResponse = await fetchNodeRequestHandler(handler, '/api/fail')
 
     expect(okResponse.headers.get('x-request-id')).toBeTruthy()
     expect(okResponse.headers.get('x-response-time')).toBeTruthy()
@@ -85,8 +85,8 @@ describe('request logging helpers', () => {
 
     app.use('/api/tag-check', eventHandler(() => ({ ok: true })))
 
-    const handler = toNodeListener(app)
-    await fetchNodeRequestHandler(handler as any, '/api/tag-check')
+    const handler = toNodeListener(app) as NodeRequestHandler
+    await fetchNodeRequestHandler(handler, '/api/tag-check')
 
     expect(loggerBindings?.tag).toBe('Req')
     expect(typeof loggerBindings?.requestId).toBe('string')
@@ -104,8 +104,8 @@ describe('request logging helpers', () => {
       throw new Error('intentional failure')
     }, 'TEST_ERROR')))
 
-    const handler = toNodeListener(app)
-    const response = await fetchNodeRequestHandler(handler as any, '/api/handled-error')
+    const handler = toNodeListener(app) as NodeRequestHandler
+    const response = await fetchNodeRequestHandler(handler, '/api/handled-error')
     const body = await response.json() as {
       data?: {
         meta?: {
