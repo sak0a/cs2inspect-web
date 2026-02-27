@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type {
-  WeaponModalProps,
   WeaponConfiguration,
   APIWeaponSkin,
   APIKeychain,
@@ -24,11 +23,10 @@ import { generateFlatKeychainUrl, generateDefaultFlatImageUrl } from '~/utils/ca
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
 
-/**
- * Props interface using new type system with backward compatibility
- */
-interface Props extends Omit<WeaponModalProps, 'weapon' | 'user'> {
-  // Maintain backward compatibility with existing prop names
+interface Props {
+  visible: boolean
+  loading?: boolean
+  otherTeamHasSkin: boolean
   weapon: IEnhancedWeapon | null
   isLoading?: boolean
   pageSize?: number

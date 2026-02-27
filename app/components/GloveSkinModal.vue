@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type {
-  GloveModalProps,
   GloveConfiguration,
   APIWeaponSkin,
   UserProfile,
@@ -15,11 +14,10 @@ import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 import type { EconItem } from 'cs2-inspect-lib'
 
-/**
- * Props interface using new type system with backward compatibility
- */
-interface Props extends Omit<GloveModalProps, 'weapon' | 'user'> {
-  // Maintain backward compatibility with existing prop names
+interface Props {
+  visible: boolean
+  loading?: boolean
+  otherTeamHasSkin: boolean
   weapon: IEnhancedGlove | null
   isLoading?: boolean
   pageSize?: number

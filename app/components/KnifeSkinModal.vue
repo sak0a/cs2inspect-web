@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type {
-  KnifeModalProps,
   KnifeConfiguration,
   APIWeaponSkin,
   UserProfile,
@@ -15,11 +14,10 @@ import SaveStatusIndicator from './SaveStatusIndicator.vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 
-/**
- * Props interface using new type system with backward compatibility
- */
-interface Props extends Omit<KnifeModalProps, 'weapon' | 'user'> {
-  // Maintain backward compatibility with existing prop names
+interface Props {
+  visible: boolean
+  loading?: boolean
+  otherTeamHasSkin: boolean
   weapon: IEnhancedKnife | null
   isLoading?: boolean
   pageSize?: number
