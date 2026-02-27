@@ -7,6 +7,7 @@ import {
   LucideSettings as SettingsIcon,
   LucideActivity as ActivityIcon,
   LucideShield as ShieldIcon,
+  LucidePlug as PlugIcon,
   LucideHome as HomeIcon
 } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
@@ -32,8 +33,9 @@ const navigationItems = computed(() => {
     { key: 'activity', label: 'Activity Log', icon: ActivityIcon, path: '/admin/activity' }
   ]
 
-  // Add admin management for superadmins
+  // Add superadmin-only pages
   if (adminStore.isSuperAdmin) {
+    items.push({ key: 'plugin', label: 'Plugin Config', icon: PlugIcon, path: '/admin/plugin' })
     items.push({ key: 'admins', label: 'Admin Management', icon: ShieldIcon, path: '/admin/admins' })
   }
 
