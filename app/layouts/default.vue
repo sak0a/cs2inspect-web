@@ -20,11 +20,13 @@ const siteAnnouncement = computed(() => {
 const showAnnouncement = computed(() => {
   const text = siteAnnouncement.value
   if (!text) return false
-  // Reset dismiss if the announcement text changed
-  if (dismissedAnnouncementText.value !== text) {
+  return dismissedAnnouncementText.value === text ? !announcementDismissed.value : true
+})
+
+watch(siteAnnouncement, (text) => {
+  if (text && dismissedAnnouncementText.value !== text) {
     announcementDismissed.value = false
   }
-  return !announcementDismissed.value
 })
 
 const isMaintenanceMode = computed(() => {

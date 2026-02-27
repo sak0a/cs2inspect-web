@@ -202,7 +202,10 @@ export const useAdminStore = defineStore('admin', {
             }
 
             for (const key of Object.keys(grouped)) {
-                if (grouped[key]?.length === 0) delete grouped[key]
+                if (grouped[key]?.length === 0) {
+                    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+                    delete grouped[key]
+                }
             }
 
             return grouped

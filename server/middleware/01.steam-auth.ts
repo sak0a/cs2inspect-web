@@ -2,7 +2,7 @@
 import { defineEventHandler, readBody, getQuery } from 'h3'
 import jwt from "jsonwebtoken";
 import type { SignOptions } from 'jsonwebtoken';
-import { eq, sql } from 'drizzle-orm'
+import { eq } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { userProfiles } from '~/server/database/schema'
 import { getCachedSetting } from '~/server/utils/settingsCache'
