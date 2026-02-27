@@ -27,7 +27,7 @@ import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/
 /**
  * Props interface using new type system with backward compatibility
  */
-interface Props extends Omit<WeaponModalProps, 'weapon' | 'user'> {
+interface Props extends /* @vue-ignore */ Omit<WeaponModalProps, 'weapon' | 'user'> {
   // Maintain backward compatibility with existing prop names
   weapon: IEnhancedWeapon | null
   isLoading?: boolean
