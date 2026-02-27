@@ -208,7 +208,7 @@ export default useErrorHandling(async (event) => {
             ) as item_counts GROUP BY steamid
         `)
         itemCountMap = new Map()
-        for (const row of itemCounts[0] as { steamid: string; total: number }[]) {
+        for (const row of itemCounts[0] as unknown as { steamid: string; total: number }[]) {
             itemCountMap.set(row.steamid, Number(row.total))
         }
     }
