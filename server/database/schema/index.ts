@@ -41,6 +41,16 @@ export type {
     AdminAction
 } from './admin';
 
+// Plugin settings tables
+export { pluginSettings } from './pluginSettings';
+export type {
+    PluginSetting,
+    NewPluginSetting,
+    PluginSettingCategory,
+    PluginSettingReloadBehavior,
+    PluginSettingType
+} from './pluginSettings';
+
 // Zod validation schemas (drizzle-zod)
 export {
     insertLoadoutSchema,

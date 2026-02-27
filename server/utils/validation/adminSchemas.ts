@@ -42,6 +42,14 @@ export const adminUpdateSettingSchema = z.object({
     value: z.union([z.string(), z.number(), z.boolean()]),
 });
 
+/**
+ * Schema for updating a plugin setting
+ */
+export const adminUpdatePluginSettingSchema = z.object({
+    key: z.string().min(1).max(128),
+    value: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown()), z.array(z.unknown())]),
+});
+
 // ============================================================================
 // ADMIN MANAGEMENT SCHEMAS
 // ============================================================================
@@ -92,6 +100,7 @@ export const adminTopUsersSchema = z.object({
 export type AdminBanUserInput = z.infer<typeof adminBanUserSchema>;
 export type AdminUserSearchInput = z.infer<typeof adminUserSearchSchema>;
 export type AdminUpdateSettingInput = z.infer<typeof adminUpdateSettingSchema>;
+export type AdminUpdatePluginSettingInput = z.infer<typeof adminUpdatePluginSettingSchema>;
 export type AdminAddAdminInput = z.infer<typeof adminAddAdminSchema>;
 export type AdminActivityLogQueryInput = z.infer<typeof adminActivityLogQuerySchema>;
 export type AdminActivityRangeInput = z.infer<typeof adminActivityRangeSchema>;

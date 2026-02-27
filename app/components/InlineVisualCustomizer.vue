@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import type { VisualCustomizerProps, CanvasElement, CanvasState } from '~/types/canvas'
-import type { StickerConfiguration, KeychainConfiguration } from '~/types'
+import type { VisualCustomizerProps, CanvasElement, CanvasState, StickerConfiguration, KeychainConfiguration } from '~/types'
 import {
   stickerToCanvasElement,
   keychainToCanvasElement,

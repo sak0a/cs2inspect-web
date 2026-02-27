@@ -117,6 +117,36 @@ export interface AdminSetting {
 }
 
 // ============================================================================
+// PLUGIN SETTINGS
+// ============================================================================
+
+/**
+ * Plugin configuration setting
+ */
+export interface PluginSetting {
+    key: string;
+    value: string;
+    type: 'string' | 'boolean' | 'number' | 'json';
+    category: PluginSettingCategory;
+    label: string | null;
+    description: string | null;
+    reloadBehavior: 'immediate' | 'restart';
+    sortOrder: number;
+    updatedAt: ISOTimestamp;
+    updatedBy: SteamId | null;
+}
+
+export type PluginSettingCategory = 'general' | 'features' | 'permissions' | 'commands' | 'sync' | 'logging';
+
+/**
+ * Update plugin setting request body
+ */
+export interface PluginSettingUpdateRequest {
+    key: string;
+    value: string | number | boolean | Record<string, unknown> | unknown[];
+}
+
+// ============================================================================
 // ADMIN MANAGEMENT
 // ============================================================================
 

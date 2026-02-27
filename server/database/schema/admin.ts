@@ -118,5 +118,7 @@ export type AdminAction =
     | 'unban_user'
     | 'delete_user_data'
     | 'update_setting'
+    | 'update_plugin_setting'
+    | 'reset_plugin_settings'
     | 'add_admin'
     | 'remove_admin';

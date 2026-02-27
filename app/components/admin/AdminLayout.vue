@@ -5,6 +5,7 @@ import {
   LucideSettings as SettingsIcon,
   LucideActivity as ActivityIcon,
   LucideShield as ShieldIcon,
+  LucidePlug as PlugIcon,
   LucideMenu as MenuIcon,
   LucideX as CloseIcon,
   LucideArrowLeft as BackIcon
@@ -36,8 +37,9 @@ const navigationItems = computed(() => {
     { key: 'activity', label: 'Activity Log', icon: ActivityIcon, path: '/admin/activity' }
   ]
 
-  // Add admin management for superadmins
+  // Add superadmin-only pages
   if (isSuperAdmin.value) {
+    items.push({ key: 'plugin', label: 'Plugin Config', icon: PlugIcon, path: '/admin/plugin' })
     items.push({ key: 'admins', label: 'Admin Management', icon: ShieldIcon, path: '/admin/admins' })
   }
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { TutorialStep, PopoverPosition } from '~/types/tutorial'
+import type { TutorialStep, PopoverPosition } from '~/types'
 
 interface Props {
   step: TutorialStep | null

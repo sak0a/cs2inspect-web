@@ -15,6 +15,8 @@ import type {
     AdminInfo,
     AdminActivityLogEntry,
     AdminTopUser,
+    PluginSetting,
+    PluginSettingCategory,
     APIResponse
 } from '~/types'
 import { toISOTimestamp } from '~/types'
@@ -48,11 +50,14 @@ interface AdminState {
     activityLogTotal: number
     /** Admin users list (superadmin only) */
     adminUsers: AdminInfo[]
+    /** Plugin settings */
+    pluginSettings: PluginSetting[]
     /** Loading states */
     isLoading: boolean
     isLoadingStats: boolean
     isLoadingUsers: boolean
     isLoadingSettings: boolean
+    isLoadingPluginSettings: boolean
     isLoadingActivity: boolean
     /** Error message */
     error: string | null
@@ -70,6 +75,7 @@ interface AdminState {
         activity: number | null
         activityLog: number | null
         adminUsers: number | null
+        pluginSettings: number | null
     }
 }
 
@@ -106,10 +112,12 @@ export const useAdminStore = defineStore('admin', {
         activityLog: [],
         activityLogTotal: 0,
         adminUsers: [],
+        pluginSettings: [],
         isLoading: false,
         isLoadingStats: false,
         isLoadingUsers: false,
         isLoadingSettings: false,
+        isLoadingPluginSettings: false,
         isLoadingActivity: false,
         error: null,
         lastUsersQuery: null,
@@ -122,7 +130,8 @@ export const useAdminStore = defineStore('admin', {
             settings: null,
             activity: null,
             activityLog: null,
-            adminUsers: null
+            adminUsers: null,
+            pluginSettings: null
         }
     }),
 
@@ -146,6 +155,26 @@ export const useAdminStore = defineStore('admin', {
         isSettingsCacheStale: (state) => {
             if (!state.lastFetch.settings) return true
             return Date.now() - state.lastFetch.settings > CACHE_DURATION
+        },
+
+        /** Check if plugin settings data is stale and needs refresh */
+        isPluginSettingsCacheStale: (state) => {
+            if (!state.lastFetch.pluginSettings) return true
+            return Date.now() - state.lastFetch.pluginSettings > CACHE_DURATION
+        },
+
+        /** Plugin settings grouped by category and sorted by sortOrder */
+        pluginSettingsByCategory: (state): Record<PluginSettingCategory, PluginSetting[]> => {
+            const grouped = {} as Record<PluginSettingCategory, PluginSetting[]>
+            for (const setting of state.pluginSettings) {
+                const cat = setting.category as PluginSettingCategory
+                if (!grouped[cat]) grouped[cat] = []
+                grouped[cat].push(setting)
+            }
+            for (const cat of Object.keys(grouped) as PluginSettingCategory[]) {
+                grouped[cat].sort((a, b) => a.sortOrder - b.sortOrder)
+            }
+            return grouped
         },
 
         /** Get formatted total items count */
@@ -516,6 +545,78 @@ export const useAdminStore = defineStore('admin', {
         },
 
         // ====================================================================
+        // PLUGIN SETTINGS
+        // ====================================================================
+
+        /**
+         * Fetch all plugin settings
+         */
+        async fetchPluginSettings(forceRefresh = false): Promise<void> {
+            if (!forceRefresh && !this.isPluginSettingsCacheStale && this.pluginSettings.length > 0) {
+                return
+            }
+
+            this.isLoadingPluginSettings = true
+            this.error = null
+
+            try {
+                const response = await api.get<PluginSetting[]>('/api/admin/plugin-settings')
+
+                if (response.success && response.data) {
+                    this.pluginSettings = Array.isArray(response.data) ? response.data : []
+                    this.lastFetch.pluginSettings = Date.now()
+                }
+            } catch (error) {
+                this.error = error instanceof Error ? error.message : 'Failed to fetch plugin settings'
+                throw error
+            } finally {
+                this.isLoadingPluginSettings = false
+            }
+        },
+
+        /**
+         * Update a plugin setting value
+         */
+        async updatePluginSetting(key: string, value: string | number | boolean | Record<string, unknown> | unknown[]): Promise<void> {
+            this.error = null
+
+            try {
+                const response = await api.put<PluginSetting>('/api/admin/plugin-settings', { key, value })
+
+                if (response.success && response.data) {
+                    // Update local state
+                    const index = this.pluginSettings.findIndex(s => s.key === key)
+                    if (index !== -1) {
+                        this.pluginSettings[index] = response.data
+                    }
+                }
+            } catch (error) {
+                this.error = error instanceof Error ? error.message : 'Failed to update plugin setting'
+                throw error
+            }
+        },
+
+        /**
+         * Reset all plugin settings to defaults
+         */
+        async resetPluginSettings(): Promise<void> {
+            this.isLoadingPluginSettings = true
+            this.error = null
+
+            try {
+                await api.post('/api/admin/plugin-settings/reset', {})
+
+                // Refetch settings after reset
+                await this.fetchPluginSettings(true)
+            } catch (error) {
+                this.error = error instanceof Error ? error.message : 'Failed to reset plugin settings'
+                throw error
+            } finally {
+                this.isLoadingPluginSettings = false
+            }
+        },
+
+        // ====================================================================
         // ACTIVITY LOG
         // ====================================================================
 
@@ -646,6 +747,7 @@ export const useAdminStore = defineStore('admin', {
             this.users = []
             this.activityData = null
             this.settings = []
+            this.pluginSettings = []
             this.activityLog = []
             this.lastUsersQuery = null
             this.lastActivityLogQuery = null
@@ -657,7 +759,8 @@ export const useAdminStore = defineStore('admin', {
                 settings: null,
                 activity: null,
                 activityLog: null,
-                adminUsers: null
+                adminUsers: null,
+                pluginSettings: null
             }
         },
 
