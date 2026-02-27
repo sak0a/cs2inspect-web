@@ -3,6 +3,7 @@ import { defineEventHandler, readBody, getQuery } from 'h3'
 import jwt from "jsonwebtoken";
 import type { SignOptions } from 'jsonwebtoken';
 import { eq } from 'drizzle-orm'
+import { Logger } from '~/server/utils/logger'
 import { db } from '~/server/database/client'
 import { userProfiles } from '~/server/database/schema'
 import { getCachedSetting } from '~/server/utils/settingsCache'
@@ -96,7 +97,7 @@ export default defineEventHandler(async (event) => {
                     })
                     .where(eq(userProfiles.steamid, player.steamid))
                     .then(() => {})
-                    .catch((err: unknown) => console.error('Failed to update user profile:', err))
+                    .catch((err: unknown) => Logger.error(`Failed to update user profile: ${err instanceof Error ? err.message : String(err)}`, 'SteamAuth'))
             } else {
                 const registrationEnabled = await getCachedSetting('REGISTRATION_ENABLED', true)
                 if (registrationEnabled) {
@@ -107,7 +108,7 @@ export default defineEventHandler(async (event) => {
                             avatarfull: player.avatarfull,
                         })
                         .then(() => {})
-                        .catch((err: unknown) => console.error('Failed to insert user profile:', err))
+                        .catch((err: unknown) => Logger.error(`Failed to insert user profile: ${err instanceof Error ? err.message : String(err)}`, 'SteamAuth'))
                 }
             }
         }
