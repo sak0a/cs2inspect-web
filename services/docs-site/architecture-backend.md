@@ -82,7 +82,8 @@ server/
 ├── middleware/
 │   ├── 01.steam-auth.ts              # Steam OpenID auth
 │   ├── 02.auth.ts                    # JWT validation
-│   └── 03.admin-auth.ts              # Admin authorization
+│   ├── 03.admin-auth.ts              # Admin authorization
+│   └── 04.maintenance.ts             # Maintenance mode gate
 ├── database/
 │   ├── schema/                       # Drizzle ORM schema
 │   │   ├── admin.ts                  # Admin tables
@@ -151,6 +152,13 @@ Middlewares execute in numbered order on every request:
 - Checks `admin_users` table for the authenticated Steam ID
 - Sets `event.context.admin` with `{ steamId, role, permissions }`
 - Returns 401 (not authenticated) or 403 (not admin)
+
+**`04.maintenance.ts`** — Maintenance Mode Gate:
+
+- Checks `MAINTENANCE_MODE` from app settings cache
+- Allows `/api/admin/*`, `/api/public/*`, Steam/auth internals, and locale routes
+- Returns `503 Service Unavailable` for non-admin requests while maintenance is active
+- Admin users bypass maintenance restrictions
 
 ### CS2 Integration
 

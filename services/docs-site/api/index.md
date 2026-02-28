@@ -25,6 +25,7 @@ Production:  https://your-domain.com/api
 | [Loadouts](./loadouts)             | User loadout management                         |
 | [Items](./items)                   | Weapon, knife, glove, and pin management        |
 | [Inspect System](./inspect)        | CS2 inspect URL processing                      |
+| [Admin API](./admin)               | Admin, moderation, and settings endpoints       |
 | [Error Handling](./errors)         | Error codes and responses                       |
 
 ## API Categories

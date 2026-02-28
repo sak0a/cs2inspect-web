@@ -50,6 +50,23 @@
     --vp-button-brand-active-text: #121212;
     --vp-button-brand-active-bg: #ca8a04;
 
+    /* Alt Button Colors */
+    --vp-button-alt-border: #333333;
+    --vp-button-alt-text: #d4d4d4;
+    --vp-button-alt-bg: #242424;
+    --vp-button-alt-hover-border: #facc15;
+    --vp-button-alt-hover-text: #ffffff;
+    --vp-button-alt-hover-bg: #2c2c2c;
+    --vp-button-alt-active-border: #f59e0b;
+    --vp-button-alt-active-text: #ffffff;
+    --vp-button-alt-active-bg: #333333;
+
+    /* Override VitePress gray palette used for alt button defaults */
+    --vp-c-gray-1: #333333;
+    --vp-c-gray-2: #2c2c2c;
+    --vp-c-gray-3: #242424;
+    --vp-c-gray-soft: rgba(255, 255, 255, 0.06);
+
     /* Custom Block Colors */
     --vp-custom-block-tip-border: #facc15;
     --vp-custom-block-tip-text: #ffffff;
@@ -93,6 +110,25 @@
 
 .VPHome .VPHero .tagline {
     color: var(--vp-c-text-2);
+}
+
+/* Alt button direct overrides (appearance: false keeps light mode defaults) */
+.VPButton.alt {
+    border-color: #333333 !important;
+    color: #d4d4d4 !important;
+    background-color: #242424 !important;
+}
+
+.VPButton.alt:hover {
+    border-color: #facc15 !important;
+    color: #ffffff !important;
+    background-color: #2c2c2c !important;
+}
+
+.VPButton.alt:active {
+    border-color: #f59e0b !important;
+    color: #ffffff !important;
+    background-color: #333333 !important;
 }
 
 /* Feature cards styling to match main app */
