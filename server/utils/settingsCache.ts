@@ -5,7 +5,7 @@
  * Used primarily by middleware (e.g., maintenance mode) and hot-path feature checks.
  */
 
-import { getSettingTyped } from '~/server/database/adminHelpers'
+import { getSettingTyped } from '../database/adminHelpers'
 
 const cache = new Map<string, { value: unknown; expiresAt: number }>()
 const DEFAULT_TTL = 30_000 // 30 seconds

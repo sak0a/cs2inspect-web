@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test'
-import { readdirSync, readFileSync } from 'node:fs'
+import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import * as ts from 'typescript'
 
@@ -96,6 +96,11 @@ function parseSource(relativePath: string): ts.SourceFile {
 }
 
 describe('logging consistency guardrails', () => {
+    it('CONTEXT_REQUIRED_FILES all exist on disk', () => {
+        const missing = CONTEXT_REQUIRED_FILES.filter((f) => !existsSync(join(process.cwd(), f)))
+        expect(missing).toEqual([])
+    })
+
     it('disallows manual [Tag] message prefixes in runtime logger calls', () => {
         const runtimeFiles = listServerRuntimeFiles(SERVER_DIR)
         const offenders: string[] = []

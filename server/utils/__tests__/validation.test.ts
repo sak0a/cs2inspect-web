@@ -184,9 +184,12 @@ describe('Zod schema validation', () => {
         })
 
         it('should throw H3 error with status 400 on failure', () => {
+            expect(() =>
+                parseBodyWithSchema(weaponSaveBodySchema, { ...validWeaponBody, team: 99 })
+            ).toThrow()
+
             try {
                 parseBodyWithSchema(weaponSaveBodySchema, { ...validWeaponBody, team: 99 })
-                expect(true).toBe(false) // should not reach here
             } catch (error: unknown) {
                 const e = error as { statusCode: number; message: string }
                 expect(e.statusCode).toBe(400)

@@ -1,6 +1,6 @@
 import type { SteamClientConfig } from 'cs2-inspect-lib'
 import { CS2Inspect } from 'cs2-inspect-lib'
-import { Logger } from '~/server/utils/logger'
+import { Logger } from '../utils/logger'
 
 let cs2InspectInstance: CS2Inspect | null = null
 

@@ -1,5 +1,5 @@
-import { logger } from '~/server/logging/logger'
-import { resolveCanonicalTag } from '~/server/logging/tags'
+import { logger } from '../logging/logger'
+import { resolveCanonicalTag } from '../logging/tags'
 
 /**
  * Backward-compatible logger wrapper.

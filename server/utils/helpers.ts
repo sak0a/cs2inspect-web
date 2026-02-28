@@ -1,6 +1,6 @@
-import { Logger } from '~/server/utils/logger'
+import { Logger } from './logger'
 import { createError, type H3Event } from 'h3'
-import type { IDefaultItem } from '~/server/types'
+import type { IDefaultItem } from '../types'
 
 export const validateRequiredRequestData = (
     param: unknown,

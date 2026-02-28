@@ -1,14 +1,13 @@
-import { getCS2Client } from '~/server/plugins/init'
-import { steamServiceClient } from '~/server/utils/api/steamServiceClient'
-import { Logger } from '~/server/utils/logger'
+import { getCS2Client } from '../../plugins/init'
+import { steamServiceClient } from '../../utils/api/steamServiceClient'
+import { Logger } from '../../utils/logger'
 import {
     mapCustomizationToRepresentation,
     type CustomizationInput,
-} from '~/server/utils/inspectHelpers'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
-import { createError, getQuery, readBody } from 'h3'
-import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
-import { getCachedSetting } from '~/server/utils/settingsCache'
+} from '../../utils/inspectHelpers'
+import { validateRequiredRequestData } from '../../utils/helpers'
+import { createError, defineEventHandler, getQuery, readBody } from 'h3'
+import { getCachedSetting } from '../../utils/settingsCache'
 import type { EconItem, CS2Inspect } from 'cs2-inspect-lib'
 import {
     WeaponType,
@@ -95,7 +94,7 @@ const ITEM_TYPE_CONFIG: ItemTypeConfigMap = {
 // Check if steam service is enabled
 const USE_STEAM_SERVICE = !!process.env.STEAM_SERVICE_URL && !!process.env.STEAM_SERVICE_API_KEY
 
-export default useErrorHandling(async (event) => {
+export default defineEventHandler(async (event) => {
     const query = getQuery(event)
     const body = (await readBody(event)) as InspectRequest
 
@@ -508,4 +507,4 @@ export default useErrorHandling(async (event) => {
         )
         throw error
     }
-}, ErrorCodes.INSPECT_ERROR)
+})

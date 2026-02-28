@@ -201,7 +201,9 @@ export default defineNuxtConfig({
             if (
                 process.argv.includes('typecheck') ||
                 process.argv.includes('lint') ||
-                process.argv.includes('analyze')
+                process.argv.includes('analyze') ||
+                process.argv.includes('vitest') ||
+                process.env.VITEST
             )
                 return
             setTimeout(() => {
