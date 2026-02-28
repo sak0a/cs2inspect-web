@@ -12,11 +12,7 @@ export const APP_SETTING_CATEGORIES: AppSettingCategoryConfig[] = [
         key: 'general',
         label: 'General',
         description: 'Core application settings',
-        settingKeys: [
-            'MAINTENANCE_MODE',
-            'REGISTRATION_ENABLED',
-            'SITE_ANNOUNCEMENT',
-        ],
+        settingKeys: ['MAINTENANCE_MODE', 'REGISTRATION_ENABLED', 'SITE_ANNOUNCEMENT'],
     },
     {
         key: 'features',

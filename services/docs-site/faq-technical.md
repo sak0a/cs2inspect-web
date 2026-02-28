@@ -7,6 +7,7 @@ Technical issues, error messages, and troubleshooting guides.
 ### The website won't load
 
 **Troubleshooting steps**:
+
 1. Check your internet connection
 2. Clear browser cache and cookies
 3. Try a different browser
@@ -16,12 +17,14 @@ Technical issues, error messages, and troubleshooting guides.
 ### I can't log in with Steam
 
 **Common causes**:
+
 - Steam is down (check https://steamstat.us/)
 - Cookies are disabled in your browser
 - Browser is blocking pop-ups
 - Steam Community is blocked by firewall
 
 **Solutions**:
+
 - Enable cookies and pop-ups
 - Try incognito/private browsing mode
 - Check firewall settings
@@ -30,12 +33,14 @@ Technical issues, error messages, and troubleshooting guides.
 ### My loadout isn't saving
 
 **Possible reasons**:
+
 - No active internet connection
 - Server database is down
 - Session expired (log in again)
 - Browser localStorage is full
 
 **Solutions**:
+
 1. Check browser console for errors (F12)
 2. Try refreshing the page
 3. Log out and log back in
@@ -44,12 +49,14 @@ Technical issues, error messages, and troubleshooting guides.
 ### Images aren't loading
 
 **Common causes**:
+
 - CDN is down or blocked
 - Ad blocker is interfering
 - Network issue
 - Missing image assets
 
 **Solutions**:
+
 - Disable ad blocker for this site
 - Check browser console for 404 errors
 - Try a different network
@@ -58,6 +65,7 @@ Technical issues, error messages, and troubleshooting guides.
 ### The application is slow
 
 **Performance tips**:
+
 - Close unnecessary browser tabs
 - Clear browser cache
 - Use a modern browser (Chrome, Firefox, Edge)
@@ -69,6 +77,7 @@ Technical issues, error messages, and troubleshooting guides.
 **Error**: "Database connection failed"
 
 **Solutions**:
+
 - This is a server-side issue
 - Contact server administrator
 - Check server logs if you have access
@@ -77,6 +86,7 @@ Technical issues, error messages, and troubleshooting guides.
 ### My loadout isn't being applied in-game
 
 **Possible reasons**:
+
 - CS2Inspect Plugin is not installed on the server
 - Plugin is not configured to use the same database
 - Plugin is not running or crashed
@@ -84,6 +94,7 @@ Technical issues, error messages, and troubleshooting guides.
 - Database connection issue between plugin and web app
 
 **Solutions**:
+
 1. **Verify plugin installation**: Check if the CS2Inspect Plugin is installed on the server
 2. **Check plugin configuration**: Ensure the plugin uses the same database as the web application
 3. **Check server logs**: Look for plugin errors in the CS2 server logs
@@ -98,11 +109,12 @@ Technical issues, error messages, and troubleshooting guides.
 **Error**: Loadouts configured on web don't appear in-game
 
 **Solutions**:
+
 - Ensure both the plugin and web application use the **same database**:
-  - Same database host
-  - Same database port
-  - Same database name
-  - Same database user and password
+    - Same database host
+    - Same database port
+    - Same database name
+    - Same database user and password
 - Check plugin configuration file (`config.json` in plugin directory)
 - Check web application `.env` file
 - Verify database connection from both components
@@ -122,6 +134,7 @@ Technical issues, error messages, and troubleshooting guides.
 **Cause**: Cannot fetch item information from Steam or database.
 
 **Solutions**:
+
 1. Check internet connection
 2. Retry the operation
 3. Try a different item
@@ -132,6 +145,7 @@ Technical issues, error messages, and troubleshooting guides.
 **Cause**: The inspect link is malformed or incomplete.
 
 **Solutions**:
+
 1. Copy the full inspect link
 2. Verify link format starts with `steam://rungame/730/...`
 3. Try getting a fresh link from the source
@@ -142,6 +156,7 @@ Technical issues, error messages, and troubleshooting guides.
 **Cause**: Backend server cannot reach Steam servers.
 
 **Solutions**:
+
 1. Check if Steam is online (steamstat.us)
 2. Contact server administrator
 3. Wait for Steam services to recover
@@ -152,6 +167,7 @@ Technical issues, error messages, and troubleshooting guides.
 **Cause**: Server-side database issue.
 
 **Solutions**:
+
 1. This requires administrator intervention
 2. Check server status page if available
 3. Contact support with error details
@@ -162,6 +178,7 @@ Technical issues, error messages, and troubleshooting guides.
 **Cause**: Not logged in or session invalid.
 
 **Solutions**:
+
 1. Log out and log back in
 2. Clear cookies and try again
 3. Check if your account is active
@@ -178,12 +195,14 @@ Yes! CS2Inspect is open source. See the [Setup Guide](setup.md) and [Deployment 
 ### What are the system requirements?
 
 **Minimum**:
+
 - Node.js 20+
 - MariaDB 11+
 - 1GB RAM
 - 10GB disk space
 
 **Recommended**:
+
 - Node.js 20+ (LTS)
 - Bun 1.x (for package management)
 - MariaDB 11+
@@ -200,6 +219,7 @@ Get Steam API key: https://steamcommunity.com/dev/apikey
 ### How do I contribute?
 
 See the [Contributing Guide](contributing.md) for:
+
 - Code standards
 - Development workflow
 - Pull request process
@@ -208,6 +228,7 @@ See the [Contributing Guide](contributing.md) for:
 ### Where can I report bugs?
 
 Report bugs on GitHub Issues:
+
 1. Search existing issues first
 2. Create new issue if not found
 3. Include detailed description
@@ -221,6 +242,7 @@ Report bugs on GitHub Issues:
 ### Why is the Visual Customizer slow?
 
 The Visual Customizer uses HTML5 Canvas which can be CPU-intensive:
+
 - Close other applications
 - Use hardware acceleration in browser
 - Reduce browser window size
@@ -237,6 +259,7 @@ The Visual Customizer uses HTML5 Canvas which can be CPU-intensive:
 ### Database is slow when loading loadouts
 
 **Server-side issue**:
+
 - Contact administrator
 - Check database indexing
 - Review server resources

@@ -43,7 +43,7 @@ export class SteamAuthService {
             'openid.return_to': this.returnUrl,
             'openid.realm': window.location.origin,
             'openid.identity': 'http://specs.openid.net/auth/2.0/identifier_select',
-            'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select'
+            'openid.claimed_id': 'http://specs.openid.net/auth/2.0/identifier_select',
         })
 
         window.location.href = `https://steamcommunity.com/openid/login?${openIdParams}`
@@ -52,14 +52,14 @@ export class SteamAuthService {
     async validateLogin(params: Record<string, string>): Promise<boolean> {
         const validationParams = new URLSearchParams({
             ...params,
-            'openid.mode': 'check_authentication'
+            'openid.mode': 'check_authentication',
         })
 
         try {
             const response = await $fetch<string>('/api/steam/validate', {
                 method: 'POST',
                 body: validationParams.toString(),
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             })
             return response.includes('is_valid:true')
         } catch (error: unknown) {
@@ -103,7 +103,7 @@ export class SteamAuthService {
                 avatarFull: player.avatarfull,
                 realName: player.realname ?? null,
                 timeCreated: player.timecreated,
-                lastLogoff: player.lastlogoff
+                lastLogoff: player.lastlogoff,
             }
         } catch (error: unknown) {
             if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
@@ -124,8 +124,9 @@ export class SteamAuthService {
             // Clear the SSR layout hint cookie
             document.cookie = 'steam_logged_in=; path=/; max-age=0'
             // Send logout request to clear the auth cookie
-            $fetch('/api/auth/logout', { method: 'POST' })
-                .catch(error => console.error('Logout error:', error))
+            $fetch('/api/auth/logout', { method: 'POST' }).catch((error) =>
+                console.error('Logout error:', error)
+            )
         }
     }
 

@@ -11,7 +11,7 @@ type WeaponLikeData = {
  * Helper function to get the defindex from item data
  */
 function getItemDefindex(item: WeaponLikeData): number {
-    return item.databaseInfo?.defindex || item.weapon_defindex as number || 0
+    return item.databaseInfo?.defindex || (item.weapon_defindex as number) || 0
 }
 
 /**
@@ -28,9 +28,10 @@ export function useOtherTeamSkin<T extends WeaponLikeData>(
         const selectedDefindex = getItemDefindex(selectedItem.value)
         const targetTeam = oppositeTeam(currentTeam)
 
-        return skins.value.some((weapon: T) =>
-            getItemDefindex(weapon) === selectedDefindex &&
-            weapon.databaseInfo?.team === targetTeam
+        return skins.value.some(
+            (weapon: T) =>
+                getItemDefindex(weapon) === selectedDefindex &&
+                weapon.databaseInfo?.team === targetTeam
         )
     })
 }
@@ -47,38 +48,40 @@ export const oppositeTeam = (current: number) => {
  */
 export function useGroupedWeapons<T extends WeaponLikeData>(
     skins: Ref<Array<T>> | ComputedRef<Array<T>>
-): ComputedRef<Record<string, { weapons: Array<T>, availableTeams: string, defaultName: string }>> {
+): ComputedRef<Record<string, { weapons: Array<T>; availableTeams: string; defaultName: string }>> {
     return computed(() => {
-        return skins.value.reduce<Record<string, { weapons: Array<T>, availableTeams: string, defaultName: string }>>((acc, itemOrGroup) => {
-            if (!itemOrGroup) return acc;
+        return skins.value.reduce<
+            Record<string, { weapons: Array<T>; availableTeams: string; defaultName: string }>
+        >((acc, itemOrGroup) => {
+            if (!itemOrGroup) return acc
 
             // Helper to process a single item
             const processItem = (weapon: T) => {
-                const name = weapon.defaultName;
+                const name = weapon.defaultName
                 if (!acc[name]) {
                     acc[name] = {
                         weapons: [],
                         availableTeams: weapon.availableTeams,
-                        defaultName: name
-                    };
+                        defaultName: name,
+                    }
                 }
 
                 // Avoid duplicates if needed, or just push
-                acc[name].weapons.push(weapon);
+                acc[name].weapons.push(weapon)
 
                 // Update availability logic if mixed teams found (optional optimization)
-            };
+            }
 
             // Handle nested arrays (legacy structure) or flat items
             if (Array.isArray(itemOrGroup)) {
                 // It's a group/array of items
-                (itemOrGroup as Array<T>).forEach(item => processItem(item));
+                ;(itemOrGroup as Array<T>).forEach((item) => processItem(item))
             } else {
                 // It's a single item
-                processItem(itemOrGroup as T);
+                processItem(itemOrGroup as T)
             }
 
-            return acc;
-        }, {});
-    });
+            return acc
+        }, {})
+    })
 }

@@ -17,12 +17,9 @@ import {
     agents,
     music,
     pins,
-    adminActivityLog
+    adminActivityLog,
 } from '~/server/database/schema'
-import {
-    createSuccessResponse,
-    createResponseMeta
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { getSteamIdParam } from '~/server/utils/request/routeParams'
 import { ADMIN_ERROR_CODES } from '~/server/utils/constants'
@@ -49,7 +46,7 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
@@ -57,7 +54,7 @@ export default useErrorHandling(async (event) => {
     if (event.context.admin.role !== 'superadmin') {
         throw createError({
             statusCode: 403,
-            message: 'Superadmin access required to delete user data'
+            message: 'Superadmin access required to delete user data',
         })
     }
 
@@ -65,7 +62,7 @@ export default useErrorHandling(async (event) => {
     if (!steamId) {
         throw createError({
             statusCode: 400,
-            message: 'Steam ID is required'
+            message: 'Steam ID is required',
         })
     }
 
@@ -82,7 +79,7 @@ export default useErrorHandling(async (event) => {
     if (!userExists || Number(userExists.count) === 0) {
         throw createError({
             statusCode: 404,
-            message: `User with Steam ID ${steamId} not found`
+            message: `User with Steam ID ${steamId} not found`,
         })
     }
 
@@ -98,7 +95,7 @@ export default useErrorHandling(async (event) => {
         agents: 0,
         music: 0,
         pins: 0,
-        total: 0
+        total: 0,
     }
 
     // Get counts before deletion
@@ -198,8 +195,8 @@ export default useErrorHandling(async (event) => {
         action: 'delete_user_data',
         target_steamid: steamId,
         details: {
-            deletedCounts: counts
-        }
+            deletedCounts: counts,
+        },
     })
 
     Logger.success(`User data for ${steamId} deleted by superadmin ${event.context.admin.steamId}`)
@@ -208,13 +205,13 @@ export default useErrorHandling(async (event) => {
         adminSteamId: event.context.admin.steamId,
         method: 'DELETE',
         action: 'delete_user_data',
-        targetSteamId: steamId
+        targetSteamId: steamId,
     })
 
     return createSuccessResponse(
         {
             steamId,
-            deletedCounts: counts
+            deletedCounts: counts,
         },
         meta,
         `All data for user ${steamId} has been deleted successfully`

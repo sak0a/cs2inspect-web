@@ -1,482 +1,850 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TODO List Manager - December 19, 2024</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 20px;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .controls {
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-bottom: 1px solid #dee2e6;
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-1px);
-        }
-
-        .btn-danger {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #c82333;
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            padding: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        th {
-            background: #f8f9fa;
-            padding: 15px 10px;
-            text-align: left;
-            font-weight: 600;
-            color: #495057;
-            border-bottom: 2px solid #dee2e6;
-            cursor: pointer;
-            user-select: none;
-            position: relative;
-        }
-
-        th:hover {
-            background: #e9ecef;
-        }
-
-        th.sortable::after {
-            content: ' ↕';
-            opacity: 0.5;
-            font-size: 12px;
-        }
-
-        th.sort-asc::after {
-            content: ' ↑';
-            opacity: 1;
-        }
-
-        th.sort-desc::after {
-            content: ' ↓';
-            opacity: 1;
-        }
-
-        td {
-            padding: 12px 10px;
-            border-bottom: 1px solid #dee2e6;
-            vertical-align: top;
-        }
-
-        tr:hover {
-            background: #f8f9fa;
-        }
-
-        .original-text {
-            max-width: 300px;
-            word-wrap: break-word;
-        }
-
-        .explanation {
-            max-width: 400px;
-            word-wrap: break-word;
-        }
-
-        .status-badge, .priority-badge, .effort-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-not-started { background: #e9ecef; color: #495057; }
-        .status-in-progress { background: #fff3cd; color: #856404; }
-        .status-completed { background: #d4edda; color: #155724; }
-        .status-blocked { background: #f8d7da; color: #721c24; }
-
-        .priority-high { background: #f8d7da; color: #721c24; }
-        .priority-medium { background: #fff3cd; color: #856404; }
-        .priority-low { background: #d1ecf1; color: #0c5460; }
-        .priority-very-low { background: #e2e3e5; color: #383d41; }
-        .priority-na { background: #f8f9fa; color: #6c757d; }
-
-        .effort-low { background: #d4edda; color: #155724; }
-        .effort-medium { background: #d1ecf1; color: #0c5460; }
-        .effort-high { background: #fff3cd; color: #856404; }
-        .effort-very-high { background: #f8d7da; color: #721c24; }
-        .effort-na { background: #f8f9fa; color: #6c757d; }
-
-        .actions {
-            display: flex;
-            gap: 5px;
-        }
-
-        .btn-sm {
-            padding: 5px 10px;
-            font-size: 12px;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 700px;
-            width: 90%;
-            max-height: 90vh;
-            overflow-y: auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
-
-        .modal-header {
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #dee2e6;
-        }
-
-        .modal-header h2 {
-            color: #495057;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #495057;
-        }
-
-        .form-group input,
-        .form-group textarea,
-        .form-group select {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            border-radius: 6px;
-            font-size: 14px;
-            font-family: inherit;
-        }
-
-        .form-group textarea {
-            resize: vertical;
-            min-height: 80px;
-        }
-
-        .form-actions {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-            margin-top: 20px;
-        }
-
-        .legend {
-            padding: 20px 30px;
-            background: #f8f9fa;
-            border-top: 1px solid #dee2e6;
-            font-size: 12px;
-        }
-
-        .legend h3 {
-            margin-bottom: 10px;
-            color: #495057;
-        }
-
-        .legend-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-
-        .legend-item {
-            margin-bottom: 5px;
-        }
-
-        .legend-item strong {
-            display: inline-block;
-            min-width: 100px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>📋 TODO List Manager</h1>
-            <p>December 19, 2024</p>
-        </div>
-
-        <div class="controls">
-            <button class="btn btn-primary" onclick="openAddModal()">+ Add New TODO</button>
-            <button class="btn btn-secondary" onclick="exportData()">Export JSON</button>
-            <button class="btn btn-secondary" onclick="importData()">Import JSON</button>
-            <input type="file" id="importFile" accept=".json" style="display: none;" onchange="handleFileImport(event)">
-        </div>
-
-        <div class="table-container">
-            <table id="todoTable">
-                <thead>
-                    <tr>
-                        <th class="sortable" onclick="sortTable('originalText')">Original Text</th>
-                        <th class="sortable" onclick="sortTable('explanation')">Better Explanation</th>
-                        <th class="sortable" onclick="sortTable('status')">Status</th>
-                        <th class="sortable" onclick="sortTable('priority')">Priority</th>
-                        <th class="sortable" onclick="sortTable('effort')">Effort</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="todoTableBody">
-                    <!-- Table rows will be generated by JavaScript -->
-                </tbody>
-            </table>
-        </div>
-
-        <div class="legend">
-            <h3>Legends</h3>
-            <div class="legend-grid">
-                <div>
-                    <h4>Status</h4>
-                    <div class="legend-item"><strong>Not Started:</strong> Task has not been begun</div>
-                    <div class="legend-item"><strong>In Progress:</strong> Task is currently being worked on</div>
-                    <div class="legend-item"><strong>Completed:</strong> Task has been finished</div>
-                    <div class="legend-item"><strong>Blocked:</strong> Task cannot proceed</div>
-                </div>
-                <div>
-                    <h4>Priority</h4>
-                    <div class="legend-item"><strong>High:</strong> Critical for functionality</div>
-                    <div class="legend-item"><strong>Medium:</strong> Important but not blocking</div>
-                    <div class="legend-item"><strong>Low:</strong> Nice to have, can be deferred</div>
-                    <div class="legend-item"><strong>Very Low:</strong> Minimal impact</div>
-                </div>
-                <div>
-                    <h4>Effort</h4>
-                    <div class="legend-item"><strong>Low:</strong> Quick fix, &lt; 1 hour</div>
-                    <div class="legend-item"><strong>Medium:</strong> Moderate work, 1-4 hours</div>
-                    <div class="legend-item"><strong>High:</strong> Significant feature, 4-16 hours</div>
-                    <div class="legend-item"><strong>Very High:</strong> Major feature, 16+ hours</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Add/Edit Modal -->
-    <div id="todoModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Add New TODO</h2>
-            </div>
-            <form id="todoForm" onsubmit="saveTodo(event)">
-                <input type="hidden" id="todoId">
-                <div class="form-group">
-                    <label for="originalText">Original Text *</label>
-                    <textarea id="originalText" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="explanation">Better Explanation *</label>
-                    <textarea id="explanation" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="status">Status *</label>
-                    <select id="status" required>
-                        <option value="Not Started">Not Started</option>
-                        <option value="In Progress">In Progress</option>
-                        <option value="Completed">Completed</option>
-                        <option value="Blocked">Blocked</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="priority">Priority *</label>
-                    <select id="priority" required>
-                        <option value="High">High</option>
-                        <option value="Medium">Medium</option>
-                        <option value="Low">Low</option>
-                        <option value="Very Low">Very Low</option>
-                        <option value="N/A">N/A</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="effort">Effort *</label>
-                    <select id="effort" required>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
-                        <option value="High">High</option>
-                        <option value="Very High">Very High</option>
-                        <option value="N/A">N/A</option>
-                    </select>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // Initial data from markdown
-        const initialTodos = [
-            { id: 1, originalText: "update design rounded again and important tags for naivue ui compoennts with tailwind classes", explanation: "Update Naive UI component styling to use Tailwind CSS classes for rounded corners and important tags, ensuring consistent design language across the application", status: "Not Started", priority: "Medium", effort: "Low" },
-            { id: 2, originalText: "add language support for the visual customizer", explanation: "Implement internationalization (i18n) for the Visual Customizer modal, translating all UI text, labels, and tooltips to support multiple languages", status: "Not Started", priority: "Medium", effort: "Medium" },
-            { id: 3, originalText: "remove debug mode in the visual customizer in production", explanation: "Remove or disable debug features (like coordinate overlay, debug console logs) from the Visual Customizer when running in production environment", status: "Not Started", priority: "High", effort: "Low" },
-            { id: 4, originalText: "pin tabs: doesnt work, request error, doesnt show active pin, also when search and no pin was found there should be a message like \"no pins found matching your search\"", explanation: "Fix PinTabs component: resolve API request errors, implement active pin highlighting, and add user-friendly \"no pins found\" message when search returns no results", status: "In Progress", priority: "High", effort: "Medium" },
-            { id: 5, originalText: "agents tab, counter terrorsts selct title size reduce", explanation: "Reduce the font size of the \"Counter Terrorists\" selection title in the agents tab for better UI proportions", status: "Not Started", priority: "Low", effort: "Low" },
-            { id: 6, originalText: "thinking: center tabs for weapon sites with equal spacing (when only 3 / 2 weapons are in the last row)", explanation: "Improve weapon tabs layout: center-align tabs when the last row contains fewer items (2-3 weapons) to create better visual balance and spacing", status: "Not Started", priority: "Low", effort: "Medium" },
-            { id: 7, originalText: "on loadout rename currently the rename modal closes and the loadout selector, and buttons to rename,add,delete are in loading state, updating the name was successful, on site refresh everything is normal", explanation: "Fix loadout rename functionality: prevent modal and selector from closing prematurely, properly handle loading states for rename/add/delete buttons, and ensure UI updates correctly without requiring page refresh", status: "Not Started", priority: "High", effort: "Medium" },
-            { id: 8, originalText: "size of the save changes / duplicate button in the skin modal fixing size (probably tailwindcss class issue)", explanation: "Fix button sizing in skin modal - adjust Tailwind CSS classes for \"Save Changes\" and \"Duplicate\" buttons to ensure consistent and appropriate sizing", status: "Not Started", priority: "Medium", effort: "Low" },
-            { id: 9, originalText: "thinking: how to implement the visual customizer button into ui instead of beaing completely big", explanation: "Redesign Visual Customizer button integration: replace large standalone button with a more subtle UI element (e.g., icon button, menu item, or overlay button) that fits better within the existing interface", status: "Not Started", priority: "Medium", effort: "Medium" },
-            { id: 10, originalText: "fixing css style for the inputs with +/- text and outline border when in focus state", explanation: "Fix CSS styling for numeric input controls with +/- buttons: improve focus state appearance, ensuring outline borders and text are properly styled and visible", status: "Not Started", priority: "Medium", effort: "Low" },
-            { id: 11, originalText: "fix hover color over stickers/keychains beoing completely white (maybe also tailwindcss issue)", explanation: "Fix hover state styling for stickers and keychains: resolve issue where hover color becomes completely white, likely a Tailwind CSS class conflict or missing hover state definition", status: "Not Started", priority: "Medium", effort: "Low" },
-            { id: 12, originalText: "thinking: visual customizer: when selecting sticker / keychain only show the sticker that gets newly edited not just smaller interface of all 5, or completely new idea, like open a modal", explanation: "Improve Visual Customizer UX: when editing a specific sticker/keychain, either show only that item in a focused view or open a dedicated modal for individual sticker/keychain editing instead of showing all 5 slots in a reduced interface", status: "Not Started", priority: "Low", effort: "High" },
-            { id: 13, originalText: "thinking: narrowing the skin modals settings to have more space", explanation: "Optimize skin modal layout: reduce width of settings panel to allocate more space for the main content area (weapon preview, canvas, etc.)", status: "Not Started", priority: "Low", effort: "Medium" },
-            { id: 14, originalText: "thinking: design choice, what could be in the secondary menu besides the languageswitcher and loadout selector", explanation: "Design exploration: identify and plan additional features/controls that could be added to the secondary menu alongside the language switcher and loadout selector (e.g., settings, help, theme toggle)", status: "Not Started", priority: "Low", effort: "Low" },
-            { id: 15, originalText: "thinking: maybe add a settings button for modal to manage (idk yet) anything ->", explanation: "Add settings button to modal: create a settings/configuration option within modals to manage various preferences or options (specific features to be determined)", status: "Not Started", priority: "Low", effort: "Medium" },
-            { id: 16, originalText: "thinking: i nsettings, maybe make it possible to automatically load preset on specifc maps", explanation: "Feature idea: implement automatic loadout preset loading based on specific maps, allowing users to configure which loadout should be active for each map", status: "Not Started", priority: "Low", effort: "High" },
-            { id: 17, originalText: "thinking: add loadout share code or something like it->", explanation: "Implement loadout sharing system: create a shareable code/URL mechanism that allows users to export and import complete loadout configurations", status: "Not Started", priority: "Medium", effort: "High" },
-            { id: 18, originalText: "depth logic: later implement the loadout share code, and then add a button to share the loadout code, and then add a button to import the loadout code, and then add a button to delete the loadout code", explanation: "Multi-step implementation plan for loadout sharing: 1) Create share code generation logic, 2) Add \"Share\" button to export code, 3) Add \"Import\" button to load from code, 4) Add \"Delete\" button to remove shared codes", status: "Not Started", priority: "Medium", effort: "Very High" },
-            { id: 19, originalText: "thinking: add a button to duplicate a loadout or even deeper duplicate an item to a different loadout (could be overthinking because we have implemented the import from inspecturl and generate inspect url)", explanation: "Consider adding loadout/item duplication features: allow duplicating entire loadouts or individual items to different loadouts (note: may be redundant given existing inspect URL import/export functionality)", status: "Not Started", priority: "Low", effort: "Medium" },
-            { id: 20, originalText: "remove the home page content, replace with simple message like \"this is in development\"", explanation: "Simplify homepage: remove current content and replace with a simple \"under development\" message or placeholder", status: "Not Started", priority: "Low", effort: "Low" },
-            { id: 21, originalText: "thinking: homepage could have as before the possibility to create from scratch a weapon, like an all in one function to import any inspect url and then modify it (glove, knife, weapon) and maybe keep it saved in local storage of browser/cache", explanation: "Homepage enhancement idea: create a unified \"create from scratch\" feature that allows importing any inspect URL (weapon/glove/knife), modifying it, and optionally saving to browser local storage/cache", status: "Not Started", priority: "Low", effort: "High" },
-            { id: 22, originalText: "later state: think about responsive design, so it looks on bigger screen also \"good\" or uses the space, and on smartphones maybe add disclaimer that this site is not for usage on smartphones or try to implement through responssive design some basic stuff like mobile menu / layout of the site", explanation: "Responsive design implementation: optimize layout for larger screens (better space utilization) and mobile devices (either add \"not optimized for mobile\" disclaimer or implement responsive design with mobile menu and adapted layouts)", status: "Not Started", priority: "Medium", effort: "Very High" },
-            { id: 23, originalText: "look for the visual customizer coordinates and research it more so sticker placements are more accurate", explanation: "Research and improve Visual Customizer coordinate system: investigate sticker placement accuracy, refine coordinate transformation logic, and ensure stickers are positioned correctly relative to weapon models", status: "Not Started", priority: "High", effort: "High" },
-            { id: 24, originalText: "look if implementation of sticker charm (wrapped sticker) would be possible to implement, and if how", explanation: "Research sticker charm/wrapped sticker feature: investigate CS2 API capabilities and technical feasibility of implementing wrapped sticker functionality in the visual customizer", status: "Not Started", priority: "Low", effort: "High" },
-            { id: 25, originalText: "thinking: \"default\" knife/glove/agent means it sets the default skin, so if a player has a knife/glove/agent it gets set to the default cs one, probably must add a new menu point like \"Own Skin\" etc.", explanation: "Clarify default skin behavior: when \"default\" is selected for knife/glove/agent, it should set to CS2 default skin. Consider adding \"Own Skin\" option to distinguish between default and user's actual equipped items", status: "Not Started", priority: "Low", effort: "Medium" },
-            { id: 26, originalText: "add password protection (cache) to the status page and maybe add some more details then there, or add admin steamids that can visit it or can edit what should be shown to public etc. detailed stuff... also maybe via settings menu modal", explanation: "Enhance status page security and features: implement password protection (cached), add admin Steam ID whitelist for access control, allow admins to configure public visibility settings, potentially via settings modal", status: "Not Started", priority: "Low", effort: "High" },
-            { id: 27, originalText: "add a tutorial to the site, video (not really want to), or maybe just add hover tooltips to buttons etc. to show functionality...", explanation: "Implement user onboarding: add tutorial system (prefer tooltips/hover hints over video) to explain button functionality and guide new users through the interface", status: "Not Started", priority: "Medium", effort: "Medium" },
-            { id: 28, originalText: "or a deep tutorial like the explaination and the button (item) in focus so its clear what the items is for etc. (much to effort)", explanation: "Advanced tutorial system: implement interactive step-by-step tutorial that highlights specific UI elements with explanations (acknowledged as high effort, lower priority)", status: "Not Started", priority: "Low", effort: "Very High" },
-            { id: 29, originalText: "wanting 50€ for this at least or idk and maybe add subscription for webspace? probably to much time waste for this less money....", explanation: "Monetization consideration: evaluate pricing model (€50+ or subscription) for hosting/usage, but note concerns about time investment vs. revenue potential", status: "Not Started", priority: "N/A", effort: "N/A" },
-            { id: 30, originalText: "testing all this shit and creating a documentation together with the cs2 plugin", explanation: "Comprehensive testing and documentation: perform thorough testing of all features and create complete documentation that covers both the web application and the CS2 plugin integration", status: "Not Started", priority: "High", effort: "Very High" },
-            { id: 31, originalText: "permission system for using/creating specific items/skins/loadouts etc.? very low priority", explanation: "Permission/access control system: implement user permissions to restrict creation/usage of specific items, skins, or loadouts (marked as very low priority)", status: "Not Started", priority: "Very Low", effort: "Very High" },
-            { id: 32, originalText: "instead of showing default skin images in the modal/tabs maybe show a saved screenshot with the stickers and wear, maybe need to separate sticker possitions so maybe when editing the wear in the normal skinmodal it also changes (not only in the visual customizer)", explanation: "Enhance skin preview: replace default static images with dynamically generated screenshots showing actual stickers and wear. Ensure wear changes in regular skin modal also update preview (not just visual customizer)", status: "Not Started", priority: "Medium", effort: "High" },
-            { id: 33, originalText: "-> idea add an \"overlay\" button to the current image, like maybe a magic stick (zauberstab) like for ai to open the visual customizer instead of a big button?", explanation: "Add overlay button to weapon images: implement a subtle \"magic wand\" icon overlay on weapon preview images that opens the Visual Customizer, replacing the large standalone button", status: "Not Started", priority: "Medium", effort: "Medium" }
-        ];
-
-        let todos = [];
-        let currentSort = { column: null, direction: 'asc' };
-        let nextId = 34;
-
-        // Load todos from localStorage or use initial data
-        function loadTodos() {
-            const saved = localStorage.getItem('todos');
-            if (saved) {
-                todos = JSON.parse(saved);
-                // Update nextId to be higher than any existing id
-                nextId = Math.max(...todos.map(t => t.id), 0) + 1;
-            } else {
-                todos = JSON.parse(JSON.stringify(initialTodos));
-                saveTodos();
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>TODO List Manager - December 19, 2024</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-            renderTable();
-        }
 
-        // Save todos to localStorage
-        function saveTodos() {
-            localStorage.setItem('todos', JSON.stringify(todos));
-        }
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu,
+                    Cantarell, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 20px;
+                min-height: 100vh;
+            }
 
-        // Render the table
-        function renderTable() {
-            const tbody = document.getElementById('todoTableBody');
-            tbody.innerHTML = '';
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                overflow: hidden;
+            }
 
-            todos.forEach(todo => {
-                const row = document.createElement('tr');
-                row.innerHTML = `
+            .header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+                margin-bottom: 10px;
+            }
+
+            .controls {
+                padding: 20px 30px;
+                background: #f8f9fa;
+                border-bottom: 1px solid #dee2e6;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+                align-items: center;
+            }
+
+            .btn {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: 600;
+                transition: all 0.2s;
+            }
+
+            .btn-primary {
+                background: #667eea;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background: #5568d3;
+                transform: translateY(-1px);
+            }
+
+            .btn-danger {
+                background: #dc3545;
+                color: white;
+            }
+
+            .btn-danger:hover {
+                background: #c82333;
+            }
+
+            .btn-success {
+                background: #28a745;
+                color: white;
+            }
+
+            .btn-success:hover {
+                background: #218838;
+            }
+
+            .btn-secondary {
+                background: #6c757d;
+                color: white;
+            }
+
+            .btn-secondary:hover {
+                background: #5a6268;
+            }
+
+            .table-container {
+                overflow-x: auto;
+                padding: 20px;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 14px;
+            }
+
+            th {
+                background: #f8f9fa;
+                padding: 15px 10px;
+                text-align: left;
+                font-weight: 600;
+                color: #495057;
+                border-bottom: 2px solid #dee2e6;
+                cursor: pointer;
+                user-select: none;
+                position: relative;
+            }
+
+            th:hover {
+                background: #e9ecef;
+            }
+
+            th.sortable::after {
+                content: ' ↕';
+                opacity: 0.5;
+                font-size: 12px;
+            }
+
+            th.sort-asc::after {
+                content: ' ↑';
+                opacity: 1;
+            }
+
+            th.sort-desc::after {
+                content: ' ↓';
+                opacity: 1;
+            }
+
+            td {
+                padding: 12px 10px;
+                border-bottom: 1px solid #dee2e6;
+                vertical-align: top;
+            }
+
+            tr:hover {
+                background: #f8f9fa;
+            }
+
+            .original-text {
+                max-width: 300px;
+                word-wrap: break-word;
+            }
+
+            .explanation {
+                max-width: 400px;
+                word-wrap: break-word;
+            }
+
+            .status-badge,
+            .priority-badge,
+            .effort-badge {
+                display: inline-block;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 12px;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+
+            .status-not-started {
+                background: #e9ecef;
+                color: #495057;
+            }
+            .status-in-progress {
+                background: #fff3cd;
+                color: #856404;
+            }
+            .status-completed {
+                background: #d4edda;
+                color: #155724;
+            }
+            .status-blocked {
+                background: #f8d7da;
+                color: #721c24;
+            }
+
+            .priority-high {
+                background: #f8d7da;
+                color: #721c24;
+            }
+            .priority-medium {
+                background: #fff3cd;
+                color: #856404;
+            }
+            .priority-low {
+                background: #d1ecf1;
+                color: #0c5460;
+            }
+            .priority-very-low {
+                background: #e2e3e5;
+                color: #383d41;
+            }
+            .priority-na {
+                background: #f8f9fa;
+                color: #6c757d;
+            }
+
+            .effort-low {
+                background: #d4edda;
+                color: #155724;
+            }
+            .effort-medium {
+                background: #d1ecf1;
+                color: #0c5460;
+            }
+            .effort-high {
+                background: #fff3cd;
+                color: #856404;
+            }
+            .effort-very-high {
+                background: #f8d7da;
+                color: #721c24;
+            }
+            .effort-na {
+                background: #f8f9fa;
+                color: #6c757d;
+            }
+
+            .actions {
+                display: flex;
+                gap: 5px;
+            }
+
+            .btn-sm {
+                padding: 5px 10px;
+                font-size: 12px;
+            }
+
+            .modal {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 1000;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal.active {
+                display: flex;
+            }
+
+            .modal-content {
+                background: white;
+                padding: 30px;
+                border-radius: 12px;
+                max-width: 700px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
+
+            .modal-header {
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+                border-bottom: 2px solid #dee2e6;
+            }
+
+            .modal-header h2 {
+                color: #495057;
+            }
+
+            .form-group {
+                margin-bottom: 20px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 600;
+                color: #495057;
+            }
+
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                font-size: 14px;
+                font-family: inherit;
+            }
+
+            .form-group textarea {
+                resize: vertical;
+                min-height: 80px;
+            }
+
+            .form-actions {
+                display: flex;
+                gap: 10px;
+                justify-content: flex-end;
+                margin-top: 20px;
+            }
+
+            .legend {
+                padding: 20px 30px;
+                background: #f8f9fa;
+                border-top: 1px solid #dee2e6;
+                font-size: 12px;
+            }
+
+            .legend h3 {
+                margin-bottom: 10px;
+                color: #495057;
+            }
+
+            .legend-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 15px;
+            }
+
+            .legend-item {
+                margin-bottom: 5px;
+            }
+
+            .legend-item strong {
+                display: inline-block;
+                min-width: 100px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📋 TODO List Manager</h1>
+                <p>December 19, 2024</p>
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-primary" onclick="openAddModal()">+ Add New TODO</button>
+                <button class="btn btn-secondary" onclick="exportData()">Export JSON</button>
+                <button class="btn btn-secondary" onclick="importData()">Import JSON</button>
+                <input
+                    type="file"
+                    id="importFile"
+                    accept=".json"
+                    style="display: none"
+                    onchange="handleFileImport(event)"
+                />
+            </div>
+
+            <div class="table-container">
+                <table id="todoTable">
+                    <thead>
+                        <tr>
+                            <th class="sortable" onclick="sortTable('originalText')">
+                                Original Text
+                            </th>
+                            <th class="sortable" onclick="sortTable('explanation')">
+                                Better Explanation
+                            </th>
+                            <th class="sortable" onclick="sortTable('status')">Status</th>
+                            <th class="sortable" onclick="sortTable('priority')">Priority</th>
+                            <th class="sortable" onclick="sortTable('effort')">Effort</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="todoTableBody">
+                        <!-- Table rows will be generated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="legend">
+                <h3>Legends</h3>
+                <div class="legend-grid">
+                    <div>
+                        <h4>Status</h4>
+                        <div class="legend-item">
+                            <strong>Not Started:</strong> Task has not been begun
+                        </div>
+                        <div class="legend-item">
+                            <strong>In Progress:</strong> Task is currently being worked on
+                        </div>
+                        <div class="legend-item">
+                            <strong>Completed:</strong> Task has been finished
+                        </div>
+                        <div class="legend-item"><strong>Blocked:</strong> Task cannot proceed</div>
+                    </div>
+                    <div>
+                        <h4>Priority</h4>
+                        <div class="legend-item">
+                            <strong>High:</strong> Critical for functionality
+                        </div>
+                        <div class="legend-item">
+                            <strong>Medium:</strong> Important but not blocking
+                        </div>
+                        <div class="legend-item">
+                            <strong>Low:</strong> Nice to have, can be deferred
+                        </div>
+                        <div class="legend-item"><strong>Very Low:</strong> Minimal impact</div>
+                    </div>
+                    <div>
+                        <h4>Effort</h4>
+                        <div class="legend-item"><strong>Low:</strong> Quick fix, &lt; 1 hour</div>
+                        <div class="legend-item">
+                            <strong>Medium:</strong> Moderate work, 1-4 hours
+                        </div>
+                        <div class="legend-item">
+                            <strong>High:</strong> Significant feature, 4-16 hours
+                        </div>
+                        <div class="legend-item">
+                            <strong>Very High:</strong> Major feature, 16+ hours
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Add/Edit Modal -->
+        <div id="todoModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Add New TODO</h2>
+                </div>
+                <form id="todoForm" onsubmit="saveTodo(event)">
+                    <input type="hidden" id="todoId" />
+                    <div class="form-group">
+                        <label for="originalText">Original Text *</label>
+                        <textarea id="originalText" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="explanation">Better Explanation *</label>
+                        <textarea id="explanation" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status *</label>
+                        <select id="status" required>
+                            <option value="Not Started">Not Started</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Blocked">Blocked</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="priority">Priority *</label>
+                        <select id="priority" required>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                            <option value="Very Low">Very Low</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="effort">Effort *</label>
+                        <select id="effort" required>
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Very High">Very High</option>
+                            <option value="N/A">N/A</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            // Initial data from markdown
+            const initialTodos = [
+                {
+                    id: 1,
+                    originalText:
+                        'update design rounded again and important tags for naivue ui compoennts with tailwind classes',
+                    explanation:
+                        'Update Naive UI component styling to use Tailwind CSS classes for rounded corners and important tags, ensuring consistent design language across the application',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Low',
+                },
+                {
+                    id: 2,
+                    originalText: 'add language support for the visual customizer',
+                    explanation:
+                        'Implement internationalization (i18n) for the Visual Customizer modal, translating all UI text, labels, and tooltips to support multiple languages',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Medium',
+                },
+                {
+                    id: 3,
+                    originalText: 'remove debug mode in the visual customizer in production',
+                    explanation:
+                        'Remove or disable debug features (like coordinate overlay, debug console logs) from the Visual Customizer when running in production environment',
+                    status: 'Not Started',
+                    priority: 'High',
+                    effort: 'Low',
+                },
+                {
+                    id: 4,
+                    originalText:
+                        'pin tabs: doesnt work, request error, doesnt show active pin, also when search and no pin was found there should be a message like "no pins found matching your search"',
+                    explanation:
+                        'Fix PinTabs component: resolve API request errors, implement active pin highlighting, and add user-friendly "no pins found" message when search returns no results',
+                    status: 'In Progress',
+                    priority: 'High',
+                    effort: 'Medium',
+                },
+                {
+                    id: 5,
+                    originalText: 'agents tab, counter terrorsts selct title size reduce',
+                    explanation:
+                        'Reduce the font size of the "Counter Terrorists" selection title in the agents tab for better UI proportions',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Low',
+                },
+                {
+                    id: 6,
+                    originalText:
+                        'thinking: center tabs for weapon sites with equal spacing (when only 3 / 2 weapons are in the last row)',
+                    explanation:
+                        'Improve weapon tabs layout: center-align tabs when the last row contains fewer items (2-3 weapons) to create better visual balance and spacing',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Medium',
+                },
+                {
+                    id: 7,
+                    originalText:
+                        'on loadout rename currently the rename modal closes and the loadout selector, and buttons to rename,add,delete are in loading state, updating the name was successful, on site refresh everything is normal',
+                    explanation:
+                        'Fix loadout rename functionality: prevent modal and selector from closing prematurely, properly handle loading states for rename/add/delete buttons, and ensure UI updates correctly without requiring page refresh',
+                    status: 'Not Started',
+                    priority: 'High',
+                    effort: 'Medium',
+                },
+                {
+                    id: 8,
+                    originalText:
+                        'size of the save changes / duplicate button in the skin modal fixing size (probably tailwindcss class issue)',
+                    explanation:
+                        'Fix button sizing in skin modal - adjust Tailwind CSS classes for "Save Changes" and "Duplicate" buttons to ensure consistent and appropriate sizing',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Low',
+                },
+                {
+                    id: 9,
+                    originalText:
+                        'thinking: how to implement the visual customizer button into ui instead of beaing completely big',
+                    explanation:
+                        'Redesign Visual Customizer button integration: replace large standalone button with a more subtle UI element (e.g., icon button, menu item, or overlay button) that fits better within the existing interface',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Medium',
+                },
+                {
+                    id: 10,
+                    originalText:
+                        'fixing css style for the inputs with +/- text and outline border when in focus state',
+                    explanation:
+                        'Fix CSS styling for numeric input controls with +/- buttons: improve focus state appearance, ensuring outline borders and text are properly styled and visible',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Low',
+                },
+                {
+                    id: 11,
+                    originalText:
+                        'fix hover color over stickers/keychains beoing completely white (maybe also tailwindcss issue)',
+                    explanation:
+                        'Fix hover state styling for stickers and keychains: resolve issue where hover color becomes completely white, likely a Tailwind CSS class conflict or missing hover state definition',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Low',
+                },
+                {
+                    id: 12,
+                    originalText:
+                        'thinking: visual customizer: when selecting sticker / keychain only show the sticker that gets newly edited not just smaller interface of all 5, or completely new idea, like open a modal',
+                    explanation:
+                        'Improve Visual Customizer UX: when editing a specific sticker/keychain, either show only that item in a focused view or open a dedicated modal for individual sticker/keychain editing instead of showing all 5 slots in a reduced interface',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'High',
+                },
+                {
+                    id: 13,
+                    originalText: 'thinking: narrowing the skin modals settings to have more space',
+                    explanation:
+                        'Optimize skin modal layout: reduce width of settings panel to allocate more space for the main content area (weapon preview, canvas, etc.)',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Medium',
+                },
+                {
+                    id: 14,
+                    originalText:
+                        'thinking: design choice, what could be in the secondary menu besides the languageswitcher and loadout selector',
+                    explanation:
+                        'Design exploration: identify and plan additional features/controls that could be added to the secondary menu alongside the language switcher and loadout selector (e.g., settings, help, theme toggle)',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Low',
+                },
+                {
+                    id: 15,
+                    originalText:
+                        'thinking: maybe add a settings button for modal to manage (idk yet) anything ->',
+                    explanation:
+                        'Add settings button to modal: create a settings/configuration option within modals to manage various preferences or options (specific features to be determined)',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Medium',
+                },
+                {
+                    id: 16,
+                    originalText:
+                        'thinking: i nsettings, maybe make it possible to automatically load preset on specifc maps',
+                    explanation:
+                        'Feature idea: implement automatic loadout preset loading based on specific maps, allowing users to configure which loadout should be active for each map',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'High',
+                },
+                {
+                    id: 17,
+                    originalText: 'thinking: add loadout share code or something like it->',
+                    explanation:
+                        'Implement loadout sharing system: create a shareable code/URL mechanism that allows users to export and import complete loadout configurations',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'High',
+                },
+                {
+                    id: 18,
+                    originalText:
+                        'depth logic: later implement the loadout share code, and then add a button to share the loadout code, and then add a button to import the loadout code, and then add a button to delete the loadout code',
+                    explanation:
+                        'Multi-step implementation plan for loadout sharing: 1) Create share code generation logic, 2) Add "Share" button to export code, 3) Add "Import" button to load from code, 4) Add "Delete" button to remove shared codes',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Very High',
+                },
+                {
+                    id: 19,
+                    originalText:
+                        'thinking: add a button to duplicate a loadout or even deeper duplicate an item to a different loadout (could be overthinking because we have implemented the import from inspecturl and generate inspect url)',
+                    explanation:
+                        'Consider adding loadout/item duplication features: allow duplicating entire loadouts or individual items to different loadouts (note: may be redundant given existing inspect URL import/export functionality)',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Medium',
+                },
+                {
+                    id: 20,
+                    originalText:
+                        'remove the home page content, replace with simple message like "this is in development"',
+                    explanation:
+                        'Simplify homepage: remove current content and replace with a simple "under development" message or placeholder',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Low',
+                },
+                {
+                    id: 21,
+                    originalText:
+                        'thinking: homepage could have as before the possibility to create from scratch a weapon, like an all in one function to import any inspect url and then modify it (glove, knife, weapon) and maybe keep it saved in local storage of browser/cache',
+                    explanation:
+                        'Homepage enhancement idea: create a unified "create from scratch" feature that allows importing any inspect URL (weapon/glove/knife), modifying it, and optionally saving to browser local storage/cache',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'High',
+                },
+                {
+                    id: 22,
+                    originalText:
+                        'later state: think about responsive design, so it looks on bigger screen also "good" or uses the space, and on smartphones maybe add disclaimer that this site is not for usage on smartphones or try to implement through responssive design some basic stuff like mobile menu / layout of the site',
+                    explanation:
+                        'Responsive design implementation: optimize layout for larger screens (better space utilization) and mobile devices (either add "not optimized for mobile" disclaimer or implement responsive design with mobile menu and adapted layouts)',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Very High',
+                },
+                {
+                    id: 23,
+                    originalText:
+                        'look for the visual customizer coordinates and research it more so sticker placements are more accurate',
+                    explanation:
+                        'Research and improve Visual Customizer coordinate system: investigate sticker placement accuracy, refine coordinate transformation logic, and ensure stickers are positioned correctly relative to weapon models',
+                    status: 'Not Started',
+                    priority: 'High',
+                    effort: 'High',
+                },
+                {
+                    id: 24,
+                    originalText:
+                        'look if implementation of sticker charm (wrapped sticker) would be possible to implement, and if how',
+                    explanation:
+                        'Research sticker charm/wrapped sticker feature: investigate CS2 API capabilities and technical feasibility of implementing wrapped sticker functionality in the visual customizer',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'High',
+                },
+                {
+                    id: 25,
+                    originalText:
+                        'thinking: "default" knife/glove/agent means it sets the default skin, so if a player has a knife/glove/agent it gets set to the default cs one, probably must add a new menu point like "Own Skin" etc.',
+                    explanation:
+                        'Clarify default skin behavior: when "default" is selected for knife/glove/agent, it should set to CS2 default skin. Consider adding "Own Skin" option to distinguish between default and user\'s actual equipped items',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Medium',
+                },
+                {
+                    id: 26,
+                    originalText:
+                        'add password protection (cache) to the status page and maybe add some more details then there, or add admin steamids that can visit it or can edit what should be shown to public etc. detailed stuff... also maybe via settings menu modal',
+                    explanation:
+                        'Enhance status page security and features: implement password protection (cached), add admin Steam ID whitelist for access control, allow admins to configure public visibility settings, potentially via settings modal',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'High',
+                },
+                {
+                    id: 27,
+                    originalText:
+                        'add a tutorial to the site, video (not really want to), or maybe just add hover tooltips to buttons etc. to show functionality...',
+                    explanation:
+                        'Implement user onboarding: add tutorial system (prefer tooltips/hover hints over video) to explain button functionality and guide new users through the interface',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Medium',
+                },
+                {
+                    id: 28,
+                    originalText:
+                        'or a deep tutorial like the explaination and the button (item) in focus so its clear what the items is for etc. (much to effort)',
+                    explanation:
+                        'Advanced tutorial system: implement interactive step-by-step tutorial that highlights specific UI elements with explanations (acknowledged as high effort, lower priority)',
+                    status: 'Not Started',
+                    priority: 'Low',
+                    effort: 'Very High',
+                },
+                {
+                    id: 29,
+                    originalText:
+                        'wanting 50€ for this at least or idk and maybe add subscription for webspace? probably to much time waste for this less money....',
+                    explanation:
+                        'Monetization consideration: evaluate pricing model (€50+ or subscription) for hosting/usage, but note concerns about time investment vs. revenue potential',
+                    status: 'Not Started',
+                    priority: 'N/A',
+                    effort: 'N/A',
+                },
+                {
+                    id: 30,
+                    originalText:
+                        'testing all this shit and creating a documentation together with the cs2 plugin',
+                    explanation:
+                        'Comprehensive testing and documentation: perform thorough testing of all features and create complete documentation that covers both the web application and the CS2 plugin integration',
+                    status: 'Not Started',
+                    priority: 'High',
+                    effort: 'Very High',
+                },
+                {
+                    id: 31,
+                    originalText:
+                        'permission system for using/creating specific items/skins/loadouts etc.? very low priority',
+                    explanation:
+                        'Permission/access control system: implement user permissions to restrict creation/usage of specific items, skins, or loadouts (marked as very low priority)',
+                    status: 'Not Started',
+                    priority: 'Very Low',
+                    effort: 'Very High',
+                },
+                {
+                    id: 32,
+                    originalText:
+                        'instead of showing default skin images in the modal/tabs maybe show a saved screenshot with the stickers and wear, maybe need to separate sticker possitions so maybe when editing the wear in the normal skinmodal it also changes (not only in the visual customizer)',
+                    explanation:
+                        'Enhance skin preview: replace default static images with dynamically generated screenshots showing actual stickers and wear. Ensure wear changes in regular skin modal also update preview (not just visual customizer)',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'High',
+                },
+                {
+                    id: 33,
+                    originalText:
+                        '-> idea add an "overlay" button to the current image, like maybe a magic stick (zauberstab) like for ai to open the visual customizer instead of a big button?',
+                    explanation:
+                        'Add overlay button to weapon images: implement a subtle "magic wand" icon overlay on weapon preview images that opens the Visual Customizer, replacing the large standalone button',
+                    status: 'Not Started',
+                    priority: 'Medium',
+                    effort: 'Medium',
+                },
+            ]
+
+            let todos = []
+            let currentSort = { column: null, direction: 'asc' }
+            let nextId = 34
+
+            // Load todos from localStorage or use initial data
+            function loadTodos() {
+                const saved = localStorage.getItem('todos')
+                if (saved) {
+                    todos = JSON.parse(saved)
+                    // Update nextId to be higher than any existing id
+                    nextId = Math.max(...todos.map((t) => t.id), 0) + 1
+                } else {
+                    todos = JSON.parse(JSON.stringify(initialTodos))
+                    saveTodos()
+                }
+                renderTable()
+            }
+
+            // Save todos to localStorage
+            function saveTodos() {
+                localStorage.setItem('todos', JSON.stringify(todos))
+            }
+
+            // Render the table
+            function renderTable() {
+                const tbody = document.getElementById('todoTableBody')
+                tbody.innerHTML = ''
+
+                todos.forEach((todo) => {
+                    const row = document.createElement('tr')
+                    row.innerHTML = `
                     <td class="original-text">${escapeHtml(todo.originalText)}</td>
                     <td class="explanation">${escapeHtml(todo.explanation)}</td>
                     <td><span class="status-badge status-${getStatusClass(todo.status)}">${todo.status}</span></td>
@@ -488,202 +856,209 @@
                             <button class="btn btn-danger btn-sm" onclick="deleteTodo(${todo.id})">Delete</button>
                         </div>
                     </td>
-                `;
-                tbody.appendChild(row);
-            });
+                `
+                    tbody.appendChild(row)
+                })
 
-            updateSortIndicators();
-        }
-
-        // Helper functions for CSS classes
-        function getStatusClass(status) {
-            return status.toLowerCase().replace(' ', '-');
-        }
-
-        function getPriorityClass(priority) {
-            return priority.toLowerCase().replace(' ', '-').replace('/', '-');
-        }
-
-        function getEffortClass(effort) {
-            return effort.toLowerCase().replace(' ', '-');
-        }
-
-        // Escape HTML to prevent XSS
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
-
-        // Sort table
-        function sortTable(column) {
-            if (currentSort.column === column) {
-                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-            } else {
-                currentSort.column = column;
-                currentSort.direction = 'asc';
+                updateSortIndicators()
             }
 
-            todos.sort((a, b) => {
-                let aVal = a[column];
-                let bVal = b[column];
+            // Helper functions for CSS classes
+            function getStatusClass(status) {
+                return status.toLowerCase().replace(' ', '-')
+            }
 
-                // Special handling for priority and effort
-                if (column === 'priority') {
-                    const order = { 'High': 1, 'Medium': 2, 'Low': 3, 'Very Low': 4, 'N/A': 5 };
-                    aVal = order[aVal] || 99;
-                    bVal = order[bVal] || 99;
-                } else if (column === 'effort') {
-                    const order = { 'Low': 1, 'Medium': 2, 'High': 3, 'Very High': 4, 'N/A': 5 };
-                    aVal = order[aVal] || 99;
-                    bVal = order[bVal] || 99;
-                } else if (column === 'status') {
-                    const order = { 'Not Started': 1, 'In Progress': 2, 'Completed': 3, 'Blocked': 4 };
-                    aVal = order[aVal] || 99;
-                    bVal = order[bVal] || 99;
+            function getPriorityClass(priority) {
+                return priority.toLowerCase().replace(' ', '-').replace('/', '-')
+            }
+
+            function getEffortClass(effort) {
+                return effort.toLowerCase().replace(' ', '-')
+            }
+
+            // Escape HTML to prevent XSS
+            function escapeHtml(text) {
+                const div = document.createElement('div')
+                div.textContent = text
+                return div.innerHTML
+            }
+
+            // Sort table
+            function sortTable(column) {
+                if (currentSort.column === column) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc'
                 } else {
-                    aVal = String(aVal).toLowerCase();
-                    bVal = String(bVal).toLowerCase();
+                    currentSort.column = column
+                    currentSort.direction = 'asc'
                 }
 
-                if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1;
-                if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1;
-                return 0;
-            });
+                todos.sort((a, b) => {
+                    let aVal = a[column]
+                    let bVal = b[column]
 
-            renderTable();
-        }
-
-        // Update sort indicators
-        function updateSortIndicators() {
-            const headers = document.querySelectorAll('th.sortable');
-            headers.forEach(header => {
-                header.classList.remove('sort-asc', 'sort-desc');
-            });
-
-            if (currentSort.column) {
-                const header = Array.from(headers).find(h => 
-                    h.getAttribute('onclick')?.includes(`'${currentSort.column}'`)
-                );
-                if (header) {
-                    header.classList.add(currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc');
-                }
-            }
-        }
-
-        // Modal functions
-        function openAddModal() {
-            document.getElementById('modalTitle').textContent = 'Add New TODO';
-            document.getElementById('todoForm').reset();
-            document.getElementById('todoId').value = '';
-            document.getElementById('todoModal').classList.add('active');
-        }
-
-        function editTodo(id) {
-            const todo = todos.find(t => t.id === id);
-            if (!todo) return;
-
-            document.getElementById('modalTitle').textContent = 'Edit TODO';
-            document.getElementById('todoId').value = todo.id;
-            document.getElementById('originalText').value = todo.originalText;
-            document.getElementById('explanation').value = todo.explanation;
-            document.getElementById('status').value = todo.status;
-            document.getElementById('priority').value = todo.priority;
-            document.getElementById('effort').value = todo.effort;
-            document.getElementById('todoModal').classList.add('active');
-        }
-
-        function closeModal() {
-            document.getElementById('todoModal').classList.remove('active');
-        }
-
-        function saveTodo(event) {
-            event.preventDefault();
-
-            const id = document.getElementById('todoId').value;
-            const todo = {
-                originalText: document.getElementById('originalText').value,
-                explanation: document.getElementById('explanation').value,
-                status: document.getElementById('status').value,
-                priority: document.getElementById('priority').value,
-                effort: document.getElementById('effort').value
-            };
-
-            if (id) {
-                // Edit existing
-                const index = todos.findIndex(t => t.id === parseInt(id));
-                if (index !== -1) {
-                    todos[index] = { ...todos[index], ...todo };
-                }
-            } else {
-                // Add new
-                todo.id = nextId++;
-                todos.push(todo);
-            }
-
-            saveTodos();
-            renderTable();
-            closeModal();
-        }
-
-        function deleteTodo(id) {
-            if (confirm('Are you sure you want to delete this TODO?')) {
-                todos = todos.filter(t => t.id !== id);
-                saveTodos();
-                renderTable();
-            }
-        }
-
-        // Export/Import functions
-        function exportData() {
-            const dataStr = JSON.stringify(todos, null, 2);
-            const dataBlob = new Blob([dataStr], { type: 'application/json' });
-            const url = URL.createObjectURL(dataBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = 'todos_export.json';
-            link.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function importData() {
-            document.getElementById('importFile').click();
-        }
-
-        function handleFileImport(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (Array.isArray(imported)) {
-                        todos = imported;
-                        nextId = Math.max(...todos.map(t => t.id), 0) + 1;
-                        saveTodos();
-                        renderTable();
-                        alert('Data imported successfully!');
+                    // Special handling for priority and effort
+                    if (column === 'priority') {
+                        const order = { High: 1, Medium: 2, Low: 3, 'Very Low': 4, 'N/A': 5 }
+                        aVal = order[aVal] || 99
+                        bVal = order[bVal] || 99
+                    } else if (column === 'effort') {
+                        const order = { Low: 1, Medium: 2, High: 3, 'Very High': 4, 'N/A': 5 }
+                        aVal = order[aVal] || 99
+                        bVal = order[bVal] || 99
+                    } else if (column === 'status') {
+                        const order = {
+                            'Not Started': 1,
+                            'In Progress': 2,
+                            Completed: 3,
+                            Blocked: 4,
+                        }
+                        aVal = order[aVal] || 99
+                        bVal = order[bVal] || 99
                     } else {
-                        alert('Invalid file format');
+                        aVal = String(aVal).toLowerCase()
+                        bVal = String(bVal).toLowerCase()
                     }
-                } catch (error) {
-                    alert('Error importing file: ' + error.message);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = ''; // Reset file input
-        }
 
-        // Close modal when clicking outside
-        document.getElementById('todoModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeModal();
+                    if (aVal < bVal) return currentSort.direction === 'asc' ? -1 : 1
+                    if (aVal > bVal) return currentSort.direction === 'asc' ? 1 : -1
+                    return 0
+                })
+
+                renderTable()
             }
-        });
 
-        // Initialize
-        loadTodos();
-    </script>
-</body>
+            // Update sort indicators
+            function updateSortIndicators() {
+                const headers = document.querySelectorAll('th.sortable')
+                headers.forEach((header) => {
+                    header.classList.remove('sort-asc', 'sort-desc')
+                })
+
+                if (currentSort.column) {
+                    const header = Array.from(headers).find((h) =>
+                        h.getAttribute('onclick')?.includes(`'${currentSort.column}'`)
+                    )
+                    if (header) {
+                        header.classList.add(
+                            currentSort.direction === 'asc' ? 'sort-asc' : 'sort-desc'
+                        )
+                    }
+                }
+            }
+
+            // Modal functions
+            function openAddModal() {
+                document.getElementById('modalTitle').textContent = 'Add New TODO'
+                document.getElementById('todoForm').reset()
+                document.getElementById('todoId').value = ''
+                document.getElementById('todoModal').classList.add('active')
+            }
+
+            function editTodo(id) {
+                const todo = todos.find((t) => t.id === id)
+                if (!todo) return
+
+                document.getElementById('modalTitle').textContent = 'Edit TODO'
+                document.getElementById('todoId').value = todo.id
+                document.getElementById('originalText').value = todo.originalText
+                document.getElementById('explanation').value = todo.explanation
+                document.getElementById('status').value = todo.status
+                document.getElementById('priority').value = todo.priority
+                document.getElementById('effort').value = todo.effort
+                document.getElementById('todoModal').classList.add('active')
+            }
+
+            function closeModal() {
+                document.getElementById('todoModal').classList.remove('active')
+            }
+
+            function saveTodo(event) {
+                event.preventDefault()
+
+                const id = document.getElementById('todoId').value
+                const todo = {
+                    originalText: document.getElementById('originalText').value,
+                    explanation: document.getElementById('explanation').value,
+                    status: document.getElementById('status').value,
+                    priority: document.getElementById('priority').value,
+                    effort: document.getElementById('effort').value,
+                }
+
+                if (id) {
+                    // Edit existing
+                    const index = todos.findIndex((t) => t.id === parseInt(id))
+                    if (index !== -1) {
+                        todos[index] = { ...todos[index], ...todo }
+                    }
+                } else {
+                    // Add new
+                    todo.id = nextId++
+                    todos.push(todo)
+                }
+
+                saveTodos()
+                renderTable()
+                closeModal()
+            }
+
+            function deleteTodo(id) {
+                if (confirm('Are you sure you want to delete this TODO?')) {
+                    todos = todos.filter((t) => t.id !== id)
+                    saveTodos()
+                    renderTable()
+                }
+            }
+
+            // Export/Import functions
+            function exportData() {
+                const dataStr = JSON.stringify(todos, null, 2)
+                const dataBlob = new Blob([dataStr], { type: 'application/json' })
+                const url = URL.createObjectURL(dataBlob)
+                const link = document.createElement('a')
+                link.href = url
+                link.download = 'todos_export.json'
+                link.click()
+                URL.revokeObjectURL(url)
+            }
+
+            function importData() {
+                document.getElementById('importFile').click()
+            }
+
+            function handleFileImport(event) {
+                const file = event.target.files[0]
+                if (!file) return
+
+                const reader = new FileReader()
+                reader.onload = function (e) {
+                    try {
+                        const imported = JSON.parse(e.target.result)
+                        if (Array.isArray(imported)) {
+                            todos = imported
+                            nextId = Math.max(...todos.map((t) => t.id), 0) + 1
+                            saveTodos()
+                            renderTable()
+                            alert('Data imported successfully!')
+                        } else {
+                            alert('Invalid file format')
+                        }
+                    } catch (error) {
+                        alert('Error importing file: ' + error.message)
+                    }
+                }
+                reader.readAsText(file)
+                event.target.value = '' // Reset file input
+            }
+
+            // Close modal when clicking outside
+            document.getElementById('todoModal').addEventListener('click', function (e) {
+                if (e.target === this) {
+                    closeModal()
+                }
+            })
+
+            // Initialize
+            loadTodos()
+        </script>
+    </body>
 </html>

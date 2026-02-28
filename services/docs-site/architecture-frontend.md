@@ -45,24 +45,24 @@ components/
 ### Stores
 
 1. **`weaponsStore`** (`stores/weapons.ts`)
-   - Manages weapon configurations
-   - Handles weapon skin data
-   - Tracks active weapon selections
+    - Manages weapon configurations
+    - Handles weapon skin data
+    - Tracks active weapon selections
 
 2. **`loadoutStore`** (`stores/loadout.ts`)
-   - Current active loadout
-   - Loadout switching logic
-   - Loadout CRUD operations
+    - Current active loadout
+    - Loadout switching logic
+    - Loadout CRUD operations
 
 3. **`authStore`** (`stores/auth.ts`)
-   - User authentication state
-   - Steam profile information
-   - Session management
+    - User authentication state
+    - Steam profile information
+    - Session management
 
 4. **`itemsStore`** (`stores/items.ts`)
-   - Item catalog data
-   - Skin, sticker, agent data
-   - Cached item information
+    - Item catalog data
+    - Skin, sticker, agent data
+    - Cached item information
 
 ## Composables
 
@@ -79,19 +79,22 @@ components/
 **Framework**: `nuxt-i18n-micro`
 
 **Supported Languages**:
+
 - English (EN) - Default
 - German (DE)
 - Russian (RU)
 
 **Translation Files**: `locales/` directory
+
 - `en.json` - English translations
 - `de.json` - German translations
 - `ru.json` - Russian translations
 
 **Usage**:
+
 ```vue
 <template>
-  <div>{{ $t('nav.weapons') }}</div>
+    <div>{{ $t('nav.weapons') }}</div>
 </template>
 ```
 
@@ -105,13 +108,14 @@ components/
 - **Preprocessor**: SASS/SCSS
 - **Component Styles**: Scoped styles in `.vue` files
 - **Global Styles**: `assets/css/` directory
-  - `theme-variables.css` - CSS custom properties
-  - `glassmorphism.css` - Glass effect utilities
-  - `animations.css` - Animation definitions
+    - `theme-variables.css` - CSS custom properties
+    - `glassmorphism.css` - Glass effect utilities
+    - `animations.css` - Animation definitions
 
 ### Theme Customization
 
 **Dark Theme**: Default and forced mode
+
 - Background: `#121212`, `#1a1a1a`, `#242424`
 - Accent: `#FACC15` (yellow/gold)
 - Hover: `#F59E0B`, `#CA8A04`
@@ -125,6 +129,7 @@ See: [Theme Customization Guide](theme-customization.md)
 **Library**: Naive UI
 
 **Key Components Used**:
+
 - `n-modal` - Modal dialogs
 - `n-select` - Dropdowns and selects
 - `n-input` - Text inputs
@@ -139,6 +144,7 @@ See: [Theme Customization Guide](theme-customization.md)
 **Technology**: HTML5 Canvas API
 
 **Features**:
+
 - Drag-and-drop sticker placement
 - Rotation and scaling controls
 - Real-time preview
@@ -151,6 +157,7 @@ See: [Theme Customization Guide](theme-customization.md)
 **Framework**: Nuxt 4 file-based routing
 
 **Routes**:
+
 - `/` - Main dashboard
 - `/weapons/:type` - Weapon customization (dynamic)
 - `/knifes` - Knife customization
@@ -165,6 +172,7 @@ See: [Theme Customization Guide](theme-customization.md)
 ### Code Splitting
 
 Nuxt automatically splits code by:
+
 - Page-level chunks
 - Component lazy loading
 - Dynamic imports

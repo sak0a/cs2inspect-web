@@ -17,12 +17,12 @@ import { ADMIN_ERROR_CODES } from '~/server/utils/constants'
 import {
     getTopUsersByLoadouts,
     getUserDistributionStats,
-    type TopUser
+    type TopUser,
 } from '~/server/utils/admin/statsQueries'
 
 // Query parameter schema
 const userStatsQuerySchema = z.object({
-    limit: z.coerce.number().int().min(1).max(50).default(10)
+    limit: z.coerce.number().int().min(1).max(50).default(10),
 })
 
 export interface UserDistributionStats {
@@ -44,7 +44,7 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
@@ -54,18 +54,18 @@ export default useErrorHandling(async (event) => {
     // Fetch user statistics in parallel
     const [topUsers, distribution] = await Promise.all([
         getTopUsersByLoadouts(limit),
-        getUserDistributionStats()
+        getUserDistributionStats(),
     ])
 
     const stats: AdminUserStats = {
         topUsers,
-        distribution
+        distribution,
     }
 
     const meta = createResponseMeta(startTime, {
         adminSteamId: event.context.admin.steamId,
         endpoint: 'admin/stats/users',
-        limit
+        limit,
     })
 
     return createSuccessResponse(stats, meta, 'User stats fetched successfully')

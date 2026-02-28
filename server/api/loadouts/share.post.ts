@@ -1,24 +1,20 @@
-
 import { readBody, createError } from 'h3'
 import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
-import { getLoadout, setShareCode, getLoadoutByShareCode } from "~/server/database/loadoutHelpers";
-import { validateRequiredRequestData } from "~/server/utils/helpers";
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers';
+import { getLoadout, setShareCode, getLoadoutByShareCode } from '~/server/database/loadoutHelpers'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { getCachedSetting } from '~/server/utils/settingsCache'
 
 // Helper to generate random code
 const generateShareCode = () => {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No I, O, 0, 1
-    let code = 'LO-';
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789' // No I, O, 0, 1
+    let code = 'LO-'
     for (let i = 0; i < 10; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
+        code += chars.charAt(Math.floor(Math.random() * chars.length))
     }
-    return code;
+    return code
 }
 
 /**
@@ -70,5 +66,4 @@ export default useErrorHandling(async (event: H3Event) => {
 
     const meta = createResponseMeta(startTime, { steamId, method: 'POST', loadoutId })
     return createSuccessResponse({ shareCode }, meta, 'Share code retrieved successfully')
-
 }, ErrorCodes.LOADOUT_SHARE_ERROR)

@@ -1,29 +1,27 @@
 /**
  * Modal component interfaces for the CS2Inspect application
- * 
+ *
  * @description This file contains interfaces for modal components,
  * their props, state, and event emissions. These interfaces ensure
  * consistent modal behavior and type safety across the application.
- * 
+ *
  * @version 2.0.0
  * @since 2.0.0
  */
 
-import type {
-  UserProfile
-} from '../core/common'
+import type { UserProfile } from '../core/common'
 
 import type {
-  ItemData,
-  ItemConfiguration,
-  WeaponItemData,
-  KnifeItemData,
-  GloveItemData,
-  WeaponConfiguration,
-  KnifeConfiguration,
-  GloveConfiguration,
-  StickerConfiguration,
-  KeychainConfiguration
+    ItemData,
+    ItemConfiguration,
+    WeaponItemData,
+    KnifeItemData,
+    GloveItemData,
+    WeaponConfiguration,
+    KnifeConfiguration,
+    GloveConfiguration,
+    StickerConfiguration,
+    KeychainConfiguration,
 } from '../business/items'
 
 // ============================================================================
@@ -32,46 +30,46 @@ import type {
 
 /**
  * Base props for all modal components
- * 
+ *
  * @description Common properties shared across all modal components
  */
 export interface BaseModalProps {
-  /** Whether the modal is visible */
-  visible: boolean
-  /** Whether the modal is in a loading state */
-  loading?: boolean
-  /** User profile information */
-  user: UserProfile | null
+    /** Whether the modal is visible */
+    visible: boolean
+    /** Whether the modal is in a loading state */
+    loading?: boolean
+    /** User profile information */
+    user: UserProfile | null
 }
 
 /**
  * Base modal state interface
- * 
+ *
  * @description Common state properties for modal components
  */
 export interface BaseModalState {
-  /** Whether skins are being loaded */
-  isLoadingSkins: boolean
-  /** Current search query */
-  searchQuery: string
-  /** Current page number for pagination */
-  currentPage: number
-  /** Error message if any */
-  error: string | null
+    /** Whether skins are being loaded */
+    isLoadingSkins: boolean
+    /** Current search query */
+    searchQuery: string
+    /** Current page number for pagination */
+    currentPage: number
+    /** Error message if any */
+    error: string | null
 }
 
 /**
  * Base modal events interface
- * 
+ *
  * @description Common events emitted by modal components
  */
 export interface BaseModalEvents {
-  /** Emitted when modal visibility should change */
-  'update:visible': [visible: boolean]
-  /** Emitted when modal is closed */
-  'close': []
-  /** Emitted when an error occurs */
-  'error': [error: string]
+    /** Emitted when modal visibility should change */
+    'update:visible': [visible: boolean]
+    /** Emitted when modal is closed */
+    close: []
+    /** Emitted when an error occurs */
+    error: [error: string]
 }
 
 // ============================================================================
@@ -80,54 +78,54 @@ export interface BaseModalEvents {
 
 /**
  * Base props for item modal components
- * 
+ *
  * @description Common properties for modals that handle items
  */
 export interface BaseItemModalProps extends BaseModalProps {
-  /** Whether the other team has this skin equipped */
-  otherTeamHasSkin: boolean
-  /** Page size for pagination */
-  pageSize?: number
+    /** Whether the other team has this skin equipped */
+    otherTeamHasSkin: boolean
+    /** Page size for pagination */
+    pageSize?: number
 }
 
 /**
  * Base state for item modal components
- * 
+ *
  * @description Common state for modals that handle items
  */
 export interface BaseItemModalState extends BaseModalState {
-  /** Whether import modal is visible */
-  showImportModal: boolean
-  /** Whether duplicate confirmation modal is visible */
-  showDuplicateConfirm: boolean
-  /** Whether reset confirmation modal is visible */
-  showResetConfirm: boolean
-  /** Whether currently importing */
-  isImporting: boolean
-  /** Whether currently loading inspect data */
-  isLoadingInspect: boolean
-  /** Whether currently resetting */
-  isResetting: boolean
-  /** Whether currently duplicating */
-  isDuplicating: boolean
+    /** Whether import modal is visible */
+    showImportModal: boolean
+    /** Whether duplicate confirmation modal is visible */
+    showDuplicateConfirm: boolean
+    /** Whether reset confirmation modal is visible */
+    showResetConfirm: boolean
+    /** Whether currently importing */
+    isImporting: boolean
+    /** Whether currently loading inspect data */
+    isLoadingInspect: boolean
+    /** Whether currently resetting */
+    isResetting: boolean
+    /** Whether currently duplicating */
+    isDuplicating: boolean
 }
 
 /**
  * Base events for item modal components
- * 
+ *
  * @template TItem - Type of item data
  * @template TConfig - Type of item configuration
  */
 export interface BaseItemModalEvents<
-  TItem extends ItemData = ItemData,
-  TConfig extends ItemConfiguration = ItemConfiguration
+    TItem extends ItemData = ItemData,
+    TConfig extends ItemConfiguration = ItemConfiguration,
 > extends BaseModalEvents {
-  /** Emitted when item should be saved */
-  'save': [item: TItem, configuration: TConfig]
-  /** Emitted when item should be duplicated */
-  'duplicate': [item: TItem, configuration: TConfig]
-  /** Emitted when item should be reset */
-  'reset': []
+    /** Emitted when item should be saved */
+    save: [item: TItem, configuration: TConfig]
+    /** Emitted when item should be duplicated */
+    duplicate: [item: TItem, configuration: TConfig]
+    /** Emitted when item should be reset */
+    reset: []
 }
 
 // ============================================================================
@@ -136,9 +134,9 @@ export interface BaseItemModalEvents<
 
 /**
  * Props for weapon modal component
- * 
+ *
  * @description Properties specific to the weapon skin modal
- * 
+ *
  * @example
  * ```typescript
  * const props: WeaponModalProps = {
@@ -151,44 +149,47 @@ export interface BaseItemModalEvents<
  * ```
  */
 export interface WeaponModalProps extends BaseItemModalProps {
-  /** Weapon data to customize */
-  weapon: WeaponItemData | null
+    /** Weapon data to customize */
+    weapon: WeaponItemData | null
 }
 
 /**
  * State for weapon modal component
- * 
+ *
  * @description State specific to the weapon skin modal
  */
 export interface WeaponModalState extends BaseItemModalState {
-  /** Whether sticker modal is visible */
-  showStickerModal: boolean
-  /** Whether keychain modal is visible */
-  showKeychainModal: boolean
-  /** Whether visual customizer modal is visible (legacy) */
-  showVisualCustomizer: boolean
-  /** Whether inline visual customizer is active */
-  inlineVisualCustomizerActive: boolean
-  /** Current sticker position being edited */
-  currentStickerPosition: number
-  /** Whether history panel is visible */
-  showHistoryPanel: boolean
+    /** Whether sticker modal is visible */
+    showStickerModal: boolean
+    /** Whether keychain modal is visible */
+    showKeychainModal: boolean
+    /** Whether visual customizer modal is visible (legacy) */
+    showVisualCustomizer: boolean
+    /** Whether inline visual customizer is active */
+    inlineVisualCustomizerActive: boolean
+    /** Current sticker position being edited */
+    currentStickerPosition: number
+    /** Whether history panel is visible */
+    showHistoryPanel: boolean
 }
 
 /**
  * Events emitted by weapon modal component
- * 
+ *
  * @description Events specific to the weapon skin modal
  */
-export interface WeaponModalEvents extends BaseItemModalEvents<WeaponItemData, WeaponConfiguration> {
-  /** Emitted when sticker should be added */
-  'add-sticker': [position: number]
-  /** Emitted when sticker should be removed */
-  'remove-sticker': [position: number]
-  /** Emitted when keychain should be added */
-  'add-keychain': []
-  /** Emitted when keychain should be removed */
-  'remove-keychain': []
+export interface WeaponModalEvents extends BaseItemModalEvents<
+    WeaponItemData,
+    WeaponConfiguration
+> {
+    /** Emitted when sticker should be added */
+    'add-sticker': [position: number]
+    /** Emitted when sticker should be removed */
+    'remove-sticker': [position: number]
+    /** Emitted when keychain should be added */
+    'add-keychain': []
+    /** Emitted when keychain should be removed */
+    'remove-keychain': []
 }
 
 // ============================================================================
@@ -197,9 +198,9 @@ export interface WeaponModalEvents extends BaseItemModalEvents<WeaponItemData, W
 
 /**
  * Props for knife modal component
- * 
+ *
  * @description Properties specific to the knife skin modal
- * 
+ *
  * @example
  * ```typescript
  * const props: KnifeModalProps = {
@@ -212,20 +213,20 @@ export interface WeaponModalEvents extends BaseItemModalEvents<WeaponItemData, W
  * ```
  */
 export interface KnifeModalProps extends BaseItemModalProps {
-  /** Knife data to customize (using 'weapon' for backward compatibility) */
-  weapon: KnifeItemData | null
+    /** Knife data to customize (using 'weapon' for backward compatibility) */
+    weapon: KnifeItemData | null
 }
 
 /**
  * State for knife modal component
- * 
+ *
  * @description State specific to the knife skin modal
  */
 export type KnifeModalState = BaseItemModalState
 
 /**
  * Events emitted by knife modal component
- * 
+ *
  * @description Events specific to the knife skin modal
  */
 export type KnifeModalEvents = BaseItemModalEvents<KnifeItemData, KnifeConfiguration>
@@ -236,9 +237,9 @@ export type KnifeModalEvents = BaseItemModalEvents<KnifeItemData, KnifeConfigura
 
 /**
  * Props for glove modal component
- * 
+ *
  * @description Properties specific to the glove skin modal
- * 
+ *
  * @example
  * ```typescript
  * const props: GloveModalProps = {
@@ -251,20 +252,20 @@ export type KnifeModalEvents = BaseItemModalEvents<KnifeItemData, KnifeConfigura
  * ```
  */
 export interface GloveModalProps extends BaseItemModalProps {
-  /** Glove data to customize (using 'weapon' for backward compatibility) */
-  weapon: GloveItemData | null
+    /** Glove data to customize (using 'weapon' for backward compatibility) */
+    weapon: GloveItemData | null
 }
 
 /**
  * State for glove modal component
- * 
+ *
  * @description State specific to the glove skin modal
  */
 export type GloveModalState = BaseItemModalState
 
 /**
  * Events emitted by glove modal component
- * 
+ *
  * @description Events specific to the glove skin modal
  */
 export type GloveModalEvents = BaseItemModalEvents<GloveItemData, GloveConfiguration>
@@ -275,49 +276,49 @@ export type GloveModalEvents = BaseItemModalEvents<GloveItemData, GloveConfigura
 
 /**
  * Props for sticker modal component
- * 
+ *
  * @description Properties for the sticker selection modal
  */
 export interface StickerModalProps extends BaseModalProps {
-  /** Current sticker position (0-4) */
-  position: number
-  /** Current sticker configuration */
-  currentSticker: StickerConfiguration | null
+    /** Current sticker position (0-4) */
+    position: number
+    /** Current sticker configuration */
+    currentSticker: StickerConfiguration | null
 }
 
 /**
  * Events emitted by sticker modal component
  */
 export interface StickerModalEvents extends BaseModalEvents {
-  /** Emitted when sticker is selected */
-  'select': [sticker: StickerConfiguration]
-  /** Emitted when sticker is removed */
-  'remove': []
+    /** Emitted when sticker is selected */
+    select: [sticker: StickerConfiguration]
+    /** Emitted when sticker is removed */
+    remove: []
 }
 
 /**
  * Props for keychain modal component
- * 
+ *
  * @description Properties for the keychain selection modal
  */
 export interface KeychainModalProps extends BaseModalProps {
-  /** Current keychain configuration */
-  currentKeychain: KeychainConfiguration | null
+    /** Current keychain configuration */
+    currentKeychain: KeychainConfiguration | null
 }
 
 /**
  * Events emitted by keychain modal component
  */
 export interface KeychainModalEvents extends BaseModalEvents {
-  /** Emitted when keychain is selected */
-  'select': [keychain: KeychainConfiguration]
-  /** Emitted when keychain is removed */
-  'remove': []
+    /** Emitted when keychain is selected */
+    select: [keychain: KeychainConfiguration]
+    /** Emitted when keychain is removed */
+    remove: []
 }
 
 /**
  * Props for inspect URL modal component
- * 
+ *
  * @description Properties for the inspect URL input modal
  */
 export type InspectURLModalProps = BaseModalProps
@@ -326,33 +327,33 @@ export type InspectURLModalProps = BaseModalProps
  * Events emitted by inspect URL modal component
  */
 export interface InspectURLModalEvents extends BaseModalEvents {
-  /** Emitted when inspect URL is submitted */
-  'submit': [url: string]
+    /** Emitted when inspect URL is submitted */
+    submit: [url: string]
 }
 
 /**
  * Props for duplicate confirmation modal component
- * 
+ *
  * @description Properties for the duplicate item confirmation modal
  */
 export interface DuplicateConfirmModalProps extends BaseModalProps {
-  /** Type of item being duplicated */
-  itemType: string
-  /** Whether the other team has this skin */
-  otherTeamHasSkin: boolean
+    /** Type of item being duplicated */
+    itemType: string
+    /** Whether the other team has this skin */
+    otherTeamHasSkin: boolean
 }
 
 /**
  * Events emitted by duplicate confirmation modal component
  */
 export interface DuplicateConfirmModalEvents extends BaseModalEvents {
-  /** Emitted when duplication is confirmed */
-  'confirm': []
+    /** Emitted when duplication is confirmed */
+    confirm: []
 }
 
 /**
  * Props for reset confirmation modal component
- * 
+ *
  * @description Properties for the reset item confirmation modal
  */
 export type ResetConfirmModalProps = BaseModalProps
@@ -361,8 +362,8 @@ export type ResetConfirmModalProps = BaseModalProps
  * Events emitted by reset confirmation modal component
  */
 export interface ResetConfirmModalEvents extends BaseModalEvents {
-  /** Emitted when reset is confirmed */
-  'confirm': []
+    /** Emitted when reset is confirmed */
+    confirm: []
 }
 
 // ============================================================================
@@ -386,29 +387,29 @@ export type VueComputedRef<T> = { value: T }
  * @template _TConfig - Type of item configuration (unused but kept for consistency)
  */
 export interface ItemModalComposableReturn<
-  _TItem extends ItemData = ItemData,
-  _TConfig extends ItemConfiguration = ItemConfiguration
+    _TItem extends ItemData = ItemData,
+    _TConfig extends ItemConfiguration = ItemConfiguration,
 > {
-  /** Modal state */
-  state: VueRef<BaseItemModalState>
-  /** Handle skin selection */
-  handleSkinSelect: (skin: WeaponItemData | KnifeItemData | GloveItemData) => void
-  /** Handle inspect link import */
-  handleImportInspectLink: (url: string) => Promise<void>
-  /** Handle item duplication */
-  handleDuplicate: () => Promise<void>
-  /** Handle item reset */
-  handleReset: () => Promise<void>
-  /** Handle inspect link creation */
-  handleCreateInspectLink: () => Promise<string | null>
-  /** Whether duplication is possible */
-  canDuplicate: VueComputedRef<boolean>
-  /** Whether reset is possible */
-  canReset: VueComputedRef<boolean>
-  /** Whether inspect link creation is possible */
-  canCreateInspectLink: VueComputedRef<boolean>
-  /** Opposite team identifier */
-  oppositeTeam: VueComputedRef<number>
+    /** Modal state */
+    state: VueRef<BaseItemModalState>
+    /** Handle skin selection */
+    handleSkinSelect: (skin: WeaponItemData | KnifeItemData | GloveItemData) => void
+    /** Handle inspect link import */
+    handleImportInspectLink: (url: string) => Promise<void>
+    /** Handle item duplication */
+    handleDuplicate: () => Promise<void>
+    /** Handle item reset */
+    handleReset: () => Promise<void>
+    /** Handle inspect link creation */
+    handleCreateInspectLink: () => Promise<string | null>
+    /** Whether duplication is possible */
+    canDuplicate: VueComputedRef<boolean>
+    /** Whether reset is possible */
+    canReset: VueComputedRef<boolean>
+    /** Whether inspect link creation is possible */
+    canCreateInspectLink: VueComputedRef<boolean>
+    /** Opposite team identifier */
+    oppositeTeam: VueComputedRef<number>
 }
 
 /**
@@ -418,23 +419,23 @@ export interface ItemModalComposableReturn<
  * @template _TConfig - Type of item configuration (unused but kept for consistency)
  */
 export interface ItemModalComposableConfig<
-  TItem extends ItemData = ItemData,
-  _TConfig extends ItemConfiguration = ItemConfiguration
+    TItem extends ItemData = ItemData,
+    _TConfig extends ItemConfiguration = ItemConfiguration,
 > {
-  /** Item type */
-  itemType: TItem['type']
-  /** User profile */
-  user: VueRef<UserProfile | null>
-  /** Item data */
-  item: VueRef<TItem | null>
-  /** Item configuration */
-  configuration: VueRef<ItemConfiguration>
-  /** Selected skin */
-  selectedSkin: VueRef<TItem | null>
-  /** Success callback */
-  onSuccess?: (message: string) => void
-  /** Error callback */
-  onError?: (message: string) => void
+    /** Item type */
+    itemType: TItem['type']
+    /** User profile */
+    user: VueRef<UserProfile | null>
+    /** Item data */
+    item: VueRef<TItem | null>
+    /** Item configuration */
+    configuration: VueRef<ItemConfiguration>
+    /** Selected skin */
+    selectedSkin: VueRef<TItem | null>
+    /** Success callback */
+    onSuccess?: (message: string) => void
+    /** Error callback */
+    onError?: (message: string) => void
 }
 
 // ============================================================================
@@ -444,26 +445,32 @@ export interface ItemModalComposableConfig<
 /**
  * Extract modal props type for a specific item type
  */
-export type ModalPropsForItemType<T extends ItemData['type']> =
-  T extends 'weapon' ? WeaponModalProps :
-  T extends 'knife' ? KnifeModalProps :
-  T extends 'glove' ? GloveModalProps :
-  BaseItemModalProps
+export type ModalPropsForItemType<T extends ItemData['type']> = T extends 'weapon'
+    ? WeaponModalProps
+    : T extends 'knife'
+      ? KnifeModalProps
+      : T extends 'glove'
+        ? GloveModalProps
+        : BaseItemModalProps
 
 /**
  * Extract modal state type for a specific item type
  */
-export type ModalStateForItemType<T extends ItemData['type']> =
-  T extends 'weapon' ? WeaponModalState :
-  T extends 'knife' ? KnifeModalState :
-  T extends 'glove' ? GloveModalState :
-  BaseItemModalState
+export type ModalStateForItemType<T extends ItemData['type']> = T extends 'weapon'
+    ? WeaponModalState
+    : T extends 'knife'
+      ? KnifeModalState
+      : T extends 'glove'
+        ? GloveModalState
+        : BaseItemModalState
 
 /**
  * Extract modal events type for a specific item type
  */
-export type ModalEventsForItemType<T extends ItemData['type']> =
-  T extends 'weapon' ? WeaponModalEvents :
-  T extends 'knife' ? KnifeModalEvents :
-  T extends 'glove' ? GloveModalEvents :
-  BaseItemModalEvents
+export type ModalEventsForItemType<T extends ItemData['type']> = T extends 'weapon'
+    ? WeaponModalEvents
+    : T extends 'knife'
+      ? KnifeModalEvents
+      : T extends 'glove'
+        ? GloveModalEvents
+        : BaseItemModalEvents

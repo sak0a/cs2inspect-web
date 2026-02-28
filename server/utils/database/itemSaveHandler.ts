@@ -6,7 +6,7 @@ import {
     weaponSaveBodySchema,
     knifeSaveBodySchema,
     gloveSaveBodySchema,
-    resetRequestSchema
+    resetRequestSchema,
 } from '~/server/database/schema/zod'
 import {
     saveWeapon,
@@ -14,7 +14,7 @@ import {
     saveGlove,
     validateWeaponDatabaseTable,
     validateWeaponDefindex,
-    validateKnifeDefindex
+    validateKnifeDefindex,
 } from '~/server/utils/database/saveHelpers'
 import type { ItemType, SaveRequestConfig } from '~/server/types/save'
 
@@ -33,7 +33,7 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
         getSaveParams: (body, query) => {
             const table = validateWeaponDatabaseTable(query.type!)
             return [table, query.steamId, String(query.loadoutId), body]
-        }
+        },
     },
     knife: {
         validateFields: (body) => {
@@ -45,7 +45,7 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
         requiresType: false,
         getSaveParams: (body, query) => {
             return [query.steamId, String(query.loadoutId), body]
-        }
+        },
     },
     glove: {
         validateFields: (body) => {
@@ -55,8 +55,8 @@ const ITEM_SAVE_CONFIG: Record<ItemType, SaveRequestConfig> = {
         requiresType: false,
         getSaveParams: (body, query) => {
             return [query.steamId, String(query.loadoutId), body]
-        }
-    }
+        },
+    },
 }
 
 /**
@@ -67,7 +67,10 @@ export function createSaveHandler(itemType: ItemType) {
     return defineEventHandler(async (event: H3Event) => {
         const config = ITEM_SAVE_CONFIG[itemType]
 
-        Logger.info(`Save start item=${itemType} method=${event.method} path=${event.req.url}`, 'db')
+        Logger.info(
+            `Save start item=${itemType} method=${event.method} path=${event.req.url}`,
+            'db'
+        )
 
         // Validate query parameters with Zod
         const query = parseQueryWithSchema(saveItemQuerySchema, event)
@@ -76,7 +79,7 @@ export function createSaveHandler(itemType: ItemType) {
         if (config.requiresType && !query.type) {
             throw createError({
                 statusCode: 400,
-                message: 'Validation failed: type: Type is required'
+                message: 'Validation failed: type: Type is required',
             })
         }
 
@@ -85,7 +88,7 @@ export function createSaveHandler(itemType: ItemType) {
         if (!body) {
             throw createError({
                 statusCode: 400,
-                message: 'Request body is required'
+                message: 'Request body is required',
             })
         }
 
@@ -108,11 +111,12 @@ export function createSaveHandler(itemType: ItemType) {
             if (error && typeof error === 'object' && 'statusCode' in error) {
                 throw error
             }
-            const errorMessage = error instanceof Error ? error.message : `Failed to save ${itemType}`
+            const errorMessage =
+                error instanceof Error ? error.message : `Failed to save ${itemType}`
             Logger.error(`Save handler failed item=${itemType} error=${errorMessage}`, 'db')
             throw createError({
                 statusCode: 500,
-                message: `Failed to save ${itemType}`
+                message: `Failed to save ${itemType}`,
             })
         }
     })

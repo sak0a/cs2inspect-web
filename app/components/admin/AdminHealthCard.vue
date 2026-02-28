@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {
-    LucideRefreshCw as RefreshIcon,
-} from 'lucide-vue-next'
+import { LucideRefreshCw as RefreshIcon } from 'lucide-vue-next'
 import type { HealthCheck } from '~/composables/useAdminHealth'
 
 interface Props {
@@ -17,9 +15,7 @@ const emit = defineEmits<{
     (e: 'recheck'): void
 }>()
 
-const metadataExpanded = ref<string[]>(
-    props.check.status === 'fail' ? ['metadata'] : []
-)
+const metadataExpanded = ref<string[]>(props.check.status === 'fail' ? ['metadata'] : [])
 
 // Display name mapping
 const displayNameMap: Record<string, string> = {
@@ -102,7 +98,9 @@ function formatValue(value: unknown): string {
         <!-- Header -->
         <div class="health-card-header">
             <div class="health-card-title-section">
-                <span class="status-icon" :class="`status-icon--${check.status}`">{{ statusIcon }}</span>
+                <span class="status-icon" :class="`status-icon--${check.status}`">{{
+                    statusIcon
+                }}</span>
                 <h3 class="health-card-name">{{ displayName }}</h3>
                 <NTag :type="statusTagType" size="small" round>
                     {{ statusLabel }}
@@ -112,13 +110,7 @@ function formatValue(value: unknown): string {
                 <span v-if="check.latency_ms !== undefined" class="latency-badge">
                     {{ check.latency_ms }}ms
                 </span>
-                <NButton
-                    quaternary
-                    circle
-                    size="small"
-                    :loading="loading"
-                    @click="emit('recheck')"
-                >
+                <NButton quaternary circle size="small" :loading="loading" @click="emit('recheck')">
                     <template #icon>
                         <NIcon :component="RefreshIcon" :size="14" />
                     </template>
@@ -144,7 +136,11 @@ function formatValue(value: unknown): string {
         </div>
 
         <!-- Message -->
-        <div v-if="check.message" class="health-card-message" :class="{ 'health-card-message--error': check.status === 'fail' }">
+        <div
+            v-if="check.message"
+            class="health-card-message"
+            :class="{ 'health-card-message--error': check.status === 'fail' }"
+        >
             {{ check.message }}
         </div>
 
@@ -166,12 +162,15 @@ function formatValue(value: unknown): string {
                             <div class="metadata-value">
                                 <!-- Array values (like missing_vars) -->
                                 <template v-if="entry.isArray && Array.isArray(entry.value)">
-                                    <div v-if="(entry.value as unknown[]).length === 0" class="metadata-empty">
+                                    <div
+                                        v-if="(entry.value as unknown[]).length === 0"
+                                        class="metadata-empty"
+                                    >
                                         (empty)
                                     </div>
                                     <div v-else class="metadata-tags">
                                         <NTag
-                                            v-for="(item, i) in (entry.value as unknown[])"
+                                            v-for="(item, i) in entry.value as unknown[]"
                                             :key="i"
                                             size="tiny"
                                             :type="entry.isError ? 'error' : 'default'"
@@ -189,14 +188,23 @@ function formatValue(value: unknown): string {
 
                                 <!-- Boolean values -->
                                 <template v-else-if="typeof entry.value === 'boolean'">
-                                    <NTag :type="entry.value ? 'success' : 'error'" size="tiny" round>
+                                    <NTag
+                                        :type="entry.value ? 'success' : 'error'"
+                                        size="tiny"
+                                        round
+                                    >
                                         {{ entry.value }}
                                     </NTag>
                                 </template>
 
                                 <!-- Scalar values -->
                                 <template v-else>
-                                    <span class="metadata-scalar" :class="{ 'metadata-scalar--error': entry.isError && entry.value }">
+                                    <span
+                                        class="metadata-scalar"
+                                        :class="{
+                                            'metadata-scalar--error': entry.isError && entry.value,
+                                        }"
+                                    >
                                         {{ formatValue(entry.value) }}
                                     </span>
                                 </template>

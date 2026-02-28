@@ -1,13 +1,12 @@
 // server/middleware/steam-auth.ts
 import { defineEventHandler, readBody, getQuery } from 'h3'
-import jwt from "jsonwebtoken";
-import type { SignOptions } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken'
+import type { SignOptions } from 'jsonwebtoken'
 import { eq } from 'drizzle-orm'
 import { Logger } from '~/server/utils/logger'
 import { db } from '~/server/database/client'
 import { userProfiles } from '~/server/database/schema'
 import { getCachedSetting } from '~/server/utils/settingsCache'
-
 
 const JWT_SECRET = process.env.JWT_TOKEN || ''
 
@@ -21,7 +20,7 @@ export default defineEventHandler(async (event) => {
         const responseData = await $fetch<string>('https://steamcommunity.com/openid/login', {
             method: 'POST',
             body: formBody,
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         })
         if (responseData.includes('is_valid:true')) {
             // Extract Steam ID from the validation response
@@ -43,20 +42,20 @@ export default defineEventHandler(async (event) => {
 
                 const payload: { steamId: string; type: string } = {
                     steamId,
-                    type: 'steam_auth'
-                };
+                    type: 'steam_auth',
+                }
 
                 // Create JWT token with Steam ID and additional claims
                 const token = jwt.sign(payload, JWT_SECRET, {
-                    expiresIn: String(process.env.JWT_EXPIRY || '7d')
-                } as SignOptions);
+                    expiresIn: String(process.env.JWT_EXPIRY || '7d'),
+                } as SignOptions)
 
                 // Set JWT as an HTTP-only cookie
                 setCookie(event, 'auth_token', token, {
                     httpOnly: true,
                     secure: true,
                     sameSite: 'lax',
-                    maxAge: 60 * 60 * 24 * 7 // 7d
+                    maxAge: 60 * 60 * 24 * 7, // 7d
                 })
             }
         }
@@ -97,7 +96,12 @@ export default defineEventHandler(async (event) => {
                     })
                     .where(eq(userProfiles.steamid, player.steamid))
                     .then(() => {})
-                    .catch((err: unknown) => Logger.error(`Failed to update user profile: ${err instanceof Error ? err.message : String(err)}`, 'SteamAuth'))
+                    .catch((err: unknown) =>
+                        Logger.error(
+                            `Failed to update user profile: ${err instanceof Error ? err.message : String(err)}`,
+                            'SteamAuth'
+                        )
+                    )
             } else {
                 const registrationEnabled = await getCachedSetting('REGISTRATION_ENABLED', true)
                 if (registrationEnabled) {
@@ -108,7 +112,12 @@ export default defineEventHandler(async (event) => {
                             avatarfull: player.avatarfull,
                         })
                         .then(() => {})
-                        .catch((err: unknown) => Logger.error(`Failed to insert user profile: ${err instanceof Error ? err.message : String(err)}`, 'SteamAuth'))
+                        .catch((err: unknown) =>
+                            Logger.error(
+                                `Failed to insert user profile: ${err instanceof Error ? err.message : String(err)}`,
+                                'SteamAuth'
+                            )
+                        )
                 }
             }
         }

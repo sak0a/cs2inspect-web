@@ -8,10 +8,7 @@ import { createError } from 'h3'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { useDatabase } from '~/server/utils/database'
 import { adminUsers } from '~/server/database/schema'
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 
 export default useErrorHandling(async (event) => {
     const startTime = Date.now()

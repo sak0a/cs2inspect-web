@@ -9,8 +9,15 @@ import { z } from 'zod'
 // ============================================================================
 
 export const steamIdParam = z.string().min(1, 'steamId is required')
-export const loadoutIdParam = z.coerce.number().int().positive('loadoutId must be a positive integer')
-export const teamParam = z.coerce.number().int().min(1, 'team must be 1 or 2').max(2, 'team must be 1 or 2')
+export const loadoutIdParam = z.coerce
+    .number()
+    .int()
+    .positive('loadoutId must be a positive integer')
+export const teamParam = z.coerce
+    .number()
+    .int()
+    .min(1, 'team must be 1 or 2')
+    .max(2, 'team must be 1 or 2')
 export const defindexParam = z.coerce.number().int().nonnegative('defindex must be non-negative')
 
 // ============================================================================

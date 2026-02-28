@@ -19,9 +19,11 @@ The application follows a modular component architecture with clear separation o
 ### Modal Components
 
 #### WeaponSkinModal.vue
+
 **Purpose**: Comprehensive weapon skin selection and customization
 
 **Features**:
+
 - Skin selection with search and filtering
 - Float value (wear) adjustment with slider
 - Pattern seed customization
@@ -33,20 +35,23 @@ The application follows a modular component architecture with clear separation o
 - Save/reset functionality
 
 **Props**:
+
 ```typescript
 interface WeaponModalProps {
-  weapon: WeaponItemData       // Current weapon data
-  show: boolean                // Modal visibility
-  isCreatingNew?: boolean      // Creating vs editing mode
+    weapon: WeaponItemData // Current weapon data
+    show: boolean // Modal visibility
+    isCreatingNew?: boolean // Creating vs editing mode
 }
 ```
 
 **Emits**:
+
 - `update:show` - Modal visibility change
 - `save` - Weapon customization saved
 - `error` - Error occurred during operation
 
 **Key State**:
+
 - Selected skin (paintIndex)
 - Float value (0.0 - 1.0)
 - Pattern seed (0 - 1000)
@@ -58,9 +63,11 @@ interface WeaponModalProps {
 ---
 
 #### KnifeSkinModal.vue
+
 **Purpose**: Knife skin selection and customization
 
 **Features**:
+
 - Knife-specific skin catalog
 - Team-based knife selection (T/CT)
 - Float value and pattern customization
@@ -70,15 +77,17 @@ interface WeaponModalProps {
 - Save to loadout
 
 **Props**:
+
 ```typescript
 interface KnifeModalProps {
-  weapon: KnifeItemData
-  show: boolean
-  isCreatingNew?: boolean
+    weapon: KnifeItemData
+    show: boolean
+    isCreatingNew?: boolean
 }
 ```
 
 **Special Features**:
+
 - Doppler phase visualization (Phase 1-4, Ruby, Sapphire, Black Pearl)
 - Fade percentage calculation
 - Gamma Doppler phases
@@ -86,9 +95,11 @@ interface KnifeModalProps {
 ---
 
 #### GloveSkinModal.vue
+
 **Purpose**: Glove skin selection and customization
 
 **Features**:
+
 - Glove model selection
 - Glove skin selection
 - Team-based configuration
@@ -97,11 +108,12 @@ interface KnifeModalProps {
 - Real-time preview
 
 **Props**:
+
 ```typescript
 interface GloveModalProps {
-  weapon: GloveItemData
-  show: boolean
-  isCreatingNew?: boolean
+    weapon: GloveItemData
+    show: boolean
+    isCreatingNew?: boolean
 }
 ```
 
@@ -110,9 +122,11 @@ interface GloveModalProps {
 ---
 
 #### StickerModal.vue
+
 **Purpose**: Sticker selection and application
 
 **Features**:
+
 - Browse sticker catalog
 - Search by name
 - Filter by category/tournament
@@ -121,43 +135,50 @@ interface GloveModalProps {
 - Apply to specific weapon slot
 
 **Props**:
+
 ```typescript
 interface StickerModalProps {
-  show: boolean
-  weaponSlots: number          // Available sticker slots
-  currentStickers: Sticker[]   // Already applied stickers
+    show: boolean
+    weaponSlots: number // Available sticker slots
+    currentStickers: Sticker[] // Already applied stickers
 }
 ```
 
 **Emits**:
+
 - `update:show`
 - `apply` - Sticker applied to slot
 
 ---
 
 #### KeychainModal.vue
+
 **Purpose**: Keychain selection and attachment
 
 **Features**:
+
 - Keychain catalog browsing
 - Search functionality
 - Pattern seed selection
 - Attach to weapons (CS2 feature)
 
 **Props**:
+
 ```typescript
 interface KeychainModalProps {
-  show: boolean
-  currentKeychain?: Keychain
+    show: boolean
+    currentKeychain?: Keychain
 }
 ```
 
 ---
 
 #### VisualCustomizerModal.vue
+
 **Purpose**: Advanced visual customization with canvas-based editing
 
 **Features**:
+
 - Canvas-based sticker positioning
 - Drag-and-drop sticker placement
 - Rotation and scaling controls
@@ -167,6 +188,7 @@ interface KeychainModalProps {
 - Export customization
 
 **Technical Details**:
+
 - Uses HTML5 Canvas API
 - Touch/mouse event handling
 - Image loading and caching
@@ -174,20 +196,23 @@ interface KeychainModalProps {
 - Hit detection for selection
 
 **Props**:
+
 ```typescript
 interface VisualCustomizerProps {
-  show: boolean
-  weapon: WeaponItemData
-  stickers: Sticker[]
+    show: boolean
+    weapon: WeaponItemData
+    stickers: Sticker[]
 }
 ```
 
 ---
 
 #### InspectURLModal.vue
+
 **Purpose**: Import items from CS2 inspect URLs
 
 **Features**:
+
 - Paste inspect URL from game/market
 - Parse masked and unmasked URLs
 - Validate URL format
@@ -195,6 +220,7 @@ interface VisualCustomizerProps {
 - Create item from URL
 
 **Supported URL Formats**:
+
 ```
 steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}
 csgo_econ_action_preview {data}
@@ -206,9 +232,11 @@ S{steamid}A{assetid}D{classid}
 ---
 
 #### DuplicateItemModal.vue
+
 **Purpose**: Confirm duplication of existing items
 
 **Features**:
+
 - Display current item details
 - Confirm duplicate action
 - Cancel operation
@@ -216,9 +244,11 @@ S{steamid}A{assetid}D{classid}
 ---
 
 #### ResetModal.vue
+
 **Purpose**: Confirm reset of item customization
 
 **Features**:
+
 - Warning message
 - Confirm reset action
 - Cancel protection
@@ -228,40 +258,47 @@ S{steamid}A{assetid}D{classid}
 ### Tab Components
 
 #### WeaponTabs.vue
+
 **Purpose**: Organize weapons by category
 
 **Categories**:
+
 - Pistols (Glock-18, USP-S, P2000, etc.)
 - SMGs (MP9, MP7, UMP-45, etc.)
 - Rifles (AK-47, M4A4, M4A1-S, etc.)
 - Heavy (Nova, XM1014, MAG-7, etc.)
 
 **Features**:
+
 - Team-based filtering (T/CT/Both)
 - Category tabs
 - Weapon grid display
 - Click to select weapon
 
 **Props**:
+
 ```typescript
 interface WeaponTabsProps {
-  modelValue: number           // Selected weapon defindex
-  team?: 'T' | 'CT' | 'all'   // Team filter
+    modelValue: number // Selected weapon defindex
+    team?: 'T' | 'CT' | 'all' // Team filter
 }
 ```
 
 ---
 
 #### KnifeTabs.vue
+
 **Purpose**: Display available knives by team
 
 **Features**:
+
 - T-side knives tab
 - CT-side knives tab
 - Knife grid with icons
 - Team-specific defaults
 
 **Knives**:
+
 - Bayonet, M9 Bayonet, Karambit
 - Butterfly, Huntsman, Falchion
 - Bowie, Shadow Daggers, Navaja
@@ -272,14 +309,17 @@ interface WeaponTabsProps {
 ---
 
 #### GloveTabs.vue
+
 **Purpose**: Display available gloves by team
 
 **Features**:
+
 - T-side gloves tab
 - CT-side gloves tab
 - Glove model grid
 
 **Glove Types**:
+
 - Bloodhound Gloves
 - Driver Gloves
 - Hand Wraps
@@ -292,9 +332,11 @@ interface WeaponTabsProps {
 ---
 
 #### AgentTabs.vue
+
 **Purpose**: Agent selection by team
 
 **Features**:
+
 - Terrorist agents
 - Counter-Terrorist agents
 - Agent preview cards
@@ -303,9 +345,11 @@ interface WeaponTabsProps {
 ---
 
 #### MusicKitTabs.vue
+
 **Purpose**: Music kit selection
 
 **Features**:
+
 - Browse all music kits
 - Preview audio (if available)
 - Select active music kit
@@ -314,9 +358,11 @@ interface WeaponTabsProps {
 ---
 
 #### PinTabs.vue
+
 **Purpose**: Pin collection management
 
 **Features**:
+
 - Display owned pins
 - Pin categories
 - Add/remove pins
@@ -327,9 +373,11 @@ interface WeaponTabsProps {
 ### Display Components
 
 #### InspectItemDisplay.vue
+
 **Purpose**: Universal item preview display
 
 **Features**:
+
 - Item name and type
 - Skin name and wear
 - Float value display
@@ -341,20 +389,23 @@ interface WeaponTabsProps {
 - Team indicator
 
 **Props**:
+
 ```typescript
 interface InspectItemDisplayProps {
-  item: ItemData
-  showDetails?: boolean
-  compact?: boolean
+    item: ItemData
+    showDetails?: boolean
+    compact?: boolean
 }
 ```
 
 ---
 
 #### HealthCard.vue
+
 **Purpose**: Display health status for a system component
 
 **Features**:
+
 - Real-time component health status
 - Status indicators (ok, warn, fail)
 - Latency measurement display
@@ -364,18 +415,20 @@ interface InspectItemDisplayProps {
 - Auto-refresh support
 
 **Props**:
+
 ```typescript
 interface HealthCardProps {
-  component: string
-  status: 'ok' | 'warn' | 'fail'
-  latency_ms: number
-  uptime_percentage: number
-  metadata?: Record<string, any>
-  history?: HealthCheckData[]
+    component: string
+    status: 'ok' | 'warn' | 'fail'
+    latency_ms: number
+    uptime_percentage: number
+    metadata?: Record<string, any>
+    history?: HealthCheckData[]
 }
 ```
 
 **Features**:
+
 - Color-coded status (green/yellow/red)
 - Responsive glassmorphism design
 - Historical data visualization
@@ -384,9 +437,11 @@ interface HealthCardProps {
 ---
 
 #### HistoryChart.vue
+
 **Purpose**: Visualize health check history with Chart.js
 
 **Features**:
+
 - Line charts for latency trends
 - Uptime visualization
 - Time-series data display
@@ -395,16 +450,18 @@ interface HealthCardProps {
 - Multiple metrics support
 
 **Props**:
+
 ```typescript
 interface HistoryChartProps {
-  data: HealthCheckData[]
-  component: string
-  metric: 'latency' | 'uptime' | 'status'
-  height?: number
+    data: HealthCheckData[]
+    component: string
+    metric: 'latency' | 'uptime' | 'status'
+    height?: number
 }
 ```
 
 **Technical Implementation**:
+
 - Chart.js integration
 - Real-time data updates
 - Gradient fills
@@ -414,9 +471,11 @@ interface HistoryChartProps {
 ---
 
 #### LoadoutSelector.vue
+
 **Purpose**: Manage multiple loadouts
 
 **Features**:
+
 - Create new loadouts
 - Switch between loadouts
 - Rename loadouts
@@ -424,14 +483,16 @@ interface HistoryChartProps {
 - Loadout preview
 
 **Props**:
+
 ```typescript
 interface LoadoutSelectorProps {
-  loadouts: Loadout[]
-  activeLoadout: number
+    loadouts: Loadout[]
+    activeLoadout: number
 }
 ```
 
 **Emits**:
+
 - `select` - Loadout selected
 - `create` - New loadout created
 - `delete` - Loadout deleted
@@ -442,11 +503,13 @@ interface LoadoutSelectorProps {
 ### Tutorial Components
 
 #### TutorialOverlay.vue
+
 **Location**: `components/tutorial/TutorialOverlay.vue`
 
 **Purpose**: Full-screen SVG overlay that spotlights the current tutorial target element with a dark backdrop and yellow (#FACC15) highlight border.
 
 **Features**:
+
 - SVG mask-based spotlight cutout around the target element
 - Auto-scrolls target element into view (`scrollIntoView` with configurable `scrollBlock`)
 - Polls for elements not yet in the DOM (e.g. inside modals that haven't opened)
@@ -456,17 +519,20 @@ interface LoadoutSelectorProps {
 - ESC key exits the tutorial
 
 **Key Implementation Details**:
+
 - Uses `document.querySelector('[data-tutorial="..."]')` to find target elements
 - 350ms delay after smooth scroll before measuring element position
 - `requestAnimationFrame` polling (up to 3 seconds) for elements not yet in DOM
 - Adds/removes `tutorial-highlight-active` CSS class on target elements
 
 #### TutorialPopover.vue
+
 **Location**: `components/tutorial/TutorialPopover.vue`
 
 **Purpose**: Glassmorphism-styled popover that displays step information and navigation controls, positioned relative to the spotlight target.
 
 **Features**:
+
 - Step title and description (i18n-aware)
 - Next / Back / Skip / Finish navigation buttons
 - Progress indicator (e.g. "Step 3 of 16")
@@ -474,6 +540,7 @@ interface LoadoutSelectorProps {
 - Auto-repositioning to stay within viewport bounds
 
 **Props**:
+
 - `step: TutorialStep | null` - Current step definition
 - `targetRect: { x, y, width, height }` - Bounding rect of the spotlight
 - `stepIndex: number` - Current step index
@@ -489,15 +556,18 @@ interface LoadoutSelectorProps {
 ### Utility Components
 
 #### ThemeProvider.vue
+
 **Purpose**: Global theme configuration
 
 **Features**:
+
 - Dark/light theme support
 - Naive UI theme customization
 - CSS variable configuration
 - Theme persistence
 
 **Configuration**:
+
 ```typescript
 // Primary colors (yellow accent by default)
 primaryColor: '#FACC15'
@@ -512,14 +582,17 @@ borderRadius: '20px'
 ---
 
 #### LanguageSwitcher.vue
+
 **Purpose**: Multi-language support
 
 **Supported Languages**:
+
 - English (en-US)
 - German (de-DE)
 - Russian (ru-RU)
 
 **Features**:
+
 - Dropdown language selector
 - Persistent language preference
 - Automatic page translation
@@ -527,9 +600,11 @@ borderRadius: '20px'
 ---
 
 #### SitePreloader.vue
+
 **Purpose**: Initial loading screen
 
 **Features**:
+
 - Loading animation
 - Progress indication
 - Smooth fade-in transition
@@ -537,9 +612,11 @@ borderRadius: '20px'
 ---
 
 #### SkinPageLayout.vue
+
 **Purpose**: Consistent page layout for skin pages
 
 **Features**:
+
 - Header with navigation
 - Content area
 - Footer
@@ -558,6 +635,7 @@ All admin components are located in `components/admin/`. They require admin auth
 **Props**: `title` (optional string, default: `'Admin Panel'`)
 
 **Features**:
+
 - Responsive mobile sidebar with hamburger toggle
 - Dynamic navigation items based on admin role
 - Admin management link visible only for superadmins
@@ -663,7 +741,9 @@ All admin components are located in `components/admin/`. They require admin auth
 ### Shared UI Patterns
 
 #### Selection States
+
 All item selection components use consistent visual feedback:
+
 ```css
 /* Selected item */
 .ring-2.ring-[var(--selection-ring)]
@@ -676,13 +756,15 @@ All item selection components use consistent visual feedback:
 ```
 
 #### Modal Pattern
+
 Standard modal structure:
+
 ```vue
 <NModal
-  v-model:show="showModal"
-  :theme-overrides="skinModalThemeOverrides"
-  preset="card"
-  :style="{ width: '90%', maxWidth: '1200px' }"
+    v-model:show="showModal"
+    :theme-overrides="skinModalThemeOverrides"
+    preset="card"
+    :style="{ width: '90%', maxWidth: '1200px' }"
 >
   <!-- Modal content -->
 </NModal>
@@ -693,9 +775,11 @@ Standard modal structure:
 ## Pages
 
 ### status.vue
+
 **Purpose**: System health status dashboard
 
 **Features**:
+
 - Real-time health monitoring for all components
 - Visual status indicators (Database, Environment, Steam API, etc.)
 - Historical health data with Chart.js visualizations
@@ -706,17 +790,20 @@ Standard modal structure:
 - Back to home navigation
 
 **Components Used**:
+
 - `HealthCard.vue` - Individual component health cards
 - `HistoryChart.vue` - Historical data visualization
 - Chart.js for metric visualization
 
 **API Endpoints**:
+
 - `/api/health/details` - Current health status
 - `/api/health/history` - Historical health data
 
 **Access**: Available at `/status` (public, no authentication required)
 
 **Internationalization**:
+
 - English, German, Russian translations
 - Localized status messages and labels
 
@@ -727,6 +814,7 @@ Standard modal structure:
 ### API Handlers
 
 #### Authentication Handler
+
 **File**: `server/api/auth/validate.ts`
 
 **Purpose**: Validate JWT tokens
@@ -734,22 +822,25 @@ Standard modal structure:
 **Endpoint**: `POST /api/auth/validate`
 
 **Response**:
+
 ```typescript
 interface AuthResponse {
-  valid: boolean
-  user?: UserProfile
-  error?: string
+    valid: boolean
+    user?: UserProfile
+    error?: string
 }
 ```
 
 ---
 
 #### Data Handlers
+
 **Directory**: `server/api/data/`
 
 **Purpose**: Serve game data (skins, agents, stickers, etc.)
 
 **Endpoints**:
+
 - `GET /api/data/skins` - All weapon/knife skins
 - `GET /api/data/agents` - All agents
 - `GET /api/data/stickers` - All stickers
@@ -762,17 +853,20 @@ interface AuthResponse {
 ---
 
 #### Health Check Handlers
+
 **Directory**: `server/api/health/`
 
 **Purpose**: Provide health monitoring endpoints for system components
 
 **Endpoints**:
+
 - `GET /api/health/live` - Liveness probe (process running check)
 - `GET /api/health/ready` - Readiness probe (dependencies check)
 - `GET /api/health/details` - Detailed health information
 - `GET /api/health/history` - Historical health data
 
 **Health Probes** (`server/utils/health/probes.ts`):
+
 - Database connectivity and pool status
 - Environment variables validation
 - Steam API accessibility (optional)
@@ -782,18 +876,21 @@ interface AuthResponse {
 - Response time measurement
 
 **Health Sampling** (`server/utils/health/sampler.ts`):
+
 - Automatic periodic health checks (every 60 seconds)
 - Data persistence to `health_check_history` table
 - Configurable sampling intervals
 - Runs in background on server startup
 
 **Health History** (`server/utils/health/history.ts`):
+
 - Query historical health data
 - Calculate uptime percentages
 - Aggregate latency statistics
 - Time-series data retrieval
 
 **Types** (`server/types/health.ts`):
+
 - `HealthCheckResult` - Individual check result
 - `HealthStatus` - Overall health status
 - `HealthProbe` - Probe function type
@@ -804,23 +901,28 @@ interface AuthResponse {
 #### Item Management Handlers
 
 **Weapons**: `server/api/weapons/`
+
 - `GET /api/weapons/[type]` - Get weapons by type
 - `POST /api/weapons/save` - Save weapon customization
 
 **Knives**: `server/api/knifes/`
+
 - `GET /api/knifes` - Get knives for loadout
 - `POST /api/knifes/save` - Save knife customization
 
 **Gloves**: `server/api/gloves/`
+
 - `GET /api/gloves` - Get gloves for loadout
 - `POST /api/gloves/save` - Save glove customization
 
 ---
 
 #### Loadout Handlers
+
 **Directory**: `server/api/loadouts/`
 
 **Endpoints**:
+
 - `GET /api/loadouts` - Get all loadouts for user
 - `POST /api/loadouts` - Create new loadout
 - `POST /api/loadouts/select` - Switch active loadout
@@ -831,9 +933,11 @@ interface AuthResponse {
 ### Server Utilities
 
 #### CS2 Inspect System
+
 **Directory**: `server/utils/csinspect/`
 
 **Components**:
+
 - `base.ts` - URL parsing and validation
 - `steamClient.ts` - Steam connection management
 - `protobuf-decoder.ts` - Decode inspect URLs
@@ -845,11 +949,13 @@ See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for deta
 ---
 
 #### Database Utilities
+
 **Directory**: `server/database/`
 
 **Purpose**: Database connection and query helpers
 
 **Features**:
+
 - Connection pooling
 - Query builders
 - Transaction support
@@ -858,11 +964,13 @@ See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for deta
 ---
 
 #### Database Migrations
+
 **Directory**: `server/database/drizzle/`
 
 **Purpose**: Automatic database schema management
 
 **Migration System** (Drizzle ORM via `server/database/migrate.ts`):
+
 - Runs automatically on server startup
 - Generated by Drizzle Kit (`bun run db:generate`)
 - Tracks applied migrations in `__drizzle_migrations` table
@@ -871,11 +979,13 @@ See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for deta
 - Error handling and rollback support
 
 **Migration Files**:
+
 - `000_initial.sql` - Initial database schema (base tables)
 - `001_add_health_checks.sql` - Health monitoring tables
 - `README.md` - Migration system documentation
 
 **Creating New Migrations**:
+
 1. Create file: `00X_description.sql` (sequential numbering)
 2. Use `IF NOT EXISTS` for idempotency
 3. Use UPPERCASE SQL keywords
@@ -883,6 +993,7 @@ See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for deta
 5. Restart server (migrations run automatically)
 
 **Server Plugin** (`server/plugins/init.ts`):
+
 - Runs migrations on startup
 - Initializes health check sampling
 - Logs migration progress
@@ -890,11 +1001,13 @@ See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for deta
 ---
 
 #### Database Utilities (Legacy)
+
 **Directory**: `server/database/`
 
 **Purpose**: Database connection and query helpers (pre-migration system)
 
 **Features**:
+
 - Connection pooling
 - Query builders
 - Transaction support
@@ -905,11 +1018,13 @@ See [CS2 Inspect System Documentation](../CS2_INSPECT_SYSTEM_README.md) for deta
 ---
 
 #### Theme Customization
+
 **File**: `server/utils/themeCustomization.ts`
 
 **Purpose**: Export theme overrides for components
 
 **Usage**:
+
 ```typescript
 import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 ```
@@ -919,9 +1034,11 @@ import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 ## Composables (Hooks)
 
 ### useInspectItem.ts
+
 **Purpose**: Handle CS2 inspect link processing
 
 **Features**:
+
 - Parse inspect URLs
 - Fetch item data from Steam
 - Cache items in localStorage
@@ -929,45 +1046,49 @@ import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 - Update item customization
 
 **API**:
+
 ```typescript
 interface UseInspectItem {
-  inspectedItem: Ref<ItemData | null>
-  itemType: Ref<string | null>
-  customization: Ref<ItemConfiguration | null>
-  isLoading: Ref<boolean>
-  error: Ref<string | null>
-  
-  analyzeInspectLink: (url: string) => Promise<void>
-  loadFromStorage: () => void
-  clearItem: () => void
-  updateCustomization: (config: Partial<ItemConfiguration>) => void
-  updateItem: (item: ItemData) => void
-  generateInspectLink: () => Promise<string>
-  hasItem: ComputedRef<boolean>
+    inspectedItem: Ref<ItemData | null>
+    itemType: Ref<string | null>
+    customization: Ref<ItemConfiguration | null>
+    isLoading: Ref<boolean>
+    error: Ref<string | null>
+
+    analyzeInspectLink: (url: string) => Promise<void>
+    loadFromStorage: () => void
+    clearItem: () => void
+    updateCustomization: (config: Partial<ItemConfiguration>) => void
+    updateItem: (item: ItemData) => void
+    generateInspectLink: () => Promise<string>
+    hasItem: ComputedRef<boolean>
 }
 ```
 
 ---
 
 ### useItems.ts
+
 **Purpose**: Fetch and cache game data
 
 **Features**:
+
 - Load skins, agents, stickers
 - Cache responses
 - Error handling
 - Loading states
 
 **API**:
+
 ```typescript
 interface UseItems {
-  items: Ref<ItemCatalog>
-  loading: Ref<boolean>
-  error: Ref<string | null>
-  
-  loadSkins: () => Promise<void>
-  loadAgents: () => Promise<void>
-  loadStickers: () => Promise<void>
+    items: Ref<ItemCatalog>
+    loading: Ref<boolean>
+    error: Ref<string | null>
+
+    loadSkins: () => Promise<void>
+    loadAgents: () => Promise<void>
+    loadStickers: () => Promise<void>
 }
 ```
 
@@ -976,21 +1097,22 @@ interface UseItems {
 ## Component Communication Patterns
 
 ### Parent-Child Communication
+
 ```vue
 <!-- Parent -->
 <WeaponSkinModal
-  :weapon="currentWeapon"
-  :show="showModal"
-  @save="handleSave"
-  @update:show="showModal = $event"
+    :weapon="currentWeapon"
+    :show="showModal"
+    @save="handleSave"
+    @update:show="showModal = $event"
 />
 
 <!-- Child emits -->
-emit('save', customizedWeapon)
-emit('update:show', false)
+emit('save', customizedWeapon) emit('update:show', false)
 ```
 
 ### Store-Based State
+
 ```typescript
 // Component
 const loadoutStore = useLoadoutStore()
@@ -1001,6 +1123,7 @@ await loadoutStore.saveWeapon(weaponData)
 ```
 
 ### Composable Hooks
+
 ```typescript
 // Component
 const { inspectedItem, analyzeInspectLink } = useInspectItem()
@@ -1012,6 +1135,7 @@ await analyzeInspectLink(inspectUrl)
 ## Testing Components
 
 See test files for examples:
+
 - Component unit tests: `components/*.spec.ts`
 - Integration tests: `tests/integration/*.spec.ts`
 - E2E tests: `tests/e2e/*.spec.ts`

@@ -45,6 +45,7 @@ type LoadoutId = number & { readonly __brand: 'LoadoutId' }
 Loadout identifier (numeric in database, often string in URLs).
 
 **Usage**:
+
 ```typescript
 import { toLoadoutId } from '~/types/core/branded'
 
@@ -56,9 +57,10 @@ await db.select().from(loadouts).where(eq(loadouts.id, loadoutId))
 ```
 
 **Type Guard**:
+
 ```typescript
 function isValidLoadoutId(value: unknown): value is LoadoutId {
-  return typeof value === 'number' && Number.isInteger(value) && value > 0
+    return typeof value === 'number' && Number.isInteger(value) && value > 0
 }
 ```
 
@@ -75,6 +77,7 @@ type SteamId = string & { readonly __brand: 'SteamId' }
 **Example**: `"76561198012345678"`
 
 **Usage**:
+
 ```typescript
 import { toSteamId } from '~/types/core/branded'
 
@@ -83,9 +86,10 @@ await loadoutStore.fetchLoadouts(steamId)
 ```
 
 **Type Guard**:
+
 ```typescript
 function isValidSteamId(value: unknown): value is SteamId {
-  return typeof value === 'string' && /^\d{17}$/.test(value)
+    return typeof value === 'string' && /^\d{17}$/.test(value)
 }
 ```
 
@@ -102,11 +106,13 @@ type Defindex = number & { readonly __brand: 'Defindex' }
 Weapon/item definition index (unique identifier for each item type).
 
 **Examples**:
+
 - `7` - AK-47
 - `500` - Bayonet
 - `5027` - Hand Wraps
 
 **Usage**:
+
 ```typescript
 import { toDefindex } from '~/types/core/branded'
 
@@ -124,11 +130,13 @@ type PaintIndex = number & { readonly __brand: 'PaintIndex' }
 Paint/skin index (unique identifier for each skin).
 
 **Examples**:
+
 - `12` - Crimson Web
 - `44` - Asiimov
 - `253` - Fire Serpent
 
 **Usage**:
+
 ```typescript
 import { toPaintIndex } from '~/types/core/branded'
 
@@ -148,10 +156,12 @@ Pattern seed (determines pattern variation).
 **Range**: 0-999
 
 **Examples**:
+
 - `661` - Blue Gem Case Hardened
 - `0` - Default pattern
 
 **Usage**:
+
 ```typescript
 import { toPaintSeed } from '~/types/core/branded'
 
@@ -170,13 +180,9 @@ type PinDefindex = number & { readonly __brand: 'PinDefindex' }
 ```
 
 **Converters**:
+
 ```typescript
-import {
-  toStickerId,
-  toKeychainId,
-  toMusicKitDefindex,
-  toPinDefindex
-} from '~/types/core/branded'
+import { toStickerId, toKeychainId, toMusicKitDefindex, toPinDefindex } from '~/types/core/branded'
 ```
 
 ---
@@ -191,13 +197,9 @@ type ISOTimestamp = string & { readonly __brand: 'ISOTimestamp' }
 ```
 
 **Converters**:
+
 ```typescript
-import {
-  toAdminId,
-  toBanId,
-  toSettingKey,
-  toISOTimestamp
-} from '~/types/core/branded'
+import { toAdminId, toBanId, toSettingKey, toISOTimestamp } from '~/types/core/branded'
 ```
 
 **Type Guards**: `isValidAdminId()`, `isValidBanId()`, `isValidSettingKey()`, `isValidISOTimestamp()`
@@ -212,13 +214,13 @@ import {
 
 ```typescript
 interface ItemConfiguration {
-  active: boolean
-  team: number              // 1=T, 2=CT
-  defindex: number
-  paintIndex: number
-  paintIndexOverride: boolean
-  pattern: number           // 0-999
-  wear: number              // 0.0-1.0
+    active: boolean
+    team: number // 1=T, 2=CT
+    defindex: number
+    paintIndex: number
+    paintIndexOverride: boolean
+    pattern: number // 0-999
+    wear: number // 0.0-1.0
 }
 ```
 
@@ -226,28 +228,28 @@ interface ItemConfiguration {
 
 ```typescript
 interface WeaponConfiguration extends ItemConfiguration {
-  statTrak: boolean
-  statTrakCount: number
-  nameTag: string
-  stickers: Array<StickerConfig | null>  // 5 slots
-  keychain: KeychainConfig | null
+    statTrak: boolean
+    statTrakCount: number
+    nameTag: string
+    stickers: Array<StickerConfig | null> // 5 slots
+    keychain: KeychainConfig | null
 }
 
 interface StickerConfig {
-  id: number
-  wear: number      // 0.0-1.0
-  scale: number     // Scale factor
-  rotation: number  // Rotation in degrees
-  x: number         // X offset
-  y: number         // Y offset
+    id: number
+    wear: number // 0.0-1.0
+    scale: number // Scale factor
+    rotation: number // Rotation in degrees
+    x: number // X offset
+    y: number // Y offset
 }
 
 interface KeychainConfig {
-  id: number
-  seed: number
-  x: number
-  y: number
-  z: number
+    id: number
+    seed: number
+    x: number
+    y: number
+    z: number
 }
 ```
 
@@ -255,9 +257,9 @@ interface KeychainConfig {
 
 ```typescript
 interface KnifeConfiguration extends ItemConfiguration {
-  statTrak: boolean
-  statTrakCount: number
-  nameTag: string
+    statTrak: boolean
+    statTrakCount: number
+    nameTag: string
 }
 ```
 
@@ -265,7 +267,7 @@ interface KnifeConfiguration extends ItemConfiguration {
 
 ```typescript
 interface GloveConfiguration extends ItemConfiguration {
-  // No additional properties beyond ItemConfiguration
+    // No additional properties beyond ItemConfiguration
 }
 ```
 
@@ -278,13 +280,14 @@ function isGloveConfiguration(config: ItemConfiguration): config is GloveConfigu
 ```
 
 **Usage**:
+
 ```typescript
 import { isWeaponConfiguration } from '~/types/business/items'
 
 if (isWeaponConfiguration(config)) {
-  // TypeScript knows config has stickers, keychain, etc.
-  console.log(config.stickers)
-  console.log(config.nameTag)
+    // TypeScript knows config has stickers, keychain, etc.
+    console.log(config.stickers)
+    console.log(config.nameTag)
 }
 ```
 
@@ -298,20 +301,20 @@ if (isWeaponConfiguration(config)) {
 
 ```typescript
 interface DBLoadout {
-  id: number
-  steamid: string
-  name: string
-  selected_knife_t: number | null
-  selected_knife_ct: number | null
-  selected_glove_t: number | null
-  selected_glove_ct: number | null
-  selected_agent_ct: number | null
-  selected_agent_t: number | null
-  selected_music: number | null
-  active: boolean | number
-  is_default: boolean | number
-  created_at: string
-  updated_at: string
+    id: number
+    steamid: string
+    name: string
+    selected_knife_t: number | null
+    selected_knife_ct: number | null
+    selected_glove_t: number | null
+    selected_glove_ct: number | null
+    selected_agent_ct: number | null
+    selected_agent_t: number | null
+    selected_music: number | null
+    active: boolean | number
+    is_default: boolean | number
+    created_at: string
+    updated_at: string
 }
 ```
 
@@ -319,21 +322,21 @@ interface DBLoadout {
 
 ```typescript
 interface DBWeapon {
-  id: number
-  steamid: string
-  loadoutid: number
-  team: number
-  weapon_defindex: number
-  weapon_name: string
-  active: boolean | number
-  paintindex: number
-  paintseed: number
-  paintwear: number
-  stattrak_enabled: boolean | number
-  stattrak_count: number
-  nametag: string | null
-  created_at: string
-  updated_at: string
+    id: number
+    steamid: string
+    loadoutid: number
+    team: number
+    weapon_defindex: number
+    weapon_name: string
+    active: boolean | number
+    paintindex: number
+    paintseed: number
+    paintwear: number
+    stattrak_enabled: boolean | number
+    stattrak_count: number
+    nametag: string | null
+    created_at: string
+    updated_at: string
 }
 ```
 
@@ -341,21 +344,21 @@ interface DBWeapon {
 
 ```typescript
 interface DBKnife {
-  id: number
-  steamid: string
-  loadoutid: number
-  team: number
-  weapon_defindex: number
-  weapon_name: string
-  active: boolean | number
-  paintindex: number
-  paintseed: number
-  paintwear: number
-  stattrak_enabled: boolean | number
-  stattrak_count: number
-  nametag: string | null
-  created_at: string
-  updated_at: string
+    id: number
+    steamid: string
+    loadoutid: number
+    team: number
+    weapon_defindex: number
+    weapon_name: string
+    active: boolean | number
+    paintindex: number
+    paintseed: number
+    paintwear: number
+    stattrak_enabled: boolean | number
+    stattrak_count: number
+    nametag: string | null
+    created_at: string
+    updated_at: string
 }
 ```
 
@@ -363,18 +366,18 @@ interface DBKnife {
 
 ```typescript
 interface DBGlove {
-  id: number
-  steamid: string
-  loadoutid: number
-  team: number
-  weapon_defindex: number
-  weapon_name: string
-  active: boolean | number
-  paintindex: number
-  paintseed: number
-  paintwear: number
-  created_at: string
-  updated_at: string
+    id: number
+    steamid: string
+    loadoutid: number
+    team: number
+    weapon_defindex: number
+    weapon_name: string
+    active: boolean | number
+    paintindex: number
+    paintseed: number
+    paintwear: number
+    created_at: string
+    updated_at: string
 }
 ```
 
@@ -388,34 +391,35 @@ interface DBGlove {
 
 ```typescript
 interface APIResponse<T = unknown> {
-  success: boolean
-  data?: T
-  error?: APIError
-  meta?: APIMetadata
+    success: boolean
+    data?: T
+    error?: APIError
+    meta?: APIMetadata
 }
 
 interface APIError {
-  code: string
-  message: string
-  details?: Record<string, unknown>
+    code: string
+    message: string
+    details?: Record<string, unknown>
 }
 
 interface APIMetadata {
-  loadoutId?: number
-  steamId?: string
-  rows?: number
-  page?: number
-  totalPages?: number
+    loadoutId?: number
+    steamId?: string
+    rows?: number
+    page?: number
+    totalPages?: number
 }
 ```
 
 **Usage**:
+
 ```typescript
 type LoadoutsResponse = APIResponse<{ loadouts: DBLoadout[] }>
 
 const response: LoadoutsResponse = await fetch('/api/loadouts')
 if (response.success) {
-  console.log(response.data.loadouts)
+    console.log(response.data.loadouts)
 }
 ```
 
@@ -423,27 +427,27 @@ if (response.success) {
 
 ```typescript
 interface APIWeaponSkin {
-  id: number
-  defindex: number
-  paintindex: number
-  name: string
-  weapon: string
-  pattern: string
-  rarity: {
-    id: string
+    id: number
+    defindex: number
+    paintindex: number
     name: string
-    color: string
-  }
-  collection: string
-  min_float: number
-  max_float: number
-  image: string
-  statTrakAvailable: boolean
-  category: string
+    weapon: string
+    pattern: string
+    rarity: {
+        id: string
+        name: string
+        color: string
+    }
+    collection: string
+    min_float: number
+    max_float: number
+    image: string
+    statTrakAvailable: boolean
+    category: string
 }
 
 interface APISkin extends APIWeaponSkin {
-  // Alias for backward compatibility
+    // Alias for backward compatibility
 }
 ```
 
@@ -454,75 +458,129 @@ interface APISkin extends APIWeaponSkin {
 ```typescript
 /** Dashboard overview statistics */
 interface AdminOverviewStats {
-  totalUsers: number
-  activeUsers7d: number
-  activeUsers30d: number
-  totalLoadouts: number
-  totalItems: { weapons: number; knives: number; gloves: number; agents: number; musicKits: number; pins: number }
-  bannedUsers: number
+    totalUsers: number
+    activeUsers7d: number
+    activeUsers30d: number
+    totalLoadouts: number
+    totalItems: {
+        weapons: number
+        knives: number
+        gloves: number
+        agents: number
+        musicKits: number
+        pins: number
+    }
+    bannedUsers: number
 }
 
 /** User details for admin view */
 interface AdminUserDetails {
-  steamId: SteamId
-  loadoutCount: number
-  itemCounts: { weapons: number; knives: number; gloves: number; agents: number; musicKits: number; pins: number }
-  firstActivity: ISOTimestamp
-  lastActivity: ISOTimestamp
-  isBanned: boolean
-  banInfo?: { reason: string | null; bannedAt: ISOTimestamp; bannedBy: SteamId; expiresAt: ISOTimestamp | null }
+    steamId: SteamId
+    loadoutCount: number
+    itemCounts: {
+        weapons: number
+        knives: number
+        gloves: number
+        agents: number
+        musicKits: number
+        pins: number
+    }
+    firstActivity: ISOTimestamp
+    lastActivity: ISOTimestamp
+    isBanned: boolean
+    banInfo?: {
+        reason: string | null
+        bannedAt: ISOTimestamp
+        bannedBy: SteamId
+        expiresAt: ISOTimestamp | null
+    }
 }
 
 /** User list item (summary for table display) */
 interface AdminUserSummary {
-  steamId: SteamId
-  loadoutCount: number
-  totalItems: number
-  lastActivity: ISOTimestamp | null
-  isBanned: boolean
+    steamId: SteamId
+    loadoutCount: number
+    totalItems: number
+    lastActivity: ISOTimestamp | null
+    isBanned: boolean
 }
 
 /** Activity data point for time-series charts */
 interface AdminActivityData {
-  date: string
-  newUsers: number
-  activeUsers: number
-  loadoutsCreated: number
-  itemsSaved: number
+    date: string
+    newUsers: number
+    activeUsers: number
+    loadoutsCreated: number
+    itemsSaved: number
 }
 
 /** Heatmap data for calendar visualization */
-interface AdminHeatmapData { date: string; value: number }
+interface AdminHeatmapData {
+    date: string
+    value: number
+}
 
 /** Top user for leaderboard display */
-interface AdminTopUser { steamId: SteamId; loadoutCount: number; totalItems: number }
+interface AdminTopUser {
+    steamId: SteamId
+    loadoutCount: number
+    totalItems: number
+}
 
 /** Application setting */
 interface AdminSetting {
-  key: string; value: string; type: 'string' | 'boolean' | 'number' | 'json'
-  description: string | null; updatedAt: ISOTimestamp; updatedBy: SteamId | null
+    key: string
+    value: string
+    type: 'string' | 'boolean' | 'number' | 'json'
+    description: string | null
+    updatedAt: ISOTimestamp
+    updatedBy: SteamId | null
 }
 
 /** Admin user info */
 interface AdminInfo {
-  id: number; steamId: SteamId; role: 'admin' | 'superadmin'
-  permissions: string[]; createdBy: SteamId | null; createdAt: ISOTimestamp
+    id: number
+    steamId: SteamId
+    role: 'admin' | 'superadmin'
+    permissions: string[]
+    createdBy: SteamId | null
+    createdAt: ISOTimestamp
 }
 
 /** Admin activity log entry */
 interface AdminActivityLogEntry {
-  id: number; adminSteamId: SteamId; action: string
-  targetSteamId: SteamId | null; details: Record<string, unknown> | null; createdAt: ISOTimestamp
+    id: number
+    adminSteamId: SteamId
+    action: string
+    targetSteamId: SteamId | null
+    details: Record<string, unknown> | null
+    createdAt: ISOTimestamp
 }
 
 /** Request types */
-interface AdminBanUserRequest { reason: string; duration?: number }
-interface AdminUpdateSettingRequest { key: string; value: string | number | boolean }
-interface AdminAddAdminRequest { steamId: string; role: 'admin' | 'superadmin' }
+interface AdminBanUserRequest {
+    reason: string
+    duration?: number
+}
+interface AdminUpdateSettingRequest {
+    key: string
+    value: string | number | boolean
+}
+interface AdminAddAdminRequest {
+    steamId: string
+    role: 'admin' | 'superadmin'
+}
 
 /** Query parameter types */
-interface AdminUserSearchParams { search?: string; page?: number; limit?: number; bannedOnly?: boolean }
-interface AdminActivityParams { range: '7d' | '30d' | '90d' }
+interface AdminUserSearchParams {
+    search?: string
+    page?: number
+    limit?: number
+    bannedOnly?: boolean
+}
+interface AdminActivityParams {
+    range: '7d' | '30d' | '90d'
+}
 ```
 
 ---
@@ -535,48 +593,48 @@ interface AdminActivityParams { range: '7d' | '30d' | '90d' }
 
 ```typescript
 interface IEnhancedItem {
-  weapon_defindex: number
-  defaultName: string
-  paintIndex: number
-  defaultImage: string
-  weapon_name: string
-  category: string
-  availableTeams: string
-  name: string
-  image: string
-  minFloat: number
-  maxFloat: number
-  rarity: RarityInfo
-  team: number | null
+    weapon_defindex: number
+    defaultName: string
+    paintIndex: number
+    defaultImage: string
+    weapon_name: string
+    category: string
+    availableTeams: string
+    name: string
+    image: string
+    minFloat: number
+    maxFloat: number
+    rarity: RarityInfo
+    team: number | null
 }
 
 interface IEnhancedWeapon extends IEnhancedItem {
-  databaseInfo?: DatabaseInfo
-  type: 'weapon'
+    databaseInfo?: DatabaseInfo
+    type: 'weapon'
 }
 
 interface IEnhancedKnife extends IEnhancedItem {
-  databaseInfo?: DatabaseInfo
-  type: 'knife'
+    databaseInfo?: DatabaseInfo
+    type: 'knife'
 }
 
 interface DatabaseInfo {
-  id: number
-  defindex: number
-  team: number
-  paintindex: number
-  paintseed: number
-  paintwear: number
-  stattrak_enabled: boolean
-  stattrak_count: number
-  nametag: string | null
-  active: boolean
+    id: number
+    defindex: number
+    team: number
+    paintindex: number
+    paintseed: number
+    paintwear: number
+    stattrak_enabled: boolean
+    stattrak_count: number
+    nametag: string | null
+    active: boolean
 }
 
 interface RarityInfo {
-  id: string
-  name: string
-  color: string
+    id: string
+    name: string
+    color: string
 }
 ```
 
@@ -584,34 +642,34 @@ interface RarityInfo {
 
 ```typescript
 interface InspectResult {
-  success: boolean
-  urlType: 'masked' | 'unmasked'
-  requiresSteam: boolean
-  item: InspectItem
-  parsed?: ParsedItemInfo
+    success: boolean
+    urlType: 'masked' | 'unmasked'
+    requiresSteam: boolean
+    item: InspectItem
+    parsed?: ParsedItemInfo
 }
 
 interface InspectItem {
-  defindex: number
-  paintindex: number
-  paintseed: number
-  paintwear: number
-  rarity?: number
-  quality?: number
-  statTrak?: {
-    enabled: boolean
-    count: number
-  }
-  nameTag?: string
-  stickers?: StickerData[]
-  keychain?: KeychainData
+    defindex: number
+    paintindex: number
+    paintseed: number
+    paintwear: number
+    rarity?: number
+    quality?: number
+    statTrak?: {
+        enabled: boolean
+        count: number
+    }
+    nameTag?: string
+    stickers?: StickerData[]
+    keychain?: KeychainData
 }
 
 interface ParsedItemInfo {
-  weaponName: string
-  skinName: string
-  wear: string
-  floatValue: number
+    weaponName: string
+    skinName: string
+    wear: string
+    floatValue: number
 }
 ```
 
@@ -625,10 +683,10 @@ interface ParsedItemInfo {
 
 ```typescript
 enum LoadingState {
-  Idle = 'idle',
-  Loading = 'loading',
-  Success = 'success',
-  Error = 'error'
+    Idle = 'idle',
+    Loading = 'loading',
+    Success = 'success',
+    Error = 'error',
 }
 ```
 
@@ -636,29 +694,34 @@ enum LoadingState {
 
 ```typescript
 interface AsyncResult<T = unknown> {
-  state: LoadingState
-  data: T | null
-  error?: {
-    code: string
-    message: string
-  }
-  isLoading: boolean
-  isSuccess: boolean
-  isError: boolean
+    state: LoadingState
+    data: T | null
+    error?: {
+        code: string
+        message: string
+    }
+    isLoading: boolean
+    isSuccess: boolean
+    isError: boolean
 }
 ```
 
 **Usage**:
+
 ```typescript
 const asyncState = computed<AsyncResult<IEnhancedItem>>(() => ({
-  state: isLoading.value ? LoadingState.Loading :
-    error.value ? LoadingState.Error :
-    item.value ? LoadingState.Success : LoadingState.Idle,
-  data: item.value,
-  error: error.value ? { code: 'ERROR', message: error.value } : undefined,
-  isLoading: isLoading.value,
-  isSuccess: !!item.value && !error.value,
-  isError: !!error.value
+    state: isLoading.value
+        ? LoadingState.Loading
+        : error.value
+          ? LoadingState.Error
+          : item.value
+            ? LoadingState.Success
+            : LoadingState.Idle,
+    data: item.value,
+    error: error.value ? { code: 'ERROR', message: error.value } : undefined,
+    isLoading: isLoading.value,
+    isSuccess: !!item.value && !error.value,
+    isError: !!error.value,
 }))
 ```
 
@@ -666,11 +729,11 @@ const asyncState = computed<AsyncResult<IEnhancedItem>>(() => ({
 
 ```typescript
 interface UserProfile {
-  steamId: string
-  username: string
-  avatar: string
-  profileUrl?: string
-  createdAt?: string
+    steamId: string
+    username: string
+    avatar: string
+    profileUrl?: string
+    createdAt?: string
 }
 ```
 
@@ -684,15 +747,15 @@ interface UserProfile {
 
 ```typescript
 interface ItemModalProps {
-  visible: boolean
-  selectedItem: IEnhancedItem | null
-  team: number
+    visible: boolean
+    selectedItem: IEnhancedItem | null
+    team: number
 }
 
 interface ItemModalEmits {
-  (e: 'update:visible', value: boolean): void
-  (e: 'save', config: ItemConfiguration): void
-  (e: 'close'): void
+    (e: 'update:visible', value: boolean): void
+    (e: 'save', config: ItemConfiguration): void
+    (e: 'close'): void
 }
 ```
 
@@ -704,21 +767,21 @@ interface ItemModalEmits {
 
 ```typescript
 interface CanvasSticker {
-  id: number
-  x: number
-  y: number
-  rotation: number
-  scale: number
-  wear: number
-  image: HTMLImageElement | null
+    id: number
+    x: number
+    y: number
+    rotation: number
+    scale: number
+    wear: number
+    image: HTMLImageElement | null
 }
 
 interface CanvasConfig {
-  width: number
-  height: number
-  backgroundColor: string
-  gridSize: number
-  snapToGrid: boolean
+    width: number
+    height: number
+    backgroundColor: string
+    gridSize: number
+    snapToGrid: boolean
 }
 ```
 
@@ -731,7 +794,7 @@ type ItemType = 'weapon' | 'knife' | 'glove' | 'agent' | 'musickit' | 'pin'
 
 type WeaponCategory = 'rifles' | 'pistols' | 'smgs' | 'heavys'
 
-type Team = 1 | 2 | 3  // 1=T, 2=CT, 3=Both
+type Team = 1 | 2 | 3 // 1=T, 2=CT, 3=Both
 ```
 
 ---
@@ -753,12 +816,12 @@ const loadoutId = Number(params.id) as LoadoutId
 ```typescript
 // ✅ Good
 if (isWeaponConfiguration(config)) {
-  console.log(config.stickers)
+    console.log(config.stickers)
 }
 
 // ❌ Bad
 if ((config as WeaponConfiguration).stickers) {
-  console.log((config as WeaponConfiguration).stickers)
+    console.log((config as WeaponConfiguration).stickers)
 }
 ```
 
@@ -767,8 +830,8 @@ if ((config as WeaponConfiguration).stickers) {
 ```typescript
 // ✅ Good - TypeScript infers types
 const weapon: IEnhancedWeapon = {
-  weapon_defindex: 7,
-  // ... TypeScript ensures all required properties
+    weapon_defindex: 7,
+    // ... TypeScript ensures all required properties
 }
 
 // ❌ Bad - Using 'any' defeats type safety
@@ -780,12 +843,12 @@ const weapon: any = { weapon_defindex: 7 }
 ```typescript
 // ✅ Good
 function processItem<T extends IEnhancedItem>(item: T): void {
-  console.log(item.weapon_defindex)
+    console.log(item.weapon_defindex)
 }
 
 // ❌ Bad
 function processItem(item: any): void {
-  console.log(item.weapon_defindex)
+    console.log(item.weapon_defindex)
 }
 ```
 
@@ -797,14 +860,14 @@ function processItem(item: any): void {
 
 ```typescript
 async function fetchLoadouts(steamId: SteamId): Promise<DBLoadout[]> {
-  const response = await fetch(`/api/loadouts?steamId=${steamId}`)
-  const data: APIResponse<{ loadouts: DBLoadout[] }> = await response.json()
+    const response = await fetch(`/api/loadouts?steamId=${steamId}`)
+    const data: APIResponse<{ loadouts: DBLoadout[] }> = await response.json()
 
-  if (!data.success) {
-    throw new Error(data.error?.message || 'Failed to fetch loadouts')
-  }
+    if (!data.success) {
+        throw new Error(data.error?.message || 'Failed to fetch loadouts')
+    }
 
-  return data.data?.loadouts || []
+    return data.data?.loadouts || []
 }
 ```
 
@@ -812,17 +875,17 @@ async function fetchLoadouts(steamId: SteamId): Promise<DBLoadout[]> {
 
 ```typescript
 const state = ref<{
-  loadouts: DBLoadout[]
-  selectedId: LoadoutId | null
+    loadouts: DBLoadout[]
+    selectedId: LoadoutId | null
 }>({
-  loadouts: [],
-  selectedId: null
+    loadouts: [],
+    selectedId: null,
 })
 
 // TypeScript ensures type safety
 function selectLoadout(id: LoadoutId) {
-  state.value.selectedId = id  // ✅ Type-safe
-  // state.value.selectedId = "123"  // ❌ Error: string not assignable
+    state.value.selectedId = id // ✅ Type-safe
+    // state.value.selectedId = "123"  // ❌ Error: string not assignable
 }
 ```
 
@@ -830,25 +893,25 @@ function selectLoadout(id: LoadoutId) {
 
 ```typescript
 type ItemConfig =
-  | { type: 'weapon'; config: WeaponConfiguration }
-  | { type: 'knife'; config: KnifeConfiguration }
-  | { type: 'glove'; config: GloveConfiguration }
+    | { type: 'weapon'; config: WeaponConfiguration }
+    | { type: 'knife'; config: KnifeConfiguration }
+    | { type: 'glove'; config: GloveConfiguration }
 
 function processConfig(item: ItemConfig) {
-  switch (item.type) {
-    case 'weapon':
-      // TypeScript knows item.config is WeaponConfiguration
-      console.log(item.config.stickers)
-      break
-    case 'knife':
-      // TypeScript knows item.config is KnifeConfiguration
-      console.log(item.config.statTrak)
-      break
-    case 'glove':
-      // TypeScript knows item.config is GloveConfiguration
-      console.log(item.config.wear)
-      break
-  }
+    switch (item.type) {
+        case 'weapon':
+            // TypeScript knows item.config is WeaponConfiguration
+            console.log(item.config.stickers)
+            break
+        case 'knife':
+            // TypeScript knows item.config is KnifeConfiguration
+            console.log(item.config.statTrak)
+            break
+        case 'glove':
+            // TypeScript knows item.config is GloveConfiguration
+            console.log(item.config.wear)
+            break
+    }
 }
 ```
 
@@ -859,9 +922,10 @@ function processConfig(item: ItemConfig) {
 ### From Untyped to Typed
 
 **Before**:
+
 ```typescript
 function getLoadout(id: any) {
-  return fetch(`/api/loadouts/${id}`)
+    return fetch(`/api/loadouts/${id}`)
 }
 
 const loadoutId = Number(params.id)
@@ -869,9 +933,10 @@ getLoadout(loadoutId)
 ```
 
 **After**:
+
 ```typescript
 function getLoadout(id: LoadoutId): Promise<DBLoadout> {
-  return fetch(`/api/loadouts/${id}`).then(r => r.json())
+    return fetch(`/api/loadouts/${id}`).then((r) => r.json())
 }
 
 const loadoutId = toLoadoutId(params.id)
@@ -881,22 +946,24 @@ getLoadout(loadoutId)
 ### From Loose Types to Branded Types
 
 **Before**:
+
 ```typescript
 interface Weapon {
-  id: number
-  steamId: string
-  defindex: number
-  paintIndex: number
+    id: number
+    steamId: string
+    defindex: number
+    paintIndex: number
 }
 ```
 
 **After**:
+
 ```typescript
 interface Weapon {
-  id: number
-  steamId: SteamId
-  defindex: Defindex
-  paintIndex: PaintIndex
+    id: number
+    steamId: SteamId
+    defindex: Defindex
+    paintIndex: PaintIndex
 }
 ```
 
@@ -908,7 +975,7 @@ interface Weapon {
 
 ```typescript
 const loadoutId = toLoadoutId(1)
-const steamId = toSteamId("76561198012345678")
+const steamId = toSteamId('76561198012345678')
 
 // ❌ Compile error: LoadoutId not assignable to SteamId
 loadoutStore.fetchLoadouts(loadoutId)
@@ -920,18 +987,20 @@ loadoutStore.fetchLoadouts(steamId)
 ### 2. **Autocomplete & IntelliSense**
 
 TypeScript provides autocomplete for all type properties:
+
 ```typescript
 const weapon: IEnhancedWeapon = {
-  // IDE suggests all required properties
-  weapon_defindex: 7,
-  defaultName: "AK-47",
-  // ...
+    // IDE suggests all required properties
+    weapon_defindex: 7,
+    defaultName: 'AK-47',
+    // ...
 }
 ```
 
 ### 3. **Refactoring Safety**
 
 When types change, TypeScript flags all affected code:
+
 ```typescript
 // Change LoadoutId from number to string
 type LoadoutId = string & { readonly __brand: 'LoadoutId' }
@@ -956,14 +1025,14 @@ The project uses strict TypeScript configuration:
 
 ```json
 {
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
-  }
+    "compilerOptions": {
+        "strict": true,
+        "noImplicitAny": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true
+    }
 }
 ```
 
@@ -974,35 +1043,37 @@ The project uses strict TypeScript configuration:
 When adding new types:
 
 1. **Choose Appropriate Location**:
-   - Core types → `/types/core/`
-   - API types → `/types/api/`
-   - Database types → `/types/database/`
-   - Business logic → `/types/business/`
+    - Core types → `/types/core/`
+    - API types → `/types/api/`
+    - Database types → `/types/database/`
+    - Business logic → `/types/business/`
 
 2. **Add JSDoc Comments**:
-   ```typescript
-   /**
-    * Description of the type
-    *
-    * @example
-    * ```typescript
-    * const example: MyType = { ... }
-    * ```
-    */
-   export interface MyType {
-     // ...
-   }
-   ```
+
+    ````typescript
+    /**
+     * Description of the type
+     *
+     * @example
+     * ```typescript
+     * const example: MyType = { ... }
+     * ```
+     */
+    export interface MyType {
+        // ...
+    }
+    ````
 
 3. **Export from index.ts**:
-   ```typescript
-   export type { MyType } from './path/to/type'
-   ```
+
+    ```typescript
+    export type { MyType } from './path/to/type'
+    ```
 
 4. **Update This Documentation**
 
 5. **Write Type Tests** (if applicable):
-   ```typescript
-   import { expectType } from 'tsd'
-   expectType<LoadoutId>(toLoadoutId(1))
-   ```
+    ```typescript
+    import { expectType } from 'tsd'
+    expectType<LoadoutId>(toLoadoutId(1))
+    ```

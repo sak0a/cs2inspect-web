@@ -18,6 +18,7 @@ The project uses GitHub Actions for automated testing, building, deployment, and
 ### 1. CI Pipeline (`ci.yml`)
 
 **Triggers:**
+
 - Push to `master` or `dev` branch
 - Pull requests to `master` or `dev`
 - Ignores: markdown files, `docs/`, `services/docs-site/`
@@ -26,15 +27,18 @@ The project uses GitHub Actions for automated testing, building, deployment, and
 **Jobs:**
 
 #### Test & Lint
+
 - Runs type checking with TypeScript
 - Lints code with ESLint
 - Executes test suite with Bun (web app + steam-service)
 
 #### Build Application
+
 - Builds production bundle with `bun run build`
 - Validates build success
 
 **Badge:**
+
 ```markdown
 ![CI](https://github.com/sak0a/cs2inspect-web/workflows/CI/badge.svg)
 ```
@@ -44,32 +48,35 @@ The project uses GitHub Actions for automated testing, building, deployment, and
 ### 2. Build Docker Images (`docker.yml`)
 
 **Triggers:**
+
 - Push to `master` or `dev` branch
 - Tag push (`v*`)
 - Manual trigger via `workflow_dispatch` (with optional platform selection)
 
 **Images Built:**
 
-| Image | Registry |
-|-------|----------|
-| Web App | `ghcr.io/sak0a/cs2inspect-web` |
+| Image         | Registry                                     |
+| ------------- | -------------------------------------------- |
+| Web App       | `ghcr.io/sak0a/cs2inspect-web`               |
 | Steam Service | `ghcr.io/sak0a/cs2inspect-web-steam-service` |
 
 **Tag Strategy:**
 
-| Trigger | Tags Produced |
-|---------|--------------|
+| Trigger          | Tags Produced                         |
+| ---------------- | ------------------------------------- |
 | Push to `master` | `:latest`, `:master`, `:master-{sha}` |
-| Push to `dev` | `:dev`, `:dev-{sha}` |
-| Tag `v1.2.3` | `:v1.2.3`, `:1.2` |
-| Manual dispatch | Based on selected ref |
+| Push to `dev`    | `:dev`, `:dev-{sha}`                  |
+| Tag `v1.2.3`     | `:v1.2.3`, `:1.2`                     |
+| Manual dispatch  | Based on selected ref                 |
 
 **Features:**
+
 - GitHub Actions build cache (`type=gha`) for fast rebuilds
 - Docker Buildx for multi-platform support
 - Automatic metadata extraction via `docker/metadata-action`
 
 **Pull Images:**
+
 ```bash
 # Latest from master
 docker pull ghcr.io/sak0a/cs2inspect-web:latest
@@ -91,11 +98,11 @@ docker pull ghcr.io/sak0a/cs2inspect-web:dev
 
 **Inputs:**
 
-| Input | Description | Required |
-|-------|-------------|----------|
-| `version` | Release version, e.g. `1.2.3` (no `v` prefix) | Yes |
-| `prerelease` | Mark as pre-release | No |
-| `draft` | Create as draft | No |
+| Input        | Description                                   | Required |
+| ------------ | --------------------------------------------- | -------- |
+| `version`    | Release version, e.g. `1.2.3` (no `v` prefix) | Yes      |
+| `prerelease` | Mark as pre-release                           | No       |
+| `draft`      | Create as draft                               | No       |
 
 **What it does:**
 
@@ -112,6 +119,7 @@ Events created by `GITHUB_TOKEN` (like tag pushes) don't trigger other workflows
 :::
 
 **Usage:**
+
 1. Go to **Actions** tab in GitHub
 2. Select **Create Release**
 3. Click **Run workflow**
@@ -119,6 +127,7 @@ Events created by `GITHUB_TOKEN` (like tag pushes) don't trigger other workflows
 5. Click **Run workflow**
 
 After the workflow completes, update your Coolify environment:
+
 ```bash
 WEB_IMAGE_TAG=v1.2.3
 SS_IMAGE_TAG=v1.2.3
@@ -129,10 +138,12 @@ SS_IMAGE_TAG=v1.2.3
 ### 4. Deploy Documentation (`deploy-docs.yml`)
 
 **Triggers:**
+
 - Push to `master` that changes: `services/docs-site/**`, `server/api/**`, `server/types/**`, `types/**`, `docs/**`
 - Manual dispatch
 
 **What it does:**
+
 1. Installs docs-site dependencies
 2. Auto-generates API documentation from source
 3. Builds VitePress site
@@ -197,6 +208,7 @@ GITHUB_TOKEN=ghp_xxx
 ```
 
 No additional secrets are required for CI/CD. The `GITHUB_TOKEN` is automatically provided by GitHub Actions and has the necessary permissions for:
+
 - Pushing Docker images to GHCR
 - Creating tags and releases
 - Triggering workflows
@@ -216,6 +228,7 @@ Required permissions in **Settings -> Actions -> General**:
 ### CI Pipeline Fails
 
 **Solutions:**
+
 1. Run locally: `bun run typecheck && bun run lint && bun test`
 2. Check workflow logs in Actions tab
 3. Fix errors and push again
@@ -223,6 +236,7 @@ Required permissions in **Settings -> Actions -> General**:
 ### Docker Build Fails
 
 **Solutions:**
+
 1. Check Dockerfile syntax
 2. Verify build context paths
 3. Check GHCR authentication (packages must be accessible)
@@ -231,12 +245,14 @@ Required permissions in **Settings -> Actions -> General**:
 ### Release Doesn't Trigger Docker Build
 
 The release workflow uses `gh workflow run docker.yml` to trigger builds. If this fails:
+
 1. Check that `actions: write` permission is set in the release workflow
 2. Manually trigger "Build Docker Images" from the Actions tab, selecting the `v*` tag as the ref
 
 ### "manifest unknown" Error in Coolify
 
 This means the Docker image tag doesn't exist in GHCR:
+
 1. Go to GitHub -> Actions -> "Build Docker Images" and verify a run completed for that tag
 2. Check the workflow run summary for the actual tags that were pushed
 3. Manually trigger a docker build from the Actions tab

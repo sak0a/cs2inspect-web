@@ -5,26 +5,31 @@ This folder contains Drizzle ORM migrations for the CS2 Inspect database.
 ## Commands
 
 Generate a new migration after schema changes:
+
 ```bash
 bun run db:generate
 ```
 
 Apply pending migrations:
+
 ```bash
 bun run db:migrate
 ```
 
 Push schema changes directly (development only):
+
 ```bash
 bun run db:push
 ```
 
 Open Drizzle Studio for database inspection:
+
 ```bash
 bun run db:studio
 ```
 
 Introspect existing database:
+
 ```bash
 bun run db:introspect
 ```

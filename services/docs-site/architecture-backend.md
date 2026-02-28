@@ -114,7 +114,7 @@ sequenceDiagram
     participant App
     participant Server
     participant Steam
-    
+
     User->>App: Click "Login with Steam"
     App->>Server: GET /api/auth/steam-login
     Server->>Steam: Redirect to Steam OpenID
@@ -133,17 +133,20 @@ sequenceDiagram
 Middlewares execute in numbered order on every request:
 
 **`01.steam-auth.ts`** — Steam OpenID Authentication:
+
 - Handles Steam OpenID login flow and callback
 - Validates Steam authentication responses
 - Creates user sessions
 
 **`02.auth.ts`** — JWT Authentication:
+
 - Validates JWT tokens from cookies/headers
 - Checks session expiry
 - Attaches `event.context.auth` with `steamId`
 - Rejects unauthorized requests to protected routes
 
 **`03.admin-auth.ts`** — Admin Authorization:
+
 - Intercepts `/api/admin/*` routes only
 - Checks `admin_users` table for the authenticated Steam ID
 - Sets `event.context.admin` with `{ steamId, role, permissions }`
@@ -152,11 +155,13 @@ Middlewares execute in numbered order on every request:
 ### CS2 Integration
 
 **Libraries Used**:
+
 - `cs2-inspect-lib` - Parse inspect URLs and extract item data
 - `node-cs2` - Steam Game Coordinator integration
 - `csgo-fade-percentage-calculator` - Fade pattern calculations
 
 **Inspect URL Processing**:
+
 1. Parse URL with `cs2-inspect-lib`
 2. Extract protobuf data
 3. Decode item parameters
@@ -170,35 +175,35 @@ CS2Inspect uses MariaDB with [Drizzle ORM](https://orm.drizzle.team/) for data s
 
 ### Core Tables
 
-| Table | Schema File | Description |
-|-------|-------------|-------------|
-| `wp_player_loadouts` | `loadouts.ts` | Loadout metadata with team-specific selections (knife, glove, agent per side), share codes, default flag |
-| `wp_player_pistols` | `weapons.ts` | Pistol configurations (defindex, paintindex, paintseed, paintwear, stattrak, nametag, 5 sticker JSON slots, keychain JSON) |
-| `wp_player_rifles` | `weapons.ts` | Rifle configurations (same fields as pistols) |
-| `wp_player_smgs` | `weapons.ts` | SMG configurations (same fields as pistols) |
-| `wp_player_heavys` | `weapons.ts` | Heavy weapon configurations (same fields as pistols) |
-| `wp_player_knifes` | `knives.ts` | Knife configurations (defindex, paintindex, paintseed, paintwear, stattrak, nametag) |
-| `wp_player_gloves` | `gloves.ts` | Glove configurations (defindex, paintindex, paintseed, paintwear) |
-| `wp_player_agents` | `agents.ts` | Agent selections per team |
-| `wp_player_music` | `music.ts` | Music kit selections |
-| `wp_player_pins` | `pins.ts` | Pin/collectible selections |
+| Table                | Schema File   | Description                                                                                                                |
+| -------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `wp_player_loadouts` | `loadouts.ts` | Loadout metadata with team-specific selections (knife, glove, agent per side), share codes, default flag                   |
+| `wp_player_pistols`  | `weapons.ts`  | Pistol configurations (defindex, paintindex, paintseed, paintwear, stattrak, nametag, 5 sticker JSON slots, keychain JSON) |
+| `wp_player_rifles`   | `weapons.ts`  | Rifle configurations (same fields as pistols)                                                                              |
+| `wp_player_smgs`     | `weapons.ts`  | SMG configurations (same fields as pistols)                                                                                |
+| `wp_player_heavys`   | `weapons.ts`  | Heavy weapon configurations (same fields as pistols)                                                                       |
+| `wp_player_knifes`   | `knives.ts`   | Knife configurations (defindex, paintindex, paintseed, paintwear, stattrak, nametag)                                       |
+| `wp_player_gloves`   | `gloves.ts`   | Glove configurations (defindex, paintindex, paintseed, paintwear)                                                          |
+| `wp_player_agents`   | `agents.ts`   | Agent selections per team                                                                                                  |
+| `wp_player_music`    | `music.ts`    | Music kit selections                                                                                                       |
+| `wp_player_pins`     | `pins.ts`     | Pin/collectible selections                                                                                                 |
 
 ### History & Health Tables
 
-| Table | Schema File | Description |
-|-------|-------------|-------------|
-| `item_history` | `itemHistory.ts` | Version history snapshots for item configurations (supports restore) |
-| `health_check_history` | `health.ts` | Health check execution logs with status and latency |
-| `health_check_config` | `health.ts` | Health check configuration (thresholds, enabled state) |
+| Table                  | Schema File      | Description                                                          |
+| ---------------------- | ---------------- | -------------------------------------------------------------------- |
+| `item_history`         | `itemHistory.ts` | Version history snapshots for item configurations (supports restore) |
+| `health_check_history` | `health.ts`      | Health check execution logs with status and latency                  |
+| `health_check_config`  | `health.ts`      | Health check configuration (thresholds, enabled state)               |
 
 ### Admin Tables
 
-| Table | Schema File | Description |
-|-------|-------------|-------------|
-| `admin_users` | `admin.ts` | Admin accounts with roles (admin/superadmin) and permissions |
-| `banned_users` | `admin.ts` | User ban records with reason, duration, and active status |
-| `app_settings` | `admin.ts` | Application configuration key-value store |
-| `admin_activity_log` | `admin.ts` | Audit trail for admin actions |
+| Table                | Schema File | Description                                                  |
+| -------------------- | ----------- | ------------------------------------------------------------ |
+| `admin_users`        | `admin.ts`  | Admin accounts with roles (admin/superadmin) and permissions |
+| `banned_users`       | `admin.ts`  | User ban records with reason, duration, and active status    |
+| `app_settings`       | `admin.ts`  | Application configuration key-value store                    |
+| `admin_activity_log` | `admin.ts`  | Audit trail for admin actions                                |
 
 See the [Admin Panel documentation](./admin.md#database-tables) for detailed admin table schemas.
 

@@ -7,6 +7,7 @@ Questions about loadouts, weapons, knives, gloves, and item customization.
 ### What is a loadout?
 
 A loadout is a complete configuration of your in-game items, including:
+
 - Weapon skins (all weapon types)
 - Knife skins (T and CT side)
 - Glove skins (T and CT side)
@@ -30,6 +31,7 @@ Your new loadout is now active and ready to customize.
 ### Can I rename or delete loadouts?
 
 Yes, use the loadout selector menu to:
+
 - Rename: Click edit icon → Enter new name → Save
 - Delete: Click delete icon → Confirm (you must have at least one loadout)
 
@@ -44,6 +46,7 @@ You must always have at least one loadout. Create a new loadout before deleting 
 ### What can I customize on weapons?
 
 For most weapons:
+
 - **Skin**: Choose from thousands of available skins
 - **Float Value**: Wear from 0.00 (Factory New) to 1.00 (Battle-Scarred)
 - **Pattern Seed**: Affects pattern placement (0-1000)
@@ -93,6 +96,7 @@ Yes, you can add custom name tags to most weapons. Enter your desired name in th
 ### How do knives work?
 
 Knives:
+
 - Separate for T and CT sides
 - Many models (Karambit, Butterfly, M9 Bayonet, etc.)
 - Full skin customization
@@ -104,6 +108,7 @@ Select the knife model first, then choose the skin and customize.
 ### How do gloves work?
 
 Gloves:
+
 - Team-specific (T and CT side)
 - No StatTrak™ support
 - No name tags
@@ -119,6 +124,7 @@ Choose glove model first, then select skin.
 ### What is an inspect link?
 
 An inspect link is a special URL from CS2 that contains encoded item data. You can get inspect links from:
+
 - Steam Community Market
 - CS2 in-game (right-click item → Copy Inspect Link)
 - Player inventories
@@ -127,6 +133,7 @@ An inspect link is a special URL from CS2 that contains encoded item data. You c
 ### What are masked and unmasked URLs?
 
 There are two types of inspect links:
+
 - **Masked URLs**: Contain all item data encoded directly in the link (common on Steam Market)
 - **Unmasked URLs**: Reference an item in someone's inventory (used for player inventory items)
 
@@ -143,6 +150,7 @@ Both types can be imported into CS2Inspect.
 ### Why doesn't my inspect link work?
 
 Common issues:
+
 - Link is incomplete or corrupted
 - Item is no longer in the inventory (for unmasked links)
 - Backend server cannot connect to Steam

@@ -1,6 +1,6 @@
 /**
  * Item and customization type definitions for CS2Inspect server
- * 
+ *
  * This file now re-exports shared customization types from ~/types,
  * while keeping server-specific enhanced item interfaces.
  */
@@ -18,7 +18,7 @@ export type {
     KeychainConfiguration as WeaponKeychainCustomization,
     WeaponConfiguration,
     KnifeConfiguration,
-    GloveConfiguration
+    GloveConfiguration,
 } from '~/types/business/items'
 
 // ============================================================================
@@ -31,19 +31,19 @@ export type {
  */
 export interface IDefaultItem {
     /** Weapon definition index */
-    weapon_defindex: number;
+    weapon_defindex: number
     /** Default display name */
-    defaultName: string;
+    defaultName: string
     /** Default paint index (usually 0 for vanilla items) */
-    paintindex: number;
+    paintindex: number
     /** URL to default item image */
-    defaultImage: string;
+    defaultImage: string
     /** Internal weapon name identifier */
-    weapon_name: string;
+    weapon_name: string
     /** Item category (e.g., "pistols", "rifles", "knives") */
-    category: string;
+    category: string
     /** Teams that can use this item ("both", "t", "ct") */
-    availableTeams: string;
+    availableTeams: string
 }
 
 /**
@@ -52,19 +52,19 @@ export interface IDefaultItem {
  */
 export interface IEnhancedItem extends IDefaultItem {
     /** Current display name (may differ from defaultName if customized) */
-    name: string;
+    name: string
     /** Current image URL (may differ from defaultImage if customized) */
-    image: string;
+    image: string
     /** Minimum float value for wear */
-    minFloat: number;
+    minFloat: number
     /** Maximum float value for wear */
-    maxFloat: number;
+    maxFloat: number
     /** Rarity information if available */
-    rarity?: ItemRarity;
+    rarity?: ItemRarity
     /** Team association (null if available to both teams) */
-    team: number | null | undefined;
+    team: number | null | undefined
     /** Database information if item is saved */
-    databaseInfo?: unknown;
+    databaseInfo?: unknown
 }
 
 /**
@@ -73,7 +73,7 @@ export interface IEnhancedItem extends IDefaultItem {
  */
 export interface IEnhancedWeapon extends IEnhancedItem {
     /** Weapon-specific database information */
-    databaseInfo?: IMappedDBWeapon;
+    databaseInfo?: IMappedDBWeapon
 }
 
 /**
@@ -82,7 +82,7 @@ export interface IEnhancedWeapon extends IEnhancedItem {
  */
 export interface IEnhancedKnife extends IEnhancedItem {
     /** Knife-specific database information (uses plain numbers for API serialization) */
-    databaseInfo?: IMappedDBKnife;
+    databaseInfo?: IMappedDBKnife
 }
 
 /**
@@ -91,7 +91,7 @@ export interface IEnhancedKnife extends IEnhancedItem {
  */
 export interface IEnhancedGlove extends IEnhancedItem {
     /** Glove-specific database information (uses plain numbers for API serialization) */
-    databaseInfo?: IMappedDBGlove;
+    databaseInfo?: IMappedDBGlove
 }
 
 /**
@@ -102,27 +102,27 @@ export interface IEnhancedGlove extends IEnhancedItem {
  */
 export interface IMappedDBWeapon {
     /** Whether this weapon is active/equipped */
-    active: boolean;
+    active: boolean
     /** Team this weapon belongs to */
-    team: number;
+    team: number
     /** Weapon definition index */
-    defindex: number;
+    defindex: number
     /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
-    stattrak_enabled: boolean;
+    stattrak_enabled: boolean
     /** StatTrak kill count (matches DB column: stattrak_count) */
-    stattrak_count: number;
+    stattrak_count: number
     /** Paint index for the skin (matches DB column: paintindex) */
-    paintindex: number;
+    paintindex: number
     /** Wear value (float) (matches DB column: paintwear) */
-    paintwear: number;
+    paintwear: number
     /** Pattern seed (matches DB column: paintseed) */
-    paintseed: number;
+    paintseed: number
     /** Custom name tag (matches DB column: nametag) */
-    nametag: string;
+    nametag: string
     /** Array of stickers (up to 5 slots, null for empty slots) */
-    stickers: (IEnhancedWeaponSticker | null)[];
+    stickers: (IEnhancedWeaponSticker | null)[]
     /** Keychain attachment */
-    keychain: IEnhancedWeaponKeychain | null;
+    keychain: IEnhancedWeaponKeychain | null
 }
 
 /**
@@ -131,25 +131,25 @@ export interface IMappedDBWeapon {
  */
 export interface IMappedDBKnife {
     /** Record ID */
-    id: number;
+    id: number
     /** Whether this knife is active/equipped */
-    active: boolean;
+    active: boolean
     /** Team this knife belongs to (1 = T, 2 = CT) */
-    team: number;
+    team: number
     /** Knife definition index */
-    defindex: number;
+    defindex: number
     /** Paint index for the skin */
-    paintindex: number;
+    paintindex: number
     /** Pattern seed for randomization */
-    paintseed: number | string;
+    paintseed: number | string
     /** Wear value (float or string) */
-    paintwear: number | string;
+    paintwear: number | string
     /** Whether StatTrak is enabled */
-    stattrak_enabled: boolean;
+    stattrak_enabled: boolean
     /** StatTrak kill count */
-    stattrak_count: number;
+    stattrak_count: number
     /** Custom name tag */
-    nametag: string | null;
+    nametag: string | null
 }
 
 /**
@@ -158,19 +158,19 @@ export interface IMappedDBKnife {
  */
 export interface IMappedDBGlove {
     /** Record ID */
-    id: number;
+    id: number
     /** Whether this glove is active/equipped */
-    active: boolean;
+    active: boolean
     /** Team this glove belongs to (1 = T, 2 = CT) */
-    team: number;
+    team: number
     /** Glove definition index */
-    defindex: number;
+    defindex: number
     /** Paint index for the skin */
-    paintindex: number;
+    paintindex: number
     /** Pattern seed for randomization */
-    paintseed: number | string;
+    paintseed: number | string
     /** Wear value (float or string) */
-    paintwear: number | string;
+    paintwear: number | string
 }
 
 /**
@@ -179,35 +179,35 @@ export interface IMappedDBGlove {
  */
 export interface IEnhancedWeaponSticker {
     /** Sticker ID */
-    id: number | string;
+    id: number | string
     /** Slot index (0-4) where this sticker is placed */
-    slot: number;
+    slot: number
     /** X-axis position offset */
-    x: number;
+    x: number
     /** Y-axis position offset */
-    y: number;
+    y: number
     /** Wear/condition of the sticker */
-    wear: number;
+    wear: number
     /** Scale/size of the sticker */
-    scale: number;
+    scale: number
     /** Rotation angle in degrees */
-    rotation: number;
+    rotation: number
     /** Optional name for compatibility */
-    name?: string;
+    name?: string
     /** Optional image for compatibility */
-    image?: string;
+    image?: string
     /** Position index (0-4) - for StickerConfiguration compatibility */
-    position: number;
+    position: number
     /** API data for this sticker */
     api?: {
-        name: string;
-        image: string;
-        type: string;
-        effect: string;
-        tournament_event: string;
-        tournament_team: string;
-        rarity?: ItemRarity;
-    };
+        name: string
+        image: string
+        type: string
+        effect: string
+        tournament_event: string
+        tournament_team: string
+        rarity?: ItemRarity
+    }
 }
 
 /**
@@ -216,27 +216,27 @@ export interface IEnhancedWeaponSticker {
  */
 export interface IEnhancedWeaponKeychain {
     /** Keychain ID */
-    id: number | string;
+    id: number | string
     /** X-axis position offset */
-    x: number;
+    x: number
     /** Y-axis position offset */
-    y: number;
+    y: number
     /** Z-axis position offset */
-    z: number;
+    z: number
     /** Random seed for keychain generation */
-    seed: number;
+    seed: number
     /** Optional name for compatibility */
-    name?: string;
+    name?: string
     /** Optional image for compatibility */
-    image?: string;
+    image?: string
     /** ID of the sticker wrapped inside the charm (for Sticker Slabs) */
-    wrapped_sticker_id?: number | null;
+    wrapped_sticker_id?: number | null
     /** ID of the highlight reel (for Highlight Reel charms) */
-    highlight_reel_id?: number | null;
+    highlight_reel_id?: number | null
     /** API data for this keychain */
     api?: {
-        name: string;
-        image: string;
-        rarity?: ItemRarity;
-    };
+        name: string
+        image: string
+        rarity?: ItemRarity
+    }
 }

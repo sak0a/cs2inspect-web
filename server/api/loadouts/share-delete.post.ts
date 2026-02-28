@@ -3,10 +3,7 @@ import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { getLoadout, clearShareCode } from '~/server/database/loadoutHelpers'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 /**
@@ -36,5 +33,4 @@ export default useErrorHandling(async (event: H3Event) => {
 
     const meta = createResponseMeta(startTime, { steamId, method: 'POST', loadoutId })
     return createSuccessResponse(null, meta, 'Share code deleted successfully')
-
 }, ErrorCodes.LOADOUT_SHARE_ERROR)

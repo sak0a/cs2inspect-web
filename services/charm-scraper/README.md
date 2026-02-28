@@ -19,7 +19,7 @@ This service is a standalone Node.js utility designed to scrape and download cha
 
 ## 🛠 How It Works
 
-1.  **Configuration**: 
+1.  **Configuration**:
     - The `charms.json` file contains a curated list of charms with their names and internal IDs.
     - **Environment Variable**: The base URL for scraping is configured via the `SCRAPE_URL` environment variable in the project's `.env` file.
 2.  **Image URL Pattern**: The scraper constructs image URLs using the pattern:
@@ -44,20 +44,23 @@ node index.js
 This data is intended to be used in the `InlineVisualCustomizer` and `KeychainModal` components.
 
 ### Data Format
+
 The file naming convention is designed to be easily parsed:
+
 - **Format**: `{sanitized_charm_name}_{type}_{seed/variant}.webp`
 - **Example**: `dr__brian_seed_10000.webp`
 
 ### Implementation Strategy for Frontend
+
 1.  **Importing**: You can either import these assets statically or serve them via a public directory.
 2.  **Mapping**: Use the `charms.json` (or a similar derived config) in your Vue components to know which charms are available.
 3.  **Seed Selection**:
     - When a user selects a charm, the default image (`_default.webp`) should be shown.
     - If the charm supports pattern variations, you can provide a UI (slider or dropdown) to select from the standard seeds.
     - The image source can be dynamically computed based on the selection:
-      ```javascript
-      const getCharmImage = (charmName, seed) => {
-          // Construct path based on convention
-          return `/assets/charms/${charmName}/${charmName}_seed_${seed}.webp`;
-      }
-      ```
+        ```javascript
+        const getCharmImage = (charmName, seed) => {
+            // Construct path based on convention
+            return `/assets/charms/${charmName}/${charmName}_seed_${seed}.webp`
+        }
+        ```

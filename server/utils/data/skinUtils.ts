@@ -1,6 +1,6 @@
-import type { APISkin, IDefaultItem, IEnhancedItem } from '~/server/types';
-import { hexToRgba } from '#shared/utils/hexToRgba';
-import { Logger } from '~/server/utils/logger';
+import type { APISkin, IDefaultItem, IEnhancedItem } from '~/server/types'
+import { hexToRgba } from '#shared/utils/hexToRgba'
+import { Logger } from '~/server/utils/logger'
 
 // ============================================================================
 // SKIN MATCHING AND FINDING UTILITIES
@@ -13,46 +13,45 @@ import { Logger } from '~/server/utils/logger';
  * @param skinsData Array of available skins
  * @returns Matching skin or undefined if no match found
  */
-export function findMatchingSkin<T extends { weapon_name: string }, U extends { paintindex: number | string }>(
-    baseItem: T,
-    databaseItem: U | undefined,
-    skinsData: APISkin[]
-): APISkin | undefined {
-    if (!databaseItem) return undefined;
+export function findMatchingSkin<
+    T extends { weapon_name: string },
+    U extends { paintindex: number | string },
+>(baseItem: T, databaseItem: U | undefined, skinsData: APISkin[]): APISkin | undefined {
+    if (!databaseItem) return undefined
 
     // Convert paintindex to string for consistent comparison
-    const paintIndexStr = databaseItem.paintindex.toString();
+    const paintIndexStr = databaseItem.paintindex.toString()
 
     Logger.debug(
         `Match lookup weapon=${baseItem.weapon_name} paintindex=${paintIndexStr}`,
         'skin-match'
-    );
+    )
 
-    const matchingSkin = skinsData.find(skin => {
-        const weaponMatch = skin.weapon?.id === baseItem.weapon_name;
-        const paintMatch = skin.paint_index === paintIndexStr;
+    const matchingSkin = skinsData.find((skin) => {
+        const weaponMatch = skin.weapon?.id === baseItem.weapon_name
+        const paintMatch = skin.paint_index === paintIndexStr
 
         if (weaponMatch && paintMatch) {
             Logger.debug(
                 `Match found weapon=${baseItem.weapon_name} skin=${skin.name}`,
                 'skin-match'
-            );
+            )
         }
 
-        return weaponMatch && paintMatch;
-    });
+        return weaponMatch && paintMatch
+    })
 
     if (!matchingSkin) {
         Logger.debug(
             `Match missing weapon=${baseItem.weapon_name} paintindex=${paintIndexStr}`,
             'skin-match'
-        );
+        )
         // Log available skins for this weapon to help debug
         // const weaponSkins = skinsData.filter(skin => skin.weapon?.id === baseItem.weapon_name);
         // Logger.debug(`Match candidates weapon=${baseItem.weapon_name} skins=${weaponSkins.map(s => `${s.name}:${s.paint_index}`).join(',')}`, 'skin-match');
     }
 
-    return matchingSkin;
+    return matchingSkin
 }
 
 /**
@@ -62,7 +61,7 @@ export function findMatchingSkin<T extends { weapon_name: string }, U extends { 
  * @returns Array of matching skins
  */
 export function findSkinsByWeapon(weaponName: string, skinsData: APISkin[]): APISkin[] {
-    return skinsData.filter(skin => skin.weapon?.id === weaponName);
+    return skinsData.filter((skin) => skin.weapon?.id === weaponName)
 }
 
 /**
@@ -72,9 +71,7 @@ export function findSkinsByWeapon(weaponName: string, skinsData: APISkin[]): API
  * @returns Array of matching skins
  */
 export function findSkinsByRarity(rarityName: string, skinsData: APISkin[]): APISkin[] {
-    return skinsData.filter(skin =>
-        skin.rarity?.name.toLowerCase() === rarityName.toLowerCase()
-    );
+    return skinsData.filter((skin) => skin.rarity?.name.toLowerCase() === rarityName.toLowerCase())
 }
 
 /**
@@ -83,8 +80,11 @@ export function findSkinsByRarity(rarityName: string, skinsData: APISkin[]): API
  * @param skinsData Array of available skins
  * @returns Matching skin or undefined
  */
-export function findSkinByPaintIndex(paintIndex: string | number, skinsData: APISkin[]): APISkin | undefined {
-    return skinsData.find(skin => skin.paint_index === paintIndex.toString());
+export function findSkinByPaintIndex(
+    paintIndex: string | number,
+    skinsData: APISkin[]
+): APISkin | undefined {
+    return skinsData.find((skin) => skin.paint_index === paintIndex.toString())
 }
 
 // ============================================================================
@@ -95,15 +95,15 @@ export function findSkinByPaintIndex(paintIndex: string | number, skinsData: API
  * Interface for skin filter criteria
  */
 export interface SkinFilterCriteria {
-    search?: string;
-    weapon?: string;
-    rarity?: string;
-    category?: string;
-    minFloat?: number;
-    maxFloat?: number;
-    stattrak?: boolean;
-    souvenir?: boolean;
-    team?: string;
+    search?: string
+    weapon?: string
+    rarity?: string
+    category?: string
+    minFloat?: number
+    maxFloat?: number
+    stattrak?: boolean
+    souvenir?: boolean
+    team?: string
 }
 
 /**
@@ -117,66 +117,73 @@ export function filterSkins(
     skins: APISkin[],
     criteria: SkinFilterCriteria,
     options: {
-        fuzzySearch?: boolean;
-        fuzzyThreshold?: number;
-        caseSensitive?: boolean;
+        fuzzySearch?: boolean
+        fuzzyThreshold?: number
+        caseSensitive?: boolean
     } = {}
 ): APISkin[] {
-    return skins.filter(skin => {
+    return skins.filter((skin) => {
         // Search term filter (checks name and description)
         if (criteria.search) {
-            const searchTerm = options.caseSensitive ? criteria.search : criteria.search.toLowerCase();
-            const skinName = options.caseSensitive ? skin.name : skin.name.toLowerCase();
-            const skinDesc = options.caseSensitive ? (skin.description || '') : (skin.description || '').toLowerCase();
+            const searchTerm = options.caseSensitive
+                ? criteria.search
+                : criteria.search.toLowerCase()
+            const skinName = options.caseSensitive ? skin.name : skin.name.toLowerCase()
+            const skinDesc = options.caseSensitive
+                ? skin.description || ''
+                : (skin.description || '').toLowerCase()
 
             if (!skinName.includes(searchTerm) && !skinDesc.includes(searchTerm)) {
-                return false;
+                return false
             }
         }
 
         // Weapon type filter
-        if (criteria.weapon &&
-            !skin.weapon?.id.toLowerCase().includes(criteria.weapon.toLowerCase())) {
-            return false;
+        if (
+            criteria.weapon &&
+            !skin.weapon?.id.toLowerCase().includes(criteria.weapon.toLowerCase())
+        ) {
+            return false
         }
 
         // Rarity filter
-        if (criteria.rarity &&
-            skin.rarity?.name.toLowerCase() !== criteria.rarity.toLowerCase()) {
-            return false;
+        if (criteria.rarity && skin.rarity?.name.toLowerCase() !== criteria.rarity.toLowerCase()) {
+            return false
         }
 
         // Category filter
-        if (criteria.category &&
-            skin.category?.name.toLowerCase() !== criteria.category.toLowerCase()) {
-            return false;
+        if (
+            criteria.category &&
+            skin.category?.name.toLowerCase() !== criteria.category.toLowerCase()
+        ) {
+            return false
         }
 
         // Float range filters
         if (criteria.minFloat !== undefined && skin.min_float < criteria.minFloat) {
-            return false;
+            return false
         }
         if (criteria.maxFloat !== undefined && skin.max_float > criteria.maxFloat) {
-            return false;
+            return false
         }
 
         // StatTrak filter
         if (criteria.stattrak !== undefined && skin.stattrak !== criteria.stattrak) {
-            return false;
+            return false
         }
 
         // Souvenir filter
         if (criteria.souvenir !== undefined && skin.souvenir !== criteria.souvenir) {
-            return false;
+            return false
         }
 
         // Team filter
         if (criteria.team && skin.team?.name.toLowerCase() !== criteria.team.toLowerCase()) {
-            return false;
+            return false
         }
 
-        return true;
-    });
+        return true
+    })
 }
 
 // ============================================================================
@@ -189,27 +196,27 @@ export function filterSkins(
  * @returns Processed skin with updated name
  */
 export function detectDopplerPattern(skin: APISkin): APISkin {
-    if (!skin.pattern?.id) return skin;
+    if (!skin.pattern?.id) return skin
 
     const patterns: Record<string, string> = {
-        'emerald_marbleized': 'Emerald',
-        'ruby_marbleized': 'Ruby',
-        'sapphire_marbleized': 'Sapphire',
-        'blackpearl_marbleized': 'Black Pearl',
-        'phase1': 'Phase 1',
-        'phase2': 'Phase 2',
-        'phase3': 'Phase 3',
-        'phase4': 'Phase 4'
-    };
+        emerald_marbleized: 'Emerald',
+        ruby_marbleized: 'Ruby',
+        sapphire_marbleized: 'Sapphire',
+        blackpearl_marbleized: 'Black Pearl',
+        phase1: 'Phase 1',
+        phase2: 'Phase 2',
+        phase3: 'Phase 3',
+        phase4: 'Phase 4',
+    }
 
     for (const [key, value] of Object.entries(patterns)) {
         if (skin.pattern.id.includes(key)) {
-            skin.name += ` (${value})`;
-            break;
+            skin.name += ` (${value})`
+            break
         }
     }
 
-    return skin;
+    return skin
 }
 
 /**
@@ -218,7 +225,7 @@ export function detectDopplerPattern(skin: APISkin): APISkin {
  * @returns Processed skins array
  */
 export function processSkinData(skins: APISkin[]): APISkin[] {
-    return skins.map(skin => detectDopplerPattern(skin));
+    return skins.map((skin) => detectDopplerPattern(skin))
 }
 
 /**
@@ -227,17 +234,17 @@ export function processSkinData(skins: APISkin[]): APISkin[] {
  * @returns Array with StatTrak duplicates removed
  */
 export function removeStatTrakDuplicates(skins: APISkin[]): APISkin[] {
-    const seen = new Set<string>();
-    return skins.filter(skin => {
+    const seen = new Set<string>()
+    return skins.filter((skin) => {
         // Create a key without StatTrak indicator
-        const key = `${skin.weapon?.id}-${skin.paint_index}`;
+        const key = `${skin.weapon?.id}-${skin.paint_index}`
         if (seen.has(key)) {
             // If we've seen this skin before, only keep it if it's not StatTrak
-            return !skin.stattrak;
+            return !skin.stattrak
         }
-        seen.add(key);
-        return true;
-    });
+        seen.add(key)
+        return true
+    })
 }
 
 // ============================================================================
@@ -250,22 +257,24 @@ export function removeStatTrakDuplicates(skins: APISkin[]): APISkin[] {
  * @returns Enhanced item array
  */
 export function createDefaultItem<T>(baseItem: IDefaultItem): T[] {
-    return [{
-        weapon_defindex: baseItem.weapon_defindex,
-        weapon_name: baseItem.weapon_name,
-        name: baseItem.defaultName,
-        defaultName: baseItem.defaultName,
-        image: baseItem.defaultImage,
-        defaultImage: baseItem.defaultImage,
-        category: baseItem.category,
-        minFloat: 0,
-        maxFloat: 1,
-        paintindex: 0,
-        availableTeams: baseItem.availableTeams,
-        team: null,
-        rarity: undefined,
-        databaseInfo: undefined
-    } as T];
+    return [
+        {
+            weapon_defindex: baseItem.weapon_defindex,
+            weapon_name: baseItem.weapon_name,
+            name: baseItem.defaultName,
+            defaultName: baseItem.defaultName,
+            image: baseItem.defaultImage,
+            defaultImage: baseItem.defaultImage,
+            category: baseItem.category,
+            minFloat: 0,
+            maxFloat: 1,
+            paintindex: 0,
+            availableTeams: baseItem.availableTeams,
+            team: null,
+            rarity: undefined,
+            databaseInfo: undefined,
+        } as T,
+    ]
 }
 
 /**
@@ -287,8 +296,8 @@ export function createEnhancedItemFromSkin<T extends IEnhancedItem>(
         paintindex: Number(skin.paint_index),
         rarity: skin.rarity,
         team: skin.team ? (skin.team.name.toLowerCase() === 'terrorist' ? 1 : 2) : null,
-        databaseInfo: undefined
-    } as T;
+        databaseInfo: undefined,
+    } as T
 }
 
 // ============================================================================
@@ -301,7 +310,7 @@ export function createEnhancedItemFromSkin<T extends IEnhancedItem>(
  * @returns True if skin has stickers
  */
 export function hasStickers(skin: { stickers?: unknown }): boolean {
-    return !!(skin.stickers && Array.isArray(skin.stickers) && skin.stickers.length > 0);
+    return !!(skin.stickers && Array.isArray(skin.stickers) && skin.stickers.length > 0)
 }
 
 /**
@@ -309,9 +318,13 @@ export function hasStickers(skin: { stickers?: unknown }): boolean {
  * @param skin Skin object
  * @returns Array of sticker names
  */
-export function getStickerNames(skin: { stickers?: Array<{ api?: { name?: string }; name?: string }> }): string[] {
-    if (!hasStickers(skin)) return [];
-    return (skin.stickers as Array<{ api?: { name?: string }; name?: string }>).map((sticker) => sticker.api?.name || sticker.name || '').filter(Boolean);
+export function getStickerNames(skin: {
+    stickers?: Array<{ api?: { name?: string }; name?: string }>
+}): string[] {
+    if (!hasStickers(skin)) return []
+    return (skin.stickers as Array<{ api?: { name?: string }; name?: string }>)
+        .map((sticker) => sticker.api?.name || sticker.name || '')
+        .filter(Boolean)
 }
 
 /**
@@ -320,7 +333,7 @@ export function getStickerNames(skin: { stickers?: Array<{ api?: { name?: string
  * @returns True if skin has a keychain
  */
 export function hasKeychain(skin: { keychain?: { id?: number } }): boolean {
-    return !!(skin.keychain && skin.keychain.id && skin.keychain.id !== 0);
+    return !!(skin.keychain && skin.keychain.id && skin.keychain.id !== 0)
 }
 
 /**
@@ -329,8 +342,8 @@ export function hasKeychain(skin: { keychain?: { id?: number } }): boolean {
  * @returns True if valid paint index
  */
 export function isValidPaintIndex(paintIndex: string | number): boolean {
-    const index = Number(paintIndex);
-    return !isNaN(index) && index >= 0;
+    const index = Number(paintIndex)
+    return !isNaN(index) && index >= 0
 }
 
 /**
@@ -340,8 +353,12 @@ export function isValidPaintIndex(paintIndex: string | number): boolean {
  * @param maxFloat Maximum allowed float
  * @returns True if valid float value
  */
-export function isValidFloat(floatValue: number, minFloat: number = 0, maxFloat: number = 1): boolean {
-    return floatValue >= minFloat && floatValue <= maxFloat;
+export function isValidFloat(
+    floatValue: number,
+    minFloat: number = 0,
+    maxFloat: number = 1
+): boolean {
+    return floatValue >= minFloat && floatValue <= maxFloat
 }
 
 // ============================================================================
@@ -359,7 +376,7 @@ export function formatSkinNameForDisplay(skinName: string, weaponName: string): 
     return skinName
         .replace(/^★\s+/, '')
         .replace(new RegExp(`^${weaponName}\\s*\\|\\s*`, 'i'), '')
-        .trim();
+        .trim()
 }
 
 /**
@@ -368,8 +385,11 @@ export function formatSkinNameForDisplay(skinName: string, weaponName: string): 
  * @param alpha Alpha value (0-1)
  * @returns RGBA color string
  */
-export function getRarityColorWithAlpha(rarity: { color: string } | undefined, alpha: string | number = '0.15'): string {
-    return hexToRgba(rarity?.color || '#313030', alpha);
+export function getRarityColorWithAlpha(
+    rarity: { color: string } | undefined,
+    alpha: string | number = '0.15'
+): string {
+    return hexToRgba(rarity?.color || '#313030', alpha)
 }
 
 /**
@@ -378,6 +398,6 @@ export function getRarityColorWithAlpha(rarity: { color: string } | undefined, a
  * @returns CSS gradient string
  */
 export function getSkinCardGradient(rarity: { color: string } | undefined): string {
-    const color = getRarityColorWithAlpha(rarity);
-    return `linear-gradient(135deg, #101010, ${color})`;
+    const color = getRarityColorWithAlpha(rarity)
+    return `linear-gradient(135deg, #101010, ${color})`
 }

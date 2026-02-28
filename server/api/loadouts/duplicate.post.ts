@@ -1,13 +1,9 @@
-
 import { getQuery, readBody, createError } from 'h3'
 import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
-import { duplicateLoadout, getLoadoutsBySteamId } from "~/server/database/loadoutHelpers";
-import { validateRequiredRequestData } from "~/server/utils/helpers";
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers';
+import { duplicateLoadout, getLoadoutsBySteamId } from '~/server/database/loadoutHelpers'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { getCachedSetting } from '~/server/utils/settingsCache'
 
@@ -22,11 +18,11 @@ export default useErrorHandling(async (event: H3Event) => {
     Logger.header(`Duplicate Loadout API request: ${event.req.url}`)
 
     const body = await readBody(event)
-    const steamId = query.steamId as string || body.steamId;
-    const loadoutId = body.loadoutId;
+    const steamId = (query.steamId as string) || body.steamId
+    const loadoutId = body.loadoutId
 
-    validateRequiredRequestData(steamId, 'Steam ID');
-    validateRequiredRequestData(loadoutId, 'Loadout ID');
+    validateRequiredRequestData(steamId, 'Steam ID')
+    validateRequiredRequestData(loadoutId, 'Loadout ID')
 
     // Enforce MAX_LOADOUTS_PER_USER
     const maxLoadouts = await getCachedSetting<number>('MAX_LOADOUTS_PER_USER', 10)
@@ -41,7 +37,10 @@ export default useErrorHandling(async (event: H3Event) => {
     const newLoadout = await duplicateLoadout(steamId, loadoutId)
     Logger.success(`Loadout ${loadoutId} duplicated successfully! New ID: ${newLoadout.id}`)
 
-    const meta = createResponseMeta(startTime, { steamId, method: 'POST', originalLoadoutId: loadoutId })
+    const meta = createResponseMeta(startTime, {
+        steamId,
+        method: 'POST',
+        originalLoadoutId: loadoutId,
+    })
     return createSuccessResponse(newLoadout, meta, 'Loadout duplicated successfully')
-
 }, ErrorCodes.LOADOUT_DUPLICATE_ERROR)

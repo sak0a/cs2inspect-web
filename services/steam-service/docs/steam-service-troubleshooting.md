@@ -7,12 +7,14 @@ This guide helps you diagnose and fix common issues with the Steam Service, part
 ### Steam Connection Timeout
 
 **Symptoms:**
+
 ```
 SteamTimeoutError: Steam connection timeout
 Failed to initialize Steam client: Steam connection timeout
 ```
 
 **Possible Causes:**
+
 1. Network connectivity issues to Steam servers
 2. Steam servers are slow or overloaded
 3. Firewall blocking Steam connections
@@ -25,6 +27,7 @@ Failed to initialize Steam client: Steam connection timeout
 #### 1. Check Network Connectivity
 
 Test if you can reach Steam servers:
+
 ```bash
 # Test Steam Web API
 curl https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key=YOUR_API_KEY&steamids=76561198000000000
@@ -36,12 +39,14 @@ curl https://steamcommunity.com/
 #### 2. Verify Credentials
 
 Check your `.env` file:
+
 ```bash
 cd services/steam-service
 cat .env | grep STEAM
 ```
 
 Ensure:
+
 - `STEAM_USERNAME` is correct (no extra spaces)
 - `STEAM_PASSWORD` is correct (no extra spaces, special characters properly escaped)
 - `STEAM_API_KEY` is valid (get from https://steamcommunity.com/dev/apikey)
@@ -49,16 +54,19 @@ Ensure:
 #### 3. Check Account Status
 
 **Steam Guard:**
+
 - If Steam Guard is enabled, you may need to disable it for automated logins
 - Or use a Steam Guard code if the library supports it
 
 **Logged In Elsewhere:**
+
 - Ensure the account is not logged into Steam client on another machine
 - Log out from all Steam clients before starting the service
 
 #### 4. Increase Timeout Values
 
 Add to `services/steam-service/.env`:
+
 ```env
 # Increase initialization timeout (default: 120000ms = 2 minutes)
 STEAM_INIT_TIMEOUT=180000
@@ -76,6 +84,7 @@ STEAM_INIT_RETRIES=3
 #### 5. Enable Detailed Logging
 
 Add to `.env`:
+
 ```env
 LOG_LEVEL=debug
 LOG_API_REQUESTS=true
@@ -88,6 +97,7 @@ This will show more detailed information about the connection process.
 The service can run without Steam client for testing masked URLs:
 
 Temporarily comment out credentials:
+
 ```env
 # STEAM_USERNAME=your_username
 # STEAM_PASSWORD=your_password
@@ -98,6 +108,7 @@ The service will start and work for masked URL operations (create-url, analyze-u
 ### Service Starts But Steam Client Fails
 
 **Good News:** The service will start even if Steam client fails. You can still use:
+
 - `POST /api/inspect/create-url` - Create inspect URLs
 - `POST /api/inspect/analyze-url` - Analyze URL structure
 - `POST /api/inspect/validate-url` - Validate URLs
@@ -105,9 +116,11 @@ The service will start and work for masked URL operations (create-url, analyze-u
 - `POST /api/inspect/decode-hex-data` - Decode hex data
 
 **What Won't Work:**
+
 - `POST /api/inspect/inspect-item` with unmasked URLs (requires Steam client)
 
 **Check Status:**
+
 ```bash
 curl http://localhost:3000/api/status/steam-client
 ```
@@ -115,6 +128,7 @@ curl http://localhost:3000/api/status/steam-client
 ### Invalid API Key Errors
 
 **Symptoms:**
+
 ```
 INVALID_API_KEY
 401 Unauthorized
@@ -123,30 +137,32 @@ INVALID_API_KEY
 **Solutions:**
 
 1. **Verify API Key Match:**
-   - Check `API_KEYS` in `services/steam-service/.env`
-   - Check `STEAM_SERVICE_API_KEY` in main app `.env`
-   - They must match exactly
+    - Check `API_KEYS` in `services/steam-service/.env`
+    - Check `STEAM_SERVICE_API_KEY` in main app `.env`
+    - They must match exactly
 
 2. **Check for Extra Spaces:**
-   ```bash
-   # In steam service .env
-   API_KEYS=your_key_here  # No spaces around =
-   
-   # In main app .env
-   STEAM_SERVICE_API_KEY=your_key_here  # No spaces
-   ```
+
+    ```bash
+    # In steam service .env
+    API_KEYS=your_key_here  # No spaces around =
+
+    # In main app .env
+    STEAM_SERVICE_API_KEY=your_key_here  # No spaces
+    ```
 
 3. **Test API Key:**
-   ```bash
-   curl -X POST http://localhost:3000/api/inspect/analyze-url \
-     -H "X-API-Key: your_key" \
-     -H "Content-Type: application/json" \
-     -d '{"inspectUrl": "test"}'
-   ```
+    ```bash
+    curl -X POST http://localhost:3000/api/inspect/analyze-url \
+      -H "X-API-Key: your_key" \
+      -H "Content-Type: application/json" \
+      -d '{"inspectUrl": "test"}'
+    ```
 
 ### Connection Refused
 
 **Symptoms:**
+
 ```
 ECONNREFUSED
 Connection refused
@@ -155,23 +171,26 @@ Connection refused
 **Solutions:**
 
 1. **Check Service is Running:**
-   ```bash
-   curl http://localhost:3000/api/health/live
-   ```
+
+    ```bash
+    curl http://localhost:3000/api/health/live
+    ```
 
 2. **Check Port:**
-   ```bash
-   lsof -i :3000
-   ```
+
+    ```bash
+    lsof -i :3000
+    ```
 
 3. **Verify URL:**
-   - Main app `.env`: `STEAM_SERVICE_URL=http://localhost:3000`
-   - No `https://` for local testing
-   - Port must match service port
+    - Main app `.env`: `STEAM_SERVICE_URL=http://localhost:3000`
+    - No `https://` for local testing
+    - Port must match service port
 
 ### Rate Limit Errors
 
 **Symptoms:**
+
 ```
 RATE_LIMIT_EXCEEDED
 Queue is full
@@ -180,20 +199,22 @@ Queue is full
 **Solutions:**
 
 1. **Increase Rate Limits:**
-   ```env
-   RATE_LIMIT_MAX=200
-   RATE_LIMIT_WINDOW=60000
-   ```
+
+    ```env
+    RATE_LIMIT_MAX=200
+    RATE_LIMIT_WINDOW=60000
+    ```
 
 2. **Increase Queue Size:**
-   ```env
-   STEAM_MAX_QUEUE_SIZE=200
-   ```
+
+    ```env
+    STEAM_MAX_QUEUE_SIZE=200
+    ```
 
 3. **Increase Delays:**
-   ```env
-   STEAM_RATE_LIMIT_DELAY=2000
-   ```
+    ```env
+    STEAM_RATE_LIMIT_DELAY=2000
+    ```
 
 ## Diagnostic Commands
 
@@ -217,20 +238,22 @@ curl http://localhost:3000/api/status/steam-client
 ```
 
 Expected when working:
+
 ```json
 {
-  "available": true,
-  "status": "connected",
-  "message": "Steam client is ready"
+    "available": true,
+    "status": "connected",
+    "message": "Steam client is ready"
 }
 ```
 
 Expected when failed:
+
 ```json
 {
-  "available": false,
-  "status": "not_initialized",
-  "message": "Steam client has not been initialized"
+    "available": false,
+    "status": "not_initialized",
+    "message": "Steam client has not been initialized"
 }
 ```
 
@@ -256,6 +279,7 @@ curl -X POST http://localhost:3000/api/inspect/create-url \
 ## Environment Variable Checklist
 
 **Steam Service** (`services/steam-service/.env`):
+
 - [ ] `PORT=3000` (or your port)
 - [ ] `STEAM_USERNAME=...` (no spaces)
 - [ ] `STEAM_PASSWORD=...` (no spaces, properly escaped)
@@ -264,6 +288,7 @@ curl -X POST http://localhost:3000/api/inspect/create-url \
 - [ ] `CORS_ORIGINS=http://localhost:3000` (includes your main app URL)
 
 **Main App** (`.env`):
+
 - [ ] `STEAM_SERVICE_URL=http://localhost:3000` (matches service port)
 - [ ] `STEAM_SERVICE_API_KEY=...` (matches one of the keys in service)
 
@@ -318,42 +343,42 @@ Add temporary logging to verify env vars are loaded:
 
 ```typescript
 // In src/utils/config.ts (temporary)
-console.log('STEAM_USERNAME length:', config.steam.username.length);
-console.log('STEAM_PASSWORD length:', config.steam.password.length);
-console.log('STEAM_API_KEY length:', config.steam.apiKey.length);
+console.log('STEAM_USERNAME length:', config.steam.username.length)
+console.log('STEAM_PASSWORD length:', config.steam.password.length)
+console.log('STEAM_API_KEY length:', config.steam.apiKey.length)
 ```
 
 ## Common Error Messages
 
-| Error | Cause | Solution |
-|-------|-------|----------|
-| `SteamTimeoutError` | Connection timeout | Increase `STEAM_INIT_TIMEOUT`, check network |
-| `InvalidPassword` | Wrong password | Verify password in `.env` |
-| `LoggedInElsewhere` | Account in use | Log out from other Steam clients |
-| `INVALID_API_KEY` | API key mismatch | Verify keys match in both `.env` files |
-| `ECONNREFUSED` | Service not running | Start the service |
-| `RATE_LIMIT_EXCEEDED` | Too many requests | Increase rate limits or wait |
+| Error                 | Cause               | Solution                                     |
+| --------------------- | ------------------- | -------------------------------------------- |
+| `SteamTimeoutError`   | Connection timeout  | Increase `STEAM_INIT_TIMEOUT`, check network |
+| `InvalidPassword`     | Wrong password      | Verify password in `.env`                    |
+| `LoggedInElsewhere`   | Account in use      | Log out from other Steam clients             |
+| `INVALID_API_KEY`     | API key mismatch    | Verify keys match in both `.env` files       |
+| `ECONNREFUSED`        | Service not running | Start the service                            |
+| `RATE_LIMIT_EXCEEDED` | Too many requests   | Increase rate limits or wait                 |
 
 ## Getting Help
 
 If issues persist:
 
 1. **Check Logs:**
-   - Service logs: Terminal where service is running
-   - Main app logs: Terminal where main app is running
-   - Browser console: For frontend errors
+    - Service logs: Terminal where service is running
+    - Main app logs: Terminal where main app is running
+    - Browser console: For frontend errors
 
 2. **Verify Configuration:**
-   - All environment variables are set
-   - No typos in variable names
-   - No extra spaces in values
+    - All environment variables are set
+    - No typos in variable names
+    - No extra spaces in values
 
 3. **Test Incrementally:**
-   - Start with service only (test health endpoints)
-   - Then test API endpoints
-   - Finally test main app integration
+    - Start with service only (test health endpoints)
+    - Then test API endpoints
+    - Finally test main app integration
 
 4. **Check Documentation:**
-   - [Local Testing Guide](./steam-service-local-testing.md)
-   - [Setup Guide](./steam-service-setup.md)
-   - [Service README](../services/steam-service/README.md)
+    - [Local Testing Guide](./steam-service-local-testing.md)
+    - [Setup Guide](./steam-service-setup.md)
+    - [Service README](../services/steam-service/README.md)

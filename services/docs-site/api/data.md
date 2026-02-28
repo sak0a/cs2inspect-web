@@ -21,26 +21,27 @@ Retrieve all available weapon skins.
 | `search` | string | Search skin names |
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "defindex": 7,
-      "paintindex": 253,
-      "name": "AK-47 | Fire Serpent",
-      "weapon": "AK-47",
-      "pattern": "Fire Serpent",
-      "rarity": "Covert",
-      "collection": "The Bravo Collection",
-      "minFloat": 0.06,
-      "maxFloat": 0.76,
-      "image": "https://...",
-      "statTrakAvailable": true
-    }
-  ],
-  "count": 1
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "defindex": 7,
+            "paintindex": 253,
+            "name": "AK-47 | Fire Serpent",
+            "weapon": "AK-47",
+            "pattern": "Fire Serpent",
+            "rarity": "Covert",
+            "collection": "The Bravo Collection",
+            "minFloat": 0.06,
+            "maxFloat": 0.76,
+            "image": "https://...",
+            "statTrakAvailable": true
+        }
+    ],
+    "count": 1
 }
 ```
 
@@ -58,21 +59,22 @@ Retrieve all available agents.
 | `team` | string | Filter by team (`t` or `ct`) |
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "defindex": 4711,
-      "name": "The Elite Mr. Muhlik | Elite Crew",
-      "team": "t",
-      "faction": "Elite Crew",
-      "image": "https://...",
-      "rarity": "Master"
-    }
-  ],
-  "count": 1
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "defindex": 4711,
+            "name": "The Elite Mr. Muhlik | Elite Crew",
+            "team": "t",
+            "faction": "Elite Crew",
+            "image": "https://...",
+            "rarity": "Master"
+        }
+    ],
+    "count": 1
 }
 ```
 
@@ -92,22 +94,23 @@ Retrieve all available stickers.
 | `team` | string | Filter by team |
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "defindex": 1230,
-      "name": "iBUYPOWER (Holo) | Katowice 2014",
-      "tournament": "Katowice 2014",
-      "team": "iBUYPOWER",
-      "type": "team_holo",
-      "image": "https://...",
-      "rarity": "Exotic"
-    }
-  ],
-  "count": 1
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "defindex": 1230,
+            "name": "iBUYPOWER (Holo) | Katowice 2014",
+            "tournament": "Katowice 2014",
+            "team": "iBUYPOWER",
+            "type": "team_holo",
+            "image": "https://...",
+            "rarity": "Exotic"
+        }
+    ],
+    "count": 1
 }
 ```
 
@@ -120,19 +123,20 @@ Retrieve all available stickers.
 Retrieve all available keychains.
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "defindex": 6001,
-      "name": "Chicken",
-      "image": "https://...",
-      "hasSeed": true
-    }
-  ],
-  "count": 1
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "defindex": 6001,
+            "name": "Chicken",
+            "image": "https://...",
+            "hasSeed": true
+        }
+    ],
+    "count": 1
 }
 ```
 
@@ -145,21 +149,22 @@ Retrieve all available keychains.
 Retrieve all available music kits.
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "defindex": 3,
-      "name": "AWOLNATION, I Am",
-      "artist": "AWOLNATION",
-      "track": "I Am",
-      "image": "https://...",
-      "statTrakAvailable": true
-    }
-  ],
-  "count": 1
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "defindex": 3,
+            "name": "AWOLNATION, I Am",
+            "artist": "AWOLNATION",
+            "track": "I Am",
+            "image": "https://...",
+            "statTrakAvailable": true
+        }
+    ],
+    "count": 1
 }
 ```
 
@@ -172,20 +177,21 @@ Retrieve all available music kits.
 Retrieve all available pins and collectibles.
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "defindex": 6001,
-      "name": "Skillful Pin",
-      "series": "Series 1",
-      "image": "https://...",
-      "rarity": "Classified"
-    }
-  ],
-  "count": 1
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "defindex": 6001,
+            "name": "Skillful Pin",
+            "series": "Series 1",
+            "image": "https://...",
+            "rarity": "Classified"
+        }
+    ],
+    "count": 1
 }
 ```
 
@@ -203,6 +209,7 @@ Retrieve weapons of a specific type.
 | `:type` | string | Weapon type: `pistols`, `rifles`, `smgs`, `heavy`, `shotguns` |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -237,15 +244,17 @@ Retrieve all pins and collectibles.
 
 ::: tip Performance
 Data endpoints are cached for optimal performance. Cache duration:
+
 - Skins: 1 hour
 - Stickers: 1 hour
 - Agents: 24 hours
 - Music Kits: 24 hours
-:::
+  :::
 
 ## Data Sources
 
 Item data is sourced from:
+
 1. CS2 game files
 2. Steam Community Market
 3. Community-maintained databases

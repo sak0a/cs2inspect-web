@@ -17,7 +17,7 @@ import type {
     AdminTopUser,
     PluginSetting,
     PluginSettingCategory,
-    APIResponse
+    APIResponse,
 } from '~/types'
 import { toISOTimestamp } from '~/types'
 import { APP_SETTING_CATEGORIES, SETTING_KEY_TO_CATEGORY } from '~/utils/settingsCategories'
@@ -83,10 +83,15 @@ interface AdminState {
 // Cache duration in milliseconds (5 minutes)
 const CACHE_DURATION = 5 * 60 * 1000
 
-type PaginatedPayload<T, K extends string> = T[] | (Record<K, T[]> & { pagination?: { totalItems: number } })
+type PaginatedPayload<T, K extends string> =
+    | T[]
+    | (Record<K, T[]> & { pagination?: { totalItems: number } })
 type PaginatedApiResponse<T> = APIResponse<T> & { pagination?: { totalItems?: number } }
 
-function normalizePaginatedList<T, K extends string>(payload: PaginatedPayload<T, K> | undefined, key: K) {
+function normalizePaginatedList<T, K extends string>(
+    payload: PaginatedPayload<T, K> | undefined,
+    key: K
+) {
     if (!payload) {
         return { items: [] as T[], pagination: undefined as { totalItems?: number } | undefined }
     }
@@ -95,7 +100,7 @@ function normalizePaginatedList<T, K extends string>(payload: PaginatedPayload<T
     }
     return {
         items: Array.isArray(payload[key]) ? payload[key] : [],
-        pagination: payload.pagination
+        pagination: payload.pagination,
     }
 }
 
@@ -132,8 +137,8 @@ export const useAdminStore = defineStore('admin', {
             activity: null,
             activityLog: null,
             adminUsers: null,
-            pluginSettings: null
-        }
+            pluginSettings: null,
+        },
     }),
 
     getters: {
@@ -215,8 +220,15 @@ export const useAdminStore = defineStore('admin', {
         totalItems: (state) => {
             if (!state.overviewStats?.totalItems) return 0
             const items = state.overviewStats.totalItems
-            return items.weapons + items.knives + items.gloves + items.agents + items.musicKits + items.pins
-        }
+            return (
+                items.weapons +
+                items.knives +
+                items.gloves +
+                items.agents +
+                items.musicKits +
+                items.pins
+            )
+        },
     },
 
     actions: {
@@ -233,8 +245,10 @@ export const useAdminStore = defineStore('admin', {
             console.log('[adminStore] Checking admin status...')
 
             const now = Date.now()
-            const adminStatusFresh = !!this.lastFetch.adminStatus && now - this.lastFetch.adminStatus < CACHE_DURATION
-            const adminRoleFresh = !!this.lastFetch.adminUsers && now - this.lastFetch.adminUsers < CACHE_DURATION
+            const adminStatusFresh =
+                !!this.lastFetch.adminStatus && now - this.lastFetch.adminStatus < CACHE_DURATION
+            const adminRoleFresh =
+                !!this.lastFetch.adminUsers && now - this.lastFetch.adminUsers < CACHE_DURATION
 
             if (this.isAdmin && adminStatusFresh) {
                 if (!this.adminRole || !adminRoleFresh) {
@@ -280,12 +294,19 @@ export const useAdminStore = defineStore('admin', {
          */
         async fetchCurrentAdminInfo(forceRefresh = false): Promise<void> {
             const now = Date.now()
-            if (!forceRefresh && this.adminRole && this.lastFetch.adminUsers && now - this.lastFetch.adminUsers < CACHE_DURATION) {
+            if (
+                !forceRefresh &&
+                this.adminRole &&
+                this.lastFetch.adminUsers &&
+                now - this.lastFetch.adminUsers < CACHE_DURATION
+            ) {
                 return
             }
 
             try {
-                const response = await api.get<AdminInfo[] | { admins: AdminInfo[] }>('/api/admin/admins')
+                const response = await api.get<AdminInfo[] | { admins: AdminInfo[] }>(
+                    '/api/admin/admins'
+                )
 
                 if (response.success && response.data) {
                     // The current user is in the list if they can access this endpoint
@@ -340,7 +361,8 @@ export const useAdminStore = defineStore('admin', {
          * Fetch activity data for charts
          */
         async fetchActivityData(range: '7d' | '30d' | '90d' = '30d', force = false): Promise<void> {
-            const activityFresh = !!this.lastFetch.activity && Date.now() - this.lastFetch.activity < CACHE_DURATION
+            const activityFresh =
+                !!this.lastFetch.activity && Date.now() - this.lastFetch.activity < CACHE_DURATION
             if (!force && activityFresh && this.activityData && this.lastActivityRange === range) {
                 return
             }
@@ -349,7 +371,9 @@ export const useAdminStore = defineStore('admin', {
             this.error = null
 
             try {
-                const response = await api.get<AdminActivityData>('/api/admin/stats/activity', { range })
+                const response = await api.get<AdminActivityData>('/api/admin/stats/activity', {
+                    range,
+                })
 
                 if (response.success && response.data) {
                     this.activityData = response.data
@@ -357,7 +381,8 @@ export const useAdminStore = defineStore('admin', {
                     this.lastActivityRange = range
                 }
             } catch (error) {
-                this.error = error instanceof Error ? error.message : 'Failed to fetch activity data'
+                this.error =
+                    error instanceof Error ? error.message : 'Failed to fetch activity data'
                 throw error
             } finally {
                 this.isLoadingActivity = false
@@ -369,7 +394,10 @@ export const useAdminStore = defineStore('admin', {
          */
         async fetchTopUsers(limit = 10): Promise<void> {
             try {
-                const response = await api.get<{ topUsers: AdminTopUser[] }>('/api/admin/stats/users', { limit })
+                const response = await api.get<{ topUsers: AdminTopUser[] }>(
+                    '/api/admin/stats/users',
+                    { limit }
+                )
 
                 if (response.success && response.data?.topUsers) {
                     this.topUsers = response.data.topUsers
@@ -386,11 +414,36 @@ export const useAdminStore = defineStore('admin', {
         /**
          * Search/fetch users with pagination
          */
-        async fetchUsers(params: { search?: string; page?: number; limit?: number; force?: boolean; sortBy?: string; sortDir?: string; bannedOnly?: boolean; activeOnly?: boolean } = {}): Promise<void> {
-            const { search, page = 1, limit = 20, force = false, sortBy, sortDir, bannedOnly, activeOnly } = params
+        async fetchUsers(
+            params: {
+                search?: string
+                page?: number
+                limit?: number
+                force?: boolean
+                sortBy?: string
+                sortDir?: string
+                bannedOnly?: boolean
+                activeOnly?: boolean
+            } = {}
+        ): Promise<void> {
+            const {
+                search,
+                page = 1,
+                limit = 20,
+                force = false,
+                sortBy,
+                sortDir,
+                bannedOnly,
+                activeOnly,
+            } = params
             const queryKey = `${search || ''}|${page}|${limit}|${sortBy || ''}|${sortDir || ''}|${bannedOnly || ''}|${activeOnly || ''}`
 
-            if (!force && !this.isUsersCacheStale && this.users.length > 0 && this.lastUsersQuery === queryKey) {
+            if (
+                !force &&
+                !this.isUsersCacheStale &&
+                this.users.length > 0 &&
+                this.lastUsersQuery === queryKey
+            ) {
                 return
             }
 
@@ -400,7 +453,7 @@ export const useAdminStore = defineStore('admin', {
             try {
                 const queryParams: Record<string, string> = {
                     page: String(page),
-                    limit: String(limit)
+                    limit: String(limit),
                 }
                 if (search) queryParams.search = search
                 if (sortBy) queryParams.sortBy = sortBy
@@ -408,15 +461,19 @@ export const useAdminStore = defineStore('admin', {
                 if (bannedOnly) queryParams.bannedOnly = 'true'
                 if (activeOnly) queryParams.activeOnly = 'true'
 
-                const response = await api.get<PaginatedPayload<AdminUserSummary, 'users'>>(
+                const response = (await api.get<PaginatedPayload<AdminUserSummary, 'users'>>(
                     '/api/admin/users',
                     queryParams
-                ) as PaginatedApiResponse<PaginatedPayload<AdminUserSummary, 'users'>>
+                )) as PaginatedApiResponse<PaginatedPayload<AdminUserSummary, 'users'>>
 
                 if (response.success && response.data) {
                     const { items, pagination } = normalizePaginatedList(response.data, 'users')
                     this.users = items
-                    this.usersTotal = response.pagination?.totalItems || pagination?.totalItems || items.length || 0
+                    this.usersTotal =
+                        response.pagination?.totalItems ||
+                        pagination?.totalItems ||
+                        items.length ||
+                        0
                     this.lastFetch.users = Date.now()
                     this.lastUsersQuery = queryKey
                 }
@@ -460,7 +517,7 @@ export const useAdminStore = defineStore('admin', {
             try {
                 await api.post(`/api/admin/users/${steamId}/ban`, {
                     reason,
-                    durationHours
+                    durationHours,
                 })
 
                 // Refresh user list
@@ -508,10 +565,7 @@ export const useAdminStore = defineStore('admin', {
                 await api.delete(`/api/admin/users/${steamId}`)
 
                 // Refresh user list and stats
-                await Promise.all([
-                    this.fetchUsers({ force: true }),
-                    this.fetchOverviewStats(true)
-                ])
+                await Promise.all([this.fetchUsers({ force: true }), this.fetchOverviewStats(true)])
             } catch (error) {
                 this.error = error instanceof Error ? error.message : 'Failed to delete user data'
                 throw error
@@ -536,7 +590,9 @@ export const useAdminStore = defineStore('admin', {
             this.error = null
 
             try {
-                const response = await api.get<AdminSetting[] | { settings: AdminSetting[] }>('/api/admin/settings')
+                const response = await api.get<AdminSetting[] | { settings: AdminSetting[] }>(
+                    '/api/admin/settings'
+                )
 
                 if (response.success && response.data) {
                     const payload = response.data
@@ -562,7 +618,7 @@ export const useAdminStore = defineStore('admin', {
                 await api.put('/api/admin/settings', { key, value })
 
                 // Update local state
-                const index = this.settings.findIndex(s => s.key === key)
+                const index = this.settings.findIndex((s) => s.key === key)
                 const existing = this.settings[index]
                 if (index !== -1 && existing) {
                     this.settings[index] = {
@@ -571,7 +627,7 @@ export const useAdminStore = defineStore('admin', {
                         type: existing.type,
                         description: existing.description,
                         updatedAt: toISOTimestamp(new Date()),
-                        updatedBy: existing.updatedBy
+                        updatedBy: existing.updatedBy,
                     }
                 }
             } catch (error) {
@@ -590,7 +646,11 @@ export const useAdminStore = defineStore('admin', {
          * Fetch all plugin settings
          */
         async fetchPluginSettings(forceRefresh = false): Promise<void> {
-            if (!forceRefresh && !this.isPluginSettingsCacheStale && this.pluginSettings.length > 0) {
+            if (
+                !forceRefresh &&
+                !this.isPluginSettingsCacheStale &&
+                this.pluginSettings.length > 0
+            ) {
                 return
             }
 
@@ -605,7 +665,8 @@ export const useAdminStore = defineStore('admin', {
                     this.lastFetch.pluginSettings = Date.now()
                 }
             } catch (error) {
-                this.error = error instanceof Error ? error.message : 'Failed to fetch plugin settings'
+                this.error =
+                    error instanceof Error ? error.message : 'Failed to fetch plugin settings'
                 throw error
             } finally {
                 this.isLoadingPluginSettings = false
@@ -615,21 +676,28 @@ export const useAdminStore = defineStore('admin', {
         /**
          * Update a plugin setting value
          */
-        async updatePluginSetting(key: string, value: string | number | boolean | Record<string, unknown> | unknown[]): Promise<void> {
+        async updatePluginSetting(
+            key: string,
+            value: string | number | boolean | Record<string, unknown> | unknown[]
+        ): Promise<void> {
             this.error = null
 
             try {
-                const response = await api.put<PluginSetting>('/api/admin/plugin-settings', { key, value })
+                const response = await api.put<PluginSetting>('/api/admin/plugin-settings', {
+                    key,
+                    value,
+                })
 
                 if (response.success && response.data) {
                     // Update local state
-                    const index = this.pluginSettings.findIndex(s => s.key === key)
+                    const index = this.pluginSettings.findIndex((s) => s.key === key)
                     if (index !== -1) {
                         this.pluginSettings[index] = response.data
                     }
                 }
             } catch (error) {
-                this.error = error instanceof Error ? error.message : 'Failed to update plugin setting'
+                this.error =
+                    error instanceof Error ? error.message : 'Failed to update plugin setting'
                 throw error
             }
         },
@@ -647,7 +715,8 @@ export const useAdminStore = defineStore('admin', {
                 // Refetch settings after reset
                 await this.fetchPluginSettings(true)
             } catch (error) {
-                this.error = error instanceof Error ? error.message : 'Failed to reset plugin settings'
+                this.error =
+                    error instanceof Error ? error.message : 'Failed to reset plugin settings'
                 throw error
             } finally {
                 this.isLoadingPluginSettings = false
@@ -661,12 +730,21 @@ export const useAdminStore = defineStore('admin', {
         /**
          * Fetch activity log with pagination
          */
-        async fetchActivityLog(params: { page?: number; limit?: number; action?: string; force?: boolean } = {}): Promise<void> {
+        async fetchActivityLog(
+            params: { page?: number; limit?: number; action?: string; force?: boolean } = {}
+        ): Promise<void> {
             const { page = 1, limit = 50, action, force = false } = params
             const queryKey = `${action || ''}|${page}|${limit}`
 
-            const logFresh = !!this.lastFetch.activityLog && Date.now() - this.lastFetch.activityLog < CACHE_DURATION
-            if (!force && logFresh && this.activityLog.length > 0 && this.lastActivityLogQuery === queryKey) {
+            const logFresh =
+                !!this.lastFetch.activityLog &&
+                Date.now() - this.lastFetch.activityLog < CACHE_DURATION
+            if (
+                !force &&
+                logFresh &&
+                this.activityLog.length > 0 &&
+                this.lastActivityLogQuery === queryKey
+            ) {
                 return
             }
 
@@ -676,19 +754,23 @@ export const useAdminStore = defineStore('admin', {
             try {
                 const queryParams: Record<string, string> = {
                     page: String(page),
-                    limit: String(limit)
+                    limit: String(limit),
                 }
                 if (action) queryParams.action = action
 
-                const response = await api.get<PaginatedPayload<AdminActivityLogEntry, 'entries'>>(
+                const response = (await api.get<PaginatedPayload<AdminActivityLogEntry, 'entries'>>(
                     '/api/admin/activity-log',
                     queryParams
-                ) as PaginatedApiResponse<PaginatedPayload<AdminActivityLogEntry, 'entries'>>
+                )) as PaginatedApiResponse<PaginatedPayload<AdminActivityLogEntry, 'entries'>>
 
                 if (response.success && response.data) {
                     const { items, pagination } = normalizePaginatedList(response.data, 'entries')
                     this.activityLog = items
-                    this.activityLogTotal = response.pagination?.totalItems || pagination?.totalItems || items.length || 0
+                    this.activityLogTotal =
+                        response.pagination?.totalItems ||
+                        pagination?.totalItems ||
+                        items.length ||
+                        0
                     this.lastFetch.activityLog = Date.now()
                     this.lastActivityLogQuery = queryKey
                 }
@@ -709,7 +791,8 @@ export const useAdminStore = defineStore('admin', {
          */
         async fetchAdminUsers(forceRefresh = false): Promise<void> {
             const now = Date.now()
-            const adminUsersFresh = !!this.lastFetch.adminUsers && now - this.lastFetch.adminUsers < CACHE_DURATION
+            const adminUsersFresh =
+                !!this.lastFetch.adminUsers && now - this.lastFetch.adminUsers < CACHE_DURATION
             if (!forceRefresh && adminUsersFresh && this.adminUsers.length > 0) {
                 return
             }
@@ -718,7 +801,9 @@ export const useAdminStore = defineStore('admin', {
             this.error = null
 
             try {
-                const response = await api.get<AdminInfo[] | { admins: AdminInfo[] }>('/api/admin/admins')
+                const response = await api.get<AdminInfo[] | { admins: AdminInfo[] }>(
+                    '/api/admin/admins'
+                )
 
                 if (response.success && response.data) {
                     const payload = response.data
@@ -798,7 +883,7 @@ export const useAdminStore = defineStore('admin', {
                 activity: null,
                 activityLog: null,
                 adminUsers: null,
-                pluginSettings: null
+                pluginSettings: null,
             }
         },
 
@@ -811,6 +896,6 @@ export const useAdminStore = defineStore('admin', {
             this.adminPermissions = []
             this.clearCache()
             this.error = null
-        }
-    }
+        },
+    },
 })

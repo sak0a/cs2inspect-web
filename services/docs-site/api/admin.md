@@ -1,6 +1,7 @@
 # Admin API <Badge type="warning" text="Admin Only" />
 
 All admin endpoints require authentication via JWT and admin authorization. The `03.admin-auth.ts` middleware checks the `admin_users` table and returns:
+
 - `401 Unauthorized` if the user has no valid JWT
 - `403 Forbidden` if the user is not in the `admin_users` table
 
@@ -18,22 +19,22 @@ Dashboard overview statistics.
 
 ```json
 {
-  "success": true,
-  "data": {
-    "totalUsers": 1250,
-    "activeUsers7d": 340,
-    "activeUsers30d": 780,
-    "totalLoadouts": 3200,
-    "totalItems": {
-      "weapons": 15000,
-      "knives": 2400,
-      "gloves": 1800,
-      "agents": 900,
-      "musicKits": 600,
-      "pins": 450
-    },
-    "bannedUsers": 12
-  }
+    "success": true,
+    "data": {
+        "totalUsers": 1250,
+        "activeUsers7d": 340,
+        "activeUsers30d": 780,
+        "totalLoadouts": 3200,
+        "totalItems": {
+            "weapons": 15000,
+            "knives": 2400,
+            "gloves": 1800,
+            "agents": 900,
+            "musicKits": 600,
+            "pins": 450
+        },
+        "bannedUsers": 12
+    }
 }
 ```
 
@@ -45,24 +46,24 @@ Activity data for time-series charts.
 
 **Query Parameters:**
 
-| Param | Type | Default | Description |
-|-------|------|---------|-------------|
-| `range` | `'7d' \| '30d' \| '90d'` | `'7d'` | Time range |
+| Param   | Type                     | Default | Description |
+| ------- | ------------------------ | ------- | ----------- |
+| `range` | `'7d' \| '30d' \| '90d'` | `'7d'`  | Time range  |
 
 **Response:** `ApiResponse<AdminActivityData[]>`
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "date": "2026-02-12",
-      "newUsers": 5,
-      "activeUsers": 42,
-      "loadoutsCreated": 18,
-      "itemsSaved": 120
-    }
-  ]
+    "success": true,
+    "data": [
+        {
+            "date": "2026-02-12",
+            "newUsers": 5,
+            "activeUsers": 42,
+            "loadoutsCreated": 18,
+            "itemsSaved": 120
+        }
+    ]
 }
 ```
 
@@ -74,22 +75,22 @@ Top users for leaderboard display.
 
 **Query Parameters:**
 
-| Param | Type | Default | Description |
-|-------|------|---------|-------------|
-| `limit` | `number` | `10` | Max users to return (1-100) |
+| Param   | Type     | Default | Description                 |
+| ------- | -------- | ------- | --------------------------- |
+| `limit` | `number` | `10`    | Max users to return (1-100) |
 
 **Response:** `ApiResponse<AdminTopUser[]>`
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "steamId": "76561198012345678",
-      "loadoutCount": 12,
-      "totalItems": 156
-    }
-  ]
+    "success": true,
+    "data": [
+        {
+            "steamId": "76561198012345678",
+            "loadoutCount": 12,
+            "totalItems": 156
+        }
+    ]
 }
 ```
 
@@ -111,28 +112,28 @@ List users with search and pagination.
 
 **Query Parameters:**
 
-| Param | Type | Default | Description |
-|-------|------|---------|-------------|
-| `search` | `string` | — | Filter by Steam ID |
-| `page` | `number` | `1` | Page number |
-| `limit` | `number` | `20` | Items per page (1-100) |
+| Param        | Type      | Default | Description            |
+| ------------ | --------- | ------- | ---------------------- |
+| `search`     | `string`  | —       | Filter by Steam ID     |
+| `page`       | `number`  | `1`     | Page number            |
+| `limit`      | `number`  | `20`    | Items per page (1-100) |
 | `bannedOnly` | `boolean` | `false` | Show only banned users |
 
 **Response:** `ApiResponse<AdminUserSummary[]>` with pagination meta.
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "steamId": "76561198012345678",
-      "loadoutCount": 3,
-      "totalItems": 45,
-      "lastActivity": "2026-02-18T14:30:00.000Z",
-      "isBanned": false
-    }
-  ],
-  "meta": { "page": 1, "totalPages": 5, "rows": 100 }
+    "success": true,
+    "data": [
+        {
+            "steamId": "76561198012345678",
+            "loadoutCount": 3,
+            "totalItems": 45,
+            "lastActivity": "2026-02-18T14:30:00.000Z",
+            "isBanned": false
+        }
+    ],
+    "meta": { "page": 1, "totalPages": 5, "rows": 100 }
 }
 ```
 
@@ -146,22 +147,22 @@ Detailed user information including loadout and item counts.
 
 ```json
 {
-  "success": true,
-  "data": {
-    "steamId": "76561198012345678",
-    "loadoutCount": 3,
-    "itemCounts": {
-      "weapons": 24,
-      "knives": 4,
-      "gloves": 2,
-      "agents": 2,
-      "musicKits": 1,
-      "pins": 3
-    },
-    "firstActivity": "2025-06-15T10:00:00.000Z",
-    "lastActivity": "2026-02-18T14:30:00.000Z",
-    "isBanned": false
-  }
+    "success": true,
+    "data": {
+        "steamId": "76561198012345678",
+        "loadoutCount": 3,
+        "itemCounts": {
+            "weapons": 24,
+            "knives": 4,
+            "gloves": 2,
+            "agents": 2,
+            "musicKits": 1,
+            "pins": 3
+        },
+        "firstActivity": "2025-06-15T10:00:00.000Z",
+        "lastActivity": "2026-02-18T14:30:00.000Z",
+        "isBanned": false
+    }
 }
 ```
 
@@ -175,15 +176,15 @@ Ban a user. Logs `ban_user` in the activity log.
 
 ```json
 {
-  "reason": "Violation of terms of service",
-  "duration": 72
+    "reason": "Violation of terms of service",
+    "duration": 72
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `reason` | `string` | Yes | Ban reason (1-500 chars) |
-| `duration` | `number` | No | Duration in hours. Omit for permanent ban. |
+| Field      | Type     | Required | Description                                |
+| ---------- | -------- | -------- | ------------------------------------------ |
+| `reason`   | `string` | Yes      | Ban reason (1-500 chars)                   |
+| `duration` | `number` | No       | Duration in hours. Omit for permanent ban. |
 
 **Response:** `ApiResponse<{ success: true }>`
 
@@ -215,17 +216,17 @@ Get all application settings.
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "key": "max_loadouts_per_user",
-      "value": "10",
-      "type": "number",
-      "description": "Maximum loadouts per user",
-      "updatedAt": "2026-02-18T12:00:00.000Z",
-      "updatedBy": "76561198012345678"
-    }
-  ]
+    "success": true,
+    "data": [
+        {
+            "key": "max_loadouts_per_user",
+            "value": "10",
+            "type": "number",
+            "description": "Maximum loadouts per user",
+            "updatedAt": "2026-02-18T12:00:00.000Z",
+            "updatedBy": "76561198012345678"
+        }
+    ]
 }
 ```
 
@@ -239,15 +240,15 @@ Update a setting value. Logs `update_setting` in the activity log.
 
 ```json
 {
-  "key": "max_loadouts_per_user",
-  "value": 20
+    "key": "max_loadouts_per_user",
+    "value": 20
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `key` | `string` | Yes | Setting key (1-64 chars) |
-| `value` | `string \| number \| boolean` | Yes | New value |
+| Field   | Type                          | Required | Description              |
+| ------- | ----------------------------- | -------- | ------------------------ |
+| `key`   | `string`                      | Yes      | Setting key (1-64 chars) |
+| `value` | `string \| number \| boolean` | Yes      | New value                |
 
 **Response:** `ApiResponse<{ success: true }>`
 
@@ -263,17 +264,17 @@ List all admin users.
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 1,
-      "steamId": "76561198012345678",
-      "role": "superadmin",
-      "permissions": [],
-      "createdBy": null,
-      "createdAt": "2026-01-01T00:00:00.000Z"
-    }
-  ]
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "steamId": "76561198012345678",
+            "role": "superadmin",
+            "permissions": [],
+            "createdBy": null,
+            "createdAt": "2026-01-01T00:00:00.000Z"
+        }
+    ]
 }
 ```
 
@@ -287,15 +288,15 @@ Add a new admin user. Logs `add_admin` in the activity log.
 
 ```json
 {
-  "steamId": "76561198087654321",
-  "role": "admin"
+    "steamId": "76561198087654321",
+    "role": "admin"
 }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `steamId` | `string` | Yes | Steam ID of the new admin |
-| `role` | `'admin' \| 'superadmin'` | Yes | Admin role |
+| Field     | Type                      | Required | Description               |
+| --------- | ------------------------- | -------- | ------------------------- |
+| `steamId` | `string`                  | Yes      | Steam ID of the new admin |
+| `role`    | `'admin' \| 'superadmin'` | Yes      | Admin role                |
 
 **Response:** `ApiResponse<{ success: true }>`
 
@@ -317,28 +318,28 @@ Paginated admin action audit log.
 
 **Query Parameters:**
 
-| Param | Type | Default | Description |
-|-------|------|---------|-------------|
-| `page` | `number` | `1` | Page number |
-| `limit` | `number` | `50` | Items per page (1-100) |
-| `action` | `string` | — | Filter by action type |
+| Param    | Type     | Default | Description            |
+| -------- | -------- | ------- | ---------------------- |
+| `page`   | `number` | `1`     | Page number            |
+| `limit`  | `number` | `50`    | Items per page (1-100) |
+| `action` | `string` | —       | Filter by action type  |
 
 **Response:** `ApiResponse<AdminActivityLogEntry[]>` with pagination meta.
 
 ```json
 {
-  "success": true,
-  "data": [
-    {
-      "id": 42,
-      "adminSteamId": "76561198012345678",
-      "action": "ban_user",
-      "targetSteamId": "76561198087654321",
-      "details": { "reason": "Violation of TOS", "duration": 72 },
-      "createdAt": "2026-02-18T15:30:00.000Z"
-    }
-  ],
-  "meta": { "page": 1, "totalPages": 3, "rows": 142 }
+    "success": true,
+    "data": [
+        {
+            "id": 42,
+            "adminSteamId": "76561198012345678",
+            "action": "ban_user",
+            "targetSteamId": "76561198087654321",
+            "details": { "reason": "Violation of TOS", "duration": 72 },
+            "createdAt": "2026-02-18T15:30:00.000Z"
+        }
+    ],
+    "meta": { "page": 1, "totalPages": 3, "rows": 142 }
 }
 ```
 

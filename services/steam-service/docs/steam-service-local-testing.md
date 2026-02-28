@@ -5,6 +5,7 @@ This guide explains how to run and test the Steam Service locally alongside your
 ## Overview
 
 When testing locally, you'll run:
+
 1. **Steam Service** - Standalone service on port 3000 (or custom port)
 2. **Main Nuxt App** - Your main application on port 3000 (or custom port)
 
@@ -92,6 +93,7 @@ STEAM_QUEUE_TIMEOUT=30000
 ```
 
 **Important Notes:**
+
 - Replace `your_steam_username`, `your_steam_password`, and `your_steam_api_key` with your actual credentials
 - Generate a secure API key: `openssl rand -hex 32`
 - Use the same API key in both services (see Step 2)
@@ -99,17 +101,20 @@ STEAM_QUEUE_TIMEOUT=30000
 ### 1.4 Start the Steam Service
 
 **Development Mode (with hot reload):**
+
 ```bash
 bun run dev
 ```
 
 **Production Mode:**
+
 ```bash
 bun run build
 bun start
 ```
 
 You should see output like:
+
 ```
 Steam service started on http://0.0.0.0:3000
 Steam client initialized successfully
@@ -124,11 +129,12 @@ curl http://localhost:3000/api/health/live
 ```
 
 Expected response:
+
 ```json
 {
-  "status": "ok",
-  "alive": true,
-  "timestamp": "2024-..."
+    "status": "ok",
+    "alive": true,
+    "timestamp": "2024-..."
 }
 ```
 
@@ -167,6 +173,7 @@ bun run dev
 ### 3.2 Verify Integration
 
 Check the console output. You should see:
+
 - No errors about Steam client initialization
 - Messages indicating the service is being used (if logging is enabled)
 
@@ -175,6 +182,7 @@ Check the console output. You should see:
 ### 4.1 Test Health Endpoints
 
 **From Terminal:**
+
 ```bash
 # Service health
 curl http://localhost:3000/api/health
@@ -189,6 +197,7 @@ curl http://localhost:3000/api/status/steam-client
 ### 4.2 Test Inspect Endpoint
 
 **Create Inspect URL:**
+
 ```bash
 curl -X POST http://localhost:3000/api/inspect/create-url \
   -H "Content-Type: application/json" \
@@ -203,6 +212,7 @@ curl -X POST http://localhost:3000/api/inspect/create-url \
 ```
 
 **Analyze URL:**
+
 ```bash
 curl -X POST http://localhost:3000/api/inspect/analyze-url \
   -H "Content-Type: application/json" \
@@ -224,12 +234,14 @@ curl -X POST http://localhost:3000/api/inspect/analyze-url \
 
 **Steam Service Logs:**
 Watch the terminal where the steam service is running. You should see:
+
 - Incoming API requests
 - Steam client activity
 - Any errors
 
 **Main App Logs:**
 Check the main app console for:
+
 - Successful connections to steam service
 - Any timeout or connection errors
 
@@ -266,6 +278,7 @@ Restart the main app. It should fall back to using the local Steam client (if co
 ### Service Won't Start
 
 **Check Port Availability:**
+
 ```bash
 # Check if port 3000 is in use
 lsof -i :3000
@@ -275,6 +288,7 @@ PORT=3002 bun run dev
 ```
 
 **Check Environment Variables:**
+
 ```bash
 cd services/steam-service
 cat .env
@@ -288,11 +302,13 @@ Look for error messages in the service startup logs.
 ### "Invalid API Key" Errors
 
 **Verify API Key Match:**
+
 1. Check `API_KEYS` in `services/steam-service/.env`
 2. Check `STEAM_SERVICE_API_KEY` in main app `.env`
 3. They must match exactly (including any commas if multiple keys)
 
 **Test API Key:**
+
 ```bash
 curl -X POST http://localhost:3000/api/inspect/analyze-url \
   -H "X-API-Key: your_key_here" \
@@ -305,17 +321,20 @@ If you get 401, the key is wrong.
 ### "Connection Refused" or Timeout Errors
 
 **Check Service is Running:**
+
 ```bash
 curl http://localhost:3000/api/health/live
 ```
 
 **Check URL in Main App:**
 Verify `STEAM_SERVICE_URL` in main app `.env` is correct:
+
 - Should be `http://localhost:3000` (not `https://`)
 - Port must match the service port
 
 **Check CORS:**
 Ensure `CORS_ORIGINS` in steam service includes your main app URL:
+
 ```env
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ```
@@ -323,18 +342,21 @@ CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ### Steam Client Not Connecting
 
 **Check Credentials:**
+
 - Verify `STEAM_USERNAME` and `STEAM_PASSWORD` are correct
 - Ensure account is not logged in elsewhere
 - Check `STEAM_API_KEY` is valid
 
 **Check Service Logs:**
 Look for Steam connection errors:
+
 ```
 [ERROR] Failed to initialize Steam client: LoggedInElsewhere
 [ERROR] Failed to initialize Steam client: InvalidPassword
 ```
 
 **Common Issues:**
+
 - Account logged in on Steam client → Log out from Steam
 - Wrong credentials → Double-check username/password
 - Steam Guard enabled → May need to disable or handle 2FA
@@ -342,6 +364,7 @@ Look for Steam connection errors:
 ### Main App Still Using Local Client
 
 **Check Environment Variables:**
+
 ```bash
 # From project root
 cat .env | grep STEAM_SERVICE
@@ -352,19 +375,22 @@ Environment variables are loaded on startup. Restart the dev server after changi
 
 **Check Code:**
 Verify the main app is checking for service configuration:
+
 ```typescript
 // Should be in server/plugins/init.ts
-const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SERVICE_API_KEY);
+const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SERVICE_API_KEY)
 ```
 
 ### Port Conflicts
 
 **Change Steam Service Port:**
+
 1. Update `PORT=3002` in `services/steam-service/.env`
 2. Update `STEAM_SERVICE_URL=http://localhost:3002` in main app `.env`
 3. Restart both services
 
 **Change Main App Port:**
+
 1. Update `PORT=3000` in main app `.env` (or `nuxt.config.ts`)
 2. Update `CORS_ORIGINS` in steam service to include new port
 3. Restart both services
@@ -376,12 +402,14 @@ const useSteamService = !!(process.env.STEAM_SERVICE_URL && process.env.STEAM_SE
 **Option 1: Two Terminal Windows**
 
 Terminal 1 (Steam Service):
+
 ```bash
 cd services/steam-service
 bun run dev
 ```
 
 Terminal 2 (Main App):
+
 ```bash
 # From project root
 bun run dev
@@ -390,6 +418,7 @@ bun run dev
 **Option 2: Background Process**
 
 Terminal 1:
+
 ```bash
 cd services/steam-service
 bun run dev &
@@ -400,20 +429,23 @@ bun run dev
 **Option 3: Use a Process Manager**
 
 Install `concurrently`:
+
 ```bash
 bun add -d concurrently
 ```
 
 Add to `package.json`:
+
 ```json
 {
-  "scripts": {
-    "dev:all": "concurrently \"bun run dev\" \"cd services/steam-service && bun run dev\""
-  }
+    "scripts": {
+        "dev:all": "concurrently \"bun run dev\" \"cd services/steam-service && bun run dev\""
+    }
 }
 ```
 
 Run:
+
 ```bash
 bun run dev:all
 ```
@@ -421,6 +453,7 @@ bun run dev:all
 ### Hot Reload
 
 Both services support hot reload:
+
 - **Steam Service**: Uses `bun --watch` (automatic)
 - **Main App**: Uses Nuxt's built-in HMR (automatic)
 
@@ -431,6 +464,7 @@ Changes to either service will automatically reload.
 **Enable Verbose Logging:**
 
 Steam Service `.env`:
+
 ```env
 LOG_LEVEL=debug
 LOG_API_REQUESTS=true
@@ -494,6 +528,7 @@ For full testing with unmasked URLs:
 1. Ensure Steam credentials are in `.env`
 2. Service will initialize Steam client on startup
 3. Test unmasked URL inspection:
+
 ```bash
 curl -X POST http://localhost:3000/api/inspect/inspect-item \
   -H "X-API-Key: your_key" \
@@ -519,6 +554,7 @@ wait
 ```
 
 Check queue status:
+
 ```bash
 curl http://localhost:3000/api/status/queue
 ```
@@ -534,6 +570,7 @@ curl http://localhost:3000/api/status/queue
 ### Environment Variables
 
 **Steam Service** (`services/steam-service/.env`):
+
 - `PORT=3000`
 - `STEAM_USERNAME=...`
 - `STEAM_PASSWORD=...`
@@ -542,6 +579,7 @@ curl http://localhost:3000/api/status/queue
 - `CORS_ORIGINS=http://localhost:3000`
 
 **Main App** (`.env`):
+
 - `STEAM_SERVICE_URL=http://localhost:3000`
 - `STEAM_SERVICE_API_KEY=your_key`
 

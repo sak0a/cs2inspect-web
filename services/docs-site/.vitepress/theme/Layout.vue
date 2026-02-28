@@ -8,9 +8,9 @@ const { frontmatter } = useData()
 </script>
 
 <template>
-  <Layout>
-    <template #doc-before>
-      <PageActions v-if="frontmatter.layout !== 'home'" />
-    </template>
-  </Layout>
+    <Layout>
+        <template #doc-before>
+            <PageActions v-if="frontmatter.layout !== 'home'" />
+        </template>
+    </Layout>
 </template>

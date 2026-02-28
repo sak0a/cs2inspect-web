@@ -1,12 +1,12 @@
 /**
  * Branded types for compile-time type safety of IDs
- * 
+ *
  * @description This file contains branded type definitions that add compile-time
  * safety for different ID types, preventing common mistakes like:
  * - Passing a string where a number is expected (LoadoutId)
  * - Mixing up different ID types (SteamId vs EntityId)
  * - Confusing numeric identifiers (Defindex vs PaintIndex)
- * 
+ *
  * @version 2.0.0
  * @since 2.0.0
  */
@@ -17,10 +17,10 @@
 
 /**
  * Branded type for loadout identifiers
- * 
+ *
  * @description LoadoutId is a number in the database but often passed as string
  * from URL params. Use toLoadoutId() for safe conversion.
- * 
+ *
  * @example
  * ```typescript
  * const loadoutId = toLoadoutId(params.id) // Converts string to LoadoutId
@@ -31,9 +31,9 @@ export type LoadoutId = number & { readonly __brand: 'LoadoutId' }
 
 /**
  * Branded type for Steam identifiers (64-bit SteamID)
- * 
+ *
  * @description Used for Steam user identification throughout the application.
- * 
+ *
  * @example "76561198000000000"
  */
 export type SteamId = string & { readonly __brand: 'SteamId' }
@@ -44,58 +44,58 @@ export type SteamId = string & { readonly __brand: 'SteamId' }
 
 /**
  * Branded type for weapon/item definition index
- * 
+ *
  * @description Unique numeric identifier for each weapon/item type in CS2.
  * Not to be confused with PaintIndex which identifies skins.
- * 
+ *
  * @example 7 (AK-47), 500 (Bayonet)
  */
 export type Defindex = number & { readonly __brand: 'Defindex' }
 
 /**
  * Branded type for paint/skin index
- * 
+ *
  * @description Unique numeric identifier for each skin/pattern type.
  * Not to be confused with Defindex which identifies weapons.
- * 
+ *
  * @example 12 (Crimson Web), 44 (Asiimov)
  */
 export type PaintIndex = number & { readonly __brand: 'PaintIndex' }
 
 /**
  * Branded type for pattern seed
- * 
+ *
  * @description Random seed that determines the pattern variation of a skin.
  * Values range from 0 to 999.
- * 
+ *
  * @example 661 (Blue Gem Case Hardened seed)
  */
 export type PaintSeed = number & { readonly __brand: 'PaintSeed' }
 
 /**
  * Branded type for sticker identifiers
- * 
+ *
  * @description Unique numeric identifier for stickers.
  */
 export type StickerId = number & { readonly __brand: 'StickerId' }
 
 /**
  * Branded type for keychain/charm identifiers
- * 
+ *
  * @description Unique numeric identifier for keychains/charms.
  */
 export type KeychainId = number & { readonly __brand: 'KeychainId' }
 
 /**
  * Branded type for music kit identifiers
- * 
+ *
  * @description Unique numeric identifier for music kits.
  */
 export type MusicKitDefindex = number & { readonly __brand: 'MusicKitDefindex' }
 
 /**
  * Branded type for pin/collectible identifiers
- * 
+ *
  * @description Unique numeric identifier for pins and collectibles.
  */
 export type PinDefindex = number & { readonly __brand: 'PinDefindex' }
@@ -106,13 +106,13 @@ export type PinDefindex = number & { readonly __brand: 'PinDefindex' }
 
 /**
  * Convert a string or number to a LoadoutId
- * 
+ *
  * @description Safely converts URL params or other string/number values to LoadoutId.
  * This replaces all `Number(loadoutId)` calls throughout the codebase.
- * 
+ *
  * @param value - String or number value to convert
  * @returns Branded LoadoutId
- * 
+ *
  * @example
  * ```typescript
  * const loadoutId = toLoadoutId(params.id)
@@ -125,7 +125,7 @@ export function toLoadoutId(value: string | number): LoadoutId {
 
 /**
  * Convert a string to a SteamId
- * 
+ *
  * @param value - Steam ID string
  * @returns Branded SteamId
  */
@@ -135,7 +135,7 @@ export function toSteamId(value: string): SteamId {
 
 /**
  * Convert a number to a Defindex
- * 
+ *
  * @param value - Weapon/item definition index
  * @returns Branded Defindex
  */
@@ -145,7 +145,7 @@ export function toDefindex(value: number): Defindex {
 
 /**
  * Convert a number to a PaintIndex
- * 
+ *
  * @param value - Paint/skin index
  * @returns Branded PaintIndex
  */
@@ -155,7 +155,7 @@ export function toPaintIndex(value: number): PaintIndex {
 
 /**
  * Convert a number to a PaintSeed
- * 
+ *
  * @param value - Pattern seed
  * @returns Branded PaintSeed
  */
@@ -165,7 +165,7 @@ export function toPaintSeed(value: number): PaintSeed {
 
 /**
  * Convert a number to a StickerId
- * 
+ *
  * @param value - Sticker identifier
  * @returns Branded StickerId
  */
@@ -175,7 +175,7 @@ export function toStickerId(value: number): StickerId {
 
 /**
  * Convert a number to a KeychainId
- * 
+ *
  * @param value - Keychain identifier
  * @returns Branded KeychainId
  */
@@ -185,7 +185,7 @@ export function toKeychainId(value: number): KeychainId {
 
 /**
  * Convert a number to a MusicKitDefindex
- * 
+ *
  * @param value - Music kit identifier
  * @returns Branded MusicKitDefindex
  */
@@ -195,7 +195,7 @@ export function toMusicKitDefindex(value: number): MusicKitDefindex {
 
 /**
  * Convert a number to a PinDefindex
- * 
+ *
  * @param value - Pin identifier
  * @returns Branded PinDefindex
  */
@@ -234,17 +234,17 @@ export function isValidDefindex(value: unknown): value is Defindex {
 
 /**
  * Branded type for CS2 inspect URLs
- * 
+ *
  * @description Steam protocol URL for inspecting CS2 items in-game.
  * Format: steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20...
- * 
+ *
  * @example "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20S76561198000000000A123456D789"
  */
 export type InspectUrl = string & { readonly __brand: 'InspectUrl' }
 
 /**
  * Branded type for hex-encoded item data
- * 
+ *
  * @description Hexadecimal string representing encoded item data for masked inspect URLs.
  * Used in the gen command encoding/decoding process.
  */
@@ -252,17 +252,17 @@ export type HexData = string & { readonly __brand: 'HexData' }
 
 /**
  * Branded type for item wear/float value
- * 
+ *
  * @description Float value representing item wear condition.
  * Range: 0.0 (Factory New) to 1.0 (Battle-Scarred)
- * 
+ *
  * @example 0.0001 (Factory New), 0.999 (Battle-Scarred)
  */
 export type FloatValue = number & { readonly __brand: 'FloatValue' }
 
 /**
  * Branded type for sticker slot index
- * 
+ *
  * @description Index position for sticker slots on weapons (0-4).
  * Most weapons have 4-5 sticker slots.
  */
@@ -270,7 +270,7 @@ export type StickerSlotIndex = number & { readonly __brand: 'StickerSlotIndex' }
 
 /**
  * Branded type for team ID
- * 
+ *
  * @description Team identifier: 1 = Terrorist, 2 = Counter-Terrorist
  */
 export type TeamId = (1 | 2) & { readonly __brand: 'TeamId' }
@@ -281,21 +281,21 @@ export type TeamId = (1 | 2) & { readonly __brand: 'TeamId' }
 
 /**
  * Branded type for StatTrak kill count
- * 
+ *
  * @description Non-negative integer representing StatTrak kill count.
  */
 export type StatTrakCount = number & { readonly __brand: 'StatTrakCount' }
 
 /**
  * Branded type for weapon name tags
- * 
+ *
  * @description Custom name applied to weapons. Max 32 characters.
  */
 export type NameTag = string & { readonly __brand: 'NameTag' }
 
 /**
  * Branded type for ISO 8601 timestamps
- * 
+ *
  * @description Timestamp string in ISO 8601 format.
  * @example "2024-01-15T10:30:00.000Z"
  */
@@ -319,7 +319,7 @@ export type NormalizedCoordinate = number & { readonly __brand: 'NormalizedCoord
 
 /**
  * Convert a string to an InspectUrl with validation
- * 
+ *
  * @param value - URL string to convert
  * @returns Branded InspectUrl
  * @throws Error if the URL format is invalid
@@ -333,7 +333,7 @@ export function toInspectUrl(value: string): InspectUrl {
 
 /**
  * Safely convert a string to an InspectUrl without throwing
- * 
+ *
  * @param value - URL string to convert
  * @returns Branded InspectUrl or null if invalid
  */
@@ -343,7 +343,7 @@ export function tryToInspectUrl(value: string): InspectUrl | null {
 
 /**
  * Convert a string to HexData with validation
- * 
+ *
  * @param value - Hex string to convert
  * @returns Branded HexData
  * @throws Error if the format is invalid
@@ -357,7 +357,7 @@ export function toHexData(value: string): HexData {
 
 /**
  * Convert a number to a FloatValue with validation
- * 
+ *
  * @param value - Wear value to convert
  * @returns Branded FloatValue
  * @throws Error if the value is out of range
@@ -371,7 +371,7 @@ export function toFloatValue(value: number): FloatValue {
 
 /**
  * Safely convert a number to a FloatValue, clamping to valid range
- * 
+ *
  * @param value - Wear value to convert
  * @returns Branded FloatValue clamped to [0, 1]
  */
@@ -381,7 +381,7 @@ export function toFloatValueClamped(value: number): FloatValue {
 
 /**
  * Convert a number to a StickerSlotIndex with validation
- * 
+ *
  * @param value - Slot index to convert
  * @returns Branded StickerSlotIndex
  * @throws Error if the value is out of range
@@ -395,7 +395,7 @@ export function toStickerSlotIndex(value: number): StickerSlotIndex {
 
 /**
  * Convert a number to a TeamId with validation
- * 
+ *
  * @param value - Team ID to convert
  * @returns Branded TeamId
  * @throws Error if the value is not 1 or 2
@@ -413,7 +413,7 @@ export function toTeamId(value: number): TeamId {
 
 /**
  * Convert a number to a StatTrakCount with validation
- * 
+ *
  * @param value - Kill count to convert
  * @returns Branded StatTrakCount
  * @throws Error if the value is negative
@@ -427,7 +427,7 @@ export function toStatTrakCount(value: number): StatTrakCount {
 
 /**
  * Convert a string to a NameTag with validation
- * 
+ *
  * @param value - Name tag string to convert
  * @returns Branded NameTag
  * @throws Error if the string is too long
@@ -441,7 +441,7 @@ export function toNameTag(value: string): NameTag {
 
 /**
  * Convert a Date or string to an ISOTimestamp
- * 
+ *
  * @param value - Date object or ISO string to convert
  * @returns Branded ISOTimestamp
  */
@@ -455,7 +455,7 @@ export function toISOTimestamp(value: Date | string): ISOTimestamp {
 
 /**
  * Convert a number to a NormalizedCoordinate with validation
- * 
+ *
  * @param value - Coordinate value to convert
  * @returns Branded NormalizedCoordinate
  * @throws Error if the value is out of range
@@ -469,7 +469,7 @@ export function toNormalizedCoordinate(value: number): NormalizedCoordinate {
 
 /**
  * Safely convert a number to a NormalizedCoordinate, clamping to valid range
- * 
+ *
  * @param value - Coordinate value to convert
  * @returns Branded NormalizedCoordinate clamped to [0, 1]
  */
@@ -485,9 +485,11 @@ export function toNormalizedCoordinateClamped(value: number): NormalizedCoordina
  * Check if a value is a valid InspectUrl
  */
 export function isValidInspectUrl(value: unknown): value is InspectUrl {
-    return typeof value === 'string' &&
+    return (
+        typeof value === 'string' &&
         value.startsWith('steam://rungame/730/') &&
         value.includes('+csgo_econ_action_preview')
+    )
 }
 
 /**
@@ -558,7 +560,7 @@ export function isValidNormalizedCoordinate(value: unknown): value is Normalized
 
 /**
  * Convert FloatValue to wear condition name
- * 
+ *
  * @param value - Float value representing wear
  * @returns Wear condition name
  */
@@ -572,7 +574,7 @@ export function floatValueToCondition(value: FloatValue): string {
 
 /**
  * Convert FloatValue to wear condition abbreviation
- * 
+ *
  * @param value - Float value representing wear
  * @returns Wear condition abbreviation (FN, MW, FT, WW, BS)
  */
@@ -586,7 +588,7 @@ export function floatValueToConditionAbbr(value: FloatValue): string {
 
 /**
  * Get team name from TeamId
- * 
+ *
  * @param teamId - Team identifier
  * @returns Team name string
  */

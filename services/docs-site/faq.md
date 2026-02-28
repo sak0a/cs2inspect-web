@@ -5,11 +5,13 @@ Welcome to the CS2Inspect FAQ! Find answers to common questions organized by top
 ## FAQ Categories
 
 ### General Questions <Badge type="info" text="Start Here" />
+
 **[General FAQ →](faq-general.md)**
 
 Common questions about CS2Inspect, getting started, authentication, privacy, and features.
 
 **Topics covered**:
+
 - What is CS2Inspect?
 - Account & authentication
 - Privacy & data security
@@ -17,11 +19,13 @@ Common questions about CS2Inspect, getting started, authentication, privacy, and
 - Basic usage
 
 ### Customization <Badge type="tip" text="Popular" />
+
 **[Customization FAQ →](faq-customization.md)**
 
 Everything about loadouts, weapons, knives, gloves, and item customization.
 
 **Topics covered**:
+
 - Creating and managing loadouts
 - Weapon customization (skins, float, patterns, StatTrak™)
 - Stickers and name tags
@@ -29,11 +33,13 @@ Everything about loadouts, weapons, knives, gloves, and item customization.
 - Importing from inspect links
 
 ### Technical & Troubleshooting <Badge type="warning" text="Problem Solving" />
+
 **[Technical FAQ →](faq-technical.md)**
 
 Technical issues, error messages, and troubleshooting guides.
 
 **Topics covered**:
+
 - Login and loading issues
 - Performance optimization
 - Error messages explained
@@ -75,6 +81,4 @@ If you can't find what you're looking for in the FAQ, try these resources:
 - [Deployment](deployment.md) - Production deployment
 - [Contributing](contributing.md) - Contribution guidelines
 
-
 ### What is CS2Inspect?
-

@@ -5,11 +5,9 @@ import { Logger } from '~/server/utils/logger'
 
 export default defineNitroPlugin(async () => {
     try {
-        const existingSettings = await db
-            .select({ key: appSettings.key })
-            .from(appSettings)
+        const existingSettings = await db.select({ key: appSettings.key }).from(appSettings)
 
-        const existingKeys = new Set(existingSettings.map(s => s.key))
+        const existingKeys = new Set(existingSettings.map((s) => s.key))
 
         const missingSettings = Object.entries(DEFAULT_APP_SETTINGS)
             .filter(([key]) => !existingKeys.has(key))
@@ -23,7 +21,7 @@ export default defineNitroPlugin(async () => {
         if (missingSettings.length > 0) {
             await db.insert(appSettings).values(missingSettings)
             Logger.info(
-                `Seeded ${missingSettings.length} app settings (${missingSettings.map(s => s.key).join(', ')})`,
+                `Seeded ${missingSettings.length} app settings (${missingSettings.map((s) => s.key).join(', ')})`,
                 'app-settings'
             )
         }

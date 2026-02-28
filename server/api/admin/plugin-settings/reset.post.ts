@@ -9,10 +9,7 @@ import { createError } from 'h3'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { useDatabase } from '~/server/utils/database'
 import { pluginSettings, adminActivityLog } from '~/server/database/schema'
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { PLUGIN_SETTINGS_SEEDS } from '~/server/utils/pluginSettingsSeeds'
 import { notifyPluginOfWebChange } from '~/server/utils/sync/notifySync'
 

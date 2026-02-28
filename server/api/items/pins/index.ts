@@ -5,10 +5,7 @@ import { loadouts } from '~/server/database/schema'
 import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { toLoadoutId } from '~/types/core/common'
-import {
-    createCollectionResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { createCollectionResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 export default useErrorHandling(async (event) => {
@@ -24,18 +21,16 @@ export default useErrorHandling(async (event) => {
     validateRequiredRequestData(loadoutId, 'Loadout ID')
 
     // Fetch the selected pin from the loadout table using Drizzle
-    const loadoutsData = await db.select({ selected_pin: loadouts.selected_pin })
+    const loadoutsData = await db
+        .select({ selected_pin: loadouts.selected_pin })
         .from(loadouts)
-        .where(and(
-            eq(loadouts.id, toLoadoutId(loadoutId)),
-            eq(loadouts.steamid, steamId)
-        ))
+        .where(and(eq(loadouts.id, toLoadoutId(loadoutId)), eq(loadouts.steamid, steamId)))
         .limit(1)
 
     if (loadoutsData.length === 0) {
         throw createError({
             statusCode: 404,
-            message: 'Loadout not found'
+            message: 'Loadout not found',
         })
     }
 
@@ -48,7 +43,7 @@ export default useErrorHandling(async (event) => {
     const meta = createResponseMeta(startTime, {
         steamId,
         loadoutId,
-        databaseRows: pins.length
+        databaseRows: pins.length,
     })
 
     return createCollectionResponse(

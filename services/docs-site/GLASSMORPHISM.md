@@ -5,6 +5,7 @@ This document explains the glassmorphism implementation for modals in the CS2 In
 ## Overview
 
 Glassmorphism is a design trend that creates a frosted glass effect using:
+
 - Semi-transparent backgrounds
 - Backdrop blur filters
 - Subtle borders and shadows
@@ -15,20 +16,20 @@ Glassmorphism is a design trend that creates a frosted glass effect using:
 ### Files Modified
 
 1. **`server/utils/themeCustomization.ts`**
-   - Updated modal theme overrides with glassmorphism properties
-   - Added semi-transparent backgrounds and enhanced shadows
+    - Updated modal theme overrides with glassmorphism properties
+    - Added semi-transparent backgrounds and enhanced shadows
 
 2. **`assets/css/glassmorphism.css`** (New)
-   - Main glassmorphism styling implementation
-   - Backdrop blur effects and transparency
-   - Responsive and theme-aware adjustments
+    - Main glassmorphism styling implementation
+    - Backdrop blur effects and transparency
+    - Responsive and theme-aware adjustments
 
 3. **`assets/css/theme-variables.css`**
-   - Added CSS variables for glassmorphism effects
-   - Support for both dark and light themes
+    - Added CSS variables for glassmorphism effects
+    - Support for both dark and light themes
 
 4. **`nuxt.config.ts`**
-   - Added glassmorphism.css to the CSS imports
+    - Added glassmorphism.css to the CSS imports
 
 ### CSS Variables
 
@@ -55,18 +56,21 @@ The following CSS variables control the glassmorphism effects:
 ### Effects Applied
 
 #### Main Modals (1200px width)
+
 - Strong backdrop blur (20px) with saturation boost
 - Semi-transparent background with 85% opacity
 - Multi-layered shadows for depth
 - Subtle border with inner highlight
 
 #### Smaller Modals (600px-700px width)
+
 - Medium backdrop blur (16px)
 - Higher opacity background (90%)
 - Lighter border effects
 - Reduced shadow intensity
 
 #### Skin/Sticker/Keychain Grid Cards
+
 - **Preserves original rarity gradient backgrounds**
 - **Maintains selection ring styling (ring-2 ring-[var(--selection-ring)])**
 - Light backdrop blur (8px) for subtle glass effect
@@ -75,6 +79,7 @@ The following CSS variables control the glassmorphism effects:
 - Original border radius (12px) maintained
 
 #### UI Elements
+
 - **Input fields**: Glassmorphism applied to wrapper, preserving rounded design
 - **Buttons**: Original colors preserved with added glass effects and shadows
 - **Primary buttons**: Keep yellow theme color with enhanced glassmorphism
@@ -84,6 +89,7 @@ The following CSS variables control the glassmorphism effects:
 ### Browser Support
 
 The glassmorphism effects use:
+
 - `backdrop-filter` (modern browsers)
 - `-webkit-backdrop-filter` (Safari/WebKit)
 - Fallback styling for unsupported browsers
@@ -121,6 +127,7 @@ To adjust the glassmorphism effects:
 ## Testing
 
 The glassmorphism effects can be tested by:
+
 1. Opening any modal (weapon skins, stickers, etc.)
 2. Checking the backdrop blur and transparency
 3. Verifying hover and selection states
@@ -130,16 +137,19 @@ The glassmorphism effects can be tested by:
 ## Troubleshooting
 
 ### Blur Effects Not Working
+
 - Check browser support for `backdrop-filter`
 - Ensure CSS is properly loaded
 - Verify no conflicting styles
 
 ### Performance Issues
+
 - Reduce blur intensity values
 - Disable effects on mobile devices
 - Use CSS `will-change` property sparingly
 
 ### Theme Issues
+
 - Check CSS variable definitions
 - Verify light/dark theme overrides
 - Ensure proper cascade order
@@ -147,17 +157,21 @@ The glassmorphism effects can be tested by:
 ### Fixed Issues
 
 #### Input Field Styling
+
 - **Problem**: Glassmorphism was applied to inner input elements, causing square glass effects inside rounded containers
 - **Solution**: Applied effects to wrapper elements (`.n-input`, `.n-input-wrapper`) to preserve rounded design
 
 #### Button Colors
+
 - **Problem**: Original button colors were overridden, making primary buttons lose their yellow theme
 - **Solution**: Preserved original Naive UI color handling while adding glassmorphism effects via shadows and borders
 
 #### Grid Card Selection
+
 - **Problem**: Selection rings were not visible and rarity backgrounds were overridden
 - **Solution**: Used `outline` instead of `box-shadow` for selection rings and preserved original gradient backgrounds
 
 #### Grid Animations
+
 - **Problem**: Page transitions were not smooth
 - **Solution**: Added staggered `gridItemFadeIn` animations with proper delays for each grid item

@@ -12,10 +12,7 @@ import { useErrorHandling } from '~/server/utils/errorHandler'
 import { useDatabase } from '~/server/utils/database'
 import { adminUsers, adminActivityLog } from '~/server/database/schema'
 import { getSteamIdParam } from '~/server/utils/request/routeParams'
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 
 export default useErrorHandling(async (event) => {
     const startTime = Date.now()
@@ -81,9 +78,7 @@ export default useErrorHandling(async (event) => {
     }
 
     // Delete the admin user
-    await db
-        .delete(adminUsers)
-        .where(eq(adminUsers.steamid, targetSteamId))
+    await db.delete(adminUsers).where(eq(adminUsers.steamid, targetSteamId))
 
     // Log action to adminActivityLog
     await db.insert(adminActivityLog).values({

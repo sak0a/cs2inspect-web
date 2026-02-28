@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto'
 import {
-  getRequestHeader,
-  getRequestURL,
-  getResponseStatus,
-  setResponseHeader,
-  type H3Event,
+    getRequestHeader,
+    getRequestURL,
+    getResponseStatus,
+    setResponseHeader,
+    type H3Event,
 } from 'h3'
 import type { PinoLogger } from './logger'
 import { logger } from './logger'
@@ -14,103 +14,108 @@ import { resolveCanonicalTag } from './tags'
 const REQUEST_ID_HEADER = 'x-request-id'
 
 export function getEventPath(event: H3Event): string {
-  return event.context.requestPath || getRequestURL(event).pathname
+    return event.context.requestPath || getRequestURL(event).pathname
 }
 
 export function isHealthPath(path: string): boolean {
-  return path.startsWith('/api/health')
-    || path.startsWith('/api/status')
-    || path === '/health'
+    return path.startsWith('/api/health') || path.startsWith('/api/status') || path === '/health'
 }
 
 export function isApiPath(path: string): boolean {
-  return path.startsWith('/api')
+    return path.startsWith('/api')
 }
 
 export function createRequestId(): string {
-  return randomUUID()
+    return randomUUID()
 }
 
 export function getOrCreateRequestId(event: H3Event): string {
-  if (event.context.requestId) {
-    return event.context.requestId
-  }
+    if (event.context.requestId) {
+        return event.context.requestId
+    }
 
-  const incoming = getRequestHeader(event, REQUEST_ID_HEADER)
-  const requestId = incoming && incoming.length > 0 ? incoming : createRequestId()
-  event.context.requestId = requestId
+    const incoming = getRequestHeader(event, REQUEST_ID_HEADER)
+    const requestId = incoming && incoming.length > 0 ? incoming : createRequestId()
+    event.context.requestId = requestId
 
-  return requestId
+    return requestId
 }
 
 export function setRequestContext(event: H3Event): void {
-  const requestId = getOrCreateRequestId(event)
-  const path = getEventPath(event)
-  const tag = resolveCanonicalTag({ tag: event.context.logTag || 'Req' })
+    const requestId = getOrCreateRequestId(event)
+    const path = getEventPath(event)
+    const tag = resolveCanonicalTag({ tag: event.context.logTag || 'Req' })
 
-  event.context.requestPath = path
-  event.context.requestStartTime = Date.now()
-  event.context.requestLogger = logger.child({
-    tag,
-    requestId,
-    method: event.method,
-    path,
-  })
+    event.context.requestPath = path
+    event.context.requestStartTime = Date.now()
+    event.context.requestLogger = logger.child({
+        tag,
+        requestId,
+        method: event.method,
+        path,
+    })
 }
 
 export function getRequestLogger(event: H3Event): PinoLogger {
-  if (event.context.requestLogger) {
+    if (event.context.requestLogger) {
+        return event.context.requestLogger
+    }
+
+    const requestId = getOrCreateRequestId(event)
+    const path = getEventPath(event)
+    const tag = resolveCanonicalTag({ tag: event.context.logTag || 'Req' })
+
+    event.context.requestLogger = logger.child({
+        tag,
+        requestId,
+        method: event.method,
+        path,
+    })
+
     return event.context.requestLogger
-  }
-
-  const requestId = getOrCreateRequestId(event)
-  const path = getEventPath(event)
-  const tag = resolveCanonicalTag({ tag: event.context.logTag || 'Req' })
-
-  event.context.requestLogger = logger.child({
-    tag,
-    requestId,
-    method: event.method,
-    path,
-  })
-
-  return event.context.requestLogger
 }
 
 export function getRequestDuration(event: H3Event): number {
-  if (typeof event.context.requestStartTime !== 'number') {
-    return 0
-  }
+    if (typeof event.context.requestStartTime !== 'number') {
+        return 0
+    }
 
-  return Math.max(0, Date.now() - event.context.requestStartTime)
+    return Math.max(0, Date.now() - event.context.requestStartTime)
 }
 
-export function setRequestResponseHeaders(event: H3Event): { requestId: string; durationMs: number } {
-  const requestId = getOrCreateRequestId(event)
-  const durationMs = getRequestDuration(event)
+export function setRequestResponseHeaders(event: H3Event): {
+    requestId: string
+    durationMs: number
+} {
+    const requestId = getOrCreateRequestId(event)
+    const durationMs = getRequestDuration(event)
 
-  setResponseHeader(event, 'X-Request-ID', requestId)
-  setResponseHeader(event, 'X-Response-Time', `${durationMs}ms`)
+    setResponseHeader(event, 'X-Request-ID', requestId)
+    setResponseHeader(event, 'X-Response-Time', `${durationMs}ms`)
 
-  return { requestId, durationMs }
+    return { requestId, durationMs }
 }
 
-export function shouldLogAccess(path: string, statusCode: number, config: LoggingConfig = loggingConfig): boolean {
-  if (statusCode >= 500) {
-    return true
-  }
+export function shouldLogAccess(
+    path: string,
+    statusCode: number,
+    config: LoggingConfig = loggingConfig
+): boolean {
+    if (statusCode >= 500) {
+        return true
+    }
 
-  if (isHealthPath(path)) {
-    return config.logHealthRequests
-  }
+    if (isHealthPath(path)) {
+        return config.logHealthRequests
+    }
 
-  if (isApiPath(path)) {
-    return config.logApiRequests
-  }
+    if (isApiPath(path)) {
+        return config.logApiRequests
+    }
 
-  return false
+    return false
 }
 
 export function getEventStatus(event: H3Event): number {
-  return getResponseStatus(event)
+    return getResponseStatus(event)
 }

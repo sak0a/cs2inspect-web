@@ -1,649 +1,649 @@
 {
-  "navigation": {
-    "weapons": "WEAPONS",
-    "melee": "MELEE",
-    "extras": "EXTRAS",
-    "actions": "ACTIONS",
-    "language": "Language",
-    "loadout": "Loadout",
-    "theme": "Theme",
-    "mainNav": "Main navigation",
-    "settings": "Settings",
-    "switchToSidebar": "Switch to sidebar"
-  },
-  "weapons": {
-    "rifles": "Rifles",
-    "pistols": "Pistols",
-    "smgs": "SMGs",
-    "heavys": "Heavys"
-  },
-  "melee": {
-    "knives": "Knives",
-    "gloves": "Gloves"
-  },
-  "extras": {
-    "agents": "Agents",
-    "pins": "Pins",
-    "music": "Music Kits",
-    "inspects": "Inspect Link Decoder/Encoder",
-    "home": "Home"
-  },
-  "teams": {
-    "terrorists": "Terrorists",
-    "counterTerrorists": "Counter-Terrorists"
-  },
-  "wears": {
-    "factoryNew": "Factory New",
-    "minimalWear": "Minimal Wear",
-    "fieldTested": "Field-Tested",
-    "wellWorn": "Well-Worn",
-    "battleScarred": "Battle-Scarred"
-  },
-  "skins": {
-    "title": "Skins",
-    "noSkinsAvailable": "No skins available for this loadout",
-    "selectSkin": "Select Skin for {weapon}"
-  },
-  "modals": {
-    "logout": {
-      "title": "Confirm Logout",
-      "question": "Are you sure you want to logout?",
-      "cancel": "Cancel",
-      "confirm": "Logout"
-    },
-    "inspectUrl": {
-      "title": "Import from Inspect URL",
-      "inputPlaceholder": "Paste inspect URL here...",
-      "maskedLinks": "Masked Links (HEX Data)",
-      "maskedLinksDescription": "These Links are mostly generated from Websites or other Apps",
-      "maskedLinksExample": "Example:",
-      "unmaskedLinks": "Unmasked Links (Market / Inventory)",
-      "unmaskedLinksDescription": "These Links are used in the Steam Market and Player Inventories",
-      "unmaskedLinksExample": "Examples:",
-      "noInspectUrl": "Please enter an inspect URL",
-      "defaultError": "Failed to decode inspect URL",
-      "cancel": "Cancel",
-      "confirm": "Import"
-    },
-    "duplicateItem": {
-      "header": "Duplicate {itemType}",
-      "cancel": "Cancel",
-      "confirm": "Duplicate",
-      "warning": "Warning: The other team already has a skin configured for this {itemType}. This action will overwrite it.",
-      "question": "Are you sure you want to duplicate this {itemType} configuration to the other team?",
-      "type": {
-        "weapon": "Weapon",
-        "knife": "Knife",
-        "glove": "Glove"
-      }
-    },
-    "knifeSkin": {
-      "defaultTitle": "Select Skin",
-      "title": "Select Skin for {weaponName}",
-      "buttons": {
-        "importFromLink": "Import from Link",
-        "generateLink": "Generate Link",
-        "save": "Save Changes",
-        "duplicate": "Duplicate to Other Team",
-        "reset": "Reset"
-      },
-      "inputs": {
-        "searchPlaceholder": "Search skins...",
-        "nameTagPlaceholder": "Name Tag"
-      },
-      "labels": {
-        "stattrak": "StatTrak™",
-        "paintIndex": "Paint Index",
-        "paintIndexOverride": "Override",
-        "pattern": "Paint Pattern (Seed)",
-        "wear": "Wear (Float)",
-        "itemActive": "Active",
-        "itemInactive": "Inactive"
-      },
-      "invalidInspectLink": "Invalid inspect link",
-      "importFailed": "Failed to import knife configuration",
-      "importFailedDefault": "Failed to import knife configuration",
-      "importFailedNoMatchingWeapon": "Inspect URL does not match selected knife",
-      "importSuccess": "Successfully imported knife configuration",
-      "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
-      "generateInspectUrlFailed": "Failed to generate inspect URL",
-      "noSearchResults": "No Skins found"
-    },
-    "gloveSkin": {
-      "defaultTitle": "Select Skin",
-      "title": "Select Skin for {weaponName}",
-      "buttons": {
-        "importFromLink": "Import from Link",
-        "generateLink": "Generate Link",
-        "save": "Save Changes",
-        "duplicate": "Duplicate to Other Team",
-        "reset": "Reset"
-      },
-      "inputs": {
-        "searchPlaceholder": "Search skins...",
-        "nameTagPlaceholder": "Name Tag"
-      },
-      "labels": {
-        "paintIndex": "Paint Index",
-        "paintIndexOverride": "Override",
-        "pattern": "Paint Pattern (Seed)",
-        "wear": "Wear (Float)",
-        "itemActive": "Active",
-        "itemInactive": "Inactive"
-      },
-      "invalidInspectLink": "Invalid inspect link",
-      "importFailed": "Failed to import glove configuration",
-      "importFailedDefault": "Failed to import Glove configuration",
-      "importFailedNoMatchingWeapon": "Inspect URL does not match selected Glove",
-      "importSuccess": "Successfully imported Glove configuration",
-      "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
-      "generateInspectUrlFailed": "Failed to generate inspect URL",
-      "noSearchResults": "No Skins found"
-    },
-    "keychain": {
-      "titleEdit": "Edit Keychain",
-      "titleAdd": "Add Keychain",
-      "searchPlaceholder": "Search Keychains...",
-      "labels": {
-        "position": "Position",
-        "seed": "Seed"
-      },
-      "buttons": {
-        "update": "Update Changes",
-        "create": "Apply Keychain",
-        "delete": "Delete Keychain"
-      },
-      "delete": "Delete Keychain",
-      "errorFetching": "Error fetching keychain data",
-      "noSearchResults": "No Keychains found",
-      "sort": {
-        "name": "Name",
-        "rarity": "Rarity"
-      }
-    },
-    "sticker": {
-      "titleEdit": "Edit Sticker",
-      "titleAdd": "Add Sticker",
-      "searchPlaceholder": "Search Stickers...",
-      "sort": {
-        "label": "Sort",
-        "name": "Name",
-        "rarity": "Rarity",
-        "effect": "Effect"
-      },
-      "filters": {
-        "rarity": "Rarity",
-        "effect": "Effect",
-        "clearAll": "Clear filters"
-      },
-      "labels": {
-        "position": "Position",
-        "scale": "Scale",
-        "rotation": "Rotation",
-        "wear": "Wear"
-      },
-      "buttons": {
-        "update": "Update Sticker",
-        "create": "Apply Sticker",
-        "delete": "Delete Sticker"
-      },
-      "errorFetching": "Error fetching sticker data",
-      "noSearchResults": "No Stickers found"
-    },
-    "loadout": {
-      "successMessage": "Loadout {action}d successfully",
-      "create": {
-        "title": "Create New Loadout",
-        "confirm": "Create",
-        "cancel": "Cancel",
-        "formPlaceholder": "Enter a name for your new loadout"
-      },
-      "import": {
-        "title": "Import Loadout",
-        "description": "Enter a share code to import a loadout.",
-        "placeholder": "Share Code",
-        "cancel": "Cancel",
-        "confirm": "Import",
-        "success": "Loadout imported successfully"
-      },
-      "rename": {
-        "title": "Rename Loadout {name}",
-        "confirm": "Rename",
-        "cancel": "Cancel",
-        "formPlaceholder": "Enter a new name for your loadout"
-      },
-      "delete": {
-        "title": "Delete Loadout {name}",
-        "confirm": "Delete",
-        "cancel": "Cancel",
-        "question": "Are you sure you want to delete this loadout?",
-        "warning": "All Skins from this Loadout will be deleted and can't be restored",
-        "confirmText": "Type '{name}' to confirm deletion:",
-        "confirmPlaceholder": "Enter loadout name to confirm"
-      },
-      "clear": {
-        "title": "Clear Loadout {name}",
-        "question": "Are you sure you want to clear items from this loadout?",
-        "selectCategories": "Select categories to clear:",
-        "warning": "This action cannot be undone!",
-        "confirmText": "Please type \"{name}\" to confirm.",
-        "confirmPlaceholder": "Enter loadout name to confirm",
-        "cancel": "Cancel",
-        "confirm": "Clear Items",
-        "successMessage": "Loadout items cleared successfully"
-      },
-      "share": {
-        "title": "Share Loadout {name}",
-        "description": "Copy the code below to share this loadout with others:",
-        "noCode": "This loadout doesn't have a share code yet. Generate one to share it with others.",
-        "generateButton": "Generate Share Code",
-        "regenerateButton": "Generate New Code",
-        "generateError": "Failed to generate share code",
-        "deleteButton": "Delete Share Code",
-        "deleted": "Share code deleted",
-        "deleteError": "Failed to delete share code"
-      },
-      "duplicate": {
-        "success": "Loadout duplicated successfully"
-      },
-      "default": {
-        "success": "Default loadout set successfully"
-      }
-    },
-    "weaponSkin": {
-      "defaultTitle": "Select Skin",
-      "title": "Select Skin for {weaponName}",
-      "buttons": {
-        "reset": "Reset",
-        "importFromLink": "Import from Link",
-        "generateLink": "Generate Link",
-        "save": "Save & Close",
-        "duplicate": "Duplicate to Other Team"
-      },
-      "team": {
-        "terrorist": "Terrorist",
-        "counterTerrorist": "Counter-Terrorist"
-      },
-      "inputs": {
-        "searchPlaceholder": "Search skins...",
-        "nameTagPlaceholder": "Name Tag"
-      },
-      "labels": {
-        "stattrak": "StatTrak™",
-        "paintIndex": "Paint Index",
-        "paintIndexOverride": "Override",
-        "pattern": "Paint Pattern (Seed)",
-        "wear": "Wear (Float)",
-        "itemActive": "Active",
-        "itemInactive": "Inactive"
-      },
-      "stickers": {
-        "title": "Stickers",
-        "add": "Add Sticker",
-        "reposition": "Drag to reposition",
-        "remove": "Remove Sticker"
-      },
-      "keychain": {
-        "title": "Keychain",
-        "add": "Add Keychain",
-        "remove": "Remove Keychain"
-      },
-      "visualCustomizer": {
-        "button": "Visual Customizer",
-        "exit": "Exit Visual Editor",
-        "modalTitle": "Visual Customizer for {weaponName}",
-        "inline": {
-          "title": "Visual Editor",
-          "controls": {
-            "scale": "Scale",
-            "rotate": "Rot",
-            "wear": "Wear",
-            "remove": "Destroy"
-          },
-          "selectHint": "Select a sticker or keychain to edit"
-        }
-      },
-      "sort": {
-        "label": "Sort",
-        "name": "Name",
-        "rarity": "Rarity"
-      },
-      "filters": {
-        "rarity": "Rarity"
-      },
-      "importFailedDefault": "Failed to import weapon configuration",
-      "importFailedNoMatchingWeapon": "Inspect URL does not match selected weapon",
-      "importSuccess": "Successfully imported knife configuration",
-      "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
-      "generateInspectUrlFailed": "Failed to generate inspect URL",
-      "noSearchResults": "No Skins found",
-      "resetSuccess": "Weapon configuration reset",
-      "resetFailed": "Failed to reset weapon configuration",
-      "duplicateFailed": "Failed to duplicate weapon configuration"
-    },
-    "reset": {
-      "title": "Reset Skin",
-      "question": "Are you sure you want to delete the skin configuration?",
-      "cancel": "Cancel",
-      "confirm": "Reset"
-    },
-    "visualCustomizer": {
-      "title": "Visual Sticker & Keychain Customizer",
-      "save": "Save Changes",
-      "cancel": "Cancel",
-      "labels": {
-        "stickers": "Stickers",
-        "keychain": "Keychain",
-        "add": "Add",
-        "edit": "Edit",
+    "navigation": {
+        "weapons": "WEAPONS",
+        "melee": "MELEE",
+        "extras": "EXTRAS",
+        "actions": "ACTIONS",
+        "language": "Language",
+        "loadout": "Loadout",
+        "theme": "Theme",
+        "mainNav": "Main navigation",
         "settings": "Settings",
-        "weaponWear": "Weapon Wear",
-        "selectSticker": "Select Sticker",
-        "selectKeychain": "Select Keychain",
-        "search": "Search...",
-        "offsetUnits": "Offset Units",
-        "pixels": "Pixels",
-        "normalized": "Normalized (ext)",
-        "offsetXPx": "Offset X (px)",
-        "offsetYPx": "Offset Y (px)",
-        "offsetXNorm": "Offset X (norm)",
-        "offsetYNorm": "Offset Y (norm)",
-        "externalRefWidth": "External Ref Width",
-        "externalRefHeight": "External Ref Height",
-        "scale": "Scale",
-        "rotation": "Rotation",
-        "wear": "Wear",
-        "removeSticker": "Remove Sticker",
-        "removeKeychain": "Remove Keychain"
-      },
-      "debug": {
-        "title": "Debug Tools",
-        "coordinateGrid": "Show Coordinate Grid (X/Y positions)",
-        "coordinateGridDescription": "Toggle to see pixel coordinates for precise sticker positioning"
-      },
-      "instructions": {
-        "title": "Instructions",
-        "addAssets": "• Click sticker/keychain slots to add items",
-        "selectElements": "• Click elements on canvas to select and edit",
-        "dragElements": "• Drag elements to reposition them",
-        "useProperties": "• Use sliders to fine-tune properties"
-      },
-      "assetBrowser": {
-        "title": "Asset Browser",
-        "stickers": "Stickers",
-        "keychains": "Keychains",
-        "searchPlaceholder": "Search assets..."
-      },
-      "properties": {
-        "title": "Properties",
-        "positionX": "Position X",
-        "positionY": "Position Y",
-        "scale": "Scale",
-        "rotation": "Rotation (degrees)",
-        "wear": "Wear",
-        "remove": "Remove"
-      },
-      "messages": {
-        "maxStickers": "Maximum 5 stickers allowed",
-        "selectSkinFirst": "Please select a weapon skin first",
-        "saved": "Visual customization saved",
-        "saveSuccess": "Visual customization applied successfully",
-        "failedToLoadAssets": "Failed to load stickers and keychains"
-      }
-    }
-  },
-  "loadout": {
-    "create": "Create Loadout",
-    "manage": "Manage loadout",
-    "import": "Import",
-    "select": "Select a loadout",
-    "createDefault": "Create Default Loadout",
-    "confirmDelete": "Are you sure you want to delete this loadout?",
-    "confirmDeleteWarning": "All Skins from this Loadout will be deleted and can't be restored",
-    "nameRequired": "Please enter a loadout name",
-    "nameTooLong": "Loadout name must be less than 20 characters",
-    "selectLoadoutFirst": "Please select a loadout first",
-    "actions": {
-      "rename": "Rename",
-      "duplicate": "Duplicate",
-      "share": "Share",
-      "setDefault": "Set as Default",
-      "clear": "Clear Loadout",
-      "delete": "Delete"
-    }
-  },
-  "auth": {
-    "login": "Sign In",
-    "loginButton": "Sign In",
-    "logoutButton": "Logout",
-    "loginRequired": "To access this website, please login with your Steam account.",
-    "automaticallyLoggedOut": "You have been automatically log out",
-    "confirmLogout": "Are you sure you want to logout?",
-    "rejectAction": "Sign In to execute this action",
-    "authenticating": "Authenticating...",
-    "openSteamProfile": "Open Steam profile"
-  },
-  "general": {
-    "copiedToClipboard": "Copied to clipboard"
-  },
-  "autoSave": {
-    "saving": "Saving...",
-    "saved": "Saved",
-    "failed": "Save failed",
-    "retry": "Retry",
-    "offline": "Offline - changes will save when reconnected"
-  },
-  "history": {
-    "title": "Version History",
-    "empty": "No history available",
-    "restore": "Restore",
-    "restoreConfirmTitle": "Restore Version",
-    "restoreConfirmMessage": "This will restore the item to this previous version. Continue?",
-    "restoreSuccess": "Successfully restored to previous version",
-    "restoreError": "Failed to restore",
-    "fetchError": "Failed to load history",
-    "snapshot": "Snapshot",
-    "loadMore": "Load More",
-    "changeTypes": {
-      "stickerAdded": "Sticker Added",
-      "stickerRemoved": "Sticker Removed",
-      "stickerModified": "Sticker Modified",
-      "keychainAdded": "Keychain Added",
-      "keychainRemoved": "Keychain Removed",
-      "keychainModified": "Keychain Modified",
-      "wearChanged": "Wear Changed",
-      "patternChanged": "Pattern Changed",
-      "paintChanged": "Skin Changed",
-      "nametagChanged": "Nametag Changed",
-      "stattrakToggled": "StatTrak Toggled",
-      "stattrakCountChanged": "StatTrak Count Changed",
-      "activeToggled": "Active Status Changed",
-      "multipleChanges": "Multiple Changes",
-      "initialSave": "Initial Save",
-      "reset": "Restored"
-    }
-  },
-  "common": {
-    "loading": "Loading...",
-    "error": "Error",
-    "success": "Success",
-    "cancel": "Cancel",
-    "confirm": "Confirm",
-    "save": "Save",
-    "update": "Update",
-    "delete": "Delete",
-    "create": "Create",
-    "search": "Search",
-    "selectAll": "Select All",
-    "noResults": "No results found",
-    "pleaseSelectLoadout": "Please select a loadout first",
-    "for": "for",
-    "copy": "Copy"
-  },
-  "inspectLink": {
-    "title": "Inspect Link Decoder/Encoder",
-    "description": "Decode an inspect link into JSON or generate an inspect link from JSON data.",
-    "importButton": "Decode Link",
-    "generateButton": "Generate Link",
-    "inspectUrlLabel": "Inspect Link",
-    "decodedJsonLabel": "Decoded JSON Data",
-    "placeholder": "Paste your inspect link here...",
-    "invalidJson": "Invalid JSON data",
-    "decodeSuccess": "Successfully decoded inspect link",
-    "generateSuccess": "Successfully generated inspect link",
-    "copySuccess": "Inspect link copied to clipboard"
-  },
-  "tutorial": {
-    "menuTitle": "Tutorials",
-    "next": "Next",
-    "back": "Back",
-    "skip": "Skip Tutorial",
-    "finish": "Finish",
-    "stepOf": "{current} / {total}",
-    "completed": "Completed",
-    "navigateApp": {
-      "name": "Navigate the App",
-      "description": "Learn the basics of navigating CS2Inspect",
-      "steps": {
-        "sidebar": {
-          "title": "Navigation",
-          "description": "This is your main navigation. Browse through weapons, melee items, and extras like agents, pins, and music kits."
-        },
-        "settings": {
-          "title": "Settings",
-          "description": "Access settings here to change your language, start tutorials, or log out of your account."
-        },
-        "loadout": {
-          "title": "Loadout Selector",
-          "description": "Switch between your loadouts here. Each loadout stores a complete set of weapon skins, stickers, and customizations."
-        },
-        "weapons": {
-          "title": "Weapon Cards",
-          "description": "These cards represent your weapons. Click any card to open the skin customization modal where you can select skins, adjust wear, and add stickers."
-        },
-        "teamTabs": {
-          "title": "Team Tabs",
-          "description": "Some weapons can be used by both teams (CT and T). When that's the case, you'll see two tabs here — one for each team. Each team has its own separate skin configuration."
-        },
-        "ready": {
-          "title": "You're Ready!",
-          "description": "You now know the basics of navigating CS2Inspect. Explore the app and customize your loadout!"
-        }
-      }
+        "switchToSidebar": "Switch to sidebar"
     },
-    "customizeWeapon": {
-      "name": "Customize a Weapon",
-      "description": "Learn all features of the weapon customization modal",
-      "steps": {
-        "grid": {
-          "title": "Weapon Grid",
-          "description": "These are the weapon cards for your current loadout. Each card shows the weapon with its currently applied skin."
+    "weapons": {
+        "rifles": "Rifles",
+        "pistols": "Pistols",
+        "smgs": "SMGs",
+        "heavys": "Heavys"
+    },
+    "melee": {
+        "knives": "Knives",
+        "gloves": "Gloves"
+    },
+    "extras": {
+        "agents": "Agents",
+        "pins": "Pins",
+        "music": "Music Kits",
+        "inspects": "Inspect Link Decoder/Encoder",
+        "home": "Home"
+    },
+    "teams": {
+        "terrorists": "Terrorists",
+        "counterTerrorists": "Counter-Terrorists"
+    },
+    "wears": {
+        "factoryNew": "Factory New",
+        "minimalWear": "Minimal Wear",
+        "fieldTested": "Field-Tested",
+        "wellWorn": "Well-Worn",
+        "battleScarred": "Battle-Scarred"
+    },
+    "skins": {
+        "title": "Skins",
+        "noSkinsAvailable": "No skins available for this loadout",
+        "selectSkin": "Select Skin for {weapon}"
+    },
+    "modals": {
+        "logout": {
+            "title": "Confirm Logout",
+            "question": "Are you sure you want to logout?",
+            "cancel": "Cancel",
+            "confirm": "Logout"
         },
-        "click": {
-          "title": "Open Customization",
-          "description": "Click on a weapon card to open the skin customization modal. You can also use the Next button to continue."
+        "inspectUrl": {
+            "title": "Import from Inspect URL",
+            "inputPlaceholder": "Paste inspect URL here...",
+            "maskedLinks": "Masked Links (HEX Data)",
+            "maskedLinksDescription": "These Links are mostly generated from Websites or other Apps",
+            "maskedLinksExample": "Example:",
+            "unmaskedLinks": "Unmasked Links (Market / Inventory)",
+            "unmaskedLinksDescription": "These Links are used in the Steam Market and Player Inventories",
+            "unmaskedLinksExample": "Examples:",
+            "noInspectUrl": "Please enter an inspect URL",
+            "defaultError": "Failed to decode inspect URL",
+            "cancel": "Cancel",
+            "confirm": "Import"
         },
-        "search": {
-          "title": "Search Skins",
-          "description": "Use the search bar to quickly find skins by name. Start typing to filter the skin list."
+        "duplicateItem": {
+            "header": "Duplicate {itemType}",
+            "cancel": "Cancel",
+            "confirm": "Duplicate",
+            "warning": "Warning: The other team already has a skin configured for this {itemType}. This action will overwrite it.",
+            "question": "Are you sure you want to duplicate this {itemType} configuration to the other team?",
+            "type": {
+                "weapon": "Weapon",
+                "knife": "Knife",
+                "glove": "Glove"
+            }
         },
-        "sortFilter": {
-          "title": "Sort & Filter",
-          "description": "Sort skins by name, rarity, or other criteria. Use the rarity filter buttons to show only skins of a specific quality."
+        "knifeSkin": {
+            "defaultTitle": "Select Skin",
+            "title": "Select Skin for {weaponName}",
+            "buttons": {
+                "importFromLink": "Import from Link",
+                "generateLink": "Generate Link",
+                "save": "Save Changes",
+                "duplicate": "Duplicate to Other Team",
+                "reset": "Reset"
+            },
+            "inputs": {
+                "searchPlaceholder": "Search skins...",
+                "nameTagPlaceholder": "Name Tag"
+            },
+            "labels": {
+                "stattrak": "StatTrak™",
+                "paintIndex": "Paint Index",
+                "paintIndexOverride": "Override",
+                "pattern": "Paint Pattern (Seed)",
+                "wear": "Wear (Float)",
+                "itemActive": "Active",
+                "itemInactive": "Inactive"
+            },
+            "invalidInspectLink": "Invalid inspect link",
+            "importFailed": "Failed to import knife configuration",
+            "importFailedDefault": "Failed to import knife configuration",
+            "importFailedNoMatchingWeapon": "Inspect URL does not match selected knife",
+            "importSuccess": "Successfully imported knife configuration",
+            "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
+            "generateInspectUrlFailed": "Failed to generate inspect URL",
+            "noSearchResults": "No Skins found"
         },
-        "skins": {
-          "title": "Skin Gallery",
-          "description": "Browse available skins here. Click on a skin to select it. The selected skin will be highlighted with a yellow ring."
-        },
-        "pagination": {
-          "title": "Pagination",
-          "description": "If there are more skins than fit on one page, use the pagination buttons to browse through additional pages."
-        },
-        "wear": {
-          "title": "Wear Slider",
-          "description": "Adjust the wear (float value) of your skin. Lower values mean less wear and a cleaner appearance. The slider range depends on the skin's minimum and maximum float. The weapon preview image updates automatically as you change the value."
-        },
-        "paintIndex": {
-          "title": "Paint Index Override",
-          "description": "Enable this toggle to manually set the paint index value. This is an advanced feature that lets you specify an exact skin ID instead of selecting from the gallery."
-        },
-        "activeSwitch": {
-          "title": "Active Toggle",
-          "description": "Toggle the weapon active or inactive. Inactive weapons won't be included when generating your loadout. Useful for keeping a skin configured without using it."
-        },
-        "stickers": {
-          "title": "Sticker Slots",
-          "description": "Your weapon has 5 sticker slots. Click any slot to browse and apply stickers. You can drag stickers between slots to reposition them. Hover over a sticker to see the remove button."
+        "gloveSkin": {
+            "defaultTitle": "Select Skin",
+            "title": "Select Skin for {weaponName}",
+            "buttons": {
+                "importFromLink": "Import from Link",
+                "generateLink": "Generate Link",
+                "save": "Save Changes",
+                "duplicate": "Duplicate to Other Team",
+                "reset": "Reset"
+            },
+            "inputs": {
+                "searchPlaceholder": "Search skins...",
+                "nameTagPlaceholder": "Name Tag"
+            },
+            "labels": {
+                "paintIndex": "Paint Index",
+                "paintIndexOverride": "Override",
+                "pattern": "Paint Pattern (Seed)",
+                "wear": "Wear (Float)",
+                "itemActive": "Active",
+                "itemInactive": "Inactive"
+            },
+            "invalidInspectLink": "Invalid inspect link",
+            "importFailed": "Failed to import glove configuration",
+            "importFailedDefault": "Failed to import Glove configuration",
+            "importFailedNoMatchingWeapon": "Inspect URL does not match selected Glove",
+            "importSuccess": "Successfully imported Glove configuration",
+            "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
+            "generateInspectUrlFailed": "Failed to generate inspect URL",
+            "noSearchResults": "No Skins found"
         },
         "keychain": {
-          "title": "Keychain",
-          "description": "Attach a keychain charm to your weapon. Click the slot to browse available keychains. Each weapon can have one keychain."
+            "titleEdit": "Edit Keychain",
+            "titleAdd": "Add Keychain",
+            "searchPlaceholder": "Search Keychains...",
+            "labels": {
+                "position": "Position",
+                "seed": "Seed"
+            },
+            "buttons": {
+                "update": "Update Changes",
+                "create": "Apply Keychain",
+                "delete": "Delete Keychain"
+            },
+            "delete": "Delete Keychain",
+            "errorFetching": "Error fetching keychain data",
+            "noSearchResults": "No Keychains found",
+            "sort": {
+                "name": "Name",
+                "rarity": "Rarity"
+            }
+        },
+        "sticker": {
+            "titleEdit": "Edit Sticker",
+            "titleAdd": "Add Sticker",
+            "searchPlaceholder": "Search Stickers...",
+            "sort": {
+                "label": "Sort",
+                "name": "Name",
+                "rarity": "Rarity",
+                "effect": "Effect"
+            },
+            "filters": {
+                "rarity": "Rarity",
+                "effect": "Effect",
+                "clearAll": "Clear filters"
+            },
+            "labels": {
+                "position": "Position",
+                "scale": "Scale",
+                "rotation": "Rotation",
+                "wear": "Wear"
+            },
+            "buttons": {
+                "update": "Update Sticker",
+                "create": "Apply Sticker",
+                "delete": "Delete Sticker"
+            },
+            "errorFetching": "Error fetching sticker data",
+            "noSearchResults": "No Stickers found"
+        },
+        "loadout": {
+            "successMessage": "Loadout {action}d successfully",
+            "create": {
+                "title": "Create New Loadout",
+                "confirm": "Create",
+                "cancel": "Cancel",
+                "formPlaceholder": "Enter a name for your new loadout"
+            },
+            "import": {
+                "title": "Import Loadout",
+                "description": "Enter a share code to import a loadout.",
+                "placeholder": "Share Code",
+                "cancel": "Cancel",
+                "confirm": "Import",
+                "success": "Loadout imported successfully"
+            },
+            "rename": {
+                "title": "Rename Loadout {name}",
+                "confirm": "Rename",
+                "cancel": "Cancel",
+                "formPlaceholder": "Enter a new name for your loadout"
+            },
+            "delete": {
+                "title": "Delete Loadout {name}",
+                "confirm": "Delete",
+                "cancel": "Cancel",
+                "question": "Are you sure you want to delete this loadout?",
+                "warning": "All Skins from this Loadout will be deleted and can't be restored",
+                "confirmText": "Type '{name}' to confirm deletion:",
+                "confirmPlaceholder": "Enter loadout name to confirm"
+            },
+            "clear": {
+                "title": "Clear Loadout {name}",
+                "question": "Are you sure you want to clear items from this loadout?",
+                "selectCategories": "Select categories to clear:",
+                "warning": "This action cannot be undone!",
+                "confirmText": "Please type \"{name}\" to confirm.",
+                "confirmPlaceholder": "Enter loadout name to confirm",
+                "cancel": "Cancel",
+                "confirm": "Clear Items",
+                "successMessage": "Loadout items cleared successfully"
+            },
+            "share": {
+                "title": "Share Loadout {name}",
+                "description": "Copy the code below to share this loadout with others:",
+                "noCode": "This loadout doesn't have a share code yet. Generate one to share it with others.",
+                "generateButton": "Generate Share Code",
+                "regenerateButton": "Generate New Code",
+                "generateError": "Failed to generate share code",
+                "deleteButton": "Delete Share Code",
+                "deleted": "Share code deleted",
+                "deleteError": "Failed to delete share code"
+            },
+            "duplicate": {
+                "success": "Loadout duplicated successfully"
+            },
+            "default": {
+                "success": "Default loadout set successfully"
+            }
+        },
+        "weaponSkin": {
+            "defaultTitle": "Select Skin",
+            "title": "Select Skin for {weaponName}",
+            "buttons": {
+                "reset": "Reset",
+                "importFromLink": "Import from Link",
+                "generateLink": "Generate Link",
+                "save": "Save & Close",
+                "duplicate": "Duplicate to Other Team"
+            },
+            "team": {
+                "terrorist": "Terrorist",
+                "counterTerrorist": "Counter-Terrorist"
+            },
+            "inputs": {
+                "searchPlaceholder": "Search skins...",
+                "nameTagPlaceholder": "Name Tag"
+            },
+            "labels": {
+                "stattrak": "StatTrak™",
+                "paintIndex": "Paint Index",
+                "paintIndexOverride": "Override",
+                "pattern": "Paint Pattern (Seed)",
+                "wear": "Wear (Float)",
+                "itemActive": "Active",
+                "itemInactive": "Inactive"
+            },
+            "stickers": {
+                "title": "Stickers",
+                "add": "Add Sticker",
+                "reposition": "Drag to reposition",
+                "remove": "Remove Sticker"
+            },
+            "keychain": {
+                "title": "Keychain",
+                "add": "Add Keychain",
+                "remove": "Remove Keychain"
+            },
+            "visualCustomizer": {
+                "button": "Visual Customizer",
+                "exit": "Exit Visual Editor",
+                "modalTitle": "Visual Customizer for {weaponName}",
+                "inline": {
+                    "title": "Visual Editor",
+                    "controls": {
+                        "scale": "Scale",
+                        "rotate": "Rot",
+                        "wear": "Wear",
+                        "remove": "Destroy"
+                    },
+                    "selectHint": "Select a sticker or keychain to edit"
+                }
+            },
+            "sort": {
+                "label": "Sort",
+                "name": "Name",
+                "rarity": "Rarity"
+            },
+            "filters": {
+                "rarity": "Rarity"
+            },
+            "importFailedDefault": "Failed to import weapon configuration",
+            "importFailedNoMatchingWeapon": "Inspect URL does not match selected weapon",
+            "importSuccess": "Successfully imported knife configuration",
+            "generateInspectUrlSuccess": "Inspect URL copied to clipboard",
+            "generateInspectUrlFailed": "Failed to generate inspect URL",
+            "noSearchResults": "No Skins found",
+            "resetSuccess": "Weapon configuration reset",
+            "resetFailed": "Failed to reset weapon configuration",
+            "duplicateFailed": "Failed to duplicate weapon configuration"
         },
         "reset": {
-          "title": "Reset Weapon",
-          "description": "Reset the weapon back to its default state. This removes the skin, stickers, keychain, and all customizations."
+            "title": "Reset Skin",
+            "question": "Are you sure you want to delete the skin configuration?",
+            "cancel": "Cancel",
+            "confirm": "Reset"
         },
-        "history": {
-          "title": "Version History",
-          "description": "View the history of changes made to this weapon. You can restore any previous version with a single click."
-        },
-        "import": {
-          "title": "Import Inspect Link",
-          "description": "Import a weapon configuration from a CS2 inspect link. Paste a link to apply its skin, stickers, wear, and other settings to this weapon."
-        },
-        "generate": {
-          "title": "Generate Inspect Link",
-          "description": "Generate a CS2 inspect link for your current weapon configuration. The link can be shared or used to preview the weapon in-game."
-        },
-        "autoSave": {
-          "title": "Auto-Save",
-          "description": "Your changes are automatically saved as you make them. The save indicator shows the current status — no need to manually save anything."
+        "visualCustomizer": {
+            "title": "Visual Sticker & Keychain Customizer",
+            "save": "Save Changes",
+            "cancel": "Cancel",
+            "labels": {
+                "stickers": "Stickers",
+                "keychain": "Keychain",
+                "add": "Add",
+                "edit": "Edit",
+                "settings": "Settings",
+                "weaponWear": "Weapon Wear",
+                "selectSticker": "Select Sticker",
+                "selectKeychain": "Select Keychain",
+                "search": "Search...",
+                "offsetUnits": "Offset Units",
+                "pixels": "Pixels",
+                "normalized": "Normalized (ext)",
+                "offsetXPx": "Offset X (px)",
+                "offsetYPx": "Offset Y (px)",
+                "offsetXNorm": "Offset X (norm)",
+                "offsetYNorm": "Offset Y (norm)",
+                "externalRefWidth": "External Ref Width",
+                "externalRefHeight": "External Ref Height",
+                "scale": "Scale",
+                "rotation": "Rotation",
+                "wear": "Wear",
+                "removeSticker": "Remove Sticker",
+                "removeKeychain": "Remove Keychain"
+            },
+            "debug": {
+                "title": "Debug Tools",
+                "coordinateGrid": "Show Coordinate Grid (X/Y positions)",
+                "coordinateGridDescription": "Toggle to see pixel coordinates for precise sticker positioning"
+            },
+            "instructions": {
+                "title": "Instructions",
+                "addAssets": "• Click sticker/keychain slots to add items",
+                "selectElements": "• Click elements on canvas to select and edit",
+                "dragElements": "• Drag elements to reposition them",
+                "useProperties": "• Use sliders to fine-tune properties"
+            },
+            "assetBrowser": {
+                "title": "Asset Browser",
+                "stickers": "Stickers",
+                "keychains": "Keychains",
+                "searchPlaceholder": "Search assets..."
+            },
+            "properties": {
+                "title": "Properties",
+                "positionX": "Position X",
+                "positionY": "Position Y",
+                "scale": "Scale",
+                "rotation": "Rotation (degrees)",
+                "wear": "Wear",
+                "remove": "Remove"
+            },
+            "messages": {
+                "maxStickers": "Maximum 5 stickers allowed",
+                "selectSkinFirst": "Please select a weapon skin first",
+                "saved": "Visual customization saved",
+                "saveSuccess": "Visual customization applied successfully",
+                "failedToLoadAssets": "Failed to load stickers and keychains"
+            }
         }
-      }
+    },
+    "loadout": {
+        "create": "Create Loadout",
+        "manage": "Manage loadout",
+        "import": "Import",
+        "select": "Select a loadout",
+        "createDefault": "Create Default Loadout",
+        "confirmDelete": "Are you sure you want to delete this loadout?",
+        "confirmDeleteWarning": "All Skins from this Loadout will be deleted and can't be restored",
+        "nameRequired": "Please enter a loadout name",
+        "nameTooLong": "Loadout name must be less than 20 characters",
+        "selectLoadoutFirst": "Please select a loadout first",
+        "actions": {
+            "rename": "Rename",
+            "duplicate": "Duplicate",
+            "share": "Share",
+            "setDefault": "Set as Default",
+            "clear": "Clear Loadout",
+            "delete": "Delete"
+        }
+    },
+    "auth": {
+        "login": "Sign In",
+        "loginButton": "Sign In",
+        "logoutButton": "Logout",
+        "loginRequired": "To access this website, please login with your Steam account.",
+        "automaticallyLoggedOut": "You have been automatically log out",
+        "confirmLogout": "Are you sure you want to logout?",
+        "rejectAction": "Sign In to execute this action",
+        "authenticating": "Authenticating...",
+        "openSteamProfile": "Open Steam profile"
+    },
+    "general": {
+        "copiedToClipboard": "Copied to clipboard"
+    },
+    "autoSave": {
+        "saving": "Saving...",
+        "saved": "Saved",
+        "failed": "Save failed",
+        "retry": "Retry",
+        "offline": "Offline - changes will save when reconnected"
+    },
+    "history": {
+        "title": "Version History",
+        "empty": "No history available",
+        "restore": "Restore",
+        "restoreConfirmTitle": "Restore Version",
+        "restoreConfirmMessage": "This will restore the item to this previous version. Continue?",
+        "restoreSuccess": "Successfully restored to previous version",
+        "restoreError": "Failed to restore",
+        "fetchError": "Failed to load history",
+        "snapshot": "Snapshot",
+        "loadMore": "Load More",
+        "changeTypes": {
+            "stickerAdded": "Sticker Added",
+            "stickerRemoved": "Sticker Removed",
+            "stickerModified": "Sticker Modified",
+            "keychainAdded": "Keychain Added",
+            "keychainRemoved": "Keychain Removed",
+            "keychainModified": "Keychain Modified",
+            "wearChanged": "Wear Changed",
+            "patternChanged": "Pattern Changed",
+            "paintChanged": "Skin Changed",
+            "nametagChanged": "Nametag Changed",
+            "stattrakToggled": "StatTrak Toggled",
+            "stattrakCountChanged": "StatTrak Count Changed",
+            "activeToggled": "Active Status Changed",
+            "multipleChanges": "Multiple Changes",
+            "initialSave": "Initial Save",
+            "reset": "Restored"
+        }
+    },
+    "common": {
+        "loading": "Loading...",
+        "error": "Error",
+        "success": "Success",
+        "cancel": "Cancel",
+        "confirm": "Confirm",
+        "save": "Save",
+        "update": "Update",
+        "delete": "Delete",
+        "create": "Create",
+        "search": "Search",
+        "selectAll": "Select All",
+        "noResults": "No results found",
+        "pleaseSelectLoadout": "Please select a loadout first",
+        "for": "for",
+        "copy": "Copy"
     },
     "inspectLink": {
-      "name": "Inspect Link Tool",
-      "description": "Learn how to decode and generate inspect links",
-      "steps": {
-        "input": {
-          "title": "Inspect Link Input",
-          "description": "Paste a CS2 inspect link here. These links start with 'steam://rungame/' and contain encoded item data."
-        },
-        "decode": {
-          "title": "Decode Button",
-          "description": "Click this button to decode the inspect link into readable JSON data. The decoded data will appear in the editor below."
-        },
-        "editor": {
-          "title": "JSON Editor",
-          "description": "View and edit the decoded item data here. You can modify values like paintindex, paintwear, stickers, and more."
-        },
-        "generate": {
-          "title": "Generate Link",
-          "description": "After editing the JSON data, click here to generate a new inspect link. The link will be copied to your clipboard automatically."
-        }
-      }
+        "title": "Inspect Link Decoder/Encoder",
+        "description": "Decode an inspect link into JSON or generate an inspect link from JSON data.",
+        "importButton": "Decode Link",
+        "generateButton": "Generate Link",
+        "inspectUrlLabel": "Inspect Link",
+        "decodedJsonLabel": "Decoded JSON Data",
+        "placeholder": "Paste your inspect link here...",
+        "invalidJson": "Invalid JSON data",
+        "decodeSuccess": "Successfully decoded inspect link",
+        "generateSuccess": "Successfully generated inspect link",
+        "copySuccess": "Inspect link copied to clipboard"
     },
-    "createLoadout": {
-      "name": "Create a Loadout",
-      "description": "Learn how to create and manage your loadouts",
-      "steps": {
-        "selector": {
-          "title": "Loadout Selector",
-          "description": "This dropdown shows all your loadouts. A loadout is a complete set of weapon skins, stickers, and customizations that you can switch between."
+    "tutorial": {
+        "menuTitle": "Tutorials",
+        "next": "Next",
+        "back": "Back",
+        "skip": "Skip Tutorial",
+        "finish": "Finish",
+        "stepOf": "{current} / {total}",
+        "completed": "Completed",
+        "navigateApp": {
+            "name": "Navigate the App",
+            "description": "Learn the basics of navigating CS2Inspect",
+            "steps": {
+                "sidebar": {
+                    "title": "Navigation",
+                    "description": "This is your main navigation. Browse through weapons, melee items, and extras like agents, pins, and music kits."
+                },
+                "settings": {
+                    "title": "Settings",
+                    "description": "Access settings here to change your language, start tutorials, or log out of your account."
+                },
+                "loadout": {
+                    "title": "Loadout Selector",
+                    "description": "Switch between your loadouts here. Each loadout stores a complete set of weapon skins, stickers, and customizations."
+                },
+                "weapons": {
+                    "title": "Weapon Cards",
+                    "description": "These cards represent your weapons. Click any card to open the skin customization modal where you can select skins, adjust wear, and add stickers."
+                },
+                "teamTabs": {
+                    "title": "Team Tabs",
+                    "description": "Some weapons can be used by both teams (CT and T). When that's the case, you'll see two tabs here — one for each team. Each team has its own separate skin configuration."
+                },
+                "ready": {
+                    "title": "You're Ready!",
+                    "description": "You now know the basics of navigating CS2Inspect. Explore the app and customize your loadout!"
+                }
+            }
         },
-        "create": {
-          "title": "Manage Loadouts",
-          "description": "This button opens the loadout management menu. From here you can create, rename, duplicate, share, import, and delete loadouts."
+        "customizeWeapon": {
+            "name": "Customize a Weapon",
+            "description": "Learn all features of the weapon customization modal",
+            "steps": {
+                "grid": {
+                    "title": "Weapon Grid",
+                    "description": "These are the weapon cards for your current loadout. Each card shows the weapon with its currently applied skin."
+                },
+                "click": {
+                    "title": "Open Customization",
+                    "description": "Click on a weapon card to open the skin customization modal. You can also use the Next button to continue."
+                },
+                "search": {
+                    "title": "Search Skins",
+                    "description": "Use the search bar to quickly find skins by name. Start typing to filter the skin list."
+                },
+                "sortFilter": {
+                    "title": "Sort & Filter",
+                    "description": "Sort skins by name, rarity, or other criteria. Use the rarity filter buttons to show only skins of a specific quality."
+                },
+                "skins": {
+                    "title": "Skin Gallery",
+                    "description": "Browse available skins here. Click on a skin to select it. The selected skin will be highlighted with a yellow ring."
+                },
+                "pagination": {
+                    "title": "Pagination",
+                    "description": "If there are more skins than fit on one page, use the pagination buttons to browse through additional pages."
+                },
+                "wear": {
+                    "title": "Wear Slider",
+                    "description": "Adjust the wear (float value) of your skin. Lower values mean less wear and a cleaner appearance. The slider range depends on the skin's minimum and maximum float. The weapon preview image updates automatically as you change the value."
+                },
+                "paintIndex": {
+                    "title": "Paint Index Override",
+                    "description": "Enable this toggle to manually set the paint index value. This is an advanced feature that lets you specify an exact skin ID instead of selecting from the gallery."
+                },
+                "activeSwitch": {
+                    "title": "Active Toggle",
+                    "description": "Toggle the weapon active or inactive. Inactive weapons won't be included when generating your loadout. Useful for keeping a skin configured without using it."
+                },
+                "stickers": {
+                    "title": "Sticker Slots",
+                    "description": "Your weapon has 5 sticker slots. Click any slot to browse and apply stickers. You can drag stickers between slots to reposition them. Hover over a sticker to see the remove button."
+                },
+                "keychain": {
+                    "title": "Keychain",
+                    "description": "Attach a keychain charm to your weapon. Click the slot to browse available keychains. Each weapon can have one keychain."
+                },
+                "reset": {
+                    "title": "Reset Weapon",
+                    "description": "Reset the weapon back to its default state. This removes the skin, stickers, keychain, and all customizations."
+                },
+                "history": {
+                    "title": "Version History",
+                    "description": "View the history of changes made to this weapon. You can restore any previous version with a single click."
+                },
+                "import": {
+                    "title": "Import Inspect Link",
+                    "description": "Import a weapon configuration from a CS2 inspect link. Paste a link to apply its skin, stickers, wear, and other settings to this weapon."
+                },
+                "generate": {
+                    "title": "Generate Inspect Link",
+                    "description": "Generate a CS2 inspect link for your current weapon configuration. The link can be shared or used to preview the weapon in-game."
+                },
+                "autoSave": {
+                    "title": "Auto-Save",
+                    "description": "Your changes are automatically saved as you make them. The save indicator shows the current status — no need to manually save anything."
+                }
+            }
         },
-        "name": {
-          "title": "Name Your Loadout",
-          "description": "Enter a name for your new loadout. Choose something descriptive like 'Tournament Setup' or 'Favorite Skins'."
+        "inspectLink": {
+            "name": "Inspect Link Tool",
+            "description": "Learn how to decode and generate inspect links",
+            "steps": {
+                "input": {
+                    "title": "Inspect Link Input",
+                    "description": "Paste a CS2 inspect link here. These links start with 'steam://rungame/' and contain encoded item data."
+                },
+                "decode": {
+                    "title": "Decode Button",
+                    "description": "Click this button to decode the inspect link into readable JSON data. The decoded data will appear in the editor below."
+                },
+                "editor": {
+                    "title": "JSON Editor",
+                    "description": "View and edit the decoded item data here. You can modify values like paintindex, paintwear, stickers, and more."
+                },
+                "generate": {
+                    "title": "Generate Link",
+                    "description": "After editing the JSON data, click here to generate a new inspect link. The link will be copied to your clipboard automatically."
+                }
+            }
         },
-        "done": {
-          "title": "All Set!",
-          "description": "Your new loadout is ready to use. You can now switch between loadouts using the selector and start customizing your weapons."
+        "createLoadout": {
+            "name": "Create a Loadout",
+            "description": "Learn how to create and manage your loadouts",
+            "steps": {
+                "selector": {
+                    "title": "Loadout Selector",
+                    "description": "This dropdown shows all your loadouts. A loadout is a complete set of weapon skins, stickers, and customizations that you can switch between."
+                },
+                "create": {
+                    "title": "Manage Loadouts",
+                    "description": "This button opens the loadout management menu. From here you can create, rename, duplicate, share, import, and delete loadouts."
+                },
+                "name": {
+                    "title": "Name Your Loadout",
+                    "description": "Enter a name for your new loadout. Choose something descriptive like 'Tournament Setup' or 'Favorite Skins'."
+                },
+                "done": {
+                    "title": "All Set!",
+                    "description": "Your new loadout is ready to use. You can now switch between loadouts using the selector and start customizing your weapons."
+                }
+            }
         }
-      }
     }
-  }
 }

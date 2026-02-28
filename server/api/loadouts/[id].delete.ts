@@ -1,11 +1,8 @@
 // server/api/loadouts/[id].delete.ts
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
-import { deleteLoadout } from "~/server/database/loadoutHelpers"
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { deleteLoadout } from '~/server/database/loadoutHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { parseQueryWithSchema } from '~/server/utils/validation/zodHelpers'
 import { steamIdQuerySchema } from '~/server/utils/validation/querySchemas'

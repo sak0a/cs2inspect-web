@@ -3,3 +3,7 @@ node_modules
 .output
 dist
 bun.lock
+cloned/
+cs2-plugin/
+public/
+storage/

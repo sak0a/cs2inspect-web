@@ -36,8 +36,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
             path: '/admin/error',
             query: {
                 error: 'admin_required',
-                redirect: to.fullPath
-            }
+                redirect: to.fullPath,
+            },
         })
     }
 
@@ -48,8 +48,8 @@ export default defineNuxtRouteMiddleware(async (to) => {
             path: '/admin/error',
             query: {
                 error: 'superadmin_required',
-                redirect: to.fullPath
-            }
+                redirect: to.fullPath,
+            },
         })
     }
 

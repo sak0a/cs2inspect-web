@@ -108,9 +108,7 @@ export default useErrorHandling(async (event) => {
                   headers: responseHeaders,
                   body: responseBody,
               },
-        error: errorMessage
-            ? { code: errorCode, message: errorMessage }
-            : null,
+        error: errorMessage ? { code: errorCode, message: errorMessage } : null,
         latencyMs: latency,
     }
 

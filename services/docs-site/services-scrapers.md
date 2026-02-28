@@ -7,7 +7,9 @@ The CS2Inspect project includes automated asset scraping services that download 
 ## Services
 
 ### 1. Sticker Scraper
+
 ### 2. Charm Scraper
+
 ### 3. Weapon Skin Video Scraper
 
 ---
@@ -17,6 +19,7 @@ The CS2Inspect project includes automated asset scraping services that download 
 ### Purpose
 
 The sticker scraper downloads CS2 sticker images from a source CDN (cs2inspects.com by default) with support for:
+
 - Multiple wear values per sticker (0-100%)
 - Image optimization and resizing
 - WebP format conversion
@@ -89,6 +92,7 @@ SCRAPE_URL=https://your-cdn.com bun run start
 #### 1. **Multiple Wear Values**
 
 Each sticker is downloaded in multiple wear states:
+
 - `0` - Pristine (no wear)
 - `25` - Slightly scratched
 - `50` - Medium wear
@@ -108,6 +112,7 @@ This allows users to preview stickers at different wear levels in the customizer
 #### 3. **Progress Tracking**
 
 The scraper creates `progress.json` to track:
+
 - Total stickers processed
 - Successfully downloaded
 - Failed downloads
@@ -199,6 +204,7 @@ Average size per image: 52 KB
 ### Purpose
 
 The charm scraper downloads CS2 charm (keychain) images with support for:
+
 - Multiple pattern seeds per charm
 - Front-facing views
 - Variant images for charms with patterns
@@ -226,14 +232,14 @@ services/charm-scraper/
 
 ```json
 [
-  {
-    "id": 6001,
-    "name": "Chicken"
-  },
-  {
-    "id": 6002,
-    "name": "Phoenix"
-  }
+    {
+        "id": 6001,
+        "name": "Chicken"
+    },
+    {
+        "id": 6002,
+        "name": "Phoenix"
+    }
 ]
 ```
 
@@ -241,13 +247,13 @@ services/charm-scraper/
 
 ```javascript
 // Pattern seeds to download per charm
-const SEEDS = [1, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000];
+const SEEDS = [1, 10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000]
 
 // Source URL
-const envUrl = process.env.SCRAPE_URL || 'http://localhost:3210';
+const envUrl = process.env.SCRAPE_URL || 'http://localhost:3210'
 
 // Asset directory
-const ASSETS_DIR = path.join(__dirname, 'assets');
+const ASSETS_DIR = path.join(__dirname, 'assets')
 ```
 
 ### Installation
@@ -272,6 +278,7 @@ SCRAPE_URL=https://cdn.cs2inspects.com bun run start
 #### 1. **Pattern Seeds**
 
 Charms with patterns are downloaded in multiple seed variations:
+
 - Default pattern (seed 1)
 - Seed 10000, 20000, ..., 90000
 
@@ -280,6 +287,7 @@ This captures the variety of charm appearances.
 #### 2. **Sanitized Filenames**
 
 Charm names are sanitized for filesystem compatibility:
+
 ```javascript
 "Chicken" → "chicken_default_empty.webp"
 "Mr. Phoenix" → "mr_phoenix_seed_10000.webp"
@@ -327,16 +335,16 @@ Total images downloaded: 485
 
 ## Comparison
 
-| Feature | Sticker Scraper | Charm Scraper |
-|---------|----------------|---------------|
-| **Image Processing** | Yes (Sharp resize + WebP optimization) | No (direct downloads) |
-| **Wear Values** | Yes (0-100%) | No |
-| **Pattern Seeds** | No | Yes (10 seeds) |
-| **Concurrency** | Configurable (default 10) | Parallel per charm |
-| **Ignored IDs** | Yes (extensive list) | No |
-| **Progress Tracking** | Yes | Yes |
-| **File Structure** | `assets/{id}/{wear}.webp` | `assets/{name}/{name}_{seed}.webp` |
-| **Optimization** | Resize + WebP encoding | None |
+| Feature               | Sticker Scraper                        | Charm Scraper                      |
+| --------------------- | -------------------------------------- | ---------------------------------- |
+| **Image Processing**  | Yes (Sharp resize + WebP optimization) | No (direct downloads)              |
+| **Wear Values**       | Yes (0-100%)                           | No                                 |
+| **Pattern Seeds**     | No                                     | Yes (10 seeds)                     |
+| **Concurrency**       | Configurable (default 10)              | Parallel per charm                 |
+| **Ignored IDs**       | Yes (extensive list)                   | No                                 |
+| **Progress Tracking** | Yes                                    | Yes                                |
+| **File Structure**    | `assets/{id}/{wear}.webp`              | `assets/{name}/{name}_{seed}.webp` |
+| **Optimization**      | Resize + WebP encoding                 | None                               |
 
 ---
 
@@ -408,39 +416,39 @@ For automated updates, use cron or GitHub Actions:
 name: Update Assets
 
 on:
-  schedule:
-    # Run every Monday at 2 AM
-    - cron: '0 2 * * 1'
-  workflow_dispatch:
+    schedule:
+        # Run every Monday at 2 AM
+        - cron: '0 2 * * 1'
+    workflow_dispatch:
 
 jobs:
-  scrape:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    scrape:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v1
+            - name: Setup Bun
+              uses: oven-sh/setup-bun@v1
 
-      - name: Run Sticker Scraper
-        run: |
-          cd services/sticker-scraper
-          bun install
-          bun run start
+            - name: Run Sticker Scraper
+              run: |
+                  cd services/sticker-scraper
+                  bun install
+                  bun run start
 
-      - name: Run Charm Scraper
-        run: |
-          cd services/charm-scraper
-          bun install
-          bun run start
+            - name: Run Charm Scraper
+              run: |
+                  cd services/charm-scraper
+                  bun install
+                  bun run start
 
-      - name: Upload Assets
-        uses: actions/upload-artifact@v4
-        with:
-          name: cs2-assets
-          path: |
-            services/sticker-scraper/assets
-            services/charm-scraper/assets
+            - name: Upload Assets
+              uses: actions/upload-artifact@v4
+              with:
+                  name: cs2-assets
+                  path: |
+                      services/sticker-scraper/assets
+                      services/charm-scraper/assets
 ```
 
 ---
@@ -463,18 +471,18 @@ Assets are served via Nitro server assets:
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  nitro: {
-    serverAssets: [
-      {
-        baseName: 'stickers',
-        dir: './storage/stickers'
-      },
-      {
-        baseName: 'charms',
-        dir: './storage/charms'
-      }
-    ]
-  }
+    nitro: {
+        serverAssets: [
+            {
+                baseName: 'stickers',
+                dir: './storage/stickers',
+            },
+            {
+                baseName: 'charms',
+                dir: './storage/charms',
+            },
+        ],
+    },
 })
 ```
 
@@ -483,13 +491,13 @@ export default defineNuxtConfig({
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-  runtimeConfig: {
-    public: {
-      assetsUrl: 'https://assets.cu.sakoa.xyz/cs2inspect',
-      assetsStickerPath: '/stickers',
-      assetsCharmsPath: '/charms'
-    }
-  }
+    runtimeConfig: {
+        public: {
+            assetsUrl: 'https://assets.cu.sakoa.xyz/cs2inspect',
+            assetsStickerPath: '/stickers',
+            assetsCharmsPath: '/charms',
+        },
+    },
 })
 ```
 
@@ -500,17 +508,17 @@ export default defineNuxtConfig({
 const config = useRuntimeConfig()
 
 const getStickerUrl = (stickerId, wear = 0) => {
-  return `${config.public.assetsUrl}${config.public.assetsStickerPath}/${stickerId}/${wear}.webp`
+    return `${config.public.assetsUrl}${config.public.assetsStickerPath}/${stickerId}/${wear}.webp`
 }
 
 const getCharmUrl = (charmName, seed = 1) => {
-  return `${config.public.assetsUrl}${config.public.assetsCharmsPath}/${charmName}/${charmName}_seed_${seed}.webp`
+    return `${config.public.assetsUrl}${config.public.assetsCharmsPath}/${charmName}/${charmName}_seed_${seed}.webp`
 }
 </script>
 
 <template>
-  <img :src="getStickerUrl(1230, 0)" alt="Sticker" />
-  <img :src="getCharmUrl('chicken', 10000)" alt="Charm" />
+    <img :src="getStickerUrl(1230, 0)" alt="Sticker" />
+    <img :src="getCharmUrl('chicken', 10000)" alt="Charm" />
 </template>
 ```
 
@@ -582,11 +590,12 @@ bun install
 #### Network Timeouts
 
 Increase timeout in code:
+
 ```javascript
 const response = await axios({
-  timeout: 30000, // Increase to 30 seconds
-  // ...
-});
+    timeout: 30000, // Increase to 30 seconds
+    // ...
+})
 ```
 
 ### Charm Scraper Issues
@@ -594,10 +603,9 @@ const response = await axios({
 #### Missing charms.json
 
 Ensure `charms.json` exists with proper format:
+
 ```json
-[
-  {"id": 6001, "name": "Chicken"}
-]
+[{ "id": 6001, "name": "Chicken" }]
 ```
 
 #### 404 Errors for All Seeds
@@ -621,12 +629,14 @@ Ensure `charms.json` exists with proper format:
 ### Logging
 
 Both scrapers log:
+
 - Start and completion times
 - Progress updates
 - Error conditions
 - Final statistics
 
 Example:
+
 ```
 2026-01-25 12:00:00 - Starting sticker scraper
 2026-01-25 12:05:00 - Progress: 500/10313 (4.85%)
@@ -709,17 +719,17 @@ services/weapon-scraper/
 The scraping process follows three stages:
 
 1. **Scrape** — Download skin showcase videos from source CDN
-   - Multi-threaded downloading with configurable worker count
-   - Request delay handling for rate limiting
-   - Progress tracking to avoid duplicate downloads
+    - Multi-threaded downloading with configurable worker count
+    - Request delay handling for rate limiting
+    - Progress tracking to avoid duplicate downloads
 
 2. **Mask** — Remove blue backgrounds using weapon-specific PNG masks
-   - Per-weapon mask files in `masks/` directory
-   - Produces transparent-background videos
+    - Per-weapon mask files in `masks/` directory
+    - Produces transparent-background videos
 
 3. **Optimize** — Compress and convert videos for web use
-   - Codec conversion and quality settings
-   - File size optimization for fast loading
+    - Codec conversion and quality settings
+    - File size optimization for fast loading
 
 ### Usage
 

@@ -1,61 +1,61 @@
 <script setup lang="ts">
 interface Props {
-  preloaderName?: string
+    preloaderName?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  preloaderName: "preloader" + Math.floor(Math.random() * 100)
+    preloaderName: 'preloader' + Math.floor(Math.random() * 100),
 })
 const state = reactive({
-  preloader: true
-});
-const preloaderStyle: string = "line-scale-pulse-out";
-const revealDuration: number = 200;
-const revealDelay: number = 25;
-const preloaderDivsToCreate: number = 5;
+    preloader: true,
+})
+const preloaderStyle: string = 'line-scale-pulse-out'
+const revealDuration: number = 200
+const revealDelay: number = 25
+const preloaderDivsToCreate: number = 5
 
 function animation() {
-  return [
-    {transform: "scale(1)", opacity: 1},
-    {transform: "scale(5)", opacity: 0},
-  ];
+    return [
+        { transform: 'scale(1)', opacity: 1 },
+        { transform: 'scale(5)', opacity: 0 },
+    ]
 }
 
 onMounted(() => {
-  if (sessionStorage.getItem("preload-" + props.preloaderName?.toUpperCase()) === "shown") {
-    state.preloader = false;
-    return;
-  }
-  const preloader = document.getElementById("preloader_" + preloaderStyle);
-  if (!preloader) return;
-  preloader.classList.add(preloaderStyle);
-  const outerWrapper = document.querySelector(".preloader_wrapper_outer") as HTMLElement | null;
-  if (!outerWrapper) return;
-  outerWrapper.animate(animation(), {
-    duration: revealDuration,
-    delay: revealDelay,
-    iterations: 1,
-    fill: "forwards",
-    easing: "ease-in-out"
-  });
-  setTimeout(() => {
-    outerWrapper.style.display = "none";
-    state.preloader = false;
-    sessionStorage.setItem("siteLoader", "shown");
-  }, revealDelay + revealDuration);
-});
+    if (sessionStorage.getItem('preload-' + props.preloaderName?.toUpperCase()) === 'shown') {
+        state.preloader = false
+        return
+    }
+    const preloader = document.getElementById('preloader_' + preloaderStyle)
+    if (!preloader) return
+    preloader.classList.add(preloaderStyle)
+    const outerWrapper = document.querySelector('.preloader_wrapper_outer') as HTMLElement | null
+    if (!outerWrapper) return
+    outerWrapper.animate(animation(), {
+        duration: revealDuration,
+        delay: revealDelay,
+        iterations: 1,
+        fill: 'forwards',
+        easing: 'ease-in-out',
+    })
+    setTimeout(() => {
+        outerWrapper.style.display = 'none'
+        state.preloader = false
+        sessionStorage.setItem('siteLoader', 'shown')
+    }, revealDelay + revealDuration)
+})
 </script>
 
 <template>
-  <div v-if="state.preloader" class="preloader_wrapper_outer">
-    <div class="preloader_wrapper_inner">
-      <div :id="'preloader_' + preloaderStyle" class="preloader">
-        <div v-for="n in preloaderDivsToCreate" :key="n">
-          <div :id="`loader-div-${n}`"/>
+    <div v-if="state.preloader" class="preloader_wrapper_outer">
+        <div class="preloader_wrapper_inner">
+            <div :id="'preloader_' + preloaderStyle" class="preloader">
+                <div v-for="n in preloaderDivsToCreate" :key="n">
+                    <div :id="`loader-div-${n}`" />
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </template>
 
 <style lang="sass" scoped>

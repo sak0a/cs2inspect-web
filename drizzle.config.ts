@@ -1,4 +1,4 @@
-import { defineConfig } from 'drizzle-kit';
+import { defineConfig } from 'drizzle-kit'
 
 export default defineConfig({
     schema: './server/database/schema/index.ts',
@@ -11,4 +11,4 @@ export default defineConfig({
         password: process.env.DATABASE_PASSWORD!,
         database: process.env.DATABASE_NAME!,
     },
-});
+})

@@ -20,7 +20,7 @@ export interface ApiClientOptions {
 
 /**
  * Create a configured API client instance
- * 
+ *
  * @param options - Configuration options
  * @returns API client with type-safe methods
  */
@@ -59,7 +59,10 @@ export function createApiClient(options: ApiClientOptions = {}) {
          * @param url - API endpoint
          * @param query - Query parameters
          */
-        async get<T>(url: string, query?: Record<string, string | number | boolean | null | undefined>) {
+        async get<T>(
+            url: string,
+            query?: Record<string, string | number | boolean | null | undefined>
+        ) {
             try {
                 const cleanQuery: Record<string, string | number | boolean> = {}
                 if (query) {
@@ -122,7 +125,10 @@ export function createApiClient(options: ApiClientOptions = {}) {
          * @param url - API endpoint
          * @param query - Query parameters
          */
-        async delete<T>(url: string, query?: Record<string, string | number | boolean | null | undefined>) {
+        async delete<T>(
+            url: string,
+            query?: Record<string, string | number | boolean | null | undefined>
+        ) {
             try {
                 const cleanQuery: Record<string, string | number | boolean> = {}
                 if (query) {

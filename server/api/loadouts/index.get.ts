@@ -1,11 +1,8 @@
 // server/api/loadouts/index.get.ts
 import { Logger } from '~/server/utils/logger'
 import type { DBLoadout } from '~/server/types'
-import { getLoadoutsBySteamId } from "~/server/database/loadoutHelpers"
-import {
-    createCollectionResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { getLoadoutsBySteamId } from '~/server/database/loadoutHelpers'
+import { createCollectionResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { parseQueryWithSchema } from '~/server/utils/validation/zodHelpers'
 import { steamIdQuerySchema } from '~/server/utils/validation/querySchemas'

@@ -23,31 +23,31 @@ A full-stack web application for Counter-Strike 2 players to customize and manag
 
 ## 🗂️ Pages
 
-| Page | Description |
-|------|-------------|
-| `/` | Main dashboard with loadout management |
+| Page              | Description                                          |
+| ----------------- | ---------------------------------------------------- |
+| `/`               | Main dashboard with loadout management               |
 | `/weapons/[type]` | Weapon customization (pistols, rifles, smgs, heavys) |
-| `/knives` | Knife skin selection and customization |
-| `/gloves` | Glove skin selection and customization |
-| `/agents` | Agent selection for T/CT sides |
-| `/music-kits` | Music kit selection |
-| `/pins` | Collectible pins management |
-| `/status` | System health status dashboard |
-| `/auth/login` | Steam authentication |
+| `/knives`         | Knife skin selection and customization               |
+| `/gloves`         | Glove skin selection and customization               |
+| `/agents`         | Agent selection for T/CT sides                       |
+| `/music-kits`     | Music kit selection                                  |
+| `/pins`           | Collectible pins management                          |
+| `/status`         | System health status dashboard                       |
+| `/auth/login`     | Steam authentication                                 |
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|----------|------------|
-| Framework | Nuxt 4 (Vue 3 + TypeScript) |
-| UI Library | Naive UI |
-| Styling | Tailwind CSS + SASS |
-| State Management | Pinia |
-| Database | MariaDB (Drizzle ORM) |
-| Authentication | Steam OpenID + JWT |
+| Category             | Technology                               |
+| -------------------- | ---------------------------------------- |
+| Framework            | Nuxt 4 (Vue 3 + TypeScript)              |
+| UI Library           | Naive UI                                 |
+| Styling              | Tailwind CSS + SASS                      |
+| State Management     | Pinia                                    |
+| Database             | MariaDB (Drizzle ORM)                    |
+| Authentication       | Steam OpenID + JWT                       |
 | Internationalization | nuxt-i18n-micro (EN, DE, RU, ES, FR, NL) |
-| Testing | Vitest + Vue Test Utils |
-| Containerization | Docker + Docker Compose |
+| Testing              | Vitest + Vue Test Utils                  |
+| Containerization     | Docker + Docker Compose                  |
 
 ## 🚀 Quick Start
 
@@ -67,6 +67,7 @@ curl -fsSL https://raw.githubusercontent.com/sak0a/cs2inspect-web/master/scripts
 ```
 
 This will automatically:
+
 - Install Node.js, Bun, and dependencies
 - Clone the repository
 - Setup database (optional)
@@ -130,15 +131,15 @@ The app will be available at `http://localhost:3210`.
 
 ### Bun/npm Scripts
 
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | Start development server |
-| `bun run build` | Build for production |
-| `bun run preview` | Preview production build |
-| `bun run lint` | Run ESLint |
-| `bun test` | Run tests |
-| `bun run db:push` | Push database schema |
-| `bun run db:studio` | Open Drizzle Studio |
+| Command             | Description              |
+| ------------------- | ------------------------ |
+| `bun run dev`       | Start development server |
+| `bun run build`     | Build for production     |
+| `bun run preview`   | Preview production build |
+| `bun run lint`      | Run ESLint               |
+| `bun test`          | Run tests                |
+| `bun run db:push`   | Push database schema     |
+| `bun run db:studio` | Open Drizzle Studio      |
 
 ### Shell Scripts
 
@@ -178,6 +179,7 @@ This project uses GitHub Actions for automated CI/CD:
 - **📄 Documentation** – VitePress docs auto-deployed to GitHub Pages
 
 **Workflows:**
+
 - `ci.yml` – Test, lint, and build on push to `master`/`dev`
 - `docker.yml` – Build and publish Docker images to GHCR
 - `release.yml` – Create releases and trigger Docker builds

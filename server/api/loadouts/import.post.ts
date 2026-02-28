@@ -1,12 +1,9 @@
 import { getQuery, readBody, createError } from 'h3'
 import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
-import { importLoadoutFromShareCode, getLoadoutsBySteamId } from "~/server/database/loadoutHelpers";
-import { validateRequiredRequestData } from "~/server/utils/helpers";
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers';
+import { importLoadoutFromShareCode, getLoadoutsBySteamId } from '~/server/database/loadoutHelpers'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { getCachedSetting } from '~/server/utils/settingsCache'
 
@@ -21,11 +18,11 @@ export default useErrorHandling(async (event: H3Event) => {
     Logger.header(`Import Loadout API request: ${event.req.url}`)
 
     const body = await readBody(event)
-    const steamId = query.steamId as string || body.steamId;
-    const shareCode = body.shareCode;
+    const steamId = (query.steamId as string) || body.steamId
+    const shareCode = body.shareCode
 
-    validateRequiredRequestData(steamId, 'Steam ID');
-    validateRequiredRequestData(shareCode, 'Share Code');
+    validateRequiredRequestData(steamId, 'Steam ID')
+    validateRequiredRequestData(shareCode, 'Share Code')
 
     // Enforce FEATURE_SHARE_CODES
     const shareCodesEnabled = await getCachedSetting<boolean>('FEATURE_SHARE_CODES', true)
@@ -52,5 +49,4 @@ export default useErrorHandling(async (event: H3Event) => {
 
     const meta = createResponseMeta(startTime, { steamId, method: 'POST', shareCode })
     return createSuccessResponse(newLoadout, meta, 'Loadout imported successfully')
-
 }, ErrorCodes.LOADOUT_IMPORT_ERROR)

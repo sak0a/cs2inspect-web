@@ -4,8 +4,8 @@ import { db } from '~/server/database/client'
 import { loadouts } from '~/server/database/schema'
 import { Logger } from '~/server/utils/logger'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
-import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from "~/server/utils/constants";
-import { toLoadoutId } from '~/types/core/common';
+import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
+import { toLoadoutId } from '~/types/core/common'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { notifyPluginOfWebChange } from '~/server/utils/sync/notifySync'
 
@@ -29,7 +29,7 @@ export default useErrorHandling(async (event) => {
         Logger.error(`Invalid selection type: ${type}`)
         throw createError({
             statusCode: 400,
-            message: 'Invalid selection type.'
+            message: 'Invalid selection type.',
         })
     }
 
@@ -41,7 +41,8 @@ export default useErrorHandling(async (event) => {
         const musicid: number | null = body.musicid
 
         // For music kits, we directly update the loadout table using Drizzle
-        await db.update(loadouts)
+        await db
+            .update(loadouts)
             .set({ selected_music: musicid })
             .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 
@@ -55,7 +56,8 @@ export default useErrorHandling(async (event) => {
 
         try {
             // For pins, we directly update the loadout table using Drizzle
-            await db.update(loadouts)
+            await db
+                .update(loadouts)
                 .set({ selected_pin: pinid })
                 .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 
@@ -66,10 +68,13 @@ export default useErrorHandling(async (event) => {
             const errorMessage = error instanceof Error ? error.message : String(error)
             // Check if the error is about missing column
             if (errorMessage.includes('Unknown column') && errorMessage.includes('selected_pin')) {
-                Logger.error(`Database column 'selected_pin' does not exist. Database schema is out of date.`)
+                Logger.error(
+                    `Database column 'selected_pin' does not exist. Database schema is out of date.`
+                )
                 throw createError({
                     statusCode: 500,
-                    message: 'Database schema is out of date. Please contact the administrator to update the database schema.'
+                    message:
+                        'Database schema is out of date. Please contact the administrator to update the database schema.',
                 })
             }
             // Re-throw other errors
@@ -84,7 +89,7 @@ export default useErrorHandling(async (event) => {
     if (team !== 1 && team !== 2) {
         throw createError({
             statusCode: 400,
-            message: 'Invalid team.'
+            message: 'Invalid team.',
         })
     }
 
@@ -94,14 +99,14 @@ export default useErrorHandling(async (event) => {
         if (defindex && !VALID_KNIFE_DEFINDEXES[defindex]) {
             throw createError({
                 statusCode: 400,
-                message: 'Invalid Knife Defindex'
+                message: 'Invalid Knife Defindex',
             })
         }
     } else if (type === 'glove') {
         if (defindex && !VALID_GLOVE_DEFINDEXES[defindex]) {
             throw createError({
                 statusCode: 400,
-                message: 'Invalid Glove Defindex'
+                message: 'Invalid Glove Defindex',
             })
         }
     }
@@ -128,7 +133,8 @@ export default useErrorHandling(async (event) => {
         }
     }
 
-    await db.update(loadouts)
+    await db
+        .update(loadouts)
         .set(updateObj)
         .where(and(eq(loadouts.id, loadoutIdNum), eq(loadouts.steamid, steamId)))
 

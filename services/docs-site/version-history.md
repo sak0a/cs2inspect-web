@@ -35,6 +35,7 @@ adjective-noun
 ```
 
 Examples:
+
 - `blue-fox`
 - `swift-hawk`
 - `gold-owl`
@@ -46,23 +47,23 @@ This makes versions easy to reference and remember.
 
 The system tracks the following change types:
 
-| Change Type | Description | Icon |
-|-------------|-------------|------|
-| `paint_changed` | Skin/paint changed | 🎨 |
-| `wear_changed` | Wear value modified | 💎 |
-| `pattern_changed` | Pattern seed changed | 🎨 |
-| `sticker_added` | Sticker applied | 🏷️ |
-| `sticker_removed` | Sticker removed | 🗑️ |
-| `sticker_modified` | Sticker replaced | ✏️ |
-| `keychain_added` | Keychain attached | 🔗 |
-| `keychain_removed` | Keychain removed | 🗑️ |
-| `keychain_modified` | Keychain replaced | ✏️ |
-| `nametag_changed` | Name tag modified | 📝 |
-| `stattrak_toggled` | StatTrak enabled/disabled | 📊 |
-| `stattrak_count_changed` | StatTrak count changed | 📊 |
-| `multiple_changes` | Multiple properties changed | 📦 |
-| `initial_save` | First configuration | ✨ |
-| `reset` | Restored from history | 🔄 |
+| Change Type              | Description                 | Icon |
+| ------------------------ | --------------------------- | ---- |
+| `paint_changed`          | Skin/paint changed          | 🎨   |
+| `wear_changed`           | Wear value modified         | 💎   |
+| `pattern_changed`        | Pattern seed changed        | 🎨   |
+| `sticker_added`          | Sticker applied             | 🏷️   |
+| `sticker_removed`        | Sticker removed             | 🗑️   |
+| `sticker_modified`       | Sticker replaced            | ✏️   |
+| `keychain_added`         | Keychain attached           | 🔗   |
+| `keychain_removed`       | Keychain removed            | 🗑️   |
+| `keychain_modified`      | Keychain replaced           | ✏️   |
+| `nametag_changed`        | Name tag modified           | 📝   |
+| `stattrak_toggled`       | StatTrak enabled/disabled   | 📊   |
+| `stattrak_count_changed` | StatTrak count changed      | 📊   |
+| `multiple_changes`       | Multiple properties changed | 📦   |
+| `initial_save`           | First configuration         | ✨   |
+| `reset`                  | Restored from history       | 🔄   |
 
 ### Change Descriptions
 
@@ -146,15 +147,15 @@ The `configuration` JSON column stores:
 
 ```typescript
 interface ItemHistorySnapshot {
-  paintindex: number;      // Skin paint index
-  paintseed: number;       // Pattern seed
-  paintwear: number;       // Wear float value
-  stattrak_enabled?: boolean;
-  stattrak_count?: number;
-  nametag?: string;
-  stickers?: Array<StickerJSON | null>;  // For weapons only
-  keychain?: KeychainJSON | null;        // For weapons only
-  active?: boolean;
+    paintindex: number // Skin paint index
+    paintseed: number // Pattern seed
+    paintwear: number // Wear float value
+    stattrak_enabled?: boolean
+    stattrak_count?: number
+    nametag?: string
+    stickers?: Array<StickerJSON | null> // For weapons only
+    keychain?: KeychainJSON | null // For weapons only
+    active?: boolean
 }
 ```
 
@@ -167,6 +168,7 @@ GET /api/items/history/{itemType}
 ```
 
 Query parameters:
+
 - `steamId` - User's Steam ID
 - `loadoutId` - Loadout ID
 - `defindex` - Item definition index
@@ -182,10 +184,11 @@ POST /api/items/history/restore
 ```
 
 Request body:
+
 ```json
 {
-  "historyId": 123,
-  "steamId": "76561198012345678"
+    "historyId": 123,
+    "steamId": "76561198012345678"
 }
 ```
 
@@ -196,6 +199,7 @@ POST /api/items/history/snapshot
 ```
 
 Request body:
+
 ```json
 {
   "steamId": "76561198012345678",
@@ -236,6 +240,7 @@ History is recorded in `server/utils/database/historyHelpers.ts` through:
 - `recordGloveHistory()` - For glove changes
 
 These functions:
+
 1. Fetch current state from database
 2. Look up skin names for better descriptions
 3. Detect changes between old and new state

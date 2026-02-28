@@ -13,15 +13,22 @@ export default defineEventHandler(async (event) => {
 
         return {
             authenticated: true,
-            steamId: steamId
+            steamId: steamId,
         }
     } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'Authentication validation failed'
-        const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500
+        const errorMessage =
+            error instanceof Error ? error.message : 'Authentication validation failed'
+        const statusCode =
+            error &&
+            typeof error === 'object' &&
+            'statusCode' in error &&
+            typeof error.statusCode === 'number'
+                ? error.statusCode
+                : 500
         Logger.error(`Validate failed error=${errorMessage}`, 'auth')
         throw createError({
             statusCode,
-            message: errorMessage
+            message: errorMessage,
         })
     }
 })

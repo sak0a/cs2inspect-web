@@ -31,7 +31,8 @@ export default defineEventHandler(async (event) => {
         }
 
         try {
-            const notifications = await db.select()
+            const notifications = await db
+                .select()
                 .from(syncNotifications)
                 .where(
                     and(
@@ -55,7 +56,10 @@ export default defineEventHandler(async (event) => {
                 lastId = notification.id
             }
         } catch (error) {
-            Logger.error(`SSE poll failed steamId=${steamId} error=${error instanceof Error ? error.message : error}`, 'sync')
+            Logger.error(
+                `SSE poll failed steamId=${steamId} error=${error instanceof Error ? error.message : error}`,
+                'sync'
+            )
         }
     }, 3000)
 

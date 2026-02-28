@@ -1,649 +1,649 @@
 {
-  "navigation": {
-    "weapons": "ARMAS",
-    "melee": "CUERPO A CUERPO",
-    "extras": "EXTRAS",
-    "actions": "ACCIONES",
-    "language": "Idioma",
-    "loadout": "Loadout",
-    "theme": "Tema",
-    "mainNav": "Navegación principal",
-    "settings": "Ajustes",
-    "switchToSidebar": "Cambiar a barra lateral"
-  },
-  "weapons": {
-    "rifles": "Rifles",
-    "pistols": "Pistolas",
-    "smgs": "Subfusiles",
-    "heavys": "Armas pesadas"
-  },
-  "melee": {
-    "knives": "Cuchillos",
-    "gloves": "Guantes"
-  },
-  "extras": {
-    "agents": "Agentes",
-    "pins": "Pins",
-    "music": "Kits de música",
-    "inspects": "Inspecciones",
-    "home": "Inicio"
-  },
-  "teams": {
-    "terrorists": "Terroristas",
-    "counterTerrorists": "Contraterroristas"
-  },
-  "wears": {
-    "factoryNew": "Nuevo de fábrica",
-    "minimalWear": "Desgaste mínimo",
-    "fieldTested": "Probado en campo",
-    "wellWorn": "Bien desgastado",
-    "battleScarred": "Marcas de batalla"
-  },
-  "skins": {
-    "title": "Skins",
-    "noSkinsAvailable": "No hay skins disponibles para este loadout",
-    "selectSkin": "Seleccionar skin para {weapon}"
-  },
-  "modals": {
-    "logout": {
-      "title": "Confirmar cierre de sesión",
-      "question": "¿Estás seguro de que quieres cerrar sesión?",
-      "cancel": "Cancelar",
-      "confirm": "Cerrar sesión"
+    "navigation": {
+        "weapons": "ARMAS",
+        "melee": "CUERPO A CUERPO",
+        "extras": "EXTRAS",
+        "actions": "ACCIONES",
+        "language": "Idioma",
+        "loadout": "Loadout",
+        "theme": "Tema",
+        "mainNav": "Navegación principal",
+        "settings": "Ajustes",
+        "switchToSidebar": "Cambiar a barra lateral"
     },
-    "inspectUrl": {
-      "title": "Importar desde URL de inspección",
-      "inputPlaceholder": "Pega la URL de inspección aquí...",
-      "maskedLinks": "Enlaces enmascarados (Datos HEX)",
-      "maskedLinksDescription": "Estos enlaces suelen ser generados por sitios web u otras aplicaciones",
-      "maskedLinksExample": "Ejemplo:",
-      "unmaskedLinks": "Enlaces sin enmascarar (Mercado / Inventario)",
-      "unmaskedLinksDescription": "Estos enlaces se utilizan en el Mercado de Steam y en los inventarios de los jugadores",
-      "unmaskedLinksExample": "Ejemplos:",
-      "noInspectUrl": "Por favor, introduce una URL de inspección",
-      "defaultError": "Error al decodificar la URL de inspección",
-      "cancel": "Cancelar",
-      "confirm": "Importar"
+    "weapons": {
+        "rifles": "Rifles",
+        "pistols": "Pistolas",
+        "smgs": "Subfusiles",
+        "heavys": "Armas pesadas"
     },
-    "duplicateItem": {
-      "header": "Duplicar {itemType}",
-      "cancel": "Cancelar",
-      "confirm": "Duplicar",
-      "warning": "Advertencia: El otro equipo ya tiene un skin configurado para este {itemType}. Esta acción lo sobrescribirá.",
-      "question": "¿Estás seguro de que quieres duplicar esta configuración de {itemType} al otro equipo?",
-      "type": {
-        "weapon": "Arma",
-        "knife": "Cuchillo",
-        "glove": "Guante"
-      }
+    "melee": {
+        "knives": "Cuchillos",
+        "gloves": "Guantes"
     },
-    "knifeSkin": {
-      "defaultTitle": "Seleccionar skin",
-      "title": "Seleccionar skin para {weaponName}",
-      "buttons": {
-        "importFromLink": "Importar desde enlace",
-        "generateLink": "Generar enlace",
-        "save": "Guardar cambios",
-        "duplicate": "Duplicar al otro equipo",
-        "reset": "Restablecer"
-      },
-      "inputs": {
-        "searchPlaceholder": "Buscar skins...",
-        "nameTagPlaceholder": "Etiqueta de nombre"
-      },
-      "labels": {
-        "stattrak": "StatTrak™",
-        "paintIndex": "Índice de pintura",
-        "paintIndexOverride": "Sobrescribir",
-        "pattern": "Patrón de pintura (Semilla)",
-        "wear": "Desgaste (Float)",
-        "itemActive": "Activo",
-        "itemInactive": "Inactivo"
-      },
-      "invalidInspectLink": "Enlace de inspección no válido",
-      "importFailed": "Error al importar la configuración del cuchillo",
-      "importFailedDefault": "Error al importar la configuración del cuchillo",
-      "importFailedNoMatchingWeapon": "La URL de inspección no coincide con el cuchillo seleccionado",
-      "importSuccess": "Configuración del cuchillo importada correctamente",
-      "generateInspectUrlSuccess": "URL de inspección copiada al portapapeles",
-      "generateInspectUrlFailed": "Error al generar la URL de inspección",
-      "noSearchResults": "No se encontraron skins"
+    "extras": {
+        "agents": "Agentes",
+        "pins": "Pins",
+        "music": "Kits de música",
+        "inspects": "Inspecciones",
+        "home": "Inicio"
     },
-    "gloveSkin": {
-      "defaultTitle": "Seleccionar skin",
-      "title": "Seleccionar skin para {weaponName}",
-      "buttons": {
-        "importFromLink": "Importar desde enlace",
-        "generateLink": "Generar enlace",
-        "save": "Guardar cambios",
-        "duplicate": "Duplicar al otro equipo",
-        "reset": "Restablecer"
-      },
-      "inputs": {
-        "searchPlaceholder": "Buscar skins...",
-        "nameTagPlaceholder": "Etiqueta de nombre"
-      },
-      "labels": {
-        "paintIndex": "Índice de pintura",
-        "paintIndexOverride": "Sobrescribir",
-        "pattern": "Patrón de pintura (Semilla)",
-        "wear": "Desgaste (Float)",
-        "itemActive": "Activo",
-        "itemInactive": "Inactivo"
-      },
-      "invalidInspectLink": "Enlace de inspección no válido",
-      "importFailed": "Error al importar la configuración de los guantes",
-      "importFailedDefault": "Error al importar la configuración de los guantes",
-      "importFailedNoMatchingWeapon": "La URL de inspección no coincide con los guantes seleccionados",
-      "importSuccess": "Configuración de los guantes importada correctamente",
-      "generateInspectUrlSuccess": "URL de inspección copiada al portapapeles",
-      "generateInspectUrlFailed": "Error al generar la URL de inspección",
-      "noSearchResults": "No se encontraron skins"
+    "teams": {
+        "terrorists": "Terroristas",
+        "counterTerrorists": "Contraterroristas"
     },
-    "keychain": {
-      "titleEdit": "Editar llavero",
-      "titleAdd": "Añadir llavero",
-      "searchPlaceholder": "Buscar llaveros...",
-      "labels": {
-        "position": "Posición",
-        "seed": "Semilla"
-      },
-      "buttons": {
-        "update": "Actualizar cambios",
-        "create": "Aplicar llavero",
-        "delete": "Eliminar llavero"
-      },
-      "delete": "Eliminar llavero",
-      "errorFetching": "Error al obtener los datos del llavero",
-      "noSearchResults": "No se encontraron llaveros",
-      "sort": {
-        "name": "Nombre",
-        "rarity": "Rareza"
-      }
+    "wears": {
+        "factoryNew": "Nuevo de fábrica",
+        "minimalWear": "Desgaste mínimo",
+        "fieldTested": "Probado en campo",
+        "wellWorn": "Bien desgastado",
+        "battleScarred": "Marcas de batalla"
     },
-    "sticker": {
-      "titleEdit": "Editar pegatina",
-      "titleAdd": "Añadir pegatina",
-      "searchPlaceholder": "Buscar pegatinas...",
-      "sort": {
-        "label": "Ordenar",
-        "name": "Nombre",
-        "rarity": "Rareza",
-        "effect": "Efecto"
-      },
-      "filters": {
-        "rarity": "Rareza",
-        "effect": "Efecto",
-        "clearAll": "Restablecer filtros"
-      },
-      "labels": {
-        "position": "Posición",
-        "scale": "Escala",
-        "rotation": "Rotación",
-        "wear": "Desgaste"
-      },
-      "buttons": {
-        "update": "Actualizar pegatina",
-        "create": "Aplicar pegatina",
-        "delete": "Eliminar pegatina"
-      },
-      "errorFetching": "Error al obtener los datos de la pegatina",
-      "noSearchResults": "No se encontraron pegatinas"
+    "skins": {
+        "title": "Skins",
+        "noSkinsAvailable": "No hay skins disponibles para este loadout",
+        "selectSkin": "Seleccionar skin para {weapon}"
     },
-    "loadout": {
-      "successMessage": "Loadout {action} correctamente",
-      "create": {
-        "title": "Crear nuevo loadout",
-        "confirm": "Crear",
-        "cancel": "Cancelar",
-        "formPlaceholder": "Introduce un nombre para tu nuevo loadout"
-      },
-      "import": {
-        "title": "Importar Loadout",
-        "description": "Introduce un código para importar un loadout.",
-        "placeholder": "Código Compartido",
-        "cancel": "Cancelar",
-        "confirm": "Importar",
-        "success": "Loadout importado correctamente"
-      },
-      "rename": {
-        "title": "Renombrar loadout {name}",
-        "confirm": "Renombrar",
-        "cancel": "Cancelar",
-        "formPlaceholder": "Introduce un nuevo nombre para tu loadout"
-      },
-      "delete": {
-        "title": "Eliminar loadout {name}",
-        "confirm": "Eliminar",
-        "cancel": "Cancelar",
-        "question": "¿Estás seguro de que quieres eliminar este loadout?",
-        "warning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
-        "confirmText": "Escribe '{name}' para confirmar la eliminación:",
-        "confirmPlaceholder": "Introduce el nombre del loadout para confirmar"
-      },
-      "clear": {
-        "title": "Vaciar items del Loadout {name}",
-        "question": "¿Estás seguro de que quieres vaciar los items de este loadout?",
-        "selectCategories": "Selecciona las categorías para vaciar:",
-        "warning": "¡Esta acción no se puede deshacer!",
-        "confirmText": "Por favor escribe \"{name}\" para confirmar.",
-        "confirmPlaceholder": "Escribe el nombre del loadout para confirmar",
-        "cancel": "Cancelar",
-        "confirm": "Vaciar Items",
-        "successMessage": "Items del loadout vaciados correctamente"
-      },
-      "share": {
-        "title": "Compartir Loadout {name}",
-        "description": "Copia el código siguiente para compartir este loadout:",
-        "noCode": "Este loadout aún no tiene código para compartir. Genera uno para compartirlo.",
-        "generateButton": "Generar código",
-        "regenerateButton": "Generar nuevo código",
-        "generateError": "Error al generar el código",
-        "deleteButton": "Eliminar código",
-        "deleted": "Código eliminado",
-        "deleteError": "Error al eliminar el código"
-      },
-      "duplicate": {
-        "success": "Loadout duplicado correctamente"
-      },
-      "default": {
-        "success": "Loadout predeterminado establecido correctamente"
-      }
-    },
-    "weaponSkin": {
-      "defaultTitle": "Seleccionar skin",
-      "title": "Seleccionar skin para {weaponName}",
-      "buttons": {
-        "reset": "Restablecer",
-        "importFromLink": "Importar desde enlace",
-        "generateLink": "Generar enlace",
-        "save": "Guardar cambios",
-        "duplicate": "Duplicar al otro equipo"
-      },
-      "team": {
-        "terrorist": "Terrorista",
-        "counterTerrorist": "Contraterrorista"
-      },
-      "inputs": {
-        "searchPlaceholder": "Buscar skins...",
-        "nameTagPlaceholder": "Etiqueta de nombre"
-      },
-      "labels": {
-        "stattrak": "StatTrak™",
-        "paintIndex": "Índice de pintura",
-        "paintIndexOverride": "Sobrescribir",
-        "pattern": "Patrón de pintura (Semilla)",
-        "wear": "Desgaste (Float)",
-        "itemActive": "Activo",
-        "itemInactive": "Inactivo"
-      },
-      "stickers": {
-        "title": "Pegatinas",
-        "add": "Añadir pegatina",
-        "reposition": "Arrastrar para reposicionar",
-        "remove": "Eliminar pegatina"
-      },
-      "keychain": {
-        "title": "Llavero",
-        "add": "Añadir llavero",
-        "remove": "Eliminar llavero"
-      },
-      "visualCustomizer": {
-        "button": "Personalizador visual",
-        "exit": "Salir del Editor",
-        "modalTitle": "Personalizador Visual para {weaponName}",
-        "inline": {
-          "title": "Editor Visual",
-          "controls": {
-            "scale": "Escala",
-            "rotate": "Rot",
-            "wear": "Desgaste",
-            "remove": "Eliminar"
-          },
-          "selectHint": "Selecciona una pegatina o llavero para editar"
-        }
-      },
-      "sort": {
-        "label": "Ordenar",
-        "name": "Nombre",
-        "rarity": "Rareza"
-      },
-      "filters": {
-        "rarity": "Rareza"
-      },
-      "importFailedDefault": "Error al importar la configuración del arma",
-      "importFailedNoMatchingWeapon": "La URL de inspección no coincide con el arma seleccionada",
-      "importSuccess": "Configuración del cuchillo importada correctamente",
-      "generateInspectUrlSuccess": "URL de inspección copiada al portapapeles",
-      "generateInspectUrlFailed": "Error al generar la URL de inspección",
-      "noSearchResults": "No se encontraron skins",
-      "resetSuccess": "Configuración del arma restablecida",
-      "resetFailed": "Error al restablecer la configuración del arma",
-      "duplicateFailed": "Error al duplicar la configuración del arma"
-    },
-    "reset": {
-      "title": "Restablecer skin",
-      "question": "¿Estás seguro de que quieres eliminar la configuración del skin?",
-      "cancel": "Cancelar",
-      "confirm": "Restablecer"
-    },
-    "visualCustomizer": {
-      "title": "Personalizador visual de pegatinas y llaveros",
-      "save": "Guardar cambios",
-      "cancel": "Cancelar",
-      "labels": {
-        "stickers": "Pegatinas",
-        "keychain": "Llavero",
-        "add": "Añadir",
-        "edit": "Editar",
-        "settings": "Configuración",
-        "weaponWear": "Desgaste del arma",
-        "selectSticker": "Seleccionar pegatina",
-        "selectKeychain": "Seleccionar llavero",
-        "search": "Buscar...",
-        "offsetUnits": "Unidades de desplazamiento",
-        "pixels": "Píxeles",
-        "normalized": "Normalizado (ext)",
-        "offsetXPx": "Desplazamiento X (px)",
-        "offsetYPx": "Desplazamiento Y (px)",
-        "offsetXNorm": "Desplazamiento X (norm)",
-        "offsetYNorm": "Desplazamiento Y (norm)",
-        "externalRefWidth": "Ancho de referencia externa",
-        "externalRefHeight": "Alto de referencia externa",
-        "scale": "Escala",
-        "rotation": "Rotación",
-        "wear": "Desgaste",
-        "removeSticker": "Eliminar pegatina",
-        "removeKeychain": "Eliminar llavero"
-      },
-      "debug": {
-        "title": "Herramientas de depuración",
-        "coordinateGrid": "Mostrar cuadrícula de coordenadas (posiciones X/Y)",
-        "coordinateGridDescription": "Activar para ver coordenadas de píxeles para posicionamiento preciso de pegatinas"
-      },
-      "instructions": {
-        "title": "Instrucciones",
-        "addAssets": "• Haz clic en las ranuras de pegatinas/llaveros para añadir elementos",
-        "selectElements": "• Haz clic en los elementos del lienzo para seleccionarlos y editarlos",
-        "dragElements": "• Arrastra los elementos para reposicionarlos",
-        "useProperties": "• Usa los controles deslizantes para ajustar las propiedades"
-      },
-      "assetBrowser": {
-        "title": "Navegador de recursos",
-        "stickers": "Pegatinas",
-        "keychains": "Llaveros",
-        "searchPlaceholder": "Buscar recursos..."
-      },
-      "properties": {
-        "title": "Propiedades",
-        "positionX": "Posición X",
-        "positionY": "Posición Y",
-        "scale": "Escala",
-        "rotation": "Rotación (grados)",
-        "wear": "Desgaste",
-        "remove": "Eliminar"
-      },
-      "messages": {
-        "maxStickers": "Máximo 5 pegatinas permitidas",
-        "selectSkinFirst": "Por favor, selecciona primero un skin de arma",
-        "saved": "Personalización visual guardada",
-        "saveSuccess": "Personalización visual aplicada correctamente",
-        "failedToLoadAssets": "Error al cargar pegatinas y llaveros"
-      }
-    }
-  },
-  "loadout": {
-    "create": "Crear loadout",
-    "manage": "Gestionar loadout",
-    "select": "Seleccionar un loadout",
-    "createDefault": "Crear loadout por defecto",
-    "confirmDelete": "¿Estás seguro de que quieres eliminar este loadout?",
-    "confirmDeleteWarning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
-    "nameRequired": "Por favor, introduce un nombre de loadout",
-    "nameTooLong": "El nombre del loadout debe tener menos de 20 caracteres",
-    "selectLoadoutFirst": "Por favor, selecciona primero un loadout",
-    "import": "Importar",
-    "actions": {
-      "rename": "Renombrar",
-      "duplicate": "Duplicar",
-      "share": "Compartir",
-      "setDefault": "Marcar como predeterminado",
-      "clear": "Vaciar Loadout",
-      "delete": "Eliminar"
-    }
-  },
-  "auth": {
-    "login": "Iniciar sesión",
-    "loginButton": "Iniciar sesión",
-    "logoutButton": "Cerrar sesión",
-    "loginRequired": "Para acceder a este sitio web, por favor inicia sesión con tu cuenta de Steam.",
-    "automaticallyLoggedOut": "Has sido desconectado automáticamente",
-    "confirmLogout": "¿Estás seguro de que quieres cerrar sesión?",
-    "rejectAction": "Inicia sesión para ejecutar esta acción",
-    "authenticating": "Autenticando...",
-    "openSteamProfile": "Abrir perfil de Steam"
-  },
-  "general": {
-    "copiedToClipboard": "Copiado al portapapeles"
-  },
-  "autoSave": {
-    "saving": "Guardando...",
-    "saved": "Guardado",
-    "failed": "Error al guardar",
-    "retry": "Reintentar",
-    "offline": "Sin conexión - los cambios se guardarán al reconectar"
-  },
-  "history": {
-    "title": "Historial de versiones",
-    "empty": "No hay historial disponible",
-    "restore": "Restaurar",
-    "restoreConfirmTitle": "Restaurar versión",
-    "restoreConfirmMessage": "Esto restaurará el artículo a esta versión anterior. ¿Continuar?",
-    "restoreSuccess": "Restaurado exitosamente a la versión anterior",
-    "restoreError": "Error al restaurar",
-    "fetchError": "Error al cargar el historial",
-    "snapshot": "Instantánea",
-    "loadMore": "Cargar más",
-    "changeTypes": {
-      "stickerAdded": "Pegatina añadida",
-      "stickerRemoved": "Pegatina eliminada",
-      "stickerModified": "Pegatina modificada",
-      "keychainAdded": "Llavero añadido",
-      "keychainRemoved": "Llavero eliminado",
-      "keychainModified": "Llavero modificado",
-      "wearChanged": "Desgaste cambiado",
-      "patternChanged": "Patrón cambiado",
-      "paintChanged": "Skin cambiado",
-      "nametagChanged": "Etiqueta cambiada",
-      "stattrakToggled": "StatTrak alternado",
-      "stattrakCountChanged": "Contador StatTrak cambiado",
-      "activeToggled": "Estado activo cambiado",
-      "multipleChanges": "Múltiples cambios",
-      "initialSave": "Guardado inicial",
-      "reset": "Restaurado"
-    }
-  },
-  "common": {
-    "loading": "Cargando...",
-    "error": "Error",
-    "success": "Éxito",
-    "cancel": "Cancelar",
-    "confirm": "Confirmar",
-    "save": "Guardar",
-    "update": "Actualizar",
-    "delete": "Eliminar",
-    "create": "Crear",
-    "search": "Buscar",
-    "selectAll": "Seleccionar todo",
-    "noResults": "No se encontraron resultados",
-    "pleaseSelectLoadout": "Por favor, selecciona primero un loadout",
-    "for": "por",
-    "copy": "Copiar"
-  },
-  "inspectLink": {
-    "title": "Decodificador/Codificador de enlaces de inspección",
-    "description": "Decodifica un enlace de inspección a JSON o genera un enlace de inspección a partir de datos JSON.",
-    "importButton": "Decodificar enlace",
-    "generateButton": "Generar enlace",
-    "inspectUrlLabel": "Enlace de inspección",
-    "decodedJsonLabel": "Datos JSON decodificados",
-    "placeholder": "Pega tu enlace de inspección aquí...",
-    "invalidJson": "Datos JSON no válidos",
-    "decodeSuccess": "Enlace de inspección decodificado correctamente",
-    "generateSuccess": "Enlace de inspección generado correctamente",
-    "copySuccess": "Enlace de inspección copiado al portapapeles"
-  },
-  "tutorial": {
-    "menuTitle": "Tutoriales",
-    "next": "Siguiente",
-    "back": "Atrás",
-    "skip": "Saltar tutorial",
-    "finish": "Finalizar",
-    "stepOf": "{current} / {total}",
-    "completed": "Completado",
-    "navigateApp": {
-      "name": "Explorar la aplicación",
-      "description": "Conoce la navegación y las áreas principales",
-      "steps": {
-        "sidebar": {
-          "title": "Barra lateral",
-          "description": "Aquí encontrarás todas las categorías de armas: rifles, pistolas, cuchillos y más. Haz clic en una categoría para ver las armas disponibles."
+    "modals": {
+        "logout": {
+            "title": "Confirmar cierre de sesión",
+            "question": "¿Estás seguro de que quieres cerrar sesión?",
+            "cancel": "Cancelar",
+            "confirm": "Cerrar sesión"
         },
-        "settings": {
-          "title": "Ajustes",
-          "description": "Este menú te permite cambiar el idioma, iniciar tutoriales y cerrar sesión."
+        "inspectUrl": {
+            "title": "Importar desde URL de inspección",
+            "inputPlaceholder": "Pega la URL de inspección aquí...",
+            "maskedLinks": "Enlaces enmascarados (Datos HEX)",
+            "maskedLinksDescription": "Estos enlaces suelen ser generados por sitios web u otras aplicaciones",
+            "maskedLinksExample": "Ejemplo:",
+            "unmaskedLinks": "Enlaces sin enmascarar (Mercado / Inventario)",
+            "unmaskedLinksDescription": "Estos enlaces se utilizan en el Mercado de Steam y en los inventarios de los jugadores",
+            "unmaskedLinksExample": "Ejemplos:",
+            "noInspectUrl": "Por favor, introduce una URL de inspección",
+            "defaultError": "Error al decodificar la URL de inspección",
+            "cancel": "Cancelar",
+            "confirm": "Importar"
         },
-        "loadout": {
-          "title": "Zona de loadout",
-          "description": "Los loadouts son tus configuraciones de armas guardadas. Crea varios loadouts para diferentes setups."
+        "duplicateItem": {
+            "header": "Duplicar {itemType}",
+            "cancel": "Cancelar",
+            "confirm": "Duplicar",
+            "warning": "Advertencia: El otro equipo ya tiene un skin configurado para este {itemType}. Esta acción lo sobrescribirá.",
+            "question": "¿Estás seguro de que quieres duplicar esta configuración de {itemType} al otro equipo?",
+            "type": {
+                "weapon": "Arma",
+                "knife": "Cuchillo",
+                "glove": "Guante"
+            }
         },
-        "weapons": {
-          "title": "Tarjetas de armas",
-          "description": "Cada tarjeta muestra un arma con su skin actual. Haz clic en una tarjeta para personalizar el skin."
+        "knifeSkin": {
+            "defaultTitle": "Seleccionar skin",
+            "title": "Seleccionar skin para {weaponName}",
+            "buttons": {
+                "importFromLink": "Importar desde enlace",
+                "generateLink": "Generar enlace",
+                "save": "Guardar cambios",
+                "duplicate": "Duplicar al otro equipo",
+                "reset": "Restablecer"
+            },
+            "inputs": {
+                "searchPlaceholder": "Buscar skins...",
+                "nameTagPlaceholder": "Etiqueta de nombre"
+            },
+            "labels": {
+                "stattrak": "StatTrak™",
+                "paintIndex": "Índice de pintura",
+                "paintIndexOverride": "Sobrescribir",
+                "pattern": "Patrón de pintura (Semilla)",
+                "wear": "Desgaste (Float)",
+                "itemActive": "Activo",
+                "itemInactive": "Inactivo"
+            },
+            "invalidInspectLink": "Enlace de inspección no válido",
+            "importFailed": "Error al importar la configuración del cuchillo",
+            "importFailedDefault": "Error al importar la configuración del cuchillo",
+            "importFailedNoMatchingWeapon": "La URL de inspección no coincide con el cuchillo seleccionado",
+            "importSuccess": "Configuración del cuchillo importada correctamente",
+            "generateInspectUrlSuccess": "URL de inspección copiada al portapapeles",
+            "generateInspectUrlFailed": "Error al generar la URL de inspección",
+            "noSearchResults": "No se encontraron skins"
         },
-        "teamTabs": {
-          "title": "Pestañas de equipo",
-          "description": "Algunas armas pueden ser usadas por ambos equipos (CT y T). En ese caso, verás dos pestañas — una para cada equipo. Cada equipo tiene su propia configuración de skin."
-        },
-        "ready": {
-          "title": "¡Listo para explorar!",
-          "description": "Ya conoces lo básico. Usa la barra lateral para explorar las categorías de armas y personalizar tu loadout."
-        }
-      }
-    },
-    "customizeWeapon": {
-      "name": "Personalizar arma",
-      "description": "Conoce todas las funciones del diálogo de personalización de armas",
-      "steps": {
-        "grid": {
-          "title": "Cuadrícula de armas",
-          "description": "Aquí se muestran todas las armas de la categoría actual. Cada tarjeta muestra el skin equipado o el arma predeterminada."
-        },
-        "click": {
-          "title": "Abrir personalización",
-          "description": "Haz clic en una tarjeta de arma para abrir el diálogo de personalización. También puedes usar el botón Siguiente."
-        },
-        "search": {
-          "title": "Búsqueda de skins",
-          "description": "Busca un skin específico aquí. Escribe un nombre para filtrar la lista."
-        },
-        "sortFilter": {
-          "title": "Ordenar y filtrar",
-          "description": "Ordena skins por nombre, rareza u otros criterios. Usa los filtros de rareza para mostrar solo skins de una calidad específica."
-        },
-        "skins": {
-          "title": "Galería de skins",
-          "description": "Explora los skins disponibles. Haz clic en uno para seleccionarlo. El skin seleccionado se resaltará con un anillo amarillo."
-        },
-        "pagination": {
-          "title": "Paginación",
-          "description": "Si hay más skins de los que caben en una página, usa los botones de paginación para navegar por las páginas adicionales."
-        },
-        "wear": {
-          "title": "Control de desgaste",
-          "description": "Ajusta el valor float para controlar el desgaste del skin. Valores más bajos significan menos desgaste. El rango depende del float mínimo y máximo del skin. La imagen de vista previa del arma se actualiza automáticamente al cambiar el valor."
-        },
-        "paintIndex": {
-          "title": "Anulación de Paint Index",
-          "description": "Activa este interruptor para establecer manualmente el valor del paint index. Es una función avanzada que permite especificar un ID de skin exacto en lugar de seleccionar de la galería."
-        },
-        "activeSwitch": {
-          "title": "Interruptor activo",
-          "description": "Alterna el arma entre activa e inactiva. Las armas inactivas no se incluirán al generar tu loadout. Útil para mantener un skin configurado sin usarlo."
-        },
-        "stickers": {
-          "title": "Ranuras de pegatinas",
-          "description": "Tu arma tiene 5 ranuras de pegatinas. Haz clic en una ranura para buscar y aplicar pegatinas. Arrastra pegatinas entre ranuras para reposicionarlas."
+        "gloveSkin": {
+            "defaultTitle": "Seleccionar skin",
+            "title": "Seleccionar skin para {weaponName}",
+            "buttons": {
+                "importFromLink": "Importar desde enlace",
+                "generateLink": "Generar enlace",
+                "save": "Guardar cambios",
+                "duplicate": "Duplicar al otro equipo",
+                "reset": "Restablecer"
+            },
+            "inputs": {
+                "searchPlaceholder": "Buscar skins...",
+                "nameTagPlaceholder": "Etiqueta de nombre"
+            },
+            "labels": {
+                "paintIndex": "Índice de pintura",
+                "paintIndexOverride": "Sobrescribir",
+                "pattern": "Patrón de pintura (Semilla)",
+                "wear": "Desgaste (Float)",
+                "itemActive": "Activo",
+                "itemInactive": "Inactivo"
+            },
+            "invalidInspectLink": "Enlace de inspección no válido",
+            "importFailed": "Error al importar la configuración de los guantes",
+            "importFailedDefault": "Error al importar la configuración de los guantes",
+            "importFailedNoMatchingWeapon": "La URL de inspección no coincide con los guantes seleccionados",
+            "importSuccess": "Configuración de los guantes importada correctamente",
+            "generateInspectUrlSuccess": "URL de inspección copiada al portapapeles",
+            "generateInspectUrlFailed": "Error al generar la URL de inspección",
+            "noSearchResults": "No se encontraron skins"
         },
         "keychain": {
-          "title": "Llavero",
-          "description": "Adjunta un llavero a tu arma. Haz clic en la ranura para explorar los llaveros disponibles. Cada arma puede tener un llavero."
+            "titleEdit": "Editar llavero",
+            "titleAdd": "Añadir llavero",
+            "searchPlaceholder": "Buscar llaveros...",
+            "labels": {
+                "position": "Posición",
+                "seed": "Semilla"
+            },
+            "buttons": {
+                "update": "Actualizar cambios",
+                "create": "Aplicar llavero",
+                "delete": "Eliminar llavero"
+            },
+            "delete": "Eliminar llavero",
+            "errorFetching": "Error al obtener los datos del llavero",
+            "noSearchResults": "No se encontraron llaveros",
+            "sort": {
+                "name": "Nombre",
+                "rarity": "Rareza"
+            }
+        },
+        "sticker": {
+            "titleEdit": "Editar pegatina",
+            "titleAdd": "Añadir pegatina",
+            "searchPlaceholder": "Buscar pegatinas...",
+            "sort": {
+                "label": "Ordenar",
+                "name": "Nombre",
+                "rarity": "Rareza",
+                "effect": "Efecto"
+            },
+            "filters": {
+                "rarity": "Rareza",
+                "effect": "Efecto",
+                "clearAll": "Restablecer filtros"
+            },
+            "labels": {
+                "position": "Posición",
+                "scale": "Escala",
+                "rotation": "Rotación",
+                "wear": "Desgaste"
+            },
+            "buttons": {
+                "update": "Actualizar pegatina",
+                "create": "Aplicar pegatina",
+                "delete": "Eliminar pegatina"
+            },
+            "errorFetching": "Error al obtener los datos de la pegatina",
+            "noSearchResults": "No se encontraron pegatinas"
+        },
+        "loadout": {
+            "successMessage": "Loadout {action} correctamente",
+            "create": {
+                "title": "Crear nuevo loadout",
+                "confirm": "Crear",
+                "cancel": "Cancelar",
+                "formPlaceholder": "Introduce un nombre para tu nuevo loadout"
+            },
+            "import": {
+                "title": "Importar Loadout",
+                "description": "Introduce un código para importar un loadout.",
+                "placeholder": "Código Compartido",
+                "cancel": "Cancelar",
+                "confirm": "Importar",
+                "success": "Loadout importado correctamente"
+            },
+            "rename": {
+                "title": "Renombrar loadout {name}",
+                "confirm": "Renombrar",
+                "cancel": "Cancelar",
+                "formPlaceholder": "Introduce un nuevo nombre para tu loadout"
+            },
+            "delete": {
+                "title": "Eliminar loadout {name}",
+                "confirm": "Eliminar",
+                "cancel": "Cancelar",
+                "question": "¿Estás seguro de que quieres eliminar este loadout?",
+                "warning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
+                "confirmText": "Escribe '{name}' para confirmar la eliminación:",
+                "confirmPlaceholder": "Introduce el nombre del loadout para confirmar"
+            },
+            "clear": {
+                "title": "Vaciar items del Loadout {name}",
+                "question": "¿Estás seguro de que quieres vaciar los items de este loadout?",
+                "selectCategories": "Selecciona las categorías para vaciar:",
+                "warning": "¡Esta acción no se puede deshacer!",
+                "confirmText": "Por favor escribe \"{name}\" para confirmar.",
+                "confirmPlaceholder": "Escribe el nombre del loadout para confirmar",
+                "cancel": "Cancelar",
+                "confirm": "Vaciar Items",
+                "successMessage": "Items del loadout vaciados correctamente"
+            },
+            "share": {
+                "title": "Compartir Loadout {name}",
+                "description": "Copia el código siguiente para compartir este loadout:",
+                "noCode": "Este loadout aún no tiene código para compartir. Genera uno para compartirlo.",
+                "generateButton": "Generar código",
+                "regenerateButton": "Generar nuevo código",
+                "generateError": "Error al generar el código",
+                "deleteButton": "Eliminar código",
+                "deleted": "Código eliminado",
+                "deleteError": "Error al eliminar el código"
+            },
+            "duplicate": {
+                "success": "Loadout duplicado correctamente"
+            },
+            "default": {
+                "success": "Loadout predeterminado establecido correctamente"
+            }
+        },
+        "weaponSkin": {
+            "defaultTitle": "Seleccionar skin",
+            "title": "Seleccionar skin para {weaponName}",
+            "buttons": {
+                "reset": "Restablecer",
+                "importFromLink": "Importar desde enlace",
+                "generateLink": "Generar enlace",
+                "save": "Guardar cambios",
+                "duplicate": "Duplicar al otro equipo"
+            },
+            "team": {
+                "terrorist": "Terrorista",
+                "counterTerrorist": "Contraterrorista"
+            },
+            "inputs": {
+                "searchPlaceholder": "Buscar skins...",
+                "nameTagPlaceholder": "Etiqueta de nombre"
+            },
+            "labels": {
+                "stattrak": "StatTrak™",
+                "paintIndex": "Índice de pintura",
+                "paintIndexOverride": "Sobrescribir",
+                "pattern": "Patrón de pintura (Semilla)",
+                "wear": "Desgaste (Float)",
+                "itemActive": "Activo",
+                "itemInactive": "Inactivo"
+            },
+            "stickers": {
+                "title": "Pegatinas",
+                "add": "Añadir pegatina",
+                "reposition": "Arrastrar para reposicionar",
+                "remove": "Eliminar pegatina"
+            },
+            "keychain": {
+                "title": "Llavero",
+                "add": "Añadir llavero",
+                "remove": "Eliminar llavero"
+            },
+            "visualCustomizer": {
+                "button": "Personalizador visual",
+                "exit": "Salir del Editor",
+                "modalTitle": "Personalizador Visual para {weaponName}",
+                "inline": {
+                    "title": "Editor Visual",
+                    "controls": {
+                        "scale": "Escala",
+                        "rotate": "Rot",
+                        "wear": "Desgaste",
+                        "remove": "Eliminar"
+                    },
+                    "selectHint": "Selecciona una pegatina o llavero para editar"
+                }
+            },
+            "sort": {
+                "label": "Ordenar",
+                "name": "Nombre",
+                "rarity": "Rareza"
+            },
+            "filters": {
+                "rarity": "Rareza"
+            },
+            "importFailedDefault": "Error al importar la configuración del arma",
+            "importFailedNoMatchingWeapon": "La URL de inspección no coincide con el arma seleccionada",
+            "importSuccess": "Configuración del cuchillo importada correctamente",
+            "generateInspectUrlSuccess": "URL de inspección copiada al portapapeles",
+            "generateInspectUrlFailed": "Error al generar la URL de inspección",
+            "noSearchResults": "No se encontraron skins",
+            "resetSuccess": "Configuración del arma restablecida",
+            "resetFailed": "Error al restablecer la configuración del arma",
+            "duplicateFailed": "Error al duplicar la configuración del arma"
         },
         "reset": {
-          "title": "Restablecer arma",
-          "description": "Restablece el arma a su estado predeterminado. Esto elimina el skin, pegatinas, llavero y todas las personalizaciones."
+            "title": "Restablecer skin",
+            "question": "¿Estás seguro de que quieres eliminar la configuración del skin?",
+            "cancel": "Cancelar",
+            "confirm": "Restablecer"
         },
-        "history": {
-          "title": "Historial de versiones",
-          "description": "Consulta el historial de cambios de esta arma. Puedes restaurar cualquier versión anterior con un solo clic."
-        },
-        "import": {
-          "title": "Importar enlace de inspección",
-          "description": "Importa una configuración de arma desde un enlace de inspección de CS2. Pega un enlace para aplicar el skin, pegatinas, desgaste y otros ajustes."
-        },
-        "generate": {
-          "title": "Generar enlace de inspección",
-          "description": "Genera un enlace de inspección de CS2 para tu configuración de arma actual. El enlace se puede compartir o usar para previsualizar el arma en el juego."
-        },
-        "autoSave": {
-          "title": "Guardado automático",
-          "description": "Tus cambios se guardan automáticamente. El indicador de guardado muestra el estado actual — no necesitas guardar nada manualmente."
+        "visualCustomizer": {
+            "title": "Personalizador visual de pegatinas y llaveros",
+            "save": "Guardar cambios",
+            "cancel": "Cancelar",
+            "labels": {
+                "stickers": "Pegatinas",
+                "keychain": "Llavero",
+                "add": "Añadir",
+                "edit": "Editar",
+                "settings": "Configuración",
+                "weaponWear": "Desgaste del arma",
+                "selectSticker": "Seleccionar pegatina",
+                "selectKeychain": "Seleccionar llavero",
+                "search": "Buscar...",
+                "offsetUnits": "Unidades de desplazamiento",
+                "pixels": "Píxeles",
+                "normalized": "Normalizado (ext)",
+                "offsetXPx": "Desplazamiento X (px)",
+                "offsetYPx": "Desplazamiento Y (px)",
+                "offsetXNorm": "Desplazamiento X (norm)",
+                "offsetYNorm": "Desplazamiento Y (norm)",
+                "externalRefWidth": "Ancho de referencia externa",
+                "externalRefHeight": "Alto de referencia externa",
+                "scale": "Escala",
+                "rotation": "Rotación",
+                "wear": "Desgaste",
+                "removeSticker": "Eliminar pegatina",
+                "removeKeychain": "Eliminar llavero"
+            },
+            "debug": {
+                "title": "Herramientas de depuración",
+                "coordinateGrid": "Mostrar cuadrícula de coordenadas (posiciones X/Y)",
+                "coordinateGridDescription": "Activar para ver coordenadas de píxeles para posicionamiento preciso de pegatinas"
+            },
+            "instructions": {
+                "title": "Instrucciones",
+                "addAssets": "• Haz clic en las ranuras de pegatinas/llaveros para añadir elementos",
+                "selectElements": "• Haz clic en los elementos del lienzo para seleccionarlos y editarlos",
+                "dragElements": "• Arrastra los elementos para reposicionarlos",
+                "useProperties": "• Usa los controles deslizantes para ajustar las propiedades"
+            },
+            "assetBrowser": {
+                "title": "Navegador de recursos",
+                "stickers": "Pegatinas",
+                "keychains": "Llaveros",
+                "searchPlaceholder": "Buscar recursos..."
+            },
+            "properties": {
+                "title": "Propiedades",
+                "positionX": "Posición X",
+                "positionY": "Posición Y",
+                "scale": "Escala",
+                "rotation": "Rotación (grados)",
+                "wear": "Desgaste",
+                "remove": "Eliminar"
+            },
+            "messages": {
+                "maxStickers": "Máximo 5 pegatinas permitidas",
+                "selectSkinFirst": "Por favor, selecciona primero un skin de arma",
+                "saved": "Personalización visual guardada",
+                "saveSuccess": "Personalización visual aplicada correctamente",
+                "failedToLoadAssets": "Error al cargar pegatinas y llaveros"
+            }
         }
-      }
+    },
+    "loadout": {
+        "create": "Crear loadout",
+        "manage": "Gestionar loadout",
+        "select": "Seleccionar un loadout",
+        "createDefault": "Crear loadout por defecto",
+        "confirmDelete": "¿Estás seguro de que quieres eliminar este loadout?",
+        "confirmDeleteWarning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
+        "nameRequired": "Por favor, introduce un nombre de loadout",
+        "nameTooLong": "El nombre del loadout debe tener menos de 20 caracteres",
+        "selectLoadoutFirst": "Por favor, selecciona primero un loadout",
+        "import": "Importar",
+        "actions": {
+            "rename": "Renombrar",
+            "duplicate": "Duplicar",
+            "share": "Compartir",
+            "setDefault": "Marcar como predeterminado",
+            "clear": "Vaciar Loadout",
+            "delete": "Eliminar"
+        }
+    },
+    "auth": {
+        "login": "Iniciar sesión",
+        "loginButton": "Iniciar sesión",
+        "logoutButton": "Cerrar sesión",
+        "loginRequired": "Para acceder a este sitio web, por favor inicia sesión con tu cuenta de Steam.",
+        "automaticallyLoggedOut": "Has sido desconectado automáticamente",
+        "confirmLogout": "¿Estás seguro de que quieres cerrar sesión?",
+        "rejectAction": "Inicia sesión para ejecutar esta acción",
+        "authenticating": "Autenticando...",
+        "openSteamProfile": "Abrir perfil de Steam"
+    },
+    "general": {
+        "copiedToClipboard": "Copiado al portapapeles"
+    },
+    "autoSave": {
+        "saving": "Guardando...",
+        "saved": "Guardado",
+        "failed": "Error al guardar",
+        "retry": "Reintentar",
+        "offline": "Sin conexión - los cambios se guardarán al reconectar"
+    },
+    "history": {
+        "title": "Historial de versiones",
+        "empty": "No hay historial disponible",
+        "restore": "Restaurar",
+        "restoreConfirmTitle": "Restaurar versión",
+        "restoreConfirmMessage": "Esto restaurará el artículo a esta versión anterior. ¿Continuar?",
+        "restoreSuccess": "Restaurado exitosamente a la versión anterior",
+        "restoreError": "Error al restaurar",
+        "fetchError": "Error al cargar el historial",
+        "snapshot": "Instantánea",
+        "loadMore": "Cargar más",
+        "changeTypes": {
+            "stickerAdded": "Pegatina añadida",
+            "stickerRemoved": "Pegatina eliminada",
+            "stickerModified": "Pegatina modificada",
+            "keychainAdded": "Llavero añadido",
+            "keychainRemoved": "Llavero eliminado",
+            "keychainModified": "Llavero modificado",
+            "wearChanged": "Desgaste cambiado",
+            "patternChanged": "Patrón cambiado",
+            "paintChanged": "Skin cambiado",
+            "nametagChanged": "Etiqueta cambiada",
+            "stattrakToggled": "StatTrak alternado",
+            "stattrakCountChanged": "Contador StatTrak cambiado",
+            "activeToggled": "Estado activo cambiado",
+            "multipleChanges": "Múltiples cambios",
+            "initialSave": "Guardado inicial",
+            "reset": "Restaurado"
+        }
+    },
+    "common": {
+        "loading": "Cargando...",
+        "error": "Error",
+        "success": "Éxito",
+        "cancel": "Cancelar",
+        "confirm": "Confirmar",
+        "save": "Guardar",
+        "update": "Actualizar",
+        "delete": "Eliminar",
+        "create": "Crear",
+        "search": "Buscar",
+        "selectAll": "Seleccionar todo",
+        "noResults": "No se encontraron resultados",
+        "pleaseSelectLoadout": "Por favor, selecciona primero un loadout",
+        "for": "por",
+        "copy": "Copiar"
     },
     "inspectLink": {
-      "name": "Herramienta Inspect Link",
-      "description": "Aprende a decodificar y generar enlaces de inspección de CS2",
-      "steps": {
-        "input": {
-          "title": "Entrada de enlace de inspección",
-          "description": "Pega aquí un enlace de inspección de CS2. Estos enlaces comienzan con 'steam://rungame' y contienen datos de arma codificados."
-        },
-        "decode": {
-          "title": "Decodificar enlace",
-          "description": "Haz clic aquí para convertir el enlace de inspección en datos JSON legibles."
-        },
-        "editor": {
-          "title": "Editor JSON",
-          "description": "Aquí se muestran los datos del arma decodificados. Puedes editar los valores directamente para personalizar tu arma."
-        },
-        "generate": {
-          "title": "Generar enlace",
-          "description": "Haz clic aquí para crear un nuevo enlace de inspección a partir de los datos actuales."
-        }
-      }
+        "title": "Decodificador/Codificador de enlaces de inspección",
+        "description": "Decodifica un enlace de inspección a JSON o genera un enlace de inspección a partir de datos JSON.",
+        "importButton": "Decodificar enlace",
+        "generateButton": "Generar enlace",
+        "inspectUrlLabel": "Enlace de inspección",
+        "decodedJsonLabel": "Datos JSON decodificados",
+        "placeholder": "Pega tu enlace de inspección aquí...",
+        "invalidJson": "Datos JSON no válidos",
+        "decodeSuccess": "Enlace de inspección decodificado correctamente",
+        "generateSuccess": "Enlace de inspección generado correctamente",
+        "copySuccess": "Enlace de inspección copiado al portapapeles"
     },
-    "createLoadout": {
-      "name": "Crear loadout",
-      "description": "Aprende a crear y gestionar loadouts",
-      "steps": {
-        "selector": {
-          "title": "Selector de loadout",
-          "description": "Aquí puedes cambiar entre tus loadouts. Un loadout es un conjunto de todas tus configuraciones de armas."
+    "tutorial": {
+        "menuTitle": "Tutoriales",
+        "next": "Siguiente",
+        "back": "Atrás",
+        "skip": "Saltar tutorial",
+        "finish": "Finalizar",
+        "stepOf": "{current} / {total}",
+        "completed": "Completado",
+        "navigateApp": {
+            "name": "Explorar la aplicación",
+            "description": "Conoce la navegación y las áreas principales",
+            "steps": {
+                "sidebar": {
+                    "title": "Barra lateral",
+                    "description": "Aquí encontrarás todas las categorías de armas: rifles, pistolas, cuchillos y más. Haz clic en una categoría para ver las armas disponibles."
+                },
+                "settings": {
+                    "title": "Ajustes",
+                    "description": "Este menú te permite cambiar el idioma, iniciar tutoriales y cerrar sesión."
+                },
+                "loadout": {
+                    "title": "Zona de loadout",
+                    "description": "Los loadouts son tus configuraciones de armas guardadas. Crea varios loadouts para diferentes setups."
+                },
+                "weapons": {
+                    "title": "Tarjetas de armas",
+                    "description": "Cada tarjeta muestra un arma con su skin actual. Haz clic en una tarjeta para personalizar el skin."
+                },
+                "teamTabs": {
+                    "title": "Pestañas de equipo",
+                    "description": "Algunas armas pueden ser usadas por ambos equipos (CT y T). En ese caso, verás dos pestañas — una para cada equipo. Cada equipo tiene su propia configuración de skin."
+                },
+                "ready": {
+                    "title": "¡Listo para explorar!",
+                    "description": "Ya conoces lo básico. Usa la barra lateral para explorar las categorías de armas y personalizar tu loadout."
+                }
+            }
         },
-        "create": {
-          "title": "Gestionar loadouts",
-          "description": "Este botón abre el menú de gestión de loadouts. Desde aquí puedes crear, renombrar, duplicar, compartir, importar y eliminar loadouts."
+        "customizeWeapon": {
+            "name": "Personalizar arma",
+            "description": "Conoce todas las funciones del diálogo de personalización de armas",
+            "steps": {
+                "grid": {
+                    "title": "Cuadrícula de armas",
+                    "description": "Aquí se muestran todas las armas de la categoría actual. Cada tarjeta muestra el skin equipado o el arma predeterminada."
+                },
+                "click": {
+                    "title": "Abrir personalización",
+                    "description": "Haz clic en una tarjeta de arma para abrir el diálogo de personalización. También puedes usar el botón Siguiente."
+                },
+                "search": {
+                    "title": "Búsqueda de skins",
+                    "description": "Busca un skin específico aquí. Escribe un nombre para filtrar la lista."
+                },
+                "sortFilter": {
+                    "title": "Ordenar y filtrar",
+                    "description": "Ordena skins por nombre, rareza u otros criterios. Usa los filtros de rareza para mostrar solo skins de una calidad específica."
+                },
+                "skins": {
+                    "title": "Galería de skins",
+                    "description": "Explora los skins disponibles. Haz clic en uno para seleccionarlo. El skin seleccionado se resaltará con un anillo amarillo."
+                },
+                "pagination": {
+                    "title": "Paginación",
+                    "description": "Si hay más skins de los que caben en una página, usa los botones de paginación para navegar por las páginas adicionales."
+                },
+                "wear": {
+                    "title": "Control de desgaste",
+                    "description": "Ajusta el valor float para controlar el desgaste del skin. Valores más bajos significan menos desgaste. El rango depende del float mínimo y máximo del skin. La imagen de vista previa del arma se actualiza automáticamente al cambiar el valor."
+                },
+                "paintIndex": {
+                    "title": "Anulación de Paint Index",
+                    "description": "Activa este interruptor para establecer manualmente el valor del paint index. Es una función avanzada que permite especificar un ID de skin exacto en lugar de seleccionar de la galería."
+                },
+                "activeSwitch": {
+                    "title": "Interruptor activo",
+                    "description": "Alterna el arma entre activa e inactiva. Las armas inactivas no se incluirán al generar tu loadout. Útil para mantener un skin configurado sin usarlo."
+                },
+                "stickers": {
+                    "title": "Ranuras de pegatinas",
+                    "description": "Tu arma tiene 5 ranuras de pegatinas. Haz clic en una ranura para buscar y aplicar pegatinas. Arrastra pegatinas entre ranuras para reposicionarlas."
+                },
+                "keychain": {
+                    "title": "Llavero",
+                    "description": "Adjunta un llavero a tu arma. Haz clic en la ranura para explorar los llaveros disponibles. Cada arma puede tener un llavero."
+                },
+                "reset": {
+                    "title": "Restablecer arma",
+                    "description": "Restablece el arma a su estado predeterminado. Esto elimina el skin, pegatinas, llavero y todas las personalizaciones."
+                },
+                "history": {
+                    "title": "Historial de versiones",
+                    "description": "Consulta el historial de cambios de esta arma. Puedes restaurar cualquier versión anterior con un solo clic."
+                },
+                "import": {
+                    "title": "Importar enlace de inspección",
+                    "description": "Importa una configuración de arma desde un enlace de inspección de CS2. Pega un enlace para aplicar el skin, pegatinas, desgaste y otros ajustes."
+                },
+                "generate": {
+                    "title": "Generar enlace de inspección",
+                    "description": "Genera un enlace de inspección de CS2 para tu configuración de arma actual. El enlace se puede compartir o usar para previsualizar el arma en el juego."
+                },
+                "autoSave": {
+                    "title": "Guardado automático",
+                    "description": "Tus cambios se guardan automáticamente. El indicador de guardado muestra el estado actual — no necesitas guardar nada manualmente."
+                }
+            }
         },
-        "name": {
-          "title": "Nombrar loadout",
-          "description": "Dale un nombre a tu loadout, por ejemplo «Setup Torneo» o «Casual»."
+        "inspectLink": {
+            "name": "Herramienta Inspect Link",
+            "description": "Aprende a decodificar y generar enlaces de inspección de CS2",
+            "steps": {
+                "input": {
+                    "title": "Entrada de enlace de inspección",
+                    "description": "Pega aquí un enlace de inspección de CS2. Estos enlaces comienzan con 'steam://rungame' y contienen datos de arma codificados."
+                },
+                "decode": {
+                    "title": "Decodificar enlace",
+                    "description": "Haz clic aquí para convertir el enlace de inspección en datos JSON legibles."
+                },
+                "editor": {
+                    "title": "Editor JSON",
+                    "description": "Aquí se muestran los datos del arma decodificados. Puedes editar los valores directamente para personalizar tu arma."
+                },
+                "generate": {
+                    "title": "Generar enlace",
+                    "description": "Haz clic aquí para crear un nuevo enlace de inspección a partir de los datos actuales."
+                }
+            }
         },
-        "done": {
-          "title": "¡Hecho!",
-          "description": "Tu nuevo loadout está listo. Ahora puedes añadir skins de armas y cambiar entre loadouts."
+        "createLoadout": {
+            "name": "Crear loadout",
+            "description": "Aprende a crear y gestionar loadouts",
+            "steps": {
+                "selector": {
+                    "title": "Selector de loadout",
+                    "description": "Aquí puedes cambiar entre tus loadouts. Un loadout es un conjunto de todas tus configuraciones de armas."
+                },
+                "create": {
+                    "title": "Gestionar loadouts",
+                    "description": "Este botón abre el menú de gestión de loadouts. Desde aquí puedes crear, renombrar, duplicar, compartir, importar y eliminar loadouts."
+                },
+                "name": {
+                    "title": "Nombrar loadout",
+                    "description": "Dale un nombre a tu loadout, por ejemplo «Setup Torneo» o «Casual»."
+                },
+                "done": {
+                    "title": "¡Hecho!",
+                    "description": "Tu nuevo loadout está listo. Ahora puedes añadir skins de armas y cambiar entre loadouts."
+                }
+            }
         }
-      }
     }
-  }
 }

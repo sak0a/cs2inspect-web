@@ -2,11 +2,8 @@
 import { getQuery, readBody, createError } from 'h3'
 import { validateRequiredRequestData } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
-import { updateLoadout, getLoadout } from "~/server/database/loadoutHelpers"
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { updateLoadout, getLoadout } from '~/server/database/loadoutHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
 import { loadoutUpdateBodySchema } from '~/server/database/schema/zod'

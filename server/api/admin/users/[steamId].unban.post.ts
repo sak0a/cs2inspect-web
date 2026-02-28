@@ -5,15 +5,8 @@
 import { createError } from 'h3'
 import { eq, sql, and, or } from 'drizzle-orm'
 import { useDatabase } from '~/server/utils/database'
-import {
-    loadouts,
-    bannedUsers,
-    adminActivityLog
-} from '~/server/database/schema'
-import {
-    createSuccessResponse,
-    createResponseMeta
-} from '~/server/utils/api/responseHelpers'
+import { loadouts, bannedUsers, adminActivityLog } from '~/server/database/schema'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { getSteamIdParam } from '~/server/utils/request/routeParams'
 import { ADMIN_ERROR_CODES } from '~/server/utils/constants'
@@ -26,7 +19,7 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
@@ -34,7 +27,7 @@ export default useErrorHandling(async (event) => {
     if (!steamId) {
         throw createError({
             statusCode: 400,
-            message: 'Steam ID is required'
+            message: 'Steam ID is required',
         })
     }
 
@@ -51,7 +44,7 @@ export default useErrorHandling(async (event) => {
     if (!userExists || Number(userExists.count) === 0) {
         throw createError({
             statusCode: 404,
-            message: `User with Steam ID ${steamId} not found`
+            message: `User with Steam ID ${steamId} not found`,
         })
     }
 
@@ -59,17 +52,14 @@ export default useErrorHandling(async (event) => {
     const [activeBan] = await db
         .select({
             id: bannedUsers.id,
-            reason: bannedUsers.reason
+            reason: bannedUsers.reason,
         })
         .from(bannedUsers)
         .where(
             and(
                 eq(bannedUsers.steamid, steamId),
                 eq(bannedUsers.active, 1),
-                or(
-                    sql`${bannedUsers.expires_at} IS NULL`,
-                    sql`${bannedUsers.expires_at} > NOW()`
-                )
+                or(sql`${bannedUsers.expires_at} IS NULL`, sql`${bannedUsers.expires_at} > NOW()`)
             )
         )
         .limit(1)
@@ -77,15 +67,12 @@ export default useErrorHandling(async (event) => {
     if (!activeBan) {
         throw createError({
             statusCode: 404,
-            message: `User ${steamId} is not currently banned`
+            message: `User ${steamId} is not currently banned`,
         })
     }
 
     // Deactivate the ban
-    await db
-        .update(bannedUsers)
-        .set({ active: 0 })
-        .where(eq(bannedUsers.id, activeBan.id))
+    await db.update(bannedUsers).set({ active: 0 }).where(eq(bannedUsers.id, activeBan.id))
 
     // Log admin action
     await db.insert(adminActivityLog).values({
@@ -94,8 +81,8 @@ export default useErrorHandling(async (event) => {
         target_steamid: steamId,
         details: {
             previousBanId: activeBan.id,
-            previousReason: activeBan.reason
-        }
+            previousReason: activeBan.reason,
+        },
     })
 
     Logger.success(`User ${steamId} unbanned by admin ${event.context.admin.steamId}`)
@@ -104,13 +91,13 @@ export default useErrorHandling(async (event) => {
         adminSteamId: event.context.admin.steamId,
         method: 'POST',
         action: 'unban_user',
-        targetSteamId: steamId
+        targetSteamId: steamId,
     })
 
     return createSuccessResponse(
         {
             steamId,
-            previousReason: activeBan.reason
+            previousReason: activeBan.reason,
         },
         meta,
         `User ${steamId} has been unbanned successfully`

@@ -6,7 +6,7 @@
  * and by the reset endpoint.
  */
 
-import type { NewPluginSetting } from '~/server/database/schema';
+import type { NewPluginSetting } from '~/server/database/schema'
 
 export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
     // ======================================================================
@@ -18,7 +18,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'string',
         category: 'general',
         label: 'Skins Language',
-        description: 'Language code for skin names and menu text (e.g. en, de, fr). Must match a lang file in the plugin.',
+        description:
+            'Language code for skin names and menu text (e.g. en, de, fr). Must match a lang file in the plugin.',
         reload_behavior: 'restart',
         sort_order: 10,
     },
@@ -28,7 +29,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'string',
         category: 'general',
         label: 'Menu Type',
-        description: 'In-game menu display mode. Options: "selectable" (interactive menu) or "chat" (chat-based).',
+        description:
+            'In-game menu display mode. Options: "selectable" (interactive menu) or "chat" (chat-based).',
         reload_behavior: 'restart',
         sort_order: 20,
     },
@@ -52,7 +54,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'boolean',
         category: 'features',
         label: 'Knife Dropping',
-        description: 'Allow players to drop knives using the default drop key (mp_drop_knife_enable).',
+        description:
+            'Allow players to drop knives using the default drop key (mp_drop_knife_enable).',
         reload_behavior: 'immediate',
         sort_order: 20,
     },
@@ -72,7 +75,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'json',
         category: 'features',
         label: 'Disabled Knife Commands',
-        description: 'List of specific knife short commands to disable by name (e.g. ["karambit", "butterfly"]). Case-insensitive.',
+        description:
+            'List of specific knife short commands to disable by name (e.g. ["karambit", "butterfly"]). Case-insensitive.',
         reload_behavior: 'immediate',
         sort_order: 40,
     },
@@ -156,7 +160,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'string',
         category: 'permissions',
         label: 'Global Command Permission',
-        description: 'Permission flag required to use any CS2Inspect command. Empty means everyone can use commands.',
+        description:
+            'Permission flag required to use any CS2Inspect command. Empty means everyone can use commands.',
         reload_behavior: 'immediate',
         sort_order: 10,
     },
@@ -173,7 +178,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'json',
         category: 'permissions',
         label: 'Per-Category Permissions',
-        description: 'Permission flags for individual item categories. Empty means no restriction for that category.',
+        description:
+            'Permission flags for individual item categories. Empty means no restriction for that category.',
         reload_behavior: 'immediate',
         sort_order: 20,
     },
@@ -196,7 +202,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'json',
         category: 'commands',
         label: 'Weapon Commands',
-        description: 'Shortcut commands for weapons (e.g. !awp, !ak47). Configure enabled commands, give behavior, and per-weapon settings.',
+        description:
+            'Shortcut commands for weapons (e.g. !awp, !ak47). Configure enabled commands, give behavior, and per-weapon settings.',
         reload_behavior: 'restart',
         sort_order: 10,
     },
@@ -214,7 +221,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'json',
         category: 'commands',
         label: 'Knife Commands',
-        description: 'Shortcut commands for knives (e.g. !karambit, !butterfly). Configure enabled commands and give behavior.',
+        description:
+            'Shortcut commands for knives (e.g. !karambit, !butterfly). Configure enabled commands and give behavior.',
         reload_behavior: 'restart',
         sort_order: 20,
     },
@@ -232,7 +240,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'json',
         category: 'commands',
         label: 'Glove Commands',
-        description: 'Shortcut commands for gloves (e.g. !sport, !moto). Configure enabled commands and give behavior.',
+        description:
+            'Shortcut commands for gloves (e.g. !sport, !moto). Configure enabled commands and give behavior.',
         reload_behavior: 'restart',
         sort_order: 30,
     },
@@ -246,7 +255,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'boolean',
         category: 'sync',
         label: 'Sync Enabled',
-        description: 'Enable real-time bidirectional sync between the web panel and the plugin via database polling.',
+        description:
+            'Enable real-time bidirectional sync between the web panel and the plugin via database polling.',
         reload_behavior: 'restart',
         sort_order: 10,
     },
@@ -256,7 +266,8 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'number',
         category: 'sync',
         label: 'Poll Interval (ms)',
-        description: 'How often the plugin polls the database for sync notifications, in milliseconds. Lower = faster sync, higher = less DB load.',
+        description:
+            'How often the plugin polls the database for sync notifications, in milliseconds. Lower = faster sync, higher = less DB load.',
         reload_behavior: 'restart',
         sort_order: 20,
     },
@@ -312,8 +323,9 @@ export const PLUGIN_SETTINGS_SEEDS: NewPluginSetting[] = [
         type: 'json',
         category: 'logging',
         label: 'Logging Configuration',
-        description: 'Full logging configuration including log levels, file logging, performance, and formatting options.',
+        description:
+            'Full logging configuration including log levels, file logging, performance, and formatting options.',
         reload_behavior: 'restart',
         sort_order: 10,
     },
-];
+]

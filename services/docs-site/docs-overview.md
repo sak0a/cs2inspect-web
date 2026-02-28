@@ -5,21 +5,25 @@ Welcome to the comprehensive documentation for CS2Inspect, a web application for
 ## Table of Contents
 
 ### Getting Started
+
 - **[User Guide](user-guide.md)** <Badge type="tip" text="For End Users" /> - How to use the application
 - **[Setup Guide](setup.md)** <Badge type="tip" text="For Developers" /> - Complete development environment setup
 - **[How It Works](how-it-works.md)** <Badge type="info" text="Core Concepts" /> - User flows and core features explained
 - **[FAQ](faq.md)** <Badge type="warning" text="Troubleshooting" /> - Frequently asked questions and troubleshooting
 
 ### Technical Documentation
+
 - **[Architecture](architecture.md)** <Badge type="info" text="System Design" /> - System architecture and technology stack
 - **[Components](components.md)** <Badge type="info" text="Reference" /> - Frontend and backend component reference
 - **[API Reference](api/)** <Badge type="info" text="Endpoints" /> - Complete API endpoint documentation
 
 ### Deployment & Contributing
+
 - **[Deployment Guide](deployment.md)** <Badge type="danger" text="Production" /> - Production deployment instructions
 - **[Contributing Guide](contributing.md)** <Badge type="tip" text="Community" /> - How to contribute to the project
 
 ### Additional Resources
+
 - **[Health Checks](HEALTH_CHECKS.md)** <Badge type="info" text="Monitoring" /> - Comprehensive health monitoring system
 - **[Theme Customization](theme-customization.md)** <Badge type="tip" text="Styling" /> - UI theming and styling guide
 - **[Sticker Slots](StickerSlots.md)** <Badge type="info" text="Advanced" /> - Sticker slot configuration
@@ -68,6 +72,7 @@ npm run dev
 ```
 
 **Next Steps**: See the [Setup Guide](setup.md) for:
+
 - Database setup and configuration
 - Complete environment variable reference
 - Development workflow
@@ -126,6 +131,7 @@ External Services
 ```
 
 See the [Architecture Guide](architecture.md) for:
+
 - Detailed system architecture diagrams
 - Frontend and backend component breakdown
 - Deployment architecture
@@ -137,17 +143,17 @@ See the [Architecture Guide](architecture.md) for:
 
 ### Core Guides
 
-| Document | Purpose | Audience |
-|----------|---------|----------|
-| [User Guide](user-guide.md) | Using the application | End users |
-| [Setup](setup.md) | Development environment setup | Developers |
-| [How It Works](how-it-works.md) | Feature explanations and flows | All users |
-| [Architecture](architecture.md) | System design and structure | Developers, DevOps |
-| [Components](components.md) | Component reference | Frontend developers |
-| [API Reference](api/) | Endpoint documentation | Backend developers |
-| [Deployment](deployment.md) | Production deployment | DevOps, Administrators |
-| [Contributing](contributing.md) | Contribution guidelines | Contributors |
-| [FAQ](faq.md) | Common questions & issues | All users |
+| Document                        | Purpose                        | Audience               |
+| ------------------------------- | ------------------------------ | ---------------------- |
+| [User Guide](user-guide.md)     | Using the application          | End users              |
+| [Setup](setup.md)               | Development environment setup  | Developers             |
+| [How It Works](how-it-works.md) | Feature explanations and flows | All users              |
+| [Architecture](architecture.md) | System design and structure    | Developers, DevOps     |
+| [Components](components.md)     | Component reference            | Frontend developers    |
+| [API Reference](api/)           | Endpoint documentation         | Backend developers     |
+| [Deployment](deployment.md)     | Production deployment          | DevOps, Administrators |
+| [Contributing](contributing.md) | Contribution guidelines        | Contributors           |
+| [FAQ](faq.md)                   | Common questions & issues      | All users              |
 
 ### Specialized Topics
 
@@ -162,6 +168,7 @@ See the [Architecture Guide](architecture.md) for:
 ## Key Features
 
 ### Weapon Customization
+
 - **Thousands of Skins**: Browse and select from the complete CS2 skin catalog
 - **Float Control**: Precise float value adjustment (0.00 - 1.00)
 - **Pattern Seeds**: Set pattern seed for special skins (Case Hardened, Fade, etc.)
@@ -171,12 +178,14 @@ See the [Architecture Guide](architecture.md) for:
 - **Keychains**: Attach keychains (CS2 feature)
 
 ### Advanced Tools
+
 - **Visual Customizer**: Canvas-based sticker positioning with drag-and-drop, rotation, and scaling
 - **Inspect URL Processing**: Import items from Steam Market or player inventories
 - **Multi-Loadout System**: Unlimited loadout configurations
 - **Team-Based Configuration**: Separate T/CT configurations for knives, gloves, and agents
 
 ### Technical Features
+
 - **Server-Side Rendering**: Nuxt 4 SSR for optimal performance
 - **Real-Time Validation**: Client and server-side validation
 - **Type Safety**: Full TypeScript implementation
@@ -195,6 +204,7 @@ For comprehensive technology stack information, architecture diagrams, and syste
 :::
 
 ### Frontend
+
 - **Framework**: Nuxt 4 (Vue 3 + TypeScript)
 - **UI Library**: Naive UI
 - **Styling**: Tailwind CSS + SASS
@@ -203,6 +213,7 @@ For comprehensive technology stack information, architecture diagrams, and syste
 - **Charts**: Chart.js + vue-chartjs
 
 ### Backend
+
 - **Runtime**: Bun (Node.js compatible) with Nitro
 - **Database**: MariaDB/MySQL (with automatic migrations)
 - **Authentication**: Steam OpenID + JWT
@@ -210,6 +221,7 @@ For comprehensive technology stack information, architecture diagrams, and syste
 - **Health Monitoring**: Built-in health check system
 
 ### DevOps
+
 - **Build**: Vite
 - **Testing**: Vitest + Vue Test Utils
 - **Linting**: ESLint
@@ -232,11 +244,13 @@ We welcome contributions! Please read the [Contributing Guide](contributing.md) 
 ### Internationalization
 
 We especially welcome contributions for **translations**! The application currently supports:
+
 - English (EN)
 - German (DE)
 - Russian (RU)
 
 To contribute translations:
+
 1. Check the `locales/` directory for existing language files
 2. Copy the English (`en.json`) file
 3. Translate the strings to your language
@@ -250,10 +264,13 @@ See the [Contributing Guide](contributing.md) for detailed instructions on addin
 ## Credits
 
 ### Main Author
+
 - **[@sak0a](https://github.com/sak0a)** - Creator and maintainer
 
 ### Dependencies & Libraries
+
 This project is built with the help of many excellent open-source libraries:
+
 - **Nuxt 4** - Vue.js framework
 - **Naive UI** - Vue 3 component library
 - **cs2-inspect-lib** - CS2 item inspection
@@ -261,6 +278,7 @@ This project is built with the help of many excellent open-source libraries:
 - **And many more** - See `package.json` for the complete list
 
 ### Contributors
+
 All contributors who have submitted pull requests, reported bugs, suggested features, or helped improve documentation.
 
 ---
@@ -319,4 +337,4 @@ This documentation is actively maintained. Last major update: January 2025
 
 ---
 
-*Built with ❤️ by the CS2Inspect community*
+_Built with ❤️ by the CS2Inspect community_

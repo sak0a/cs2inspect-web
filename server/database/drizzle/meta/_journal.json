@@ -1,55 +1,55 @@
 {
-  "version": "7",
-  "dialect": "mysql",
-  "entries": [
-    {
-      "idx": 0,
-      "version": "5",
-      "when": 1768844310658,
-      "tag": "0000_noisy_peter_quill",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1769054506906,
-      "tag": "0001_flashy_garia",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1769539841777,
-      "tag": "0002_tired_shockwave",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1769542347703,
-      "tag": "0003_little_puppet_master",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1770095318925,
-      "tag": "0004_bitter_penance",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "5",
-      "when": 1772158258806,
-      "tag": "0005_ambiguous_black_widow",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "5",
-      "when": 1772161336187,
-      "tag": "0006_premium_onslaught",
-      "breakpoints": true
-    }
-  ]
+    "version": "7",
+    "dialect": "mysql",
+    "entries": [
+        {
+            "idx": 0,
+            "version": "5",
+            "when": 1768844310658,
+            "tag": "0000_noisy_peter_quill",
+            "breakpoints": true
+        },
+        {
+            "idx": 1,
+            "version": "5",
+            "when": 1769054506906,
+            "tag": "0001_flashy_garia",
+            "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "5",
+            "when": 1769539841777,
+            "tag": "0002_tired_shockwave",
+            "breakpoints": true
+        },
+        {
+            "idx": 3,
+            "version": "5",
+            "when": 1769542347703,
+            "tag": "0003_little_puppet_master",
+            "breakpoints": true
+        },
+        {
+            "idx": 4,
+            "version": "5",
+            "when": 1770095318925,
+            "tag": "0004_bitter_penance",
+            "breakpoints": true
+        },
+        {
+            "idx": 5,
+            "version": "5",
+            "when": 1772158258806,
+            "tag": "0005_ambiguous_black_widow",
+            "breakpoints": true
+        },
+        {
+            "idx": 6,
+            "version": "5",
+            "when": 1772161336187,
+            "tag": "0006_premium_onslaught",
+            "breakpoints": true
+        }
+    ]
 }

@@ -1,4 +1,4 @@
-import { DEFAULT_WEAPONS } from "~/server/utils/constants"
+import { DEFAULT_WEAPONS } from '~/server/utils/constants'
 import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { pistols, rifles, smgs, heavys } from '~/server/database/schema'
@@ -10,150 +10,161 @@ import type {
     IMappedDBWeapon,
     IEnhancedWeapon,
     StickerJSON,
-    KeychainJSON
-} from "~/server/types";
-import { EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/types/classes';
-import { getSkinsDataAsync, getStickerDataAsync, getKeychainDataAsync } from '~/server/utils/csgoAPI';
-import { findMatchingSkin, findSkinByPaintIndex, createDefaultItem } from '~/server/utils/data/skinUtils';
-import { validateRequiredRequestData } from '~/server/utils/helpers';
-import { Logger } from "~/server/utils/logger";
-import { createError, getQuery } from "h3";
-import { toLoadoutId } from '~/types/core/common';
+    KeychainJSON,
+} from '~/server/types'
+import { EnhancedWeaponKeychain, EnhancedWeaponSticker } from '~/server/types/classes'
 import {
-    createCollectionResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers';
+    getSkinsDataAsync,
+    getStickerDataAsync,
+    getKeychainDataAsync,
+} from '~/server/utils/csgoAPI'
+import {
+    findMatchingSkin,
+    findSkinByPaintIndex,
+    createDefaultItem,
+} from '~/server/utils/data/skinUtils'
+import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { Logger } from '~/server/utils/logger'
+import { createError, getQuery } from 'h3'
+import { toLoadoutId } from '~/types/core/common'
+import { createCollectionResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
 // Type for enhanced weapon sticker
-type IEnhancedWeaponSticker = ReturnType<EnhancedWeaponSticker['toInterface']>;
+type IEnhancedWeaponSticker = ReturnType<EnhancedWeaponSticker['toInterface']>
 
 // Map weapon types to Drizzle tables
 const weaponTypeToTable = {
-    'pistols': pistols,
-    'rifles': rifles,
-    'smgs': smgs,
-    'heavys': heavys,
-} as const;
+    pistols: pistols,
+    rifles: rifles,
+    smgs: smgs,
+    heavys: heavys,
+} as const
 
-type WeaponType = keyof typeof weaponTypeToTable;
+type WeaponType = keyof typeof weaponTypeToTable
 
 /**
  * Parses sticker JSON data from database and enriches with API data
  * Note: MySQL may return JSON as a string, so we need to parse it
  */
-function parseStickers(databaseResult: Record<string, unknown>, stickerData: APISticker[]): (IEnhancedWeaponSticker | null)[] {
-    const stickers: (IEnhancedWeaponSticker | null)[] = [];
+function parseStickers(
+    databaseResult: Record<string, unknown>,
+    stickerData: APISticker[]
+): (IEnhancedWeaponSticker | null)[] {
+    const stickers: (IEnhancedWeaponSticker | null)[] = []
     for (let i = 0; i < 5; i++) {
-        const stickerField = `sticker_${i}` as string;
-        let stickerJSON = databaseResult[stickerField] as StickerJSON | string | null;
+        const stickerField = `sticker_${i}` as string
+        let stickerJSON = databaseResult[stickerField] as StickerJSON | string | null
 
         // MySQL may return JSON as string, parse if needed
         if (typeof stickerJSON === 'string') {
             try {
-                stickerJSON = JSON.parse(stickerJSON) as StickerJSON;
+                stickerJSON = JSON.parse(stickerJSON) as StickerJSON
             } catch {
-                stickerJSON = null;
+                stickerJSON = null
             }
         }
 
         if (!stickerJSON || stickerJSON.id === 0) {
-            stickers.push(null);
-            continue;
+            stickers.push(null)
+            continue
         }
 
-        const enhanced = EnhancedWeaponSticker.fromJSON(stickerJSON, stickerData, i);
-        stickers.push(enhanced?.toInterface() ?? null);
+        const enhanced = EnhancedWeaponSticker.fromJSON(stickerJSON, stickerData, i)
+        stickers.push(enhanced?.toInterface() ?? null)
     }
-    return stickers;
+    return stickers
 }
 
 /**
  * Parses keychain JSON data from database and enriches with API data
  * Note: MySQL may return JSON as a string, so we need to parse it
  */
-function parseKeychain(databaseResult: Record<string, unknown>, keychainData: APIKeychain[]): ReturnType<typeof EnhancedWeaponKeychain.prototype.toInterface> | null {
-    let keychainJSON = databaseResult.keychain as KeychainJSON | string | null;
+function parseKeychain(
+    databaseResult: Record<string, unknown>,
+    keychainData: APIKeychain[]
+): ReturnType<typeof EnhancedWeaponKeychain.prototype.toInterface> | null {
+    let keychainJSON = databaseResult.keychain as KeychainJSON | string | null
 
     // MySQL may return JSON as string, parse if needed
     if (typeof keychainJSON === 'string') {
         try {
-            keychainJSON = JSON.parse(keychainJSON) as KeychainJSON;
+            keychainJSON = JSON.parse(keychainJSON) as KeychainJSON
         } catch {
-            keychainJSON = null;
+            keychainJSON = null
         }
     }
 
     if (!keychainJSON || keychainJSON.id === 0) {
-        return null;
+        return null
     }
 
-    return EnhancedWeaponKeychain.fromJSON(keychainJSON, keychainData)?.toInterface() ?? null;
+    return EnhancedWeaponKeychain.fromJSON(keychainJSON, keychainData)?.toInterface() ?? null
 }
 
 export default useErrorHandling(async (event) => {
-    const startTime = Date.now();
-    const query = getQuery(event);
+    const startTime = Date.now()
+    const query = getQuery(event)
 
-    Logger.header(`Weapons API request: ${event.method} ${event.req.url}`);
+    Logger.header(`Weapons API request: ${event.method} ${event.req.url}`)
 
-    const steamId = query.steamId as string;
-    validateRequiredRequestData(steamId, 'Steam ID');
+    const steamId = query.steamId as string
+    validateRequiredRequestData(steamId, 'Steam ID')
 
-    const type = event.context.params?.type as string;
-    validateRequiredRequestData(type, 'Type');
+    const type = event.context.params?.type as string
+    validateRequiredRequestData(type, 'Type')
 
-    const loadoutId = query.loadoutId as string;
-    validateRequiredRequestData(loadoutId, 'Loadout ID');
+    const loadoutId = query.loadoutId as string
+    validateRequiredRequestData(loadoutId, 'Loadout ID')
 
     // Validate weapon type and get corresponding table
-    const weaponType = type.toLowerCase() as WeaponType;
-    const table = weaponTypeToTable[weaponType];
+    const weaponType = type.toLowerCase() as WeaponType
+    const table = weaponTypeToTable[weaponType]
     if (!table) {
         throw createError({
             statusCode: 400,
-            message: `Invalid weapon type: ${type}`
-        });
+            message: `Invalid weapon type: ${type}`,
+        })
     }
 
     // Get all available skins data (waits for initialization if needed)
-    const skinData = await getSkinsDataAsync();
+    const skinData = await getSkinsDataAsync()
     if (!skinData) {
-        Logger.error('Failed to load skins data');
+        Logger.error('Failed to load skins data')
         throw createError({
             statusCode: 500,
-            message: 'Failed to load skins data'
-        });
+            message: 'Failed to load skins data',
+        })
     }
 
-    const stickerData = await getStickerDataAsync();
+    const stickerData = await getStickerDataAsync()
     if (!stickerData) {
-        Logger.error('Failed to load stickers data');
+        Logger.error('Failed to load stickers data')
         throw createError({
             statusCode: 500,
-            message: 'Failed to load stickers data'
-        });
+            message: 'Failed to load stickers data',
+        })
     }
 
-    const keychainData = await getKeychainDataAsync();
+    const keychainData = await getKeychainDataAsync()
     if (!keychainData) {
-        Logger.error('Failed to load keychain data');
+        Logger.error('Failed to load keychain data')
         throw createError({
             statusCode: 500,
-            message: 'Failed to load keychain data'
-        });
+            message: 'Failed to load keychain data',
+        })
     }
 
     // Fetch weapons using Drizzle
-    const rows = await db.select()
+    const rows = await db
+        .select()
         .from(table)
-        .where(and(
-            eq(table.steamid, steamId),
-            eq(table.loadoutid, toLoadoutId(loadoutId))
-        ));
+        .where(and(eq(table.steamid, steamId), eq(table.loadoutid, toLoadoutId(loadoutId))))
 
     // Filter and type-guard the weapons first
-    const baseWeaponsWithCategory: IDefaultItem[] = DEFAULT_WEAPONS.filter(weapon => weapon.category === type);
+    const baseWeaponsWithCategory: IDefaultItem[] = DEFAULT_WEAPONS.filter(
+        (weapon) => weapon.category === type
+    )
 
     // Map through weapons and enhance them with skin data
     const enhancedWeapons = baseWeaponsWithCategory.map((baseWeapon: IDefaultItem) => {
@@ -162,13 +173,13 @@ export default useErrorHandling(async (event) => {
 
         const matchingDatabaseResults = rows.filter(
             (weapon) => weapon.defindex === baseWeapon.weapon_defindex
-        );
+        )
 
         if (matchingDatabaseResults.length === 0) {
-            return createDefaultItem<IEnhancedWeapon>(baseWeapon);
+            return createDefaultItem<IEnhancedWeapon>(baseWeapon)
         }
 
-        const data: IEnhancedWeapon[] = [];
+        const data: IEnhancedWeapon[] = []
         /**
          * Iterate through all matching database results for this weapon_defindex
          */
@@ -178,52 +189,56 @@ export default useErrorHandling(async (event) => {
                 ...databaseResult,
                 id: String(databaseResult.id),
                 active: !!databaseResult.active,
-                stattrak_enabled: !!databaseResult.stattrak_enabled
-            };
+                stattrak_enabled: !!databaseResult.stattrak_enabled,
+            }
 
             /**
              * Find matching skin from the skin data using the weapon ID and paint index
              */
-            const skinInfo: APISkin | undefined = findMatchingSkin(baseWeapon, dbResultForSkin, skinData);
+            const skinInfo: APISkin | undefined = findMatchingSkin(
+                baseWeapon,
+                dbResultForSkin,
+                skinData
+            )
 
             // Check if we have a custom paint index but no matching skin (invalid paint index for this weapon)
-            const hasCustomPaintIndex = databaseResult.paintindex && databaseResult.paintindex > 0;
-            const isInvalidPaintIndex = hasCustomPaintIndex && !skinInfo;
+            const hasCustomPaintIndex = databaseResult.paintindex && databaseResult.paintindex > 0
+            const isInvalidPaintIndex = hasCustomPaintIndex && !skinInfo
 
-            let displayName: string;
-            let displayImage: string;
-            let paintIndexToUse: string | number;
-            let rarityToUse: { id: string; name: string; color: string } | undefined;
+            let displayName: string
+            let displayImage: string
+            let paintIndexToUse: string | number
+            let rarityToUse: { id: string; name: string; color: string } | undefined
 
             if (isInvalidPaintIndex) {
                 // Invalid paint index: show default weapon image but custom name
-                displayImage = baseWeapon.defaultImage;
-                paintIndexToUse = databaseResult.paintindex;
+                displayImage = baseWeapon.defaultImage
+                paintIndexToUse = databaseResult.paintindex
 
                 // Try to find the skin name by paint index from any weapon
-                const paintIndexSkin = findSkinByPaintIndex(databaseResult.paintindex, skinData);
+                const paintIndexSkin = findSkinByPaintIndex(databaseResult.paintindex, skinData)
                 if (paintIndexSkin) {
                     // Format: "Weapon Name | Skin Name" (e.g., "AK-47 | Dragon Lore")
-                    displayName = `${baseWeapon.defaultName} | ${paintIndexSkin.name.replace(/^.*?\|\s*/, '')}`;
+                    displayName = `${baseWeapon.defaultName} | ${paintIndexSkin.name.replace(/^.*?\|\s*/, '')}`
                     // Use the rarity from the original weapon that has this paint index
-                    rarityToUse = paintIndexSkin.rarity;
+                    rarityToUse = paintIndexSkin.rarity
                 } else {
                     // Fallback if we can't find the skin name
-                    displayName = `${baseWeapon.defaultName} | Unknown Skin (${databaseResult.paintindex})`;
-                    rarityToUse = undefined;
+                    displayName = `${baseWeapon.defaultName} | Unknown Skin (${databaseResult.paintindex})`
+                    rarityToUse = undefined
                 }
             } else if (skinInfo) {
                 // Valid skin found
-                displayImage = skinInfo.image;
-                displayName = skinInfo.name;
-                paintIndexToUse = skinInfo.paint_index;
-                rarityToUse = skinInfo.rarity;
+                displayImage = skinInfo.image
+                displayName = skinInfo.name
+                paintIndexToUse = skinInfo.paint_index
+                rarityToUse = skinInfo.rarity
             } else {
                 // Default weapon (paint index 0 or no custom skin)
-                displayImage = baseWeapon.defaultImage;
-                displayName = `${baseWeapon.defaultName} | Default`;
-                paintIndexToUse = 0;
-                rarityToUse = { id: 'default', name: 'Default', color: '#B0C3D9' };
+                displayImage = baseWeapon.defaultImage
+                displayName = `${baseWeapon.defaultName} | Default`
+                paintIndexToUse = 0
+                rarityToUse = { id: 'default', name: 'Default', color: '#B0C3D9' }
             }
 
             /**
@@ -255,28 +270,34 @@ export default useErrorHandling(async (event) => {
                     paintwear: databaseResult.paintwear || 0.01,
                     paintseed: databaseResult.paintseed || 0,
                     nametag: databaseResult.nametag || '',
-                    stickers: parseStickers(databaseResult as unknown as Record<string, unknown>, stickerData),
-                    keychain: parseKeychain(databaseResult as unknown as Record<string, unknown>, keychainData)
-                } as IMappedDBWeapon
-            } as IEnhancedWeapon);
+                    stickers: parseStickers(
+                        databaseResult as unknown as Record<string, unknown>,
+                        stickerData
+                    ),
+                    keychain: parseKeychain(
+                        databaseResult as unknown as Record<string, unknown>,
+                        keychainData
+                    ),
+                } as IMappedDBWeapon,
+            } as IEnhancedWeapon)
         }
 
         // If there are any custom skins for this, return them
-        return data;
-    });
+        return data
+    })
 
     /**
      * Return the data with standardized response format
      */
-    Logger.success(`Fetched ${rows.length} weapons for Steam ID: ${steamId}`);
+    Logger.success(`Fetched ${rows.length} weapons for Steam ID: ${steamId}`)
 
     const meta = createResponseMeta(startTime, {
         steamId,
         loadoutId,
         type,
         databaseRows: rows.length,
-        weaponsReturned: enhancedWeapons.length
-    });
+        weaponsReturned: enhancedWeapons.length,
+    })
 
     return createCollectionResponse(
         enhancedWeapons,
@@ -285,5 +306,5 @@ export default useErrorHandling(async (event) => {
         [type],
         undefined,
         `Successfully fetched ${enhancedWeapons.length} weapons of type '${type}'`
-    );
-}, ErrorCodes.WEAPON_FETCH_ERROR);
+    )
+}, ErrorCodes.WEAPON_FETCH_ERROR)

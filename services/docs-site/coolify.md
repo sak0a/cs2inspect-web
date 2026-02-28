@@ -41,7 +41,7 @@ If your GitHub repo is private, GHCR packages are private too. Either:
 
 - **Make packages public**: Go to GitHub → Packages → Package Settings → Change visibility
 - **Or** add a Docker registry login in Coolify: Settings → Docker Registries → Add GHCR with a Personal Access Token
-:::
+  :::
 
 #### Step 2: Create Service Stack in Coolify
 
@@ -60,30 +60,30 @@ Each service has its own environment panel in Coolify. The compose file uses `${
 
 All environment variables use prefixes to avoid name collisions in Coolify's single env panel:
 
-| Variable | Description |
-| -------- | ----------- |
-| `DB_ROOT_PASSWORD` | MariaDB root password |
-| `SHARED_DB_PASSWORD` | App database password (shared between database + web) |
-| `SHARED_DB_USER` | Database user (shared between database + web) |
-| `SHARED_DB_NAME` | Database name (shared between database + web) |
-| `SHARED_STEAM_API_KEY` | Steam Web API key (shared between web + steam-service) |
-| `SS_API_KEYS` | Comma-separated API keys for steam-service auth |
-| `SS_STEAM_USERNAME` | Steam bot username (optional) |
-| `SS_STEAM_PASSWORD` | Steam bot password (optional) |
-| `WEB_JWT_TOKEN` | 64-char secret (`openssl rand -hex 32`) |
-| `WEB_STEAM_SERVICE_API_KEY` | Must be listed in `SS_API_KEYS` |
-| `WEB_IMAGE_TAG` | Docker image tag for web (e.g., `latest`, `v1.2.3`, `dev`) |
-| `SS_IMAGE_TAG` | Docker image tag for steam-service |
+| Variable                    | Description                                                |
+| --------------------------- | ---------------------------------------------------------- |
+| `DB_ROOT_PASSWORD`          | MariaDB root password                                      |
+| `SHARED_DB_PASSWORD`        | App database password (shared between database + web)      |
+| `SHARED_DB_USER`            | Database user (shared between database + web)              |
+| `SHARED_DB_NAME`            | Database name (shared between database + web)              |
+| `SHARED_STEAM_API_KEY`      | Steam Web API key (shared between web + steam-service)     |
+| `SS_API_KEYS`               | Comma-separated API keys for steam-service auth            |
+| `SS_STEAM_USERNAME`         | Steam bot username (optional)                              |
+| `SS_STEAM_PASSWORD`         | Steam bot password (optional)                              |
+| `WEB_JWT_TOKEN`             | 64-char secret (`openssl rand -hex 32`)                    |
+| `WEB_STEAM_SERVICE_API_KEY` | Must be listed in `SS_API_KEYS`                            |
+| `WEB_IMAGE_TAG`             | Docker image tag for web (e.g., `latest`, `v1.2.3`, `dev`) |
+| `SS_IMAGE_TAG`              | Docker image tag for steam-service                         |
 
-::: warning SHARED_* values must stay in sync
-Variables prefixed with `SHARED_*` are used by multiple services. Changing one without the other will break connections:
+::: warning SHARED*\* values must stay in sync
+Variables prefixed with `SHARED*\*` are used by multiple services. Changing one without the other will break connections:
 
 - `SHARED_DB_PASSWORD` → used by both `database` and `web`
 - `SHARED_DB_USER` → used by both `database` and `web`
 - `SHARED_DB_NAME` → used by both `database` and `web`
 - `SHARED_STEAM_API_KEY` → used by both `web` and `steam-service`
 - `SS_API_KEYS` (steam-service) must contain `WEB_STEAM_SERVICE_API_KEY` (web)
-:::
+  :::
 
 ::: tip
 `DATABASE_HOST` and `STEAM_SERVICE_URL` are pre-configured to use internal Docker hostnames (`database:3306` and `http://steam-service:3211`). No need to change these.
@@ -184,6 +184,7 @@ Rest follows same pattern as Nixpacks deployment.
 **Health Check Interval**: `30s`
 
 **Environment Variables**:
+
 ```bash
 NODE_ENV=production
 PORT=3210
@@ -201,9 +202,11 @@ STEAM_API_KEY=<key>
 **External Port**: Configurable via `DATABASE_PORT_PUBLIC` (default `3306`) — needed for plugin or external tool access
 
 **Volumes**:
+
 - `/var/lib/mysql` - Database data (named volume `db_data`)
 
 **Configuration**:
+
 ```bash
 DB_ROOT_PASSWORD=<secret>
 SHARED_DB_NAME=csinspect
@@ -221,6 +224,7 @@ SHARED_DB_PASSWORD=<secret>
 **Health Check**: `/api/health/ready`
 
 **Environment Variables**:
+
 ```bash
 STEAM_API_KEY=<key>
 API_KEYS=<comma_separated_api_keys>   # keys that clients use to authenticate
@@ -242,13 +246,14 @@ STEAM_PASSWORD=<bot_password>
 ### Health Checks
 
 **Coolify Auto-Configuration**:
+
 ```yaml
 healthcheck:
-  test: ["CMD", "curl", "-fsS", "http://localhost:3210/api/health/ready"]
-  interval: 30s
-  timeout: 5s
-  retries: 3
-  start_period: 60s
+    test: ['CMD', 'curl', '-fsS', 'http://localhost:3210/api/health/ready']
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 60s
 ```
 
 Already configured in our Docker Compose files!
@@ -256,6 +261,7 @@ Already configured in our Docker Compose files!
 ### Persistent Storage
 
 **Volumes to persist**:
+
 - Database data: `/var/lib/mysql`
 - Application logs: `/app/logs`
 - Backups: `/backups`
@@ -267,14 +273,17 @@ Coolify handles volumes automatically for Docker Compose deployments.
 Set in Coolify UI:
 
 **Web Application**:
+
 - Memory: 2GB
 - CPU: 2 cores
 
 **Database**:
+
 - Memory: 2GB
 - CPU: 2 cores
 
 **Steam Service**:
+
 - Memory: 1GB
 - CPU: 1 core
 
@@ -291,11 +300,11 @@ Set in Coolify UI:
 
 ### Environment Strategy
 
-| Environment | `WEB_IMAGE_TAG` / `SS_IMAGE_TAG` | Updated when |
-| ----------- | -------------------------------- | ------------ |
-| **Dev/Staging** | `dev` | Every push to `dev` branch |
-| **Latest** | `latest` | Every push to `master` branch |
-| **Production** | `v1.2.3` | Manual release via GitHub Actions |
+| Environment     | `WEB_IMAGE_TAG` / `SS_IMAGE_TAG` | Updated when                      |
+| --------------- | -------------------------------- | --------------------------------- |
+| **Dev/Staging** | `dev`                            | Every push to `dev` branch        |
+| **Latest**      | `latest`                         | Every push to `master` branch     |
+| **Production**  | `v1.2.3`                         | Manual release via GitHub Actions |
 
 ### Updating Production
 
@@ -337,12 +346,14 @@ curl https://your-domain.com/api/health/ready
 ### 3. Check Logs
 
 In Coolify:
+
 - Click **"Logs"** tab
 - View real-time logs from all services
 
 ### 4. Setup Monitoring
 
 Coolify provides:
+
 - **CPU/Memory metrics** - Built-in
 - **Health check monitoring** - Automatic
 - **Log aggregation** - Real-time
@@ -388,6 +399,7 @@ Always prefer internal Docker networking over public domain URLs for service-to-
 **Issue**: Build timeout or failure
 
 **Solutions**:
+
 1. Check build logs in Coolify
 2. Increase build timeout in settings
 3. Check Dockerfile syntax
@@ -398,6 +410,7 @@ Always prefer internal Docker networking over public domain URLs for service-to-
 **Issue**: Web app can't connect to database
 
 **Solutions**:
+
 1. Verify `DATABASE_HOST=database` (service name)
 2. Check database is healthy
 3. Verify credentials
@@ -408,6 +421,7 @@ Always prefer internal Docker networking over public domain URLs for service-to-
 **Issue**: Service marked as unhealthy
 
 **Solutions**:
+
 1. Increase `start_period` to 90s
 2. Check application logs
 3. Verify port configuration
@@ -418,6 +432,7 @@ Always prefer internal Docker networking over public domain URLs for service-to-
 **Issue**: Container killed due to OOM
 
 **Solutions**:
+
 1. Increase memory limits
 2. Optimize database buffer pool
 3. Check for memory leaks
@@ -430,6 +445,7 @@ Always prefer internal Docker networking over public domain URLs for service-to-
 ### Built-in Monitoring
 
 Coolify provides:
+
 - **Resource usage graphs**
 - **Deployment history**
 - **Health check status**
@@ -440,14 +456,15 @@ Coolify provides:
 Add these services to Coolify:
 
 **Uptime Kuma**:
+
 ```yaml
 services:
-  uptime-kuma:
-    image: louislam/uptime-kuma:1
-    ports:
-      - "3001:3001"
-    volumes:
-      - uptime:/app/data
+    uptime-kuma:
+        image: louislam/uptime-kuma:1
+        ports:
+            - '3001:3001'
+        volumes:
+            - uptime:/app/data
 ```
 
 Monitor: `https://your-domain.com/api/health/ready`
@@ -460,21 +477,21 @@ Monitor: `https://your-domain.com/api/health/ready`
 
 ```yaml
 services:
-  backup:
-    image: mariadb:11
-    depends_on:
-      - database
-    volumes:
-      - ./backups:/backups
-    command: >
-      bash -c "while true; do
-        mysqldump -h database -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE | gzip > /backups/backup_$$(date +%Y%m%d_%H%M%S).sql.gz
-        find /backups -name '*.sql.gz' -mtime +30 -delete
-        sleep 86400
-      done"
-    environment:
-      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${SHARED_DB_NAME}
+    backup:
+        image: mariadb:11
+        depends_on:
+            - database
+        volumes:
+            - ./backups:/backups
+        command: >
+            bash -c "while true; do
+              mysqldump -h database -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE | gzip > /backups/backup_$$(date +%Y%m%d_%H%M%S).sql.gz
+              find /backups -name '*.sql.gz' -mtime +30 -delete
+              sleep 86400
+            done"
+        environment:
+            - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${SHARED_DB_NAME}
 ```
 
 2. Backups saved to `./backups` folder
@@ -487,6 +504,7 @@ services:
 ### Horizontal Scaling
 
 In Coolify:
+
 1. Go to your web service
 2. Click **"Scale"**
 3. Set replicas: `2` or more
@@ -495,6 +513,7 @@ In Coolify:
 ### Vertical Scaling
 
 Increase resources:
+
 1. Click **"Resources"**
 2. Adjust Memory/CPU
 3. Redeploy
@@ -547,11 +566,11 @@ Increase resources:
 
 ## 🎯 Comparison: Deployment Methods
 
-| Method | Complexity | Build Time | Best For |
-|--------|-----------|------------|----------|
-| **Docker Compose** | Low | 5-10 min | Full stack, production |
-| **Nixpacks** | Very Low | 3-5 min | Simple deployments |
-| **Dockerfile** | Medium | 5-10 min | Custom builds |
+| Method             | Complexity | Build Time | Best For               |
+| ------------------ | ---------- | ---------- | ---------------------- |
+| **Docker Compose** | Low        | 5-10 min   | Full stack, production |
+| **Nixpacks**       | Very Low   | 3-5 min    | Simple deployments     |
+| **Dockerfile**     | Medium     | 5-10 min   | Custom builds          |
 
 **Recommendation**: Use **Docker Compose** for production deployments with all services.
 

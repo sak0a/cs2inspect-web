@@ -16,9 +16,10 @@ Process a CS2 inspect link and extract item data.
 | `action` | string | Yes | Must be `analyze` |
 
 **Request Body**:
+
 ```json
 {
-  "url": "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20S76561198012345678A123456789D123456789"
+    "url": "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20S76561198012345678A123456789D123456789"
 }
 ```
 
@@ -28,36 +29,36 @@ Masked URLs contain encoded item data directly in the URL:
 
 ```json
 {
-  "success": true,
-  "data": {
-    "urlType": "masked",
-    "item": {
-      "defindex": 7,
-      "paintindex": 253,
-      "paintseed": 661,
-      "paintwear": 0.15,
-      "rarity": 6,
-      "quality": 4,
-      "statTrak": {
-        "enabled": true,
-        "count": 1337
-      },
-      "nameTag": "The Beast",
-      "stickers": [
-        {
-          "slot": 0,
-          "stickerId": 1230,
-          "wear": 0.0
+    "success": true,
+    "data": {
+        "urlType": "masked",
+        "item": {
+            "defindex": 7,
+            "paintindex": 253,
+            "paintseed": 661,
+            "paintwear": 0.15,
+            "rarity": 6,
+            "quality": 4,
+            "statTrak": {
+                "enabled": true,
+                "count": 1337
+            },
+            "nameTag": "The Beast",
+            "stickers": [
+                {
+                    "slot": 0,
+                    "stickerId": 1230,
+                    "wear": 0.0
+                }
+            ]
+        },
+        "parsed": {
+            "weaponName": "AK-47",
+            "skinName": "Fire Serpent",
+            "wear": "Minimal Wear",
+            "floatValue": 0.15
         }
-      ]
-    },
-    "parsed": {
-      "weaponName": "AK-47",
-      "skinName": "Fire Serpent",
-      "wear": "Minimal Wear",
-      "floatValue": 0.15
     }
-  }
 }
 ```
 
@@ -67,23 +68,23 @@ Unmasked URLs require Steam Game Coordinator communication:
 
 ```json
 {
-  "success": true,
-  "data": {
-    "urlType": "unmasked",
-    "requiresSteam": true,
-    "item": {
-      "ownerId": "76561198012345678",
-      "assetId": "123456789",
-      "classId": "123456789",
-      "defindex": 7,
-      "paintindex": 253,
-      "paintseed": 661,
-      "paintwear": 0.15,
-      "statTrak": {
-        "enabled": false
-      }
+    "success": true,
+    "data": {
+        "urlType": "unmasked",
+        "requiresSteam": true,
+        "item": {
+            "ownerId": "76561198012345678",
+            "assetId": "123456789",
+            "classId": "123456789",
+            "defindex": 7,
+            "paintindex": 253,
+            "paintseed": 661,
+            "paintwear": 0.15,
+            "statTrak": {
+                "enabled": false
+            }
+        }
     }
-  }
 }
 ```
 
@@ -101,40 +102,42 @@ Generate a custom inspect URL for any item configuration.
 | `action` | string | Yes | Must be `create-url` |
 
 **Request Body**:
+
 ```json
 {
-  "itemType": "weapon",
-  "defindex": 7,
-  "paintindex": 253,
-  "paintseed": 661,
-  "paintwear": 0.15,
-  "statTrak": true,
-  "statTrakCount": 1337,
-  "nameTag": "The Beast",
-  "stickers": [
-    {
-      "slot": 0,
-      "stickerId": 1230,
-      "wear": 0.0,
-      "rotation": 0,
-      "scale": 1.0
+    "itemType": "weapon",
+    "defindex": 7,
+    "paintindex": 253,
+    "paintseed": 661,
+    "paintwear": 0.15,
+    "statTrak": true,
+    "statTrakCount": 1337,
+    "nameTag": "The Beast",
+    "stickers": [
+        {
+            "slot": 0,
+            "stickerId": 1230,
+            "wear": 0.0,
+            "rotation": 0,
+            "scale": 1.0
+        }
+    ],
+    "keychain": {
+        "keychainId": 6001,
+        "seed": 42
     }
-  ],
-  "keychain": {
-    "keychainId": 6001,
-    "seed": 42
-  }
 }
 ```
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": {
-    "inspectUrl": "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20M...",
-    "shortUrl": "https://cs2inspect.com/i/ABC123"
-  }
+    "success": true,
+    "data": {
+        "inspectUrl": "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20M...",
+        "shortUrl": "https://cs2inspect.com/i/ABC123"
+    }
 }
 ```
 
@@ -152,22 +155,24 @@ Decode masked hex data from an inspect URL.
 | `action` | string | Yes | Must be `decode-hex` |
 
 **Request Body**:
+
 ```json
 {
-  "hex": "00B0040000..."
+    "hex": "00B0040000..."
 }
 ```
 
 **Response**:
+
 ```json
 {
-  "success": true,
-  "data": {
-    "defindex": 7,
-    "paintindex": 253,
-    "paintseed": 661,
-    "paintwear": 0.15
-  }
+    "success": true,
+    "data": {
+        "defindex": 7,
+        "paintindex": 253,
+        "paintseed": 661,
+        "paintwear": 0.15
+    }
 }
 ```
 
@@ -175,13 +180,13 @@ Decode masked hex data from an inspect URL.
 
 ## Item Types
 
-| Type | Description | Supports Stickers | Supports StatTrak |
-|------|-------------|-------------------|-------------------|
-| `weapon` | Regular weapons | ✅ | ✅ |
-| `knife` | Knife skins | ❌ | ✅ |
-| `glove` | Glove skins | ❌ | ❌ |
-| `agent` | Agent models | ❌ | ❌ |
-| `music-kit` | Music kits | ❌ | ✅ |
+| Type        | Description     | Supports Stickers | Supports StatTrak |
+| ----------- | --------------- | ----------------- | ----------------- |
+| `weapon`    | Regular weapons | ✅                | ✅                |
+| `knife`     | Knife skins     | ❌                | ✅                |
+| `glove`     | Glove skins     | ❌                | ❌                |
+| `agent`     | Agent models    | ❌                | ❌                |
+| `music-kit` | Music kits      | ❌                | ✅                |
 
 ---
 
@@ -215,30 +220,32 @@ steam://rungame/730/.../+csgo_econ_action_preview%20S76561198012345678A123456789
 
 ## Error Responses
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `INVALID_URL` | 400 | Invalid inspect URL format |
-| `GC_TIMEOUT` | 504 | Steam Game Coordinator timeout |
-| `STEAM_ERROR` | 502 | Steam API unavailable |
-| `INVALID_ITEM_TYPE` | 400 | Unknown item type specified |
+| Code                | HTTP Status | Description                    |
+| ------------------- | ----------- | ------------------------------ |
+| `INVALID_URL`       | 400         | Invalid inspect URL format     |
+| `GC_TIMEOUT`        | 504         | Steam Game Coordinator timeout |
+| `STEAM_ERROR`       | 502         | Steam API unavailable          |
+| `INVALID_ITEM_TYPE` | 400         | Unknown item type specified    |
 
 ### Error Examples
 
 **Invalid URL**:
+
 ```json
 {
-  "success": false,
-  "error": "Invalid inspect URL format",
-  "code": "INVALID_URL"
+    "success": false,
+    "error": "Invalid inspect URL format",
+    "code": "INVALID_URL"
 }
 ```
 
 **Steam GC Timeout**:
+
 ```json
 {
-  "success": false,
-  "error": "Steam Game Coordinator timeout",
-  "code": "GC_TIMEOUT"
+    "success": false,
+    "error": "Steam Game Coordinator timeout",
+    "code": "GC_TIMEOUT"
 }
 ```
 
@@ -246,11 +253,11 @@ steam://rungame/730/.../+csgo_econ_action_preview%20S76561198012345678A123456789
 
 ## Rate Limiting
 
-| Endpoint | Limit | Notes |
-|----------|-------|-------|
-| Masked URL decode | No limit | Processed locally |
+| Endpoint             | Limit      | Notes             |
+| -------------------- | ---------- | ----------------- |
+| Masked URL decode    | No limit   | Processed locally |
 | Unmasked URL inspect | 1 req/1.5s | Per Steam account |
-| Create URL | No limit | Processed locally |
+| Create URL           | No limit   | Processed locally |
 
 ::: warning Steam Rate Limits
 Inspecting unmasked URLs (real inventory items) is rate-limited by Steam's Game Coordinator. Excessive requests may result in temporary bans.

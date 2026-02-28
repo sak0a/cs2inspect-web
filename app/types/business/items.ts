@@ -1,61 +1,48 @@
 /**
  * Business logic interfaces for CS2 items
- * 
+ *
  * @description This file contains interfaces for item customization,
  * configuration, and business logic operations. These interfaces represent
  * the application's domain model for CS2 items.
- * 
+ *
  * ## Type Safety Strategy
- * 
+ *
  * This module uses plain `number` types for component compatibility, while the
  * database layer (records.ts) uses branded types (e.g., `FloatValue`, `StickerId`)
  * for type safety at persistence boundaries.
- * 
+ *
  * When interacting with the database, use conversion helpers like:
  * - `toFloatValue(wear)` - Convert wear values
  * - `toStickerSlotIndex(position)` - Convert sticker positions
  * - `toStatTrakCount(count)` - Convert StatTrak counts
  * - `toNameTag(name)` - Convert name tags with validation
- * 
+ *
  * @see {@link ../core/branded.ts} for branded type definitions
- * 
+ *
  * @version 2.0.0
  * @since 2.0.0
  */
 
 import type {
-  EntityId,
-  TeamSide,
-  TeamAvailability,
-  ItemRarity,
-  // Branded types imported for JSDoc documentation references
-   
-  Defindex as _Defindex,
-   
-  PaintIndex as _PaintIndex,
-   
-  PaintSeed as _PaintSeed,
-  FloatValue,
-  StickerSlotIndex,
-  StatTrakCount,
-  NameTag,
-  NormalizedCoordinate
+    EntityId,
+    TeamSide,
+    TeamAvailability,
+    ItemRarity,
+    // Branded types imported for JSDoc documentation references
+    Defindex as _Defindex,
+    PaintIndex as _PaintIndex,
+    PaintSeed as _PaintSeed,
+    FloatValue,
+    StickerSlotIndex,
+    StatTrakCount,
+    NameTag,
+    NormalizedCoordinate,
 } from '../core/common'
 
-import type {
-  DBWeapon,
-  DBKnife,
-  DBGlove
-} from '../database/records'
+import type { DBWeapon, DBKnife, DBGlove } from '../database/records'
 
 // Re-export branded types for convenience
-export type {
-  FloatValue,
-  StickerSlotIndex,
-  StatTrakCount,
-  NameTag,
-  NormalizedCoordinate
-}
+export type { FloatValue, StickerSlotIndex, StatTrakCount, NameTag, NormalizedCoordinate }
 
 // ============================================================================
 // ITEM TYPE DEFINITIONS
@@ -84,22 +71,22 @@ export type WeaponCategory = 'rifles' | 'pistols' | 'smgs' | 'heavys'
  * Branded types are used at the database layer (records.ts) for type safety.
  */
 export interface BaseItemConfiguration {
-  /** Whether this item is currently active/equipped */
-  active: boolean
-  /** Team this item belongs to */
-  team: TeamSide
-  /** Item definition index */
-  defindex: number
-  /** Paint index for the skin/pattern (matches DB column: paintindex) */
-  paintindex: number
-  /** Whether paint index is manually overridden (UI-specific, not in DB) */
-  paintIndexOverride: boolean
-  /** Pattern seed for randomization (matches DB column: paintseed) */
-  paintseed: number
-  /** Wear value (float between 0 and 1) (matches DB column: paintwear) */
-  paintwear: number
-  /** Whether to reset this item to defaults */
-  reset?: boolean
+    /** Whether this item is currently active/equipped */
+    active: boolean
+    /** Team this item belongs to */
+    team: TeamSide
+    /** Item definition index */
+    defindex: number
+    /** Paint index for the skin/pattern (matches DB column: paintindex) */
+    paintindex: number
+    /** Whether paint index is manually overridden (UI-specific, not in DB) */
+    paintIndexOverride: boolean
+    /** Pattern seed for randomization (matches DB column: paintseed) */
+    paintseed: number
+    /** Wear value (float between 0 and 1) (matches DB column: paintwear) */
+    paintwear: number
+    /** Whether to reset this item to defaults */
+    reset?: boolean
 }
 
 /**
@@ -108,32 +95,32 @@ export interface BaseItemConfiguration {
  * @description Common properties for all item data structures
  */
 export interface BaseItemData {
-  /** Item type discriminator */
-  type: ItemType
-  /** Unique identifier */
-  id: EntityId
-  /** Display name */
-  name: string
-  /** Default/fallback name */
-  defaultName: string
-  /** Current image URL */
-  image: string
-  /** Default/fallback image URL */
-  defaultImage: string
-  /** Internal item name identifier */
-  itemName: string
-  /** Item category */
-  category: string
-  /** Teams that can use this item */
-  availableTeams: TeamAvailability
-  /** Internal weapon name identifier used for API calls */
-  weapon_name: string
-  /** Weapon definition index */
-  weapon_defindex: number
-  /** Team association (null if available to both teams) - for IEnhanced* compatibility */
-  team?: number | null
-  /** Paint index for the skin/pattern - for IEnhanced* compatibility */
-  paintindex?: number
+    /** Item type discriminator */
+    type: ItemType
+    /** Unique identifier */
+    id: EntityId
+    /** Display name */
+    name: string
+    /** Default/fallback name */
+    defaultName: string
+    /** Current image URL */
+    image: string
+    /** Default/fallback image URL */
+    defaultImage: string
+    /** Internal item name identifier */
+    itemName: string
+    /** Item category */
+    category: string
+    /** Teams that can use this item */
+    availableTeams: TeamAvailability
+    /** Internal weapon name identifier used for API calls */
+    weapon_name: string
+    /** Weapon definition index */
+    weapon_defindex: number
+    /** Team association (null if available to both teams) - for IEnhanced* compatibility */
+    team?: number | null
+    /** Paint index for the skin/pattern - for IEnhanced* compatibility */
+    paintindex?: number
 }
 
 // ============================================================================
@@ -169,37 +156,37 @@ export interface BaseItemData {
  * ```
  */
 export interface StickerConfiguration {
-  /** Sticker identifier - convert to StickerId for type safety */
-  id: EntityId | number | string
-  /** Sticker name (optional for IEnhancedWeaponSticker compatibility) */
-  name?: string
-  /** Sticker image URL (optional for IEnhancedWeaponSticker compatibility) */
-  image?: string
-  /** Position on weapon (0-4) - convert to StickerSlotIndex */
-  position: number
-  /** X coordinate (0-1) - convert to NormalizedCoordinate */
-  x: number
-  /** Y coordinate (0-1) - convert to NormalizedCoordinate */
-  y: number
-  /** Wear value (0-1) - convert to FloatValue */
-  wear: number
-  /** Scale factor */
-  scale: number
-  /** Rotation in degrees */
-  rotation: number
-  /** API Data (optional) */
-  api?: {
+    /** Sticker identifier - convert to StickerId for type safety */
+    id: EntityId | number | string
+    /** Sticker name (optional for IEnhancedWeaponSticker compatibility) */
     name?: string
+    /** Sticker image URL (optional for IEnhancedWeaponSticker compatibility) */
     image?: string
-    type?: string
-    effect?: string
-    tournament_event?: string
-    tournament_team?: string
-    rarity?: {
-      color?: string
-      name?: string
+    /** Position on weapon (0-4) - convert to StickerSlotIndex */
+    position: number
+    /** X coordinate (0-1) - convert to NormalizedCoordinate */
+    x: number
+    /** Y coordinate (0-1) - convert to NormalizedCoordinate */
+    y: number
+    /** Wear value (0-1) - convert to FloatValue */
+    wear: number
+    /** Scale factor */
+    scale: number
+    /** Rotation in degrees */
+    rotation: number
+    /** API Data (optional) */
+    api?: {
+        name?: string
+        image?: string
+        type?: string
+        effect?: string
+        tournament_event?: string
+        tournament_team?: string
+        rarity?: {
+            color?: string
+            name?: string
+        }
     }
-  }
 }
 
 /**
@@ -228,39 +215,39 @@ export interface StickerConfiguration {
  * ```
  */
 export interface KeychainConfiguration {
-  /** Keychain identifier - convert to KeychainId for type safety */
-  id: EntityId | number | string
-  /** Keychain name (optional for IEnhancedWeaponKeychain compatibility) */
-  name?: string
-  /** Keychain image URL (optional for IEnhancedWeaponKeychain compatibility) */
-  image?: string
-  /** X coordinate */
-  x: number
-  /** Y coordinate */
-  y: number
-  /** Z coordinate */
-  z: number
-  /** External offset X from Steam (optional) */
-  offset_x?: number
-  /** External offset Y from Steam (optional) */
-  offset_y?: number
-  /** External offset Z from Steam (optional) */
-  offset_z?: number
-  /** Random seed for positioning - convert to PaintSeed (0-999) */
-  seed: number
-  /** ID of the sticker wrapped inside the charm (for Sticker Slabs) - convert to StickerId */
-  wrapped_sticker_id?: number | null
-  /** ID of the highlight reel (for Highlight Reel charms) */
-  highlight_reel_id?: number | null
-  /** API Data (optional) */
-  api?: {
+    /** Keychain identifier - convert to KeychainId for type safety */
+    id: EntityId | number | string
+    /** Keychain name (optional for IEnhancedWeaponKeychain compatibility) */
     name?: string
+    /** Keychain image URL (optional for IEnhancedWeaponKeychain compatibility) */
     image?: string
-    rarity?: {
-      color?: string
-      name?: string
+    /** X coordinate */
+    x: number
+    /** Y coordinate */
+    y: number
+    /** Z coordinate */
+    z: number
+    /** External offset X from Steam (optional) */
+    offset_x?: number
+    /** External offset Y from Steam (optional) */
+    offset_y?: number
+    /** External offset Z from Steam (optional) */
+    offset_z?: number
+    /** Random seed for positioning - convert to PaintSeed (0-999) */
+    seed: number
+    /** ID of the sticker wrapped inside the charm (for Sticker Slabs) - convert to StickerId */
+    wrapped_sticker_id?: number | null
+    /** ID of the highlight reel (for Highlight Reel charms) */
+    highlight_reel_id?: number | null
+    /** API Data (optional) */
+    api?: {
+        name?: string
+        image?: string
+        rarity?: {
+            color?: string
+            name?: string
+        }
     }
-  }
 }
 
 // ============================================================================
@@ -269,21 +256,21 @@ export interface KeychainConfiguration {
 
 /**
  * Weapon item data
- * 
+ *
  * @description Represents weapon data with API and database information
  */
 export interface WeaponItemData extends BaseItemData {
-  type: 'weapon'
-  /** Weapon category */
-  category: WeaponCategory
-  /** Minimum float value for wear */
-  minFloat: number
-  /** Maximum float value for wear */
-  maxFloat: number
-  /** Rarity information if available */
-  rarity?: ItemRarity
-  /** Database information if item is saved */
-  databaseInfo?: DBWeapon
+    type: 'weapon'
+    /** Weapon category */
+    category: WeaponCategory
+    /** Minimum float value for wear */
+    minFloat: number
+    /** Maximum float value for wear */
+    maxFloat: number
+    /** Rarity information if available */
+    rarity?: ItemRarity
+    /** Database information if item is saved */
+    databaseInfo?: DBWeapon
 }
 
 /**
@@ -310,16 +297,16 @@ export interface WeaponItemData extends BaseItemData {
  * ```
  */
 export interface WeaponConfiguration extends BaseItemConfiguration {
-  /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
-  stattrak_enabled: boolean
-  /** StatTrak kill count (matches DB column: stattrak_count) */
-  stattrak_count: number
-  /** Custom name tag (matches DB column: nametag) */
-  nametag: string
-  /** Sticker configurations (5 positions, null if empty) */
-  stickers: Array<StickerConfiguration | null>
-  /** Keychain configuration (null if none) */
-  keychain: KeychainConfiguration | null
+    /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
+    stattrak_enabled: boolean
+    /** StatTrak kill count (matches DB column: stattrak_count) */
+    stattrak_count: number
+    /** Custom name tag (matches DB column: nametag) */
+    nametag: string
+    /** Sticker configurations (5 positions, null if empty) */
+    stickers: Array<StickerConfiguration | null>
+    /** Keychain configuration (null if none) */
+    keychain: KeychainConfiguration | null
 }
 
 // ============================================================================
@@ -328,19 +315,19 @@ export interface WeaponConfiguration extends BaseItemConfiguration {
 
 /**
  * Knife item data
- * 
+ *
  * @description Represents knife data with API and database information
  */
 export interface KnifeItemData extends BaseItemData {
-  type: 'knife'
-  /** Minimum float value for wear */
-  minFloat: number
-  /** Maximum float value for wear */
-  maxFloat: number
-  /** Rarity information if available */
-  rarity?: ItemRarity
-  /** Database information if item is saved */
-  databaseInfo?: DBKnife
+    type: 'knife'
+    /** Minimum float value for wear */
+    minFloat: number
+    /** Maximum float value for wear */
+    maxFloat: number
+    /** Rarity information if available */
+    rarity?: ItemRarity
+    /** Database information if item is saved */
+    databaseInfo?: DBKnife
 }
 
 /**
@@ -365,12 +352,12 @@ export interface KnifeItemData extends BaseItemData {
  * ```
  */
 export interface KnifeConfiguration extends BaseItemConfiguration {
-  /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
-  stattrak_enabled: boolean
-  /** StatTrak kill count (matches DB column: stattrak_count) */
-  stattrak_count: number
-  /** Custom name tag (matches DB column: nametag) */
-  nametag: string
+    /** Whether StatTrak is enabled (matches DB column: stattrak_enabled) */
+    stattrak_enabled: boolean
+    /** StatTrak kill count (matches DB column: stattrak_count) */
+    stattrak_count: number
+    /** Custom name tag (matches DB column: nametag) */
+    nametag: string
 }
 
 // ============================================================================
@@ -379,19 +366,19 @@ export interface KnifeConfiguration extends BaseItemConfiguration {
 
 /**
  * Glove item data
- * 
+ *
  * @description Represents glove data with API and database information
  */
 export interface GloveItemData extends BaseItemData {
-  type: 'glove'
-  /** Minimum float value for wear */
-  minFloat: number
-  /** Maximum float value for wear */
-  maxFloat: number
-  /** Rarity information if available */
-  rarity?: ItemRarity
-  /** Database information if item is saved */
-  databaseInfo?: DBGlove
+    type: 'glove'
+    /** Minimum float value for wear */
+    minFloat: number
+    /** Maximum float value for wear */
+    maxFloat: number
+    /** Rarity information if available */
+    rarity?: ItemRarity
+    /** Database information if item is saved */
+    databaseInfo?: DBGlove
 }
 
 /**
@@ -432,18 +419,18 @@ export type ItemConfiguration = WeaponConfiguration | KnifeConfiguration | Glove
  * Type-safe mapping of item types to their data interfaces
  */
 export type ItemDataMap = {
-  weapon: WeaponItemData
-  knife: KnifeItemData
-  glove: GloveItemData
+    weapon: WeaponItemData
+    knife: KnifeItemData
+    glove: GloveItemData
 }
 
 /**
  * Type-safe mapping of item types to their configuration interfaces
  */
 export type ItemConfigurationMap = {
-  weapon: WeaponConfiguration
-  knife: KnifeConfiguration
-  glove: GloveConfiguration
+    weapon: WeaponConfiguration
+    knife: KnifeConfiguration
+    glove: GloveConfiguration
 }
 
 // ============================================================================
@@ -454,42 +441,42 @@ export type ItemConfigurationMap = {
  * Type guard to check if item data is for a weapon
  */
 export function isWeaponItemData(item: ItemData): item is WeaponItemData {
-  return item.type === 'weapon'
+    return item.type === 'weapon'
 }
 
 /**
  * Type guard to check if item data is for a knife
  */
 export function isKnifeItemData(item: ItemData): item is KnifeItemData {
-  return item.type === 'knife'
+    return item.type === 'knife'
 }
 
 /**
  * Type guard to check if item data is for gloves
  */
 export function isGloveItemData(item: ItemData): item is GloveItemData {
-  return item.type === 'glove'
+    return item.type === 'glove'
 }
 
 /**
  * Type guard to check if configuration is for a weapon
  */
 export function isWeaponConfiguration(config: ItemConfiguration): config is WeaponConfiguration {
-  return 'stattrak_enabled' in config && 'stickers' in config
+    return 'stattrak_enabled' in config && 'stickers' in config
 }
 
 /**
  * Type guard to check if configuration is for a knife
  */
 export function isKnifeConfiguration(config: ItemConfiguration): config is KnifeConfiguration {
-  return 'stattrak_enabled' in config && !('stickers' in config)
+    return 'stattrak_enabled' in config && !('stickers' in config)
 }
 
 /**
  * Type guard to check if configuration is for gloves
  */
 export function isGloveConfiguration(config: ItemConfiguration): config is GloveConfiguration {
-  return !('stattrak_enabled' in config)
+    return !('stattrak_enabled' in config)
 }
 
 // ============================================================================
@@ -498,68 +485,68 @@ export function isGloveConfiguration(config: ItemConfiguration): config is Glove
 
 /**
  * Item type configuration
- * 
+ *
  * @description Defines what features are available for each item type
  */
 export interface ItemTypeConfiguration {
-  /** Whether this item type supports StatTrak */
-  hasStatTrak: boolean
-  /** Whether this item type supports name tags */
-  hasNameTag: boolean
-  /** Whether this item type supports stickers */
-  hasStickers: boolean
-  /** Whether this item type supports keychains */
-  hasKeychain: boolean
-  /** Maximum number of sticker positions */
-  maxStickers: number
+    /** Whether this item type supports StatTrak */
+    hasStatTrak: boolean
+    /** Whether this item type supports name tags */
+    hasNameTag: boolean
+    /** Whether this item type supports stickers */
+    hasStickers: boolean
+    /** Whether this item type supports keychains */
+    hasKeychain: boolean
+    /** Maximum number of sticker positions */
+    maxStickers: number
 }
 
 /**
  * Item type configuration mapping
  */
 export const ITEM_TYPE_CONFIG: Record<ItemType, ItemTypeConfiguration> = {
-  weapon: {
-    hasStatTrak: true,
-    hasNameTag: true,
-    hasStickers: true,
-    hasKeychain: true,
-    maxStickers: 5
-  },
-  knife: {
-    hasStatTrak: true,
-    hasNameTag: true,
-    hasStickers: false,
-    hasKeychain: false,
-    maxStickers: 0
-  },
-  glove: {
-    hasStatTrak: false,
-    hasNameTag: false,
-    hasStickers: false,
-    hasKeychain: false,
-    maxStickers: 0
-  },
-  agent: {
-    hasStatTrak: false,
-    hasNameTag: false,
-    hasStickers: false,
-    hasKeychain: false,
-    maxStickers: 0
-  },
-  musickit: {
-    hasStatTrak: false,
-    hasNameTag: false,
-    hasStickers: false,
-    hasKeychain: false,
-    maxStickers: 0
-  },
-  pin: {
-    hasStatTrak: false,
-    hasNameTag: false,
-    hasStickers: false,
-    hasKeychain: false,
-    maxStickers: 0
-  }
+    weapon: {
+        hasStatTrak: true,
+        hasNameTag: true,
+        hasStickers: true,
+        hasKeychain: true,
+        maxStickers: 5,
+    },
+    knife: {
+        hasStatTrak: true,
+        hasNameTag: true,
+        hasStickers: false,
+        hasKeychain: false,
+        maxStickers: 0,
+    },
+    glove: {
+        hasStatTrak: false,
+        hasNameTag: false,
+        hasStickers: false,
+        hasKeychain: false,
+        maxStickers: 0,
+    },
+    agent: {
+        hasStatTrak: false,
+        hasNameTag: false,
+        hasStickers: false,
+        hasKeychain: false,
+        maxStickers: 0,
+    },
+    musickit: {
+        hasStatTrak: false,
+        hasNameTag: false,
+        hasStickers: false,
+        hasKeychain: false,
+        maxStickers: 0,
+    },
+    pin: {
+        hasStatTrak: false,
+        hasNameTag: false,
+        hasStickers: false,
+        hasKeychain: false,
+        maxStickers: 0,
+    },
 }
 
 // ============================================================================
@@ -591,5 +578,5 @@ export type StickerCustomization = StickerConfiguration
  */
 export type KeychainCustomization = KeychainConfiguration
 
-// Note: IEnhancedWeapon, IEnhancedKnife, IEnhancedGlove, IEnhancedItem are 
+// Note: IEnhancedWeapon, IEnhancedKnife, IEnhancedGlove, IEnhancedItem are
 // NOT compatible aliases and should be imported from server/types/items.ts

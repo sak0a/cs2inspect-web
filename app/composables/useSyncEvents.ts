@@ -52,7 +52,9 @@ export function useSyncEvents() {
 
     function onSyncEvent(handler: SyncEventHandler) {
         handlers.add(handler)
-        return () => { handlers.delete(handler) }
+        return () => {
+            handlers.delete(handler)
+        }
     }
 
     onBeforeUnmount(() => {

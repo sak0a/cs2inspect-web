@@ -1,25 +1,25 @@
 <script setup lang="ts">
 import {
-  LucideLayoutDashboard as DashboardIcon,
-  LucideUsers as UsersIcon,
-  LucideSettings as SettingsIcon,
-  LucideActivity as ActivityIcon,
-  LucideShield as ShieldIcon,
-  LucidePlug as PlugIcon,
-  LucideMenu as MenuIcon,
-  LucideX as CloseIcon,
-  LucideArrowLeft as BackIcon
+    LucideLayoutDashboard as DashboardIcon,
+    LucideUsers as UsersIcon,
+    LucideSettings as SettingsIcon,
+    LucideActivity as ActivityIcon,
+    LucideShield as ShieldIcon,
+    LucidePlug as PlugIcon,
+    LucideMenu as MenuIcon,
+    LucideX as CloseIcon,
+    LucideArrowLeft as BackIcon,
 } from 'lucide-vue-next'
 import { useAdminAuth } from '~/composables/useAdminAuth'
 
 // Props
 interface Props {
-  /** Title displayed in the header */
-  title?: string
+    /** Title displayed in the header */
+    title?: string
 }
 
 withDefaults(defineProps<Props>(), {
-  title: 'Admin Panel'
+    title: 'Admin Panel',
 })
 
 // Admin auth
@@ -30,20 +30,25 @@ const isMobileSidebarOpen = ref(false)
 
 // Navigation items
 const navigationItems = computed(() => {
-  const items = [
-    { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon, path: '/admin' },
-    { key: 'users', label: 'Users', icon: UsersIcon, path: '/admin/users' },
-    { key: 'settings', label: 'Settings', icon: SettingsIcon, path: '/admin/settings' },
-    { key: 'activity', label: 'Activity Log', icon: ActivityIcon, path: '/admin/activity' }
-  ]
+    const items = [
+        { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon, path: '/admin' },
+        { key: 'users', label: 'Users', icon: UsersIcon, path: '/admin/users' },
+        { key: 'settings', label: 'Settings', icon: SettingsIcon, path: '/admin/settings' },
+        { key: 'activity', label: 'Activity Log', icon: ActivityIcon, path: '/admin/activity' },
+    ]
 
-  // Add superadmin-only pages
-  if (isSuperAdmin.value) {
-    items.push({ key: 'plugin', label: 'Plugin Config', icon: PlugIcon, path: '/admin/plugin' })
-    items.push({ key: 'admins', label: 'Admin Management', icon: ShieldIcon, path: '/admin/admins' })
-  }
+    // Add superadmin-only pages
+    if (isSuperAdmin.value) {
+        items.push({ key: 'plugin', label: 'Plugin Config', icon: PlugIcon, path: '/admin/plugin' })
+        items.push({
+            key: 'admins',
+            label: 'Admin Management',
+            icon: ShieldIcon,
+            path: '/admin/admins',
+        })
+    }
 
-  return items
+    return items
 })
 
 // Get current route for active state
@@ -51,124 +56,107 @@ const route = useRoute()
 
 // Check if a route is active
 function isActiveRoute(path: string): boolean {
-  if (path === '/admin') {
-    return route.path === '/admin' || route.path === '/admin/'
-  }
-  return route.path.startsWith(path)
+    if (path === '/admin') {
+        return route.path === '/admin' || route.path === '/admin/'
+    }
+    return route.path.startsWith(path)
 }
 
 // Toggle mobile sidebar
 function toggleMobileSidebar() {
-  isMobileSidebarOpen.value = !isMobileSidebarOpen.value
+    isMobileSidebarOpen.value = !isMobileSidebarOpen.value
 }
 
 // Close mobile sidebar
 function closeMobileSidebar() {
-  isMobileSidebarOpen.value = false
+    isMobileSidebarOpen.value = false
 }
 </script>
 
 <template>
-  <div class="admin-layout">
-    <!-- Mobile Header -->
-    <header class="admin-mobile-header">
-      <NButton
-        quaternary
-        circle
-        size="large"
-        @click="toggleMobileSidebar"
-      >
-        <template #icon>
-          <NIcon :component="MenuIcon" />
-        </template>
-      </NButton>
-      <h1 class="text-lg font-semibold">{{ title }}</h1>
-      <NButton
-        quaternary
-        circle
-        size="large"
-        tag="a"
-        href="/"
-      >
-        <template #icon>
-          <NIcon :component="BackIcon" />
-        </template>
-      </NButton>
-    </header>
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <header class="admin-mobile-header">
+            <NButton quaternary circle size="large" @click="toggleMobileSidebar">
+                <template #icon>
+                    <NIcon :component="MenuIcon" />
+                </template>
+            </NButton>
+            <h1 class="text-lg font-semibold">{{ title }}</h1>
+            <NButton quaternary circle size="large" tag="a" href="/">
+                <template #icon>
+                    <NIcon :component="BackIcon" />
+                </template>
+            </NButton>
+        </header>
 
-    <!-- Mobile Sidebar Overlay -->
-    <Transition name="fade">
-      <div
-        v-if="isMobileSidebarOpen"
-        class="admin-sidebar-overlay"
-        @click="closeMobileSidebar"
-      />
-    </Transition>
+        <!-- Mobile Sidebar Overlay -->
+        <Transition name="fade">
+            <div
+                v-if="isMobileSidebarOpen"
+                class="admin-sidebar-overlay"
+                @click="closeMobileSidebar"
+            />
+        </Transition>
 
-    <!-- Sidebar -->
-    <aside
-      class="admin-sidebar"
-      :class="{ 'admin-sidebar--open': isMobileSidebarOpen }"
-    >
-      <!-- Sidebar Header -->
-      <div class="admin-sidebar-header">
-        <NSpace align="center" :size="12">
-        <NIcon :component="ShieldIcon" :size="24" color="var(--primary-color)" />
-          <span class="text-lg font-bold">Admin Panel</span>
-        </NSpace>
-        <NButton
-          quaternary
-          circle
-          size="small"
-          class="admin-sidebar-close"
-          @click="closeMobileSidebar"
-        >
-          <template #icon>
-            <NIcon :component="CloseIcon" />
-          </template>
-        </NButton>
-      </div>
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" :class="{ 'admin-sidebar--open': isMobileSidebarOpen }">
+            <!-- Sidebar Header -->
+            <div class="admin-sidebar-header">
+                <NSpace align="center" :size="12">
+                    <NIcon :component="ShieldIcon" :size="24" color="var(--primary-color)" />
+                    <span class="text-lg font-bold">Admin Panel</span>
+                </NSpace>
+                <NButton
+                    quaternary
+                    circle
+                    size="small"
+                    class="admin-sidebar-close"
+                    @click="closeMobileSidebar"
+                >
+                    <template #icon>
+                        <NIcon :component="CloseIcon" />
+                    </template>
+                </NButton>
+            </div>
 
-      <!-- Navigation -->
-      <nav class="admin-sidebar-nav">
-        <NuxtLink
-          v-for="item in navigationItems"
-          :key="item.key"
-          :to="item.path"
-          class="admin-nav-item"
-          :class="{ 'admin-nav-item--active': isActiveRoute(item.path) }"
-          @click="closeMobileSidebar"
-        >
-          <NIcon :component="item.icon" :size="20" />
-          <span>{{ item.label }}</span>
-        </NuxtLink>
-      </nav>
+            <!-- Navigation -->
+            <nav class="admin-sidebar-nav">
+                <NuxtLink
+                    v-for="item in navigationItems"
+                    :key="item.key"
+                    :to="item.path"
+                    class="admin-nav-item"
+                    :class="{ 'admin-nav-item--active': isActiveRoute(item.path) }"
+                    @click="closeMobileSidebar"
+                >
+                    <NIcon :component="item.icon" :size="20" />
+                    <span>{{ item.label }}</span>
+                </NuxtLink>
+            </nav>
 
-      <!-- Back to Site -->
-      <div class="admin-sidebar-footer">
-        <NuxtLink
-          to="/"
-          class="admin-nav-item admin-nav-item--secondary"
-        >
-          <NIcon :component="BackIcon" :size="20" />
-          <span>Back to Site</span>
-        </NuxtLink>
-      </div>
-    </aside>
+            <!-- Back to Site -->
+            <div class="admin-sidebar-footer">
+                <NuxtLink to="/" class="admin-nav-item admin-nav-item--secondary">
+                    <NIcon :component="BackIcon" :size="20" />
+                    <span>Back to Site</span>
+                </NuxtLink>
+            </div>
+        </aside>
 
-    <!-- Main Content -->
-    <main class="admin-content">
-      <!-- Desktop Header -->
-      <header class="admin-desktop-header">
-        <h1 class="text-2xl font-bold">{{ title }}</h1>
-      </header>
+        <!-- Main Content -->
+        <main class="admin-content">
+            <!-- Desktop Header -->
+            <header class="admin-desktop-header">
+                <h1 class="text-2xl font-bold">{{ title }}</h1>
+            </header>
 
-      <!-- Content Slot -->
-      <div class="admin-content-body">
-        <slot />
-      </div>
-    </main>
-  </div>
+            <!-- Content Slot -->
+            <div class="admin-content-body">
+                <slot />
+            </div>
+        </main>
+    </div>
 </template>
 
 <style scoped lang="sass">

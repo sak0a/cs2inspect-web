@@ -14,7 +14,11 @@ const DEFAULT_TTL = 30_000 // 30 seconds
  * Get a typed setting with in-memory caching.
  * Falls back to `getSettingTyped()` on cache miss or expiry.
  */
-export async function getCachedSetting<T>(key: string, defaultValue: T, ttlMs = DEFAULT_TTL): Promise<T> {
+export async function getCachedSetting<T>(
+    key: string,
+    defaultValue: T,
+    ttlMs = DEFAULT_TTL
+): Promise<T> {
     const now = Date.now()
     const cached = cache.get(key)
     if (cached && cached.expiresAt > now) {

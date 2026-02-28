@@ -57,10 +57,7 @@ export type HistoryTimeRange = '1h' | '6h' | '24h' | '7d'
 // ============================================================================
 
 export function useAdminHealth(options: AdminHealthOptions = {}) {
-    const {
-        autoRefreshInterval = 30000,
-        fetchOnMount = true,
-    } = options
+    const { autoRefreshInterval = 30000, fetchOnMount = true } = options
 
     // State
     const healthChecks = ref<HealthCheck[]>([])
@@ -79,21 +76,17 @@ export function useAdminHealth(options: AdminHealthOptions = {}) {
     // Computed
     const overallStatus = computed<HealthStatus>(() => {
         if (healthChecks.value.length === 0) return 'ok'
-        if (healthChecks.value.some(c => c.status === 'fail')) return 'fail'
-        if (healthChecks.value.some(c => c.status === 'degraded')) return 'degraded'
+        if (healthChecks.value.some((c) => c.status === 'fail')) return 'fail'
+        if (healthChecks.value.some((c) => c.status === 'degraded')) return 'degraded'
         return 'ok'
     })
 
-    const failedChecks = computed(() =>
-        healthChecks.value.filter(c => c.status === 'fail')
-    )
+    const failedChecks = computed(() => healthChecks.value.filter((c) => c.status === 'fail'))
 
-    const degradedChecks = computed(() =>
-        healthChecks.value.filter(c => c.status === 'degraded')
-    )
+    const degradedChecks = computed(() => healthChecks.value.filter((c) => c.status === 'degraded'))
 
     const filteredHistoricalData = computed(() =>
-        historicalData.value.filter(data => data.check_name !== 'environment')
+        historicalData.value.filter((data) => data.check_name !== 'environment')
     )
 
     // ========================================================================
@@ -104,7 +97,14 @@ export function useAdminHealth(options: AdminHealthOptions = {}) {
         isLoading.value = true
         error.value = null
         try {
-            const response = await $fetch<{ data: { status: HealthStatus; checks: HealthCheck[]; sampler: { running: boolean }; server: ServerInfo } }>('/api/admin/health/details')
+            const response = await $fetch<{
+                data: {
+                    status: HealthStatus
+                    checks: HealthCheck[]
+                    sampler: { running: boolean }
+                    server: ServerInfo
+                }
+            }>('/api/admin/health/details')
             const data = response.data
             healthChecks.value = data.checks || []
             serverInfo.value = data.server || null
@@ -140,7 +140,9 @@ export function useAdminHealth(options: AdminHealthOptions = {}) {
                     break
             }
 
-            const data = await $fetch<HistoricalData[]>(`/api/health/history?start_time=${startTime.toISOString()}&limit=500`)
+            const data = await $fetch<HistoricalData[]>(
+                `/api/health/history?start_time=${startTime.toISOString()}&limit=500`
+            )
             historicalData.value = data || []
         } catch (err) {
             console.error('Failed to load health history:', err)

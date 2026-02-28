@@ -4,29 +4,36 @@
  */
 
 // Core tables
-export { loadouts } from './loadouts';
+export { loadouts } from './loadouts'
 
 // Item tables
-export { agents } from './agents';
-export { gloves } from './gloves';
-export { knives } from './knives';
-export { music } from './music';
-export { pins } from './pins';
-export { pistols, rifles, smgs, heavys } from './weapons';
+export { agents } from './agents'
+export { gloves } from './gloves'
+export { knives } from './knives'
+export { music } from './music'
+export { pins } from './pins'
+export { pistols, rifles, smgs, heavys } from './weapons'
 
 // System tables
-export { healthCheckHistory, healthCheckConfig } from './health';
-export { migrations } from './migrations';
+export { healthCheckHistory, healthCheckConfig } from './health'
+export { migrations } from './migrations'
 
 // Sync tables
-export { syncNotifications } from './syncNotifications';
+export { syncNotifications } from './syncNotifications'
 
 // History tables
-export { itemHistory } from './itemHistory';
-export type { ItemHistorySnapshot, ChangeType, HistoryItemType, HistoryItemCategory, ItemHistoryRecord, NewItemHistoryRecord } from './itemHistory';
+export { itemHistory } from './itemHistory'
+export type {
+    ItemHistorySnapshot,
+    ChangeType,
+    HistoryItemType,
+    HistoryItemCategory,
+    ItemHistoryRecord,
+    NewItemHistoryRecord,
+} from './itemHistory'
 
 // Admin tables
-export { adminUsers, bannedUsers, appSettings, adminActivityLog } from './admin';
+export { adminUsers, bannedUsers, appSettings, adminActivityLog } from './admin'
 export type {
     AdminUser,
     NewAdminUser,
@@ -38,22 +45,22 @@ export type {
     NewAdminActivityLogEntry,
     AdminRole,
     SettingType,
-    AdminAction
-} from './admin';
+    AdminAction,
+} from './admin'
 
 // User profile tables
-export { userProfiles } from './userProfiles';
-export type { UserProfile, NewUserProfile } from './userProfiles';
+export { userProfiles } from './userProfiles'
+export type { UserProfile, NewUserProfile } from './userProfiles'
 
 // Plugin settings tables
-export { pluginSettings } from './pluginSettings';
+export { pluginSettings } from './pluginSettings'
 export type {
     PluginSetting,
     NewPluginSetting,
     PluginSettingCategory,
     PluginSettingReloadBehavior,
-    PluginSettingType
-} from './pluginSettings';
+    PluginSettingType,
+} from './pluginSettings'
 
 // Zod validation schemas (drizzle-zod)
 export {
@@ -76,4 +83,4 @@ export {
     insertPinSchema,
     selectPinSchema,
     resetRequestSchema,
-} from './zod';
+} from './zod'

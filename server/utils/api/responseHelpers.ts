@@ -1,27 +1,27 @@
-import type { H3Event } from 'h3';
-import { createError } from 'h3';
-import { useEvent } from 'nitropack/runtime/context';
+import type { H3Event } from 'h3'
+import { createError } from 'h3'
+import { useEvent } from 'nitropack/runtime/context'
 import type {
     APIResponse,
     APIPaginatedResponse,
     APICollectionResponse,
     PaginationMeta,
     APIResponseMeta,
-    ErrorInfo
-} from '~/types';
-import { API_VERSION, PAGINATION_DEFAULTS } from '~/server/utils/constants';
-import { getRequestLogger } from '~/server/logging/request';
+    ErrorInfo,
+} from '~/types'
+import { API_VERSION, PAGINATION_DEFAULTS } from '~/server/utils/constants'
+import { getRequestLogger } from '~/server/logging/request'
 
 function resolveRequestId(event?: H3Event): string | undefined {
     if (event?.context.requestId) {
-        return event.context.requestId;
+        return event.context.requestId
     }
 
     try {
-        const currentEvent = useEvent();
-        return currentEvent?.context.requestId;
+        const currentEvent = useEvent()
+        return currentEvent?.context.requestId
     } catch {
-        return undefined;
+        return undefined
     }
 }
 
@@ -38,19 +38,19 @@ export function createResponseMeta(
     const meta: APIResponseMeta = {
         timestamp: new Date().toISOString(),
         apiVersion: API_VERSION,
-        ...additionalMeta
-    };
+        ...additionalMeta,
+    }
 
     if (startTime) {
-        meta.processingTime = Date.now() - startTime;
+        meta.processingTime = Date.now() - startTime
     }
 
-    const requestId = resolveRequestId(event);
+    const requestId = resolveRequestId(event)
     if (requestId && meta.requestId === undefined) {
-        meta.requestId = requestId;
+        meta.requestId = requestId
     }
 
-    return meta;
+    return meta
 }
 
 /**
@@ -66,7 +66,7 @@ export function createPaginationMeta(
     limit: number,
     count: number
 ): PaginationMeta {
-    const totalPages = Math.ceil(totalItems / limit);
+    const totalPages = Math.ceil(totalItems / limit)
 
     return {
         currentPage,
@@ -75,8 +75,8 @@ export function createPaginationMeta(
         limit,
         count,
         hasNext: currentPage < totalPages,
-        hasPrevious: currentPage > 1
-    };
+        hasPrevious: currentPage > 1,
+    }
 }
 
 /**
@@ -94,8 +94,8 @@ export function createSuccessResponse<T>(
         success: true,
         data,
         meta,
-        ...(message && { message })
-    };
+        ...(message && { message }),
+    }
 }
 
 /**
@@ -122,8 +122,8 @@ export function createPaginatedResponse<T>(
         pagination,
         ...(appliedFilters && { appliedFilters }),
         ...(availableFilters && { availableFilters }),
-        ...(message && { message })
-    };
+        ...(message && { message }),
+    }
 }
 
 /**
@@ -150,10 +150,10 @@ export function createCollectionResponse<T>(
         collection: {
             totalCount,
             ...(categories && { categories }),
-            ...(filters && { filters })
+            ...(filters && { filters }),
         },
-        ...(message && { message })
-    };
+        ...(message && { message }),
+    }
 }
 
 /**
@@ -172,13 +172,13 @@ export function createErrorResponse(
         data: null,
         meta,
         error,
-        message: error.message
-    };
+        message: error.message,
+    }
 
     throw createError({
         statusCode,
-        data: errorResponse
-    });
+        data: errorResponse,
+    })
 }
 
 /**
@@ -194,14 +194,14 @@ export function createErrorInfo(
     details?: unknown,
     fieldErrors?: Record<string, string[]>
 ): ErrorInfo {
-    const result: ErrorInfo = { code, message };
+    const result: ErrorInfo = { code, message }
     if (details !== undefined && details !== null) {
-        result.details = details;
+        result.details = details
     }
     if (fieldErrors !== undefined) {
-        result.fieldErrors = fieldErrors;
+        result.fieldErrors = fieldErrors
     }
-    return result;
+    return result
 }
 
 /**
@@ -214,19 +214,25 @@ export function withErrorHandling<R>(
     errorCode: string = 'INTERNAL_ERROR'
 ) {
     return async (event: H3Event): Promise<R> => {
-        const startTime = Date.now();
+        const startTime = Date.now()
 
         try {
-            return await fn(event);
+            return await fn(event)
         } catch (error: unknown) {
-            const meta = createResponseMeta(startTime, {}, event);
+            const meta = createResponseMeta(startTime, {}, event)
 
             // If it's already a structured error, re-throw it
             if (error && typeof error === 'object' && 'statusCode' in error && 'data' in error) {
-                throw error;
+                throw error
             }
 
-            const statusCode = (error && typeof error === 'object' && 'statusCode' in error && typeof error.statusCode === 'number') ? error.statusCode : 500;
+            const statusCode =
+                error &&
+                typeof error === 'object' &&
+                'statusCode' in error &&
+                typeof error.statusCode === 'number'
+                    ? error.statusCode
+                    : 500
 
             if (statusCode >= 500) {
                 getRequestLogger(event).error(
@@ -236,19 +242,19 @@ export function withErrorHandling<R>(
                         err: error,
                     },
                     'Unhandled API error'
-                );
+                )
             }
 
             // Create standardized error response
             const errorInfo = createErrorInfo(
                 errorCode,
-                (error instanceof Error ? error.message : 'An unexpected error occurred'),
+                error instanceof Error ? error.message : 'An unexpected error occurred',
                 error
-            );
+            )
 
-            createErrorResponse(errorInfo, meta, statusCode);
+            createErrorResponse(errorInfo, meta, statusCode)
         }
-    };
+    }
 }
 
 /**
@@ -262,14 +268,17 @@ export function calculatePagination(
     defaultLimit: number = PAGINATION_DEFAULTS.DEFAULT_LIMIT,
     maxLimit: number = PAGINATION_DEFAULTS.MAX_LIMIT
 ) {
-    const page = Math.max(PAGINATION_DEFAULTS.DEFAULT_PAGE, Number(query.page) || PAGINATION_DEFAULTS.DEFAULT_PAGE);
+    const page = Math.max(
+        PAGINATION_DEFAULTS.DEFAULT_PAGE,
+        Number(query.page) || PAGINATION_DEFAULTS.DEFAULT_PAGE
+    )
     const limit = Math.min(
         Math.max(PAGINATION_DEFAULTS.MIN_LIMIT, Number(query.limit) || defaultLimit),
         maxLimit
-    );
-    const offset = (page - 1) * limit;
+    )
+    const offset = (page - 1) * limit
 
-    return { page, limit, offset };
+    return { page, limit, offset }
 }
 
 /**
@@ -281,22 +290,22 @@ export function extractFilterOptions<T>(
     data: T[],
     filterFields: Record<string, string>
 ): Record<string, unknown[]> {
-    const filters: Record<string, unknown[]> = {};
+    const filters: Record<string, unknown[]> = {}
 
     Object.entries(filterFields).forEach(([filterKey, fieldPath]) => {
-        const values = new Set<unknown>();
+        const values = new Set<unknown>()
 
-        data.forEach(item => {
-            const value = getNestedValue(item, fieldPath);
+        data.forEach((item) => {
+            const value = getNestedValue(item, fieldPath)
             if (value !== null && value !== undefined) {
-                values.add(value);
+                values.add(value)
             }
-        });
+        })
 
-        filters[filterKey] = Array.from(values).sort();
-    });
+        filters[filterKey] = Array.from(values).sort()
+    })
 
-    return filters;
+    return filters
 }
 
 /**
@@ -305,7 +314,15 @@ export function extractFilterOptions<T>(
  * @param path Dot-separated path (e.g., 'rarity.name')
  */
 function getNestedValue(obj: unknown, path: string): unknown {
-    return path.split('.').reduce((current: Record<string, unknown> | undefined, key) =>
-        current ? (current as Record<string, unknown>)[key] as Record<string, unknown> | undefined : undefined,
-        obj as Record<string, unknown>);
+    return path
+        .split('.')
+        .reduce(
+            (current: Record<string, unknown> | undefined, key) =>
+                current
+                    ? ((current as Record<string, unknown>)[key] as
+                          | Record<string, unknown>
+                          | undefined)
+                    : undefined,
+            obj as Record<string, unknown>
+        )
 }

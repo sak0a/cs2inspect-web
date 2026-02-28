@@ -33,28 +33,33 @@ graph TB
 ## Key Features
 
 ### 1. **Shared Steam Account**
+
 - Single Steam account instance accessible via REST API
 - Eliminates need for multiple Steam accounts
 - Centralized Steam session management
 
 ### 2. **Request Queue System**
+
 - Manages concurrent requests with intelligent queuing
 - Prevents Steam API rate limit violations
 - FIFO (First In, First Out) queue processing
 - Configurable queue size and timeout
 
 ### 3. **API Key Authentication**
+
 - Secure access control via API keys
 - Multiple API keys support
 - Request logging with masked API keys for security
 
 ### 4. **Health Monitoring**
+
 - Comprehensive health check endpoints
 - Steam client status monitoring
 - Queue status tracking
 - Docker-ready health probes
 
 ### 5. **Error Handling**
+
 - Detailed error responses with error codes
 - Graceful degradation when Steam is unavailable
 - Automatic retry logic for transient failures
@@ -71,6 +76,7 @@ graph TB
 ### Why Node.js Runtime?
 
 While Bun is used for package management and building, the service runs on Node.js because:
+
 - `cs2-inspect-lib` uses Steam libraries that are more reliable on Node.js
 - Production stability is prioritized over development speed
 - Development uses `tsx watch` for hot-reload
@@ -155,6 +161,7 @@ X-API-Key: your_api_key_here
 ### Inspect Endpoints
 
 #### Create Inspect URL
+
 ```http
 POST /api/inspect/create-url
 Content-Type: application/json
@@ -171,6 +178,7 @@ Content-Type: application/json
 ```
 
 #### Inspect Item (Requires Steam Client)
+
 ```http
 POST /api/inspect/inspect-item
 Content-Type: application/json
@@ -181,6 +189,7 @@ Content-Type: application/json
 ```
 
 #### Decode Masked URL
+
 ```http
 POST /api/inspect/decode-masked-only
 Content-Type: application/json
@@ -191,6 +200,7 @@ Content-Type: application/json
 ```
 
 #### Decode Hex Data
+
 ```http
 POST /api/inspect/decode-hex-data
 Content-Type: application/json
@@ -201,6 +211,7 @@ Content-Type: application/json
 ```
 
 #### Validate Inspect URL
+
 ```http
 POST /api/inspect/validate-url
 Content-Type: application/json
@@ -211,6 +222,7 @@ Content-Type: application/json
 ```
 
 #### Analyze URL Structure
+
 ```http
 POST /api/inspect/analyze-url
 Content-Type: application/json
@@ -223,95 +235,106 @@ Content-Type: application/json
 ### Health Endpoints
 
 #### General Health
+
 ```http
 GET /api/health
 ```
 
 **Response:**
+
 ```json
 {
-  "status": "ok",
-  "timestamp": "2026-01-25T00:00:00.000Z",
-  "checks": {
-    "steamClient": "ok",
-    "queue": "ok"
-  }
+    "status": "ok",
+    "timestamp": "2026-01-25T00:00:00.000Z",
+    "checks": {
+        "steamClient": "ok",
+        "queue": "ok"
+    }
 }
 ```
 
 #### Readiness Probe
+
 ```http
 GET /api/health/ready
 ```
 
 **Response (Ready):**
+
 ```json
 {
-  "status": "ok",
-  "ready": true
+    "status": "ok",
+    "ready": true
 }
 ```
 
 #### Liveness Probe
+
 ```http
 GET /api/health/live
 ```
 
 **Response:**
+
 ```json
 {
-  "status": "ok",
-  "alive": true
+    "status": "ok",
+    "alive": true
 }
 ```
 
 ### Status Endpoints
 
 #### General Status
+
 ```http
 GET /api/status
 ```
 
 #### Steam Client Status
+
 ```http
 GET /api/status/steam-client
 ```
 
 **Response:**
+
 ```json
 {
-  "status": "connected",
-  "uptime": 3600,
-  "accountName": "steam_username"
+    "status": "connected",
+    "uptime": 3600,
+    "accountName": "steam_username"
 }
 ```
 
 #### Queue Status
+
 ```http
 GET /api/status/queue
 ```
 
 **Response:**
+
 ```json
 {
-  "size": 5,
-  "processing": 1,
-  "maxSize": 100
+    "size": 5,
+    "processing": 1,
+    "maxSize": 100
 }
 ```
 
 ## Error Codes
 
-| Code | Description | HTTP Status |
-|------|-------------|-------------|
-| `STEAM_CLIENT_UNAVAILABLE` | Steam client not initialized or connected | 503 |
-| `INVALID_API_KEY` | API key authentication failed | 401 |
-| `RATE_LIMIT_EXCEEDED` | Too many requests | 429 |
-| `QUEUE_FULL` | Request queue is at capacity | 503 |
-| `REQUEST_TIMEOUT` | Request processing timed out | 504 |
-| `INVALID_INSPECT_URL` | Inspect URL format is invalid | 400 |
-| `VALIDATION_ERROR` | Request validation failed | 400 |
-| `INTERNAL_ERROR` | Internal server error | 500 |
+| Code                       | Description                               | HTTP Status |
+| -------------------------- | ----------------------------------------- | ----------- |
+| `STEAM_CLIENT_UNAVAILABLE` | Steam client not initialized or connected | 503         |
+| `INVALID_API_KEY`          | API key authentication failed             | 401         |
+| `RATE_LIMIT_EXCEEDED`      | Too many requests                         | 429         |
+| `QUEUE_FULL`               | Request queue is at capacity              | 503         |
+| `REQUEST_TIMEOUT`          | Request processing timed out              | 504         |
+| `INVALID_INSPECT_URL`      | Inspect URL format is invalid             | 400         |
+| `VALIDATION_ERROR`         | Request validation failed                 | 400         |
+| `INTERNAL_ERROR`           | Internal server error                     | 500         |
 
 ## Testing
 
@@ -329,6 +352,7 @@ bun test --watch
 ```
 
 **Unit Test Files:**
+
 - `src/routes/inspect.test.ts` - Inspect endpoint tests
 - `src/services/queue.test.ts` - Queue management tests
 - `src/middleware/auth.test.ts` - Authentication tests
@@ -352,6 +376,7 @@ bun test:all
 ```
 
 **Integration Test Files:**
+
 - `src/routes/inspect.integration.test.ts` - Real Steam integration
 - `src/services/steamClient.test.ts` - Steam client tests
 
@@ -511,6 +536,7 @@ sequenceDiagram
 ### Scalability
 
 For high-traffic scenarios, consider:
+
 - Multiple Steam Service instances with different Steam accounts
 - Load balancer distributing requests
 - Redis-based shared queue for distributed processing
@@ -519,6 +545,7 @@ For high-traffic scenarios, consider:
 ### Caching
 
 Currently, the service doesn't cache inspect results. Consider:
+
 - Caching frequently inspected items
 - Time-based cache expiration
 - Cache invalidation strategy
@@ -526,28 +553,28 @@ Currently, the service doesn't cache inspect results. Consider:
 ## Security Best Practices
 
 1. **API Keys**
-   - Use strong, randomly generated API keys
-   - Rotate API keys periodically
-   - Never commit API keys to version control
+    - Use strong, randomly generated API keys
+    - Rotate API keys periodically
+    - Never commit API keys to version control
 
 2. **Steam Credentials**
-   - Use a dedicated Steam account for the service
-   - Enable Steam Guard (mobile authenticator)
-   - Don't use your personal Steam account
+    - Use a dedicated Steam account for the service
+    - Enable Steam Guard (mobile authenticator)
+    - Don't use your personal Steam account
 
 3. **CORS**
-   - Restrict `CORS_ORIGINS` to your domains only
-   - Never use `*` in production
+    - Restrict `CORS_ORIGINS` to your domains only
+    - Never use `*` in production
 
 4. **Rate Limiting**
-   - Adjust `RATE_LIMIT_MAX` based on your needs
-   - Monitor for abuse patterns
-   - Consider IP-based rate limiting
+    - Adjust `RATE_LIMIT_MAX` based on your needs
+    - Monitor for abuse patterns
+    - Consider IP-based rate limiting
 
 5. **Logging**
-   - API keys are automatically masked in logs
-   - Monitor logs for suspicious activity
-   - Set `LOG_API_REQUESTS=true` for audit trail
+    - API keys are automatically masked in logs
+    - Monitor logs for suspicious activity
+    - Set `LOG_API_REQUESTS=true` for audit trail
 
 ## Troubleshooting
 
@@ -556,6 +583,7 @@ Currently, the service doesn't cache inspect results. Consider:
 **Symptoms**: `STEAM_CLIENT_UNAVAILABLE` errors
 
 **Solutions**:
+
 1. Check Steam credentials in `.env`
 2. Ensure Steam Guard is properly configured
 3. Check Steam server status
@@ -567,6 +595,7 @@ Currently, the service doesn't cache inspect results. Consider:
 **Symptoms**: `QUEUE_FULL` error code
 
 **Solutions**:
+
 1. Increase queue size in configuration
 2. Scale to multiple service instances
 3. Implement request prioritization
@@ -577,6 +606,7 @@ Currently, the service doesn't cache inspect results. Consider:
 **Symptoms**: 429 status codes
 
 **Solutions**:
+
 1. Increase `RATE_LIMIT_MAX`
 2. Implement request throttling on client side
 3. Use multiple API keys for different clients
@@ -587,6 +617,7 @@ Currently, the service doesn't cache inspect results. Consider:
 **Symptoms**: `REQUEST_TIMEOUT` errors
 
 **Solutions**:
+
 1. Increase request timeout in queue
 2. Check Steam API response times
 3. Monitor network latency
@@ -597,6 +628,7 @@ Currently, the service doesn't cache inspect results. Consider:
 ### Health Checks
 
 Monitor these endpoints regularly:
+
 - `/api/health` - Overall service health
 - `/api/health/ready` - Readiness for traffic
 - `/api/health/live` - Process liveness
@@ -613,6 +645,7 @@ Monitor these endpoints regularly:
 ### Logging
 
 The service logs:
+
 - All API requests (when enabled)
 - Steam client connection events
 - Queue operations
@@ -622,6 +655,7 @@ The service logs:
 ### Alerts
 
 Consider setting up alerts for:
+
 - Steam client disconnections
 - High error rates (>5%)
 - Queue full conditions

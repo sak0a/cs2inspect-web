@@ -37,11 +37,13 @@ LOG_API_REQUESTS=true
 ### 3. Start the Service
 
 **Development:**
+
 ```bash
 bun run dev
 ```
 
 **Production:**
+
 ```bash
 bun run build
 bun start
@@ -103,34 +105,42 @@ curl -X POST http://localhost:3000/api/inspect/inspect-item \
 The main app automatically uses the steam service if `STEAM_SERVICE_URL` and `STEAM_SERVICE_API_KEY` are configured. Otherwise, it falls back to the local Steam client.
 
 ### Step 1: Deploy Service
+
 Deploy the steam service alongside your main app.
 
 ### Step 2: Configure Main App
+
 Add the service configuration to your main app's environment variables.
 
 ### Step 3: Test
+
 Test that the main app can communicate with the service.
 
 ### Step 4: Remove Local Client (Optional)
+
 Once confirmed working, you can remove Steam credentials from the main app's environment variables.
 
 ## Troubleshooting
 
 ### Service Won't Start
+
 - Check that all required environment variables are set
 - Verify Steam credentials are correct
 - Check port 3000 is not already in use
 
 ### "Invalid API Key" Errors
+
 - Verify `API_KEYS` in service `.env` matches `STEAM_SERVICE_API_KEY` in main app
 - Check the `X-API-Key` header is being sent correctly
 
 ### "Steam Client Unavailable" Errors
+
 - Check Steam credentials in service `.env`
 - Verify Steam account is not logged in elsewhere
 - Check service logs for connection errors
 
 ### Connection Timeouts
+
 - Verify `STEAM_SERVICE_URL` is correct
 - Check network connectivity between services
 - Increase timeout values if needed
@@ -157,6 +167,7 @@ curl http://localhost:3000/api/status
 ```
 
 Returns:
+
 - Steam client status
 - Queue statistics
 - Server uptime
@@ -171,12 +182,14 @@ Returns:
 ## Performance Tuning
 
 ### Queue Configuration
+
 - `STEAM_MAX_QUEUE_SIZE`: Maximum queue size (default: 100)
 - `STEAM_RATE_LIMIT_DELAY`: Delay between requests in ms (default: 1500)
 - `STEAM_REQUEST_TIMEOUT`: Request timeout in ms (default: 10000)
 - `STEAM_QUEUE_TIMEOUT`: Queue timeout in ms (default: 30000)
 
 ### Rate Limiting
+
 - `RATE_LIMIT_MAX`: Maximum requests per window (default: 100)
 - `RATE_LIMIT_WINDOW`: Time window in ms (default: 60000)
 

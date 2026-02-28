@@ -5,6 +5,7 @@ This guide explains how to deploy the Steam Service alongside your main Nuxt app
 ## Overview
 
 The Steam Service runs as a separate containerized service that can be:
+
 - Deployed independently from the main app
 - Accessed via internal network or external subdomain
 - Scaled independently
@@ -74,6 +75,7 @@ Alternatively, create a `Dockerfile` (already exists) which Nixpacks can use as 
 ### 2.2 Configure Repository
 
 **Repository Settings:**
+
 - **Repository URL**: Your Git repository URL
 - **Branch**: `main` or your deployment branch
 - **Build Pack**: Select **Nixpacks** or **Dockerfile**
@@ -119,6 +121,7 @@ STEAM_QUEUE_TIMEOUT=30000
 ```
 
 **Important Security Notes:**
+
 - Generate a strong, random API key (use `openssl rand -hex 32`)
 - Never commit API keys to Git
 - Use Coolify's secret management for sensitive values
@@ -126,6 +129,7 @@ STEAM_QUEUE_TIMEOUT=30000
 ### 2.4 Configure Ports
 
 **Port Configuration:**
+
 - **Internal Port**: `3001`
 - **Public Port**: Leave empty for internal-only, or set to `3001` for external access
 
@@ -149,6 +153,7 @@ STEAM_QUEUE_TIMEOUT=30000
 Configure health checks in Coolify:
 
 **Health Check Settings:**
+
 - **Path**: `/api/health/live`
 - **Interval**: `30s`
 - **Timeout**: `5s`
@@ -168,6 +173,7 @@ STEAM_SERVICE_API_KEY=your_secure_api_key_here
 ```
 
 **For External Access:**
+
 ```env
 STEAM_SERVICE_URL=https://steam.yourdomain.com
 STEAM_SERVICE_API_KEY=your_secure_api_key_here
@@ -178,11 +184,13 @@ STEAM_SERVICE_API_KEY=your_secure_api_key_here
 ### 3.2 Network Configuration
 
 If using internal networking:
+
 - Both services must be on the same Coolify instance
 - Use service name: `steam-service:3001`
 - No external network access needed
 
 If using external access:
+
 - Use the full domain: `https://steam.yourdomain.com`
 - Ensure CORS is configured correctly
 - SSL certificate must be valid
@@ -192,39 +200,47 @@ If using external access:
 If you prefer Docker Compose, create a `docker-compose.steam.yml`:
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
-  steam-service:
-    build:
-      context: ./services/steam-service
-      dockerfile: Dockerfile
-    container_name: cs2inspect-steam-service
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - PORT=3001
-      - HOST=0.0.0.0
-      - STEAM_USERNAME=${STEAM_USERNAME}
-      - STEAM_PASSWORD=${STEAM_PASSWORD}
-      - STEAM_API_KEY=${STEAM_API_KEY}
-      - API_KEYS=${STEAM_SERVICE_API_KEY}
-      - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
-      - LOG_API_REQUESTS=${LOG_API_REQUESTS}
-    ports:
-      - "3001:3001"
-    healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/api/health/live"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
-    networks:
-      - app-network
+    steam-service:
+        build:
+            context: ./services/steam-service
+            dockerfile: Dockerfile
+        container_name: cs2inspect-steam-service
+        restart: unless-stopped
+        environment:
+            - NODE_ENV=production
+            - PORT=3001
+            - HOST=0.0.0.0
+            - STEAM_USERNAME=${STEAM_USERNAME}
+            - STEAM_PASSWORD=${STEAM_PASSWORD}
+            - STEAM_API_KEY=${STEAM_API_KEY}
+            - API_KEYS=${STEAM_SERVICE_API_KEY}
+            - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
+            - LOG_API_REQUESTS=${LOG_API_REQUESTS}
+        ports:
+            - '3001:3001'
+        healthcheck:
+            test:
+                [
+                    'CMD',
+                    'wget',
+                    '--no-verbose',
+                    '--tries=1',
+                    '--spider',
+                    'http://localhost:3001/api/health/live',
+                ]
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 60s
+        networks:
+            - app-network
 
 networks:
-  app-network:
-    driver: bridge
+    app-network:
+        driver: bridge
 ```
 
 Then deploy this as a Docker Compose resource in Coolify.
@@ -270,6 +286,7 @@ Monitor these endpoints:
 ### 6.2 Logs
 
 View logs in Coolify:
+
 - **Service Logs**: Check for Steam client connection status
 - **Error Logs**: Monitor for authentication failures, queue overflows
 - **Request Logs**: If `LOG_API_REQUESTS=true`
@@ -286,12 +303,14 @@ View logs in Coolify:
 ### Service Won't Start
 
 **Check:**
+
 1. Environment variables are set correctly
 2. Steam credentials are valid
 3. Port 3001 is not already in use
 4. Build completed successfully
 
 **Logs to check:**
+
 ```bash
 # In Coolify, check service logs for:
 - "Steam service started on..."
@@ -302,11 +321,13 @@ View logs in Coolify:
 ### "Invalid API Key" Errors
 
 **Check:**
+
 1. `API_KEYS` in steam service matches `STEAM_SERVICE_API_KEY` in main app
 2. API key is sent in `X-API-Key` header
 3. No extra spaces or newlines in API key
 
 **Test:**
+
 ```bash
 # Verify API key format
 echo $API_KEYS | tr ',' '\n' | wc -l  # Should show number of keys
@@ -315,12 +336,14 @@ echo $API_KEYS | tr ',' '\n' | wc -l  # Should show number of keys
 ### Steam Client Not Connecting
 
 **Check:**
+
 1. Steam credentials are correct
 2. Account is not logged in elsewhere
 3. Steam Guard is disabled (if applicable)
 4. Network connectivity to Steam servers
 
 **Common Errors:**
+
 - `LoggedInElsewhere` - Account is in use elsewhere
 - `InvalidPassword` - Wrong credentials
 - `RateLimited` - Too many login attempts
@@ -328,11 +351,13 @@ echo $API_KEYS | tr ',' '\n' | wc -l  # Should show number of keys
 ### Network Connection Issues
 
 **Internal Network:**
+
 - Verify both services are on same Coolify instance
 - Check service name resolution: `ping steam-service`
 - Verify port is accessible: `telnet steam-service 3001`
 
 **External Network:**
+
 - Verify domain DNS points to server
 - Check SSL certificate is valid
 - Verify CORS origins include your main app domain
@@ -341,6 +366,7 @@ echo $API_KEYS | tr ',' '\n' | wc -l  # Should show number of keys
 ### Queue Full Errors
 
 **Solutions:**
+
 1. Increase `STEAM_MAX_QUEUE_SIZE` (default: 100)
 2. Increase `STEAM_RATE_LIMIT_DELAY` to process slower
 3. Scale service horizontally (multiple instances with different Steam accounts)
@@ -373,12 +399,14 @@ echo $API_KEYS | tr ',' '\n' | wc -l  # Should show number of keys
 ### 8.4 Scaling
 
 **Horizontal Scaling:**
+
 - Deploy multiple steam-service instances
 - Each instance uses different Steam account
 - Load balance requests across instances
 - Update main app to use multiple service URLs
 
 **Vertical Scaling:**
+
 - Increase queue size
 - Adjust rate limits
 - Increase timeout values
@@ -406,11 +434,13 @@ If something goes wrong:
 ### Service URLs
 
 **Internal:**
+
 ```
 http://steam-service:3001
 ```
 
 **External:**
+
 ```
 https://steam.yourdomain.com
 ```
@@ -427,6 +457,7 @@ GET /api/status           # Service status
 ### Environment Variables Checklist
 
 **Steam Service:**
+
 - [ ] `STEAM_USERNAME`
 - [ ] `STEAM_PASSWORD`
 - [ ] `STEAM_API_KEY`
@@ -435,6 +466,7 @@ GET /api/status           # Service status
 - [ ] `PORT=3001`
 
 **Main App:**
+
 - [ ] `STEAM_SERVICE_URL`
 - [ ] `STEAM_SERVICE_API_KEY`
 
@@ -457,6 +489,7 @@ curl -X POST http://steam-service:3001/api/inspect/analyze-url \
 ## Support
 
 If you encounter issues:
+
 1. Check service logs in Coolify
 2. Verify all environment variables
 3. Test health endpoints

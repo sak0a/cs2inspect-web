@@ -6,30 +6,32 @@
  */
 export function filterDataByQuery<T extends object>(data: T[], query: Record<string, string>): T[] {
     if (!data || !Array.isArray(data)) {
-        return [];
+        return []
     }
 
     return data.filter((item: T) => {
         return Object.keys(query).every((key) => {
             // Check if the item has the property and if it matches the query
             if (key in item) {
-                const queryValue = query[key]; // Already cast to string in the event handler
-                const itemValue = (item as Record<string, unknown>)[key];
+                const queryValue = query[key] // Already cast to string in the event handler
+                const itemValue = (item as Record<string, unknown>)[key]
 
                 // Handle nested objects (like rarity, team, etc.)
                 if (typeof itemValue === 'object' && itemValue !== null) {
-                    const nestedValue = itemValue as Record<string, unknown>;
-                    return nestedValue.id === queryValue ||
+                    const nestedValue = itemValue as Record<string, unknown>
+                    return (
+                        nestedValue.id === queryValue ||
                         nestedValue.name === queryValue ||
-                        (nestedValue.color && nestedValue.color === queryValue);
+                        (nestedValue.color && nestedValue.color === queryValue)
+                    )
                 }
 
                 // For other fields, perform a direct comparison
-                return itemValue === queryValue;
+                return itemValue === queryValue
             }
-            return true; // If the key doesn't exist in the item, ignore it
-        });
-    });
+            return true // If the key doesn't exist in the item, ignore it
+        })
+    })
 }
 
 /**
@@ -41,22 +43,22 @@ export function createDataApiHandler<T extends object>(
     getDataFn: (() => T[]) | (() => Promise<T[]>)
 ) {
     return defineEventHandler(async (event) => {
-        const startTime = Date.now();
-        const query = getQuery(event);
+        const startTime = Date.now()
+        const query = getQuery(event)
 
         // Support both sync and async data getters
-        const dataResult = getDataFn();
-        const data = dataResult instanceof Promise ? await dataResult : dataResult;
+        const dataResult = getDataFn()
+        const data = dataResult instanceof Promise ? await dataResult : dataResult
 
         // Convert query to Record<string, string> and remove undefined values
-        const cleanQuery: Record<string, string> = {};
+        const cleanQuery: Record<string, string> = {}
         Object.entries(query).forEach(([key, value]) => {
             if (value !== undefined && typeof value === 'string') {
-                cleanQuery[key] = value;
+                cleanQuery[key] = value
             }
-        });
+        })
 
-        const filteredData = filterDataByQuery(data, cleanQuery);
+        const filteredData = filterDataByQuery(data, cleanQuery)
 
         return {
             success: true,
@@ -66,8 +68,8 @@ export function createDataApiHandler<T extends object>(
                 apiVersion: '1.0.0',
                 processingTime: Date.now() - startTime,
                 totalItems: filteredData.length,
-                filtersApplied: Object.keys(cleanQuery)
-            }
-        };
-    });
+                filtersApplied: Object.keys(cleanQuery),
+            },
+        }
+    })
 }

@@ -9,11 +9,13 @@ import { Logger } from '~/server/utils/logger'
 export function parseBodyWithSchema<T extends z.ZodType>(schema: T, body: unknown): z.infer<T> {
     const result = schema.safeParse(body)
     if (!result.success) {
-        const details = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ')
+        const details = result.error.issues
+            .map((i) => `${i.path.join('.')}: ${i.message}`)
+            .join('; ')
         Logger.warn(`Body validation failed details=${details}`, 'validation')
         throw createError({
             statusCode: 400,
-            message: `Validation failed: ${details}`
+            message: `Validation failed: ${details}`,
         })
     }
     return result.data
@@ -27,11 +29,13 @@ export function parseQueryWithSchema<T extends z.ZodType>(schema: T, event: H3Ev
     const query = getQuery(event)
     const result = schema.safeParse(query)
     if (!result.success) {
-        const details = result.error.issues.map(i => `${i.path.join('.')}: ${i.message}`).join('; ')
+        const details = result.error.issues
+            .map((i) => `${i.path.join('.')}: ${i.message}`)
+            .join('; ')
         Logger.warn(`Query validation failed details=${details}`, 'validation')
         throw createError({
             statusCode: 400,
-            message: `Validation failed: ${details}`
+            message: `Validation failed: ${details}`,
         })
     }
     return result.data

@@ -13,7 +13,7 @@ import { ADMIN_ERROR_CODES } from '~/server/utils/constants'
 import {
     countItemsByCategory,
     getWeaponBreakdown,
-    type ItemCategoryCount
+    type ItemCategoryCount,
 } from '~/server/utils/admin/statsQueries'
 
 export interface WeaponBreakdown {
@@ -36,18 +36,19 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
     // Fetch item statistics in parallel
     const [categories, weaponBreakdown] = await Promise.all([
         countItemsByCategory(),
-        getWeaponBreakdown()
+        getWeaponBreakdown(),
     ])
 
     // Calculate total items
-    const totalItems = categories.weapons +
+    const totalItems =
+        categories.weapons +
         categories.knives +
         categories.gloves +
         categories.agents +
@@ -57,12 +58,12 @@ export default useErrorHandling(async (event) => {
     const stats: AdminItemStats = {
         categories,
         weaponBreakdown,
-        totalItems
+        totalItems,
     }
 
     const meta = createResponseMeta(startTime, {
         adminSteamId: event.context.admin.steamId,
-        endpoint: 'admin/stats/items'
+        endpoint: 'admin/stats/items',
     })
 
     return createSuccessResponse(stats, meta, 'Item stats fetched successfully')

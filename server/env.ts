@@ -3,12 +3,12 @@ import { z } from 'zod'
 
 /**
  * Type-safe environment variables with runtime validation.
- * 
+ *
  * Benefits:
  * - Fails fast at startup if required env vars are missing
  * - Full TypeScript support with autocompletion
  * - Clear error messages for invalid config
- * 
+ *
  * Usage:
  * ```typescript
  * import { env } from '~/server/env'
@@ -50,10 +50,18 @@ export const env = createEnv({
 
         // Logging
         LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
-        LOG_FORMAT: z.enum(['pretty', 'json']).optional()
+        LOG_FORMAT: z
+            .enum(['pretty', 'json'])
+            .optional()
             .transform((val) => val ?? (process.env.NODE_ENV === 'production' ? 'json' : 'pretty')),
-        LOG_API_REQUESTS: z.string().default('false').transform((val) => val === 'true'),
-        LOG_HEALTH_REQUESTS: z.string().default('false').transform((val) => val === 'true'),
+        LOG_API_REQUESTS: z
+            .string()
+            .default('false')
+            .transform((val) => val === 'true'),
+        LOG_HEALTH_REQUESTS: z
+            .string()
+            .default('false')
+            .transform((val) => val === 'true'),
 
         // Proxy Health Check
         PROXY_HEALTH_BASE_URL: z.string().url().optional(),

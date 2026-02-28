@@ -5,6 +5,7 @@ Welcome to CS2Inspect! This guide will help you get started with using the appli
 ## What You Need
 
 To use CS2Inspect, you need:
+
 - A **Steam account** (for login)
 - A **web browser** (Chrome, Firefox, Edge, or Safari)
 - An **internet connection**
@@ -58,20 +59,21 @@ To customize a weapon:
 1. **Select the weapon** from the weapon grid or menu
 2. **Choose a skin** from the available options
 3. **Adjust settings**:
-   - **Float Value**: Controls wear (lower = cleaner)
-   - **StatTrak™**: Enable to add a kill counter
-   - **Name Tag**: Give your weapon a custom name
+    - **Float Value**: Controls wear (lower = cleaner)
+    - **StatTrak™**: Enable to add a kill counter
+    - **Name Tag**: Give your weapon a custom name
 4. **Add stickers** (optional):
-   - Click an empty sticker slot
-   - Search for a sticker
-   - Click to apply it
+    - Click an empty sticker slot
+    - Search for a sticker
+    - Click to apply it
 5. **Save** your changes
 
 ::: tip Quick Tips
+
 - Use the search bar to find skins quickly
 - Click the preview to see your weapon in detail
 - Changes are saved automatically
-:::
+  :::
 
 ### Knives
 
@@ -164,17 +166,17 @@ Once you're on a server with the plugin:
 1. **Your loadout loads automatically** when you join
 2. Your configured weapons, knives, gloves, agents, music kit, and pin will appear in-game
 3. Use in-game commands to manage your items:
-   - **Switch loadout**: `!loadout <name>` or `!switch <name>`
-   - **List loadouts**: `!loadouts`
-   - **Change knife**: `!knife <type>` (e.g., `!knife karambit`)
-   - **Change knife + customize**: `!karambit doppler4 .02 s991 t444` (switch and configure in one command)
-   - **Change gloves**: `!glove <type>`
-   - **Change gloves + customize**: `!sport superconductor .02 s991` (switch and configure in one command)
-   - **Change agent**: `!agent <type>`
-   - **Configure weapon**: `!g <weapon> <config>` (e.g., `!g ak47 printstream .02`)
-   - **View all commands**: `!cs2inspect`
-   - **Use Steam inventory items**: `!knife inventory`, `!glove inventory`, etc.
-   - **Reset to vanilla**: `!knife default`, `!glove default`, etc.
+    - **Switch loadout**: `!loadout <name>` or `!switch <name>`
+    - **List loadouts**: `!loadouts`
+    - **Change knife**: `!knife <type>` (e.g., `!knife karambit`)
+    - **Change knife + customize**: `!karambit doppler4 .02 s991 t444` (switch and configure in one command)
+    - **Change gloves**: `!glove <type>`
+    - **Change gloves + customize**: `!sport superconductor .02 s991` (switch and configure in one command)
+    - **Change agent**: `!agent <type>`
+    - **Configure weapon**: `!g <weapon> <config>` (e.g., `!g ak47 printstream .02`)
+    - **View all commands**: `!cs2inspect`
+    - **Use Steam inventory items**: `!knife inventory`, `!glove inventory`, etc.
+    - **Reset to vanilla**: `!knife default`, `!glove default`, etc.
 
 ::: tip Full Command Reference
 For the complete list of commands including the advanced weapon configuration syntax, per-knife shortcuts, and admin commands, see the [Plugin Commands](plugin/commands.md) documentation.
@@ -185,9 +187,9 @@ For the complete list of commands including the advanced weapon configuration sy
 You can import item configurations from CS2 inspect links:
 
 1. Copy an inspect link from:
-   - Steam Market listings
-   - In-game inspect links
-   - Inventory items
+    - Steam Market listings
+    - In-game inspect links
+    - Inventory items
 2. Go to the **inspect link import** section in CS2Inspect
 3. Paste the inspect link
 4. Click **"Import"**
@@ -238,6 +240,7 @@ You can import item configurations from CS2 inspect links:
 ### Browser Recommendations
 
 For the best experience, we recommend:
+
 - **Chrome** or **Edge** (best compatibility)
 - **Firefox** (good compatibility)
 - **Safari** (works well on Mac/iOS)
@@ -252,6 +255,7 @@ For the best experience, we recommend:
 ### Organizing Loadouts
 
 Create loadouts for different scenarios:
+
 - **"Competitive"** - Your serious, try-hard skins
 - **"Casual"** - Fun, colorful skins
 - **"Budget"** - Lower-tier skins
@@ -263,6 +267,7 @@ Create loadouts for different scenarios:
 ### What Information is Stored
 
 CS2Inspect stores:
+
 - Your Steam ID (public information)
 - Your loadout configurations
 - Your login session
@@ -270,6 +275,7 @@ CS2Inspect stores:
 ### What is NOT Stored
 
 CS2Inspect does NOT store:
+
 - Your Steam password
 - Your actual CS2 inventory
 - Any payment information
@@ -278,6 +284,7 @@ CS2Inspect does NOT store:
 ### Logging Out
 
 When you're done:
+
 1. Click your **username** or **profile icon**
 2. Click **"Logout"**
 3. You'll be logged out and returned to the login page
@@ -301,4 +308,4 @@ If you need help:
 
 ---
 
-*Enjoy customizing your CS2 loadouts!*
+_Enjoy customizing your CS2 loadouts!_

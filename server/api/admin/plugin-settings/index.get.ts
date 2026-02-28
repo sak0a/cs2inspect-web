@@ -8,10 +8,7 @@ import { useErrorHandling } from '~/server/utils/errorHandler'
 import { useDatabase } from '~/server/utils/database'
 import { pluginSettings } from '~/server/database/schema'
 import { asc } from 'drizzle-orm'
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 
 export default useErrorHandling(async () => {
     const startTime = Date.now()

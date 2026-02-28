@@ -8,15 +8,15 @@ CS2Inspect includes an interactive tutorial system that guides users through the
 
 The tutorial system is composed of the following parts:
 
-| File | Purpose |
-|------|---------|
-| `types/tutorial.ts` | TypeScript types for steps and definitions |
-| `stores/tutorialStore.ts` | Pinia store managing tutorial state |
-| `composables/useTutorial.ts` | Composable exposing tutorial controls |
-| `utils/tutorialDefinitions.ts` | Declarative tutorial definitions |
-| `components/tutorial/TutorialOverlay.vue` | SVG spotlight overlay + step lifecycle |
-| `components/tutorial/TutorialPopover.vue` | Popover UI with navigation buttons |
-| `assets/css/tutorial.css` | Glassmorphism styles and animations |
+| File                                      | Purpose                                    |
+| ----------------------------------------- | ------------------------------------------ |
+| `types/tutorial.ts`                       | TypeScript types for steps and definitions |
+| `stores/tutorialStore.ts`                 | Pinia store managing tutorial state        |
+| `composables/useTutorial.ts`              | Composable exposing tutorial controls      |
+| `utils/tutorialDefinitions.ts`            | Declarative tutorial definitions           |
+| `components/tutorial/TutorialOverlay.vue` | SVG spotlight overlay + step lifecycle     |
+| `components/tutorial/TutorialPopover.vue` | Popover UI with navigation buttons         |
+| `assets/css/tutorial.css`                 | Glassmorphism styles and animations        |
 
 ### Data Flow
 
@@ -39,17 +39,17 @@ TutorialPopover.vue             (renders step info, navigation buttons)
 
 ```typescript
 interface TutorialStep {
-  titleKey: string              // i18n key for the step title
-  descriptionKey: string        // i18n key for the step description
-  target: string                // data-tutorial attribute value to locate the element
-  popoverPosition: PopoverPosition  // 'top' | 'bottom' | 'left' | 'right' | 'auto'
-  type: StepType                // 'info' | 'action'
-  actionTrigger?: string        // for action steps: the expected user action (e.g. 'click')
-  requiredRoute?: string        // route the user must be on
-  beforeStep?: () => Promise<void> | void  // runs before step activates
-  afterStep?: () => Promise<void> | void   // runs after advancing from step
-  spotlightPadding?: number     // extra padding around spotlight (default: 8)
-  scrollBlock?: ScrollLogicalPosition      // scrollIntoView block option (default: 'center')
+    titleKey: string // i18n key for the step title
+    descriptionKey: string // i18n key for the step description
+    target: string // data-tutorial attribute value to locate the element
+    popoverPosition: PopoverPosition // 'top' | 'bottom' | 'left' | 'right' | 'auto'
+    type: StepType // 'info' | 'action'
+    actionTrigger?: string // for action steps: the expected user action (e.g. 'click')
+    requiredRoute?: string // route the user must be on
+    beforeStep?: () => Promise<void> | void // runs before step activates
+    afterStep?: () => Promise<void> | void // runs after advancing from step
+    spotlightPadding?: number // extra padding around spotlight (default: 8)
+    scrollBlock?: ScrollLogicalPosition // scrollIntoView block option (default: 'center')
 }
 ```
 
@@ -57,12 +57,12 @@ interface TutorialStep {
 
 ```typescript
 interface TutorialDefinition {
-  id: string                    // unique identifier
-  nameKey: string               // i18n key for tutorial name
-  descriptionKey: string        // i18n key for description
-  startRoute: string            // route to navigate to when starting
-  steps: TutorialStep[]         // ordered list of steps
-  requiresAuth?: boolean        // only show if user is authenticated
+    id: string // unique identifier
+    nameKey: string // i18n key for tutorial name
+    descriptionKey: string // i18n key for description
+    startRoute: string // route to navigate to when starting
+    steps: TutorialStep[] // ordered list of steps
+    requiresAuth?: boolean // only show if user is authenticated
 }
 ```
 
@@ -155,12 +155,12 @@ Some tutorials need to open or close modals to reach elements inside them. This 
 
 Available actions:
 
-| Action | Component | Effect |
-|--------|-----------|--------|
-| `open-weapon-modal` | `pages/weapons/[type].vue` | Clicks first `.weapon-card` to open WeaponSkinModal |
-| `close-weapon-modal` | `pages/weapons/[type].vue` | Closes WeaponSkinModal |
-| `open-loadout-create` | `LoadoutSelector.vue` | Opens the create loadout modal |
-| `close-loadout-create` | `LoadoutSelector.vue` | Closes the create loadout modal |
+| Action                 | Component                  | Effect                                              |
+| ---------------------- | -------------------------- | --------------------------------------------------- |
+| `open-weapon-modal`    | `pages/weapons/[type].vue` | Clicks first `.weapon-card` to open WeaponSkinModal |
+| `close-weapon-modal`   | `pages/weapons/[type].vue` | Closes WeaponSkinModal                              |
+| `open-loadout-create`  | `LoadoutSelector.vue`      | Opens the create loadout modal                      |
+| `close-loadout-create` | `LoadoutSelector.vue`      | Closes the create loadout modal                     |
 
 ### Step Lifecycle Hooks
 

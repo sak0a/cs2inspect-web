@@ -13,9 +13,9 @@ Complete guide for deploying CS2Inspect on your own infrastructure. This guide c
 - [Prerequisites](#prerequisites)
 - [Quick Start (Docker)](#quick-start-docker)
 - [Production Deployment](#production-deployment)
-  - [VPS Deployment (Ubuntu/Debian)](#vps-deployment-ubuntudebian)
-  - [Bare Metal Deployment](#bare-metal-deployment)
-  - [Docker Compose (Production)](#docker-compose-production)
+    - [VPS Deployment (Ubuntu/Debian)](#vps-deployment-ubuntudebian)
+    - [Bare Metal Deployment](#bare-metal-deployment)
+    - [Docker Compose (Production)](#docker-compose-production)
 - [Database Setup](#database-setup)
 - [Environment Configuration](#environment-configuration)
 - [Reverse Proxy Setup (Nginx)](#reverse-proxy-setup-nginx)
@@ -30,10 +30,10 @@ Complete guide for deploying CS2Inspect on your own infrastructure. This guide c
 ### Required
 
 - **Server**: VPS or dedicated server with minimum:
-  - 2 CPU cores
-  - 4GB RAM (8GB recommended)
-  - 20GB storage (SSD recommended)
-  - Ubuntu 22.04 LTS / Debian 12 (recommended)
+    - 2 CPU cores
+    - 4GB RAM (8GB recommended)
+    - 20GB storage (SSD recommended)
+    - Ubuntu 22.04 LTS / Debian 12 (recommended)
 
 - **Domain**: Registered domain name pointing to your server
 - **Steam API Key**: Get from [Steam Developer Portal](https://steamcommunity.com/dev/apikey)
@@ -322,7 +322,7 @@ server {
     # SSL certificates (we'll add these in next step)
     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-    
+
     # SSL configuration (Mozilla Intermediate)
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
@@ -418,7 +418,7 @@ HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3210/api/
 if [ "$HEALTH_CHECK" != "200" ]; then
     echo "Health check failed! Restarting application..."
     pm2 restart cs2inspect
-    
+
     # Send alert (optional - configure with your email)
     # echo "CS2Inspect health check failed at $(date)" | mail -s "CS2Inspect Alert" your@email.com
 fi
@@ -480,132 +480,132 @@ Optimized Docker Compose setup for production.
 Create `docker-compose.coolify.yml`:
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
-  database:
-    image: mariadb:11
-    container_name: cs2inspect-db
-    restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
-      MYSQL_DATABASE: ${DATABASE_NAME}
-      MYSQL_USER: ${DATABASE_USER}
-      MYSQL_PASSWORD: ${DATABASE_PASSWORD}
-    volumes:
-      - db_data:/var/lib/mysql
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
-      - --max-connections=200
-      - --innodb-buffer-pool-size=1G
+    database:
+        image: mariadb:11
+        container_name: cs2inspect-db
+        restart: unless-stopped
+        environment:
+            MYSQL_ROOT_PASSWORD: ${DATABASE_ROOT_PASSWORD}
+            MYSQL_DATABASE: ${DATABASE_NAME}
+            MYSQL_USER: ${DATABASE_USER}
+            MYSQL_PASSWORD: ${DATABASE_PASSWORD}
+        volumes:
+            - db_data:/var/lib/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+        networks:
+            - app-network
+        healthcheck:
+            test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 30s
+        command:
+            - --character-set-server=utf8mb4
+            - --collation-server=utf8mb4_unicode_ci
+            - --max-connections=200
+            - --innodb-buffer-pool-size=1G
 
-  web:
-    container_name: cs2inspect-web
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: cs2inspect-web:latest
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - PORT=${PORT:-3210}
-      - HOST=${HOST:-0.0.0.0}
-      - JWT_TOKEN=${JWT_TOKEN}
-      - JWT_EXPIRY=${JWT_EXPIRY}
-      - DATABASE_HOST=database
-      - DATABASE_PORT=3306
-      - DATABASE_USER=${DATABASE_USER}
-      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
-      - DATABASE_NAME=${DATABASE_NAME}
-      - DATABASE_CONNECTION_LIMIT=${DATABASE_CONNECTION_LIMIT}
-      - STEAM_API_KEY=${STEAM_API_KEY}
-      - STEAM_SERVICE_URL=${STEAM_SERVICE_URL}
-      - LOG_API_REQUESTS=${LOG_API_REQUESTS}
-    ports:
-      - "${PORT:-3210}:${PORT:-3210}"
-    depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3210}/api/health/ready"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
-    volumes:
-      - ./logs:/app/logs
+    web:
+        container_name: cs2inspect-web
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: cs2inspect-web:latest
+        restart: unless-stopped
+        environment:
+            - NODE_ENV=production
+            - PORT=${PORT:-3210}
+            - HOST=${HOST:-0.0.0.0}
+            - JWT_TOKEN=${JWT_TOKEN}
+            - JWT_EXPIRY=${JWT_EXPIRY}
+            - DATABASE_HOST=database
+            - DATABASE_PORT=3306
+            - DATABASE_USER=${DATABASE_USER}
+            - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+            - DATABASE_NAME=${DATABASE_NAME}
+            - DATABASE_CONNECTION_LIMIT=${DATABASE_CONNECTION_LIMIT}
+            - STEAM_API_KEY=${STEAM_API_KEY}
+            - STEAM_SERVICE_URL=${STEAM_SERVICE_URL}
+            - LOG_API_REQUESTS=${LOG_API_REQUESTS}
+        ports:
+            - '${PORT:-3210}:${PORT:-3210}'
+        depends_on:
+            database:
+                condition: service_healthy
+        networks:
+            - app-network
+        healthcheck:
+            test: ['CMD', 'sh', '-c', 'curl -fsS http://localhost:${PORT:-3210}/api/health/ready']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 60s
+        volumes:
+            - ./logs:/app/logs
 
-  steam-service:
-    container_name: cs2inspect-steam-service
-    build:
-      context: ./services/steam-service
-      dockerfile: Dockerfile
-    image: cs2inspect-steam-service:latest
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=production
-      - PORT=${STEAM_SERVICE_PORT:-3211}
-      - HOST=${STEAM_SERVICE_HOST:-0.0.0.0}
-      - STEAM_USERNAME=${STEAM_USERNAME}
-      - STEAM_PASSWORD=${STEAM_PASSWORD}
-      - STEAM_API_KEY=${STEAM_API_KEY}
-      - API_KEYS=${STEAM_SERVICE_API_KEYS}
-      - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
-    ports:
-      - "${STEAM_SERVICE_PORT:-3211}:${STEAM_SERVICE_PORT:-3211}"
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3211}/api/health/ready"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 60s
+    steam-service:
+        container_name: cs2inspect-steam-service
+        build:
+            context: ./services/steam-service
+            dockerfile: Dockerfile
+        image: cs2inspect-steam-service:latest
+        restart: unless-stopped
+        environment:
+            - NODE_ENV=production
+            - PORT=${STEAM_SERVICE_PORT:-3211}
+            - HOST=${STEAM_SERVICE_HOST:-0.0.0.0}
+            - STEAM_USERNAME=${STEAM_USERNAME}
+            - STEAM_PASSWORD=${STEAM_PASSWORD}
+            - STEAM_API_KEY=${STEAM_API_KEY}
+            - API_KEYS=${STEAM_SERVICE_API_KEYS}
+            - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
+        ports:
+            - '${STEAM_SERVICE_PORT:-3211}:${STEAM_SERVICE_PORT:-3211}'
+        networks:
+            - app-network
+        healthcheck:
+            test: ['CMD', 'sh', '-c', 'curl -fsS http://localhost:${PORT:-3211}/api/health/ready']
+            interval: 30s
+            timeout: 5s
+            retries: 3
+            start_period: 60s
 
-  nginx:
-    image: nginx:alpine
-    container_name: cs2inspect-nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - ./certbot/conf:/etc/letsencrypt:ro
-      - ./certbot/www:/var/www/certbot:ro
-    depends_on:
-      - web
-    networks:
-      - app-network
+    nginx:
+        image: nginx:alpine
+        container_name: cs2inspect-nginx
+        restart: unless-stopped
+        ports:
+            - '80:80'
+            - '443:443'
+        volumes:
+            - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+            - ./nginx/conf.d:/etc/nginx/conf.d:ro
+            - ./certbot/conf:/etc/letsencrypt:ro
+            - ./certbot/www:/var/www/certbot:ro
+        depends_on:
+            - web
+        networks:
+            - app-network
 
-  certbot:
-    image: certbot/certbot:latest
-    container_name: cs2inspect-certbot
-    volumes:
-      - ./certbot/conf:/etc/letsencrypt
-      - ./certbot/www:/var/www/certbot
-    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    certbot:
+        image: certbot/certbot:latest
+        container_name: cs2inspect-certbot
+        volumes:
+            - ./certbot/conf:/etc/letsencrypt
+            - ./certbot/www:/var/www/certbot
+        entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
 
 networks:
-  app-network:
-    driver: bridge
+    app-network:
+        driver: bridge
 
 volumes:
-  db_data:
-    driver: local
+    db_data:
+        driver: local
 ```
 
 #### Deploy with Production Compose
@@ -635,16 +635,16 @@ docker compose -f docker-compose.coolify.yml ps
 mysql -u root -p
 
 -- Create database with proper charset
-CREATE DATABASE csinspect 
-  CHARACTER SET utf8mb4 
+CREATE DATABASE csinspect
+  CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 -- Create user with secure password
-CREATE USER 'csinspect'@'localhost' 
+CREATE USER 'csinspect'@'localhost'
   IDENTIFIED BY 'your_secure_password_here';
 
 -- Grant privileges
-GRANT ALL PRIVILEGES ON csinspect.* 
+GRANT ALL PRIVILEGES ON csinspect.*
   TO 'csinspect'@'localhost';
 
 FLUSH PRIVILEGES;
@@ -903,9 +903,9 @@ http {
     gzip_vary on;
     gzip_proxied any;
     gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript 
-               application/json application/javascript application/xml+rss 
-               application/rss+xml font/truetype font/opentype 
+    gzip_types text/plain text/css text/xml text/javascript
+               application/json application/javascript application/xml+rss
+               application/rss+xml font/truetype font/opentype
                application/vnd.ms-fontobject image/svg+xml;
 
     # Logging

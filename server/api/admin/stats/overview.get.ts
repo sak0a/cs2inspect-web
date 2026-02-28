@@ -17,7 +17,7 @@ import {
     countActiveUsers,
     countTotalLoadouts,
     countItemsByCategory,
-    countBannedUsers
+    countBannedUsers,
 } from '~/server/utils/admin/statsQueries'
 
 export interface AdminOverviewStats {
@@ -44,29 +44,24 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
     // Fetch all statistics in parallel
-    const [
-        totalUsers,
-        activeUsers7d,
-        activeUsers30d,
-        totalLoadouts,
-        itemCounts,
-        bannedUsers
-    ] = await Promise.all([
-        countDistinctUsers(),
-        countActiveUsers(7),
-        countActiveUsers(30),
-        countTotalLoadouts(),
-        countItemsByCategory(),
-        countBannedUsers()
-    ])
+    const [totalUsers, activeUsers7d, activeUsers30d, totalLoadouts, itemCounts, bannedUsers] =
+        await Promise.all([
+            countDistinctUsers(),
+            countActiveUsers(7),
+            countActiveUsers(30),
+            countTotalLoadouts(),
+            countItemsByCategory(),
+            countBannedUsers(),
+        ])
 
     // Calculate total items
-    const totalItemsCount = itemCounts.weapons +
+    const totalItemsCount =
+        itemCounts.weapons +
         itemCounts.knives +
         itemCounts.gloves +
         itemCounts.agents +
@@ -80,14 +75,14 @@ export default useErrorHandling(async (event) => {
         totalLoadouts,
         totalItems: {
             ...itemCounts,
-            total: totalItemsCount
+            total: totalItemsCount,
         },
-        bannedUsers
+        bannedUsers,
     }
 
     const meta = createResponseMeta(startTime, {
         adminSteamId: event.context.admin.steamId,
-        endpoint: 'admin/stats/overview'
+        endpoint: 'admin/stats/overview',
     })
 
     return createSuccessResponse(stats, meta, 'Admin overview stats fetched successfully')

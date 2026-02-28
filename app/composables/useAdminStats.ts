@@ -6,11 +6,7 @@
  */
 import { computed, ref, onMounted, watch, type ComputedRef, type Ref } from 'vue'
 import { useAdminStore } from '~/stores/adminStore'
-import type {
-    AdminOverviewStats,
-    AdminActivityData,
-    AdminTopUser
-} from '~/types'
+import type { AdminOverviewStats, AdminActivityData, AdminTopUser } from '~/types'
 
 // ============================================================================
 // INTERFACES
@@ -83,11 +79,7 @@ export interface AdminStatsReturn {
  * ```
  */
 export function useAdminStats(options: AdminStatsOptions = {}): AdminStatsReturn {
-    const {
-        fetchOnMount = true,
-        autoRefreshInterval = 0,
-        defaultTimeRange = '30d'
-    } = options
+    const { fetchOnMount = true, autoRefreshInterval = 0, defaultTimeRange = '30d' } = options
 
     const adminStore = useAdminStore()
     const timeRange = ref<TimeRange>(defaultTimeRange)
@@ -135,11 +127,7 @@ export function useAdminStats(options: AdminStatsOptions = {}): AdminStatsReturn
      * Refresh all statistics data
      */
     async function refreshAll(force = false): Promise<void> {
-        await Promise.all([
-            fetchStats(force),
-            fetchActivity(undefined, force),
-            fetchTopUsers()
-        ])
+        await Promise.all([fetchStats(force), fetchActivity(undefined, force), fetchTopUsers()])
     }
 
     /**
@@ -170,12 +158,15 @@ export function useAdminStats(options: AdminStatsOptions = {}): AdminStatsReturn
         })
 
         // Cleanup on unmount handled by watch stop
-        watch(() => autoRefreshInterval, () => {
-            if (refreshIntervalId) {
-                clearInterval(refreshIntervalId)
-                refreshIntervalId = null
+        watch(
+            () => autoRefreshInterval,
+            () => {
+                if (refreshIntervalId) {
+                    clearInterval(refreshIntervalId)
+                    refreshIntervalId = null
+                }
             }
-        })
+        )
     }
 
     // ========================================================================
@@ -195,7 +186,7 @@ export function useAdminStats(options: AdminStatsOptions = {}): AdminStatsReturn
         fetchActivity,
         fetchTopUsers,
         refreshAll,
-        setTimeRange
+        setTimeRange,
     }
 }
 
@@ -243,7 +234,7 @@ export function getTimeRangeLabel(range: TimeRange): string {
     const labels: Record<TimeRange, string> = {
         '7d': 'Last 7 days',
         '30d': 'Last 30 days',
-        '90d': 'Last 90 days'
+        '90d': 'Last 90 days',
     }
     return labels[range]
 }
@@ -255,7 +246,7 @@ export function getDaysFromRange(range: TimeRange): number {
     const days: Record<TimeRange, number> = {
         '7d': 7,
         '30d': 30,
-        '90d': 90
+        '90d': 90,
     }
     return days[range]
 }

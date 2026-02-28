@@ -51,19 +51,19 @@ Before contributing, ensure you have:
 If you're new to the project:
 
 1. **Read the Documentation**:
-   - [Architecture](architecture.md)
-   - [Components](components.md)
-   - [How It Works](how-it-works.md)
-   - [API Reference](api/)
+    - [Architecture](architecture.md)
+    - [Components](components.md)
+    - [How It Works](how-it-works.md)
+    - [API Reference](api/)
 
 2. **Look for Good First Issues**:
-   - Check GitHub Issues with label `good first issue`
-   - These are beginner-friendly tasks
+    - Check GitHub Issues with label `good first issue`
+    - These are beginner-friendly tasks
 
 3. **Join the Community**:
-   - Comment on issues you're interested in
-   - Ask questions if you're unsure
-   - Introduce yourself in discussions
+    - Comment on issues you're interested in
+    - Ask questions if you're unsure
+    - Introduce yourself in discussions
 
 ---
 
@@ -87,6 +87,7 @@ git remote add upstream https://github.com/sak0a/cs2inspect-web.git
 ```
 
 **Next Steps**: Follow the [Setup Guide](../setup.md) to:
+
 - Install dependencies
 - Configure the database
 - Set up environment variables
@@ -111,6 +112,7 @@ git checkout -b refactor/optimize-loadout-store
 ```
 
 **Branch Naming Conventions**:
+
 - `feature/` - New features
 - `fix/` - Bug fixes
 - `docs/` - Documentation changes
@@ -161,6 +163,7 @@ git commit -m "Add weapon preview feature
 ```
 
 **Commit Message Format**:
+
 ```
 <type>: <subject>
 
@@ -170,6 +173,7 @@ git commit -m "Add weapon preview feature
 ```
 
 **Types**:
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation changes
@@ -179,6 +183,7 @@ git commit -m "Add weapon preview feature
 - `chore`: Build process or dependency updates
 
 **Example**:
+
 ```
 feat: Add sticker wear slider
 
@@ -212,16 +217,16 @@ git push origin feature/add-weapon-preview
 ```typescript
 // ✅ GOOD: Use TypeScript interfaces for types
 interface WeaponConfig {
-  defindex: number
-  paintindex: number
-  paintwear: number
+    defindex: number
+    paintindex: number
+    paintwear: number
 }
 
 // ❌ AVOID: Using 'any' type
-function processWeapon(weapon: any) { }
+function processWeapon(weapon: any) {}
 
 // ✅ GOOD: Properly typed
-function processWeapon(weapon: WeaponConfig) { }
+function processWeapon(weapon: WeaponConfig) {}
 
 // ✅ GOOD: Use const for immutable values
 const MAX_FLOAT = 1.0
@@ -275,19 +280,19 @@ import type { PropType } from 'vue'
 
 // 2. Props interface
 interface Props {
-  weapon: WeaponData
-  show?: boolean
+    weapon: WeaponData
+    show?: boolean
 }
 
 // 3. Props definition
 const props = withDefaults(defineProps<Props>(), {
-  show: false
+    show: false,
 })
 
 // 4. Emits
 const emit = defineEmits<{
-  (e: 'save', weapon: WeaponData): void
-  (e: 'close'): void
+    (e: 'save', weapon: WeaponData): void
+    (e: 'close'): void
 }>()
 
 // 5. State
@@ -298,26 +303,26 @@ const isValid = computed(() => selectedSkin.value !== null)
 
 // 7. Methods
 const handleSave = () => {
-  if (!isValid.value) return
-  emit('save', { ...props.weapon, paintindex: selectedSkin.value })
+    if (!isValid.value) return
+    emit('save', { ...props.weapon, paintindex: selectedSkin.value })
 }
 
 // 8. Lifecycle hooks
 onMounted(() => {
-  // Initialize
+    // Initialize
 })
 </script>
 
 <template>
-  <div class="weapon-modal">
-    <!-- Template content -->
-  </div>
+    <div class="weapon-modal">
+        <!-- Template content -->
+    </div>
 </template>
 
 <style scoped>
 /* Component-specific styles */
 .weapon-modal {
-  /* ... */
+    /* ... */
 }
 </style>
 ```
@@ -326,31 +331,31 @@ onMounted(() => {
 
 ```vue
 <template>
-  <!-- ✅ GOOD: Use semantic HTML -->
-  <section class="weapon-list">
-    <header>
-      <h2>Weapons</h2>
-    </header>
-    <article v-for="weapon in weapons" :key="weapon.id">
-      <!-- Weapon card -->
-    </article>
-  </section>
-  
-  <!-- ✅ GOOD: Use v-show for frequent toggles -->
-  <div v-show="isVisible">Content</div>
-  
-  <!-- ✅ GOOD: Use v-if for conditional rendering -->
-  <div v-if="hasData">Data content</div>
-  <div v-else>No data</div>
-  
-  <!-- ✅ GOOD: Proper event binding -->
-  <button @click="handleClick">Click me</button>
-  
-  <!-- ❌ AVOID: Inline complex logic -->
-  <button @click="condition ? doThis() : doThat()">Bad</button>
-  
-  <!-- ✅ GOOD: Extract to method -->
-  <button @click="handleAction">Good</button>
+    <!-- ✅ GOOD: Use semantic HTML -->
+    <section class="weapon-list">
+        <header>
+            <h2>Weapons</h2>
+        </header>
+        <article v-for="weapon in weapons" :key="weapon.id">
+            <!-- Weapon card -->
+        </article>
+    </section>
+
+    <!-- ✅ GOOD: Use v-show for frequent toggles -->
+    <div v-show="isVisible">Content</div>
+
+    <!-- ✅ GOOD: Use v-if for conditional rendering -->
+    <div v-if="hasData">Data content</div>
+    <div v-else>No data</div>
+
+    <!-- ✅ GOOD: Proper event binding -->
+    <button @click="handleClick">Click me</button>
+
+    <!-- ❌ AVOID: Inline complex logic -->
+    <button @click="condition ? doThis() : doThat()">Bad</button>
+
+    <!-- ✅ GOOD: Extract to method -->
+    <button @click="handleAction">Good</button>
 </template>
 ```
 
@@ -362,13 +367,13 @@ onMounted(() => {
 <template>
   <!-- ✅ GOOD: Logical grouping of classes -->
   <div class="flex items-center justify-between p-4 bg-gray-800 rounded-lg">
-    
+
   <!-- ✅ GOOD: Use custom CSS variables -->
   <div class="ring-2 ring-[var(--selection-ring)]">
-    
+
   <!-- ✅ GOOD: Responsive design -->
   <div class="w-full md:w-1/2 lg:w-1/3">
-    
+
   <!-- ❌ AVOID: Excessive inline classes -->
   <div class="w-full h-full flex items-center justify-center p-4 m-2 bg-gray-800 text-white font-bold text-xl rounded-lg shadow-md hover:shadow-lg transition-all duration-300">
 </template>
@@ -379,21 +384,21 @@ onMounted(() => {
 ```scss
 // ✅ GOOD: Use SASS features
 .weapon-card {
-  @apply bg-gray-800 rounded-lg p-4;
-  
-  &:hover {
-    @apply shadow-lg;
-  }
-  
-  .weapon-name {
-    @apply text-xl font-bold;
-  }
+    @apply bg-gray-800 rounded-lg p-4;
+
+    &:hover {
+        @apply shadow-lg;
+    }
+
+    .weapon-name {
+        @apply text-xl font-bold;
+    }
 }
 
 // ✅ GOOD: Use CSS variables
 .theme-accent {
-  color: var(--selection-ring);
-  border-color: var(--selection-ring);
+    color: var(--selection-ring);
+    border-color: var(--selection-ring);
 }
 ```
 
@@ -407,35 +412,35 @@ import { defineEventHandler, readBody } from 'h3'
 import type { WeaponSaveRequest } from '~/types'
 
 export default defineEventHandler(async (event) => {
-  try {
-    // 1. Validate authentication
-    const user = await requireAuth(event)
-    
-    // 2. Parse and validate request body
-    const body = await readBody<WeaponSaveRequest>(event)
-    if (!body.weaponDefindex) {
-      throw createError({
-        statusCode: 400,
-        message: 'Invalid weapon data'
-      })
+    try {
+        // 1. Validate authentication
+        const user = await requireAuth(event)
+
+        // 2. Parse and validate request body
+        const body = await readBody<WeaponSaveRequest>(event)
+        if (!body.weaponDefindex) {
+            throw createError({
+                statusCode: 400,
+                message: 'Invalid weapon data',
+            })
+        }
+
+        // 3. Perform business logic
+        const result = await saveWeaponToDatabase(user.steamId, body)
+
+        // 4. Return standardized response
+        return {
+            success: true,
+            data: result,
+        }
+    } catch (error: any) {
+        // 5. Handle errors consistently
+        console.error('Error saving weapon:', error)
+        throw createError({
+            statusCode: error.statusCode || 500,
+            message: error.message || 'Failed to save weapon',
+        })
     }
-    
-    // 3. Perform business logic
-    const result = await saveWeaponToDatabase(user.steamId, body)
-    
-    // 4. Return standardized response
-    return {
-      success: true,
-      data: result
-    }
-  } catch (error: any) {
-    // 5. Handle errors consistently
-    console.error('Error saving weapon:', error)
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || 'Failed to save weapon'
-    })
-  }
 })
 ```
 
@@ -461,9 +466,11 @@ Before submitting a pull request, ensure:
 
 ```markdown
 ## Description
+
 Brief description of changes made.
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
@@ -471,23 +478,29 @@ Brief description of changes made.
 - [ ] Code refactoring
 
 ## Related Issue
+
 Closes #123
 
 ## Changes Made
+
 - Change 1
 - Change 2
 - Change 3
 
 ## Testing
+
 Describe how you tested your changes:
+
 - Unit tests added/updated
 - Manual testing performed
 - Edge cases considered
 
 ## Screenshots (if applicable)
+
 Add screenshots for UI changes.
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-review completed
 - [ ] Comments added for complex code
@@ -519,6 +532,7 @@ A clear description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce:
+
 1. Go to '...'
 2. Click on '...'
 3. See error
@@ -530,6 +544,7 @@ What you expected to happen.
 If applicable, add screenshots.
 
 **Environment:**
+
 - Browser: [e.g. Chrome 120]
 - OS: [e.g. Windows 11]
 - Version: [e.g. 1.0.0]
@@ -571,6 +586,7 @@ Any other relevant information, mockups, or examples.
 ### When to Update Docs
 
 Update documentation when:
+
 - Adding new features
 - Changing existing functionality
 - Fixing significant bugs
@@ -608,6 +624,7 @@ const example = doSomething()
 ### Links
 
 Link to related documentation:
+
 - [Related Doc](related.md)
 - [External Resource](https://example.com)
 ```
@@ -617,6 +634,7 @@ Link to related documentation:
 ## Internationalization
 
 We welcome contributions for **translations**! CS2Inspect currently supports:
+
 - **English (EN)** - Complete
 - **German (DE)** - Complete
 - **Russian (RU)** - Complete
@@ -626,34 +644,35 @@ We welcome contributions for **translations**! CS2Inspect currently supports:
 To add a new language translation:
 
 1. **Create Language File**:
-   - Navigate to `locales/` directory in the project root
-   - Copy `en.json` as a template
-   - Name it with the appropriate language code (e.g., `fr.json` for French, `es.json` for Spanish)
+    - Navigate to `locales/` directory in the project root
+    - Copy `en.json` as a template
+    - Name it with the appropriate language code (e.g., `fr.json` for French, `es.json` for Spanish)
 
 2. **Translate Strings**:
-   ```json
-   {
-     "nav": {
-       "home": "Accueil",        // French translation
-       "weapons": "Armes",
-       "loadouts": "Équipements"
-     }
-   }
-   ```
+
+    ```json
+    {
+        "nav": {
+            "home": "Accueil", // French translation
+            "weapons": "Armes",
+            "loadouts": "Équipements"
+        }
+    }
+    ```
 
 3. **Test Your Translation**:
-   - Change the app language in settings to your new language
-   - Navigate through all pages to verify translations
-   - Check for missing strings or formatting issues
+    - Change the app language in settings to your new language
+    - Navigate through all pages to verify translations
+    - Check for missing strings or formatting issues
 
 4. **Update Configuration**:
-   - Edit `nuxt.config.ts` to add your language to the `i18n` config
-   - Add your language code to the available locales array
+    - Edit `nuxt.config.ts` to add your language to the `i18n` config
+    - Add your language code to the available locales array
 
 5. **Submit Pull Request**:
-   - Include all translated strings
-   - Note any strings that were intentionally not translated (e.g., proper nouns)
-   - Test that the language switcher includes your new language
+    - Include all translated strings
+    - Note any strings that were intentionally not translated (e.g., proper nouns)
+    - Test that the language switcher includes your new language
 
 ### Translation Guidelines
 
@@ -666,12 +685,14 @@ To add a new language translation:
 ### Translation Priority
 
 High priority strings (translate first):
+
 1. Navigation and menu items
 2. Common actions (Save, Delete, Cancel, etc.)
 3. Form labels and validation messages
 4. Error messages
 
 Lower priority:
+
 1. Detailed help text
 2. Technical documentation within the app
 3. Long descriptive text
@@ -691,16 +712,16 @@ import { mount } from '@vue/test-utils'
 import WeaponTabs from './WeaponTabs.vue'
 
 describe('WeaponTabs', () => {
-  it('renders weapon categories', () => {
-    const wrapper = mount(WeaponTabs)
-    expect(wrapper.find('.weapon-category').exists()).toBe(true)
-  })
-  
-  it('emits selection event when weapon clicked', async () => {
-    const wrapper = mount(WeaponTabs)
-    await wrapper.find('.weapon-item').trigger('click')
-    expect(wrapper.emitted('select')).toBeTruthy()
-  })
+    it('renders weapon categories', () => {
+        const wrapper = mount(WeaponTabs)
+        expect(wrapper.find('.weapon-category').exists()).toBe(true)
+    })
+
+    it('emits selection event when weapon clicked', async () => {
+        const wrapper = mount(WeaponTabs)
+        await wrapper.find('.weapon-item').trigger('click')
+        expect(wrapper.emitted('select')).toBeTruthy()
+    })
 })
 ```
 
@@ -712,18 +733,18 @@ import { describe, it, expect } from 'vitest'
 import { createEvent } from '@nuxt/test-utils'
 
 describe('POST /api/weapons/save', () => {
-  it('saves weapon successfully', async () => {
-    const event = createEvent({
-      method: 'POST',
-      body: {
-        weaponDefindex: 7,
-        paintindex: 253
-      }
+    it('saves weapon successfully', async () => {
+        const event = createEvent({
+            method: 'POST',
+            body: {
+                weaponDefindex: 7,
+                paintindex: 253,
+            },
+        })
+
+        const response = await handler(event)
+        expect(response.success).toBe(true)
     })
-    
-    const response = await handler(event)
-    expect(response.success).toBe(true)
-  })
 })
 ```
 

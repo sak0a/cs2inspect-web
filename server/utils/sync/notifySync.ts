@@ -23,6 +23,8 @@ export async function notifyPluginOfWebChange(
             item_category: itemCategory ?? null,
         })
     } catch (error) {
-        Logger.error(`Failed to insert sync notification: ${error instanceof Error ? error.message : error}`)
+        Logger.error(
+            `Failed to insert sync notification: ${error instanceof Error ? error.message : error}`
+        )
     }
 }

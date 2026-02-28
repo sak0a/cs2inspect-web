@@ -115,12 +115,12 @@ Add JSDoc comments to your API endpoints:
 ```typescript
 /**
  * Description of what this endpoint does
- * 
+ *
  * @param {string} steamId - User's Steam ID
  * @returns {LoadoutResponse} The user's loadouts
  */
 export default defineEventHandler(async (event) => {
-  // ...
+    // ...
 })
 ```
 
@@ -129,6 +129,7 @@ export default defineEventHandler(async (event) => {
 Documentation is automatically deployed to GitHub Pages via the workflow at `.github/workflows/deploy-docs.yml`.
 
 **Triggers:**
+
 - Push to `master` branch
 - Changes to `services/docs-site/`, `server/api/`, or `types/`
 
@@ -136,13 +137,13 @@ Documentation is automatically deployed to GitHub Pages via the workflow at `.gi
 
 ## 📦 Dependencies
 
-| Package | Purpose |
-|---------|---------|
-| vitepress | Static site generator |
-| vitepress-plugin-mermaid | Diagram support |
-| typedoc | TypeScript documentation |
-| typedoc-plugin-markdown | Markdown output for TypeDoc |
-| glob | File pattern matching for API scanner |
+| Package                  | Purpose                               |
+| ------------------------ | ------------------------------------- |
+| vitepress                | Static site generator                 |
+| vitepress-plugin-mermaid | Diagram support                       |
+| typedoc                  | TypeScript documentation              |
+| typedoc-plugin-markdown  | Markdown output for TypeDoc           |
+| glob                     | File pattern matching for API scanner |
 
 ## 🔗 Related
 

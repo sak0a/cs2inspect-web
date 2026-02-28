@@ -1,93 +1,93 @@
-import { describe, it, expect, beforeEach, afterEach } from 'bun:test';
-import { requestQueue } from './queue.js';
+import { describe, it, expect, beforeEach, afterEach } from 'bun:test'
+import { requestQueue } from './queue.js'
 
 describe('Request Queue', () => {
-  beforeEach(() => {
-    requestQueue.clear();
-  });
+    beforeEach(() => {
+        requestQueue.clear()
+    })
 
-  afterEach(() => {
-    requestQueue.clear();
-  });
+    afterEach(() => {
+        requestQueue.clear()
+    })
 
-  describe('Queue Management', () => {
-    it('should enqueue and process requests', async () => {
-      const result = await requestQueue.enqueue(async () => {
-        return 'test-result';
-      });
+    describe('Queue Management', () => {
+        it('should enqueue and process requests', async () => {
+            const result = await requestQueue.enqueue(async () => {
+                return 'test-result'
+            })
 
-      expect(result).toBe('test-result');
-    });
-
-    it('should handle request errors', async () => {
-      await expect(
-        requestQueue.enqueue(async () => {
-          throw new Error('Test error');
+            expect(result).toBe('test-result')
         })
-      ).rejects.toThrow('Test error');
-    });
 
-    // Skipped: enqueuing 100 items with 1500ms rate-limit delay between each
-    // exceeds the 60s queue timeout, causing all queued items to time out in CI.
-    it.skip('should respect queue size limit', async () => {
-      // Fill queue to max
-      const maxSize = 100;
-      const promises: Promise<unknown>[] = [];
+        it('should handle request errors', async () => {
+            await expect(
+                requestQueue.enqueue(async () => {
+                    throw new Error('Test error')
+                })
+            ).rejects.toThrow('Test error')
+        })
 
-      for (let i = 0; i < maxSize; i++) {
-        promises.push(
-          requestQueue.enqueue(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 10));
-            return i;
-          })
-        );
-      }
+        // Skipped: enqueuing 100 items with 1500ms rate-limit delay between each
+        // exceeds the 60s queue timeout, causing all queued items to time out in CI.
+        it.skip('should respect queue size limit', async () => {
+            // Fill queue to max
+            const maxSize = 100
+            const promises: Promise<unknown>[] = []
 
-      // Next request should fail
-      await expect(
-        requestQueue.enqueue(async () => 'should-fail')
-      ).rejects.toThrow('Queue is full');
+            for (let i = 0; i < maxSize; i++) {
+                promises.push(
+                    requestQueue.enqueue(async () => {
+                        await new Promise((resolve) => setTimeout(resolve, 10))
+                        return i
+                    })
+                )
+            }
 
-      // Wait for all to complete
-      await Promise.all(promises);
-    });
+            // Next request should fail
+            await expect(requestQueue.enqueue(async () => 'should-fail')).rejects.toThrow(
+                'Queue is full'
+            )
 
-    it('should return queue statistics', () => {
-      const stats = requestQueue.getStats();
-      expect(stats).toHaveProperty('pending');
-      expect(stats).toHaveProperty('processing');
-      expect(stats).toHaveProperty('maxSize');
-      expect(typeof stats.pending).toBe('number');
-      expect(typeof stats.processing).toBe('number');
-      expect(typeof stats.maxSize).toBe('number');
-    });
+            // Wait for all to complete
+            await Promise.all(promises)
+        })
 
-    it('should clear queue', async () => {
-      // Add some requests
-      const _promise1 = requestQueue.enqueue(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
-        return 'result1';
-      });
+        it('should return queue statistics', () => {
+            const stats = requestQueue.getStats()
+            expect(stats).toHaveProperty('pending')
+            expect(stats).toHaveProperty('processing')
+            expect(stats).toHaveProperty('maxSize')
+            expect(typeof stats.pending).toBe('number')
+            expect(typeof stats.processing).toBe('number')
+            expect(typeof stats.maxSize).toBe('number')
+        })
 
-      requestQueue.clear();
+        it('should clear queue', async () => {
+            // Add some requests
+            const _promise1 = requestQueue.enqueue(async () => {
+                await new Promise((resolve) => setTimeout(resolve, 100))
+                return 'result1'
+            })
 
-      // Queue should be empty
-      const stats = requestQueue.getStats();
-      expect(stats.pending).toBe(0);
-    });
-  });
+            requestQueue.clear()
 
-  describe('Rate Limiting', () => {
-    // Skipped: this test waits for real 1500ms rate-limit delay, too slow for CI.
-    it.skip('should delay between requests', async () => {
-      const startTime = Date.now();
+            // Queue should be empty
+            const stats = requestQueue.getStats()
+            expect(stats.pending).toBe(0)
+        })
+    })
 
-      await requestQueue.enqueue(async () => 'first');
-      await requestQueue.enqueue(async () => 'second');
+    describe('Rate Limiting', () => {
+        // Skipped: this test waits for real 1500ms rate-limit delay, too slow for CI.
+        it.skip('should delay between requests', async () => {
+            const startTime = Date.now()
 
-      const duration = Date.now() - startTime;
-      // Should have at least the rate limit delay (1500ms default)
-      expect(duration).toBeGreaterThanOrEqual(1400); // Allow some margin
-    });
-  });
-});
+            await requestQueue.enqueue(async () => 'first')
+            await requestQueue.enqueue(async () => 'second')
+
+            const duration = Date.now() - startTime
+            // Should have at least the rate limit delay (1500ms default)
+            expect(duration).toBeGreaterThanOrEqual(1400) // Allow some margin
+        })
+    })
+})

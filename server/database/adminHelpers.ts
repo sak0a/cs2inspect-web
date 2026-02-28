@@ -8,8 +8,8 @@
  * - Activity logging
  * - User statistics
  */
-import { eq, and, sql, desc, count, min, max } from 'drizzle-orm';
-import { db } from '~/server/database/client';
+import { eq, and, sql, desc, count, min, max } from 'drizzle-orm'
+import { db } from '~/server/database/client'
 import {
     adminUsers,
     bannedUsers,
@@ -26,8 +26,8 @@ import {
     music,
     pins,
     type AdminRole,
-    type AdminAction
-} from '~/server/database/schema';
+    type AdminAction,
+} from '~/server/database/schema'
 
 // ============================================================================
 // ADMIN USER HELPERS
@@ -41,9 +41,9 @@ export async function isUserAdmin(steamId: string): Promise<boolean> {
         .select({ id: adminUsers.id })
         .from(adminUsers)
         .where(eq(adminUsers.steamid, steamId))
-        .limit(1);
+        .limit(1)
 
-    return result.length > 0;
+    return result.length > 0
 }
 
 /**
@@ -54,26 +54,26 @@ export async function getAdminRole(steamId: string): Promise<AdminRole | null> {
         .select({ role: adminUsers.role })
         .from(adminUsers)
         .where(eq(adminUsers.steamid, steamId))
-        .limit(1);
+        .limit(1)
 
-    const admin = result[0];
+    const admin = result[0]
     if (!admin) {
-        return null;
+        return null
     }
 
-    return admin.role as AdminRole;
+    return admin.role as AdminRole
 }
 
 /**
  * Get full admin info
  */
 export async function getAdminInfo(steamId: string): Promise<{
-    id: number;
-    steamId: string;
-    role: AdminRole;
-    permissions: string[];
-    createdBy: string | null;
-    createdAt: Date;
+    id: number
+    steamId: string
+    role: AdminRole
+    permissions: string[]
+    createdBy: string | null
+    createdAt: Date
 } | null> {
     const result = await db
         .select({
@@ -82,15 +82,15 @@ export async function getAdminInfo(steamId: string): Promise<{
             role: adminUsers.role,
             permissions: adminUsers.permissions,
             createdBy: adminUsers.created_by,
-            createdAt: adminUsers.created_at
+            createdAt: adminUsers.created_at,
         })
         .from(adminUsers)
         .where(eq(adminUsers.steamid, steamId))
-        .limit(1);
+        .limit(1)
 
-    const admin = result[0];
+    const admin = result[0]
     if (!admin) {
-        return null;
+        return null
     }
 
     return {
@@ -99,8 +99,8 @@ export async function getAdminInfo(steamId: string): Promise<{
         role: admin.role as AdminRole,
         permissions: admin.permissions || [],
         createdBy: admin.createdBy,
-        createdAt: admin.createdAt
-    };
+        createdAt: admin.createdAt,
+    }
 }
 
 // ============================================================================
@@ -112,7 +112,7 @@ export async function getAdminInfo(steamId: string): Promise<{
  * Returns true if user has an active ban that hasn't expired
  */
 export async function isUserBanned(steamId: string): Promise<boolean> {
-    const now = new Date();
+    const now = new Date()
 
     const result = await db
         .select({ id: bannedUsers.id })
@@ -125,22 +125,22 @@ export async function isUserBanned(steamId: string): Promise<boolean> {
                 sql`(${bannedUsers.expires_at} IS NULL OR ${bannedUsers.expires_at} > ${now})`
             )
         )
-        .limit(1);
+        .limit(1)
 
-    return result.length > 0;
+    return result.length > 0
 }
 
 /**
  * Get ban info for a user (null if not banned or ban expired)
  */
 export async function getBanInfo(steamId: string): Promise<{
-    id: number;
-    reason: string | null;
-    bannedBy: string;
-    bannedAt: Date;
-    expiresAt: Date | null;
+    id: number
+    reason: string | null
+    bannedBy: string
+    bannedAt: Date
+    expiresAt: Date | null
 } | null> {
-    const now = new Date();
+    const now = new Date()
 
     const result = await db
         .select({
@@ -148,7 +148,7 @@ export async function getBanInfo(steamId: string): Promise<{
             reason: bannedUsers.reason,
             bannedBy: bannedUsers.banned_by,
             bannedAt: bannedUsers.banned_at,
-            expiresAt: bannedUsers.expires_at
+            expiresAt: bannedUsers.expires_at,
         })
         .from(bannedUsers)
         .where(
@@ -158,11 +158,11 @@ export async function getBanInfo(steamId: string): Promise<{
                 sql`(${bannedUsers.expires_at} IS NULL OR ${bannedUsers.expires_at} > ${now})`
             )
         )
-        .limit(1);
+        .limit(1)
 
-    const ban = result[0];
+    const ban = result[0]
     if (!ban) {
-        return null;
+        return null
     }
 
     return {
@@ -170,8 +170,8 @@ export async function getBanInfo(steamId: string): Promise<{
         reason: ban.reason,
         bannedBy: ban.bannedBy,
         bannedAt: ban.bannedAt,
-        expiresAt: ban.expiresAt
-    };
+        expiresAt: ban.expiresAt,
+    }
 }
 
 /**
@@ -186,42 +186,33 @@ export async function banUser(
     durationHours?: number
 ): Promise<number> {
     // Calculate expiration if duration is provided
-    const expiresAt = durationHours
-        ? new Date(Date.now() + durationHours * 60 * 60 * 1000)
-        : null;
+    const expiresAt = durationHours ? new Date(Date.now() + durationHours * 60 * 60 * 1000) : null
 
     // First, deactivate any existing active bans for this user
     await db
         .update(bannedUsers)
         .set({ active: 0 })
-        .where(
-            and(
-                eq(bannedUsers.steamid, steamId),
-                eq(bannedUsers.active, 1)
-            )
-        );
+        .where(and(eq(bannedUsers.steamid, steamId), eq(bannedUsers.active, 1)))
 
     // Insert the new ban
-    const insertResult = await db
-        .insert(bannedUsers)
-        .values({
-            steamid: steamId,
-            reason: reason,
-            banned_by: bannedBy,
-            expires_at: expiresAt,
-            active: 1
-        });
+    const insertResult = await db.insert(bannedUsers).values({
+        steamid: steamId,
+        reason: reason,
+        banned_by: bannedBy,
+        expires_at: expiresAt,
+        active: 1,
+    })
 
-    const banId = Number(insertResult[0].insertId);
+    const banId = Number(insertResult[0].insertId)
 
     // Log the admin action
     await logAdminAction(bannedBy, 'ban_user', steamId, {
         reason,
         durationHours: durationHours || 'permanent',
-        expiresAt: expiresAt?.toISOString() || null
-    });
+        expiresAt: expiresAt?.toISOString() || null,
+    })
 
-    return banId;
+    return banId
 }
 
 /**
@@ -232,15 +223,10 @@ export async function unbanUser(steamId: string): Promise<boolean> {
     const result = await db
         .update(bannedUsers)
         .set({ active: 0 })
-        .where(
-            and(
-                eq(bannedUsers.steamid, steamId),
-                eq(bannedUsers.active, 1)
-            )
-        );
+        .where(and(eq(bannedUsers.steamid, steamId), eq(bannedUsers.active, 1)))
 
     // Check if any rows were affected
-    return result[0].affectedRows > 0;
+    return result[0].affectedRows > 0
 }
 
 // ============================================================================
@@ -255,14 +241,14 @@ export async function getSetting(key: string): Promise<string | null> {
         .select({ value: appSettings.value })
         .from(appSettings)
         .where(eq(appSettings.key, key))
-        .limit(1);
+        .limit(1)
 
-    const setting = result[0];
+    const setting = result[0]
     if (!setting) {
-        return null;
+        return null
     }
 
-    return setting.value;
+    return setting.value
 }
 
 /**
@@ -272,33 +258,33 @@ export async function getSettingTyped<T>(key: string, defaultValue: T): Promise<
     const result = await db
         .select({
             value: appSettings.value,
-            type: appSettings.type
+            type: appSettings.type,
         })
         .from(appSettings)
         .where(eq(appSettings.key, key))
-        .limit(1);
+        .limit(1)
 
-    const setting = result[0];
+    const setting = result[0]
     if (!setting) {
-        return defaultValue;
+        return defaultValue
     }
 
-    const { value, type } = setting;
+    const { value, type } = setting
 
     try {
         switch (type) {
             case 'boolean':
-                return (value === 'true') as T;
+                return (value === 'true') as T
             case 'number':
-                return Number(value) as T;
+                return Number(value) as T
             case 'json':
-                return JSON.parse(value) as T;
+                return JSON.parse(value) as T
             case 'string':
             default:
-                return value as T;
+                return value as T
         }
     } catch {
-        return defaultValue;
+        return defaultValue
     }
 }
 
@@ -318,7 +304,7 @@ export async function setSetting(
         .select({ id: appSettings.id })
         .from(appSettings)
         .where(eq(appSettings.key, key))
-        .limit(1);
+        .limit(1)
 
     if (existing.length > 0) {
         // Update existing setting
@@ -328,41 +314,41 @@ export async function setSetting(
                 value,
                 type,
                 description,
-                updated_by: updatedBy
+                updated_by: updatedBy,
             })
-            .where(eq(appSettings.key, key));
+            .where(eq(appSettings.key, key))
     } else {
         // Insert new setting
-        await db
-            .insert(appSettings)
-            .values({
-                key,
-                value,
-                type,
-                description,
-                updated_by: updatedBy
-            });
+        await db.insert(appSettings).values({
+            key,
+            value,
+            type,
+            description,
+            updated_by: updatedBy,
+        })
     }
 
     // Log the setting change
     await logAdminAction(updatedBy, 'update_setting', undefined, {
         key,
         value,
-        type
-    });
+        type,
+    })
 }
 
 /**
  * Get all settings
  */
-export async function getAllSettings(): Promise<Array<{
-    key: string;
-    value: string;
-    type: string;
-    description: string | null;
-    updatedAt: Date;
-    updatedBy: string | null;
-}>> {
+export async function getAllSettings(): Promise<
+    Array<{
+        key: string
+        value: string
+        type: string
+        description: string | null
+        updatedAt: Date
+        updatedBy: string | null
+    }>
+> {
     const result = await db
         .select({
             key: appSettings.key,
@@ -370,19 +356,19 @@ export async function getAllSettings(): Promise<Array<{
             type: appSettings.type,
             description: appSettings.description,
             updatedAt: appSettings.updated_at,
-            updatedBy: appSettings.updated_by
+            updatedBy: appSettings.updated_by,
         })
         .from(appSettings)
-        .orderBy(appSettings.key);
+        .orderBy(appSettings.key)
 
-    return result.map(setting => ({
+    return result.map((setting) => ({
         key: setting.key,
         value: setting.value,
         type: setting.type,
         description: setting.description,
         updatedAt: setting.updatedAt,
-        updatedBy: setting.updatedBy
-    }));
+        updatedBy: setting.updatedBy,
+    }))
 }
 
 // ============================================================================
@@ -402,8 +388,8 @@ export async function logAdminAction(
         admin_steamid: adminSteamId,
         action,
         target_steamid: targetSteamId || null,
-        details: details || null
-    });
+        details: details || null,
+    })
 }
 
 /**
@@ -415,29 +401,27 @@ export async function getActivityLog(
     action?: string
 ): Promise<{
     entries: Array<{
-        id: number;
-        adminSteamId: string;
-        action: string;
-        targetSteamId: string | null;
-        details: Record<string, unknown> | null;
-        createdAt: Date;
-    }>;
-    total: number;
+        id: number
+        adminSteamId: string
+        action: string
+        targetSteamId: string | null
+        details: Record<string, unknown> | null
+        createdAt: Date
+    }>
+    total: number
 }> {
-    const offset = (page - 1) * limit;
+    const offset = (page - 1) * limit
 
     // Build the where clause
-    const whereClause = action
-        ? eq(adminActivityLog.action, action)
-        : undefined;
+    const whereClause = action ? eq(adminActivityLog.action, action) : undefined
 
     // Get total count
     const countResult = await db
         .select({ total: count() })
         .from(adminActivityLog)
-        .where(whereClause);
+        .where(whereClause)
 
-    const total = countResult[0]?.total || 0;
+    const total = countResult[0]?.total || 0
 
     // Get entries with pagination
     const entriesQuery = db
@@ -447,29 +431,27 @@ export async function getActivityLog(
             action: adminActivityLog.action,
             targetSteamId: adminActivityLog.target_steamid,
             details: adminActivityLog.details,
-            createdAt: adminActivityLog.created_at
+            createdAt: adminActivityLog.created_at,
         })
         .from(adminActivityLog)
         .orderBy(desc(adminActivityLog.created_at))
         .limit(limit)
-        .offset(offset);
+        .offset(offset)
 
     // Apply where clause if action filter is provided
-    const entries = action
-        ? await entriesQuery.where(whereClause)
-        : await entriesQuery;
+    const entries = action ? await entriesQuery.where(whereClause) : await entriesQuery
 
     return {
-        entries: entries.map(entry => ({
+        entries: entries.map((entry) => ({
             id: entry.id,
             adminSteamId: entry.adminSteamId,
             action: entry.action,
             targetSteamId: entry.targetSteamId,
             details: entry.details,
-            createdAt: entry.createdAt
+            createdAt: entry.createdAt,
         })),
-        total
-    };
+        total,
+    }
 }
 
 // ============================================================================
@@ -481,39 +463,39 @@ export async function getActivityLog(
  * Queries all item tables to build comprehensive statistics
  */
 export async function getUserStats(steamId: string): Promise<{
-    loadoutCount: number;
+    loadoutCount: number
     itemCounts: {
-        weapons: number;
-        knives: number;
-        gloves: number;
-        agents: number;
-        musicKits: number;
-        pins: number;
-    };
-    firstActivity: Date | null;
-    lastActivity: Date | null;
+        weapons: number
+        knives: number
+        gloves: number
+        agents: number
+        musicKits: number
+        pins: number
+    }
+    firstActivity: Date | null
+    lastActivity: Date | null
 }> {
     // Get loadout count
     const loadoutResult = await db
         .select({ count: count() })
         .from(loadouts)
-        .where(eq(loadouts.steamid, steamId));
+        .where(eq(loadouts.steamid, steamId))
 
-    const loadoutCount = loadoutResult[0]?.count || 0;
+    const loadoutCount = loadoutResult[0]?.count || 0
 
     // Get weapon counts from all weapon tables
     const [pistolCount, rifleCount, smgCount, heavyCount] = await Promise.all([
         db.select({ count: count() }).from(pistols).where(eq(pistols.steamid, steamId)),
         db.select({ count: count() }).from(rifles).where(eq(rifles.steamid, steamId)),
         db.select({ count: count() }).from(smgs).where(eq(smgs.steamid, steamId)),
-        db.select({ count: count() }).from(heavys).where(eq(heavys.steamid, steamId))
-    ]);
+        db.select({ count: count() }).from(heavys).where(eq(heavys.steamid, steamId)),
+    ])
 
     const weaponCount =
         (pistolCount[0]?.count || 0) +
         (rifleCount[0]?.count || 0) +
         (smgCount[0]?.count || 0) +
-        (heavyCount[0]?.count || 0);
+        (heavyCount[0]?.count || 0)
 
     // Get counts for other item types
     const [knifeResult, gloveResult, agentResult, musicResult, pinResult] = await Promise.all([
@@ -521,17 +503,17 @@ export async function getUserStats(steamId: string): Promise<{
         db.select({ count: count() }).from(gloves).where(eq(gloves.steamid, steamId)),
         db.select({ count: count() }).from(agents).where(eq(agents.steamid, steamId)),
         db.select({ count: count() }).from(music).where(eq(music.steamid, steamId)),
-        db.select({ count: count() }).from(pins).where(eq(pins.steamid, steamId))
-    ]);
+        db.select({ count: count() }).from(pins).where(eq(pins.steamid, steamId)),
+    ])
 
     // Get first and last activity timestamps by checking loadout created_at and updated_at
     const activityResult = await db
         .select({
             firstActivity: min(loadouts.created_at),
-            lastActivity: max(loadouts.updated_at)
+            lastActivity: max(loadouts.updated_at),
         })
         .from(loadouts)
-        .where(eq(loadouts.steamid, steamId));
+        .where(eq(loadouts.steamid, steamId))
 
     return {
         loadoutCount,
@@ -541,9 +523,9 @@ export async function getUserStats(steamId: string): Promise<{
             gloves: gloveResult[0]?.count || 0,
             agents: agentResult[0]?.count || 0,
             musicKits: musicResult[0]?.count || 0,
-            pins: pinResult[0]?.count || 0
+            pins: pinResult[0]?.count || 0,
         },
         firstActivity: activityResult[0]?.firstActivity || null,
-        lastActivity: activityResult[0]?.lastActivity || null
-    };
+        lastActivity: activityResult[0]?.lastActivity || null,
+    }
 }

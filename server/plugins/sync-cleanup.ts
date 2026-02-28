@@ -7,17 +7,21 @@ let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
 export default defineNitroPlugin(() => {
     // Run cleanup every 5 minutes
-    cleanupInterval = setInterval(async () => {
-        try {
-            await db.delete(syncNotifications)
-                .where(lt(syncNotifications.created_at, sql`NOW() - INTERVAL 5 MINUTE`))
-        } catch (error) {
-            Logger.error(
-                `Notification cleanup failed error=${error instanceof Error ? error.message : String(error)}`,
-                'sync-cleanup'
-            )
-        }
-    }, 5 * 60 * 1000)
+    cleanupInterval = setInterval(
+        async () => {
+            try {
+                await db
+                    .delete(syncNotifications)
+                    .where(lt(syncNotifications.created_at, sql`NOW() - INTERVAL 5 MINUTE`))
+            } catch (error) {
+                Logger.error(
+                    `Notification cleanup failed error=${error instanceof Error ? error.message : String(error)}`,
+                    'sync-cleanup'
+                )
+            }
+        },
+        5 * 60 * 1000
+    )
 
     Logger.info('Notification cleanup schedule interval=5m', 'sync-cleanup')
 })

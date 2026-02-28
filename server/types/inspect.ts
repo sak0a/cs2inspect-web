@@ -1,17 +1,17 @@
 /**
  * Type definitions for the unified inspect API endpoint
  * Handles all item types: weapons, knives, gloves, agents, music kits
- * 
+ *
  * ## Branded Types
- * 
+ *
  * This module uses branded types for type-safe URL and data handling:
  * - `InspectUrl` - Steam inspect protocol URLs
  * - `HexData` - Hex-encoded item data
  * - `FloatValue` - Wear values (0-1)
- * 
+ *
  * Use conversion functions like `toInspectUrl()`, `toHexData()`, `toFloatValue()`
  * when working with these values in business logic.
- * 
+ *
  * @see {@link ~/types/core/branded.ts} for branded type definitions
  */
 
@@ -30,14 +30,14 @@ export type ItemType = 'weapon' | 'knife' | 'glove' | 'agent' | 'music-kit'
 /**
  * Supported inspect actions
  */
-export type InspectAction = 
-  | 'create-url'
-  | 'inspect-item'
-  | 'decode-masked-only'
-  | 'decode-hex-data'
-  | 'validate-url'
-  | 'analyze-url'
-  | 'client-status'
+export type InspectAction =
+    | 'create-url'
+    | 'inspect-item'
+    | 'decode-masked-only'
+    | 'decode-hex-data'
+    | 'validate-url'
+    | 'analyze-url'
+    | 'client-status'
 
 /**
  * URL types returned by the inspect system
@@ -52,55 +52,62 @@ export type UrlType = 'masked' | 'unmasked'
  * Base interface for all inspect API requests
  */
 export interface BaseInspectRequest {
-  /** The type of item being inspected */
-  itemType?: ItemType
+    /** The type of item being inspected */
+    itemType?: ItemType
 }
 
 /**
  * Request interface for creating inspect URLs
- * 
+ *
  * Note: Uses plain number types for API compatibility.
  * Values are validated and converted to branded types internally.
  */
 export interface CreateUrlRequest extends BaseInspectRequest {
-  /** Item definition index */
-  defindex?: number
-  /** Paint index for the skin */
-  paintindex?: number
-  /** Pattern seed for the skin */
-  paintseed?: number
-  /** Wear value (float 0-1) - validated as FloatValue internally */
-  paintwear?: number
-  /** Item rarity */
-  rarity?: number
-  /** Whether the item has StatTrak */
-  stattrak_enabled?: boolean
-  /** StatTrak kill count */
-  stattrak_count?: number
-  /** Custom name tag (max 32 chars) */
-  nametag?: string
-  /** Stickers array (weapons only) */
-  stickers?: Array<{ id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number }>
-  /** Keychain object (weapons only) */
-  keychain?: { id: number; x?: number; y?: number; z?: number; seed?: number } | null
-  /** Complete customization object (weapons only) */
-  customization?: Record<string, unknown>
+    /** Item definition index */
+    defindex?: number
+    /** Paint index for the skin */
+    paintindex?: number
+    /** Pattern seed for the skin */
+    paintseed?: number
+    /** Wear value (float 0-1) - validated as FloatValue internally */
+    paintwear?: number
+    /** Item rarity */
+    rarity?: number
+    /** Whether the item has StatTrak */
+    stattrak_enabled?: boolean
+    /** StatTrak kill count */
+    stattrak_count?: number
+    /** Custom name tag (max 32 chars) */
+    nametag?: string
+    /** Stickers array (weapons only) */
+    stickers?: Array<{
+        id: number
+        x?: number
+        y?: number
+        wear?: number
+        scale?: number
+        rotation?: number
+    }>
+    /** Keychain object (weapons only) */
+    keychain?: { id: number; x?: number; y?: number; z?: number; seed?: number } | null
+    /** Complete customization object (weapons only) */
+    customization?: Record<string, unknown>
 }
 
 /**
  * Request interface for inspecting URLs
  */
 export interface InspectUrlRequest extends BaseInspectRequest {
-  /** The inspect URL to process - validated as InspectUrl internally */
-  inspectUrl: string
+    /** The inspect URL to process - validated as InspectUrl internally */
+    inspectUrl: string
 }
 
 /**
  * Request interface for decoding hex data
  */
 export interface DecodeHexRequest extends BaseInspectRequest {
-  /** Raw hex data to decode - validated as HexData internally */
-  hexData: string
+    /** Raw hex data to decode - validated as HexData internally */
+    hexData: string
 }
 
 /**
@@ -116,118 +123,118 @@ export type InspectRequest = CreateUrlRequest | InspectUrlRequest | DecodeHexReq
  * Base interface for all inspect API responses
  */
 export interface BaseInspectResponse {
-  /** Whether the operation was successful */
-  success: boolean
+    /** Whether the operation was successful */
+    success: boolean
 }
 
 /**
  * Response interface for create-url action
  */
 export interface CreateUrlResponse extends BaseInspectResponse {
-  /** Generated inspect URL */
-  inspectUrl: string
-  /** Item data used to create the URL */
-  itemData: Record<string, unknown>
-  /** Type of item that was processed */
-  itemType?: ItemType
+    /** Generated inspect URL */
+    inspectUrl: string
+    /** Item data used to create the URL */
+    itemData: Record<string, unknown>
+    /** Type of item that was processed */
+    itemType?: ItemType
 }
 
 /**
  * Response interface for inspect-item action
  */
 export interface InspectItemResponse extends BaseInspectResponse {
-  /** Type of URL that was processed */
-  urlType: UrlType
-  /** Inspected item data */
-  item: Record<string, unknown>
-  /** Original URL that was inspected */
-  originalUrl: string
-  /** Queue status for unmasked URLs */
-  queueStatus?: {
-    length: number
-  }
+    /** Type of URL that was processed */
+    urlType: UrlType
+    /** Inspected item data */
+    item: Record<string, unknown>
+    /** Original URL that was inspected */
+    originalUrl: string
+    /** Queue status for unmasked URLs */
+    queueStatus?: {
+        length: number
+    }
 }
 
 /**
  * Response interface for decode actions
  */
 export interface DecodeResponse extends BaseInspectResponse {
-  /** Type of URL (for URL-based decoding) */
-  urlType?: UrlType
-  /** Decoded item data */
-  item: Record<string, unknown>
-  /** Original URL (for URL-based decoding) */
-  originalUrl?: string
-  /** Hex data (for hex-based decoding) */
-  hexData?: string
-  /** Method used for decoding */
-  method: string
+    /** Type of URL (for URL-based decoding) */
+    urlType?: UrlType
+    /** Decoded item data */
+    item: Record<string, unknown>
+    /** Original URL (for URL-based decoding) */
+    originalUrl?: string
+    /** Hex data (for hex-based decoding) */
+    hexData?: string
+    /** Method used for decoding */
+    method: string
 }
 
 /**
  * Response interface for URL validation
  */
 export interface ValidateUrlResponse extends BaseInspectResponse {
-  /** Whether the URL is valid */
-  isValid: boolean
-  /** Type of URL if valid */
-  urlType: UrlType | null
-  /** Whether Steam client is required */
-  requiresSteamClient: boolean
-  /** Detailed validation information */
-  validation: {
-    valid: boolean
-    errors: string[]
-  }
-  /** Additional URL information */
-  urlInfo?: {
-    isQuoted: boolean
-    hasHexData: boolean
-    hexDataLength: number
-  }
-  /** Error message if invalid */
-  error?: string
+    /** Whether the URL is valid */
+    isValid: boolean
+    /** Type of URL if valid */
+    urlType: UrlType | null
+    /** Whether Steam client is required */
+    requiresSteamClient: boolean
+    /** Detailed validation information */
+    validation: {
+        valid: boolean
+        errors: string[]
+    }
+    /** Additional URL information */
+    urlInfo?: {
+        isQuoted: boolean
+        hasHexData: boolean
+        hexDataLength: number
+    }
+    /** Error message if invalid */
+    error?: string
 }
 
 /**
  * Response interface for URL analysis
  */
 export interface AnalyzeUrlResponse extends BaseInspectResponse {
-  /** Detailed analysis of the URL */
-  analysis: {
-    original_url: string
-    cleaned_url: string
-    url_type: UrlType
-    is_quoted: boolean
-    hex_data?: string
-  }
-  /** Whether Steam client is required */
-  requiresSteamClient: boolean
+    /** Detailed analysis of the URL */
+    analysis: {
+        original_url: string
+        cleaned_url: string
+        url_type: UrlType
+        is_quoted: boolean
+        hex_data?: string
+    }
+    /** Whether Steam client is required */
+    requiresSteamClient: boolean
 }
 
 /**
  * Response interface for Steam client status
  */
 export interface ClientStatusResponse extends BaseInspectResponse {
-  /** Steam client information */
-  steamClient: {
-    isReady: boolean
-    status: string
-    queueLength: number
-    unmaskedSupport: boolean
-  }
+    /** Steam client information */
+    steamClient: {
+        isReady: boolean
+        status: string
+        queueLength: number
+        unmaskedSupport: boolean
+    }
 }
 
 /**
  * Union type for all possible inspect response types
  */
-export type InspectResponse = 
-  | CreateUrlResponse
-  | InspectItemResponse
-  | DecodeResponse
-  | ValidateUrlResponse
-  | AnalyzeUrlResponse
-  | ClientStatusResponse
+export type InspectResponse =
+    | CreateUrlResponse
+    | InspectItemResponse
+    | DecodeResponse
+    | ValidateUrlResponse
+    | AnalyzeUrlResponse
+    | ClientStatusResponse
 
 // ============================================================================
 // ERROR INTERFACES
@@ -237,14 +244,14 @@ export type InspectResponse =
  * Error response interface for inspect API
  */
 export interface InspectErrorResponse {
-  /** Whether the operation was successful (always false for errors) */
-  success: false
-  /** Error message */
-  message: string
-  /** HTTP status code */
-  statusCode: number
-  /** Additional error details */
-  details?: unknown
+    /** Whether the operation was successful (always false for errors) */
+    success: false
+    /** Error message */
+    message: string
+    /** HTTP status code */
+    statusCode: number
+    /** Additional error details */
+    details?: unknown
 }
 
 // ============================================================================
@@ -255,24 +262,24 @@ export interface InspectErrorResponse {
  * Item type configuration for different inspect behaviors
  */
 export interface ItemTypeConfig {
-  /** Default defindex for this item type */
-  defaultDefindex: number
-  /** Default paintindex for this item type */
-  defaultPaintindex: number
-  /** Default pattern seed */
-  defaultPaintseed: number
-  /** Default wear value */
-  defaultPaintwear: number
-  /** Default rarity */
-  defaultRarity: number
-  /** Whether this item type supports StatTrak */
-  supportsStatTrak: boolean
-  /** Whether this item type supports name tags */
-  supportsNameTag: boolean
-  /** Whether this item type supports stickers */
-  supportsStickers: boolean
-  /** Whether this item type supports keychains */
-  supportsKeychains: boolean
+    /** Default defindex for this item type */
+    defaultDefindex: number
+    /** Default paintindex for this item type */
+    defaultPaintindex: number
+    /** Default pattern seed */
+    defaultPaintseed: number
+    /** Default wear value */
+    defaultPaintwear: number
+    /** Default rarity */
+    defaultRarity: number
+    /** Whether this item type supports StatTrak */
+    supportsStatTrak: boolean
+    /** Whether this item type supports name tags */
+    supportsNameTag: boolean
+    /** Whether this item type supports stickers */
+    supportsStickers: boolean
+    /** Whether this item type supports keychains */
+    supportsKeychains: boolean
 }
 
 /**

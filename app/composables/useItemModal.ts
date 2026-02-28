@@ -72,13 +72,13 @@ export function useItemModal(options: UseItemModalOptions) {
         error: null,
         showImportModal: false,
         showResetConfirm: false,
-        showDuplicateConfirm: false
+        showDuplicateConfirm: false,
     })
 
     // API state for skin data
     const apiState = ref<ItemModalApiState>({
         skins: [],
-        showDetails: false
+        showDetails: false,
     })
 
     const PAGE_SIZE = ref(pageSize)
@@ -113,7 +113,7 @@ export function useItemModal(options: UseItemModalOptions) {
         const raritySet = new Set(rarityFilterIds.value)
         const useRarityFilter = enableSortFilter && raritySet.size > 0
 
-        return apiState.value.skins.filter(skin => {
+        return apiState.value.skins.filter((skin) => {
             if (query && !skin.name.toLowerCase().includes(query)) return false
             if (useRarityFilter && !raritySet.has(skin.rarity?.id)) return false
             return true
@@ -150,9 +150,7 @@ export function useItemModal(options: UseItemModalOptions) {
     /**
      * Total number of pages based on sorted results
      */
-    const totalPages = computed(() =>
-        Math.ceil(sortedSkins.value.length / PAGE_SIZE.value)
-    )
+    const totalPages = computed(() => Math.ceil(sortedSkins.value.length / PAGE_SIZE.value))
 
     // ============================================================================
     // Methods - Core Functionality
@@ -174,7 +172,12 @@ export function useItemModal(options: UseItemModalOptions) {
      * @param itemName - Name of the item (weapon_name from props)
      * @param onError - Optional error callback
      */
-    async function fetchSkins(itemName: string, onError?: (error: string) => void, defaultImage?: string, weaponDisplayName?: string) {
+    async function fetchSkins(
+        itemName: string,
+        onError?: (error: string) => void,
+        defaultImage?: string,
+        weaponDisplayName?: string
+    ) {
         if (!itemName) {
             console.warn(`useItemModal(${itemType}): No item name provided for skin fetching`)
             return
@@ -188,18 +191,17 @@ export function useItemModal(options: UseItemModalOptions) {
 
             const response = await api.get<{ skins: APIWeaponSkin[] }>('/api/data/skins', {
                 weapon: itemName,
-                limit: 500
+                limit: 500,
             })
 
             // Handle both old and new API response formats
-            const skins = response.data?.skins || (Array.isArray(response.data) ? response.data : [])
+            const skins =
+                response.data?.skins || (Array.isArray(response.data) ? response.data : [])
 
             // Prepend a synthetic "Default" skin entry so users can reset to default via the picker
             // Grid thumbnail uses the non-flat default image; flat image is loaded on selection
             const thumbnailUrl = defaultImage || ''
-            const displayName = weaponDisplayName
-                ? `${weaponDisplayName} | Default`
-                : 'Default'
+            const displayName = weaponDisplayName ? `${weaponDisplayName} | Default` : 'Default'
             const defaultSkin: APIWeaponSkin = {
                 id: 'default',
                 name: displayName,
@@ -271,7 +273,7 @@ export function useItemModal(options: UseItemModalOptions) {
             error: null,
             showImportModal: false,
             showResetConfirm: false,
-            showDuplicateConfirm: false
+            showDuplicateConfirm: false,
         }
         apiState.value.skins = []
         if (enableSortFilter) {
@@ -288,14 +290,17 @@ export function useItemModal(options: UseItemModalOptions) {
     /**
      * Watch search query to reset pagination
      */
-    watch(() => state.value.searchQuery, () => {
-        const newTotalPages = totalPages.value
-        if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
-            state.value.currentPage = newTotalPages
-        } else if (newTotalPages > 0) {
-            state.value.currentPage = 1
+    watch(
+        () => state.value.searchQuery,
+        () => {
+            const newTotalPages = totalPages.value
+            if (state.value.currentPage > newTotalPages && newTotalPages > 0) {
+                state.value.currentPage = newTotalPages
+            } else if (newTotalPages > 0) {
+                state.value.currentPage = 1
+            }
         }
-    })
+    )
 
     // ============================================================================
     // Return Public API
@@ -325,6 +330,6 @@ export function useItemModal(options: UseItemModalOptions) {
         resetSearchState,
         clearState,
         toggleSortDir,
-        toggleRarityFilter
+        toggleRarityFilter,
     }
 }

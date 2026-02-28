@@ -9,15 +9,8 @@
 import { createError, readBody } from 'h3'
 import { eq, sql, and, or } from 'drizzle-orm'
 import { useDatabase } from '~/server/utils/database'
-import {
-    loadouts,
-    bannedUsers,
-    adminActivityLog
-} from '~/server/database/schema'
-import {
-    createSuccessResponse,
-    createResponseMeta
-} from '~/server/utils/api/responseHelpers'
+import { loadouts, bannedUsers, adminActivityLog } from '~/server/database/schema'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { getSteamIdParam } from '~/server/utils/request/routeParams'
 import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
@@ -32,7 +25,7 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
@@ -40,7 +33,7 @@ export default useErrorHandling(async (event) => {
     if (!steamId) {
         throw createError({
             statusCode: 400,
-            message: 'Steam ID is required'
+            message: 'Steam ID is required',
         })
     }
 
@@ -60,7 +53,7 @@ export default useErrorHandling(async (event) => {
     if (!userExists || Number(userExists.count) === 0) {
         throw createError({
             statusCode: 404,
-            message: `User with Steam ID ${steamId} not found`
+            message: `User with Steam ID ${steamId} not found`,
         })
     }
 
@@ -72,10 +65,7 @@ export default useErrorHandling(async (event) => {
             and(
                 eq(bannedUsers.steamid, steamId),
                 eq(bannedUsers.active, 1),
-                or(
-                    sql`${bannedUsers.expires_at} IS NULL`,
-                    sql`${bannedUsers.expires_at} > NOW()`
-                )
+                or(sql`${bannedUsers.expires_at} IS NULL`, sql`${bannedUsers.expires_at} > NOW()`)
             )
         )
         .limit(1)
@@ -83,14 +73,12 @@ export default useErrorHandling(async (event) => {
     if (existingBan) {
         throw createError({
             statusCode: 409,
-            message: `User ${steamId} is already banned`
+            message: `User ${steamId} is already banned`,
         })
     }
 
     // Calculate expiration date if duration is provided
-    const expiresAt = duration
-        ? new Date(Date.now() + duration * 60 * 60 * 1000)
-        : null
+    const expiresAt = duration ? new Date(Date.now() + duration * 60 * 60 * 1000) : null
 
     // Insert ban record
     await db.insert(bannedUsers).values({
@@ -98,7 +86,7 @@ export default useErrorHandling(async (event) => {
         reason,
         banned_by: event.context.admin.steamId,
         expires_at: expiresAt,
-        active: 1
+        active: 1,
     })
 
     // Log admin action
@@ -109,8 +97,8 @@ export default useErrorHandling(async (event) => {
         details: {
             reason,
             duration: duration || 'permanent',
-            expiresAt: expiresAt?.toISOString() || null
-        }
+            expiresAt: expiresAt?.toISOString() || null,
+        },
     })
 
     Logger.success(`User ${steamId} banned by admin ${event.context.admin.steamId}`)
@@ -119,7 +107,7 @@ export default useErrorHandling(async (event) => {
         adminSteamId: event.context.admin.steamId,
         method: 'POST',
         action: 'ban_user',
-        targetSteamId: steamId
+        targetSteamId: steamId,
     })
 
     return createSuccessResponse(
@@ -128,7 +116,7 @@ export default useErrorHandling(async (event) => {
             reason,
             duration: duration || null,
             expiresAt: expiresAt?.toISOString() || null,
-            isPermanent: !duration
+            isPermanent: !duration,
         },
         meta,
         `User ${steamId} has been banned successfully`

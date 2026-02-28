@@ -1,10 +1,10 @@
 /**
  * Common utility types and interfaces used throughout the CS2Inspect application
- * 
+ *
  * @description This file contains fundamental types that are shared across
  * multiple modules and components. These types provide the foundation for
  * type safety throughout the application.
- * 
+ *
  * @version 2.0.0
  * @since 2.0.0
  */
@@ -18,74 +18,74 @@ import type { SteamId as ImportedSteamId } from './core/branded'
 
 // Branded types (type-only re-exports)
 export type {
-  LoadoutId,
-  SteamId,
-  Defindex,
-  PaintIndex,
-  PaintSeed,
-  StickerId,
-  KeychainId,
-  MusicKitDefindex,
-  PinDefindex,
-  InspectUrl,
-  HexData,
-  FloatValue,
-  StickerSlotIndex,
-  TeamId,
-  StatTrakCount,
-  NameTag,
-  ISOTimestamp,
-  NormalizedCoordinate,
-  AdminId,
-  BanId,
-  SettingKey,
+    LoadoutId,
+    SteamId,
+    Defindex,
+    PaintIndex,
+    PaintSeed,
+    StickerId,
+    KeychainId,
+    MusicKitDefindex,
+    PinDefindex,
+    InspectUrl,
+    HexData,
+    FloatValue,
+    StickerSlotIndex,
+    TeamId,
+    StatTrakCount,
+    NameTag,
+    ISOTimestamp,
+    NormalizedCoordinate,
+    AdminId,
+    BanId,
+    SettingKey,
 } from './core/branded'
 
 // Conversion helpers, type guards, and utility functions (value re-exports)
 export {
-  toLoadoutId,
-  toSteamId,
-  toDefindex,
-  toPaintIndex,
-  toPaintSeed,
-  toStickerId,
-  toKeychainId,
-  toMusicKitDefindex,
-  toPinDefindex,
-  toInspectUrl,
-  tryToInspectUrl,
-  toHexData,
-  toFloatValue,
-  toFloatValueClamped,
-  toStickerSlotIndex,
-  toTeamId,
-  toStatTrakCount,
-  toNameTag,
-  toISOTimestamp,
-  toNormalizedCoordinate,
-  toNormalizedCoordinateClamped,
-  toAdminId,
-  toBanId,
-  toSettingKey,
-  isValidLoadoutId,
-  isValidSteamId,
-  isValidDefindex,
-  isValidInspectUrl,
-  isValidHexData,
-  isValidFloatValue,
-  isValidStickerSlotIndex,
-  isValidTeamId,
-  isValidStatTrakCount,
-  isValidNameTag,
-  isValidISOTimestamp,
-  isValidNormalizedCoordinate,
-  isValidAdminId,
-  isValidBanId,
-  isValidSettingKey,
-  floatValueToCondition,
-  floatValueToConditionAbbr,
-  teamIdToName,
-  teamIdToAbbr,
+    toLoadoutId,
+    toSteamId,
+    toDefindex,
+    toPaintIndex,
+    toPaintSeed,
+    toStickerId,
+    toKeychainId,
+    toMusicKitDefindex,
+    toPinDefindex,
+    toInspectUrl,
+    tryToInspectUrl,
+    toHexData,
+    toFloatValue,
+    toFloatValueClamped,
+    toStickerSlotIndex,
+    toTeamId,
+    toStatTrakCount,
+    toNameTag,
+    toISOTimestamp,
+    toNormalizedCoordinate,
+    toNormalizedCoordinateClamped,
+    toAdminId,
+    toBanId,
+    toSettingKey,
+    isValidLoadoutId,
+    isValidSteamId,
+    isValidDefindex,
+    isValidInspectUrl,
+    isValidHexData,
+    isValidFloatValue,
+    isValidStickerSlotIndex,
+    isValidTeamId,
+    isValidStatTrakCount,
+    isValidNameTag,
+    isValidISOTimestamp,
+    isValidNormalizedCoordinate,
+    isValidAdminId,
+    isValidBanId,
+    isValidSettingKey,
+    floatValueToCondition,
+    floatValueToConditionAbbr,
+    teamIdToName,
+    teamIdToAbbr,
 } from './core/branded'
 
 // Local alias for use within this file
@@ -97,7 +97,7 @@ type SteamId = ImportedSteamId
 
 /**
  * Unique identifier type for database records and API entities
- * 
+ *
  * @description Used consistently across the application for entity identification
  * @example "user_123", "loadout_456", "weapon_789"
  * @deprecated Consider using branded types (LoadoutId, SteamId, etc.) for specific IDs
@@ -106,7 +106,7 @@ export type EntityId = string
 
 /**
  * Timestamp string in ISO 8601 format
- * 
+ *
  * @description Used for created_at, updated_at, and other timestamp fields
  * @example "2024-01-15T10:30:00.000Z"
  */
@@ -114,21 +114,21 @@ export type Timestamp = string
 
 /**
  * Generic callback function type
- * 
+ *
  * @template T - The type of data passed to the callback
  */
 export type Callback<T = void> = (data: T) => void
 
 /**
  * Generic async callback function type
- * 
+ *
  * @template T - The type of data passed to the callback
  */
 export type AsyncCallback<T = void> = (data: T) => Promise<void>
 
 /**
  * Make specific properties of an interface optional
- * 
+ *
  * @template T - The base interface
  * @template K - Keys to make optional
  */
@@ -136,7 +136,7 @@ export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 
 /**
  * Make specific properties of an interface required
- * 
+ *
  * @template T - The base interface
  * @template K - Keys to make required
  */
@@ -148,19 +148,19 @@ export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>
 
 /**
  * Counter-Strike team sides
- * 
+ *
  * @description Represents the two main teams in Counter-Strike
  */
 export enum TeamSide {
-  /** Terrorist team */
-  Terrorist = 1,
-  /** Counter-Terrorist team */
-  CounterTerrorist = 2
+    /** Terrorist team */
+    Terrorist = 1,
+    /** Counter-Terrorist team */
+    CounterTerrorist = 2,
 }
 
 /**
  * Team availability for items
- * 
+ *
  * @description Indicates which teams can use a particular item
  */
 export type TeamAvailability = 'both' | 'terrorists' | 'counter-terrorists'
@@ -171,42 +171,42 @@ export type TeamAvailability = 'both' | 'terrorists' | 'counter-terrorists'
 
 /**
  * Item rarity information
- * 
+ *
  * @description Represents the rarity tier of CS2 items with associated color
  */
 export interface ItemRarity {
-  /** Unique identifier for the rarity */
-  id: string
-  /** Display name of the rarity (e.g., "Covert", "Classified") */
-  name: string
-  /** Hex color code associated with this rarity */
-  color: string
+    /** Unique identifier for the rarity */
+    id: string
+    /** Display name of the rarity (e.g., "Covert", "Classified") */
+    name: string
+    /** Hex color code associated with this rarity */
+    color: string
 }
 
 /**
  * Item quality levels
- * 
+ *
  * @description Represents different quality tiers for items
  */
 export enum ItemQuality {
-  /** Normal quality */
-  Normal = 0,
-  /** Genuine quality */
-  Genuine = 1,
-  /** Vintage quality */
-  Vintage = 2,
-  /** Unusual quality */
-  Unusual = 5,
-  /** Unique quality */
-  Unique = 6,
-  /** Community quality */
-  Community = 7,
-  /** Valve quality */
-  Valve = 8,
-  /** Self-Made quality */
-  SelfMade = 9,
-  /** Strange quality */
-  Strange = 11
+    /** Normal quality */
+    Normal = 0,
+    /** Genuine quality */
+    Genuine = 1,
+    /** Vintage quality */
+    Vintage = 2,
+    /** Unusual quality */
+    Unusual = 5,
+    /** Unique quality */
+    Unique = 6,
+    /** Community quality */
+    Community = 7,
+    /** Valve quality */
+    Valve = 8,
+    /** Self-Made quality */
+    SelfMade = 9,
+    /** Strange quality */
+    Strange = 11,
 }
 
 // ============================================================================
@@ -215,36 +215,36 @@ export enum ItemQuality {
 
 /**
  * Standard error information structure
- * 
+ *
  * @description Used consistently across API responses and error handling
  */
 export interface ErrorInfo {
-  /** Error code for programmatic handling */
-  code: string
-  /** Human-readable error message */
-  message: string
-  /** Additional error details */
-  details?: unknown
-  /** Field-specific validation errors */
-  fieldErrors?: Record<string, string[]>
-  /** Stack trace (development only) */
-  stack?: string
+    /** Error code for programmatic handling */
+    code: string
+    /** Human-readable error message */
+    message: string
+    /** Additional error details */
+    details?: unknown
+    /** Field-specific validation errors */
+    fieldErrors?: Record<string, string[]>
+    /** Stack trace (development only) */
+    stack?: string
 }
 
 /**
  * Validation error for form fields
- * 
+ *
  * @description Used in form validation and user input handling
  */
 export interface ValidationError {
-  /** Field name that failed validation */
-  field: string
-  /** Validation error message */
-  message: string
-  /** Validation rule that was violated */
-  rule: string
-  /** Current field value that failed validation */
-  value: unknown
+    /** Field name that failed validation */
+    field: string
+    /** Validation error message */
+    message: string
+    /** Validation rule that was violated */
+    rule: string
+    /** Current field value that failed validation */
+    value: unknown
 }
 
 // ============================================================================
@@ -253,16 +253,16 @@ export interface ValidationError {
 
 /**
  * Pagination parameters for API requests
- * 
+ *
  * @description Standard pagination interface used across all paginated endpoints
  */
 export interface PaginationOptions {
-  /** Current page number (1-based) */
-  page: number
-  /** Number of items per page */
-  limit: number
-  /** Total number of items available */
-  total?: number
+    /** Current page number (1-based) */
+    page: number
+    /** Number of items per page */
+    limit: number
+    /** Total number of items available */
+    total?: number
 }
 
 /**
@@ -271,36 +271,36 @@ export interface PaginationOptions {
  * @description Provides pagination context in API responses
  */
 export interface PaginationMeta {
-  /** Current page number (1-based) */
-  currentPage: number
-  /** Total number of pages available */
-  totalPages: number
-  /** Total number of items across all pages */
-  totalItems: number
-  /** Number of items per page */
-  limit: number
-  /** Number of items in current response */
-  count: number
-  /** Whether there is a next page */
-  hasNext: boolean
-  /** Whether there is a previous page */
-  hasPrevious: boolean
+    /** Current page number (1-based) */
+    currentPage: number
+    /** Total number of pages available */
+    totalPages: number
+    /** Total number of items across all pages */
+    totalItems: number
+    /** Number of items per page */
+    limit: number
+    /** Number of items in current response */
+    count: number
+    /** Whether there is a next page */
+    hasNext: boolean
+    /** Whether there is a previous page */
+    hasPrevious: boolean
 }
 
 /**
  * Generic filter options for data queries
- * 
+ *
  * @description Used for filtering lists and search functionality
  */
 export interface FilterOptions {
-  /** Search query string */
-  search?: string
-  /** Sort field */
-  sortBy?: string
-  /** Sort direction */
-  sortOrder?: 'asc' | 'desc'
-  /** Additional filter criteria */
-  filters?: Record<string, unknown>
+    /** Search query string */
+    search?: string
+    /** Sort field */
+    sortBy?: string
+    /** Sort direction */
+    sortOrder?: 'asc' | 'desc'
+    /** Additional filter criteria */
+    filters?: Record<string, unknown>
 }
 
 // ============================================================================
@@ -309,39 +309,39 @@ export interface FilterOptions {
 
 /**
  * Loading state for async operations
- * 
+ *
  * @description Represents different states of async operations
  */
 export enum LoadingState {
-  /** Operation not started */
-  Idle = 'idle',
-  /** Operation in progress */
-  Loading = 'loading',
-  /** Operation completed successfully */
-  Success = 'success',
-  /** Operation failed with error */
-  Error = 'error'
+    /** Operation not started */
+    Idle = 'idle',
+    /** Operation in progress */
+    Loading = 'loading',
+    /** Operation completed successfully */
+    Success = 'success',
+    /** Operation failed with error */
+    Error = 'error',
 }
 
 /**
  * Async operation result
- * 
+ *
  * @template T - Type of successful result data
  * @template E - Type of error data
  */
 export interface AsyncResult<T = unknown, E = ErrorInfo> {
-  /** Current state of the operation */
-  state: LoadingState
-  /** Result data (available when state is Success) */
-  data?: T
-  /** Error information (available when state is Error) */
-  error?: E
-  /** Whether the operation is currently loading */
-  isLoading: boolean
-  /** Whether the operation completed successfully */
-  isSuccess: boolean
-  /** Whether the operation failed */
-  isError: boolean
+    /** Current state of the operation */
+    state: LoadingState
+    /** Result data (available when state is Success) */
+    data?: T
+    /** Error information (available when state is Error) */
+    error?: E
+    /** Whether the operation is currently loading */
+    isLoading: boolean
+    /** Whether the operation completed successfully */
+    isSuccess: boolean
+    /** Whether the operation failed */
+    isError: boolean
 }
 
 // ============================================================================
@@ -350,32 +350,32 @@ export interface AsyncResult<T = unknown, E = ErrorInfo> {
 
 /**
  * Steam user profile information
- * 
+ *
  * @description Basic Steam user data used throughout the application
  */
 export interface UserProfile {
-  /** Steam ID (64-bit) - using branded SteamId type for type safety */
-  steamId: SteamId
-  /** Display name from Steam profile */
-  personaName: string
-  /** Avatar image URL */
-  avatar: string
-  /** Steam profile URL */
-  profileUrl: string
+    /** Steam ID (64-bit) - using branded SteamId type for type safety */
+    steamId: SteamId
+    /** Display name from Steam profile */
+    personaName: string
+    /** Avatar image URL */
+    avatar: string
+    /** Steam profile URL */
+    profileUrl: string
 }
 
 /**
  * User session information
- * 
+ *
  * @description Extended user data including session details
  */
 export interface UserSession extends UserProfile {
-  /** Session token */
-  token: string
-  /** Session expiration timestamp */
-  expiresAt: Timestamp
-  /** User permissions */
-  permissions: string[]
+    /** Session token */
+    token: string
+    /** Session expiration timestamp */
+    expiresAt: Timestamp
+    /** User permissions */
+    permissions: string[]
 }
 
 // ============================================================================
@@ -390,16 +390,16 @@ export type SteamUser = UserProfile
 
 /**
  * Counter-Strike team enum (server compatibility)
- * 
+ *
  * @description Numeric team identifiers matching server/types/api.ts CsTeam
  */
 export enum CsTeam {
-  /** No team specified */
-  None = 0,
-  /** Terrorist team */
-  Terrorist = 1,
-  /** Counter-Terrorist team */
-  CounterTerrorist = 2
+    /** No team specified */
+    None = 0,
+    /** Terrorist team */
+    Terrorist = 1,
+    /** Counter-Terrorist team */
+    CounterTerrorist = 2,
 }
 
 /**

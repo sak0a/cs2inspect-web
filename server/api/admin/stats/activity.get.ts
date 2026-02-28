@@ -18,19 +18,19 @@ import {
     getActivityTimeseries,
     getHeatmapData,
     type ActivityTimeseriesEntry,
-    type HeatmapEntry
+    type HeatmapEntry,
 } from '~/server/utils/admin/statsQueries'
 
 // Query parameter schema
 const activityQuerySchema = z.object({
-    range: z.enum(['7d', '30d', '90d']).default('30d')
+    range: z.enum(['7d', '30d', '90d']).default('30d'),
 })
 
 // Map range string to number of days
 const rangeToDays = {
     '7d': 7,
     '30d': 30,
-    '90d': 90
+    '90d': 90,
 } as const
 
 type RangeKey = keyof typeof rangeToDays
@@ -53,7 +53,7 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
@@ -64,7 +64,7 @@ export default useErrorHandling(async (event) => {
     // Fetch activity data in parallel
     const [timeseries, heatmap] = await Promise.all([
         getActivityTimeseries(days),
-        getHeatmapData(days)
+        getHeatmapData(days),
     ])
 
     // Calculate summary statistics
@@ -72,9 +72,8 @@ export default useErrorHandling(async (event) => {
     const totalLoadoutsCreated = timeseries.reduce((sum, entry) => sum + entry.loadoutsCreated, 0)
     const totalItemsSaved = timeseries.reduce((sum, entry) => sum + entry.itemsSaved, 0)
     const totalActiveUsers = timeseries.reduce((sum, entry) => sum + entry.activeUsers, 0)
-    const averageDailyActiveUsers = timeseries.length > 0
-        ? Math.round((totalActiveUsers / timeseries.length) * 100) / 100
-        : 0
+    const averageDailyActiveUsers =
+        timeseries.length > 0 ? Math.round((totalActiveUsers / timeseries.length) * 100) / 100 : 0
 
     const stats: AdminActivityStats = {
         timeseries,
@@ -83,15 +82,15 @@ export default useErrorHandling(async (event) => {
             totalNewUsers,
             totalLoadoutsCreated,
             totalItemsSaved,
-            averageDailyActiveUsers
-        }
+            averageDailyActiveUsers,
+        },
     }
 
     const meta = createResponseMeta(startTime, {
         adminSteamId: event.context.admin.steamId,
         endpoint: 'admin/stats/activity',
         range,
-        days
+        days,
     })
 
     return createSuccessResponse(stats, meta, 'Activity stats fetched successfully')

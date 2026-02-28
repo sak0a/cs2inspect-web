@@ -76,7 +76,7 @@ export function useAdminAuth(): AdminAuthReturn {
     async function checkAdminStatus(): Promise<boolean> {
         if (isChecking.value) {
             // Already checking, wait a bit and return current status
-            await new Promise(resolve => setTimeout(resolve, 100))
+            await new Promise((resolve) => setTimeout(resolve, 100))
             return adminStore.isAdmin
         }
 
@@ -135,7 +135,7 @@ export function useAdminAuth(): AdminAuthReturn {
         checkAdminStatus,
         requireAdmin,
         requireSuperAdmin,
-        hasPermission
+        hasPermission,
     }
 }
 

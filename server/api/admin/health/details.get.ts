@@ -18,7 +18,7 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
@@ -49,7 +49,7 @@ export default useErrorHandling(async (event) => {
 
     const meta = createResponseMeta(startTime, {
         adminSteamId: event.context.admin.steamId,
-        endpoint: 'admin/health/details'
+        endpoint: 'admin/health/details',
     })
 
     return createSuccessResponse(data, meta, 'Health check details fetched')

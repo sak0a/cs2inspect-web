@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
         path.startsWith('/api/admin/') ||
         path.startsWith('/api/public/') ||
         path.startsWith('/_locales/')
-    ) return
+    )
+        return
 
     const maintenance = await getCachedSetting('MAINTENANCE_MODE', false)
     if (!maintenance) return

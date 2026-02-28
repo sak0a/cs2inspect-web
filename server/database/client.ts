@@ -2,12 +2,12 @@
  * Drizzle ORM Client
  * Provides type-safe database access using Drizzle ORM with mysql2
  */
-import { drizzle } from 'drizzle-orm/mysql2';
-import mysql from 'mysql2/promise';
-import * as schema from './schema';
+import { drizzle } from 'drizzle-orm/mysql2'
+import mysql from 'mysql2/promise'
+import * as schema from './schema'
 
 // Create mysql2 connection pool
-const connectionLimit = Number(process.env.DATABASE_CONNECTION_LIMIT) || 5;
+const connectionLimit = Number(process.env.DATABASE_CONNECTION_LIMIT) || 5
 
 const pool = mysql.createPool({
     host: process.env.DATABASE_HOST || 'localhost',
@@ -24,13 +24,13 @@ const pool = mysql.createPool({
     idleTimeout: 60_000,
     enableKeepAlive: true,
     keepAliveInitialDelay: 0,
-});
+})
 
 // Create Drizzle ORM instance with schema for relational queries
-export const db = drizzle(pool, { schema, mode: 'default' });
+export const db = drizzle(pool, { schema, mode: 'default' })
 
 // Export pool for direct access (e.g., health checks)
-export { pool };
+export { pool }
 
 // Re-export schema for convenience
-export * from './schema';
+export * from './schema'

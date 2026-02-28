@@ -89,7 +89,12 @@ const fetchTestBody = ref('')
 const fetchTestLoading = ref(false)
 const fetchTestResult = ref<{
     request: { url: string; method: string; headers: Record<string, string>; hasBody: boolean }
-    response: { status: number; statusText: string; headers: Record<string, string>; body: string } | null
+    response: {
+        status: number
+        statusText: string
+        headers: Record<string, string>
+        body: string
+    } | null
     error: { code: string | null; message: string } | null
     latencyMs: number
 } | null>(null)
@@ -125,20 +130,31 @@ async function sendFetchTest() {
     }
 
     try {
-        const resp = await $fetch<{ data: typeof fetchTestResult.value }>('/api/admin/health/fetch-test', {
-            method: 'POST',
-            body: {
-                url: fetchTestUrl.value.trim(),
-                method: fetchTestMethod.value,
-                headers: Object.keys(headers).length > 0 ? headers : undefined,
-                body: showBody.value && fetchTestBody.value.trim() ? fetchTestBody.value.trim() : undefined,
-            },
-        })
+        const resp = await $fetch<{ data: typeof fetchTestResult.value }>(
+            '/api/admin/health/fetch-test',
+            {
+                method: 'POST',
+                body: {
+                    url: fetchTestUrl.value.trim(),
+                    method: fetchTestMethod.value,
+                    headers: Object.keys(headers).length > 0 ? headers : undefined,
+                    body:
+                        showBody.value && fetchTestBody.value.trim()
+                            ? fetchTestBody.value.trim()
+                            : undefined,
+                },
+            }
+        )
         fetchTestResult.value = resp.data
     } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err)
         fetchTestResult.value = {
-            request: { url: fetchTestUrl.value, method: fetchTestMethod.value, headers, hasBody: false },
+            request: {
+                url: fetchTestUrl.value,
+                method: fetchTestMethod.value,
+                headers,
+                hasBody: false,
+            },
             response: null,
             error: { code: 'CLIENT_ERROR', message: msg },
             latencyMs: 0,
@@ -177,12 +193,7 @@ function tryFormatJson(str: string): string {
                         @update:value="toggleAutoRefresh"
                     />
                 </div>
-                <NButton
-                    quaternary
-                    circle
-                    :loading="isLoading"
-                    @click="refreshAll"
-                >
+                <NButton quaternary circle :loading="isLoading" @click="refreshAll">
                     <template #icon>
                         <NIcon :component="RefreshIcon" />
                     </template>
@@ -199,7 +210,13 @@ function tryFormatJson(str: string): string {
         <div class="status-banner" :class="statusBannerClass">
             <div class="status-banner-left">
                 <span class="status-banner-icon">
-                    {{ overallStatus === 'ok' ? '\u2713' : overallStatus === 'degraded' ? '\u26A0' : '\u2717' }}
+                    {{
+                        overallStatus === 'ok'
+                            ? '\u2713'
+                            : overallStatus === 'degraded'
+                              ? '\u26A0'
+                              : '\u2717'
+                    }}
                 </span>
                 <span class="status-banner-text">{{ statusSummary }}</span>
             </div>
@@ -210,7 +227,10 @@ function tryFormatJson(str: string): string {
                 <span class="info-separator">&middot;</span>
                 <span class="info-item">RSS {{ formatBytes(serverInfo.memoryUsage.rss) }}</span>
                 <span class="info-separator">&middot;</span>
-                <span class="info-item">Heap {{ formatBytes(serverInfo.memoryUsage.heapUsed) }} / {{ formatBytes(serverInfo.memoryUsage.heapTotal) }}</span>
+                <span class="info-item"
+                    >Heap {{ formatBytes(serverInfo.memoryUsage.heapUsed) }} /
+                    {{ formatBytes(serverInfo.memoryUsage.heapTotal) }}</span
+                >
                 <span v-if="samplerRunning" class="info-separator">&middot;</span>
                 <NTag v-if="samplerRunning" size="tiny" type="success" round>Sampler Active</NTag>
             </div>
@@ -236,7 +256,8 @@ function tryFormatJson(str: string): string {
         <div class="fetch-tester-section">
             <h3 class="text-lg font-semibold text-white/90 mb-4">Request Tester</h3>
             <p class="text-xs text-white/35 mb-4">
-                Send HTTP requests from the server process to test connectivity. Runs in the same network context as the app.
+                Send HTTP requests from the server process to test connectivity. Runs in the same
+                network context as the app.
             </p>
 
             <!-- URL + Method row -->
@@ -279,17 +300,17 @@ function tryFormatJson(str: string): string {
                         Add
                     </NButton>
                 </div>
-                <div v-for="(header, index) in fetchTestHeaders" :key="index" class="fetch-header-row">
+                <div
+                    v-for="(header, index) in fetchTestHeaders"
+                    :key="index"
+                    class="fetch-header-row"
+                >
                     <NInput
                         v-model:value="header.key"
                         placeholder="Header name (e.g. X-API-Key)"
                         size="tiny"
                     />
-                    <NInput
-                        v-model:value="header.value"
-                        placeholder="Value"
-                        size="tiny"
-                    />
+                    <NInput v-model:value="header.value" placeholder="Value" size="tiny" />
                     <NButton quaternary circle size="tiny" @click="removeHeader(index)">
                         <template #icon>
                             <NIcon :component="RemoveIcon" :size="12" />
@@ -322,19 +343,23 @@ function tryFormatJson(str: string): string {
                             size="small"
                             round
                         >
-                            {{ fetchTestResult.response.status }} {{ fetchTestResult.response.statusText }}
+                            {{ fetchTestResult.response.status }}
+                            {{ fetchTestResult.response.statusText }}
                         </NTag>
                     </template>
-                    <NTag v-else type="error" size="small" round>
-                        Error
-                    </NTag>
+                    <NTag v-else type="error" size="small" round> Error </NTag>
                     <span class="fetch-latency">{{ fetchTestResult.latencyMs }}ms</span>
-                    <span class="fetch-result-method">{{ fetchTestResult.request.method }} {{ fetchTestResult.request.url }}</span>
+                    <span class="fetch-result-method"
+                        >{{ fetchTestResult.request.method }}
+                        {{ fetchTestResult.request.url }}</span
+                    >
                 </div>
 
                 <!-- Error details -->
                 <div v-if="fetchTestResult.error" class="fetch-error-box">
-                    <div v-if="fetchTestResult.error.code" class="fetch-error-code">{{ fetchTestResult.error.code }}</div>
+                    <div v-if="fetchTestResult.error.code" class="fetch-error-code">
+                        {{ fetchTestResult.error.code }}
+                    </div>
                     <div class="fetch-error-message">{{ fetchTestResult.error.message }}</div>
                 </div>
 
@@ -343,7 +368,12 @@ function tryFormatJson(str: string): string {
                     <NCollapse arrow-placement="left" class="fetch-response-collapse">
                         <NCollapseItem title="Response Headers" name="headers">
                             <template #header-extra>
-                                <span class="details-count">{{ Object.keys(fetchTestResult.response.headers).length }} headers</span>
+                                <span class="details-count"
+                                    >{{
+                                        Object.keys(fetchTestResult.response.headers).length
+                                    }}
+                                    headers</span
+                                >
                             </template>
                             <div class="fetch-headers-table">
                                 <div
@@ -362,7 +392,9 @@ function tryFormatJson(str: string): string {
                     <div class="fetch-section-label mt-3">
                         <span>Response Body</span>
                     </div>
-                    <pre class="fetch-response-body">{{ tryFormatJson(fetchTestResult.response.body) }}</pre>
+                    <pre class="fetch-response-body">{{
+                        tryFormatJson(fetchTestResult.response.body)
+                    }}</pre>
                 </template>
             </div>
         </div>
@@ -381,7 +413,10 @@ function tryFormatJson(str: string): string {
             </div>
 
             <NSpin :show="isLoadingHistory">
-                <div v-if="filteredHistoricalData.length === 0 && !isLoadingHistory" class="history-empty">
+                <div
+                    v-if="filteredHistoricalData.length === 0 && !isLoadingHistory"
+                    class="history-empty"
+                >
                     No historical data available for this time range.
                 </div>
                 <div v-else class="history-charts">

@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import {
-  LucideArrowLeft as BackIcon,
-  LucidePackage as LoadoutIcon
-} from 'lucide-vue-next'
+import { LucideArrowLeft as BackIcon, LucidePackage as LoadoutIcon } from 'lucide-vue-next'
 import type { AdminUserDetails } from '~/types'
 
 definePageMeta({
-  middleware: 'admin',
-  layout: 'admin'
+    middleware: 'admin',
+    layout: 'admin',
 })
 
 // Route and store
@@ -25,233 +22,238 @@ const showBanModal = ref(false)
 const showDeleteModal = ref(false)
 
 // Get steam ID from route
-const steamId = computed(() => ((route.params as Record<string, string | string[]>).steamId as string) ?? '')
+const steamId = computed(
+    () => ((route.params as Record<string, string | string[]>).steamId as string) ?? ''
+)
 
 // Total items computed
 const totalItems = computed(() => {
-  if (!user.value) return 0
-  const counts = user.value.itemCounts
-  return counts.weapons + counts.knives + counts.gloves + counts.agents + counts.musicKits + counts.pins
+    if (!user.value) return 0
+    const counts = user.value.itemCounts
+    return (
+        counts.weapons +
+        counts.knives +
+        counts.gloves +
+        counts.agents +
+        counts.musicKits +
+        counts.pins
+    )
 })
 
 // Check for action query param (for deep linking from user list)
 onMounted(async () => {
-  await fetchUserDetails()
+    await fetchUserDetails()
 
-  // Check if we should open ban modal immediately
-  if (route.query.action === 'ban' && user.value && !user.value.isBanned) {
-    showBanModal.value = true
-  }
+    // Check if we should open ban modal immediately
+    if (route.query.action === 'ban' && user.value && !user.value.isBanned) {
+        showBanModal.value = true
+    }
 })
 
 // Fetch user details
 async function fetchUserDetails() {
-  isLoading.value = true
-  error.value = null
+    isLoading.value = true
+    error.value = null
 
-  try {
-    user.value = await adminStore.fetchUserDetails(steamId.value)
-    if (!user.value) {
-      error.value = 'User not found'
+    try {
+        user.value = await adminStore.fetchUserDetails(steamId.value)
+        if (!user.value) {
+            error.value = 'User not found'
+        }
+    } catch (err) {
+        error.value = err instanceof Error ? err.message : 'Failed to load user details'
+    } finally {
+        isLoading.value = false
     }
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Failed to load user details'
-  } finally {
-    isLoading.value = false
-  }
 }
 
 // Navigate back to users list
 function handleBack() {
-  router.push('/admin/users')
+    router.push('/admin/users')
 }
 
 // Handle ban user from card
 function handleBanFromCard(_user: AdminUserDetails) {
-  showBanModal.value = true
+    showBanModal.value = true
 }
 
 // Handle unban user from card
 async function handleUnbanFromCard(_user: AdminUserDetails) {
-  try {
-    await adminStore.unbanUser(steamId.value, { refreshList: false })
-    await fetchUserDetails() // Refresh user data
-  } catch (err) {
-    console.error('Failed to unban user:', err)
-  }
+    try {
+        await adminStore.unbanUser(steamId.value, { refreshList: false })
+        await fetchUserDetails() // Refresh user data
+    } catch (err) {
+        console.error('Failed to unban user:', err)
+    }
 }
 
 // Handle delete from card
 function handleDeleteFromCard(_user: AdminUserDetails) {
-  showDeleteModal.value = true
+    showDeleteModal.value = true
 }
 
 // Handle ban confirmation
 async function handleBanConfirm(payload: { reason: string; durationHours?: number }) {
-  try {
-    await adminStore.banUser(steamId.value, payload.reason, payload.durationHours, { refreshList: false })
-    await fetchUserDetails() // Refresh user data
-  } catch (err) {
-    console.error('Failed to ban user:', err)
-  }
+    try {
+        await adminStore.banUser(steamId.value, payload.reason, payload.durationHours, {
+            refreshList: false,
+        })
+        await fetchUserDetails() // Refresh user data
+    } catch (err) {
+        console.error('Failed to ban user:', err)
+    }
 }
 
 // Handle delete confirmation
 async function handleDeleteConfirm() {
-  try {
-    await adminStore.deleteUserData(steamId.value)
-    // Navigate back to users list after deletion
-    router.push('/admin/users')
-  } catch (err) {
-    console.error('Failed to delete user data:', err)
-  }
+    try {
+        await adminStore.deleteUserData(steamId.value)
+        // Navigate back to users list after deletion
+        router.push('/admin/users')
+    } catch (err) {
+        console.error('Failed to delete user data:', err)
+    }
 }
 
 // Format date for display
 function formatDate(isoDate: string): string {
-  const date = new Date(isoDate)
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  }).format(date)
+    const date = new Date(isoDate)
+    return new Intl.DateTimeFormat('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    }).format(date)
 }
 </script>
 
 <template>
-  <div class="space-y-6">
-      <!-- Back Button -->
-      <div>
-        <NButton
-          quaternary
-          @click="handleBack"
-        >
-          <template #icon>
-            <NIcon :component="BackIcon" />
-          </template>
-          Back to Users
-        </NButton>
-      </div>
-
-      <!-- Loading State -->
-      <div v-if="isLoading" class="flex items-center justify-center py-12">
-        <NSpin size="large" />
-      </div>
-
-      <!-- Error State -->
-      <div
-        v-else-if="error"
-        class="glass-card p-6 text-center"
-      >
-        <p class="text-red-400 mb-4">{{ error }}</p>
-        <NButton
-          secondary
-          @click="fetchUserDetails"
-        >
-          Try Again
-        </NButton>
-      </div>
-
-      <!-- User Content -->
-      <template v-else-if="user">
-        <!-- User Identity & Status Card -->
-        <AdminUserCard
-          :user="user"
-          @ban="handleBanFromCard"
-          @unban="handleUnbanFromCard"
-          @delete="handleDeleteFromCard"
-        />
-
-        <!-- Loadouts & Items Section -->
-        <div class="glass-card p-6">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center admin-accent-chip">
-              <NIcon :component="LoadoutIcon" :size="20" color="var(--admin-accent)" />
-            </div>
-            <div>
-              <h3 class="text-lg font-semibold text-white">Loadouts & Items</h3>
-              <p class="text-sm text-gray-400">
-                {{ user.loadoutCount }} loadout{{ user.loadoutCount !== 1 ? 's' : '' }} &middot; {{ totalItems }} item{{ totalItems !== 1 ? 's' : '' }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Loadout Summary -->
-          <div v-if="user.loadoutCount > 0" class="space-y-4">
-            <!-- Item Counts Grid -->
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-              <div class="item-stat-card">
-                <span class="item-stat-value">{{ user.itemCounts.weapons }}</span>
-                <span class="item-stat-label">Weapons</span>
-              </div>
-              <div class="item-stat-card">
-                <span class="item-stat-value">{{ user.itemCounts.knives }}</span>
-                <span class="item-stat-label">Knives</span>
-              </div>
-              <div class="item-stat-card">
-                <span class="item-stat-value">{{ user.itemCounts.gloves }}</span>
-                <span class="item-stat-label">Gloves</span>
-              </div>
-              <div class="item-stat-card">
-                <span class="item-stat-value">{{ user.itemCounts.agents }}</span>
-                <span class="item-stat-label">Agents</span>
-              </div>
-              <div class="item-stat-card">
-                <span class="item-stat-value">{{ user.itemCounts.musicKits }}</span>
-                <span class="item-stat-label">Music Kits</span>
-              </div>
-              <div class="item-stat-card">
-                <span class="item-stat-value">{{ user.itemCounts.pins }}</span>
-                <span class="item-stat-label">Pins</span>
-              </div>
-            </div>
-
-            <!-- Activity Info -->
-            <div class="border-t border-white/10 pt-4 mt-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                <div class="flex items-center gap-2 text-gray-400">
-                  <span class="opacity-60">First Activity:</span>
-                  <span class="text-white">{{ formatDate(user.firstActivity) }}</span>
-                </div>
-                <div class="flex items-center gap-2 text-gray-400">
-                  <span class="opacity-60">Last Activity:</span>
-                  <span class="text-white">{{ formatDate(user.lastActivity) }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Empty State -->
-          <div v-else class="py-8 text-center">
-            <NIcon :component="LoadoutIcon" :size="40" class="opacity-20 mb-3" />
-            <p class="text-gray-500">This user has no loadouts.</p>
-          </div>
+    <div class="space-y-6">
+        <!-- Back Button -->
+        <div>
+            <NButton quaternary @click="handleBack">
+                <template #icon>
+                    <NIcon :component="BackIcon" />
+                </template>
+                Back to Users
+            </NButton>
         </div>
 
-        <!-- Individual Loadout Management -->
-        <AdminLoadoutTable :steam-id="steamId" />
-      </template>
+        <!-- Loading State -->
+        <div v-if="isLoading" class="flex items-center justify-center py-12">
+            <NSpin size="large" />
+        </div>
 
-      <!-- Ban Modal -->
-      <AdminBanModal
-        v-if="user"
-        v-model:show="showBanModal"
-        :steam-id="steamId"
-        @confirm="handleBanConfirm"
-        @cancel="showBanModal = false"
-      />
+        <!-- Error State -->
+        <div v-else-if="error" class="glass-card p-6 text-center">
+            <p class="text-red-400 mb-4">{{ error }}</p>
+            <NButton secondary @click="fetchUserDetails"> Try Again </NButton>
+        </div>
 
-      <!-- Delete Modal -->
-      <AdminDeleteModal
-        v-if="user"
-        v-model:show="showDeleteModal"
-        :steam-id="steamId"
-        @confirm="handleDeleteConfirm"
-        @cancel="showDeleteModal = false"
-      />
-  </div>
+        <!-- User Content -->
+        <template v-else-if="user">
+            <!-- User Identity & Status Card -->
+            <AdminUserCard
+                :user="user"
+                @ban="handleBanFromCard"
+                @unban="handleUnbanFromCard"
+                @delete="handleDeleteFromCard"
+            />
+
+            <!-- Loadouts & Items Section -->
+            <div class="glass-card p-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div
+                        class="w-10 h-10 rounded-lg flex items-center justify-center admin-accent-chip"
+                    >
+                        <NIcon :component="LoadoutIcon" :size="20" color="var(--admin-accent)" />
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white">Loadouts & Items</h3>
+                        <p class="text-sm text-gray-400">
+                            {{ user.loadoutCount }} loadout{{
+                                user.loadoutCount !== 1 ? 's' : ''
+                            }}
+                            &middot; {{ totalItems }} item{{ totalItems !== 1 ? 's' : '' }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Loadout Summary -->
+                <div v-if="user.loadoutCount > 0" class="space-y-4">
+                    <!-- Item Counts Grid -->
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                        <div class="item-stat-card">
+                            <span class="item-stat-value">{{ user.itemCounts.weapons }}</span>
+                            <span class="item-stat-label">Weapons</span>
+                        </div>
+                        <div class="item-stat-card">
+                            <span class="item-stat-value">{{ user.itemCounts.knives }}</span>
+                            <span class="item-stat-label">Knives</span>
+                        </div>
+                        <div class="item-stat-card">
+                            <span class="item-stat-value">{{ user.itemCounts.gloves }}</span>
+                            <span class="item-stat-label">Gloves</span>
+                        </div>
+                        <div class="item-stat-card">
+                            <span class="item-stat-value">{{ user.itemCounts.agents }}</span>
+                            <span class="item-stat-label">Agents</span>
+                        </div>
+                        <div class="item-stat-card">
+                            <span class="item-stat-value">{{ user.itemCounts.musicKits }}</span>
+                            <span class="item-stat-label">Music Kits</span>
+                        </div>
+                        <div class="item-stat-card">
+                            <span class="item-stat-value">{{ user.itemCounts.pins }}</span>
+                            <span class="item-stat-label">Pins</span>
+                        </div>
+                    </div>
+
+                    <!-- Activity Info -->
+                    <div class="border-t border-white/10 pt-4 mt-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div class="flex items-center gap-2 text-gray-400">
+                                <span class="opacity-60">First Activity:</span>
+                                <span class="text-white">{{ formatDate(user.firstActivity) }}</span>
+                            </div>
+                            <div class="flex items-center gap-2 text-gray-400">
+                                <span class="opacity-60">Last Activity:</span>
+                                <span class="text-white">{{ formatDate(user.lastActivity) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div v-else class="py-8 text-center">
+                    <NIcon :component="LoadoutIcon" :size="40" class="opacity-20 mb-3" />
+                    <p class="text-gray-500">This user has no loadouts.</p>
+                </div>
+            </div>
+
+            <!-- Individual Loadout Management -->
+            <AdminLoadoutTable :steam-id="steamId" />
+        </template>
+
+        <!-- Ban Modal -->
+        <AdminBanModal
+            v-if="user"
+            v-model:show="showBanModal"
+            :steam-id="steamId"
+            @confirm="handleBanConfirm"
+            @cancel="showBanModal = false"
+        />
+
+        <!-- Delete Modal -->
+        <AdminDeleteModal
+            v-if="user"
+            v-model:show="showDeleteModal"
+            :steam-id="steamId"
+            @confirm="handleDeleteConfirm"
+            @cancel="showDeleteModal = false"
+        />
+    </div>
 </template>
 
 <style scoped lang="sass">

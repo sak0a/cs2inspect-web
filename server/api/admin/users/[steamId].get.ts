@@ -17,12 +17,9 @@ import {
     music,
     pins,
     bannedUsers,
-    userProfiles
+    userProfiles,
 } from '~/server/database/schema'
-import {
-    createSuccessResponse,
-    createResponseMeta
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { getSteamIdParam } from '~/server/utils/request/routeParams'
 import { ADMIN_ERROR_CODES } from '~/server/utils/constants'
@@ -59,7 +56,7 @@ export default useErrorHandling(async (event) => {
     if (!event.context.admin) {
         throw createError({
             statusCode: 403,
-            message: 'Admin access required'
+            message: 'Admin access required',
         })
     }
 
@@ -67,7 +64,7 @@ export default useErrorHandling(async (event) => {
     if (!steamId) {
         throw createError({
             statusCode: 400,
-            message: 'Steam ID is required'
+            message: 'Steam ID is required',
         })
     }
 
@@ -80,7 +77,7 @@ export default useErrorHandling(async (event) => {
         .select({
             count: sql<number>`COUNT(*)`,
             firstActivity: sql<string>`MIN(${loadouts.created_at})`,
-            lastActivity: sql<string>`MAX(${loadouts.updated_at})`
+            lastActivity: sql<string>`MAX(${loadouts.updated_at})`,
         })
         .from(loadouts)
         .where(eq(loadouts.steamid, steamId))
@@ -88,7 +85,7 @@ export default useErrorHandling(async (event) => {
     if (!userLoadouts || Number(userLoadouts.count) === 0) {
         throw createError({
             statusCode: 404,
-            message: `User with Steam ID ${steamId} not found`
+            message: `User with Steam ID ${steamId} not found`,
         })
     }
 
@@ -139,13 +136,16 @@ export default useErrorHandling(async (event) => {
         .where(eq(pins.steamid, steamId))
 
     const itemCounts = {
-        weapons: Number(pistolCount?.count || 0) + Number(rifleCount?.count || 0) +
-                 Number(smgCount?.count || 0) + Number(heavyCount?.count || 0),
+        weapons:
+            Number(pistolCount?.count || 0) +
+            Number(rifleCount?.count || 0) +
+            Number(smgCount?.count || 0) +
+            Number(heavyCount?.count || 0),
         knives: Number(knifeCount?.count || 0),
         gloves: Number(gloveCount?.count || 0),
         agents: Number(agentCount?.count || 0),
         musicKits: Number(musicCount?.count || 0),
-        pins: Number(pinCount?.count || 0)
+        pins: Number(pinCount?.count || 0),
     }
 
     // Check ban status
@@ -155,17 +155,14 @@ export default useErrorHandling(async (event) => {
             banned_by: bannedUsers.banned_by,
             banned_at: bannedUsers.banned_at,
             expires_at: bannedUsers.expires_at,
-            active: bannedUsers.active
+            active: bannedUsers.active,
         })
         .from(bannedUsers)
         .where(
             and(
                 eq(bannedUsers.steamid, steamId),
                 eq(bannedUsers.active, 1),
-                or(
-                    sql`${bannedUsers.expires_at} IS NULL`,
-                    sql`${bannedUsers.expires_at} > NOW()`
-                )
+                or(sql`${bannedUsers.expires_at} IS NULL`, sql`${bannedUsers.expires_at} > NOW()`)
             )
         )
         .limit(1)
@@ -183,11 +180,11 @@ export default useErrorHandling(async (event) => {
     const isBanned = !!banRecord
     const banInfo = banRecord
         ? {
-            reason: banRecord.reason,
-            bannedBy: banRecord.banned_by,
-            bannedAt: banRecord.banned_at?.toISOString() || '',
-            expiresAt: banRecord.expires_at?.toISOString() || null
-        }
+              reason: banRecord.reason,
+              bannedBy: banRecord.banned_by,
+              bannedAt: banRecord.banned_at?.toISOString() || '',
+              expiresAt: banRecord.expires_at?.toISOString() || null,
+          }
         : null
 
     const response: UserDetailResponse = {
@@ -199,7 +196,7 @@ export default useErrorHandling(async (event) => {
         firstActivity: userLoadouts.firstActivity,
         lastActivity: userLoadouts.lastActivity,
         isBanned,
-        banInfo
+        banInfo,
     }
 
     Logger.success(`User detail fetched for ${steamId}`)
@@ -207,7 +204,7 @@ export default useErrorHandling(async (event) => {
     const meta = createResponseMeta(startTime, {
         adminSteamId: event.context.admin.steamId,
         method: 'GET',
-        targetSteamId: steamId
+        targetSteamId: steamId,
     })
 
     return createSuccessResponse(response, meta, 'User details fetched successfully')

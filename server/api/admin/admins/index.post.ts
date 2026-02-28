@@ -10,10 +10,7 @@ import { eq } from 'drizzle-orm'
 import { useErrorHandling } from '~/server/utils/errorHandler'
 import { useDatabase } from '~/server/utils/database'
 import { adminUsers, adminActivityLog } from '~/server/database/schema'
-import {
-    createSuccessResponse,
-    createResponseMeta,
-} from '~/server/utils/api/responseHelpers'
+import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { parseBodyWithSchema } from '~/server/utils/validation/zodHelpers'
 import { adminAddAdminSchema } from '~/server/utils/validation/adminSchemas'
 
