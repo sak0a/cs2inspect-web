@@ -645,5 +645,8 @@
                 }
             }
         }
+    },
+    "admin": {
+        "panelTitle": "Beheerderspaneel"
     }
 }

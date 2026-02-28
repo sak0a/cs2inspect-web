@@ -4,6 +4,7 @@ import {
     LucideLogOut as LogOutIcon,
     LucideSettings as SettingsIcon,
     LucideBookOpen as TutorialIcon,
+    LucideShield as AdminIcon,
 } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
 import { getAllTutorials } from '~/utils/tutorialDefinitions'
@@ -51,7 +52,13 @@ const emit = defineEmits<{
 
 const { t, getLocale, switchLocale, getLocales } = useI18n()
 const tutorialStore = useTutorialStore()
+const adminStore = useAdminStore()
 const { isFeatureEnabled, loaded: settingsLoaded } = useAppSettings()
+
+// Check admin status once on mount
+onMounted(() => {
+    adminStore.checkAdminStatus()
+})
 
 // Map tutorial id (kebab-case) to settings key (SCREAMING_SNAKE_CASE)
 function tutorialSettingKey(id: string): string {
@@ -140,6 +147,14 @@ const dropdownOptions = computed(() => {
         })
     }
 
+    if (adminStore.isAdmin) {
+        options.push({
+            label: String(t('admin.panelTitle') || 'Admin Panel'),
+            key: 'admin',
+            icon: () => h(NIcon, { size: 16 }, { default: () => h(AdminIcon) }),
+        })
+    }
+
     if (props.showLogout) {
         options.push({ type: 'divider', key: 'divider' })
         options.push({
@@ -178,6 +193,8 @@ function handleSelect(key: string) {
         handleLanguageSelect(key.slice(5))
     } else if (key.startsWith('tutorial:')) {
         tutorialStore.startTutorial(key.slice(9))
+    } else if (key === 'admin') {
+        navigateTo('/admin')
     } else if (key === 'logout') {
         emit('logout')
     }

@@ -2,6 +2,13 @@
     "version": "0.0.1",
     "configurations": [
         {
+            "name": "web",
+            "runtimeExecutable": "npx",
+            "runtimeArgs": ["nuxt", "dev"],
+            "port": 3210,
+            "autoPort": false
+        },
+        {
             "name": "docs",
             "runtimeExecutable": "npx",
             "runtimeArgs": ["vitepress", "dev"],
