@@ -3,218 +3,209 @@ import { LucideRefreshCw as RefreshIcon } from 'lucide-vue-next'
 import type { HealthCheck } from '~/composables/useAdminHealth'
 
 interface Props {
-    check: HealthCheck
-    loading?: boolean
+  check: HealthCheck
+  loading?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    loading: false,
+  loading: false,
 })
 
 const emit = defineEmits<{
-    (e: 'recheck'): void
+  (e: 'recheck'): void
 }>()
 
 const metadataExpanded = ref<string[]>(props.check.status === 'fail' ? ['metadata'] : [])
 
 // Display name mapping
 const displayNameMap: Record<string, string> = {
-    database: 'Database',
-    steam_api: 'Steam API',
-    steam_client: 'Steam Client',
-    steam_service: 'Steam Service',
-    environment: 'Environment',
-    image_proxy: 'Image Proxy',
+  database: 'Database',
+  steam_api: 'Steam API',
+  steam_client: 'Steam Client',
+  steam_service: 'Steam Service',
+  environment: 'Environment',
+  image_proxy: 'Image Proxy',
 }
 
 const displayName = computed(() => displayNameMap[props.check.name] || props.check.name)
 
 const statusIcon = computed(() => {
-    if (props.check.status === 'ok') return '\u2713'
-    if (props.check.status === 'degraded') return '\u26A0'
-    return '\u2717'
+  if (props.check.status === 'ok') return '\u2713'
+  if (props.check.status === 'degraded') return '\u26A0'
+  return '\u2717'
 })
 
 const statusLabel = computed(() => {
-    if (props.check.status === 'ok') return 'Operational'
-    if (props.check.status === 'degraded') return 'Degraded'
-    return 'Failed'
+  if (props.check.status === 'ok') return 'Operational'
+  if (props.check.status === 'degraded') return 'Degraded'
+  return 'Failed'
 })
 
 const statusTagType = computed(() => {
-    if (props.check.status === 'ok') return 'success'
-    if (props.check.status === 'degraded') return 'warning'
-    return 'error'
+  if (props.check.status === 'ok') return 'success'
+  if (props.check.status === 'degraded') return 'warning'
+  return 'error'
 })
 
 const statusBorderColor = computed(() => {
-    if (props.check.status === 'ok') return '#10b981'
-    if (props.check.status === 'degraded') return '#f59e0b'
-    return '#ef4444'
+  if (props.check.status === 'ok') return '#10b981'
+  if (props.check.status === 'degraded') return '#f59e0b'
+  return '#ef4444'
 })
 
 // Uptime percentage from metadata
 const uptimePercentage = computed(() => {
-    const meta = props.check.metadata
-    if (meta && typeof meta.uptime_percentage === 'number') {
-        return Math.round(meta.uptime_percentage * 100) / 100
-    }
-    if (props.check.status === 'ok') return 100
-    if (props.check.status === 'degraded') return 50
-    return 0
+  const meta = props.check.metadata
+  if (meta && typeof meta.uptime_percentage === 'number') {
+    return Math.round(meta.uptime_percentage * 100) / 100
+  }
+  if (props.check.status === 'ok') return 100
+  if (props.check.status === 'degraded') return 50
+  return 0
 })
 
 const uptimeColor = computed(() => {
-    if (uptimePercentage.value >= 99) return '#10b981'
-    if (uptimePercentage.value >= 90) return '#f59e0b'
-    return '#ef4444'
+  if (uptimePercentage.value >= 99) return '#10b981'
+  if (uptimePercentage.value >= 90) return '#f59e0b'
+  return '#ef4444'
 })
 
 // Metadata entries for display
 const metadataEntries = computed(() => {
-    if (!props.check.metadata) return []
-    return Object.entries(props.check.metadata).map(([key, value]) => ({
-        key,
-        value,
-        isObject: value !== null && typeof value === 'object',
-        isError: key === 'error' || key === 'error_code' || key === 'missing_required',
-        isArray: Array.isArray(value),
-    }))
+  if (!props.check.metadata) return []
+  return Object.entries(props.check.metadata).map(([key, value]) => ({
+    key,
+    value,
+    isObject: value !== null && typeof value === 'object',
+    isError: key === 'error' || key === 'error_code' || key === 'missing_required',
+    isArray: Array.isArray(value),
+  }))
 })
 
 const hasMetadata = computed(() => metadataEntries.value.length > 0)
 
 function formatValue(value: unknown): string {
-    if (value === null || value === undefined) return 'null'
-    if (typeof value === 'boolean') return value ? 'true' : 'false'
-    if (typeof value === 'number') return String(value)
-    if (typeof value === 'string') return value
-    return JSON.stringify(value, null, 2)
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  if (typeof value === 'number') return String(value)
+  if (typeof value === 'string') return value
+  return JSON.stringify(value, null, 2)
 }
 </script>
 
 <template>
-    <div class="health-card" :style="{ borderLeftColor: statusBorderColor }">
-        <!-- Header -->
-        <div class="health-card-header">
-            <div class="health-card-title-section">
-                <span class="status-icon" :class="`status-icon--${check.status}`">{{
-                    statusIcon
-                }}</span>
-                <h3 class="health-card-name">{{ displayName }}</h3>
-                <NTag :type="statusTagType" size="small" round>
-                    {{ statusLabel }}
-                </NTag>
-            </div>
-            <div class="health-card-actions">
-                <span v-if="check.latency_ms !== undefined" class="latency-badge">
-                    {{ check.latency_ms }}ms
-                </span>
-                <NButton quaternary circle size="small" :loading="loading" @click="emit('recheck')">
-                    <template #icon>
-                        <NIcon :component="RefreshIcon" :size="14" />
-                    </template>
-                </NButton>
-            </div>
-        </div>
-
-        <!-- Uptime bar -->
-        <div class="health-card-uptime">
-            <div class="uptime-labels">
-                <span class="uptime-label">Uptime (1h)</span>
-                <span class="uptime-value">{{ uptimePercentage.toFixed(1) }}%</span>
-            </div>
-            <NProgress
-                type="line"
-                :percentage="uptimePercentage"
-                :show-indicator="false"
-                :color="uptimeColor"
-                rail-color="rgba(255, 255, 255, 0.05)"
-                :height="6"
-                :border-radius="3"
-            />
-        </div>
-
-        <!-- Message -->
-        <div
-            v-if="check.message"
-            class="health-card-message"
-            :class="{ 'health-card-message--error': check.status === 'fail' }"
-        >
-            {{ check.message }}
-        </div>
-
-        <!-- Metadata Details (collapsible) -->
-        <div v-if="hasMetadata" class="health-card-details">
-            <NCollapse v-model:expanded-names="metadataExpanded" arrow-placement="left">
-                <NCollapseItem title="Details" name="metadata">
-                    <template #header-extra>
-                        <span class="details-count">{{ metadataEntries.length }} fields</span>
-                    </template>
-                    <div class="metadata-table">
-                        <div
-                            v-for="entry in metadataEntries"
-                            :key="entry.key"
-                            class="metadata-row"
-                            :class="{ 'metadata-row--error': entry.isError }"
-                        >
-                            <span class="metadata-key">{{ entry.key }}</span>
-                            <div class="metadata-value">
-                                <!-- Array values (like missing_vars) -->
-                                <template v-if="entry.isArray && Array.isArray(entry.value)">
-                                    <div
-                                        v-if="(entry.value as unknown[]).length === 0"
-                                        class="metadata-empty"
-                                    >
-                                        (empty)
-                                    </div>
-                                    <div v-else class="metadata-tags">
-                                        <NTag
-                                            v-for="(item, i) in entry.value as unknown[]"
-                                            :key="i"
-                                            size="tiny"
-                                            :type="entry.isError ? 'error' : 'default'"
-                                            round
-                                        >
-                                            {{ String(item) }}
-                                        </NTag>
-                                    </div>
-                                </template>
-
-                                <!-- Object values (like error, checks) -->
-                                <template v-else-if="entry.isObject && !entry.isArray">
-                                    <pre class="metadata-json">{{ formatValue(entry.value) }}</pre>
-                                </template>
-
-                                <!-- Boolean values -->
-                                <template v-else-if="typeof entry.value === 'boolean'">
-                                    <NTag
-                                        :type="entry.value ? 'success' : 'error'"
-                                        size="tiny"
-                                        round
-                                    >
-                                        {{ entry.value }}
-                                    </NTag>
-                                </template>
-
-                                <!-- Scalar values -->
-                                <template v-else>
-                                    <span
-                                        class="metadata-scalar"
-                                        :class="{
-                                            'metadata-scalar--error': entry.isError && entry.value,
-                                        }"
-                                    >
-                                        {{ formatValue(entry.value) }}
-                                    </span>
-                                </template>
-                            </div>
-                        </div>
-                    </div>
-                </NCollapseItem>
-            </NCollapse>
-        </div>
+  <div class="health-card" :style="{ borderLeftColor: statusBorderColor }">
+    <!-- Header -->
+    <div class="health-card-header">
+      <div class="health-card-title-section">
+        <span class="status-icon" :class="`status-icon--${check.status}`">{{ statusIcon }}</span>
+        <h3 class="health-card-name">{{ displayName }}</h3>
+        <NTag :type="statusTagType" size="small" round>
+          {{ statusLabel }}
+        </NTag>
+      </div>
+      <div class="health-card-actions">
+        <span v-if="check.latency_ms !== undefined" class="latency-badge">
+          {{ check.latency_ms }}ms
+        </span>
+        <NButton quaternary circle size="small" :loading="loading" @click="emit('recheck')">
+          <template #icon>
+            <NIcon :component="RefreshIcon" :size="14" />
+          </template>
+        </NButton>
+      </div>
     </div>
+
+    <!-- Uptime bar -->
+    <div class="health-card-uptime">
+      <div class="uptime-labels">
+        <span class="uptime-label">Uptime (1h)</span>
+        <span class="uptime-value">{{ uptimePercentage.toFixed(1) }}%</span>
+      </div>
+      <NProgress
+        type="line"
+        :percentage="uptimePercentage"
+        :show-indicator="false"
+        :color="uptimeColor"
+        rail-color="rgba(255, 255, 255, 0.05)"
+        :height="6"
+        :border-radius="3"
+      />
+    </div>
+
+    <!-- Message -->
+    <div
+      v-if="check.message"
+      class="health-card-message"
+      :class="{ 'health-card-message--error': check.status === 'fail' }"
+    >
+      {{ check.message }}
+    </div>
+
+    <!-- Metadata Details (collapsible) -->
+    <div v-if="hasMetadata" class="health-card-details">
+      <NCollapse v-model:expanded-names="metadataExpanded" arrow-placement="left">
+        <NCollapseItem title="Details" name="metadata">
+          <template #header-extra>
+            <span class="details-count">{{ metadataEntries.length }} fields</span>
+          </template>
+          <div class="metadata-table">
+            <div
+              v-for="entry in metadataEntries"
+              :key="entry.key"
+              class="metadata-row"
+              :class="{ 'metadata-row--error': entry.isError }"
+            >
+              <span class="metadata-key">{{ entry.key }}</span>
+              <div class="metadata-value">
+                <!-- Array values (like missing_vars) -->
+                <template v-if="entry.isArray && Array.isArray(entry.value)">
+                  <div v-if="(entry.value as unknown[]).length === 0" class="metadata-empty">
+                    (empty)
+                  </div>
+                  <div v-else class="metadata-tags">
+                    <NTag
+                      v-for="(item, i) in entry.value as unknown[]"
+                      :key="i"
+                      size="tiny"
+                      :type="entry.isError ? 'error' : 'default'"
+                      round
+                    >
+                      {{ String(item) }}
+                    </NTag>
+                  </div>
+                </template>
+
+                <!-- Object values (like error, checks) -->
+                <template v-else-if="entry.isObject && !entry.isArray">
+                  <pre class="metadata-json">{{ formatValue(entry.value) }}</pre>
+                </template>
+
+                <!-- Boolean values -->
+                <template v-else-if="typeof entry.value === 'boolean'">
+                  <NTag :type="entry.value ? 'success' : 'error'" size="tiny" round>
+                    {{ entry.value }}
+                  </NTag>
+                </template>
+
+                <!-- Scalar values -->
+                <template v-else>
+                  <span
+                    class="metadata-scalar"
+                    :class="{
+                      'metadata-scalar--error': entry.isError && entry.value,
+                    }"
+                  >
+                    {{ formatValue(entry.value) }}
+                  </span>
+                </template>
+              </div>
+            </div>
+          </div>
+        </NCollapseItem>
+      </NCollapse>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="sass">

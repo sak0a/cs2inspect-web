@@ -75,18 +75,18 @@ cs2inspect-web/
 
 ```json
 {
-    "dependencies": {
-        "fastify": "^4.24.0",
-        "@fastify/cors": "^8.4.0",
-        "@fastify/rate-limit": "^9.1.0",
-        "cs2-inspect-lib": "^latest",
-        "dotenv": "^16.3.1"
-    },
-    "devDependencies": {
-        "@types/node": "^20.10.0",
-        "typescript": "^5.3.0",
-        "tsx": "^4.7.0"
-    }
+  "dependencies": {
+    "fastify": "^4.24.0",
+    "@fastify/cors": "^8.4.0",
+    "@fastify/rate-limit": "^9.1.0",
+    "cs2-inspect-lib": "^latest",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0",
+    "tsx": "^4.7.0"
+  }
 }
 ```
 
@@ -99,55 +99,55 @@ import { CS2Inspect } from 'cs2-inspect-lib'
 import type { SteamClientConfig } from 'cs2-inspect-lib'
 
 class SteamClientService {
-    private client: CS2Inspect | null = null
-    private isInitialized = false
-    private initPromise: Promise<void> | null = null
+  private client: CS2Inspect | null = null
+  private isInitialized = false
+  private initPromise: Promise<void> | null = null
 
-    async initialize(config: SteamClientConfig): Promise<void> {
-        if (this.isInitialized && this.client) {
-            return
-        }
-
-        if (this.initPromise) {
-            return this.initPromise
-        }
-
-        this.initPromise = this._doInitialize(config)
-        await this.initPromise
+  async initialize(config: SteamClientConfig): Promise<void> {
+    if (this.isInitialized && this.client) {
+      return
     }
 
-    private async _doInitialize(config: SteamClientConfig): Promise<void> {
-        this.client = new CS2Inspect({
-            steamClient: config,
-            enableLogging: process.env.LOG_API_REQUESTS === 'true',
-            validateInput: true,
-        })
-
-        if (config.enabled) {
-            await this.client.initializeSteamClient()
-        }
-
-        this.isInitialized = true
+    if (this.initPromise) {
+      return this.initPromise
     }
 
-    getClient(): CS2Inspect {
-        if (!this.client) {
-            throw new Error('Steam client not initialized')
-        }
-        return this.client
+    this.initPromise = this._doInitialize(config)
+    await this.initPromise
+  }
+
+  private async _doInitialize(config: SteamClientConfig): Promise<void> {
+    this.client = new CS2Inspect({
+      steamClient: config,
+      enableLogging: process.env.LOG_API_REQUESTS === 'true',
+      validateInput: true,
+    })
+
+    if (config.enabled) {
+      await this.client.initializeSteamClient()
     }
 
-    getStatus() {
-        if (!this.client) {
-            return { available: false, status: 'not_initialized' }
-        }
-        const stats = this.client.getSteamClientStats()
-        return {
-            available: stats.isAvailable,
-            status: stats.status,
-            ...stats,
-        }
+    this.isInitialized = true
+  }
+
+  getClient(): CS2Inspect {
+    if (!this.client) {
+      throw new Error('Steam client not initialized')
     }
+    return this.client
+  }
+
+  getStatus() {
+    if (!this.client) {
+      return { available: false, status: 'not_initialized' }
+    }
+    const stats = this.client.getSteamClientStats()
+    return {
+      available: stats.isAvailable,
+      status: stats.status,
+      ...stats,
+    }
+  }
 }
 
 export const steamClientService = new SteamClientService()
@@ -214,31 +214,31 @@ GET / api / status / queue
 
 ```typescript
 class SteamServiceClient {
-    private baseUrl: string
-    private apiKey: string
+  private baseUrl: string
+  private apiKey: string
 
-    constructor() {
-        this.baseUrl = process.env.STEAM_SERVICE_URL || 'http://localhost:3001'
-        this.apiKey = process.env.STEAM_SERVICE_API_KEY || ''
-    }
+  constructor() {
+    this.baseUrl = process.env.STEAM_SERVICE_URL || 'http://localhost:3001'
+    this.apiKey = process.env.STEAM_SERVICE_API_KEY || ''
+  }
 
-    async inspectItem(inspectUrl: string, itemType?: string) {
-        const response = await fetch(`${this.baseUrl}/api/inspect/inspect-item`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-API-Key': this.apiKey,
-            },
-            body: JSON.stringify({ inspectUrl, itemType }),
-        })
-        return response.json()
-    }
+  async inspectItem(inspectUrl: string, itemType?: string) {
+    const response = await fetch(`${this.baseUrl}/api/inspect/inspect-item`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': this.apiKey,
+      },
+      body: JSON.stringify({ inspectUrl, itemType }),
+    })
+    return response.json()
+  }
 
-    async createInspectUrl(itemData: CreateUrlRequest) {
-        // Similar implementation
-    }
+  async createInspectUrl(itemData: CreateUrlRequest) {
+    // Similar implementation
+  }
 
-    // ... other methods
+  // ... other methods
 }
 
 export const steamServiceClient = new SteamServiceClient()
@@ -304,22 +304,22 @@ STEAM_SERVICE_API_KEY=your_api_key_here
 
 ```yaml
 services:
-    steam-service:
-        build:
-            context: ./services/steam-service
-            dockerfile: Dockerfile
-        ports:
-            - '3001:3001'
-        environment:
-            - STEAM_USERNAME=${STEAM_USERNAME}
-            - STEAM_PASSWORD=${STEAM_PASSWORD}
-            - STEAM_API_KEY=${STEAM_API_KEY}
-            - API_KEYS=${STEAM_SERVICE_API_KEYS}
-        restart: unless-stopped
-        networks:
-            - app-network
+  steam-service:
+    build:
+      context: ./services/steam-service
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3001'
+    environment:
+      - STEAM_USERNAME=${STEAM_USERNAME}
+      - STEAM_PASSWORD=${STEAM_PASSWORD}
+      - STEAM_API_KEY=${STEAM_API_KEY}
+      - API_KEYS=${STEAM_SERVICE_API_KEYS}
+    restart: unless-stopped
+    networks:
+      - app-network
 
-    # ... existing services
+  # ... existing services
 ```
 
 #### 5.3 Process Management
@@ -404,20 +404,20 @@ X-API-Key: your_api_key
 
 ```json
 {
-    "steamClient": {
-        "available": true,
-        "status": "connected",
-        "uptime": 3600000
-    },
-    "queue": {
-        "pending": 0,
-        "processing": 1,
-        "maxSize": 100
-    },
-    "server": {
-        "uptime": 3600000,
-        "version": "1.0.0"
-    }
+  "steamClient": {
+    "available": true,
+    "status": "connected",
+    "uptime": 3600000
+  },
+  "queue": {
+    "pending": 0,
+    "processing": 1,
+    "maxSize": 100
+  },
+  "server": {
+    "uptime": 3600000,
+    "version": "1.0.0"
+  }
 }
 ```
 
@@ -431,12 +431,12 @@ GET /api/health/ready
 
 ```json
 {
-    "status": "ok",
-    "ready": true,
-    "checks": {
-        "steam_client": "ok",
-        "queue": "ok"
-    }
+  "status": "ok",
+  "ready": true,
+  "checks": {
+    "steam_client": "ok",
+    "queue": "ok"
+  }
 }
 ```
 
@@ -539,49 +539,49 @@ GET /api/health/ready
 ## Benefits
 
 1. **Prevents "LoggedInElsewhere" Errors**
-    - Single Steam account instance
-    - Multiple apps can use same service
+   - Single Steam account instance
+   - Multiple apps can use same service
 
 2. **Better Resource Management**
-    - Centralized Steam client
-    - Shared queue system
-    - Efficient rate limiting
+   - Centralized Steam client
+   - Shared queue system
+   - Efficient rate limiting
 
 3. **Scalability**
-    - Can scale service independently
-    - Load balancing possible
-    - Multiple service instances (with different Steam accounts)
+   - Can scale service independently
+   - Load balancing possible
+   - Multiple service instances (with different Steam accounts)
 
 4. **Maintainability**
-    - Separation of concerns
-    - Easier to update Steam client logic
-    - Independent deployment
+   - Separation of concerns
+   - Easier to update Steam client logic
+   - Independent deployment
 
 5. **Security**
-    - Centralized authentication
-    - API key management
-    - Rate limiting per client
+   - Centralized authentication
+   - API key management
+   - Rate limiting per client
 
 ## Future Enhancements
 
 1. **Multiple Steam Accounts**
-    - Support multiple Steam accounts
-    - Load balancing across accounts
-    - Account rotation
+   - Support multiple Steam accounts
+   - Load balancing across accounts
+   - Account rotation
 
 2. **WebSocket Support**
-    - Real-time status updates
-    - Push notifications for queue completion
+   - Real-time status updates
+   - Push notifications for queue completion
 
 3. **Metrics Dashboard**
-    - Real-time monitoring
-    - Usage statistics
-    - Performance metrics
+   - Real-time monitoring
+   - Usage statistics
+   - Performance metrics
 
 4. **Caching Layer**
-    - Cache inspect results
-    - Reduce Steam API calls
-    - Improve response times
+   - Cache inspect results
+   - Reduce Steam API calls
+   - Improve response times
 
 ## Timeline Estimate
 

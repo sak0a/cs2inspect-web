@@ -38,9 +38,9 @@ The application follows a modular component architecture with clear separation o
 
 ```typescript
 interface WeaponModalProps {
-    weapon: WeaponItemData // Current weapon data
-    show: boolean // Modal visibility
-    isCreatingNew?: boolean // Creating vs editing mode
+  weapon: WeaponItemData // Current weapon data
+  show: boolean // Modal visibility
+  isCreatingNew?: boolean // Creating vs editing mode
 }
 ```
 
@@ -80,9 +80,9 @@ interface WeaponModalProps {
 
 ```typescript
 interface KnifeModalProps {
-    weapon: KnifeItemData
-    show: boolean
-    isCreatingNew?: boolean
+  weapon: KnifeItemData
+  show: boolean
+  isCreatingNew?: boolean
 }
 ```
 
@@ -111,9 +111,9 @@ interface KnifeModalProps {
 
 ```typescript
 interface GloveModalProps {
-    weapon: GloveItemData
-    show: boolean
-    isCreatingNew?: boolean
+  weapon: GloveItemData
+  show: boolean
+  isCreatingNew?: boolean
 }
 ```
 
@@ -138,9 +138,9 @@ interface GloveModalProps {
 
 ```typescript
 interface StickerModalProps {
-    show: boolean
-    weaponSlots: number // Available sticker slots
-    currentStickers: Sticker[] // Already applied stickers
+  show: boolean
+  weaponSlots: number // Available sticker slots
+  currentStickers: Sticker[] // Already applied stickers
 }
 ```
 
@@ -166,8 +166,8 @@ interface StickerModalProps {
 
 ```typescript
 interface KeychainModalProps {
-    show: boolean
-    currentKeychain?: Keychain
+  show: boolean
+  currentKeychain?: Keychain
 }
 ```
 
@@ -199,9 +199,9 @@ interface KeychainModalProps {
 
 ```typescript
 interface VisualCustomizerProps {
-    show: boolean
-    weapon: WeaponItemData
-    stickers: Sticker[]
+  show: boolean
+  weapon: WeaponItemData
+  stickers: Sticker[]
 }
 ```
 
@@ -279,8 +279,8 @@ S{steamid}A{assetid}D{classid}
 
 ```typescript
 interface WeaponTabsProps {
-    modelValue: number // Selected weapon defindex
-    team?: 'T' | 'CT' | 'all' // Team filter
+  modelValue: number // Selected weapon defindex
+  team?: 'T' | 'CT' | 'all' // Team filter
 }
 ```
 
@@ -392,9 +392,9 @@ interface WeaponTabsProps {
 
 ```typescript
 interface InspectItemDisplayProps {
-    item: ItemData
-    showDetails?: boolean
-    compact?: boolean
+  item: ItemData
+  showDetails?: boolean
+  compact?: boolean
 }
 ```
 
@@ -418,12 +418,12 @@ interface InspectItemDisplayProps {
 
 ```typescript
 interface HealthCardProps {
-    component: string
-    status: 'ok' | 'warn' | 'fail'
-    latency_ms: number
-    uptime_percentage: number
-    metadata?: Record<string, any>
-    history?: HealthCheckData[]
+  component: string
+  status: 'ok' | 'warn' | 'fail'
+  latency_ms: number
+  uptime_percentage: number
+  metadata?: Record<string, any>
+  history?: HealthCheckData[]
 }
 ```
 
@@ -453,10 +453,10 @@ interface HealthCardProps {
 
 ```typescript
 interface HistoryChartProps {
-    data: HealthCheckData[]
-    component: string
-    metric: 'latency' | 'uptime' | 'status'
-    height?: number
+  data: HealthCheckData[]
+  component: string
+  metric: 'latency' | 'uptime' | 'status'
+  height?: number
 }
 ```
 
@@ -486,8 +486,8 @@ interface HistoryChartProps {
 
 ```typescript
 interface LoadoutSelectorProps {
-    loadouts: Loadout[]
-    activeLoadout: number
+  loadouts: Loadout[]
+  activeLoadout: number
 }
 ```
 
@@ -761,10 +761,10 @@ Standard modal structure:
 
 ```vue
 <NModal
-    v-model:show="showModal"
-    :theme-overrides="skinModalThemeOverrides"
-    preset="card"
-    :style="{ width: '90%', maxWidth: '1200px' }"
+  v-model:show="showModal"
+  :theme-overrides="skinModalThemeOverrides"
+  preset="card"
+  :style="{ width: '90%', maxWidth: '1200px' }"
 >
   <!-- Modal content -->
 </NModal>
@@ -825,9 +825,9 @@ Standard modal structure:
 
 ```typescript
 interface AuthResponse {
-    valid: boolean
-    user?: UserProfile
-    error?: string
+  valid: boolean
+  user?: UserProfile
+  error?: string
 }
 ```
 
@@ -1049,19 +1049,19 @@ import { skinModalThemeOverrides } from '~/server/utils/themeCustomization'
 
 ```typescript
 interface UseInspectItem {
-    inspectedItem: Ref<ItemData | null>
-    itemType: Ref<string | null>
-    customization: Ref<ItemConfiguration | null>
-    isLoading: Ref<boolean>
-    error: Ref<string | null>
+  inspectedItem: Ref<ItemData | null>
+  itemType: Ref<string | null>
+  customization: Ref<ItemConfiguration | null>
+  isLoading: Ref<boolean>
+  error: Ref<string | null>
 
-    analyzeInspectLink: (url: string) => Promise<void>
-    loadFromStorage: () => void
-    clearItem: () => void
-    updateCustomization: (config: Partial<ItemConfiguration>) => void
-    updateItem: (item: ItemData) => void
-    generateInspectLink: () => Promise<string>
-    hasItem: ComputedRef<boolean>
+  analyzeInspectLink: (url: string) => Promise<void>
+  loadFromStorage: () => void
+  clearItem: () => void
+  updateCustomization: (config: Partial<ItemConfiguration>) => void
+  updateItem: (item: ItemData) => void
+  generateInspectLink: () => Promise<string>
+  hasItem: ComputedRef<boolean>
 }
 ```
 
@@ -1082,13 +1082,13 @@ interface UseInspectItem {
 
 ```typescript
 interface UseItems {
-    items: Ref<ItemCatalog>
-    loading: Ref<boolean>
-    error: Ref<string | null>
+  items: Ref<ItemCatalog>
+  loading: Ref<boolean>
+  error: Ref<string | null>
 
-    loadSkins: () => Promise<void>
-    loadAgents: () => Promise<void>
-    loadStickers: () => Promise<void>
+  loadSkins: () => Promise<void>
+  loadAgents: () => Promise<void>
+  loadStickers: () => Promise<void>
 }
 ```
 
@@ -1101,10 +1101,10 @@ interface UseItems {
 ```vue
 <!-- Parent -->
 <WeaponSkinModal
-    :weapon="currentWeapon"
-    :show="showModal"
-    @save="handleSave"
-    @update:show="showModal = $event"
+  :weapon="currentWeapon"
+  :show="showModal"
+  @save="handleSave"
+  @update:show="showModal = $event"
 />
 
 <!-- Child emits -->

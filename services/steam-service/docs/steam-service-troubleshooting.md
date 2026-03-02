@@ -137,27 +137,27 @@ INVALID_API_KEY
 **Solutions:**
 
 1. **Verify API Key Match:**
-    - Check `API_KEYS` in `services/steam-service/.env`
-    - Check `STEAM_SERVICE_API_KEY` in main app `.env`
-    - They must match exactly
+   - Check `API_KEYS` in `services/steam-service/.env`
+   - Check `STEAM_SERVICE_API_KEY` in main app `.env`
+   - They must match exactly
 
 2. **Check for Extra Spaces:**
 
-    ```bash
-    # In steam service .env
-    API_KEYS=your_key_here  # No spaces around =
+   ```bash
+   # In steam service .env
+   API_KEYS=your_key_here  # No spaces around =
 
-    # In main app .env
-    STEAM_SERVICE_API_KEY=your_key_here  # No spaces
-    ```
+   # In main app .env
+   STEAM_SERVICE_API_KEY=your_key_here  # No spaces
+   ```
 
 3. **Test API Key:**
-    ```bash
-    curl -X POST http://localhost:3000/api/inspect/analyze-url \
-      -H "X-API-Key: your_key" \
-      -H "Content-Type: application/json" \
-      -d '{"inspectUrl": "test"}'
-    ```
+   ```bash
+   curl -X POST http://localhost:3000/api/inspect/analyze-url \
+     -H "X-API-Key: your_key" \
+     -H "Content-Type: application/json" \
+     -d '{"inspectUrl": "test"}'
+   ```
 
 ### Connection Refused
 
@@ -172,20 +172,20 @@ Connection refused
 
 1. **Check Service is Running:**
 
-    ```bash
-    curl http://localhost:3000/api/health/live
-    ```
+   ```bash
+   curl http://localhost:3000/api/health/live
+   ```
 
 2. **Check Port:**
 
-    ```bash
-    lsof -i :3000
-    ```
+   ```bash
+   lsof -i :3000
+   ```
 
 3. **Verify URL:**
-    - Main app `.env`: `STEAM_SERVICE_URL=http://localhost:3000`
-    - No `https://` for local testing
-    - Port must match service port
+   - Main app `.env`: `STEAM_SERVICE_URL=http://localhost:3000`
+   - No `https://` for local testing
+   - Port must match service port
 
 ### Rate Limit Errors
 
@@ -200,21 +200,21 @@ Queue is full
 
 1. **Increase Rate Limits:**
 
-    ```env
-    RATE_LIMIT_MAX=200
-    RATE_LIMIT_WINDOW=60000
-    ```
+   ```env
+   RATE_LIMIT_MAX=200
+   RATE_LIMIT_WINDOW=60000
+   ```
 
 2. **Increase Queue Size:**
 
-    ```env
-    STEAM_MAX_QUEUE_SIZE=200
-    ```
+   ```env
+   STEAM_MAX_QUEUE_SIZE=200
+   ```
 
 3. **Increase Delays:**
-    ```env
-    STEAM_RATE_LIMIT_DELAY=2000
-    ```
+   ```env
+   STEAM_RATE_LIMIT_DELAY=2000
+   ```
 
 ## Diagnostic Commands
 
@@ -241,9 +241,9 @@ Expected when working:
 
 ```json
 {
-    "available": true,
-    "status": "connected",
-    "message": "Steam client is ready"
+  "available": true,
+  "status": "connected",
+  "message": "Steam client is ready"
 }
 ```
 
@@ -251,9 +251,9 @@ Expected when failed:
 
 ```json
 {
-    "available": false,
-    "status": "not_initialized",
-    "message": "Steam client has not been initialized"
+  "available": false,
+  "status": "not_initialized",
+  "message": "Steam client has not been initialized"
 }
 ```
 
@@ -364,21 +364,21 @@ console.log('STEAM_API_KEY length:', config.steam.apiKey.length)
 If issues persist:
 
 1. **Check Logs:**
-    - Service logs: Terminal where service is running
-    - Main app logs: Terminal where main app is running
-    - Browser console: For frontend errors
+   - Service logs: Terminal where service is running
+   - Main app logs: Terminal where main app is running
+   - Browser console: For frontend errors
 
 2. **Verify Configuration:**
-    - All environment variables are set
-    - No typos in variable names
-    - No extra spaces in values
+   - All environment variables are set
+   - No typos in variable names
+   - No extra spaces in values
 
 3. **Test Incrementally:**
-    - Start with service only (test health endpoints)
-    - Then test API endpoints
-    - Finally test main app integration
+   - Start with service only (test health endpoints)
+   - Then test API endpoints
+   - Finally test main app integration
 
 4. **Check Documentation:**
-    - [Local Testing Guide](./steam-service-local-testing.md)
-    - [Setup Guide](./steam-service-setup.md)
-    - [Service README](../services/steam-service/README.md)
+   - [Local Testing Guide](./steam-service-local-testing.md)
+   - [Setup Guide](./steam-service-setup.md)
+   - [Service README](../services/steam-service/README.md)

@@ -132,9 +132,9 @@ Expected response:
 
 ```json
 {
-    "status": "ok",
-    "alive": true,
-    "timestamp": "2024-..."
+  "status": "ok",
+  "alive": true,
+  "timestamp": "2024-..."
 }
 ```
 
@@ -438,9 +438,9 @@ Add to `package.json`:
 
 ```json
 {
-    "scripts": {
-        "dev:all": "concurrently \"bun run dev\" \"cd services/steam-service && bun run dev\""
-    }
+  "scripts": {
+    "dev:all": "concurrently \"bun run dev\" \"cd services/steam-service && bun run dev\""
+  }
 }
 ```
 

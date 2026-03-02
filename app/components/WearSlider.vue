@@ -1,13 +1,13 @@
 <!-- WearSlider.vue -->
 <script setup lang="ts">
 interface Props {
-    min?: number
-    max?: number
+  min?: number
+  max?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    min: 0.0,
-    max: 1.0,
+  min: 0.0,
+  max: 1.0,
 })
 
 const modelValue = defineModel<number>({ default: 0.01 })
@@ -15,11 +15,11 @@ const modelValue = defineModel<number>({ default: 0.01 })
 const { t } = useI18n()
 
 const WEARS = {
-    0.0: t('wears.factoryNew') as string,
-    0.07: t('wears.minimalWear') as string,
-    0.15: t('wears.fieldTested') as string,
-    0.38: t('wears.wellWorn') as string,
-    0.45: t('wears.battleScarred') as string,
+  0.0: t('wears.factoryNew') as string,
+  0.07: t('wears.minimalWear') as string,
+  0.15: t('wears.fieldTested') as string,
+  0.38: t('wears.wellWorn') as string,
+  0.45: t('wears.battleScarred') as string,
 }
 
 const progressBar = ref(null)
@@ -30,362 +30,362 @@ const tooltipTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
 // Format number to 3 decimal places for display
 const displayValue = computed(() => {
-    return localValue.value.toFixed(3)
+  return localValue.value.toFixed(3)
 })
 
 // Computed for handle position as percentage
 const handlePosition = computed(() => {
-    return localValue.value * 100
+  return localValue.value * 100
 })
 
 function showTooltip() {
-    if (tooltipTimeout.value) {
-        clearTimeout(tooltipTimeout.value)
-        tooltipTimeout.value = null
-    }
-    isTooltipVisible.value = true
+  if (tooltipTimeout.value) {
+    clearTimeout(tooltipTimeout.value)
+    tooltipTimeout.value = null
+  }
+  isTooltipVisible.value = true
 }
 
 function startHideTooltip() {
-    if (!isDragging.value) {
-        tooltipTimeout.value = setTimeout(() => {
-            isTooltipVisible.value = false
-        }, 300)
-    }
+  if (!isDragging.value) {
+    tooltipTimeout.value = setTimeout(() => {
+      isTooltipVisible.value = false
+    }, 300)
+  }
 }
 
 function clampValue(val: number | string) {
-    const numVal = Number(val)
-    if (isNaN(numVal)) return props.min
-    return Math.min(Math.max(numVal, props.min), props.max)
+  const numVal = Number(val)
+  if (isNaN(numVal)) return props.min
+  return Math.min(Math.max(numVal, props.min), props.max)
 }
 
 function handleCustomInput(event: Event) {
-    const value = (event.target as HTMLInputElement).value
-    // Allow only numbers, single decimal point, and minus sign
-    if (!/^-?\d*\.?\d*$/.test(value)) {
-        ;(event.target as HTMLInputElement).value = displayValue.value
-        return
-    }
+  const value = (event.target as HTMLInputElement).value
+  // Allow only numbers, single decimal point, and minus sign
+  if (!/^-?\d*\.?\d*$/.test(value)) {
+    ;(event.target as HTMLInputElement).value = displayValue.value
+    return
+  }
 }
 
 function handleBlur(event: Event) {
-    const newValue = parseFloat((event.target as HTMLInputElement).value)
-    if (!isNaN(newValue)) {
-        localValue.value = clampValue(newValue)
-        modelValue.value = localValue.value
-    }
-    ;(event.target as HTMLInputElement).value = displayValue.value
+  const newValue = parseFloat((event.target as HTMLInputElement).value)
+  if (!isNaN(newValue)) {
+    localValue.value = clampValue(newValue)
+    modelValue.value = localValue.value
+  }
+  ;(event.target as HTMLInputElement).value = displayValue.value
 }
 
 function getCurrentWearLabel() {
-    const wearValues = Object.keys(WEARS).map(Number)
-    for (let i = wearValues.length - 1; i >= 0; i--) {
-        const wearValue = wearValues[i]
-        if (wearValue !== undefined && localValue.value >= wearValue) {
-            return WEARS[wearValue as keyof typeof WEARS]
-        }
+  const wearValues = Object.keys(WEARS).map(Number)
+  for (let i = wearValues.length - 1; i >= 0; i--) {
+    const wearValue = wearValues[i]
+    if (wearValue !== undefined && localValue.value >= wearValue) {
+      return WEARS[wearValue as keyof typeof WEARS]
     }
-    return WEARS[0]
+  }
+  return WEARS[0]
 }
 
 function startDragging(event: MouseEvent) {
-    isDragging.value = true
-    showTooltip()
-    event.preventDefault()
+  isDragging.value = true
+  showTooltip()
+  event.preventDefault()
 }
 
 function stopDragging() {
-    isDragging.value = false
-    startHideTooltip()
+  isDragging.value = false
+  startHideTooltip()
 }
 
 function onDrag(event: MouseEvent) {
-    if (!isDragging.value || !progressBar.value) return
+  if (!isDragging.value || !progressBar.value) return
 
-    const rect = (progressBar.value as HTMLElement).getBoundingClientRect()
-    const percentage = (event.clientX - rect.left) / rect.width
+  const rect = (progressBar.value as HTMLElement).getBoundingClientRect()
+  const percentage = (event.clientX - rect.left) / rect.width
 
-    const newValue = Math.round(percentage * 1000) / 1000
-    if (newValue > props.max || newValue < props.min) return
-    localValue.value = clampValue(newValue)
+  const newValue = Math.round(percentage * 1000) / 1000
+  if (newValue > props.max || newValue < props.min) return
+  localValue.value = clampValue(newValue)
 
-    // Sync to parent via defineModel
-    modelValue.value = newValue
+  // Sync to parent via defineModel
+  modelValue.value = newValue
 }
 
 // Watch for external value changes
 watch(
-    modelValue,
-    (newValue) => {
-        if (newValue !== localValue.value) {
-            localValue.value = clampValue(newValue)
-        }
-    },
-    { immediate: true }
+  modelValue,
+  (newValue) => {
+    if (newValue !== localValue.value) {
+      localValue.value = clampValue(newValue)
+    }
+  },
+  { immediate: true }
 )
 
 // Watch for min/max changes
 watch([() => props.min, () => props.max], () => {
-    localValue.value = clampValue(localValue.value)
+  localValue.value = clampValue(localValue.value)
 })
 
 onMounted(() => {
-    document.addEventListener('mousemove', onDrag)
-    document.addEventListener('mouseup', stopDragging)
+  document.addEventListener('mousemove', onDrag)
+  document.addEventListener('mouseup', stopDragging)
 })
 
 onBeforeUnmount(() => {
-    document.removeEventListener('mousemove', onDrag)
-    document.removeEventListener('mouseup', stopDragging)
-    if (tooltipTimeout.value) {
-        clearTimeout(tooltipTimeout.value)
-    }
+  document.removeEventListener('mousemove', onDrag)
+  document.removeEventListener('mouseup', stopDragging)
+  if (tooltipTimeout.value) {
+    clearTimeout(tooltipTimeout.value)
+  }
 })
 </script>
 <template>
-    <div class="wear-control-container">
-        <!-- Custom Number Input -->
-        <div class="custom-number-input">
-            <input
-                type="text"
-                :value="displayValue"
-                @input="handleCustomInput"
-                @blur="handleBlur"
-                @keydown.enter="handleBlur"
-            />
-        </div>
-
-        <div class="progress-container">
-            <div
-                ref="progressBar"
-                class="progress-bar"
-                @mouseenter="showTooltip"
-                @mouseleave="startHideTooltip"
-            >
-                <!-- Full gradient background -->
-                <div class="progress-background" />
-
-                <!-- Min-max range indicator -->
-                <div
-                    class="valid-range"
-                    :style="{
-                        left: `${props.min * 100}%`,
-                        width: `${(props.max - props.min) * 100}%`,
-                    }"
-                />
-
-                <!-- Slider handle and tooltip -->
-                <div
-                    class="slider-handle"
-                    :style="{ left: `${handlePosition}%` }"
-                    @mousedown="startDragging"
-                >
-                    <div class="tooltip" :class="{ visible: isTooltipVisible }">
-                        {{ displayValue }} - {{ getCurrentWearLabel() }}
-                    </div>
-                </div>
-
-                <!-- Wear labels -->
-                <div class="wear-labels">
-                    <div
-                        v-for="(label, value) in WEARS"
-                        :key="value"
-                        class="wear-label"
-                        :style="{ left: `${Number(value) * 100}%` }"
-                    >
-                        <div class="wear-marker" />
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="wear-control-container">
+    <!-- Custom Number Input -->
+    <div class="custom-number-input">
+      <input
+        type="text"
+        :value="displayValue"
+        @input="handleCustomInput"
+        @blur="handleBlur"
+        @keydown.enter="handleBlur"
+      />
     </div>
+
+    <div class="progress-container">
+      <div
+        ref="progressBar"
+        class="progress-bar"
+        @mouseenter="showTooltip"
+        @mouseleave="startHideTooltip"
+      >
+        <!-- Full gradient background -->
+        <div class="progress-background" />
+
+        <!-- Min-max range indicator -->
+        <div
+          class="valid-range"
+          :style="{
+            left: `${props.min * 100}%`,
+            width: `${(props.max - props.min) * 100}%`,
+          }"
+        />
+
+        <!-- Slider handle and tooltip -->
+        <div
+          class="slider-handle"
+          :style="{ left: `${handlePosition}%` }"
+          @mousedown="startDragging"
+        >
+          <div class="tooltip" :class="{ visible: isTooltipVisible }">
+            {{ displayValue }} - {{ getCurrentWearLabel() }}
+          </div>
+        </div>
+
+        <!-- Wear labels -->
+        <div class="wear-labels">
+          <div
+            v-for="(label, value) in WEARS"
+            :key="value"
+            class="wear-label"
+            :style="{ left: `${Number(value) * 100}%` }"
+          >
+            <div class="wear-marker" />
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 <style scoped>
 .wear-control-container {
-    display: flex;
-    align-items: center;
-    gap: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
 .progress-container {
-    flex: 1;
-    padding: 20px;
+  flex: 1;
+  padding: 20px;
 }
 
 .progress-bar {
-    position: relative;
-    height: 10px;
-    border-radius: 9999px;
-    cursor: pointer;
-    overflow: visible;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    backdrop-filter: blur(8px) saturate(140%);
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+  position: relative;
+  height: 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  overflow: visible;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .progress-background {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-        to right,
-        #4caf50 0%,
-        /* Green - Factory New */ #4caf50 7%,
-        /* Green - Factory New End */ #8bc34a 7%,
-        /* Light Green - Minimal Wear Start */ #8bc34a 15%,
-        /* Light Green - Minimal Wear End */ #ffeb3b 15%,
-        /* Yellow - Field Tested Start */ #ffeb3b 38%,
-        /* Yellow - Field Tested End */ #ff9800 38%,
-        /* Orange - Well Worn Start */ #ff9800 45%,
-        /* Orange - Well Worn End */ #f44336 45% /* Red - Battle Scarred */
-    );
-    border-radius: 4px;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    #4caf50 0%,
+    /* Green - Factory New */ #4caf50 7%,
+    /* Green - Factory New End */ #8bc34a 7%,
+    /* Light Green - Minimal Wear Start */ #8bc34a 15%,
+    /* Light Green - Minimal Wear End */ #ffeb3b 15%,
+    /* Yellow - Field Tested Start */ #ffeb3b 38%,
+    /* Yellow - Field Tested End */ #ff9800 38%,
+    /* Orange - Well Worn Start */ #ff9800 45%,
+    /* Orange - Well Worn End */ #f44336 45% /* Red - Battle Scarred */
+  );
+  border-radius: 4px;
 }
 
 .valid-range {
-    position: absolute;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.15);
-    border-radius: 4px;
-    pointer-events: none;
+  position: absolute;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  pointer-events: none;
 }
 
 .slider-handle {
-    position: absolute;
-    top: 50%;
-    width: 20px;
-    height: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid rgba(255, 255, 255, 0.7);
-    border-radius: 50%;
-    transform: translate(-50%, -50%);
-    cursor: grab;
-    z-index: 2;
-    box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.35),
-        inset 0 1px 0 rgba(255, 255, 255, 0.4);
-    transition:
-        box-shadow 0.2s ease,
-        transform 0.1s ease,
-        border-color 0.2s ease;
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  cursor: grab;
+  z-index: 2;
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.1s ease,
+    border-color 0.2s ease;
 }
 
 .slider-handle:hover {
-    box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.45),
-        0 0 0 4px rgba(250, 204, 21, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.45),
+    0 0 0 4px rgba(250, 204, 21, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .slider-handle:active {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 .tooltip {
-    position: absolute;
-    top: -38px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(18, 18, 18, 0.85);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 12px;
-    font-size: 14px;
-    white-space: nowrap;
-    min-width: max-content;
-    opacity: 0;
-    visibility: hidden;
+  position: absolute;
+  top: -38px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(18, 18, 18, 0.85);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  white-space: nowrap;
+  min-width: max-content;
+  opacity: 0;
+  visibility: hidden;
 
-    backdrop-filter: blur(8px) saturate(140%);
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08);
-    transition:
-        opacity 0.2s,
-        visibility 0.2s;
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  transition:
+    opacity 0.2s,
+    visibility 0.2s;
 }
 
 .tooltip.visible {
-    opacity: 1;
-    visibility: visible;
+  opacity: 1;
+  visibility: visible;
 }
 
 .tooltip:after {
-    content: '';
-    position: absolute;
-    bottom: -6px;
-    left: 50%;
-    transform: translateX(-50%);
-    border-left: 6px solid transparent;
-    border-right: 6px solid transparent;
-    border-top: 6px solid rgba(18, 18, 18, 0.85);
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-top: 6px solid rgba(18, 18, 18, 0.85);
 }
 
 .wear-labels {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .wear-label {
-    position: absolute;
-    transform: translateX(-50%);
+  position: absolute;
+  transform: translateX(-50%);
 }
 
 .wear-marker {
-    width: 2px;
-    height: 16px;
-    position: absolute;
-    top: -4px;
+  width: 2px;
+  height: 16px;
+  position: absolute;
+  top: -4px;
 }
 
 .custom-number-input {
-    position: relative;
+  position: relative;
 }
 
 .custom-number-input input {
-    width: 80px;
-    caret-color: #80e6c4;
-    padding: 5px 8px;
-    border: 1px solid transparent;
-    border-radius: 20px;
-    font-size: 14px;
-    text-align: center;
-    background: rgba(49, 49, 49, 0.85);
-    color: white;
-    backdrop-filter: blur(6px) saturate(120%);
-    -webkit-backdrop-filter: blur(6px) saturate(120%);
-    box-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06);
-    transition: all 0.15s ease-in-out;
+  width: 80px;
+  caret-color: #80e6c4;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 20px;
+  font-size: 14px;
+  text-align: center;
+  background: rgba(49, 49, 49, 0.85);
+  color: white;
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  transition: all 0.15s ease-in-out;
 }
 
 .custom-number-input input:hover {
-    border-color: var(--primary-color);
-    box-shadow:
-        0 4px 10px rgba(0, 0, 0, 0.3),
-        0 0 0 2px rgba(250, 204, 21, 0.1),
-        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  border-color: var(--primary-color);
+  box-shadow:
+    0 4px 10px rgba(0, 0, 0, 0.3),
+    0 0 0 2px rgba(250, 204, 21, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .custom-number-input input:focus {
-    outline: none;
-    background: rgba(35, 46, 42, 0.95);
-    border-color: var(--primary-color);
-    box-shadow:
-        0 6px 14px rgba(0, 0, 0, 0.35),
-        0 0 0 3px rgba(250, 204, 21, 0.12),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  outline: none;
+  background: rgba(35, 46, 42, 0.95);
+  border-color: var(--primary-color);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.35),
+    0 0 0 3px rgba(250, 204, 21, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 </style>

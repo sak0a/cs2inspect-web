@@ -58,9 +58,9 @@ The file naming convention is designed to be easily parsed:
     - When a user selects a charm, the default image (`_default.webp`) should be shown.
     - If the charm supports pattern variations, you can provide a UI (slider or dropdown) to select from the standard seeds.
     - The image source can be dynamically computed based on the selection:
-        ```javascript
-        const getCharmImage = (charmName, seed) => {
-            // Construct path based on convention
-            return `/assets/charms/${charmName}/${charmName}_seed_${seed}.webp`
-        }
-        ```
+      ```javascript
+      const getCharmImage = (charmName, seed) => {
+        // Construct path based on convention
+        return `/assets/charms/${charmName}/${charmName}_seed_${seed}.webp`
+      }
+      ```

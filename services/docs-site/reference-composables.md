@@ -37,15 +37,15 @@ import { useInspectItem } from '~/composables/useInspectItem'
 ```vue
 <script setup>
 const {
-    inspectedItem,
-    itemType,
-    customization,
-    isLoading,
-    error,
-    hasItem,
-    analyzeInspectLink,
-    generateInspectLink,
-    clearItem,
+  inspectedItem,
+  itemType,
+  customization,
+  isLoading,
+  error,
+  hasItem,
+  analyzeInspectLink,
+  generateInspectLink,
+  clearItem,
 } = useInspectItem()
 
 // Analyze an inspect URL
@@ -192,8 +192,8 @@ Analyze a CS2 inspect link and extract item data.
 
 ```typescript
 await analyzeInspectLink(
-    'steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20...',
-    '76561198012345678'
+  'steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20...',
+  '76561198012345678'
 )
 ```
 
@@ -256,9 +256,9 @@ Update item customization and save to storage.
 
 ```typescript
 updateCustomization({
-    ...customization.value,
-    wear: 0.25,
-    statTrak: true,
+  ...customization.value,
+  wear: 0.25,
+  statTrak: true,
 })
 ```
 
@@ -286,7 +286,7 @@ Check if current item is of specific type.
 
 ```typescript
 if (isItemType('weapon')) {
-    // Handle weapon-specific logic
+  // Handle weapon-specific logic
 }
 ```
 
@@ -329,10 +329,10 @@ import { useItemModal } from '~/composables/useItemModal'
 ```vue
 <script setup>
 const { state, apiState, filteredSkins, paginatedSkins, totalPages, fetchSkins, clearState } =
-    useItemModal({
-        itemType: 'weapon',
-        pageSize: 10,
-    })
+  useItemModal({
+    itemType: 'weapon',
+    pageSize: 10,
+  })
 
 // Fetch skins for a weapon
 await fetchSkins('AK-47')
@@ -343,8 +343,8 @@ await fetchSkins('AK-47')
 
 ```typescript
 interface UseItemModalOptions {
-    itemType: 'weapon' | 'knife' | 'glove'
-    pageSize?: number // Default: 10
+  itemType: 'weapon' | 'knife' | 'glove'
+  pageSize?: number // Default: 10
 }
 ```
 
@@ -432,7 +432,7 @@ Fetch available skins for the given item.
 
 ```typescript
 await fetchSkins('M4A4', (error) => {
-    console.error('Failed to load skins:', error)
+  console.error('Failed to load skins:', error)
 })
 ```
 
@@ -577,27 +577,27 @@ import { useFilterSort } from '~/composables/useFilterSort'
 ```vue
 <script setup>
 const {
-    sortBy,
-    sortDir,
-    rarityFilterIds,
-    effectFilterIds,
-    availableRarities,
-    availableEffects,
-    filteredItems,
-    sortedItems,
-    paginatedItems,
-    totalPages,
-    toggleSortDir,
-    toggleRarityFilter,
-    toggleEffectFilter,
-    resetFilters,
+  sortBy,
+  sortDir,
+  rarityFilterIds,
+  effectFilterIds,
+  availableRarities,
+  availableEffects,
+  filteredItems,
+  sortedItems,
+  paginatedItems,
+  totalPages,
+  toggleSortDir,
+  toggleRarityFilter,
+  toggleEffectFilter,
+  resetFilters,
 } = useFilterSort({
-    items: allStickers,
-    searchQuery: searchRef,
-    currentPage: pageRef,
-    pageSize: 20,
-    sortKeys: ['name', 'rarity'],
-    hasEffects: false,
+  items: allStickers,
+  searchQuery: searchRef,
+  currentPage: pageRef,
+  pageSize: 20,
+  sortKeys: ['name', 'rarity'],
+  hasEffects: false,
 })
 </script>
 ```
@@ -606,12 +606,12 @@ const {
 
 ```typescript
 interface UseFilterSortOptions<T> {
-    items: Ref<T[]> | ComputedRef<T[]> // All items
-    searchQuery: Ref<string> | ComputedRef<string> // Search query
-    currentPage: Ref<number> | WritableComputedRef<number> // Current page (mutated on filter changes)
-    pageSize: number // Items per page
-    sortKeys: string[] // Available sort keys (e.g., 'name', 'rarity')
-    hasEffects?: boolean // Enable effect filtering
+  items: Ref<T[]> | ComputedRef<T[]> // All items
+  searchQuery: Ref<string> | ComputedRef<string> // Search query
+  currentPage: Ref<number> | WritableComputedRef<number> // Current page (mutated on filter changes)
+  pageSize: number // Items per page
+  sortKeys: string[] // Available sort keys (e.g., 'name', 'rarity')
+  hasEffects?: boolean // Enable effect filtering
 }
 ```
 
@@ -653,15 +653,15 @@ import { useSidebarMode } from '~/composables/useSidebarMode'
 ```vue
 <script setup>
 const {
-    sidebarCollapsed,
-    sidebarMode,
-    hoverExpanded,
-    isReady,
-    isEffectivelyExpanded,
-    toggleCollapsed,
-    toggleMode,
-    onMouseEnter,
-    onMouseLeave,
+  sidebarCollapsed,
+  sidebarMode,
+  hoverExpanded,
+  isReady,
+  isEffectivelyExpanded,
+  toggleCollapsed,
+  toggleMode,
+  onMouseEnter,
+  onMouseLeave,
 } = useSidebarMode()
 </script>
 ```
@@ -704,7 +704,7 @@ const { teamLabel, teamBadgeClasses } = useTeamBadge(teamRef)
 </script>
 
 <template>
-    <span :class="teamBadgeClasses">{{ teamLabel }}</span>
+  <span :class="teamBadgeClasses">{{ teamLabel }}</span>
 </template>
 ```
 
@@ -738,10 +738,10 @@ import { useAutoSave, useWatchAutoSave } from '~/composables/useAutoSave'
 ```vue
 <script setup>
 const { status, isDirty, isSaving, triggerSave, saveNow, retry } = useAutoSave(
-    async (data) => {
-        await api.post('/api/items/weapons/save', data)
-    },
-    { debounceMs: 1500, retryAttempts: 3 }
+  async (data) => {
+    await api.post('/api/items/weapons/save', data)
+  },
+  { debounceMs: 1500, retryAttempts: 3 }
 )
 
 // Trigger debounced save
@@ -749,10 +749,10 @@ triggerSave(weaponConfig)
 
 // Or use the watch wrapper
 useWatchAutoSave(
-    () => weaponConfig.value,
-    async (data) => {
-        await api.post('/api/items/weapons/save', data)
-    }
+  () => weaponConfig.value,
+  async (data) => {
+    await api.post('/api/items/weapons/save', data)
+  }
 )
 </script>
 ```
@@ -761,13 +761,13 @@ useWatchAutoSave(
 
 ```typescript
 interface AutoSaveOptions {
-    debounceMs?: number // Default: 1500
-    retryAttempts?: number // Default: 3
-    retryDelayMs?: number // Default: 1000
-    savedDisplayMs?: number // How long to show "saved" status (default: 2000)
-    onSaveStart?: () => void
-    onSaveSuccess?: () => void
-    onSaveError?: (error: Error) => void
+  debounceMs?: number // Default: 1500
+  retryAttempts?: number // Default: 3
+  retryDelayMs?: number // Default: 1000
+  savedDisplayMs?: number // How long to show "saved" status (default: 2000)
+  onSaveStart?: () => void
+  onSaveSuccess?: () => void
+  onSaveError?: (error: Error) => void
 }
 ```
 
@@ -806,7 +806,7 @@ import { useChangeTracker } from '~/composables/useChangeTracker'
 
 ```typescript
 const { detectChanges, getPrimaryChangeType, getCombinedDescription, configToSnapshot } =
-    useChangeTracker()
+  useChangeTracker()
 
 const changes = detectChanges(oldConfig, newConfig)
 const type = getPrimaryChangeType(changes) // e.g., 'paint_changed'
@@ -841,9 +841,9 @@ Functions are also exported standalone for server-side use.
 
 ```typescript
 import {
-    useAdminAuth,
-    adminNavigationGuard,
-    superAdminNavigationGuard,
+  useAdminAuth,
+  adminNavigationGuard,
+  superAdminNavigationGuard,
 } from '~/composables/useAdminAuth'
 ```
 
@@ -852,19 +852,19 @@ import {
 ```vue
 <script setup>
 const {
-    isAdmin,
-    isSuperAdmin,
-    adminRole,
-    isChecking,
-    checkAdminStatus,
-    requireAdmin,
-    hasPermission,
+  isAdmin,
+  isSuperAdmin,
+  adminRole,
+  isChecking,
+  checkAdminStatus,
+  requireAdmin,
+  hasPermission,
 } = useAdminAuth()
 
 await checkAdminStatus()
 
 if (isSuperAdmin.value) {
-    // Show admin management UI
+  // Show admin management UI
 }
 </script>
 ```
@@ -887,12 +887,12 @@ if (isSuperAdmin.value) {
 ```typescript
 // Use in page middleware
 definePageMeta({
-    middleware: [adminNavigationGuard],
+  middleware: [adminNavigationGuard],
 })
 
 // Or for superadmin-only pages
 definePageMeta({
-    middleware: [superAdminNavigationGuard],
+  middleware: [superAdminNavigationGuard],
 })
 ```
 
@@ -915,20 +915,20 @@ import { useAdminStats, formatNumber, getTimeRangeLabel } from '~/composables/us
 ```vue
 <script setup>
 const {
-    overviewStats,
-    activityData,
-    topUsers,
-    timeRange,
-    isLoading,
-    error,
-    fetchStats,
-    fetchActivity,
-    fetchTopUsers,
-    refreshAll,
-    setTimeRange,
+  overviewStats,
+  activityData,
+  topUsers,
+  timeRange,
+  isLoading,
+  error,
+  fetchStats,
+  fetchActivity,
+  fetchTopUsers,
+  refreshAll,
+  setTimeRange,
 } = useAdminStats({
-    fetchOnMount: true,
-    defaultTimeRange: '30d',
+  fetchOnMount: true,
+  defaultTimeRange: '30d',
 })
 </script>
 ```
@@ -937,9 +937,9 @@ const {
 
 ```typescript
 interface UseAdminStatsOptions {
-    fetchOnMount?: boolean // Fetch on composable creation (default: true)
-    autoRefreshInterval?: number // ms, 0 = disabled (default: 0)
-    defaultTimeRange?: '7d' | '30d' | '90d' // Default: '30d'
+  fetchOnMount?: boolean // Fetch on composable creation (default: true)
+  autoRefreshInterval?: number // ms, 0 = disabled (default: 0)
+  defaultTimeRange?: '7d' | '30d' | '90d' // Default: '30d'
 }
 ```
 
@@ -991,12 +991,12 @@ const { hasItem, analyzeInspectLink } = useInspectItem()
 const { error, analyzeInspectLink } = useInspectItem()
 
 const handleAnalyze = async (url) => {
-    await analyzeInspectLink(url, steamId)
+  await analyzeInspectLink(url, steamId)
 
-    if (error.value) {
-        // Show error to user
-        message.error(error.value)
-    }
+  if (error.value) {
+    // Show error to user
+    message.error(error.value)
+  }
 }
 </script>
 ```
@@ -1008,7 +1008,7 @@ const handleAnalyze = async (url) => {
 const { clearState } = useItemModal({ itemType: 'weapon' })
 
 onUnmounted(() => {
-    clearState()
+  clearState()
 })
 </script>
 ```
@@ -1023,9 +1023,9 @@ const { filteredSkins, paginatedSkins } = useItemModal({ itemType: 'weapon' })
 </script>
 
 <template>
-    <div v-for="skin in paginatedSkins" :key="skin.id">
-        {{ skin.name }}
-    </div>
+  <div v-for="skin in paginatedSkins" :key="skin.id">
+    {{ skin.name }}
+  </div>
 </template>
 ```
 
@@ -1043,10 +1043,10 @@ type ItemType = 'weapon' | 'knife' | 'glove' | 'agent' | 'musickit' | 'pin'
 
 ```typescript
 enum LoadingState {
-    Idle = 'idle',
-    Loading = 'loading',
-    Success = 'success',
-    Error = 'error',
+  Idle = 'idle',
+  Loading = 'loading',
+  Success = 'success',
+  Error = 'error',
 }
 ```
 
@@ -1073,19 +1073,19 @@ import { useTutorial } from '~/composables/useTutorial'
 ```vue
 <script setup>
 const {
-    isActive,
-    activeTutorialId,
-    currentStep,
-    currentStepIndex,
-    totalSteps,
-    progressLabel,
-    isLastStep,
-    start,
-    stop,
-    next,
-    previous,
-    isCompleted,
-    resetAll,
+  isActive,
+  activeTutorialId,
+  currentStep,
+  currentStepIndex,
+  totalSteps,
+  progressLabel,
+  isLastStep,
+  start,
+  stop,
+  next,
+  previous,
+  isCompleted,
+  resetAll,
 } = useTutorial()
 
 // Start a tutorial
@@ -1093,7 +1093,7 @@ start('customize-weapon')
 
 // Check completion
 if (isCompleted('navigate-app')) {
-    console.log('User has completed the navigation tutorial')
+  console.log('User has completed the navigation tutorial')
 }
 </script>
 ```

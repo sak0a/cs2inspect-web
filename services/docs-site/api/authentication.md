@@ -32,11 +32,11 @@ Validate Steam OpenID response and receive a JWT token.
 
 ```json
 {
-    "steamId": "76561198012345678",
-    "openIdData": {
-        "identity": "https://steamcommunity.com/openid/id/76561198012345678",
-        "claimed_id": "https://steamcommunity.com/openid/id/76561198012345678"
-    }
+  "steamId": "76561198012345678",
+  "openIdData": {
+    "identity": "https://steamcommunity.com/openid/id/76561198012345678",
+    "claimed_id": "https://steamcommunity.com/openid/id/76561198012345678"
+  }
 }
 ```
 
@@ -44,12 +44,12 @@ Validate Steam OpenID response and receive a JWT token.
 
 ```json
 {
-    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    "user": {
-        "steamId": "76561198012345678",
-        "username": "PlayerName",
-        "avatar": "https://avatars.steamstatic.com/..."
-    }
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "user": {
+    "steamId": "76561198012345678",
+    "username": "PlayerName",
+    "avatar": "https://avatars.steamstatic.com/..."
+  }
 }
 ```
 

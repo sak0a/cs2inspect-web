@@ -105,9 +105,9 @@ CS2Inspect is a full-stack web application built with Nuxt 4 that allows Counter
 - **Database**: MariaDB (MySQL compatible)
 - **Authentication**: Steam OpenID + JWT
 - **CS2 Integration**:
-    - `cs2-inspect-lib` - CS2 item inspection
-    - `node-cs2` - Steam Game Coordinator integration
-    - `csgo-fade-percentage-calculator` - Fade pattern calculations
+  - `cs2-inspect-lib` - CS2 item inspection
+  - `node-cs2` - Steam Game Coordinator integration
+  - `csgo-fade-percentage-calculator` - Fade pattern calculations
 
 ### DevOps <Badge type="warning" text="Production Ready" />
 

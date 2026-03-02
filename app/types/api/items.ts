@@ -21,10 +21,10 @@ import type { EntityId, ItemRarity } from '../core/common'
  * @description Represents team-specific information for items like agents
  */
 export interface APIItemTeam {
-    /** Unique identifier for the team */
-    id: string
-    /** Display name of the team */
-    name: string
+  /** Unique identifier for the team */
+  id: string
+  /** Display name of the team */
+  name: string
 }
 
 /**
@@ -33,18 +33,18 @@ export interface APIItemTeam {
  * @description Contains common fields shared across all item types from the CS2 API
  */
 export interface APIBaseItem {
-    /** Unique identifier for the item */
-    id: EntityId
-    /** Display name of the item */
-    name: string
-    /** Optional description text */
-    description?: string
-    /** Rarity information for this item */
-    rarity: ItemRarity
-    /** URL to the item's image */
-    image: string
-    /** Steam market hash name for trading */
-    market_hash_name?: string
+  /** Unique identifier for the item */
+  id: EntityId
+  /** Display name of the item */
+  name: string
+  /** Optional description text */
+  description?: string
+  /** Rarity information for this item */
+  rarity: ItemRarity
+  /** URL to the item's image */
+  image: string
+  /** Steam market hash name for trading */
+  market_hash_name?: string
 }
 
 // ============================================================================
@@ -57,12 +57,12 @@ export interface APIBaseItem {
  * @description Represents weapon metadata from the CS2 API
  */
 export interface APIWeaponInfo {
-    /** Weapon identifier */
-    id: string
-    /** Weapon display name */
-    name: string
-    /** Internal weapon identifier */
-    weapon_id: string
+  /** Weapon identifier */
+  id: string
+  /** Weapon display name */
+  name: string
+  /** Internal weapon identifier */
+  weapon_id: string
 }
 
 /**
@@ -71,10 +71,10 @@ export interface APIWeaponInfo {
  * @description Represents weapon category (rifles, pistols, etc.)
  */
 export interface APIWeaponCategory {
-    /** Category identifier */
-    id: string
-    /** Category display name */
-    name: string
+  /** Category identifier */
+  id: string
+  /** Category display name */
+  name: string
 }
 
 /**
@@ -83,10 +83,10 @@ export interface APIWeaponCategory {
  * @description Represents skin pattern/finish information
  */
 export interface APISkinPattern {
-    /** Pattern identifier */
-    id: string
-    /** Pattern display name */
-    name: string
+  /** Pattern identifier */
+  id: string
+  /** Pattern display name */
+  name: string
 }
 
 /**
@@ -128,30 +128,30 @@ export interface APISkinPattern {
  * ```
  */
 export interface APIWeaponSkin extends APIBaseItem {
-    /** Weapon information */
-    weapon: APIWeaponInfo
-    /** Weapon category */
-    category: APIWeaponCategory
-    /** Skin pattern information */
-    pattern: APISkinPattern
-    /** Minimum float value for wear */
-    min_float: number
-    /** Maximum float value for wear */
-    max_float: number
-    /** Whether StatTrak variant is available */
-    stattrak?: boolean
-    /** Whether Souvenir variant is available */
-    souvenir?: boolean
-    /** Paint index for the skin */
-    paint_index: string
-    /** Available wear conditions */
-    wears?: APIWearCondition[]
-    /** Collections this skin belongs to */
-    collections?: APICollection[]
-    /** Cases/crates this skin can be found in */
-    crates?: APICrate[]
-    /** Team association (for team-specific skins) */
-    team?: APIItemTeam
+  /** Weapon information */
+  weapon: APIWeaponInfo
+  /** Weapon category */
+  category: APIWeaponCategory
+  /** Skin pattern information */
+  pattern: APISkinPattern
+  /** Minimum float value for wear */
+  min_float: number
+  /** Maximum float value for wear */
+  max_float: number
+  /** Whether StatTrak variant is available */
+  stattrak?: boolean
+  /** Whether Souvenir variant is available */
+  souvenir?: boolean
+  /** Paint index for the skin */
+  paint_index: string
+  /** Available wear conditions */
+  wears?: APIWearCondition[]
+  /** Collections this skin belongs to */
+  collections?: APICollection[]
+  /** Cases/crates this skin can be found in */
+  crates?: APICrate[]
+  /** Team association (for team-specific skins) */
+  team?: APIItemTeam
 }
 
 /**
@@ -160,14 +160,14 @@ export interface APIWeaponSkin extends APIBaseItem {
  * @description Represents different wear conditions for skins
  */
 export interface APIWearCondition {
-    /** Wear condition identifier */
-    id: string
-    /** Wear condition name (e.g., "Factory New", "Field-Tested") */
-    name: string
-    /** Minimum float value for this condition */
-    min_float: number
-    /** Maximum float value for this condition */
-    max_float: number
+  /** Wear condition identifier */
+  id: string
+  /** Wear condition name (e.g., "Factory New", "Field-Tested") */
+  name: string
+  /** Minimum float value for this condition */
+  min_float: number
+  /** Maximum float value for this condition */
+  max_float: number
 }
 
 /**
@@ -176,12 +176,12 @@ export interface APIWearCondition {
  * @description Represents skin collections
  */
 export interface APICollection {
-    /** Collection identifier */
-    id: string
-    /** Collection name */
-    name: string
-    /** Collection image */
-    image?: string
+  /** Collection identifier */
+  id: string
+  /** Collection name */
+  name: string
+  /** Collection image */
+  image?: string
 }
 
 /**
@@ -190,12 +190,12 @@ export interface APICollection {
  * @description Represents cases or crates that contain skins
  */
 export interface APICrate {
-    /** Crate identifier */
-    id: string
-    /** Crate name */
-    name: string
-    /** Crate image */
-    image?: string
+  /** Crate identifier */
+  id: string
+  /** Crate name */
+  name: string
+  /** Crate image */
+  image?: string
 }
 
 // ============================================================================
@@ -232,16 +232,16 @@ export interface APICrate {
  * ```
  */
 export interface APISticker extends APIBaseItem {
-    /** Tournament information (if applicable) */
-    tournament?: APITournament
-    /** Team information (if applicable) */
-    team?: APIItemTeam
-    /** Sticker category */
-    category?: string
-    /** Whether this is a holographic sticker */
-    holographic?: boolean
-    /** Whether this is a foil sticker */
-    foil?: boolean
+  /** Tournament information (if applicable) */
+  tournament?: APITournament
+  /** Team information (if applicable) */
+  team?: APIItemTeam
+  /** Sticker category */
+  category?: string
+  /** Whether this is a holographic sticker */
+  holographic?: boolean
+  /** Whether this is a foil sticker */
+  foil?: boolean
 }
 
 /**
@@ -250,14 +250,14 @@ export interface APISticker extends APIBaseItem {
  * @description Represents tournament metadata for stickers
  */
 export interface APITournament {
-    /** Tournament identifier */
-    id: string
-    /** Tournament name */
-    name: string
-    /** Tournament year */
-    year?: number
-    /** Tournament location */
-    location?: string
+  /** Tournament identifier */
+  id: string
+  /** Tournament name */
+  name: string
+  /** Tournament year */
+  year?: number
+  /** Tournament location */
+  location?: string
 }
 
 // ============================================================================
@@ -293,14 +293,14 @@ export interface APITournament {
  * ```
  */
 export interface APIAgent extends APIBaseItem {
-    /** Team this agent belongs to */
-    team: APIItemTeam
-    /** Agent faction/group */
-    faction?: APIAgentFaction
-    /** Agent biography/background */
-    biography?: string
-    /** Voice lines or quotes */
-    quotes?: string[]
+  /** Team this agent belongs to */
+  team: APIItemTeam
+  /** Agent faction/group */
+  faction?: APIAgentFaction
+  /** Agent biography/background */
+  biography?: string
+  /** Voice lines or quotes */
+  quotes?: string[]
 }
 
 /**
@@ -309,12 +309,12 @@ export interface APIAgent extends APIBaseItem {
  * @description Represents agent factions or groups
  */
 export interface APIAgentFaction {
-    /** Faction identifier */
-    id: string
-    /** Faction name */
-    name: string
-    /** Faction description */
-    description?: string
+  /** Faction identifier */
+  id: string
+  /** Faction name */
+  name: string
+  /** Faction description */
+  description?: string
 }
 
 // ============================================================================
@@ -345,16 +345,16 @@ export interface APIAgentFaction {
  * ```
  */
 export interface APIMusicKit extends APIBaseItem {
-    /** Music artist or composer */
-    artist?: string
-    /** Duration in seconds */
-    duration?: number
-    /** Preview audio URL */
-    preview_url?: string
-    /** Music genre */
-    genre?: string
-    /** Release year */
-    year?: number
+  /** Music artist or composer */
+  artist?: string
+  /** Duration in seconds */
+  duration?: number
+  /** Preview audio URL */
+  preview_url?: string
+  /** Music genre */
+  genre?: string
+  /** Release year */
+  year?: number
 }
 
 // ============================================================================
@@ -367,10 +367,10 @@ export interface APIMusicKit extends APIBaseItem {
  * @description Represents a keychain as received from the CS2 API
  */
 export interface APIKeychain extends APIBaseItem {
-    /** Keychain category */
-    category?: string
-    /** Whether this keychain has special effects */
-    hasEffects?: boolean
+  /** Keychain category */
+  category?: string
+  /** Whether this keychain has special effects */
+  hasEffects?: boolean
 }
 
 // ============================================================================
@@ -383,12 +383,12 @@ export interface APIKeychain extends APIBaseItem {
  * @description Represents collectible items like pins, patches, etc.
  */
 export interface APICollectible extends APIBaseItem {
-    /** Collectible type (pin, patch, etc.) */
-    type: string
-    /** Series or collection this belongs to */
-    series?: string
-    /** Whether this is a limited edition item */
-    limitedEdition?: boolean
+  /** Collectible type (pin, patch, etc.) */
+  type: string
+  /** Series or collection this belongs to */
+  series?: string
+  /** Whether this is a limited edition item */
+  limitedEdition?: boolean
 }
 
 // ============================================================================
@@ -399,39 +399,39 @@ export interface APICollectible extends APIBaseItem {
  * Union type of all API item types
  */
 export type APIItem =
-    | APIWeaponSkin
-    | APISticker
-    | APIAgent
-    | APIMusicKit
-    | APIKeychain
-    | APICollectible
+  | APIWeaponSkin
+  | APISticker
+  | APIAgent
+  | APIMusicKit
+  | APIKeychain
+  | APICollectible
 
 /**
  * Type guard to check if an item is a weapon skin
  */
 export function isAPIWeaponSkin(item: APIItem): item is APIWeaponSkin {
-    return 'weapon' in item && 'paint_index' in item
+  return 'weapon' in item && 'paint_index' in item
 }
 
 /**
  * Type guard to check if an item is a sticker
  */
 export function isAPISticker(item: APIItem): item is APISticker {
-    return 'tournament' in item || 'holographic' in item
+  return 'tournament' in item || 'holographic' in item
 }
 
 /**
  * Type guard to check if an item is an agent
  */
 export function isAPIAgent(item: APIItem): item is APIAgent {
-    return 'team' in item && 'faction' in item
+  return 'team' in item && 'faction' in item
 }
 
 /**
  * Type guard to check if an item is a music kit
  */
 export function isAPIMusicKit(item: APIItem): item is APIMusicKit {
-    return 'artist' in item && 'duration' in item
+  return 'artist' in item && 'duration' in item
 }
 
 // ============================================================================

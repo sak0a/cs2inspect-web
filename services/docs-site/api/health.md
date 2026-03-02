@@ -18,8 +18,8 @@ Check if the application process is running.
 
 ```json
 {
-    "status": "ok",
-    "timestamp": "2024-10-21T00:00:00.000Z"
+  "status": "ok",
+  "timestamp": "2024-10-21T00:00:00.000Z"
 }
 ```
 
@@ -42,21 +42,21 @@ Check if the application is ready to serve traffic.
 
 ```json
 {
-    "status": "ok",
-    "timestamp": "2024-10-21T00:00:00.000Z",
-    "ready": true,
-    "checks": [
-        {
-            "name": "database",
-            "status": "ok",
-            "latency_ms": 15
-        },
-        {
-            "name": "environment",
-            "status": "ok",
-            "latency_ms": 2
-        }
-    ]
+  "status": "ok",
+  "timestamp": "2024-10-21T00:00:00.000Z",
+  "ready": true,
+  "checks": [
+    {
+      "name": "database",
+      "status": "ok",
+      "latency_ms": 15
+    },
+    {
+      "name": "environment",
+      "status": "ok",
+      "latency_ms": 2
+    }
+  ]
 }
 ```
 
@@ -64,17 +64,17 @@ Check if the application is ready to serve traffic.
 
 ```json
 {
-    "status": "fail",
-    "timestamp": "2024-10-21T00:00:00.000Z",
-    "ready": false,
-    "checks": [
-        {
-            "name": "database",
-            "status": "fail",
-            "latency_ms": 5000,
-            "error": "Connection timeout"
-        }
-    ]
+  "status": "fail",
+  "timestamp": "2024-10-21T00:00:00.000Z",
+  "ready": false,
+  "checks": [
+    {
+      "name": "database",
+      "status": "fail",
+      "latency_ms": 5000,
+      "error": "Connection timeout"
+    }
+  ]
 }
 ```
 
@@ -101,59 +101,59 @@ Get comprehensive health information for all system components.
 
 ```json
 {
-    "status": "ok",
-    "timestamp": "2024-10-21T00:00:00.000Z",
-    "checks": [
-        {
-            "name": "database",
-            "status": "ok",
-            "latency_ms": 15,
-            "message": "Database connection healthy",
-            "metadata": {
-                "pool_active_connections": 2,
-                "pool_total_connections": 5,
-                "pool_idle_connections": 3
-            }
-        },
-        {
-            "name": "environment",
-            "status": "ok",
-            "latency_ms": 2,
-            "message": "All required environment variables present",
-            "metadata": {
-                "variables_checked": 10,
-                "variables_present": 10
-            }
-        },
-        {
-            "name": "steam_api",
-            "status": "ok",
-            "latency_ms": 250,
-            "message": "Steam API accessible"
-        },
-        {
-            "name": "disk_space",
-            "status": "ok",
-            "latency_ms": 5,
-            "metadata": {
-                "total_gb": 100,
-                "used_gb": 45,
-                "available_gb": 55,
-                "usage_percent": 45
-            }
-        },
-        {
-            "name": "memory",
-            "status": "ok",
-            "latency_ms": 1,
-            "metadata": {
-                "total_mb": 4096,
-                "used_mb": 1024,
-                "free_mb": 3072,
-                "usage_percent": 25
-            }
-        }
-    ]
+  "status": "ok",
+  "timestamp": "2024-10-21T00:00:00.000Z",
+  "checks": [
+    {
+      "name": "database",
+      "status": "ok",
+      "latency_ms": 15,
+      "message": "Database connection healthy",
+      "metadata": {
+        "pool_active_connections": 2,
+        "pool_total_connections": 5,
+        "pool_idle_connections": 3
+      }
+    },
+    {
+      "name": "environment",
+      "status": "ok",
+      "latency_ms": 2,
+      "message": "All required environment variables present",
+      "metadata": {
+        "variables_checked": 10,
+        "variables_present": 10
+      }
+    },
+    {
+      "name": "steam_api",
+      "status": "ok",
+      "latency_ms": 250,
+      "message": "Steam API accessible"
+    },
+    {
+      "name": "disk_space",
+      "status": "ok",
+      "latency_ms": 5,
+      "metadata": {
+        "total_gb": 100,
+        "used_gb": 45,
+        "available_gb": 55,
+        "usage_percent": 45
+      }
+    },
+    {
+      "name": "memory",
+      "status": "ok",
+      "latency_ms": 1,
+      "metadata": {
+        "total_mb": 4096,
+        "used_mb": 1024,
+        "free_mb": 3072,
+        "usage_percent": 25
+      }
+    }
+  ]
 }
 ```
 
@@ -184,33 +184,33 @@ Get historical health check data with trends.
 
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "timestamp": "2024-10-21T00:00:00.000Z",
-            "component": "database",
-            "status": "ok",
-            "latency_ms": 15,
-            "metadata": {
-                "pool_active_connections": 2
-            }
-        },
-        {
-            "timestamp": "2024-10-21T00:01:00.000Z",
-            "component": "database",
-            "status": "ok",
-            "latency_ms": 18,
-            "metadata": {
-                "pool_active_connections": 3
-            }
-        }
-    ],
-    "summary": {
-        "total_checks": 1440,
-        "uptime_percentage": 99.9,
-        "average_latency_ms": 16,
-        "max_latency_ms": 45
+  "success": true,
+  "data": [
+    {
+      "timestamp": "2024-10-21T00:00:00.000Z",
+      "component": "database",
+      "status": "ok",
+      "latency_ms": 15,
+      "metadata": {
+        "pool_active_connections": 2
+      }
+    },
+    {
+      "timestamp": "2024-10-21T00:01:00.000Z",
+      "component": "database",
+      "status": "ok",
+      "latency_ms": 18,
+      "metadata": {
+        "pool_active_connections": 3
+      }
     }
+  ],
+  "summary": {
+    "total_checks": 1440,
+    "uptime_percentage": 99.9,
+    "average_latency_ms": 16,
+    "max_latency_ms": 45
+  }
 }
 ```
 
@@ -228,10 +228,10 @@ Check the health of the external Steam service proxy (if configured).
 
 ```json
 {
-    "status": "ok",
-    "service": "steam-service",
-    "latency_ms": 150,
-    "message": "Steam service is healthy"
+  "status": "ok",
+  "service": "steam-service",
+  "latency_ms": 150,
+  "message": "Steam service is healthy"
 }
 ```
 
@@ -243,31 +243,31 @@ Check the health of the external Steam service proxy (if configured).
 apiVersion: v1
 kind: Pod
 spec:
-    containers:
-        - name: cs2inspect
-          livenessProbe:
-              httpGet:
-                  path: /api/health/live
-                  port: 3210
-              initialDelaySeconds: 10
-              periodSeconds: 10
-          readinessProbe:
-              httpGet:
-                  path: /api/health/ready
-                  port: 3210
-              initialDelaySeconds: 5
-              periodSeconds: 5
+  containers:
+    - name: cs2inspect
+      livenessProbe:
+        httpGet:
+          path: /api/health/live
+          port: 3210
+        initialDelaySeconds: 10
+        periodSeconds: 10
+      readinessProbe:
+        httpGet:
+          path: /api/health/ready
+          port: 3210
+        initialDelaySeconds: 5
+        periodSeconds: 5
 ```
 
 ## Docker Compose Example
 
 ```yaml
 services:
-    app:
-        healthcheck:
-            test: ['CMD', 'curl', '-f', 'http://localhost:3210/api/health/ready']
-            interval: 30s
-            timeout: 10s
-            retries: 3
-            start_period: 40s
+  app:
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:3210/api/health/ready']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 ```

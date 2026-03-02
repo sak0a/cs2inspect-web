@@ -60,20 +60,20 @@ Array of all user loadouts.
 
 ```typescript
 interface DBLoadout {
-    id: number
-    steamid: string
-    name: string
-    selected_knife_t: number | null
-    selected_knife_ct: number | null
-    selected_glove_t: number | null
-    selected_glove_ct: number | null
-    selected_agent_ct: number | null
-    selected_agent_t: number | null
-    selected_music: number | null
-    active: boolean | number
-    is_default: boolean | number
-    created_at: string
-    updated_at: string
+  id: number
+  steamid: string
+  name: string
+  selected_knife_t: number | null
+  selected_knife_ct: number | null
+  selected_glove_t: number | null
+  selected_glove_ct: number | null
+  selected_agent_ct: number | null
+  selected_agent_t: number | null
+  selected_music: number | null
+  active: boolean | number
+  is_default: boolean | number
+  created_at: string
+  updated_at: string
 }
 ```
 
@@ -129,9 +129,9 @@ const loadoutStore = useLoadoutStore()
 const loadout = loadoutStore.selectedLoadout
 
 watchEffect(() => {
-    if (loadout) {
-        console.log('Active loadout:', loadout.name)
-    }
+  if (loadout) {
+    console.log('Active loadout:', loadout.name)
+  }
 })
 </script>
 ```
@@ -148,9 +148,9 @@ Whether the user has any loadouts.
 
 ```vue
 <template>
-    <div v-if="!loadoutStore.hasLoadouts">
-        <p>No loadouts yet. Create your first loadout!</p>
-    </div>
+  <div v-if="!loadoutStore.hasLoadouts">
+    <p>No loadouts yet. Create your first loadout!</p>
+  </div>
 </template>
 ```
 
@@ -516,9 +516,9 @@ const loadoutStore = useLoadoutStore()
 const { user } = useAuth()
 
 onMounted(async () => {
-    if (user.value?.steamId) {
-        await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
-    }
+  if (user.value?.steamId) {
+    await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
+  }
 })
 </script>
 ```
@@ -569,24 +569,24 @@ const switchLoadout = async (loadoutId: LoadoutId) => {
 
 ```vue
 <template>
-    <div v-if="loadoutStore.isLoading">Loading loadouts...</div>
+  <div v-if="loadoutStore.isLoading">Loading loadouts...</div>
 
-    <div v-else-if="loadoutStore.error">Error: {{ loadoutStore.error }}</div>
+  <div v-else-if="loadoutStore.error">Error: {{ loadoutStore.error }}</div>
 
-    <div v-else-if="!loadoutStore.hasLoadouts">No loadouts yet. Create one to get started!</div>
+  <div v-else-if="!loadoutStore.hasLoadouts">No loadouts yet. Create one to get started!</div>
 
-    <div v-else>
-        <div v-for="loadout in loadoutStore.loadouts" :key="loadout.id">
-            <div
-                :class="{ active: loadout.id === loadoutStore.selectedLoadoutId }"
-                @click="switchLoadout(toLoadoutId(loadout.id))"
-            >
-                {{ loadout.name }}
-                <span v-if="loadout.is_default">⭐ Default</span>
-                <span v-if="loadout.active">✓ Active</span>
-            </div>
-        </div>
+  <div v-else>
+    <div v-for="loadout in loadoutStore.loadouts" :key="loadout.id">
+      <div
+        :class="{ active: loadout.id === loadoutStore.selectedLoadoutId }"
+        @click="switchLoadout(toLoadoutId(loadout.id))"
+      >
+        {{ loadout.name }}
+        <span v-if="loadout.is_default">⭐ Default</span>
+        <span v-if="loadout.active">✓ Active</span>
+      </div>
     </div>
+  </div>
 </template>
 ```
 
@@ -631,10 +631,10 @@ const loadoutStore = useLoadoutStore()
 const activeLoadout = computed(() => loadoutStore.selectedLoadout)
 
 watchEffect(() => {
-    if (activeLoadout.value) {
-        console.log('Active loadout changed:', activeLoadout.value.name)
-        // Trigger any side effects
-    }
+  if (activeLoadout.value) {
+    console.log('Active loadout changed:', activeLoadout.value.name)
+    // Trigger any side effects
+  }
 })
 </script>
 ```
@@ -644,14 +644,14 @@ watchEffect(() => {
 ```typescript
 // Optimistically update UI before server response
 const quickSelectLoadout = (id: LoadoutId) => {
-    // Immediate UI update
-    loadoutStore.selectLoadout(id)
+  // Immediate UI update
+  loadoutStore.selectLoadout(id)
 
-    // Server sync in background
-    loadoutStore.activateLoadout(id, steamId).catch((error) => {
-        // Revert on error
-        message.error('Failed to activate loadout')
-    })
+  // Server sync in background
+  loadoutStore.activateLoadout(id, steamId).catch((error) => {
+    // Revert on error
+    message.error('Failed to activate loadout')
+  })
 }
 ```
 
@@ -660,10 +660,10 @@ const quickSelectLoadout = (id: LoadoutId) => {
 ```typescript
 // Clear and reload loadout
 const resetLoadout = async (steamId: SteamId, loadoutId: LoadoutId) => {
-    await loadoutStore.clearLoadout(steamId, loadoutId)
-    await loadoutStore.fetchLoadoutWeaponSkins('rifles', steamId)
-    await loadoutStore.fetchLoadoutKnives(steamId)
-    await loadoutStore.fetchLoadoutGloves(steamId)
+  await loadoutStore.clearLoadout(steamId, loadoutId)
+  await loadoutStore.fetchLoadoutWeaponSkins('rifles', steamId)
+  await loadoutStore.fetchLoadoutKnives(steamId)
+  await loadoutStore.fetchLoadoutGloves(steamId)
 }
 ```
 
@@ -729,9 +729,9 @@ The store prevents duplicate concurrent fetches:
 ```typescript
 // Multiple calls will share the same promise
 await Promise.all([
-    loadoutStore.fetchLoadouts(steamId), // Fetches
-    loadoutStore.fetchLoadouts(steamId), // Waits for first
-    loadoutStore.fetchLoadouts(steamId), // Waits for first
+  loadoutStore.fetchLoadouts(steamId), // Fetches
+  loadoutStore.fetchLoadouts(steamId), // Waits for first
+  loadoutStore.fetchLoadouts(steamId), // Waits for first
 ])
 ```
 
@@ -746,7 +746,7 @@ const selectedLoadout = computed(() => loadoutStore.selectedLoadout)
 
 // Not when other loadouts update
 watch(selectedLoadout, (newLoadout) => {
-    console.log('Selected loadout changed:', newLoadout)
+  console.log('Selected loadout changed:', newLoadout)
 })
 </script>
 ```
@@ -783,11 +783,11 @@ Use Vue DevTools to inspect store state:
 
 ```typescript
 try {
-    await loadoutStore.fetchLoadouts(steamId)
+  await loadoutStore.fetchLoadouts(steamId)
 } catch (error) {
-    // Always handle errors
-    console.error('Failed to fetch loadouts:', error)
-    message.error('Could not load loadouts')
+  // Always handle errors
+  console.error('Failed to fetch loadouts:', error)
+  message.error('Could not load loadouts')
 }
 ```
 
@@ -806,12 +806,12 @@ await loadoutStore.fetchLoadouts(user.steamId)
 
 ```vue
 <template>
-    <div v-if="loadoutStore.isLoading">
-        <Spinner />
-    </div>
-    <div v-else>
-        <!-- Content -->
-    </div>
+  <div v-if="loadoutStore.isLoading">
+    <Spinner />
+  </div>
+  <div v-else>
+    <!-- Content -->
+  </div>
 </template>
 ```
 
@@ -819,8 +819,8 @@ await loadoutStore.fetchLoadouts(user.steamId)
 
 ```typescript
 if (!loadoutStore.hasLoadouts) {
-    message.warning('Create a loadout first')
-    return
+  message.warning('Create a loadout first')
+  return
 }
 
 await loadoutStore.deleteLoadout(steamId, loadoutId)
@@ -847,23 +847,23 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 
 describe('loadoutStore', () => {
-    beforeEach(() => {
-        setActivePinia(createPinia())
-    })
+  beforeEach(() => {
+    setActivePinia(createPinia())
+  })
 
-    it('should initialize with empty state', () => {
-        const store = useLoadoutStore()
-        expect(store.loadouts).toEqual([])
-        expect(store.selectedLoadoutId).toBeNull()
-        expect(store.hasLoadouts).toBe(false)
-    })
+  it('should initialize with empty state', () => {
+    const store = useLoadoutStore()
+    expect(store.loadouts).toEqual([])
+    expect(store.selectedLoadoutId).toBeNull()
+    expect(store.hasLoadouts).toBe(false)
+  })
 
-    it('should update state after fetch', async () => {
-        const store = useLoadoutStore()
-        // Mock API response
-        await store.fetchLoadouts(toSteamId('123'))
-        expect(store.loadouts.length).toBeGreaterThan(0)
-    })
+  it('should update state after fetch', async () => {
+    const store = useLoadoutStore()
+    // Mock API response
+    await store.fetchLoadouts(toSteamId('123'))
+    expect(store.loadouts.length).toBeGreaterThan(0)
+  })
 })
 ```
 
@@ -900,8 +900,8 @@ const loadouts = loadoutStore.loadouts
 <script setup>
 const loadouts = ref([])
 const fetchLoadouts = async () => {
-    const response = await fetch('/api/loadouts')
-    loadouts.value = await response.json()
+  const response = await fetch('/api/loadouts')
+  loadouts.value = await response.json()
 }
 </script>
 
@@ -974,43 +974,43 @@ await adminStore.banUser(steamId, 'Violation of TOS', 72)
 
 ```typescript
 interface AdminState {
-    // Auth
-    isAdmin: boolean
-    adminRole: 'admin' | 'superadmin' | null
-    adminPermissions: string[]
+  // Auth
+  isAdmin: boolean
+  adminRole: 'admin' | 'superadmin' | null
+  adminPermissions: string[]
 
-    // Dashboard data
-    overviewStats: AdminOverviewStats | null
-    users: AdminUserSummary[]
-    usersTotal: number
-    activityData: AdminActivityData | null
-    topUsers: AdminTopUser[]
-    settings: AdminSetting[]
-    activityLog: AdminActivityLogEntry[]
-    activityLogTotal: number
-    adminUsers: AdminInfo[]
+  // Dashboard data
+  overviewStats: AdminOverviewStats | null
+  users: AdminUserSummary[]
+  usersTotal: number
+  activityData: AdminActivityData | null
+  topUsers: AdminTopUser[]
+  settings: AdminSetting[]
+  activityLog: AdminActivityLogEntry[]
+  activityLogTotal: number
+  adminUsers: AdminInfo[]
 
-    // Loading states
-    isLoading: boolean
-    isLoadingStats: boolean
-    isLoadingUsers: boolean
-    isLoadingSettings: boolean
-    isLoadingActivity: boolean
+  // Loading states
+  isLoading: boolean
+  isLoadingStats: boolean
+  isLoadingUsers: boolean
+  isLoadingSettings: boolean
+  isLoadingActivity: boolean
 
-    // Error & cache
-    error: string | null
-    lastUsersQuery: string | null
-    lastActivityLogQuery: string | null
-    lastActivityRange: '7d' | '30d' | '90d' | null
-    lastFetch: {
-        adminStatus: number | null
-        stats: number | null
-        users: number | null
-        settings: number | null
-        activity: number | null
-        activityLog: number | null
-        adminUsers: number | null
-    }
+  // Error & cache
+  error: string | null
+  lastUsersQuery: string | null
+  lastActivityLogQuery: string | null
+  lastActivityRange: '7d' | '30d' | '90d' | null
+  lastFetch: {
+    adminStatus: number | null
+    stats: number | null
+    users: number | null
+    settings: number | null
+    activity: number | null
+    activityLog: number | null
+    adminUsers: number | null
+  }
 }
 ```
 
@@ -1280,20 +1280,20 @@ import { useTutorialStore } from '~/stores/tutorialStore'
 
 ```typescript
 interface TutorialState {
-    activeTutorialId: string | null // ID of the running tutorial
-    currentStepIndex: number // zero-based step index
-    isActive: boolean // whether a tutorial is running
-    completedTutorials: string[] // IDs of completed tutorials
-    targetRect: DOMRect | null // bounding rect of the current target element
-    pendingAction: TutorialAction // signal for components to open/close modals
+  activeTutorialId: string | null // ID of the running tutorial
+  currentStepIndex: number // zero-based step index
+  isActive: boolean // whether a tutorial is running
+  completedTutorials: string[] // IDs of completed tutorials
+  targetRect: DOMRect | null // bounding rect of the current target element
+  pendingAction: TutorialAction // signal for components to open/close modals
 }
 
 type TutorialAction =
-    | 'open-weapon-modal'
-    | 'close-weapon-modal'
-    | 'open-loadout-create'
-    | 'close-loadout-create'
-    | null
+  | 'open-weapon-modal'
+  | 'close-weapon-modal'
+  | 'open-loadout-create'
+  | 'close-loadout-create'
+  | null
 ```
 
 ### Getters
@@ -1329,19 +1329,19 @@ The `pendingAction` field enables tutorials to programmatically control modals i
 ```typescript
 // In tutorialDefinitions.ts — a step hook requests an action
 beforeStep: () => {
-    const store = useTutorialStore()
-    store.requestAction('open-weapon-modal')
+  const store = useTutorialStore()
+  store.requestAction('open-weapon-modal')
 }
 
 // In the target component — a watcher responds
 watch(
-    () => tutorialStore.pendingAction,
-    (action) => {
-        if (action === 'open-weapon-modal') {
-            tutorialStore.clearAction()
-            // Open the modal
-        }
+  () => tutorialStore.pendingAction,
+  (action) => {
+    if (action === 'open-weapon-modal') {
+      tutorialStore.clearAction()
+      // Open the modal
     }
+  }
 )
 ```
 

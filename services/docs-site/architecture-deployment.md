@@ -63,22 +63,22 @@ graph LR
 ### Recommended Platforms
 
 1. **Coolify** (Docker Compose with pre-built GHCR images) — Recommended
-    - Pulls tagged images from GHCR automatically
-    - Docker Compose orchestration for all services
-    - Automatic HTTPS via built-in reverse proxy
-    - Simple environment variable management
+   - Pulls tagged images from GHCR automatically
+   - Docker Compose orchestration for all services
+   - Automatic HTTPS via built-in reverse proxy
+   - Simple environment variable management
 
 2. **Docker** (manual Docker Compose setup)
-    - Full control over container configuration
-    - Easy scaling with Docker Compose profiles
-    - Health check support
-    - Multi-container orchestration
+   - Full control over container configuration
+   - Easy scaling with Docker Compose profiles
+   - Health check support
+   - Multi-container orchestration
 
 3. **Other** (VPS with PM2, etc.) — for advanced users
-    - Traditional VPS deployment
-    - Process management with PM2
-    - Auto-restart on crash
-    - Cluster mode support
+   - Traditional VPS deployment
+   - Process management with PM2
+   - Auto-restart on crash
+   - Cluster mode support
 
 See: [Deployment Guide](deployment.md) for detailed instructions.
 
@@ -107,11 +107,11 @@ See: [Deployment Guide](deployment.md) for detailed instructions.
 ```typescript
 // Server-side JWT configuration
 const JWT_CONFIG = {
-    expiresIn: '24h',
-    algorithm: 'HS256',
-    httpOnly: true,
-    secure: true, // HTTPS only
-    sameSite: 'lax',
+  expiresIn: '24h',
+  algorithm: 'HS256',
+  httpOnly: true,
+  secure: true, // HTTPS only
+  sameSite: 'lax',
 }
 ```
 
@@ -221,7 +221,7 @@ NODE_ENV=production
 <script setup>
 // Lazy load heavy components
 const VisualCustomizer = defineAsyncComponent(
-    () => import('~/components/VisualCustomizerModal.vue')
+  () => import('~/components/VisualCustomizerModal.vue')
 )
 </script>
 ```
@@ -246,12 +246,12 @@ const VisualCustomizer = defineAsyncComponent(
 
 ```typescript
 const pool = mysql.createPool({
-    host: DB_HOST,
-    user: DB_USER,
-    password: DB_PASSWORD,
-    database: DB_NAME,
-    connectionLimit: 10,
-    queueLimit: 0,
+  host: DB_HOST,
+  user: DB_USER,
+  password: DB_PASSWORD,
+  database: DB_NAME,
+  connectionLimit: 10,
+  queueLimit: 0,
 })
 ```
 

@@ -1,652 +1,652 @@
 {
-    "navigation": {
-        "weapons": "ОРУЖИЕ",
-        "melee": "БЛИЖНИЙ БОЙ",
-        "extras": "ДОПОЛНИТЕЛЬНО",
-        "actions": "ДЕЙСТВИЯ",
-        "language": "Язык",
-        "loadout": "Снаряжение",
-        "theme": "Тема",
-        "mainNav": "Главная навигация",
-        "settings": "Настройки",
-        "switchToSidebar": "Переключить на боковую панель"
+  "navigation": {
+    "weapons": "ОРУЖИЕ",
+    "melee": "БЛИЖНИЙ БОЙ",
+    "extras": "ДОПОЛНИТЕЛЬНО",
+    "actions": "ДЕЙСТВИЯ",
+    "language": "Язык",
+    "loadout": "Снаряжение",
+    "theme": "Тема",
+    "mainNav": "Главная навигация",
+    "settings": "Настройки",
+    "switchToSidebar": "Переключить на боковую панель"
+  },
+  "weapons": {
+    "rifles": "Винтовки",
+    "pistols": "Пистолеты",
+    "smgs": "ПП",
+    "heavys": "Тяжёлое оружие"
+  },
+  "melee": {
+    "knives": "Ножи",
+    "gloves": "Перчатки"
+  },
+  "extras": {
+    "agents": "Агенты",
+    "pins": "Значки",
+    "music": "Музыкальные наборы",
+    "inspects": "Inspects",
+    "home": "Главная"
+  },
+  "skins": {
+    "title": "Скины",
+    "noSkinsAvailable": "Нет доступных скинов для этого снаряжения",
+    "selectSkin": "Выбрать скин для {weapon}"
+  },
+  "modals": {
+    "logout": {
+      "title": "Подтвердите выход",
+      "question": "Вы уверены, что хотите выйти?",
+      "cancel": "Отмена",
+      "confirm": "Выйти"
     },
-    "weapons": {
-        "rifles": "Винтовки",
-        "pistols": "Пистолеты",
-        "smgs": "ПП",
-        "heavys": "Тяжёлое оружие"
+    "inspectUrl": {
+      "title": "Импорт из Inspect-URL",
+      "inputPlaceholder": "Вставьте Inspect-URL сюда...",
+      "maskedLinks": "Маскированные ссылки (HEX-данные)",
+      "maskedLinksDescription": "Эти ссылки обычно создаются веб-сайтами или приложениями",
+      "maskedLinksExample": "Пример:",
+      "unmaskedLinks": "Немаскированные ссылки (рынок / инвентарь)",
+      "unmaskedLinksDescription": "Эти ссылки используются на торговой площадке Steam и в инвентарях игроков",
+      "unmaskedLinksExample": "Примеры:",
+      "noInspectUrl": "Введите Inspect-URL",
+      "defaultError": "Ошибка декодирования Inspect-URL",
+      "cancel": "Отмена",
+      "confirm": "Импортировать"
     },
-    "melee": {
-        "knives": "Ножи",
-        "gloves": "Перчатки"
+    "duplicateItem": {
+      "header": "Дублирование {itemType}",
+      "cancel": "Отмена",
+      "confirm": "Дублировать",
+      "warning": "Внимание: У другой команды уже настроен скин для этого {itemType}. Это действие его заменит.",
+      "question": "Вы уверены, что хотите дублировать настройку {itemType} для другой команды?",
+      "type": {
+        "weapon": "оружия",
+        "knife": "ножа",
+        "glove": "перчаток"
+      }
     },
-    "extras": {
-        "agents": "Агенты",
-        "pins": "Значки",
-        "music": "Музыкальные наборы",
-        "inspects": "Inspects",
-        "home": "Главная"
+    "knifeSkin": {
+      "defaultTitle": "Выбрать скин",
+      "title": "Выбрать скин для {weaponName}",
+      "buttons": {
+        "importFromLink": "Импорт из ссылки",
+        "generateLink": "Создать ссылку",
+        "save": "Сохранить изменения",
+        "duplicate": "Дублировать для другой команды",
+        "reset": "Сбросить"
+      },
+      "inputs": {
+        "searchPlaceholder": "Поиск скинов...",
+        "nameTagPlaceholder": "Именной ярлык"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Индекс покраски",
+        "paintIndexOverride": "Переопределить",
+        "pattern": "Паттерн (Seed)",
+        "wear": "Износ (Float)",
+        "itemActive": "Активно",
+        "itemInactive": "Неактивно"
+      },
+      "invalidInspectLink": "Недействительная inspect-ссылка",
+      "importFailed": "Ошибка импорта конфигурации ножа",
+      "importFailedDefault": "Ошибка импорта конфигурации ножа",
+      "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному ножу",
+      "importSuccess": "Конфигурация ножа успешно импортирована",
+      "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
+      "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
+      "noSearchResults": "Скины не найдены"
     },
-    "skins": {
-        "title": "Скины",
-        "noSkinsAvailable": "Нет доступных скинов для этого снаряжения",
-        "selectSkin": "Выбрать скин для {weapon}"
+    "gloveSkin": {
+      "defaultTitle": "Выбрать скин",
+      "title": "Выбрать скин для {weaponName}",
+      "buttons": {
+        "importFromLink": "Импорт из ссылки",
+        "generateLink": "Создать ссылку",
+        "save": "Сохранить изменения",
+        "duplicate": "Дублировать для другой команды",
+        "reset": "Сбросить"
+      },
+      "inputs": {
+        "searchPlaceholder": "Поиск скинов...",
+        "nameTagPlaceholder": "Именной ярлык"
+      },
+      "labels": {
+        "paintIndex": "Индекс покраски",
+        "paintIndexOverride": "Переопределить",
+        "pattern": "Паттерн (Seed)",
+        "wear": "Износ (Float)",
+        "itemActive": "Активно",
+        "itemInactive": "Неактивно"
+      },
+      "invalidInspectLink": "Недействительная inspect-ссылка",
+      "importFailed": "Ошибка импорта конфигурации перчаток",
+      "importFailedDefault": "Ошибка импорта конфигурации перчаток",
+      "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранным перчаткам",
+      "importSuccess": "Конфигурация перчаток успешно импортирована",
+      "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
+      "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
+      "noSearchResults": "Скины не найдены"
     },
-    "modals": {
-        "logout": {
-            "title": "Подтвердите выход",
-            "question": "Вы уверены, что хотите выйти?",
-            "cancel": "Отмена",
-            "confirm": "Выйти"
-        },
-        "inspectUrl": {
-            "title": "Импорт из Inspect-URL",
-            "inputPlaceholder": "Вставьте Inspect-URL сюда...",
-            "maskedLinks": "Маскированные ссылки (HEX-данные)",
-            "maskedLinksDescription": "Эти ссылки обычно создаются веб-сайтами или приложениями",
-            "maskedLinksExample": "Пример:",
-            "unmaskedLinks": "Немаскированные ссылки (рынок / инвентарь)",
-            "unmaskedLinksDescription": "Эти ссылки используются на торговой площадке Steam и в инвентарях игроков",
-            "unmaskedLinksExample": "Примеры:",
-            "noInspectUrl": "Введите Inspect-URL",
-            "defaultError": "Ошибка декодирования Inspect-URL",
-            "cancel": "Отмена",
-            "confirm": "Импортировать"
-        },
-        "duplicateItem": {
-            "header": "Дублирование {itemType}",
-            "cancel": "Отмена",
-            "confirm": "Дублировать",
-            "warning": "Внимание: У другой команды уже настроен скин для этого {itemType}. Это действие его заменит.",
-            "question": "Вы уверены, что хотите дублировать настройку {itemType} для другой команды?",
-            "type": {
-                "weapon": "оружия",
-                "knife": "ножа",
-                "glove": "перчаток"
-            }
-        },
-        "knifeSkin": {
-            "defaultTitle": "Выбрать скин",
-            "title": "Выбрать скин для {weaponName}",
-            "buttons": {
-                "importFromLink": "Импорт из ссылки",
-                "generateLink": "Создать ссылку",
-                "save": "Сохранить изменения",
-                "duplicate": "Дублировать для другой команды",
-                "reset": "Сбросить"
-            },
-            "inputs": {
-                "searchPlaceholder": "Поиск скинов...",
-                "nameTagPlaceholder": "Именной ярлык"
-            },
-            "labels": {
-                "stattrak": "StatTrak™",
-                "paintIndex": "Индекс покраски",
-                "paintIndexOverride": "Переопределить",
-                "pattern": "Паттерн (Seed)",
-                "wear": "Износ (Float)",
-                "itemActive": "Активно",
-                "itemInactive": "Неактивно"
-            },
-            "invalidInspectLink": "Недействительная inspect-ссылка",
-            "importFailed": "Ошибка импорта конфигурации ножа",
-            "importFailedDefault": "Ошибка импорта конфигурации ножа",
-            "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному ножу",
-            "importSuccess": "Конфигурация ножа успешно импортирована",
-            "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
-            "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
-            "noSearchResults": "Скины не найдены"
-        },
-        "gloveSkin": {
-            "defaultTitle": "Выбрать скин",
-            "title": "Выбрать скин для {weaponName}",
-            "buttons": {
-                "importFromLink": "Импорт из ссылки",
-                "generateLink": "Создать ссылку",
-                "save": "Сохранить изменения",
-                "duplicate": "Дублировать для другой команды",
-                "reset": "Сбросить"
-            },
-            "inputs": {
-                "searchPlaceholder": "Поиск скинов...",
-                "nameTagPlaceholder": "Именной ярлык"
-            },
-            "labels": {
-                "paintIndex": "Индекс покраски",
-                "paintIndexOverride": "Переопределить",
-                "pattern": "Паттерн (Seed)",
-                "wear": "Износ (Float)",
-                "itemActive": "Активно",
-                "itemInactive": "Неактивно"
-            },
-            "invalidInspectLink": "Недействительная inspect-ссылка",
-            "importFailed": "Ошибка импорта конфигурации перчаток",
-            "importFailedDefault": "Ошибка импорта конфигурации перчаток",
-            "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранным перчаткам",
-            "importSuccess": "Конфигурация перчаток успешно импортирована",
-            "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
-            "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
-            "noSearchResults": "Скины не найдены"
-        },
-        "keychain": {
-            "titleEdit": "Редактировать брелок",
-            "titleAdd": "Добавить брелок",
-            "searchPlaceholder": "Поиск брелков...",
-            "labels": {
-                "position": "Позиция",
-                "seed": "Seed"
-            },
-            "buttons": {
-                "update": "Обновить изменения",
-                "create": "Применить брелок",
-                "delete": "Удалить брелок"
-            },
-            "delete": "Удалить брелок",
-            "errorFetching": "Ошибка получения данных брелка",
-            "noSearchResults": "Брелки не найдены",
-            "sort": {
-                "name": "Название",
-                "rarity": "Редкость"
-            }
-        },
-        "sticker": {
-            "titleEdit": "Редактировать наклейку",
-            "titleAdd": "Добавить наклейку",
-            "searchPlaceholder": "Поиск наклеек...",
-            "sort": {
-                "label": "Сортировка",
-                "name": "Название",
-                "rarity": "Редкость",
-                "effect": "Эффект"
-            },
-            "filters": {
-                "rarity": "Редкость",
-                "effect": "Эффект",
-                "clearAll": "Сбросить фильтры"
-            },
-            "labels": {
-                "position": "Позиция",
-                "scale": "Масштаб",
-                "rotation": "Поворот",
-                "wear": "Износ"
-            },
-            "buttons": {
-                "update": "Обновить наклейку",
-                "create": "Применить наклейку",
-                "delete": "Удалить наклейку"
-            },
-            "errorFetching": "Ошибка получения данных наклейки",
-            "noSearchResults": "Наклейки не найдены"
-        },
-        "loadout": {
-            "successMessage": "Снаряжение {action} успешно",
-            "create": {
-                "title": "Создать новое снаряжение",
-                "confirm": "Создать",
-                "cancel": "Отмена",
-                "formPlaceholder": "Введите название для вашего нового снаряжения"
-            },
-            "rename": {
-                "title": "Переименовать снаряжение",
-                "confirm": "Переименовать",
-                "cancel": "Отмена",
-                "formPlaceholder": "Введите новое название для вашего снаряжения"
-            },
-            "delete": {
-                "title": "Удалить снаряжение",
-                "confirm": "Удалить",
-                "cancel": "Отмена",
-                "question": "Вы уверены, что хотите удалить это снаряжение?",
-                "warning": "Все скины этого снаряжения будут удалены и не подлежат восстановлению",
-                "confirmText": "Введите '{name}' для подтверждения удаления:",
-                "confirmPlaceholder": "Введите название снаряжения для подтверждения"
-            },
-            "share": {
-                "title": "Поделиться снаряжением {name}",
-                "description": "Скопируйте код ниже, чтобы поделиться этим снаряжением с другими:",
-                "noCode": "У этого снаряжения ещё нет кода для обмена. Создайте его, чтобы поделиться с другими.",
-                "generateButton": "Создать код",
-                "regenerateButton": "Создать новый код",
-                "generateError": "Не удалось создать код",
-                "deleteButton": "Удалить код",
-                "deleted": "Код удалён",
-                "deleteError": "Не удалось удалить код"
-            },
-            "import": {
-                "title": "Импорт снаряжения",
-                "description": "Введите код для импорта снаряжения.",
-                "placeholder": "Код обмена",
-                "cancel": "Отмена",
-                "confirm": "Импортировать",
-                "success": "Снаряжение успешно импортировано"
-            },
-            "clear": {
-                "title": "Очистить снаряжение {name}",
-                "question": "Вы уверены, что хотите очистить предметы из этого снаряжения?",
-                "selectCategories": "Выберите категории для очистки:",
-                "warning": "Это действие нельзя отменить!",
-                "confirmText": "Введите \"{name}\" для подтверждения.",
-                "confirmPlaceholder": "Введите название снаряжения для подтверждения",
-                "cancel": "Отмена",
-                "confirm": "Очистить предметы",
-                "successMessage": "Предметы снаряжения успешно очищены"
-            },
-            "duplicate": {
-                "success": "Снаряжение успешно дублировано"
-            },
-            "default": {
-                "success": "Снаряжение по умолчанию успешно установлено"
-            }
-        },
-        "reset": {
-            "title": "Сброс скина",
-            "question": "Вы уверены, что хотите сбросить настройку скина?",
-            "cancel": "Отмена",
-            "confirm": "Сбросить"
-        },
-        "weaponSkin": {
-            "defaultTitle": "Выбрать скин",
-            "title": "Выбрать скин для {weaponName}",
-            "buttons": {
-                "reset": "Сбросить",
-                "importFromLink": "Импорт из ссылки",
-                "generateLink": "Создать ссылку",
-                "save": "Сохранить изменения",
-                "duplicate": "Дублировать для другой команды"
-            },
-            "team": {
-                "terrorist": "Террористы",
-                "counterTerrorist": "Контр-террористы"
-            },
-            "inputs": {
-                "searchPlaceholder": "Поиск скинов...",
-                "nameTagPlaceholder": "Именной ярлык"
-            },
-            "labels": {
-                "stattrak": "StatTrak™",
-                "paintIndex": "Индекс покраски",
-                "paintIndexOverride": "Переопределить",
-                "pattern": "Паттерн (Seed)",
-                "wear": "Износ (Float)",
-                "itemActive": "Активно",
-                "itemInactive": "Неактивно"
-            },
-            "stickers": {
-                "title": "Наклейки",
-                "add": "Добавить наклейку",
-                "reposition": "Перетащите для изменения позиции",
-                "remove": "Удалить наклейку"
-            },
-            "keychain": {
-                "title": "Брелок",
-                "add": "Добавить брелок",
-                "remove": "Удалить брелок"
-            },
-            "visualCustomizer": {
-                "button": "Визуальный редактор",
-                "exit": "Выйти из редактора",
-                "modalTitle": "Визуальный редактор для {weaponName}",
-                "inline": {
-                    "title": "Визуальный редактор",
-                    "controls": {
-                        "scale": "Масштаб",
-                        "rotate": "Поворот",
-                        "wear": "Износ",
-                        "remove": "Удалить"
-                    },
-                    "selectHint": "Выберите наклейку или брелок для редактирования"
-                }
-            },
-            "sort": {
-                "label": "Сортировка",
-                "name": "Название",
-                "rarity": "Редкость"
-            },
-            "filters": {
-                "rarity": "Редкость"
-            },
-            "importFailedDefault": "Ошибка импорта конфигурации оружия",
-            "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному оружию",
-            "importSuccess": "Конфигурация ножа успешно импортирована",
-            "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
-            "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
-            "noSearchResults": "Скины не найдены",
-            "resetSuccess": "Конфигурация оружия сброшена",
-            "resetFailed": "Ошибка сброса конфигурации оружия",
-            "duplicateFailed": "Ошибка дублирования конфигурации оружия"
-        },
-        "visualCustomizer": {
-            "title": "Визуальный редактор наклеек и брелков",
-            "save": "Сохранить изменения",
-            "cancel": "Отмена",
-            "labels": {
-                "stickers": "Наклейки",
-                "keychain": "Брелок",
-                "add": "Добавить",
-                "edit": "Редактировать",
-                "settings": "Настройки",
-                "weaponWear": "Износ оружия",
-                "selectSticker": "Выбрать наклейку",
-                "selectKeychain": "Выбрать брелок",
-                "search": "Поиск...",
-                "offsetUnits": "Единицы смещения",
-                "pixels": "Пиксели",
-                "normalized": "Нормализовано (ext)",
-                "offsetXPx": "Смещение X (px)",
-                "offsetYPx": "Смещение Y (px)",
-                "offsetXNorm": "Смещение X (норм)",
-                "offsetYNorm": "Смещение Y (норм)",
-                "externalRefWidth": "Внешняя ширина ссылки",
-                "externalRefHeight": "Внешняя высота ссылки",
-                "scale": "Масштаб",
-                "rotation": "Поворот",
-                "wear": "Износ",
-                "removeSticker": "Удалить наклейку",
-                "removeKeychain": "Удалить брелок"
-            },
-            "debug": {
-                "title": "Инструменты отладки",
-                "coordinateGrid": "Показать координатную сетку (позиции X/Y)",
-                "coordinateGridDescription": "Включить для просмотра координат в пикселях для точного позиционирования наклеек"
-            },
-            "instructions": {
-                "title": "Инструкции",
-                "addAssets": "• Нажмите на слоты наклеек/брелков, чтобы добавить элементы",
-                "selectElements": "• Нажмите на элементы на холсте, чтобы выбрать и отредактировать их",
-                "dragElements": "• Перетащите элементы, чтобы изменить их позицию",
-                "useProperties": "• Используйте ползунки для точной настройки свойств"
-            },
-            "assetBrowser": {
-                "title": "Браузер ресурсов",
-                "stickers": "Наклейки",
-                "keychains": "Брелки",
-                "searchPlaceholder": "Поиск ресурсов..."
-            },
-            "properties": {
-                "title": "Свойства",
-                "positionX": "Позиция X",
-                "positionY": "Позиция Y",
-                "scale": "Масштаб",
-                "rotation": "Поворот (градусы)",
-                "wear": "Износ",
-                "remove": "Удалить"
-            },
-            "messages": {
-                "maxStickers": "Максимум 5 наклеек разрешено",
-                "selectSkinFirst": "Пожалуйста, сначала выберите скин оружия",
-                "saved": "Визуальная настройка сохранена",
-                "saveSuccess": "Визуальная настройка успешно применена",
-                "failedToLoadAssets": "Ошибка загрузки наклеек и брелков"
-            }
-        }
+    "keychain": {
+      "titleEdit": "Редактировать брелок",
+      "titleAdd": "Добавить брелок",
+      "searchPlaceholder": "Поиск брелков...",
+      "labels": {
+        "position": "Позиция",
+        "seed": "Seed"
+      },
+      "buttons": {
+        "update": "Обновить изменения",
+        "create": "Применить брелок",
+        "delete": "Удалить брелок"
+      },
+      "delete": "Удалить брелок",
+      "errorFetching": "Ошибка получения данных брелка",
+      "noSearchResults": "Брелки не найдены",
+      "sort": {
+        "name": "Название",
+        "rarity": "Редкость"
+      }
+    },
+    "sticker": {
+      "titleEdit": "Редактировать наклейку",
+      "titleAdd": "Добавить наклейку",
+      "searchPlaceholder": "Поиск наклеек...",
+      "sort": {
+        "label": "Сортировка",
+        "name": "Название",
+        "rarity": "Редкость",
+        "effect": "Эффект"
+      },
+      "filters": {
+        "rarity": "Редкость",
+        "effect": "Эффект",
+        "clearAll": "Сбросить фильтры"
+      },
+      "labels": {
+        "position": "Позиция",
+        "scale": "Масштаб",
+        "rotation": "Поворот",
+        "wear": "Износ"
+      },
+      "buttons": {
+        "update": "Обновить наклейку",
+        "create": "Применить наклейку",
+        "delete": "Удалить наклейку"
+      },
+      "errorFetching": "Ошибка получения данных наклейки",
+      "noSearchResults": "Наклейки не найдены"
     },
     "loadout": {
-        "create": "Создать снаряжение",
-        "manage": "Управление снаряжением",
-        "select": "Выберите снаряжение",
-        "createDefault": "Создать стандартное снаряжение",
-        "confirmDelete": "Вы уверены, что хотите удалить это снаряжение?",
-        "confirmDeleteWarning": "Все скины этого снаряжения будут удалены и не подлежат восстановлению",
-        "nameRequired": "Введите название снаряжения",
-        "nameTooLong": "Название снаряжения должно содержать не более 20 символов",
-        "selectLoadoutFirst": "Сначала выберите снаряжение",
-        "import": "Импорт",
-        "actions": {
-            "rename": "Переименовать",
-            "duplicate": "Дублировать",
-            "share": "Поделиться",
-            "setDefault": "Установить по умолчанию",
-            "clear": "Очистить снаряжение",
-            "delete": "Удалить"
-        }
-    },
-    "teams": {
-        "terrorists": "Террористы",
-        "counterTerrorists": "Контр-террористы"
-    },
-    "wears": {
-        "factoryNew": "Прямо с завода",
-        "minimalWear": "Немного поношенное",
-        "fieldTested": "После полевых испытаний",
-        "wellWorn": "Сильно поношенное",
-        "battleScarred": "Закалённое в боях"
-    },
-    "auth": {
-        "login": "Войти",
-        "loginButton": "Войти",
-        "logoutButton": "Выйти",
-        "loginRequired": "Чтобы получить доступ к этому сайту, войдите в систему через Steam.",
-        "automaticallyLoggedOut": "Вы были автоматически выведены из системы",
-        "confirmLogout": "Вы уверены, что хотите выйти?",
-        "rejectAction": "Войдите, чтобы выполнить это действие",
-        "authenticating": "Авторизация...",
-        "openSteamProfile": "Открыть профиль Steam"
-    },
-    "general": {
-        "copiedToClipboard": "Скопировано в буфер обмена"
-    },
-    "autoSave": {
-        "saving": "Сохранение...",
-        "saved": "Сохранено",
-        "failed": "Ошибка сохранения",
-        "retry": "Повторить",
-        "offline": "Офлайн - изменения сохранятся при восстановлении соединения"
-    },
-    "history": {
-        "title": "История версий",
-        "empty": "История недоступна",
-        "restore": "Восстановить",
-        "restoreConfirmTitle": "Восстановить версию",
-        "restoreConfirmMessage": "Это восстановит предмет до предыдущей версии. Продолжить?",
-        "restoreSuccess": "Успешно восстановлено до предыдущей версии",
-        "restoreError": "Ошибка восстановления",
-        "fetchError": "Не удалось загрузить историю",
-        "snapshot": "Снимок",
-        "loadMore": "Загрузить ещё",
-        "changeTypes": {
-            "stickerAdded": "Наклейка добавлена",
-            "stickerRemoved": "Наклейка удалена",
-            "stickerModified": "Наклейка изменена",
-            "keychainAdded": "Брелок добавлен",
-            "keychainRemoved": "Брелок удалён",
-            "keychainModified": "Брелок изменён",
-            "wearChanged": "Износ изменён",
-            "patternChanged": "Паттерн изменён",
-            "paintChanged": "Скин изменён",
-            "nametagChanged": "Именная бирка изменена",
-            "stattrakToggled": "StatTrak переключён",
-            "stattrakCountChanged": "Счётчик StatTrak изменён",
-            "activeToggled": "Статус активности изменён",
-            "multipleChanges": "Несколько изменений",
-            "initialSave": "Первоначальное сохранение",
-            "reset": "Восстановлено"
-        }
-    },
-    "common": {
-        "loading": "Загрузка...",
-        "error": "Ошибка",
-        "success": "Успешно",
+      "successMessage": "Снаряжение {action} успешно",
+      "create": {
+        "title": "Создать новое снаряжение",
+        "confirm": "Создать",
         "cancel": "Отмена",
-        "confirm": "Подтвердить",
-        "save": "Сохранить",
-        "update": "Обновить",
-        "delete": "Удалить",
-        "create": "Создать",
-        "search": "Поиск",
-        "selectAll": "Выбрать всё",
-        "noResults": "Результаты не найдены",
-        "pleaseSelectLoadout": "Сначала выберите снаряжение",
-        "for": "для",
-        "copy": "Копировать"
+        "formPlaceholder": "Введите название для вашего нового снаряжения"
+      },
+      "rename": {
+        "title": "Переименовать снаряжение",
+        "confirm": "Переименовать",
+        "cancel": "Отмена",
+        "formPlaceholder": "Введите новое название для вашего снаряжения"
+      },
+      "delete": {
+        "title": "Удалить снаряжение",
+        "confirm": "Удалить",
+        "cancel": "Отмена",
+        "question": "Вы уверены, что хотите удалить это снаряжение?",
+        "warning": "Все скины этого снаряжения будут удалены и не подлежат восстановлению",
+        "confirmText": "Введите '{name}' для подтверждения удаления:",
+        "confirmPlaceholder": "Введите название снаряжения для подтверждения"
+      },
+      "share": {
+        "title": "Поделиться снаряжением {name}",
+        "description": "Скопируйте код ниже, чтобы поделиться этим снаряжением с другими:",
+        "noCode": "У этого снаряжения ещё нет кода для обмена. Создайте его, чтобы поделиться с другими.",
+        "generateButton": "Создать код",
+        "regenerateButton": "Создать новый код",
+        "generateError": "Не удалось создать код",
+        "deleteButton": "Удалить код",
+        "deleted": "Код удалён",
+        "deleteError": "Не удалось удалить код"
+      },
+      "import": {
+        "title": "Импорт снаряжения",
+        "description": "Введите код для импорта снаряжения.",
+        "placeholder": "Код обмена",
+        "cancel": "Отмена",
+        "confirm": "Импортировать",
+        "success": "Снаряжение успешно импортировано"
+      },
+      "clear": {
+        "title": "Очистить снаряжение {name}",
+        "question": "Вы уверены, что хотите очистить предметы из этого снаряжения?",
+        "selectCategories": "Выберите категории для очистки:",
+        "warning": "Это действие нельзя отменить!",
+        "confirmText": "Введите \"{name}\" для подтверждения.",
+        "confirmPlaceholder": "Введите название снаряжения для подтверждения",
+        "cancel": "Отмена",
+        "confirm": "Очистить предметы",
+        "successMessage": "Предметы снаряжения успешно очищены"
+      },
+      "duplicate": {
+        "success": "Снаряжение успешно дублировано"
+      },
+      "default": {
+        "success": "Снаряжение по умолчанию успешно установлено"
+      }
+    },
+    "reset": {
+      "title": "Сброс скина",
+      "question": "Вы уверены, что хотите сбросить настройку скина?",
+      "cancel": "Отмена",
+      "confirm": "Сбросить"
+    },
+    "weaponSkin": {
+      "defaultTitle": "Выбрать скин",
+      "title": "Выбрать скин для {weaponName}",
+      "buttons": {
+        "reset": "Сбросить",
+        "importFromLink": "Импорт из ссылки",
+        "generateLink": "Создать ссылку",
+        "save": "Сохранить изменения",
+        "duplicate": "Дублировать для другой команды"
+      },
+      "team": {
+        "terrorist": "Террористы",
+        "counterTerrorist": "Контр-террористы"
+      },
+      "inputs": {
+        "searchPlaceholder": "Поиск скинов...",
+        "nameTagPlaceholder": "Именной ярлык"
+      },
+      "labels": {
+        "stattrak": "StatTrak™",
+        "paintIndex": "Индекс покраски",
+        "paintIndexOverride": "Переопределить",
+        "pattern": "Паттерн (Seed)",
+        "wear": "Износ (Float)",
+        "itemActive": "Активно",
+        "itemInactive": "Неактивно"
+      },
+      "stickers": {
+        "title": "Наклейки",
+        "add": "Добавить наклейку",
+        "reposition": "Перетащите для изменения позиции",
+        "remove": "Удалить наклейку"
+      },
+      "keychain": {
+        "title": "Брелок",
+        "add": "Добавить брелок",
+        "remove": "Удалить брелок"
+      },
+      "visualCustomizer": {
+        "button": "Визуальный редактор",
+        "exit": "Выйти из редактора",
+        "modalTitle": "Визуальный редактор для {weaponName}",
+        "inline": {
+          "title": "Визуальный редактор",
+          "controls": {
+            "scale": "Масштаб",
+            "rotate": "Поворот",
+            "wear": "Износ",
+            "remove": "Удалить"
+          },
+          "selectHint": "Выберите наклейку или брелок для редактирования"
+        }
+      },
+      "sort": {
+        "label": "Сортировка",
+        "name": "Название",
+        "rarity": "Редкость"
+      },
+      "filters": {
+        "rarity": "Редкость"
+      },
+      "importFailedDefault": "Ошибка импорта конфигурации оружия",
+      "importFailedNoMatchingWeapon": "Inspect-URL не соответствует выбранному оружию",
+      "importSuccess": "Конфигурация ножа успешно импортирована",
+      "generateInspectUrlSuccess": "Inspect-URL скопирован в буфер обмена",
+      "generateInspectUrlFailed": "Ошибка создания Inspect-URL",
+      "noSearchResults": "Скины не найдены",
+      "resetSuccess": "Конфигурация оружия сброшена",
+      "resetFailed": "Ошибка сброса конфигурации оружия",
+      "duplicateFailed": "Ошибка дублирования конфигурации оружия"
+    },
+    "visualCustomizer": {
+      "title": "Визуальный редактор наклеек и брелков",
+      "save": "Сохранить изменения",
+      "cancel": "Отмена",
+      "labels": {
+        "stickers": "Наклейки",
+        "keychain": "Брелок",
+        "add": "Добавить",
+        "edit": "Редактировать",
+        "settings": "Настройки",
+        "weaponWear": "Износ оружия",
+        "selectSticker": "Выбрать наклейку",
+        "selectKeychain": "Выбрать брелок",
+        "search": "Поиск...",
+        "offsetUnits": "Единицы смещения",
+        "pixels": "Пиксели",
+        "normalized": "Нормализовано (ext)",
+        "offsetXPx": "Смещение X (px)",
+        "offsetYPx": "Смещение Y (px)",
+        "offsetXNorm": "Смещение X (норм)",
+        "offsetYNorm": "Смещение Y (норм)",
+        "externalRefWidth": "Внешняя ширина ссылки",
+        "externalRefHeight": "Внешняя высота ссылки",
+        "scale": "Масштаб",
+        "rotation": "Поворот",
+        "wear": "Износ",
+        "removeSticker": "Удалить наклейку",
+        "removeKeychain": "Удалить брелок"
+      },
+      "debug": {
+        "title": "Инструменты отладки",
+        "coordinateGrid": "Показать координатную сетку (позиции X/Y)",
+        "coordinateGridDescription": "Включить для просмотра координат в пикселях для точного позиционирования наклеек"
+      },
+      "instructions": {
+        "title": "Инструкции",
+        "addAssets": "• Нажмите на слоты наклеек/брелков, чтобы добавить элементы",
+        "selectElements": "• Нажмите на элементы на холсте, чтобы выбрать и отредактировать их",
+        "dragElements": "• Перетащите элементы, чтобы изменить их позицию",
+        "useProperties": "• Используйте ползунки для точной настройки свойств"
+      },
+      "assetBrowser": {
+        "title": "Браузер ресурсов",
+        "stickers": "Наклейки",
+        "keychains": "Брелки",
+        "searchPlaceholder": "Поиск ресурсов..."
+      },
+      "properties": {
+        "title": "Свойства",
+        "positionX": "Позиция X",
+        "positionY": "Позиция Y",
+        "scale": "Масштаб",
+        "rotation": "Поворот (градусы)",
+        "wear": "Износ",
+        "remove": "Удалить"
+      },
+      "messages": {
+        "maxStickers": "Максимум 5 наклеек разрешено",
+        "selectSkinFirst": "Пожалуйста, сначала выберите скин оружия",
+        "saved": "Визуальная настройка сохранена",
+        "saveSuccess": "Визуальная настройка успешно применена",
+        "failedToLoadAssets": "Ошибка загрузки наклеек и брелков"
+      }
+    }
+  },
+  "loadout": {
+    "create": "Создать снаряжение",
+    "manage": "Управление снаряжением",
+    "select": "Выберите снаряжение",
+    "createDefault": "Создать стандартное снаряжение",
+    "confirmDelete": "Вы уверены, что хотите удалить это снаряжение?",
+    "confirmDeleteWarning": "Все скины этого снаряжения будут удалены и не подлежат восстановлению",
+    "nameRequired": "Введите название снаряжения",
+    "nameTooLong": "Название снаряжения должно содержать не более 20 символов",
+    "selectLoadoutFirst": "Сначала выберите снаряжение",
+    "import": "Импорт",
+    "actions": {
+      "rename": "Переименовать",
+      "duplicate": "Дублировать",
+      "share": "Поделиться",
+      "setDefault": "Установить по умолчанию",
+      "clear": "Очистить снаряжение",
+      "delete": "Удалить"
+    }
+  },
+  "teams": {
+    "terrorists": "Террористы",
+    "counterTerrorists": "Контр-террористы"
+  },
+  "wears": {
+    "factoryNew": "Прямо с завода",
+    "minimalWear": "Немного поношенное",
+    "fieldTested": "После полевых испытаний",
+    "wellWorn": "Сильно поношенное",
+    "battleScarred": "Закалённое в боях"
+  },
+  "auth": {
+    "login": "Войти",
+    "loginButton": "Войти",
+    "logoutButton": "Выйти",
+    "loginRequired": "Чтобы получить доступ к этому сайту, войдите в систему через Steam.",
+    "automaticallyLoggedOut": "Вы были автоматически выведены из системы",
+    "confirmLogout": "Вы уверены, что хотите выйти?",
+    "rejectAction": "Войдите, чтобы выполнить это действие",
+    "authenticating": "Авторизация...",
+    "openSteamProfile": "Открыть профиль Steam"
+  },
+  "general": {
+    "copiedToClipboard": "Скопировано в буфер обмена"
+  },
+  "autoSave": {
+    "saving": "Сохранение...",
+    "saved": "Сохранено",
+    "failed": "Ошибка сохранения",
+    "retry": "Повторить",
+    "offline": "Офлайн - изменения сохранятся при восстановлении соединения"
+  },
+  "history": {
+    "title": "История версий",
+    "empty": "История недоступна",
+    "restore": "Восстановить",
+    "restoreConfirmTitle": "Восстановить версию",
+    "restoreConfirmMessage": "Это восстановит предмет до предыдущей версии. Продолжить?",
+    "restoreSuccess": "Успешно восстановлено до предыдущей версии",
+    "restoreError": "Ошибка восстановления",
+    "fetchError": "Не удалось загрузить историю",
+    "snapshot": "Снимок",
+    "loadMore": "Загрузить ещё",
+    "changeTypes": {
+      "stickerAdded": "Наклейка добавлена",
+      "stickerRemoved": "Наклейка удалена",
+      "stickerModified": "Наклейка изменена",
+      "keychainAdded": "Брелок добавлен",
+      "keychainRemoved": "Брелок удалён",
+      "keychainModified": "Брелок изменён",
+      "wearChanged": "Износ изменён",
+      "patternChanged": "Паттерн изменён",
+      "paintChanged": "Скин изменён",
+      "nametagChanged": "Именная бирка изменена",
+      "stattrakToggled": "StatTrak переключён",
+      "stattrakCountChanged": "Счётчик StatTrak изменён",
+      "activeToggled": "Статус активности изменён",
+      "multipleChanges": "Несколько изменений",
+      "initialSave": "Первоначальное сохранение",
+      "reset": "Восстановлено"
+    }
+  },
+  "common": {
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "cancel": "Отмена",
+    "confirm": "Подтвердить",
+    "save": "Сохранить",
+    "update": "Обновить",
+    "delete": "Удалить",
+    "create": "Создать",
+    "search": "Поиск",
+    "selectAll": "Выбрать всё",
+    "noResults": "Результаты не найдены",
+    "pleaseSelectLoadout": "Сначала выберите снаряжение",
+    "for": "для",
+    "copy": "Копировать"
+  },
+  "inspectLink": {
+    "title": "Декодер/Кодер Inspect-ссылок",
+    "description": "Декодируйте inspect-ссылку в JSON или сгенерируйте inspect-ссылку из JSON-данных.",
+    "importButton": "Декодировать ссылку",
+    "generateButton": "Сгенерировать ссылку",
+    "inspectUrlLabel": "Inspect-ссылка",
+    "decodedJsonLabel": "Декодированные JSON-данные",
+    "placeholder": "Вставьте вашу inspect-ссылку сюда...",
+    "invalidJson": "Неверные JSON-данные",
+    "decodeSuccess": "Inspect-ссылка успешно декодирована",
+    "generateSuccess": "Inspect-ссылка успешно сгенерирована",
+    "copySuccess": "Inspect-ссылка скопирована в буфер обмена"
+  },
+  "tutorial": {
+    "menuTitle": "Обучение",
+    "next": "Далее",
+    "back": "Назад",
+    "skip": "Пропустить обучение",
+    "finish": "Готово",
+    "stepOf": "{current} / {total}",
+    "completed": "Завершено",
+    "navigateApp": {
+      "name": "Обзор приложения",
+      "description": "Узнайте об основных разделах и навигации",
+      "steps": {
+        "sidebar": {
+          "title": "Боковая панель",
+          "description": "Здесь находятся все категории оружия — винтовки, пистолеты, ножи и другое. Нажмите на категорию, чтобы увидеть доступное оружие."
+        },
+        "settings": {
+          "title": "Настройки",
+          "description": "В этом меню можно сменить язык, запустить обучение и выйти из аккаунта."
+        },
+        "loadout": {
+          "title": "Область снаряжения",
+          "description": "Снаряжения — это ваши сохранённые конфигурации оружия. Создавайте несколько снаряжений для разных настроек."
+        },
+        "weapons": {
+          "title": "Карточки оружия",
+          "description": "Каждая карточка показывает оружие с текущим скином. Нажмите на карточку, чтобы настроить скин."
+        },
+        "teamTabs": {
+          "title": "Вкладки команд",
+          "description": "Некоторое оружие доступно обеим командам (CT и T). В этом случае вы увидите две вкладки — по одной для каждой команды. У каждой команды своя отдельная конфигурация скина."
+        },
+        "ready": {
+          "title": "Готовы к изучению!",
+          "description": "Теперь вы знаете основы. Используйте боковую панель для просмотра категорий оружия и настройки снаряжения."
+        }
+      }
+    },
+    "customizeWeapon": {
+      "name": "Настройка оружия",
+      "description": "Изучите все функции окна настройки оружия",
+      "steps": {
+        "grid": {
+          "title": "Сетка оружия",
+          "description": "Здесь показано всё оружие текущей категории. Каждая карточка отображает установленный скин или стандартное оружие."
+        },
+        "click": {
+          "title": "Открыть настройку",
+          "description": "Нажмите на карточку оружия, чтобы открыть окно настройки. Вы также можете использовать кнопку «Далее»."
+        },
+        "search": {
+          "title": "Поиск скинов",
+          "description": "Ищите скин по названию. Начните вводить, чтобы отфильтровать список."
+        },
+        "sortFilter": {
+          "title": "Сортировка и фильтры",
+          "description": "Сортируйте скины по названию, редкости и другим критериям. Используйте фильтры редкости, чтобы показать только скины определённого качества."
+        },
+        "skins": {
+          "title": "Галерея скинов",
+          "description": "Просмотрите доступные скины. Нажмите на скин, чтобы выбрать его. Выбранный скин будет выделен жёлтым кольцом."
+        },
+        "pagination": {
+          "title": "Навигация по страницам",
+          "description": "Если скинов больше, чем помещается на одной странице, используйте кнопки пагинации для просмотра дополнительных страниц."
+        },
+        "wear": {
+          "title": "Ползунок износа",
+          "description": "Настройте значение float для контроля износа скина. Меньшие значения означают меньший износ. Диапазон зависит от минимального и максимального float скина. Изображение оружия обновляется автоматически при изменении значения."
+        },
+        "paintIndex": {
+          "title": "Переопределение Paint Index",
+          "description": "Включите этот переключатель, чтобы вручную задать значение paint index. Это расширенная функция, позволяющая указать точный ID скина вместо выбора из галереи."
+        },
+        "activeSwitch": {
+          "title": "Переключатель активности",
+          "description": "Переключайте оружие между активным и неактивным состоянием. Неактивное оружие не будет включено при генерации загрузки. Полезно для сохранения настроенного скина без его использования."
+        },
+        "stickers": {
+          "title": "Слоты наклеек",
+          "description": "У вашего оружия 5 слотов для наклеек. Нажмите на слот, чтобы выбрать наклейку. Перетаскивайте наклейки между слотами для перестановки."
+        },
+        "keychain": {
+          "title": "Брелок",
+          "description": "Прикрепите брелок к оружию. Нажмите на слот, чтобы просмотреть доступные брелоки. Каждое оружие может иметь один брелок."
+        },
+        "reset": {
+          "title": "Сбросить оружие",
+          "description": "Сбросьте оружие до состояния по умолчанию. Это удалит скин, наклейки, брелок и все настройки."
+        },
+        "history": {
+          "title": "История версий",
+          "description": "Просмотрите историю изменений этого оружия. Вы можете восстановить любую предыдущую версию одним нажатием."
+        },
+        "import": {
+          "title": "Импорт inspect-ссылки",
+          "description": "Импортируйте конфигурацию оружия из inspect-ссылки CS2. Вставьте ссылку, чтобы применить скин, наклейки, износ и другие настройки."
+        },
+        "generate": {
+          "title": "Генерация inspect-ссылки",
+          "description": "Сгенерируйте inspect-ссылку CS2 для текущей конфигурации оружия. Ссылку можно отправить другим или использовать для просмотра в игре."
+        },
+        "autoSave": {
+          "title": "Автосохранение",
+          "description": "Ваши изменения сохраняются автоматически. Индикатор сохранения показывает текущий статус — ничего сохранять вручную не нужно."
+        }
+      }
     },
     "inspectLink": {
-        "title": "Декодер/Кодер Inspect-ссылок",
-        "description": "Декодируйте inspect-ссылку в JSON или сгенерируйте inspect-ссылку из JSON-данных.",
-        "importButton": "Декодировать ссылку",
-        "generateButton": "Сгенерировать ссылку",
-        "inspectUrlLabel": "Inspect-ссылка",
-        "decodedJsonLabel": "Декодированные JSON-данные",
-        "placeholder": "Вставьте вашу inspect-ссылку сюда...",
-        "invalidJson": "Неверные JSON-данные",
-        "decodeSuccess": "Inspect-ссылка успешно декодирована",
-        "generateSuccess": "Inspect-ссылка успешно сгенерирована",
-        "copySuccess": "Inspect-ссылка скопирована в буфер обмена"
-    },
-    "tutorial": {
-        "menuTitle": "Обучение",
-        "next": "Далее",
-        "back": "Назад",
-        "skip": "Пропустить обучение",
-        "finish": "Готово",
-        "stepOf": "{current} / {total}",
-        "completed": "Завершено",
-        "navigateApp": {
-            "name": "Обзор приложения",
-            "description": "Узнайте об основных разделах и навигации",
-            "steps": {
-                "sidebar": {
-                    "title": "Боковая панель",
-                    "description": "Здесь находятся все категории оружия — винтовки, пистолеты, ножи и другое. Нажмите на категорию, чтобы увидеть доступное оружие."
-                },
-                "settings": {
-                    "title": "Настройки",
-                    "description": "В этом меню можно сменить язык, запустить обучение и выйти из аккаунта."
-                },
-                "loadout": {
-                    "title": "Область снаряжения",
-                    "description": "Снаряжения — это ваши сохранённые конфигурации оружия. Создавайте несколько снаряжений для разных настроек."
-                },
-                "weapons": {
-                    "title": "Карточки оружия",
-                    "description": "Каждая карточка показывает оружие с текущим скином. Нажмите на карточку, чтобы настроить скин."
-                },
-                "teamTabs": {
-                    "title": "Вкладки команд",
-                    "description": "Некоторое оружие доступно обеим командам (CT и T). В этом случае вы увидите две вкладки — по одной для каждой команды. У каждой команды своя отдельная конфигурация скина."
-                },
-                "ready": {
-                    "title": "Готовы к изучению!",
-                    "description": "Теперь вы знаете основы. Используйте боковую панель для просмотра категорий оружия и настройки снаряжения."
-                }
-            }
+      "name": "Inspect-ссылки",
+      "description": "Узнайте, как декодировать и генерировать inspect-ссылки CS2",
+      "steps": {
+        "input": {
+          "title": "Ввод inspect-ссылки",
+          "description": "Вставьте сюда inspect-ссылку CS2. Эти ссылки начинаются с 'steam://rungame' и содержат закодированные данные об оружии."
         },
-        "customizeWeapon": {
-            "name": "Настройка оружия",
-            "description": "Изучите все функции окна настройки оружия",
-            "steps": {
-                "grid": {
-                    "title": "Сетка оружия",
-                    "description": "Здесь показано всё оружие текущей категории. Каждая карточка отображает установленный скин или стандартное оружие."
-                },
-                "click": {
-                    "title": "Открыть настройку",
-                    "description": "Нажмите на карточку оружия, чтобы открыть окно настройки. Вы также можете использовать кнопку «Далее»."
-                },
-                "search": {
-                    "title": "Поиск скинов",
-                    "description": "Ищите скин по названию. Начните вводить, чтобы отфильтровать список."
-                },
-                "sortFilter": {
-                    "title": "Сортировка и фильтры",
-                    "description": "Сортируйте скины по названию, редкости и другим критериям. Используйте фильтры редкости, чтобы показать только скины определённого качества."
-                },
-                "skins": {
-                    "title": "Галерея скинов",
-                    "description": "Просмотрите доступные скины. Нажмите на скин, чтобы выбрать его. Выбранный скин будет выделен жёлтым кольцом."
-                },
-                "pagination": {
-                    "title": "Навигация по страницам",
-                    "description": "Если скинов больше, чем помещается на одной странице, используйте кнопки пагинации для просмотра дополнительных страниц."
-                },
-                "wear": {
-                    "title": "Ползунок износа",
-                    "description": "Настройте значение float для контроля износа скина. Меньшие значения означают меньший износ. Диапазон зависит от минимального и максимального float скина. Изображение оружия обновляется автоматически при изменении значения."
-                },
-                "paintIndex": {
-                    "title": "Переопределение Paint Index",
-                    "description": "Включите этот переключатель, чтобы вручную задать значение paint index. Это расширенная функция, позволяющая указать точный ID скина вместо выбора из галереи."
-                },
-                "activeSwitch": {
-                    "title": "Переключатель активности",
-                    "description": "Переключайте оружие между активным и неактивным состоянием. Неактивное оружие не будет включено при генерации загрузки. Полезно для сохранения настроенного скина без его использования."
-                },
-                "stickers": {
-                    "title": "Слоты наклеек",
-                    "description": "У вашего оружия 5 слотов для наклеек. Нажмите на слот, чтобы выбрать наклейку. Перетаскивайте наклейки между слотами для перестановки."
-                },
-                "keychain": {
-                    "title": "Брелок",
-                    "description": "Прикрепите брелок к оружию. Нажмите на слот, чтобы просмотреть доступные брелоки. Каждое оружие может иметь один брелок."
-                },
-                "reset": {
-                    "title": "Сбросить оружие",
-                    "description": "Сбросьте оружие до состояния по умолчанию. Это удалит скин, наклейки, брелок и все настройки."
-                },
-                "history": {
-                    "title": "История версий",
-                    "description": "Просмотрите историю изменений этого оружия. Вы можете восстановить любую предыдущую версию одним нажатием."
-                },
-                "import": {
-                    "title": "Импорт inspect-ссылки",
-                    "description": "Импортируйте конфигурацию оружия из inspect-ссылки CS2. Вставьте ссылку, чтобы применить скин, наклейки, износ и другие настройки."
-                },
-                "generate": {
-                    "title": "Генерация inspect-ссылки",
-                    "description": "Сгенерируйте inspect-ссылку CS2 для текущей конфигурации оружия. Ссылку можно отправить другим или использовать для просмотра в игре."
-                },
-                "autoSave": {
-                    "title": "Автосохранение",
-                    "description": "Ваши изменения сохраняются автоматически. Индикатор сохранения показывает текущий статус — ничего сохранять вручную не нужно."
-                }
-            }
+        "decode": {
+          "title": "Декодирование ссылки",
+          "description": "Нажмите здесь, чтобы преобразовать inspect-ссылку в читаемые JSON-данные."
         },
-        "inspectLink": {
-            "name": "Inspect-ссылки",
-            "description": "Узнайте, как декодировать и генерировать inspect-ссылки CS2",
-            "steps": {
-                "input": {
-                    "title": "Ввод inspect-ссылки",
-                    "description": "Вставьте сюда inspect-ссылку CS2. Эти ссылки начинаются с 'steam://rungame' и содержат закодированные данные об оружии."
-                },
-                "decode": {
-                    "title": "Декодирование ссылки",
-                    "description": "Нажмите здесь, чтобы преобразовать inspect-ссылку в читаемые JSON-данные."
-                },
-                "editor": {
-                    "title": "JSON-редактор",
-                    "description": "Здесь отображаются декодированные данные оружия. Вы можете редактировать значения напрямую."
-                },
-                "generate": {
-                    "title": "Генерация ссылки",
-                    "description": "Нажмите здесь, чтобы создать новую inspect-ссылку из текущих данных."
-                }
-            }
+        "editor": {
+          "title": "JSON-редактор",
+          "description": "Здесь отображаются декодированные данные оружия. Вы можете редактировать значения напрямую."
         },
-        "createLoadout": {
-            "name": "Создание снаряжения",
-            "description": "Узнайте, как создавать и управлять снаряжениями",
-            "steps": {
-                "selector": {
-                    "title": "Выбор снаряжения",
-                    "description": "Здесь можно переключаться между снаряжениями. Снаряжение — это набор всех настроек оружия."
-                },
-                "create": {
-                    "title": "Управление снаряжениями",
-                    "description": "Эта кнопка открывает меню управления снаряжениями. Здесь можно создавать, переименовывать, дублировать, делиться, импортировать и удалять снаряжения."
-                },
-                "name": {
-                    "title": "Название снаряжения",
-                    "description": "Дайте снаряжению название, например «Турнирный набор» или «Обычный»."
-                },
-                "done": {
-                    "title": "Готово!",
-                    "description": "Ваше новое снаряжение создано. Теперь вы можете добавлять скины и переключаться между снаряжениями."
-                }
-            }
+        "generate": {
+          "title": "Генерация ссылки",
+          "description": "Нажмите здесь, чтобы создать новую inspect-ссылку из текущих данных."
         }
+      }
     },
-    "admin": {
-        "panelTitle": "Панель администратора"
+    "createLoadout": {
+      "name": "Создание снаряжения",
+      "description": "Узнайте, как создавать и управлять снаряжениями",
+      "steps": {
+        "selector": {
+          "title": "Выбор снаряжения",
+          "description": "Здесь можно переключаться между снаряжениями. Снаряжение — это набор всех настроек оружия."
+        },
+        "create": {
+          "title": "Управление снаряжениями",
+          "description": "Эта кнопка открывает меню управления снаряжениями. Здесь можно создавать, переименовывать, дублировать, делиться, импортировать и удалять снаряжения."
+        },
+        "name": {
+          "title": "Название снаряжения",
+          "description": "Дайте снаряжению название, например «Турнирный набор» или «Обычный»."
+        },
+        "done": {
+          "title": "Готово!",
+          "description": "Ваше новое снаряжение создано. Теперь вы можете добавлять скины и переключаться между снаряжениями."
+        }
+      }
     }
+  },
+  "admin": {
+    "panelTitle": "Панель администратора"
+  }
 }

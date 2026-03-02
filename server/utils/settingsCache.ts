@@ -15,19 +15,19 @@ const DEFAULT_TTL = 30_000 // 30 seconds
  * Falls back to `getSettingTyped()` on cache miss or expiry.
  */
 export async function getCachedSetting<T>(
-    key: string,
-    defaultValue: T,
-    ttlMs = DEFAULT_TTL
+  key: string,
+  defaultValue: T,
+  ttlMs = DEFAULT_TTL
 ): Promise<T> {
-    const now = Date.now()
-    const cached = cache.get(key)
-    if (cached && cached.expiresAt > now) {
-        return cached.value as T
-    }
+  const now = Date.now()
+  const cached = cache.get(key)
+  if (cached && cached.expiresAt > now) {
+    return cached.value as T
+  }
 
-    const value = await getSettingTyped<T>(key, defaultValue)
-    cache.set(key, { value, expiresAt: now + ttlMs })
-    return value
+  const value = await getSettingTyped<T>(key, defaultValue)
+  cache.set(key, { value, expiresAt: now + ttlMs })
+  return value
 }
 
 /**
@@ -35,9 +35,9 @@ export async function getCachedSetting<T>(
  * Call after a setting is updated in the admin panel.
  */
 export function invalidateSettingsCache(key?: string): void {
-    if (key) {
-        cache.delete(key)
-    } else {
-        cache.clear()
-    }
+  if (key) {
+    cache.delete(key)
+  } else {
+    cache.clear()
+  }
 }

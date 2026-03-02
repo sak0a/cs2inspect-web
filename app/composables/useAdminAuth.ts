@@ -12,22 +12,22 @@ import { useAdminStore } from '~/stores/adminStore'
 // ============================================================================
 
 export interface AdminAuthReturn {
-    /** Whether the current user is an admin */
-    isAdmin: ComputedRef<boolean>
-    /** Whether the current user is a superadmin */
-    isSuperAdmin: ComputedRef<boolean>
-    /** Current admin role ('admin' | 'superadmin' | null) */
-    adminRole: ComputedRef<'admin' | 'superadmin' | null>
-    /** Whether admin status is being checked */
-    isChecking: ComputedRef<boolean>
-    /** Check admin status (call on mount or route change) */
-    checkAdminStatus: () => Promise<boolean>
-    /** Require admin access - throws or redirects if not admin */
-    requireAdmin: () => Promise<void>
-    /** Require superadmin access - throws or redirects if not superadmin */
-    requireSuperAdmin: () => Promise<void>
-    /** Check if user has specific permission */
-    hasPermission: (permission: string) => boolean
+  /** Whether the current user is an admin */
+  isAdmin: ComputedRef<boolean>
+  /** Whether the current user is a superadmin */
+  isSuperAdmin: ComputedRef<boolean>
+  /** Current admin role ('admin' | 'superadmin' | null) */
+  adminRole: ComputedRef<'admin' | 'superadmin' | null>
+  /** Whether admin status is being checked */
+  isChecking: ComputedRef<boolean>
+  /** Check admin status (call on mount or route change) */
+  checkAdminStatus: () => Promise<boolean>
+  /** Require admin access - throws or redirects if not admin */
+  requireAdmin: () => Promise<void>
+  /** Require superadmin access - throws or redirects if not superadmin */
+  requireSuperAdmin: () => Promise<void>
+  /** Check if user has specific permission */
+  hasPermission: (permission: string) => boolean
 }
 
 // ============================================================================
@@ -54,89 +54,89 @@ export interface AdminAuthReturn {
  * ```
  */
 export function useAdminAuth(): AdminAuthReturn {
-    const adminStore = useAdminStore()
-    const isChecking = ref(false)
+  const adminStore = useAdminStore()
+  const isChecking = ref(false)
 
-    // ========================================================================
-    // COMPUTED PROPERTIES
-    // ========================================================================
+  // ========================================================================
+  // COMPUTED PROPERTIES
+  // ========================================================================
 
-    const isAdmin = computed(() => adminStore.isAdmin)
-    const isSuperAdmin = computed(() => adminStore.isSuperAdmin)
-    const adminRole = computed(() => adminStore.adminRole)
+  const isAdmin = computed(() => adminStore.isAdmin)
+  const isSuperAdmin = computed(() => adminStore.isSuperAdmin)
+  const adminRole = computed(() => adminStore.adminRole)
 
-    // ========================================================================
-    // METHODS
-    // ========================================================================
+  // ========================================================================
+  // METHODS
+  // ========================================================================
 
-    /**
-     * Check if current user is an admin
-     * Returns true if admin, false otherwise
-     */
-    async function checkAdminStatus(): Promise<boolean> {
-        if (isChecking.value) {
-            // Already checking, wait a bit and return current status
-            await new Promise((resolve) => setTimeout(resolve, 100))
-            return adminStore.isAdmin
-        }
-
-        isChecking.value = true
-        try {
-            return await adminStore.checkAdminStatus()
-        } finally {
-            isChecking.value = false
-        }
+  /**
+   * Check if current user is an admin
+   * Returns true if admin, false otherwise
+   */
+  async function checkAdminStatus(): Promise<boolean> {
+    if (isChecking.value) {
+      // Already checking, wait a bit and return current status
+      await new Promise((resolve) => setTimeout(resolve, 100))
+      return adminStore.isAdmin
     }
 
-    /**
-     * Require admin access
-     * Throws an error if user is not an admin
-     */
-    async function requireAdmin(): Promise<void> {
-        // Check status if not already confirmed
-        if (!adminStore.isAdmin) {
-            const isAdminUser = await checkAdminStatus()
-            if (!isAdminUser) {
-                throw new Error('Admin access required')
-            }
-        }
+    isChecking.value = true
+    try {
+      return await adminStore.checkAdminStatus()
+    } finally {
+      isChecking.value = false
     }
+  }
 
-    /**
-     * Require superadmin access
-     * Throws an error if user is not a superadmin
-     */
-    async function requireSuperAdmin(): Promise<void> {
-        await requireAdmin()
-
-        if (!adminStore.isSuperAdmin) {
-            throw new Error('Superadmin access required')
-        }
+  /**
+   * Require admin access
+   * Throws an error if user is not an admin
+   */
+  async function requireAdmin(): Promise<void> {
+    // Check status if not already confirmed
+    if (!adminStore.isAdmin) {
+      const isAdminUser = await checkAdminStatus()
+      if (!isAdminUser) {
+        throw new Error('Admin access required')
+      }
     }
+  }
 
-    /**
-     * Check if user has a specific permission
-     */
-    function hasPermission(permission: string): boolean {
-        if (!adminStore.isAdmin) return false
-        if (adminStore.isSuperAdmin) return true // Superadmins have all permissions
-        return adminStore.adminPermissions.includes(permission)
+  /**
+   * Require superadmin access
+   * Throws an error if user is not a superadmin
+   */
+  async function requireSuperAdmin(): Promise<void> {
+    await requireAdmin()
+
+    if (!adminStore.isSuperAdmin) {
+      throw new Error('Superadmin access required')
     }
+  }
 
-    // ========================================================================
-    // RETURN
-    // ========================================================================
+  /**
+   * Check if user has a specific permission
+   */
+  function hasPermission(permission: string): boolean {
+    if (!adminStore.isAdmin) return false
+    if (adminStore.isSuperAdmin) return true // Superadmins have all permissions
+    return adminStore.adminPermissions.includes(permission)
+  }
 
-    return {
-        isAdmin,
-        isSuperAdmin,
-        adminRole,
-        isChecking: computed(() => isChecking.value),
-        checkAdminStatus,
-        requireAdmin,
-        requireSuperAdmin,
-        hasPermission,
-    }
+  // ========================================================================
+  // RETURN
+  // ========================================================================
+
+  return {
+    isAdmin,
+    isSuperAdmin,
+    adminRole,
+    isChecking: computed(() => isChecking.value),
+    checkAdminStatus,
+    requireAdmin,
+    requireSuperAdmin,
+    hasPermission,
+  }
 }
 
 // ============================================================================
@@ -156,35 +156,35 @@ export function useAdminAuth(): AdminAuthReturn {
  * ```
  */
 export async function adminNavigationGuard(): Promise<boolean | string> {
-    const adminStore = useAdminStore()
+  const adminStore = useAdminStore()
 
-    // Try to check admin status
-    const isAdmin = await adminStore.checkAdminStatus()
+  // Try to check admin status
+  const isAdmin = await adminStore.checkAdminStatus()
 
-    if (!isAdmin) {
-        // Return redirect path
-        return '/'
-    }
+  if (!isAdmin) {
+    // Return redirect path
+    return '/'
+  }
 
-    return true
+  return true
 }
 
 /**
  * Create a navigation guard for superadmin routes
  */
 export async function superAdminNavigationGuard(): Promise<boolean | string> {
-    const adminStore = useAdminStore()
+  const adminStore = useAdminStore()
 
-    // Check admin status first
-    const isAdmin = await adminStore.checkAdminStatus()
+  // Check admin status first
+  const isAdmin = await adminStore.checkAdminStatus()
 
-    if (!isAdmin) {
-        return '/'
-    }
+  if (!isAdmin) {
+    return '/'
+  }
 
-    if (!adminStore.isSuperAdmin) {
-        return '/admin'
-    }
+  if (!adminStore.isSuperAdmin) {
+    return '/admin'
+  }
 
-    return true
+  return true
 }

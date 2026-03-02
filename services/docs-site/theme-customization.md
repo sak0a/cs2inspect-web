@@ -81,7 +81,7 @@ We export `skinModalThemeOverrides` and pass it to modals:
 
 ```ts
 export const skinModalThemeOverrides = {
-    peers: { Card: { borderRadius: '20px', colorModal: '#101010' } },
+  peers: { Card: { borderRadius: '20px', colorModal: '#101010' } },
 }
 ```
 
@@ -123,8 +123,8 @@ Some drawing logic (e.g., selection outlines on canvas) should read the CSS vari
 
 ```ts
 const accent =
-    getComputedStyle(document.documentElement).getPropertyValue('--selection-ring').trim() ||
-    '#FACC15'
+  getComputedStyle(document.documentElement).getPropertyValue('--selection-ring').trim() ||
+  '#FACC15'
 ctx.strokeStyle = accent
 ctx.fillStyle = accent
 ```
@@ -150,8 +150,8 @@ localStorage.setItem('accent', '#FACC15')
 // On load
 const saved = localStorage.getItem('accent')
 if (saved) {
-    document.documentElement.style.setProperty('--selection-ring', saved)
-    document.documentElement.style.setProperty('--tab-indicator', saved)
+  document.documentElement.style.setProperty('--selection-ring', saved)
+  document.documentElement.style.setProperty('--tab-indicator', saved)
 }
 ```
 
@@ -162,13 +162,13 @@ if (saved) {
 Choose one of the following based on what you want to undo:
 
 - Reset accent variables (rings/indicators) back to teal:
-    - Edit `assets/css/theme-variables.css` and set both `--selection-ring` and `--tab-indicator` to `#80E6C4`.
+  - Edit `assets/css/theme-variables.css` and set both `--selection-ring` and `--tab-indicator` to `#80E6C4`.
 
 - Reset Naive UI’s primary color to defaults:
-    - In `components/ThemeProvider.vue`, remove the four `common.primaryColor*` overrides.
+  - In `components/ThemeProvider.vue`, remove the four `common.primaryColor*` overrides.
 
 - Reset dark modals to framework defaults:
-    - Remove `:theme-overrides="skinModalThemeOverrides"` from the modals you want to revert.
+  - Remove `:theme-overrides="skinModalThemeOverrides"` from the modals you want to revert.
 
 ---
 

@@ -203,44 +203,44 @@ If you prefer Docker Compose, create a `docker-compose.steam.yml`:
 version: '3.9'
 
 services:
-    steam-service:
-        build:
-            context: ./services/steam-service
-            dockerfile: Dockerfile
-        container_name: cs2inspect-steam-service
-        restart: unless-stopped
-        environment:
-            - NODE_ENV=production
-            - PORT=3001
-            - HOST=0.0.0.0
-            - STEAM_USERNAME=${STEAM_USERNAME}
-            - STEAM_PASSWORD=${STEAM_PASSWORD}
-            - STEAM_API_KEY=${STEAM_API_KEY}
-            - API_KEYS=${STEAM_SERVICE_API_KEY}
-            - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
-            - LOG_API_REQUESTS=${LOG_API_REQUESTS}
-        ports:
-            - '3001:3001'
-        healthcheck:
-            test:
-                [
-                    'CMD',
-                    'wget',
-                    '--no-verbose',
-                    '--tries=1',
-                    '--spider',
-                    'http://localhost:3001/api/health/live',
-                ]
-            interval: 30s
-            timeout: 5s
-            retries: 3
-            start_period: 60s
-        networks:
-            - app-network
+  steam-service:
+    build:
+      context: ./services/steam-service
+      dockerfile: Dockerfile
+    container_name: cs2inspect-steam-service
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - HOST=0.0.0.0
+      - STEAM_USERNAME=${STEAM_USERNAME}
+      - STEAM_PASSWORD=${STEAM_PASSWORD}
+      - STEAM_API_KEY=${STEAM_API_KEY}
+      - API_KEYS=${STEAM_SERVICE_API_KEY}
+      - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
+      - LOG_API_REQUESTS=${LOG_API_REQUESTS}
+    ports:
+      - '3001:3001'
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--no-verbose',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3001/api/health/live',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+    networks:
+      - app-network
 
 networks:
-    app-network:
-        driver: bridge
+  app-network:
+    driver: bridge
 ```
 
 Then deploy this as a Docker Compose resource in Coolify.

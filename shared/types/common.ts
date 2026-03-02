@@ -18,74 +18,74 @@ import type { SteamId as ImportedSteamId } from './core/branded'
 
 // Branded types (type-only re-exports)
 export type {
-    LoadoutId,
-    SteamId,
-    Defindex,
-    PaintIndex,
-    PaintSeed,
-    StickerId,
-    KeychainId,
-    MusicKitDefindex,
-    PinDefindex,
-    InspectUrl,
-    HexData,
-    FloatValue,
-    StickerSlotIndex,
-    TeamId,
-    StatTrakCount,
-    NameTag,
-    ISOTimestamp,
-    NormalizedCoordinate,
-    AdminId,
-    BanId,
-    SettingKey,
+  LoadoutId,
+  SteamId,
+  Defindex,
+  PaintIndex,
+  PaintSeed,
+  StickerId,
+  KeychainId,
+  MusicKitDefindex,
+  PinDefindex,
+  InspectUrl,
+  HexData,
+  FloatValue,
+  StickerSlotIndex,
+  TeamId,
+  StatTrakCount,
+  NameTag,
+  ISOTimestamp,
+  NormalizedCoordinate,
+  AdminId,
+  BanId,
+  SettingKey,
 } from './core/branded'
 
 // Conversion helpers, type guards, and utility functions (value re-exports)
 export {
-    toLoadoutId,
-    toSteamId,
-    toDefindex,
-    toPaintIndex,
-    toPaintSeed,
-    toStickerId,
-    toKeychainId,
-    toMusicKitDefindex,
-    toPinDefindex,
-    toInspectUrl,
-    tryToInspectUrl,
-    toHexData,
-    toFloatValue,
-    toFloatValueClamped,
-    toStickerSlotIndex,
-    toTeamId,
-    toStatTrakCount,
-    toNameTag,
-    toISOTimestamp,
-    toNormalizedCoordinate,
-    toNormalizedCoordinateClamped,
-    toAdminId,
-    toBanId,
-    toSettingKey,
-    isValidLoadoutId,
-    isValidSteamId,
-    isValidDefindex,
-    isValidInspectUrl,
-    isValidHexData,
-    isValidFloatValue,
-    isValidStickerSlotIndex,
-    isValidTeamId,
-    isValidStatTrakCount,
-    isValidNameTag,
-    isValidISOTimestamp,
-    isValidNormalizedCoordinate,
-    isValidAdminId,
-    isValidBanId,
-    isValidSettingKey,
-    floatValueToCondition,
-    floatValueToConditionAbbr,
-    teamIdToName,
-    teamIdToAbbr,
+  toLoadoutId,
+  toSteamId,
+  toDefindex,
+  toPaintIndex,
+  toPaintSeed,
+  toStickerId,
+  toKeychainId,
+  toMusicKitDefindex,
+  toPinDefindex,
+  toInspectUrl,
+  tryToInspectUrl,
+  toHexData,
+  toFloatValue,
+  toFloatValueClamped,
+  toStickerSlotIndex,
+  toTeamId,
+  toStatTrakCount,
+  toNameTag,
+  toISOTimestamp,
+  toNormalizedCoordinate,
+  toNormalizedCoordinateClamped,
+  toAdminId,
+  toBanId,
+  toSettingKey,
+  isValidLoadoutId,
+  isValidSteamId,
+  isValidDefindex,
+  isValidInspectUrl,
+  isValidHexData,
+  isValidFloatValue,
+  isValidStickerSlotIndex,
+  isValidTeamId,
+  isValidStatTrakCount,
+  isValidNameTag,
+  isValidISOTimestamp,
+  isValidNormalizedCoordinate,
+  isValidAdminId,
+  isValidBanId,
+  isValidSettingKey,
+  floatValueToCondition,
+  floatValueToConditionAbbr,
+  teamIdToName,
+  teamIdToAbbr,
 } from './core/branded'
 
 // Local alias for use within this file
@@ -152,10 +152,10 @@ export type RequiredFields<T, K extends keyof T> = T & Required<Pick<T, K>>
  * @description Represents the two main teams in Counter-Strike
  */
 export enum TeamSide {
-    /** Terrorist team */
-    Terrorist = 1,
-    /** Counter-Terrorist team */
-    CounterTerrorist = 2,
+  /** Terrorist team */
+  Terrorist = 1,
+  /** Counter-Terrorist team */
+  CounterTerrorist = 2,
 }
 
 /**
@@ -175,12 +175,12 @@ export type TeamAvailability = 'both' | 'terrorists' | 'counter-terrorists'
  * @description Represents the rarity tier of CS2 items with associated color
  */
 export interface ItemRarity {
-    /** Unique identifier for the rarity */
-    id: string
-    /** Display name of the rarity (e.g., "Covert", "Classified") */
-    name: string
-    /** Hex color code associated with this rarity */
-    color: string
+  /** Unique identifier for the rarity */
+  id: string
+  /** Display name of the rarity (e.g., "Covert", "Classified") */
+  name: string
+  /** Hex color code associated with this rarity */
+  color: string
 }
 
 /**
@@ -189,24 +189,24 @@ export interface ItemRarity {
  * @description Represents different quality tiers for items
  */
 export enum ItemQuality {
-    /** Normal quality */
-    Normal = 0,
-    /** Genuine quality */
-    Genuine = 1,
-    /** Vintage quality */
-    Vintage = 2,
-    /** Unusual quality */
-    Unusual = 5,
-    /** Unique quality */
-    Unique = 6,
-    /** Community quality */
-    Community = 7,
-    /** Valve quality */
-    Valve = 8,
-    /** Self-Made quality */
-    SelfMade = 9,
-    /** Strange quality */
-    Strange = 11,
+  /** Normal quality */
+  Normal = 0,
+  /** Genuine quality */
+  Genuine = 1,
+  /** Vintage quality */
+  Vintage = 2,
+  /** Unusual quality */
+  Unusual = 5,
+  /** Unique quality */
+  Unique = 6,
+  /** Community quality */
+  Community = 7,
+  /** Valve quality */
+  Valve = 8,
+  /** Self-Made quality */
+  SelfMade = 9,
+  /** Strange quality */
+  Strange = 11,
 }
 
 // ============================================================================
@@ -219,16 +219,16 @@ export enum ItemQuality {
  * @description Used consistently across API responses and error handling
  */
 export interface ErrorInfo {
-    /** Error code for programmatic handling */
-    code: string
-    /** Human-readable error message */
-    message: string
-    /** Additional error details */
-    details?: unknown
-    /** Field-specific validation errors */
-    fieldErrors?: Record<string, string[]>
-    /** Stack trace (development only) */
-    stack?: string
+  /** Error code for programmatic handling */
+  code: string
+  /** Human-readable error message */
+  message: string
+  /** Additional error details */
+  details?: unknown
+  /** Field-specific validation errors */
+  fieldErrors?: Record<string, string[]>
+  /** Stack trace (development only) */
+  stack?: string
 }
 
 /**
@@ -237,14 +237,14 @@ export interface ErrorInfo {
  * @description Used in form validation and user input handling
  */
 export interface ValidationError {
-    /** Field name that failed validation */
-    field: string
-    /** Validation error message */
-    message: string
-    /** Validation rule that was violated */
-    rule: string
-    /** Current field value that failed validation */
-    value: unknown
+  /** Field name that failed validation */
+  field: string
+  /** Validation error message */
+  message: string
+  /** Validation rule that was violated */
+  rule: string
+  /** Current field value that failed validation */
+  value: unknown
 }
 
 // ============================================================================
@@ -257,12 +257,12 @@ export interface ValidationError {
  * @description Standard pagination interface used across all paginated endpoints
  */
 export interface PaginationOptions {
-    /** Current page number (1-based) */
-    page: number
-    /** Number of items per page */
-    limit: number
-    /** Total number of items available */
-    total?: number
+  /** Current page number (1-based) */
+  page: number
+  /** Number of items per page */
+  limit: number
+  /** Total number of items available */
+  total?: number
 }
 
 /**
@@ -271,20 +271,20 @@ export interface PaginationOptions {
  * @description Provides pagination context in API responses
  */
 export interface PaginationMeta {
-    /** Current page number (1-based) */
-    currentPage: number
-    /** Total number of pages available */
-    totalPages: number
-    /** Total number of items across all pages */
-    totalItems: number
-    /** Number of items per page */
-    limit: number
-    /** Number of items in current response */
-    count: number
-    /** Whether there is a next page */
-    hasNext: boolean
-    /** Whether there is a previous page */
-    hasPrevious: boolean
+  /** Current page number (1-based) */
+  currentPage: number
+  /** Total number of pages available */
+  totalPages: number
+  /** Total number of items across all pages */
+  totalItems: number
+  /** Number of items per page */
+  limit: number
+  /** Number of items in current response */
+  count: number
+  /** Whether there is a next page */
+  hasNext: boolean
+  /** Whether there is a previous page */
+  hasPrevious: boolean
 }
 
 /**
@@ -293,14 +293,14 @@ export interface PaginationMeta {
  * @description Used for filtering lists and search functionality
  */
 export interface FilterOptions {
-    /** Search query string */
-    search?: string
-    /** Sort field */
-    sortBy?: string
-    /** Sort direction */
-    sortOrder?: 'asc' | 'desc'
-    /** Additional filter criteria */
-    filters?: Record<string, unknown>
+  /** Search query string */
+  search?: string
+  /** Sort field */
+  sortBy?: string
+  /** Sort direction */
+  sortOrder?: 'asc' | 'desc'
+  /** Additional filter criteria */
+  filters?: Record<string, unknown>
 }
 
 // ============================================================================
@@ -313,14 +313,14 @@ export interface FilterOptions {
  * @description Represents different states of async operations
  */
 export enum LoadingState {
-    /** Operation not started */
-    Idle = 'idle',
-    /** Operation in progress */
-    Loading = 'loading',
-    /** Operation completed successfully */
-    Success = 'success',
-    /** Operation failed with error */
-    Error = 'error',
+  /** Operation not started */
+  Idle = 'idle',
+  /** Operation in progress */
+  Loading = 'loading',
+  /** Operation completed successfully */
+  Success = 'success',
+  /** Operation failed with error */
+  Error = 'error',
 }
 
 /**
@@ -330,18 +330,18 @@ export enum LoadingState {
  * @template E - Type of error data
  */
 export interface AsyncResult<T = unknown, E = ErrorInfo> {
-    /** Current state of the operation */
-    state: LoadingState
-    /** Result data (available when state is Success) */
-    data?: T
-    /** Error information (available when state is Error) */
-    error?: E
-    /** Whether the operation is currently loading */
-    isLoading: boolean
-    /** Whether the operation completed successfully */
-    isSuccess: boolean
-    /** Whether the operation failed */
-    isError: boolean
+  /** Current state of the operation */
+  state: LoadingState
+  /** Result data (available when state is Success) */
+  data?: T
+  /** Error information (available when state is Error) */
+  error?: E
+  /** Whether the operation is currently loading */
+  isLoading: boolean
+  /** Whether the operation completed successfully */
+  isSuccess: boolean
+  /** Whether the operation failed */
+  isError: boolean
 }
 
 // ============================================================================
@@ -354,14 +354,14 @@ export interface AsyncResult<T = unknown, E = ErrorInfo> {
  * @description Basic Steam user data used throughout the application
  */
 export interface UserProfile {
-    /** Steam ID (64-bit) - using branded SteamId type for type safety */
-    steamId: SteamId
-    /** Display name from Steam profile */
-    personaName: string
-    /** Avatar image URL */
-    avatar: string
-    /** Steam profile URL */
-    profileUrl: string
+  /** Steam ID (64-bit) - using branded SteamId type for type safety */
+  steamId: SteamId
+  /** Display name from Steam profile */
+  personaName: string
+  /** Avatar image URL */
+  avatar: string
+  /** Steam profile URL */
+  profileUrl: string
 }
 
 /**
@@ -370,12 +370,12 @@ export interface UserProfile {
  * @description Extended user data including session details
  */
 export interface UserSession extends UserProfile {
-    /** Session token */
-    token: string
-    /** Session expiration timestamp */
-    expiresAt: Timestamp
-    /** User permissions */
-    permissions: string[]
+  /** Session token */
+  token: string
+  /** Session expiration timestamp */
+  expiresAt: Timestamp
+  /** User permissions */
+  permissions: string[]
 }
 
 // ============================================================================
@@ -394,12 +394,12 @@ export type SteamUser = UserProfile
  * @description Numeric team identifiers matching server/types/api.ts CsTeam
  */
 export enum CsTeam {
-    /** No team specified */
-    None = 0,
-    /** Terrorist team */
-    Terrorist = 1,
-    /** Counter-Terrorist team */
-    CounterTerrorist = 2,
+  /** No team specified */
+  None = 0,
+  /** Terrorist team */
+  Terrorist = 1,
+  /** Counter-Terrorist team */
+  CounterTerrorist = 2,
 }
 
 /**

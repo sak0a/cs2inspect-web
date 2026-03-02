@@ -39,17 +39,17 @@ TutorialPopover.vue             (renders step info, navigation buttons)
 
 ```typescript
 interface TutorialStep {
-    titleKey: string // i18n key for the step title
-    descriptionKey: string // i18n key for the step description
-    target: string // data-tutorial attribute value to locate the element
-    popoverPosition: PopoverPosition // 'top' | 'bottom' | 'left' | 'right' | 'auto'
-    type: StepType // 'info' | 'action'
-    actionTrigger?: string // for action steps: the expected user action (e.g. 'click')
-    requiredRoute?: string // route the user must be on
-    beforeStep?: () => Promise<void> | void // runs before step activates
-    afterStep?: () => Promise<void> | void // runs after advancing from step
-    spotlightPadding?: number // extra padding around spotlight (default: 8)
-    scrollBlock?: ScrollLogicalPosition // scrollIntoView block option (default: 'center')
+  titleKey: string // i18n key for the step title
+  descriptionKey: string // i18n key for the step description
+  target: string // data-tutorial attribute value to locate the element
+  popoverPosition: PopoverPosition // 'top' | 'bottom' | 'left' | 'right' | 'auto'
+  type: StepType // 'info' | 'action'
+  actionTrigger?: string // for action steps: the expected user action (e.g. 'click')
+  requiredRoute?: string // route the user must be on
+  beforeStep?: () => Promise<void> | void // runs before step activates
+  afterStep?: () => Promise<void> | void // runs after advancing from step
+  spotlightPadding?: number // extra padding around spotlight (default: 8)
+  scrollBlock?: ScrollLogicalPosition // scrollIntoView block option (default: 'center')
 }
 ```
 
@@ -57,12 +57,12 @@ interface TutorialStep {
 
 ```typescript
 interface TutorialDefinition {
-    id: string // unique identifier
-    nameKey: string // i18n key for tutorial name
-    descriptionKey: string // i18n key for description
-    startRoute: string // route to navigate to when starting
-    steps: TutorialStep[] // ordered list of steps
-    requiresAuth?: boolean // only show if user is authenticated
+  id: string // unique identifier
+  nameKey: string // i18n key for tutorial name
+  descriptionKey: string // i18n key for description
+  startRoute: string // route to navigate to when starting
+  steps: TutorialStep[] // ordered list of steps
+  requiresAuth?: boolean // only show if user is authenticated
 }
 ```
 

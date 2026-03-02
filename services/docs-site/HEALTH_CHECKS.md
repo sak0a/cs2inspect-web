@@ -14,8 +14,8 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 
 ```json
 {
-    "status": "ok",
-    "timestamp": "2024-10-21T00:00:00.000Z"
+  "status": "ok",
+  "timestamp": "2024-10-21T00:00:00.000Z"
 }
 ```
 
@@ -35,21 +35,21 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 
 ```json
 {
-    "status": "ok",
-    "timestamp": "2024-10-21T00:00:00.000Z",
-    "ready": true,
-    "checks": [
-        {
-            "name": "database",
-            "status": "ok",
-            "latency_ms": 15
-        },
-        {
-            "name": "environment",
-            "status": "ok",
-            "latency_ms": 2
-        }
-    ]
+  "status": "ok",
+  "timestamp": "2024-10-21T00:00:00.000Z",
+  "ready": true,
+  "checks": [
+    {
+      "name": "database",
+      "status": "ok",
+      "latency_ms": 15
+    },
+    {
+      "name": "environment",
+      "status": "ok",
+      "latency_ms": 2
+    }
+  ]
 }
 ```
 
@@ -57,16 +57,16 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 
 ```json
 {
-    "status": "fail",
-    "timestamp": "2024-10-21T00:00:00.000Z",
-    "ready": false,
-    "checks": [
-        {
-            "name": "database",
-            "status": "fail",
-            "latency_ms": 5000
-        }
-    ]
+  "status": "fail",
+  "timestamp": "2024-10-21T00:00:00.000Z",
+  "ready": false,
+  "checks": [
+    {
+      "name": "database",
+      "status": "fail",
+      "latency_ms": 5000
+    }
+  ]
 }
 ```
 
@@ -92,61 +92,61 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 
 ```json
 {
-    "status": "ok",
-    "timestamp": "2024-10-21T00:00:00.000Z",
-    "checks": [
-        {
-            "name": "database",
-            "status": "ok",
-            "latency_ms": 15,
-            "message": "Database connection healthy",
-            "metadata": {
-                "pool_active_connections": 2,
-                "pool_total_connections": 5,
-                "pool_idle_connections": 3
-            },
-            "checked_at": "2024-10-21T00:00:00.000Z"
-        },
-        {
-            "name": "steam_api",
-            "status": "ok",
-            "latency_ms": 1,
-            "message": "Steam API key configured",
-            "metadata": {
-                "api_key_length": 32,
-                "has_steam_username": true,
-                "has_steam_password": true
-            },
-            "checked_at": "2024-10-21T00:00:00.000Z"
-        },
-        {
-            "name": "steam_client",
-            "status": "ok",
-            "latency_ms": 5,
-            "message": "Steam client ready - connected",
-            "metadata": {
-                "is_ready": true,
-                "status": "connected",
-                "queue_length": 0,
-                "unmasked_support": true
-            },
-            "checked_at": "2024-10-21T00:00:00.000Z"
-        },
-        {
-            "name": "environment",
-            "status": "ok",
-            "latency_ms": 1,
-            "message": "All required environment variables present",
-            "metadata": {
-                "required_vars_count": 5,
-                "present_vars_count": 5,
-                "missing_vars": [],
-                "node_env": "production",
-                "port": "3210"
-            },
-            "checked_at": "2024-10-21T00:00:00.000Z"
-        }
-    ]
+  "status": "ok",
+  "timestamp": "2024-10-21T00:00:00.000Z",
+  "checks": [
+    {
+      "name": "database",
+      "status": "ok",
+      "latency_ms": 15,
+      "message": "Database connection healthy",
+      "metadata": {
+        "pool_active_connections": 2,
+        "pool_total_connections": 5,
+        "pool_idle_connections": 3
+      },
+      "checked_at": "2024-10-21T00:00:00.000Z"
+    },
+    {
+      "name": "steam_api",
+      "status": "ok",
+      "latency_ms": 1,
+      "message": "Steam API key configured",
+      "metadata": {
+        "api_key_length": 32,
+        "has_steam_username": true,
+        "has_steam_password": true
+      },
+      "checked_at": "2024-10-21T00:00:00.000Z"
+    },
+    {
+      "name": "steam_client",
+      "status": "ok",
+      "latency_ms": 5,
+      "message": "Steam client ready - connected",
+      "metadata": {
+        "is_ready": true,
+        "status": "connected",
+        "queue_length": 0,
+        "unmasked_support": true
+      },
+      "checked_at": "2024-10-21T00:00:00.000Z"
+    },
+    {
+      "name": "environment",
+      "status": "ok",
+      "latency_ms": 1,
+      "message": "All required environment variables present",
+      "metadata": {
+        "required_vars_count": 5,
+        "present_vars_count": 5,
+        "missing_vars": [],
+        "node_env": "production",
+        "port": "3210"
+      },
+      "checked_at": "2024-10-21T00:00:00.000Z"
+    }
+  ]
 }
 ```
 
@@ -184,21 +184,21 @@ GET /api/health/history?check_name=database&start_time=2024-10-20T00:00:00Z&limi
 
 ```json
 [
-    {
-        "check_name": "database",
-        "data_points": [
-            {
-                "timestamp": "2024-10-21T00:00:00.000Z",
-                "status": "ok",
-                "latency_ms": 15
-            },
-            {
-                "timestamp": "2024-10-21T00:01:00.000Z",
-                "status": "ok",
-                "latency_ms": 18
-            }
-        ]
-    }
+  {
+    "check_name": "database",
+    "data_points": [
+      {
+        "timestamp": "2024-10-21T00:00:00.000Z",
+        "status": "ok",
+        "latency_ms": 15
+      },
+      {
+        "timestamp": "2024-10-21T00:01:00.000Z",
+        "status": "ok",
+        "latency_ms": 18
+      }
+    ]
+  }
 ]
 ```
 
@@ -214,13 +214,13 @@ A visual status dashboard is available at `/status` that provides:
 
 - **Overall System Status Banner** - Quick view of overall health
 - **Individual Service Cards** - Status cards for each dependency with:
-    - Current status (Operational/Degraded/Failed)
-    - Response latency
-    - Status message
+  - Current status (Operational/Degraded/Failed)
+  - Response latency
+  - Status message
 - **Historical Performance Charts** - Time-series graphs showing:
-    - Status changes over time
-    - Latency trends
-    - Configurable time ranges (1h, 6h, 24h, 7d)
+  - Status changes over time
+  - Latency trends
+  - Configurable time ranges (1h, 6h, 24h, 7d)
 - **Auto-refresh** - Automatically updates every 30 seconds
 
 ### Accessing the Status Page
@@ -344,17 +344,17 @@ See the [Setup Guide - Database Management](../setup.md#database-management) for
 ### Recommended Monitoring Setup
 
 1. **External Monitoring**
-    - Set up external monitoring (e.g., UptimeRobot, Pingdom) to check `/api/health/ready`
-    - Alert on 503 status codes or timeouts
+   - Set up external monitoring (e.g., UptimeRobot, Pingdom) to check `/api/health/ready`
+   - Alert on 503 status codes or timeouts
 
 2. **Prometheus Integration** (Optional)
-    - Export health metrics to Prometheus
-    - Create Grafana dashboards for visualization
-    - Set up alerts based on status and latency thresholds
+   - Export health metrics to Prometheus
+   - Create Grafana dashboards for visualization
+   - Set up alerts based on status and latency thresholds
 
 3. **Log Monitoring**
-    - Monitor application logs for health check failures
-    - Set up alerts for repeated failures
+   - Monitor application logs for health check failures
+   - Set up alerts for repeated failures
 
 ### Alert Thresholds
 
@@ -459,25 +459,25 @@ The health check system uses these environment variables:
 ## Best Practices
 
 1. **Monitor Regularly**
-    - Check the status dashboard daily
-    - Set up automated alerts for failures
+   - Check the status dashboard daily
+   - Set up automated alerts for failures
 
 2. **Review Historical Trends**
-    - Use historical data to identify patterns
-    - Look for gradual degradation over time
+   - Use historical data to identify patterns
+   - Look for gradual degradation over time
 
 3. **Test Health Checks**
-    - Regularly verify health endpoints respond correctly
-    - Test failover scenarios
+   - Regularly verify health endpoints respond correctly
+   - Test failover scenarios
 
 4. **Keep Data Fresh**
-    - The system automatically cleans up data older than 7 days
-    - Adjust retention period if needed in sampler.ts
+   - The system automatically cleans up data older than 7 days
+   - Adjust retention period if needed in sampler.ts
 
 5. **Secure Endpoints**
-    - `/api/health/live` and `/api/health/ready` are public (needed for orchestrators)
-    - Consider protecting `/api/health/details` and `/api/health/history` with authentication
-    - Use firewall rules to restrict access to health endpoints from untrusted sources
+   - `/api/health/live` and `/api/health/ready` are public (needed for orchestrators)
+   - Consider protecting `/api/health/details` and `/api/health/history` with authentication
+   - Use firewall rules to restrict access to health endpoints from untrusted sources
 
 ---
 

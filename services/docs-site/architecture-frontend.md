@@ -45,24 +45,24 @@ components/
 ### Stores
 
 1. **`weaponsStore`** (`stores/weapons.ts`)
-    - Manages weapon configurations
-    - Handles weapon skin data
-    - Tracks active weapon selections
+   - Manages weapon configurations
+   - Handles weapon skin data
+   - Tracks active weapon selections
 
 2. **`loadoutStore`** (`stores/loadout.ts`)
-    - Current active loadout
-    - Loadout switching logic
-    - Loadout CRUD operations
+   - Current active loadout
+   - Loadout switching logic
+   - Loadout CRUD operations
 
 3. **`authStore`** (`stores/auth.ts`)
-    - User authentication state
-    - Steam profile information
-    - Session management
+   - User authentication state
+   - Steam profile information
+   - Session management
 
 4. **`itemsStore`** (`stores/items.ts`)
-    - Item catalog data
-    - Skin, sticker, agent data
-    - Cached item information
+   - Item catalog data
+   - Skin, sticker, agent data
+   - Cached item information
 
 ## Composables
 
@@ -94,7 +94,7 @@ components/
 
 ```vue
 <template>
-    <div>{{ $t('nav.weapons') }}</div>
+  <div>{{ $t('nav.weapons') }}</div>
 </template>
 ```
 
@@ -108,9 +108,9 @@ components/
 - **Preprocessor**: SASS/SCSS
 - **Component Styles**: Scoped styles in `.vue` files
 - **Global Styles**: `assets/css/` directory
-    - `theme-variables.css` - CSS custom properties
-    - `glassmorphism.css` - Glass effect utilities
-    - `animations.css` - Animation definitions
+  - `theme-variables.css` - CSS custom properties
+  - `glassmorphism.css` - Glass effect utilities
+  - `animations.css` - Animation definitions
 
 ### Theme Customization
 

@@ -1,7 +1,7 @@
 <template>
-    <div class="blank-layout">
-        <slot />
-    </div>
+  <div class="blank-layout">
+    <slot />
+  </div>
 </template>
 
 <style lang="sass">

@@ -153,12 +153,12 @@ sequenceDiagram
 2. **Modal Opens**: `WeaponSkinModal.vue` displays with current weapon data
 3. **Skin Selection**: Browse skins, search by name, filter by collection
 4. **Customization**:
-    - **Float Value**: Slider from 0.00 (Factory New) to 1.00 (Battle-Scarred)
-    - **Pattern Seed**: 0-1000, affects pattern placement (important for Case Hardened, Fade, etc.)
-    - **StatTrak™**: Toggle on/off, set kill count
-    - **Name Tag**: Custom weapon name (max 20 characters)
-    - **Stickers**: Up to 5 sticker slots (weapons vary)
-    - **Keychain**: Attach keychain (CS2 feature)
+   - **Float Value**: Slider from 0.00 (Factory New) to 1.00 (Battle-Scarred)
+   - **Pattern Seed**: 0-1000, affects pattern placement (important for Case Hardened, Fade, etc.)
+   - **StatTrak™**: Toggle on/off, set kill count
+   - **Name Tag**: Custom weapon name (max 20 characters)
+   - **Stickers**: Up to 5 sticker slots (weapons vary)
+   - **Keychain**: Attach keychain (CS2 feature)
 5. **Preview**: Real-time preview of customization
 6. **Save**: Persist to database, update loadout
 
@@ -314,48 +314,48 @@ sequenceDiagram
 
 1. **Full Steam URL**:
 
-    ```
-    steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}
-    ```
+   ```
+   steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}
+   ```
 
 2. **Command Format**:
 
-    ```
-    csgo_econ_action_preview {data}
-    ```
+   ```
+   csgo_econ_action_preview {data}
+   ```
 
 3. **Short Format**:
 
-    ```
-    +csgo_econ_action_preview {data}
-    ```
+   ```
+   +csgo_econ_action_preview {data}
+   ```
 
 4. **Raw Hex Data** (masked):
 
-    ```
-    00BF69A1E8...
-    ```
+   ```
+   00BF69A1E8...
+   ```
 
 5. **Unmasked Format** (inventory):
-    ```
-    S76561198012345678A123456789D123456789
-    ```
+   ```
+   S76561198012345678A123456789D123456789
+   ```
 
 **Processing Steps**:
 
 1. **URL Analysis**: Identify URL type (masked vs unmasked)
 2. **Data Extraction**:
-    - **Masked**: Decode protobuf-encoded hex data
-    - **Unmasked**: Query Steam Game Coordinator for item data
+   - **Masked**: Decode protobuf-encoded hex data
+   - **Unmasked**: Query Steam Game Coordinator for item data
 3. **Property Extraction**:
-    - Weapon definition index (defindex)
-    - Paint index (skin ID)
-    - Paint seed (pattern)
-    - Paint wear (float value)
-    - StatTrak data
-    - Stickers (positions, IDs, wear)
-    - Keychains
-    - Name tags
+   - Weapon definition index (defindex)
+   - Paint index (skin ID)
+   - Paint seed (pattern)
+   - Paint wear (float value)
+   - StatTrak data
+   - Stickers (positions, IDs, wear)
+   - Keychains
+   - Name tags
 4. **Validation**: Verify item data integrity (CRC32 checksum)
 5. **Display**: Show item preview with all properties
 6. **Import**: Option to save to user's loadout
@@ -548,23 +548,23 @@ The CS2Inspect Plugin reads from these same database tables. When a player joins
 ### Common Error Scenarios
 
 1. **Authentication Errors**:
-    - Invalid/expired JWT token → Redirect to login
-    - Steam API unavailable → Show error message
+   - Invalid/expired JWT token → Redirect to login
+   - Steam API unavailable → Show error message
 
 2. **Inspect Link Errors**:
-    - Invalid URL format → Validation error
-    - Steam GC timeout → Retry mechanism
-    - Unmasked URL without Steam account → Inform user
+   - Invalid URL format → Validation error
+   - Steam GC timeout → Retry mechanism
+   - Unmasked URL without Steam account → Inform user
 
 3. **Save Errors**:
-    - Database connection failure → Show error, retry
-    - Validation failures → Highlight invalid fields
-    - Network errors → Queue for retry
+   - Database connection failure → Show error, retry
+   - Validation failures → Highlight invalid fields
+   - Network errors → Queue for retry
 
 4. **Asset Loading Errors**:
-    - Missing skin images → Fallback placeholder
-    - API timeout → Cached data used
-    - Sticker images 404 → Default icon
+   - Missing skin images → Fallback placeholder
+   - API timeout → Cached data used
+   - Sticker images 404 → Default icon
 
 **Code References**:
 
@@ -580,19 +580,19 @@ The CS2Inspect Plugin reads from these same database tables. When a player joins
 ### Caching Strategy
 
 1. **Static Data**:
-    - Skins, agents, stickers cached on first load
-    - Refreshed only on version changes
-    - Stored in Pinia store + localStorage
+   - Skins, agents, stickers cached on first load
+   - Refreshed only on version changes
+   - Stored in Pinia store + localStorage
 
 2. **User Data**:
-    - Loadout data cached after fetch
-    - Optimistic updates for instant feedback
-    - Background sync to server
+   - Loadout data cached after fetch
+   - Optimistic updates for instant feedback
+   - Background sync to server
 
 3. **Images**:
-    - Lazy loading for item images
-    - Browser cache leveraged
-    - CDN delivery (if configured)
+   - Lazy loading for item images
+   - Browser cache leveraged
+   - CDN delivery (if configured)
 
 ### Loading States
 
@@ -629,8 +629,8 @@ The CS2Inspect Plugin reads from these same database tables. When a player joins
 
 ```vue
 <template>
-    <button>{{ t('save') }}</button>
-    <p>{{ t('errors.invalidFloat') }}</p>
+  <button>{{ t('save') }}</button>
+  <p>{{ t('errors.invalidFloat') }}</p>
 </template>
 
 <script setup>

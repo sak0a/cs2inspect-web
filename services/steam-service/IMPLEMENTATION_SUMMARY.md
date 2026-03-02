@@ -35,14 +35,14 @@ bun run tsc --noEmit  # ✅ No errors
 **Test Files Created:**
 
 1. **Unit Tests (No Steam Account Required):**
-    - `src/routes/inspect.test.ts` - Inspect endpoint tests
-    - `src/services/steamClient.test.ts` - Steam client service tests
-    - `src/services/queue.test.ts` - Queue management tests (4/6 passing)
-    - `src/middleware/auth.test.ts` - Authentication tests
-    - `src/routes/health.test.ts` - Health check tests
+   - `src/routes/inspect.test.ts` - Inspect endpoint tests
+   - `src/services/steamClient.test.ts` - Steam client service tests
+   - `src/services/queue.test.ts` - Queue management tests (4/6 passing)
+   - `src/middleware/auth.test.ts` - Authentication tests
+   - `src/routes/health.test.ts` - Health check tests
 
 2. **Integration Tests (Requires Steam Account):**
-    - `src/routes/inspect.integration.test.ts` - Full integration tests with real Steam client
+   - `src/routes/inspect.integration.test.ts` - Full integration tests with real Steam client
 
 **Test Commands:**
 
@@ -129,21 +129,21 @@ keychains: keychain ? [keychain] : undefined // ❌ Wrong format
 
 ```typescript
 rarity: typeof rarity === 'number'
-    ? rarity
-    : typeof rarity === 'string'
-      ? parseInt(rarity, 10) || 1
-      : 1 // ✅ Number
+  ? rarity
+  : typeof rarity === 'string'
+    ? parseInt(rarity, 10) || 1
+    : 1 // ✅ Number
 
 keychains: keychain
-    ? [
-          {
-              slot: 0,
-              sticker_id: keychain.defindex,
-              offset_x: 0,
-              offset_y: 0,
-          } as Sticker,
-      ]
-    : undefined // ✅ Sticker[] format
+  ? [
+      {
+        slot: 0,
+        sticker_id: keychain.defindex,
+        offset_x: 0,
+        offset_y: 0,
+      } as Sticker,
+    ]
+  : undefined // ✅ Sticker[] format
 ```
 
 ### Test Structure
@@ -168,16 +168,16 @@ keychains: keychain
 **Network Options:**
 
 1. **Internal Only** (Recommended):
-    - Service name: `steam-service`
-    - URL: `http://steam-service:3001`
-    - No external access needed
-    - More secure
+   - Service name: `steam-service`
+   - URL: `http://steam-service:3001`
+   - No external access needed
+   - More secure
 
 2. **External Access**:
-    - Subdomain: `steam.yourdomain.com`
-    - Full HTTPS support
-    - CORS configuration required
-    - Useful for testing from local machine
+   - Subdomain: `steam.yourdomain.com`
+   - Full HTTPS support
+   - CORS configuration required
+   - Useful for testing from local machine
 
 ## 🎯 Files Created/Modified
 

@@ -11,22 +11,22 @@ import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
  * Clears items from a loadout by category
  */
 export default useErrorHandling(async (event: H3Event) => {
-    const startTime = Date.now()
-    const query = getQuery(event)
+  const startTime = Date.now()
+  const query = getQuery(event)
 
-    Logger.header(`Clear Loadout API request: ${event.req.url}`)
+  Logger.header(`Clear Loadout API request: ${event.req.url}`)
 
-    const body = await readBody(event)
-    const steamId = (query.steamId as string) || body.steamId
-    const loadoutId = body.loadoutId
-    const categories = body.categories || []
+  const body = await readBody(event)
+  const steamId = (query.steamId as string) || body.steamId
+  const loadoutId = body.loadoutId
+  const categories = body.categories || []
 
-    validateRequiredRequestData(steamId, 'Steam ID')
-    validateRequiredRequestData(loadoutId, 'Loadout ID')
+  validateRequiredRequestData(steamId, 'Steam ID')
+  validateRequiredRequestData(loadoutId, 'Loadout ID')
 
-    await clearLoadoutItems(loadoutId, steamId, categories)
-    Logger.success(`Loadout ${loadoutId} cleared successfully!`)
+  await clearLoadoutItems(loadoutId, steamId, categories)
+  Logger.success(`Loadout ${loadoutId} cleared successfully!`)
 
-    const meta = createResponseMeta(startTime, { steamId, method: 'POST', loadoutId })
-    return createSuccessResponse({ success: true }, meta, 'Loadout cleared successfully')
+  const meta = createResponseMeta(startTime, { steamId, method: 'POST', loadoutId })
+  return createSuccessResponse({ success: true }, meta, 'Loadout cleared successfully')
 }, ErrorCodes.LOADOUT_CLEAR_ERROR)

@@ -129,11 +129,11 @@ Edit `configs/plugins/CS2Inspect/CS2Inspect.json` with your database credentials
 
 ```json
 {
-    "DatabaseHost": "localhost",
-    "DatabasePort": 3306,
-    "DatabaseUser": "cs2inspect",
-    "DatabasePassword": "your_password",
-    "DatabaseName": "cs2inspect"
+  "DatabaseHost": "localhost",
+  "DatabasePort": 3306,
+  "DatabaseUser": "cs2inspect",
+  "DatabasePassword": "your_password",
+  "DatabaseName": "cs2inspect"
 }
 ```
 

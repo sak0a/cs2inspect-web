@@ -120,7 +120,7 @@ Add JSDoc comments to your API endpoints:
  * @returns {LoadoutResponse} The user's loadouts
  */
 export default defineEventHandler(async (event) => {
-    // ...
+  // ...
 })
 ```
 

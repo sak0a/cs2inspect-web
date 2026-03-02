@@ -11,53 +11,53 @@ A comprehensive overhaul of developer and user experience with focus on easy sel
 ### Documentation (1,934 lines)
 
 - **`docs/SELF_HOSTING.md`** (1,282 lines)
-    - Complete self-hosting guide from zero to production
-    - VPS, bare metal, and Docker deployment options
-    - Nginx, SSL, PM2, and monitoring setup
-    - Troubleshooting and security checklists
+  - Complete self-hosting guide from zero to production
+  - VPS, bare metal, and Docker deployment options
+  - Nginx, SSL, PM2, and monitoring setup
+  - Troubleshooting and security checklists
 
 - **`docs/RECOMMENDATIONS.md`** (652 lines)
-    - Detailed analysis of all improvements
-    - Additional recommendations for future work
-    - Prioritized action items
-    - Code quality and security improvements
+  - Detailed analysis of all improvements
+  - Additional recommendations for future work
+  - Prioritized action items
+  - Code quality and security improvements
 
 ### Automation Scripts (29,453 characters)
 
 - **`scripts/install.sh`** (8,516 chars)
-    - One-click installation for Linux/macOS
-    - Automatic dependency installation
-    - Database setup assistance
-    - Firewall configuration
+  - One-click installation for Linux/macOS
+  - Automatic dependency installation
+  - Database setup assistance
+  - Firewall configuration
 
 - **`scripts/setup-wizard.sh`** (13,308 chars)
-    - Interactive configuration wizard
-    - Step-by-step environment setup
-    - Validation and testing
-    - Secure secret generation
+  - Interactive configuration wizard
+  - Step-by-step environment setup
+  - Validation and testing
+  - Secure secret generation
 
 - **`scripts/validate-env.sh`** (7,629 chars)
-    - Validates all environment variables
-    - Tests database connections
-    - Checks file permissions
-    - Provides actionable error messages
+  - Validates all environment variables
+  - Tests database connections
+  - Checks file permissions
+  - Provides actionable error messages
 
 ### Development Tools
 
 - **`Makefile`** - 40+ convenient commands
-    - `make help` - Show all commands
-    - `make install` - Install dependencies
-    - `make dev` - Start development
-    - `make docker-up` - Start containers
-    - `make deploy` - Deploy to production
-    - And many more...
+  - `make help` - Show all commands
+  - `make install` - Install dependencies
+  - `make dev` - Start development
+  - `make docker-up` - Start containers
+  - `make deploy` - Deploy to production
+  - And many more...
 
 ### Docker Configuration
 
 - **`docker-compose.coolify.yml`** - Production deployment (Coolify)
-    - Pre-built GHCR images
-    - Health checks
-    - Environment variable prefixes (SHARED*\*, DB*\_, SS\_\_, WEB\_\*)
+  - Pre-built GHCR images
+  - Health checks
+  - Environment variable prefixes (SHARED*\*, DB*\_, SS\_\_, WEB\_\*)
 
 ---
 
@@ -66,21 +66,21 @@ A comprehensive overhaul of developer and user experience with focus on easy sel
 ### Fixed Issues
 
 - **`nuxt.config.ts`**
-    - Fixed TypeScript type errors
-    - Removed incompatible sitemap config
-    - Now passes `npm run typecheck`
+  - Fixed TypeScript type errors
+  - Removed incompatible sitemap config
+  - Now passes `npm run typecheck`
 
 - **`Dockerfile`**
-    - Updated from `node:20-slim` to `node:20-alpine`
-    - Updated runtime to Alpine-based
-    - **Security**: Fixed 4 high-severity vulnerabilities
-    - **Size**: Reduced image size by ~200MB
+  - Updated from `node:20-slim` to `node:20-alpine`
+  - Updated runtime to Alpine-based
+  - **Security**: Fixed 4 high-severity vulnerabilities
+  - **Size**: Reduced image size by ~200MB
 
 - **`README.md`**
-    - Added multiple installation options
-    - Added Makefile documentation
-    - Added script usage examples
-    - Improved getting started section
+  - Added multiple installation options
+  - Added Makefile documentation
+  - Added script usage examples
+  - Improved getting started section
 
 ---
 

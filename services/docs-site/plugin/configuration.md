@@ -239,89 +239,89 @@ This file **must** be present at `addons/counterstrikesharp/gamedata/cs2inspect.
 
 ```json
 {
-    "ConfigVersion": 11,
-    "SkinsLanguage": "en",
-    "DatabaseHost": "localhost",
-    "DatabasePort": 3306,
-    "DatabaseUser": "cs2inspect",
-    "DatabasePassword": "your_password",
-    "DatabaseName": "cs2inspect",
-    "Additional": {
-        "KnifeEnabled": true,
-        "KnifeDroppingEnabled": false,
-        "KnifeShortCommandsEnabled": true,
-        "DisabledKnifeCommands": [],
-        "GloveEnabled": true,
-        "MusicEnabled": true,
-        "AgentEnabled": true,
-        "SkinEnabled": true,
-        "PinsEnabled": true,
-        "ShowSkinImage": true,
-        "HideChatCommandMessages": true,
-        "RequiredCommandPermission": "",
-        "CommandPermissions": {
-            "Knives": "",
-            "Gloves": "",
-            "Weapons": "",
-            "Music": "",
-            "Pins": "",
-            "Agents": ""
-        }
-    },
-    "MenuType": "selectable",
-    "Logging": {
-        "GlobalLogLevel": "Info",
-        "ShowTimestamp": true,
-        "ShowCategory": true,
-        "PluginPrefix": "CS2Inspect",
-        "Categories": {
-            "Database": "Info",
-            "Commands": "Info",
-            "Weapons": "Info",
-            "Handlers": "Info",
-            "Events": "Info",
-            "Performance": "Warning",
-            "Security": "Warning",
-            "Configuration": "Info",
-            "Menu": "Info",
-            "Network": "Info",
-            "ErrorHandling": "Error"
-        },
-        "FileLogging": {
-            "Enabled": true,
-            "LogDirectory": "logs/CS2Inspect",
-            "MaxFileSize": "10MB",
-            "MaxFiles": 5,
-            "FileNamePattern": "cs2inspect-{date:yyyy-MM-dd}.log",
-            "IncludeColors": false,
-            "MinimumLogLevel": "Debug",
-            "AutoFlush": true
-        },
-        "Performance": {
-            "AsyncLogging": true,
-            "BufferSize": 1000,
-            "FlushInterval": 5000,
-            "IncludeStackTrace": false,
-            "MaxMessageLength": 2000
-        },
-        "Formatting": {
-            "TimestampFormat": "HH:mm:ss.fff",
-            "PadLogLevels": true,
-            "CompactFormat": false,
-            "IncludeThreadId": false,
-            "CustomFormat": null
-        }
-    },
-    "WeaponCommands": {
-        "Enabled": true,
-        "ReplaceWeaponOnGive": true,
-        "Weapons": {
-            "awp": { "Enabled": true, "Command": "awp", "GiveWeapon": true },
-            "ak47": { "Enabled": true, "Command": "ak47", "GiveWeapon": false },
-            "m4a4": { "Enabled": true, "Command": "m4a4", "GiveWeapon": false },
-            "m4a1s": { "Enabled": true, "Command": "m4a1s", "GiveWeapon": false }
-        }
+  "ConfigVersion": 11,
+  "SkinsLanguage": "en",
+  "DatabaseHost": "localhost",
+  "DatabasePort": 3306,
+  "DatabaseUser": "cs2inspect",
+  "DatabasePassword": "your_password",
+  "DatabaseName": "cs2inspect",
+  "Additional": {
+    "KnifeEnabled": true,
+    "KnifeDroppingEnabled": false,
+    "KnifeShortCommandsEnabled": true,
+    "DisabledKnifeCommands": [],
+    "GloveEnabled": true,
+    "MusicEnabled": true,
+    "AgentEnabled": true,
+    "SkinEnabled": true,
+    "PinsEnabled": true,
+    "ShowSkinImage": true,
+    "HideChatCommandMessages": true,
+    "RequiredCommandPermission": "",
+    "CommandPermissions": {
+      "Knives": "",
+      "Gloves": "",
+      "Weapons": "",
+      "Music": "",
+      "Pins": "",
+      "Agents": ""
     }
+  },
+  "MenuType": "selectable",
+  "Logging": {
+    "GlobalLogLevel": "Info",
+    "ShowTimestamp": true,
+    "ShowCategory": true,
+    "PluginPrefix": "CS2Inspect",
+    "Categories": {
+      "Database": "Info",
+      "Commands": "Info",
+      "Weapons": "Info",
+      "Handlers": "Info",
+      "Events": "Info",
+      "Performance": "Warning",
+      "Security": "Warning",
+      "Configuration": "Info",
+      "Menu": "Info",
+      "Network": "Info",
+      "ErrorHandling": "Error"
+    },
+    "FileLogging": {
+      "Enabled": true,
+      "LogDirectory": "logs/CS2Inspect",
+      "MaxFileSize": "10MB",
+      "MaxFiles": 5,
+      "FileNamePattern": "cs2inspect-{date:yyyy-MM-dd}.log",
+      "IncludeColors": false,
+      "MinimumLogLevel": "Debug",
+      "AutoFlush": true
+    },
+    "Performance": {
+      "AsyncLogging": true,
+      "BufferSize": 1000,
+      "FlushInterval": 5000,
+      "IncludeStackTrace": false,
+      "MaxMessageLength": 2000
+    },
+    "Formatting": {
+      "TimestampFormat": "HH:mm:ss.fff",
+      "PadLogLevels": true,
+      "CompactFormat": false,
+      "IncludeThreadId": false,
+      "CustomFormat": null
+    }
+  },
+  "WeaponCommands": {
+    "Enabled": true,
+    "ReplaceWeaponOnGive": true,
+    "Weapons": {
+      "awp": { "Enabled": true, "Command": "awp", "GiveWeapon": true },
+      "ak47": { "Enabled": true, "Command": "ak47", "GiveWeapon": false },
+      "m4a4": { "Enabled": true, "Command": "m4a4", "GiveWeapon": false },
+      "m4a1s": { "Enabled": true, "Command": "m4a1s", "GiveWeapon": false }
+    }
+  }
 }
 ```
 

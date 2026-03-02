@@ -24,11 +24,11 @@ server/types/
 
 ```typescript
 import type {
-    ItemType,
-    InspectRequest,
-    CreateUrlResponse,
-    SteamUser,
-    WeaponCustomization,
+  ItemType,
+  InspectRequest,
+  CreateUrlResponse,
+  SteamUser,
+  WeaponCustomization,
 } from '~/server/types'
 ```
 
@@ -114,8 +114,8 @@ import type { SteamUser } from '~/server/types/common'
 ```typescript
 // server/types/newFeature.ts
 export interface NewFeatureType {
-    id: string
-    name: string
+  id: string
+  name: string
 }
 ```
 
@@ -166,16 +166,16 @@ import type { NewFeatureType } from '~/server/types'
 import type { InspectRequest, CreateUrlResponse, ItemType } from '~/server/types'
 
 export default defineEventHandler(async (event) => {
-    const body = (await readBody(event)) as InspectRequest
-    const itemType: ItemType = body.itemType || 'weapon'
+  const body = (await readBody(event)) as InspectRequest
+  const itemType: ItemType = body.itemType || 'weapon'
 
-    // ... implementation
+  // ... implementation
 
-    return {
-        success: true,
-        inspectUrl: 'steam://...',
-        itemType,
-    } as CreateUrlResponse
+  return {
+    success: true,
+    inspectUrl: 'steam://...',
+    itemType,
+  } as CreateUrlResponse
 })
 ```
 
@@ -185,9 +185,9 @@ export default defineEventHandler(async (event) => {
 import type { WeaponCustomization, SteamUser, EnhancedItem } from '~/server/types'
 
 interface Props {
-    weapon: EnhancedItem
-    user: SteamUser
-    customization: WeaponCustomization
+  weapon: EnhancedItem
+  user: SteamUser
+  customization: WeaponCustomization
 }
 ```
 

@@ -249,11 +249,11 @@ STEAM_PASSWORD=<bot_password>
 
 ```yaml
 healthcheck:
-    test: ['CMD', 'curl', '-fsS', 'http://localhost:3210/api/health/ready']
-    interval: 30s
-    timeout: 5s
-    retries: 3
-    start_period: 60s
+  test: ['CMD', 'curl', '-fsS', 'http://localhost:3210/api/health/ready']
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 60s
 ```
 
 Already configured in our Docker Compose files!
@@ -459,12 +459,12 @@ Add these services to Coolify:
 
 ```yaml
 services:
-    uptime-kuma:
-        image: louislam/uptime-kuma:1
-        ports:
-            - '3001:3001'
-        volumes:
-            - uptime:/app/data
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    ports:
+      - '3001:3001'
+    volumes:
+      - uptime:/app/data
 ```
 
 Monitor: `https://your-domain.com/api/health/ready`
@@ -477,21 +477,21 @@ Monitor: `https://your-domain.com/api/health/ready`
 
 ```yaml
 services:
-    backup:
-        image: mariadb:11
-        depends_on:
-            - database
-        volumes:
-            - ./backups:/backups
-        command: >
-            bash -c "while true; do
-              mysqldump -h database -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE | gzip > /backups/backup_$$(date +%Y%m%d_%H%M%S).sql.gz
-              find /backups -name '*.sql.gz' -mtime +30 -delete
-              sleep 86400
-            done"
-        environment:
-            - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
-            - MYSQL_DATABASE=${SHARED_DB_NAME}
+  backup:
+    image: mariadb:11
+    depends_on:
+      - database
+    volumes:
+      - ./backups:/backups
+    command: >
+      bash -c "while true; do
+        mysqldump -h database -u root -p$$MYSQL_ROOT_PASSWORD $$MYSQL_DATABASE | gzip > /backups/backup_$$(date +%Y%m%d_%H%M%S).sql.gz
+        find /backups -name '*.sql.gz' -mtime +30 -delete
+        sleep 86400
+      done"
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${SHARED_DB_NAME}
 ```
 
 2. Backups saved to `./backups` folder

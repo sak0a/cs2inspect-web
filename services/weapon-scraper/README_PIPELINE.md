@@ -7,9 +7,9 @@ This pipeline downloads weapon skin videos from exampleskins.com and removes the
 The workflow consists of two main steps:
 
 1. **Download** weapon skin videos using:
-    - `skins_scraper.py` (by weapon)
-    - `skins_scraper-container.py` (by container/case)
-    - `skins_scraper-collection.py` (by collection)
+   - `skins_scraper.py` (by weapon)
+   - `skins_scraper-container.py` (by container/case)
+   - `skins_scraper-collection.py` (by collection)
 2. **Process** videos with `mask_based_remover.py` to remove the blue background and make it transparent
 
 ## Requirements
@@ -484,36 +484,36 @@ python mask_based_remover.py awp --masks masks/awp_mask.png --force
 
 ```json
 {
-    "version": "1.0",
-    "last_updated": "2024-01-15T10:30:00Z",
-    "videos": {
-        "awp-dragon-lore": {
-            "weapon": "awp",
-            "skin_name": "awp-dragon-lore",
-            "source": "weapon",
-            "download": {
-                "status": "success",
-                "timestamp": "2024-01-15T10:00:00Z",
-                "file_path": "downloads/awp_videos/awp-dragon-lore.webm",
-                "file_size": 1234567,
-                "md5": "abc123..."
-            },
-            "masked": {
-                "status": "success",
-                "timestamp": "2024-01-15T10:15:00Z",
-                "file_path": "downloads/awp_videos/masked/awp-dragon-lore_masked.webm",
-                "file_size": 987654,
-                "md5": "def456...",
-                "mask_used": "masks/awp_mask.png"
-            }
-        }
-    },
-    "stats": {
-        "total_downloaded": 150,
-        "total_masked": 120,
-        "failed_downloads": 5,
-        "failed_masks": 10
+  "version": "1.0",
+  "last_updated": "2024-01-15T10:30:00Z",
+  "videos": {
+    "awp-dragon-lore": {
+      "weapon": "awp",
+      "skin_name": "awp-dragon-lore",
+      "source": "weapon",
+      "download": {
+        "status": "success",
+        "timestamp": "2024-01-15T10:00:00Z",
+        "file_path": "downloads/awp_videos/awp-dragon-lore.webm",
+        "file_size": 1234567,
+        "md5": "abc123..."
+      },
+      "masked": {
+        "status": "success",
+        "timestamp": "2024-01-15T10:15:00Z",
+        "file_path": "downloads/awp_videos/masked/awp-dragon-lore_masked.webm",
+        "file_size": 987654,
+        "md5": "def456...",
+        "mask_used": "masks/awp_mask.png"
+      }
     }
+  },
+  "stats": {
+    "total_downloaded": 150,
+    "total_masked": 120,
+    "failed_downloads": 5,
+    "failed_masks": 10
+  }
 }
 ```
 

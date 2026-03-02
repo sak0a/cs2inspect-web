@@ -8,10 +8,10 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Human-readable error message",
-    "code": "ERROR_CODE",
-    "details": {}
+  "success": false,
+  "error": "Human-readable error message",
+  "code": "ERROR_CODE",
+  "details": {}
 }
 ```
 
@@ -48,9 +48,9 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Authentication required",
-    "code": "UNAUTHORIZED"
+  "success": false,
+  "error": "Authentication required",
+  "code": "UNAUTHORIZED"
 }
 ```
 
@@ -66,13 +66,13 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Missing required parameter: steamId",
-    "code": "MISSING_PARAM",
-    "details": {
-        "field": "steamId",
-        "type": "required"
-    }
+  "success": false,
+  "error": "Missing required parameter: steamId",
+  "code": "MISSING_PARAM",
+  "details": {
+    "field": "steamId",
+    "type": "required"
+  }
 }
 ```
 
@@ -89,12 +89,12 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Loadout not found",
-    "code": "LOADOUT_NOT_FOUND",
-    "details": {
-        "loadoutId": 999
-    }
+  "success": false,
+  "error": "Loadout not found",
+  "code": "LOADOUT_NOT_FOUND",
+  "details": {
+    "loadoutId": 999
+  }
 }
 ```
 
@@ -109,9 +109,9 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Database connection failed",
-    "code": "DATABASE_ERROR"
+  "success": false,
+  "error": "Database connection failed",
+  "code": "DATABASE_ERROR"
 }
 ```
 
@@ -127,12 +127,12 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Steam Game Coordinator timeout",
-    "code": "GC_TIMEOUT",
-    "details": {
-        "timeout_ms": 30000
-    }
+  "success": false,
+  "error": "Steam Game Coordinator timeout",
+  "code": "GC_TIMEOUT",
+  "details": {
+    "timeout_ms": 30000
+  }
 }
 ```
 
@@ -148,12 +148,12 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Invalid inspect URL format",
-    "code": "INVALID_URL",
-    "details": {
-        "url": "invalid-url-here"
-    }
+  "success": false,
+  "error": "Invalid inspect URL format",
+  "code": "INVALID_URL",
+  "details": {
+    "url": "invalid-url-here"
+  }
 }
 ```
 
@@ -167,14 +167,14 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```json
 {
-    "success": false,
-    "error": "Rate limit exceeded",
-    "code": "RATE_LIMIT",
-    "details": {
-        "retryAfter": 60,
-        "limit": 100,
-        "remaining": 0
-    }
+  "success": false,
+  "error": "Rate limit exceeded",
+  "code": "RATE_LIMIT",
+  "details": {
+    "retryAfter": 60,
+    "limit": 100,
+    "remaining": 0
+  }
 }
 ```
 
@@ -186,31 +186,31 @@ All API endpoints follow a consistent error response format for easy error handl
 
 ```typescript
 async function fetchLoadouts(steamId: string) {
-    try {
-        const response = await fetch(`/api/loadouts?steamId=${steamId}`)
-        const data = await response.json()
+  try {
+    const response = await fetch(`/api/loadouts?steamId=${steamId}`)
+    const data = await response.json()
 
-        if (!data.success) {
-            switch (data.code) {
-                case 'UNAUTHORIZED':
-                    // Redirect to login
-                    break
-                case 'NOT_FOUND':
-                    // Show empty state
-                    break
-                default:
-                    // Show generic error
-                    console.error(data.error)
-            }
-            return null
-        }
-
-        return data.data
-    } catch (error) {
-        // Network error
-        console.error('Network error:', error)
-        return null
+    if (!data.success) {
+      switch (data.code) {
+        case 'UNAUTHORIZED':
+          // Redirect to login
+          break
+        case 'NOT_FOUND':
+          // Show empty state
+          break
+        default:
+          // Show generic error
+          console.error(data.error)
+      }
+      return null
     }
+
+    return data.data
+  } catch (error) {
+    // Network error
+    console.error('Network error:', error)
+    return null
+  }
 }
 ```
 
@@ -218,27 +218,27 @@ async function fetchLoadouts(steamId: string) {
 
 ```typescript
 async function fetchWithRetry(url: string, retries = 3) {
-    for (let i = 0; i < retries; i++) {
-        try {
-            const response = await fetch(url)
-            const data = await response.json()
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url)
+      const data = await response.json()
 
-            if (data.code === 'RATE_LIMIT') {
-                const retryAfter = data.details?.retryAfter || 60
-                await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000))
-                continue
-            }
+      if (data.code === 'RATE_LIMIT') {
+        const retryAfter = data.details?.retryAfter || 60
+        await new Promise((resolve) => setTimeout(resolve, retryAfter * 1000))
+        continue
+      }
 
-            if (data.code === 'GC_TIMEOUT' && i < retries - 1) {
-                await new Promise((resolve) => setTimeout(resolve, 2000))
-                continue
-            }
+      if (data.code === 'GC_TIMEOUT' && i < retries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 2000))
+        continue
+      }
 
-            return data
-        } catch (error) {
-            if (i === retries - 1) throw error
-        }
+      return data
+    } catch (error) {
+      if (i === retries - 1) throw error
     }
+  }
 }
 ```
 

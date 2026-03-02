@@ -129,18 +129,18 @@ Example `GET /api/health` response:
 
 ```json
 {
-    "status": "ok",
-    "ready": true,
-    "checks": {
-        "steam_client": {
-            "status": "ok",
-            "message": "Steam client is ready"
-        },
-        "queue": {
-            "status": "ok",
-            "message": "0 pending, 0 processing"
-        }
+  "status": "ok",
+  "ready": true,
+  "checks": {
+    "steam_client": {
+      "status": "ok",
+      "message": "Steam client is ready"
+    },
+    "queue": {
+      "status": "ok",
+      "message": "0 pending, 0 processing"
     }
+  }
 }
 ```
 
@@ -154,20 +154,20 @@ Example `GET /api/status` response:
 
 ```json
 {
-    "steamClient": {
-        "available": true,
-        "status": "connected",
-        "uptime": 1337000
-    },
-    "queue": {
-        "pending": 0,
-        "processing": 0,
-        "maxSize": 100
-    },
-    "server": {
-        "uptime": 1337000,
-        "version": "1.0.0"
-    }
+  "steamClient": {
+    "available": true,
+    "status": "connected",
+    "uptime": 1337000
+  },
+  "queue": {
+    "pending": 0,
+    "processing": 0,
+    "maxSize": 100
+  },
+  "server": {
+    "uptime": 1337000,
+    "version": "1.0.0"
+  }
 }
 ```
 

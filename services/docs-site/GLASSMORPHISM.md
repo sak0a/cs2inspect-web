@@ -16,20 +16,20 @@ Glassmorphism is a design trend that creates a frosted glass effect using:
 ### Files Modified
 
 1. **`server/utils/themeCustomization.ts`**
-    - Updated modal theme overrides with glassmorphism properties
-    - Added semi-transparent backgrounds and enhanced shadows
+   - Updated modal theme overrides with glassmorphism properties
+   - Added semi-transparent backgrounds and enhanced shadows
 
 2. **`assets/css/glassmorphism.css`** (New)
-    - Main glassmorphism styling implementation
-    - Backdrop blur effects and transparency
-    - Responsive and theme-aware adjustments
+   - Main glassmorphism styling implementation
+   - Backdrop blur effects and transparency
+   - Responsive and theme-aware adjustments
 
 3. **`assets/css/theme-variables.css`**
-    - Added CSS variables for glassmorphism effects
-    - Support for both dark and light themes
+   - Added CSS variables for glassmorphism effects
+   - Support for both dark and light themes
 
 4. **`nuxt.config.ts`**
-    - Added glassmorphism.css to the CSS imports
+   - Added glassmorphism.css to the CSS imports
 
 ### CSS Variables
 

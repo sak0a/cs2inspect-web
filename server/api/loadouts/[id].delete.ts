@@ -12,18 +12,18 @@ import { steamIdQuerySchema } from '~/server/utils/validation/querySchemas'
  * Deletes a loadout
  */
 export default useErrorHandling(async (event) => {
-    const startTime = Date.now()
+  const startTime = Date.now()
 
-    const id = event.context.params?.id as string
-    validateRequiredRequestData(id, 'Loadout ID')
+  const id = event.context.params?.id as string
+  validateRequiredRequestData(id, 'Loadout ID')
 
-    Logger.header(`Loadouts DELETE request: ${event.req.url}`)
+  Logger.header(`Loadouts DELETE request: ${event.req.url}`)
 
-    const { steamId } = parseQueryWithSchema(steamIdQuerySchema, event)
+  const { steamId } = parseQueryWithSchema(steamIdQuerySchema, event)
 
-    await deleteLoadout(id, steamId)
-    Logger.success(`Loadout ${id} deleted successfully!`)
+  await deleteLoadout(id, steamId)
+  Logger.success(`Loadout ${id} deleted successfully!`)
 
-    const meta = createResponseMeta(startTime, { steamId, method: 'DELETE', loadoutId: id })
-    return createSuccessResponse(null, meta, 'Loadout deleted successfully')
+  const meta = createResponseMeta(startTime, { steamId, method: 'DELETE', loadoutId: id })
+  return createSuccessResponse(null, meta, 'Loadout deleted successfully')
 }, ErrorCodes.LOADOUT_ERROR)

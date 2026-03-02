@@ -16,47 +16,47 @@ import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
  * 3. First loadout found (fallback)
  */
 export default useErrorHandling(async (event: H3Event) => {
-    const startTime = Date.now()
-    const query = getQuery(event)
+  const startTime = Date.now()
+  const query = getQuery(event)
 
-    Logger.header(`Get Equipped Loadout API request: ${event.req.url}`)
+  Logger.header(`Get Equipped Loadout API request: ${event.req.url}`)
 
-    const steamId = query.steamId as string
-    validateRequiredRequestData(steamId, 'Steam ID')
+  const steamId = query.steamId as string
+  validateRequiredRequestData(steamId, 'Steam ID')
 
-    const loadouts = await getLoadoutsBySteamId(steamId)
+  const loadouts = await getLoadoutsBySteamId(steamId)
 
-    if (loadouts.length === 0) {
-        Logger.info(`No loadouts found for Steam ID ${steamId}`)
-        throw createError({
-            statusCode: 404,
-            message: 'No loadouts found for this user',
-        })
-    }
-
-    // Priority 1: Find default loadout
-    let equippedLoadout = loadouts.find((l) => l.is_default === 1)
-
-    // Priority 2: Find active loadout
-    if (!equippedLoadout) {
-        equippedLoadout = loadouts.find((l) => l.active === 1)
-    }
-
-    // Priority 3: Fallback to first loadout (guaranteed to exist since loadouts.length > 0)
-    if (!equippedLoadout) {
-        equippedLoadout = loadouts[0]!
-    }
-
-    Logger.success(`Equipped loadout found: ${equippedLoadout.id} (${equippedLoadout.name})`)
-
-    const meta = createResponseMeta(startTime, {
-        steamId,
-        method: 'GET',
-        loadoutId: equippedLoadout.id,
+  if (loadouts.length === 0) {
+    Logger.info(`No loadouts found for Steam ID ${steamId}`)
+    throw createError({
+      statusCode: 404,
+      message: 'No loadouts found for this user',
     })
-    return createSuccessResponse(
-        { loadout: equippedLoadout },
-        meta,
-        'Equipped loadout retrieved successfully'
-    )
+  }
+
+  // Priority 1: Find default loadout
+  let equippedLoadout = loadouts.find((l) => l.is_default === 1)
+
+  // Priority 2: Find active loadout
+  if (!equippedLoadout) {
+    equippedLoadout = loadouts.find((l) => l.active === 1)
+  }
+
+  // Priority 3: Fallback to first loadout (guaranteed to exist since loadouts.length > 0)
+  if (!equippedLoadout) {
+    equippedLoadout = loadouts[0]!
+  }
+
+  Logger.success(`Equipped loadout found: ${equippedLoadout.id} (${equippedLoadout.name})`)
+
+  const meta = createResponseMeta(startTime, {
+    steamId,
+    method: 'GET',
+    loadoutId: equippedLoadout.id,
+  })
+  return createSuccessResponse(
+    { loadout: equippedLoadout },
+    meta,
+    'Equipped loadout retrieved successfully'
+  )
 }, ErrorCodes.LOADOUT_ERROR)

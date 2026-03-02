@@ -186,12 +186,12 @@ npm install -D prettier eslint-config-prettier
 
 ```json
 {
-    "semi": true,
-    "singleQuote": true,
-    "tabWidth": 4,
-    "trailingComma": "es5",
-    "printWidth": 100,
-    "arrowParens": "always"
+  "semi": true,
+  "singleQuote": true,
+  "tabWidth": 4,
+  "trailingComma": "es5",
+  "printWidth": 100,
+  "arrowParens": "always"
 }
 ```
 
@@ -199,10 +199,10 @@ Add to `package.json`:
 
 ```json
 {
-    "scripts": {
-        "format": "prettier --write \"**/*.{js,ts,vue,css,md}\"",
-        "format:check": "prettier --check \"**/*.{js,ts,vue,css,md}\""
-    }
+  "scripts": {
+    "format": "prettier --write \"**/*.{js,ts,vue,css,md}\"",
+    "format:check": "prettier --check \"**/*.{js,ts,vue,css,md}\""
+  }
 }
 ```
 
@@ -238,18 +238,18 @@ name: CI
 on: [push, pull_request]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v4
-              with:
-                  node-version: 20
-            - run: npm install
-            - run: npm run lint
-            - run: npm run typecheck
-            - run: npm run test
-            - run: npm run build
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run build
 ```
 
 #### 4. Environment Variable Schema Validation
@@ -262,22 +262,22 @@ jobs:
 import { z } from 'zod'
 
 export const envSchema = z.object({
-    PORT: z.string().transform(Number).pipe(z.number().min(1).max(65535)),
-    DATABASE_HOST: z.string().min(1),
-    DATABASE_USER: z.string().min(1),
-    DATABASE_PASSWORD: z.string().min(1),
-    DATABASE_NAME: z.string().min(1),
-    JWT_TOKEN: z.string().min(32),
-    STEAM_API_KEY: z.string().length(32),
+  PORT: z.string().transform(Number).pipe(z.number().min(1).max(65535)),
+  DATABASE_HOST: z.string().min(1),
+  DATABASE_USER: z.string().min(1),
+  DATABASE_PASSWORD: z.string().min(1),
+  DATABASE_NAME: z.string().min(1),
+  JWT_TOKEN: z.string().min(32),
+  STEAM_API_KEY: z.string().length(32),
 })
 
 export function validateEnv() {
-    try {
-        return envSchema.parse(process.env)
-    } catch (error) {
-        console.error('Environment validation failed:', error)
-        process.exit(1)
-    }
+  try {
+    return envSchema.parse(process.env)
+  } catch (error) {
+    console.error('Environment validation failed:', error)
+    process.exit(1)
+  }
 }
 ```
 
@@ -308,25 +308,25 @@ const WINDOW_MS = 60000 // 1 minute
 const MAX_REQUESTS = 100
 
 export default defineEventHandler((event) => {
-    const ip = event.node.req.socket.remoteAddress
-    const now = Date.now()
+  const ip = event.node.req.socket.remoteAddress
+  const now = Date.now()
 
-    if (!requests.has(ip)) {
-        requests.set(ip, [])
-    }
+  if (!requests.has(ip)) {
+    requests.set(ip, [])
+  }
 
-    const userRequests = requests.get(ip)
-    const recentRequests = userRequests.filter((time) => now - time < WINDOW_MS)
+  const userRequests = requests.get(ip)
+  const recentRequests = userRequests.filter((time) => now - time < WINDOW_MS)
 
-    if (recentRequests.length >= MAX_REQUESTS) {
-        throw createError({
-            statusCode: 429,
-            message: 'Too many requests',
-        })
-    }
+  if (recentRequests.length >= MAX_REQUESTS) {
+    throw createError({
+      statusCode: 429,
+      message: 'Too many requests',
+    })
+  }
 
-    recentRequests.push(now)
-    requests.set(ip, recentRequests)
+  recentRequests.push(now)
+  requests.set(ip, recentRequests)
 })
 ```
 
@@ -357,11 +357,11 @@ Update `package.json`:
 
 ```json
 {
-    "scripts": {
-        "db:generate": "drizzle-kit generate",
-        "db:migrate": "drizzle-kit migrate",
-        "db:push:dev": "drizzle-kit push"
-    }
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push:dev": "drizzle-kit push"
+  }
 }
 ```
 
@@ -407,49 +407,49 @@ npm install -D @playwright/test
 #### Implemented ✅
 
 1. **One-Click Installation**
-    - Automated install script reduces setup from 30 min to 5 min
-    - Interactive wizard guides through configuration
-    - Validation script catches common errors
+   - Automated install script reduces setup from 30 min to 5 min
+   - Interactive wizard guides through configuration
+   - Validation script catches common errors
 
 2. **Multiple Deployment Options**
-    - Docker (easiest)
-    - VPS with PM2 (recommended)
-    - Bare metal (advanced)
-    - Comprehensive guide for each
+   - Docker (easiest)
+   - VPS with PM2 (recommended)
+   - Bare metal (advanced)
+   - Comprehensive guide for each
 
 3. **Production-Ready Defaults**
-    - Docker Compose configs optimized for production
-    - Security best practices included
-    - Health checks enabled by default
+   - Docker Compose configs optimized for production
+   - Security best practices included
+   - Health checks enabled by default
 
 4. **Troubleshooting Guide**
-    - Common issues documented
-    - Solutions provided
-    - Debug commands included
+   - Common issues documented
+   - Solutions provided
+   - Debug commands included
 
 #### Recommended 📝
 
 1. **Web-Based Installer**
-    - Create `setup.html` that runs in browser
-    - Guides through configuration
-    - Downloads configured `.env` file
-    - Tests connections before proceeding
+   - Create `setup.html` that runs in browser
+   - Guides through configuration
+   - Downloads configured `.env` file
+   - Tests connections before proceeding
 
 2. **One-Command Deploy**
 
-    ```bash
-    curl -fsSL https://cs2inspect.com/install.sh | bash
-    ```
+   ```bash
+   curl -fsSL https://cs2inspect.com/install.sh | bash
+   ```
 
 3. **Video Tutorials**
-    - Record installation walkthrough
-    - Show common deployment scenarios
-    - Demonstrate troubleshooting
+   - Record installation walkthrough
+   - Show common deployment scenarios
+   - Demonstrate troubleshooting
 
 4. **Community Support**
-    - Setup Discord server
-    - Create FAQ from common issues
-    - Document user deployments
+   - Setup Discord server
+   - Create FAQ from common issues
+   - Document user deployments
 
 ---
 
@@ -458,46 +458,46 @@ npm install -D @playwright/test
 ### Implemented ✅
 
 1. **Makefile Commands**
-    - Simplified common tasks
-    - Self-documenting
-    - Cross-platform compatible
+   - Simplified common tasks
+   - Self-documenting
+   - Cross-platform compatible
 
 2. **Automated Scripts**
-    - Installation automation
-    - Configuration wizard
-    - Validation checks
+   - Installation automation
+   - Configuration wizard
+   - Validation checks
 
 3. **Better Docker Workflow**
-    - Separate dev/prod configs
-    - Hot reload in development
-    - Optimized production builds
+   - Separate dev/prod configs
+   - Hot reload in development
+   - Optimized production builds
 
 4. **Documentation**
-    - Comprehensive guides
-    - Code examples
-    - Architecture documentation
+   - Comprehensive guides
+   - Code examples
+   - Architecture documentation
 
 ### Recommended 📝
 
 1. **IDE Configuration**
-    - Add `.vscode/settings.json` with recommended settings
-    - Add `.vscode/extensions.json` with recommended extensions
-    - Add debug configurations
+   - Add `.vscode/settings.json` with recommended settings
+   - Add `.vscode/extensions.json` with recommended extensions
+   - Add debug configurations
 
 2. **Development Containers**
-    - Create `.devcontainer/devcontainer.json`
-    - Enables GitHub Codespaces
-    - Consistent dev environment
+   - Create `.devcontainer/devcontainer.json`
+   - Enables GitHub Codespaces
+   - Consistent dev environment
 
 3. **Storybook for Components**
-    - Document UI components
-    - Enable visual testing
-    - Improve component development
+   - Document UI components
+   - Enable visual testing
+   - Improve component development
 
 4. **API Client Generator**
-    - Generate TypeScript client from OpenAPI spec
-    - Type-safe API calls
-    - Auto-completion in IDE
+   - Generate TypeScript client from OpenAPI spec
+   - Type-safe API calls
+   - Auto-completion in IDE
 
 ---
 
@@ -523,24 +523,24 @@ npm install -D @playwright/test
 ### Recommended Actions
 
 1. **Increase Test Coverage**
-    - Aim for 80%+ coverage
-    - Focus on business logic
-    - Add E2E tests for critical paths
+   - Aim for 80%+ coverage
+   - Focus on business logic
+   - Add E2E tests for critical paths
 
 2. **Add Code Formatting**
-    - Install Prettier
-    - Configure pre-commit hooks
-    - Add format checking to CI
+   - Install Prettier
+   - Configure pre-commit hooks
+   - Add format checking to CI
 
 3. **Code Review Guidelines**
-    - Create `CONTRIBUTING.md`
-    - Define PR template
-    - Set up branch protection rules
+   - Create `CONTRIBUTING.md`
+   - Define PR template
+   - Set up branch protection rules
 
 4. **Documentation Standards**
-    - JSDoc comments for public APIs
-    - Component documentation
-    - Architecture decision records (ADRs)
+   - JSDoc comments for public APIs
+   - Component documentation
+   - Architecture decision records (ADRs)
 
 ---
 
@@ -549,41 +549,41 @@ npm install -D @playwright/test
 ### Implemented ✅
 
 1. **Docker Security**
-    - Alpine-based images (smaller attack surface)
-    - Non-root user in containers
-    - Health checks enabled
+   - Alpine-based images (smaller attack surface)
+   - Non-root user in containers
+   - Health checks enabled
 
 2. **Environment Validation**
-    - Validates required variables
-    - Checks password strength
-    - Tests database connections
+   - Validates required variables
+   - Checks password strength
+   - Tests database connections
 
 3. **Security Documentation**
-    - Security checklist in self-hosting guide
-    - Firewall configuration
-    - SSL/TLS setup
+   - Security checklist in self-hosting guide
+   - Firewall configuration
+   - SSL/TLS setup
 
 ### Recommended 📝
 
 1. **Dependency Scanning**
-    - GitHub Dependabot enabled
-    - Regular `npm audit` runs
-    - Automated security updates
+   - GitHub Dependabot enabled
+   - Regular `npm audit` runs
+   - Automated security updates
 
 2. **Secret Scanning**
-    - Add `.gitignore` rules for sensitive files
-    - Pre-commit hook to prevent secret commits
-    - Use environment variables for all secrets
+   - Add `.gitignore` rules for sensitive files
+   - Pre-commit hook to prevent secret commits
+   - Use environment variables for all secrets
 
 3. **Security Headers**
-    - Add helmet.js or similar
-    - Configure CSP, HSTS, etc.
-    - Already have some in Nginx config
+   - Add helmet.js or similar
+   - Configure CSP, HSTS, etc.
+   - Already have some in Nginx config
 
 4. **Regular Security Audits**
-    - Schedule monthly security reviews
-    - Update dependencies regularly
-    - Monitor security advisories
+   - Schedule monthly security reviews
+   - Update dependencies regularly
+   - Monitor security advisories
 
 ---
 
@@ -592,25 +592,25 @@ npm install -D @playwright/test
 ### Potential Optimizations
 
 1. **Database Optimization**
-    - Add indexes for frequently queried columns
-    - Optimize slow queries
-    - Implement query caching
-    - Connection pooling (already configured)
+   - Add indexes for frequently queried columns
+   - Optimize slow queries
+   - Implement query caching
+   - Connection pooling (already configured)
 
 2. **API Caching**
-    - Cache Steam API responses
-    - Use Redis for session storage
-    - Implement ETag support
+   - Cache Steam API responses
+   - Use Redis for session storage
+   - Implement ETag support
 
 3. **Asset Optimization**
-    - Image optimization pipeline
-    - Lazy loading for images
-    - CDN for static assets
+   - Image optimization pipeline
+   - Lazy loading for images
+   - CDN for static assets
 
 4. **Code Splitting**
-    - Route-based code splitting
-    - Component lazy loading
-    - Tree shaking optimization
+   - Route-based code splitting
+   - Component lazy loading
+   - Tree shaking optimization
 
 ---
 

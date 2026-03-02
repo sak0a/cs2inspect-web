@@ -1,168 +1,168 @@
 <script setup lang="ts">
 import {
-    LucideFileQuestion,
-    LucideShieldX,
-    LucideLock,
-    LucideServerCrash,
-    LucideClock,
-    LucideConstruction,
-    LucideAlertTriangle,
-    LucideArrowLeft,
-    LucideHome,
+  LucideFileQuestion,
+  LucideShieldX,
+  LucideLock,
+  LucideServerCrash,
+  LucideClock,
+  LucideConstruction,
+  LucideAlertTriangle,
+  LucideArrowLeft,
+  LucideHome,
 } from 'lucide-vue-next'
 import type { NuxtError } from '#app'
 
 interface ErrorConfig {
-    icon: typeof LucideAlertTriangle
-    title: string
-    message: string
-    color: string
-    colorRgb: string
+  icon: typeof LucideAlertTriangle
+  title: string
+  message: string
+  color: string
+  colorRgb: string
 }
 
 const props = defineProps<{
-    error: NuxtError
+  error: NuxtError
 }>()
 
 const isDev = import.meta.dev
 
 const errorMap: Record<number, ErrorConfig> = {
-    404: {
-        icon: LucideFileQuestion,
-        title: 'Page Not Found',
-        message: 'The page you are looking for does not exist or has been moved.',
-        color: '#FACC15',
-        colorRgb: '250, 204, 21',
-    },
-    403: {
-        icon: LucideShieldX,
-        title: 'Access Forbidden',
-        message: 'You do not have permission to access this resource.',
-        color: '#F97316',
-        colorRgb: '249, 115, 22',
-    },
-    401: {
-        icon: LucideLock,
-        title: 'Authentication Required',
-        message: 'Please sign in to access this page.',
-        color: '#F59E0B',
-        colorRgb: '245, 158, 11',
-    },
-    500: {
-        icon: LucideServerCrash,
-        title: 'Internal Server Error',
-        message: 'Something went wrong on our end. Please try again later.',
-        color: '#EF4444',
-        colorRgb: '239, 68, 68',
-    },
-    408: {
-        icon: LucideClock,
-        title: 'Request Timeout',
-        message: 'The request took too long to process. Please try again.',
-        color: '#8B5CF6',
-        colorRgb: '139, 92, 246',
-    },
-    503: {
-        icon: LucideConstruction,
-        title: 'Service Unavailable',
-        message: 'The service is temporarily unavailable. Please try again in a few moments.',
-        color: '#F59E0B',
-        colorRgb: '245, 158, 11',
-    },
+  404: {
+    icon: LucideFileQuestion,
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist or has been moved.',
+    color: '#FACC15',
+    colorRgb: '250, 204, 21',
+  },
+  403: {
+    icon: LucideShieldX,
+    title: 'Access Forbidden',
+    message: 'You do not have permission to access this resource.',
+    color: '#F97316',
+    colorRgb: '249, 115, 22',
+  },
+  401: {
+    icon: LucideLock,
+    title: 'Authentication Required',
+    message: 'Please sign in to access this page.',
+    color: '#F59E0B',
+    colorRgb: '245, 158, 11',
+  },
+  500: {
+    icon: LucideServerCrash,
+    title: 'Internal Server Error',
+    message: 'Something went wrong on our end. Please try again later.',
+    color: '#EF4444',
+    colorRgb: '239, 68, 68',
+  },
+  408: {
+    icon: LucideClock,
+    title: 'Request Timeout',
+    message: 'The request took too long to process. Please try again.',
+    color: '#8B5CF6',
+    colorRgb: '139, 92, 246',
+  },
+  503: {
+    icon: LucideConstruction,
+    title: 'Service Unavailable',
+    message: 'The service is temporarily unavailable. Please try again in a few moments.',
+    color: '#F59E0B',
+    colorRgb: '245, 158, 11',
+  },
 }
 
 const defaultError: ErrorConfig = {
-    icon: LucideAlertTriangle,
-    title: 'Unexpected Error',
-    message: 'An unexpected error occurred. Please try again.',
-    color: '#EF4444',
-    colorRgb: '239, 68, 68',
+  icon: LucideAlertTriangle,
+  title: 'Unexpected Error',
+  message: 'An unexpected error occurred. Please try again.',
+  color: '#EF4444',
+  colorRgb: '239, 68, 68',
 }
 
 const errorConfig = computed(() => {
-    const code = props.error.status ?? 0
-    return errorMap[code] ?? defaultError
+  const code = props.error.status ?? 0
+  return errorMap[code] ?? defaultError
 })
 
 function handleGoBack() {
-    if (window.history.length > 2) {
-        clearError()
-        window.history.back()
-    } else {
-        clearError({ redirect: '/' })
-    }
+  if (window.history.length > 2) {
+    clearError()
+    window.history.back()
+  } else {
+    clearError({ redirect: '/' })
+  }
 }
 
 function handleGoHome() {
-    clearError({ redirect: '/' })
+  clearError({ redirect: '/' })
 }
 </script>
 
 <template>
-    <div class="error-page">
-        <div class="error-bg" />
+  <div class="error-page">
+    <div class="error-bg" />
 
-        <div class="error-container">
-            <!-- Icon -->
-            <div
-                class="error-icon"
-                :style="{
-                    background: `rgba(${errorConfig.colorRgb}, 0.1)`,
-                    borderColor: `rgba(${errorConfig.colorRgb}, 0.15)`,
-                }"
-            >
-                <component :is="errorConfig.icon" :size="32" :color="errorConfig.color" />
-            </div>
+    <div class="error-container">
+      <!-- Icon -->
+      <div
+        class="error-icon"
+        :style="{
+          background: `rgba(${errorConfig.colorRgb}, 0.1)`,
+          borderColor: `rgba(${errorConfig.colorRgb}, 0.15)`,
+        }"
+      >
+        <component :is="errorConfig.icon" :size="32" :color="errorConfig.color" />
+      </div>
 
-            <!-- Error code -->
-            <div class="error-code" :style="{ color: errorConfig.color }">
-                {{ error.status }}
-            </div>
+      <!-- Error code -->
+      <div class="error-code" :style="{ color: errorConfig.color }">
+        {{ error.status }}
+      </div>
 
-            <!-- Title -->
-            <h1 class="error-title">
-                {{ errorConfig.title }}
-            </h1>
+      <!-- Title -->
+      <h1 class="error-title">
+        {{ errorConfig.title }}
+      </h1>
 
-            <!-- Message -->
-            <p class="error-message">
-                {{ error.statusText || errorConfig.message }}
-            </p>
+      <!-- Message -->
+      <p class="error-message">
+        {{ error.statusText || errorConfig.message }}
+      </p>
 
-            <!-- Debug panel (dev only) -->
-            <div v-if="isDev" class="debug-panel">
-                <div class="debug-header">Debug</div>
-                <div class="debug-row">
-                    <span class="debug-key">Status</span>
-                    <span class="debug-value">{{ error.status }}</span>
-                </div>
-                <div class="debug-row">
-                    <span class="debug-key">Status Text</span>
-                    <span class="debug-value">{{ error.statusText || '(none)' }}</span>
-                </div>
-                <div class="debug-row">
-                    <span class="debug-key">Message</span>
-                    <span class="debug-value">{{ error.message || '(none)' }}</span>
-                </div>
-                <div v-if="error.stack" class="debug-stack">
-                    <div class="debug-key">Stack Trace</div>
-                    <pre class="debug-stack-content">{{ error.stack }}</pre>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="error-actions">
-                <button class="btn btn-secondary" @click="handleGoBack">
-                    <LucideArrowLeft :size="16" />
-                    Go Back
-                </button>
-                <button class="btn btn-primary" @click="handleGoHome">
-                    <LucideHome :size="16" />
-                    Go Home
-                </button>
-            </div>
+      <!-- Debug panel (dev only) -->
+      <div v-if="isDev" class="debug-panel">
+        <div class="debug-header">Debug</div>
+        <div class="debug-row">
+          <span class="debug-key">Status</span>
+          <span class="debug-value">{{ error.status }}</span>
         </div>
+        <div class="debug-row">
+          <span class="debug-key">Status Text</span>
+          <span class="debug-value">{{ error.statusText || '(none)' }}</span>
+        </div>
+        <div class="debug-row">
+          <span class="debug-key">Message</span>
+          <span class="debug-value">{{ error.message || '(none)' }}</span>
+        </div>
+        <div v-if="error.stack" class="debug-stack">
+          <div class="debug-key">Stack Trace</div>
+          <pre class="debug-stack-content">{{ error.stack }}</pre>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="error-actions">
+        <button class="btn btn-secondary" @click="handleGoBack">
+          <LucideArrowLeft :size="16" />
+          Go Back
+        </button>
+        <button class="btn btn-primary" @click="handleGoHome">
+          <LucideHome :size="16" />
+          Go Home
+        </button>
+      </div>
     </div>
+  </div>
 </template>
 
 <style scoped lang="sass">

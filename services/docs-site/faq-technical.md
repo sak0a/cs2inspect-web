@@ -111,10 +111,10 @@ Technical issues, error messages, and troubleshooting guides.
 **Solutions**:
 
 - Ensure both the plugin and web application use the **same database**:
-    - Same database host
-    - Same database port
-    - Same database name
-    - Same database user and password
+  - Same database host
+  - Same database port
+  - Same database name
+  - Same database user and password
 - Check plugin configuration file (`config.json` in plugin directory)
 - Check web application `.env` file
 - Verify database connection from both components

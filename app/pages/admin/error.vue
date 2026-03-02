@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import {
-    LucideShieldAlert as ShieldAlertIcon,
-    LucideLogIn as LogInIcon,
-    LucideHome as HomeIcon,
-    LucideRefreshCw as RefreshIcon,
-    LucideArrowLeft as ArrowLeftIcon,
+  LucideShieldAlert as ShieldAlertIcon,
+  LucideLogIn as LogInIcon,
+  LucideHome as HomeIcon,
+  LucideRefreshCw as RefreshIcon,
+  LucideArrowLeft as ArrowLeftIcon,
 } from 'lucide-vue-next'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 
 definePageMeta({
-    layout: 'blank',
+  layout: 'blank',
 })
 
 const route = useRoute()
@@ -18,7 +18,7 @@ const isDev = import.meta.dev
 
 const user = ref<SteamUser | null>(null)
 onMounted(() => {
-    user.value = steamAuth.getSavedUser()
+  user.value = steamAuth.getSavedUser()
 })
 
 const isLoggedIn = computed(() => !!user.value)
@@ -27,130 +27,129 @@ const errorType = computed(() => (route.query.error as string) || 'unknown')
 const redirectPath = computed(() => (route.query.redirect as string) || '/admin')
 
 const errorInfo = computed(() => {
-    switch (errorType.value) {
-        case 'admin_required':
-            return isLoggedIn.value
-                ? {
-                      title: 'Admin Access Required',
-                      message: 'Your account does not have administrator privileges.',
-                      details: 'Contact a server admin if you believe this is a mistake.',
-                  }
-                : {
-                      title: 'Authentication Required',
-                      message: 'Please sign in with Steam to access the admin panel.',
-                      details: 'You need to be signed in with an account that has admin access.',
-                  }
-        case 'superadmin_required':
-            return {
-                title: 'Super Admin Required',
-                message: 'This page requires super administrator privileges.',
-                details:
-                    'Your account has admin access but this page requires elevated permissions.',
-            }
-        case 'not_authenticated':
-            return {
-                title: 'Authentication Required',
-                message: 'Please sign in with Steam to access the admin panel.',
-                details: 'You need to be signed in with an account that has admin access.',
-            }
-        default:
-            return {
-                title: 'Access Denied',
-                message: 'You do not have permission to access this resource.',
-                details: `Error: ${errorType.value}`,
-            }
-    }
+  switch (errorType.value) {
+    case 'admin_required':
+      return isLoggedIn.value
+        ? {
+            title: 'Admin Access Required',
+            message: 'Your account does not have administrator privileges.',
+            details: 'Contact a server admin if you believe this is a mistake.',
+          }
+        : {
+            title: 'Authentication Required',
+            message: 'Please sign in with Steam to access the admin panel.',
+            details: 'You need to be signed in with an account that has admin access.',
+          }
+    case 'superadmin_required':
+      return {
+        title: 'Super Admin Required',
+        message: 'This page requires super administrator privileges.',
+        details: 'Your account has admin access but this page requires elevated permissions.',
+      }
+    case 'not_authenticated':
+      return {
+        title: 'Authentication Required',
+        message: 'Please sign in with Steam to access the admin panel.',
+        details: 'You need to be signed in with an account that has admin access.',
+      }
+    default:
+      return {
+        title: 'Access Denied',
+        message: 'You do not have permission to access this resource.',
+        details: `Error: ${errorType.value}`,
+      }
+  }
 })
 
 function handleLogin() {
-    window.location.href = `/api/auth/steam?returnTo=${encodeURIComponent(redirectPath.value)}`
+  window.location.href = `/api/auth/steam?returnTo=${encodeURIComponent(redirectPath.value)}`
 }
 
 function handleRetry() {
-    router.push(redirectPath.value)
+  router.push(redirectPath.value)
 }
 
 function handleGoHome() {
-    router.push('/')
+  router.push('/')
 }
 </script>
 
 <template>
-    <div class="admin-error-page">
-        <div class="error-bg" />
-        <div class="error-container">
-            <!-- Icon -->
-            <div class="error-icon">
-                <NIcon :component="ShieldAlertIcon" :size="32" />
-            </div>
+  <div class="admin-error-page">
+    <div class="error-bg" />
+    <div class="error-container">
+      <!-- Icon -->
+      <div class="error-icon">
+        <NIcon :component="ShieldAlertIcon" :size="32" />
+      </div>
 
-            <!-- Title & message -->
-            <h1 class="error-title">
-                {{ errorInfo.title }}
-            </h1>
-            <p class="error-message">
-                {{ errorInfo.message }}
-            </p>
+      <!-- Title & message -->
+      <h1 class="error-title">
+        {{ errorInfo.title }}
+      </h1>
+      <p class="error-message">
+        {{ errorInfo.message }}
+      </p>
 
-            <!-- User card (logged in) -->
-            <div v-if="isLoggedIn && user" class="user-card">
-                <img :src="user.avatarFull" :alt="user.personaName" class="user-card-avatar" />
-                <div class="user-card-info">
-                    <span class="user-card-name">{{ user.personaName }}</span>
-                    <code class="user-card-steamid">{{ user.steamId }}</code>
-                </div>
-            </div>
-
-            <!-- Details -->
-            <p class="error-details">
-                {{ errorInfo.details }}
-            </p>
-
-            <!-- Debug panel (dev only) -->
-            <div v-if="isDev" class="debug-panel">
-                <div class="debug-header">Debug</div>
-                <div class="debug-row">
-                    <span class="debug-key">Error</span>
-                    <span class="debug-value">{{ errorType }}</span>
-                </div>
-                <div class="debug-row">
-                    <span class="debug-key">Redirect</span>
-                    <span class="debug-value">{{ redirectPath }}</span>
-                </div>
-                <div class="debug-row">
-                    <span class="debug-key">Steam ID</span>
-                    <span class="debug-value">{{ user?.steamId || 'null' }}</span>
-                </div>
-            </div>
-
-            <!-- Actions -->
-            <div class="error-actions">
-                <button v-if="!isLoggedIn" class="btn btn-primary" @click="handleLogin">
-                    <NIcon :component="LogInIcon" :size="16" />
-                    Sign in with Steam
-                </button>
-
-                <button v-if="isLoggedIn" class="btn btn-secondary" @click="handleRetry">
-                    <NIcon :component="RefreshIcon" :size="16" />
-                    Try Again
-                </button>
-
-                <button
-                    v-if="isLoggedIn && errorType === 'superadmin_required'"
-                    class="btn btn-ghost"
-                    @click="router.push('/admin')"
-                >
-                    <NIcon :component="ArrowLeftIcon" :size="16" />
-                    Back to Dashboard
-                </button>
-
-                <button class="btn btn-ghost" @click="handleGoHome">
-                    <NIcon :component="HomeIcon" :size="16" />
-                    Go Home
-                </button>
-            </div>
+      <!-- User card (logged in) -->
+      <div v-if="isLoggedIn && user" class="user-card">
+        <img :src="user.avatarFull" :alt="user.personaName" class="user-card-avatar" />
+        <div class="user-card-info">
+          <span class="user-card-name">{{ user.personaName }}</span>
+          <code class="user-card-steamid">{{ user.steamId }}</code>
         </div>
+      </div>
+
+      <!-- Details -->
+      <p class="error-details">
+        {{ errorInfo.details }}
+      </p>
+
+      <!-- Debug panel (dev only) -->
+      <div v-if="isDev" class="debug-panel">
+        <div class="debug-header">Debug</div>
+        <div class="debug-row">
+          <span class="debug-key">Error</span>
+          <span class="debug-value">{{ errorType }}</span>
+        </div>
+        <div class="debug-row">
+          <span class="debug-key">Redirect</span>
+          <span class="debug-value">{{ redirectPath }}</span>
+        </div>
+        <div class="debug-row">
+          <span class="debug-key">Steam ID</span>
+          <span class="debug-value">{{ user?.steamId || 'null' }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="error-actions">
+        <button v-if="!isLoggedIn" class="btn btn-primary" @click="handleLogin">
+          <NIcon :component="LogInIcon" :size="16" />
+          Sign in with Steam
+        </button>
+
+        <button v-if="isLoggedIn" class="btn btn-secondary" @click="handleRetry">
+          <NIcon :component="RefreshIcon" :size="16" />
+          Try Again
+        </button>
+
+        <button
+          v-if="isLoggedIn && errorType === 'superadmin_required'"
+          class="btn btn-ghost"
+          @click="router.push('/admin')"
+        >
+          <NIcon :component="ArrowLeftIcon" :size="16" />
+          Back to Dashboard
+        </button>
+
+        <button class="btn btn-ghost" @click="handleGoHome">
+          <NIcon :component="HomeIcon" :size="16" />
+          Go Home
+        </button>
+      </div>
     </div>
+  </div>
 </template>
 
 <style scoped lang="sass">

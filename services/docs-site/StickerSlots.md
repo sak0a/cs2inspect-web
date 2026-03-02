@@ -101,8 +101,8 @@ ext_y ~= (dy_canvas / H_img) * (REF_HEIGHT / extYRef)
 1. Move a sticker by a known number of pixels in our UI; note `dx_px`, `dy_px`.
 2. Put the sticker in the same spot on the other site and note their displayed normalized offsets `x_ext`, `y_ext`.
 3. Adjust denominators until our readout matches. You can start with an estimate:
-    - If our current readout is `y_ext_ours` but theirs is `y_ext_target`, then:
-      `new_extYRef ≈ current_extYRef * (y_ext_ours / y_ext_target)` (increase to reduce our value)
+   - If our current readout is `y_ext_ours` but theirs is `y_ext_target`, then:
+     `new_extYRef ≈ current_extYRef * (y_ext_ours / y_ext_target)` (increase to reduce our value)
 
 Add your calibrated numbers to `EXTERNAL_NORMALIZATION_REFS` for the weapon.
 
@@ -135,9 +135,9 @@ You can further refine these by tweaking in the UI (Normalized mode) and then co
 - [ ] Add normalized slots under the cleaned weapon name in `WEAPON_STICKER_SLOT_POSITIONS`
 - [ ] (Optional) Calibrate `EXTERNAL_NORMALIZATION_REFS[weapon] = { x, y }` to match other site’s normalized offsets
 - [ ] Test in the Visual Customizer:
-    - Select weapon, add stickers, check default placement
-    - Toggle Pixels vs Normalized (ext) and verify expected values
-    - Drag and use arrow keys to confirm step consistency
+  - Select weapon, add stickers, check default placement
+  - Toggle Pixels vs Normalized (ext) and verify expected values
+  - Drag and use arrow keys to confirm step consistency
 
 ---
 

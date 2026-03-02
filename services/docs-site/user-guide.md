@@ -59,13 +59,13 @@ To customize a weapon:
 1. **Select the weapon** from the weapon grid or menu
 2. **Choose a skin** from the available options
 3. **Adjust settings**:
-    - **Float Value**: Controls wear (lower = cleaner)
-    - **StatTrak™**: Enable to add a kill counter
-    - **Name Tag**: Give your weapon a custom name
+   - **Float Value**: Controls wear (lower = cleaner)
+   - **StatTrak™**: Enable to add a kill counter
+   - **Name Tag**: Give your weapon a custom name
 4. **Add stickers** (optional):
-    - Click an empty sticker slot
-    - Search for a sticker
-    - Click to apply it
+   - Click an empty sticker slot
+   - Search for a sticker
+   - Click to apply it
 5. **Save** your changes
 
 ::: tip Quick Tips
@@ -166,17 +166,17 @@ Once you're on a server with the plugin:
 1. **Your loadout loads automatically** when you join
 2. Your configured weapons, knives, gloves, agents, music kit, and pin will appear in-game
 3. Use in-game commands to manage your items:
-    - **Switch loadout**: `!loadout <name>` or `!switch <name>`
-    - **List loadouts**: `!loadouts`
-    - **Change knife**: `!knife <type>` (e.g., `!knife karambit`)
-    - **Change knife + customize**: `!karambit doppler4 .02 s991 t444` (switch and configure in one command)
-    - **Change gloves**: `!glove <type>`
-    - **Change gloves + customize**: `!sport superconductor .02 s991` (switch and configure in one command)
-    - **Change agent**: `!agent <type>`
-    - **Configure weapon**: `!g <weapon> <config>` (e.g., `!g ak47 printstream .02`)
-    - **View all commands**: `!cs2inspect`
-    - **Use Steam inventory items**: `!knife inventory`, `!glove inventory`, etc.
-    - **Reset to vanilla**: `!knife default`, `!glove default`, etc.
+   - **Switch loadout**: `!loadout <name>` or `!switch <name>`
+   - **List loadouts**: `!loadouts`
+   - **Change knife**: `!knife <type>` (e.g., `!knife karambit`)
+   - **Change knife + customize**: `!karambit doppler4 .02 s991 t444` (switch and configure in one command)
+   - **Change gloves**: `!glove <type>`
+   - **Change gloves + customize**: `!sport superconductor .02 s991` (switch and configure in one command)
+   - **Change agent**: `!agent <type>`
+   - **Configure weapon**: `!g <weapon> <config>` (e.g., `!g ak47 printstream .02`)
+   - **View all commands**: `!cs2inspect`
+   - **Use Steam inventory items**: `!knife inventory`, `!glove inventory`, etc.
+   - **Reset to vanilla**: `!knife default`, `!glove default`, etc.
 
 ::: tip Full Command Reference
 For the complete list of commands including the advanced weapon configuration syntax, per-knife shortcuts, and admin commands, see the [Plugin Commands](plugin/commands.md) documentation.
@@ -187,9 +187,9 @@ For the complete list of commands including the advanced weapon configuration sy
 You can import item configurations from CS2 inspect links:
 
 1. Copy an inspect link from:
-    - Steam Market listings
-    - In-game inspect links
-    - Inventory items
+   - Steam Market listings
+   - In-game inspect links
+   - Inventory items
 2. Go to the **inspect link import** section in CS2Inspect
 3. Paste the inspect link
 4. Click **"Import"**

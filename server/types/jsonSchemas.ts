@@ -37,18 +37,18 @@ import { isValidFloatValue, isValidStatTrakCount } from '~/types'
  * - `wear` → `toFloatValue(wear)` for FloatValue (0-1)
  */
 export interface StickerJSON {
-    /** Sticker ID (from CS2 item definitions) - convert to StickerId */
-    id: number
-    /** X-axis position offset (0-1 normalized) - convert to NormalizedCoordinate */
-    x: number
-    /** Y-axis position offset (0-1 normalized) - convert to NormalizedCoordinate */
-    y: number
-    /** Wear/condition of the sticker (0-1, where 0 is pristine) - convert to FloatValue */
-    wear: number
-    /** Scale/size of the sticker */
-    scale: number
-    /** Rotation angle in degrees */
-    rotation: number
+  /** Sticker ID (from CS2 item definitions) - convert to StickerId */
+  id: number
+  /** X-axis position offset (0-1 normalized) - convert to NormalizedCoordinate */
+  x: number
+  /** Y-axis position offset (0-1 normalized) - convert to NormalizedCoordinate */
+  y: number
+  /** Wear/condition of the sticker (0-1, where 0 is pristine) - convert to FloatValue */
+  wear: number
+  /** Scale/size of the sticker */
+  scale: number
+  /** Rotation angle in degrees */
+  rotation: number
 }
 
 // ============================================================================
@@ -67,20 +67,20 @@ export interface StickerJSON {
  * - `wrapped_sticker_id` → `toStickerId(id)` for StickerId (when present)
  */
 export interface KeychainJSON {
-    /** Keychain ID (from CS2 item definitions) - convert to KeychainId */
-    id: number
-    /** X-axis position offset */
-    x: number
-    /** Y-axis position offset */
-    y: number
-    /** Z-axis position offset */
-    z: number
-    /** Random seed for keychain generation (0-999) - convert to PaintSeed */
-    seed: number
-    /** ID of the sticker wrapped inside the charm (for Sticker Slabs) - convert to StickerId */
-    wrapped_sticker_id?: number | null
-    /** ID of the highlight reel (for Highlight Reel charms) */
-    highlight_reel_id?: number | null
+  /** Keychain ID (from CS2 item definitions) - convert to KeychainId */
+  id: number
+  /** X-axis position offset */
+  x: number
+  /** Y-axis position offset */
+  y: number
+  /** Z-axis position offset */
+  z: number
+  /** Random seed for keychain generation (0-999) - convert to PaintSeed */
+  seed: number
+  /** ID of the sticker wrapped inside the charm (for Sticker Slabs) - convert to StickerId */
+  wrapped_sticker_id?: number | null
+  /** ID of the highlight reel (for Highlight Reel charms) */
+  highlight_reel_id?: number | null
 }
 
 // ============================================================================
@@ -102,18 +102,18 @@ export const createEmptyKeychainJSON = (): KeychainJSON | null => null
  * Uses branded type validators for proper range checking
  */
 export const isValidStickerJSON = (sticker: unknown): sticker is StickerJSON => {
-    if (!sticker || typeof sticker !== 'object') return false
-    const s = sticker as Record<string, unknown>
+  if (!sticker || typeof sticker !== 'object') return false
+  const s = sticker as Record<string, unknown>
 
-    // Basic type checks
-    if (typeof s.id !== 'number' || !isValidStatTrakCount(s.id)) return false // id must be non-negative integer
-    if (typeof s.x !== 'number') return false
-    if (typeof s.y !== 'number') return false
-    if (typeof s.wear !== 'number' || !isValidFloatValue(s.wear)) return false // wear must be 0-1
-    if (typeof s.scale !== 'number') return false
-    if (typeof s.rotation !== 'number') return false
+  // Basic type checks
+  if (typeof s.id !== 'number' || !isValidStatTrakCount(s.id)) return false // id must be non-negative integer
+  if (typeof s.x !== 'number') return false
+  if (typeof s.y !== 'number') return false
+  if (typeof s.wear !== 'number' || !isValidFloatValue(s.wear)) return false // wear must be 0-1
+  if (typeof s.scale !== 'number') return false
+  if (typeof s.rotation !== 'number') return false
 
-    return true
+  return true
 }
 
 /**
@@ -121,29 +121,29 @@ export const isValidStickerJSON = (sticker: unknown): sticker is StickerJSON => 
  * Uses branded type validators for proper range checking
  */
 export const isValidKeychainJSON = (keychain: unknown): keychain is KeychainJSON => {
-    if (!keychain || typeof keychain !== 'object') return false
-    const k = keychain as Record<string, unknown>
+  if (!keychain || typeof keychain !== 'object') return false
+  const k = keychain as Record<string, unknown>
 
-    // Basic type checks
-    if (typeof k.id !== 'number' || !isValidStatTrakCount(k.id)) return false // id must be non-negative integer
-    if (typeof k.x !== 'number') return false
-    if (typeof k.y !== 'number') return false
-    if (typeof k.z !== 'number') return false
-    if (typeof k.seed !== 'number') return false
+  // Basic type checks
+  if (typeof k.id !== 'number' || !isValidStatTrakCount(k.id)) return false // id must be non-negative integer
+  if (typeof k.x !== 'number') return false
+  if (typeof k.y !== 'number') return false
+  if (typeof k.z !== 'number') return false
+  if (typeof k.seed !== 'number') return false
 
-    return true
+  return true
 }
 
 /**
  * Checks if a sticker is empty (id is 0 or missing)
  */
 export const isEmptySticker = (sticker: StickerJSON | null | undefined): boolean => {
-    return !sticker || sticker.id === 0
+  return !sticker || sticker.id === 0
 }
 
 /**
  * Checks if a keychain is empty (id is 0 or missing)
  */
 export const isEmptyKeychain = (keychain: KeychainJSON | null | undefined): boolean => {
-    return !keychain || keychain.id === 0
+  return !keychain || keychain.id === 0
 }

@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { h } from 'vue'
 import {
-    LucideLayoutDashboard as DashboardIcon,
-    LucideUsers as UsersIcon,
-    LucideHeartPulse as HealthIcon,
-    LucideSettings as SettingsIcon,
-    LucideActivity as ActivityIcon,
-    LucideShield as ShieldIcon,
-    LucidePlug as PlugIcon,
-    LucideHome as HomeIcon,
+  LucideLayoutDashboard as DashboardIcon,
+  LucideUsers as UsersIcon,
+  LucideHeartPulse as HealthIcon,
+  LucideSettings as SettingsIcon,
+  LucideActivity as ActivityIcon,
+  LucideShield as ShieldIcon,
+  LucidePlug as PlugIcon,
+  LucideHome as HomeIcon,
 } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
@@ -25,147 +25,138 @@ const route = useRoute()
 
 // Navigation items
 const navigationItems = computed(() => {
-    const items = [
-        { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon, path: '/admin' },
-        { key: 'users', label: 'Users', icon: UsersIcon, path: '/admin/users' },
-        { key: 'health', label: 'System Health', icon: HealthIcon, path: '/admin/health' },
-        { key: 'settings', label: 'Settings', icon: SettingsIcon, path: '/admin/settings' },
-        { key: 'activity', label: 'Activity Log', icon: ActivityIcon, path: '/admin/activity' },
-    ]
+  const items = [
+    { key: 'dashboard', label: 'Dashboard', icon: DashboardIcon, path: '/admin' },
+    { key: 'users', label: 'Users', icon: UsersIcon, path: '/admin/users' },
+    { key: 'health', label: 'System Health', icon: HealthIcon, path: '/admin/health' },
+    { key: 'settings', label: 'Settings', icon: SettingsIcon, path: '/admin/settings' },
+    { key: 'activity', label: 'Activity Log', icon: ActivityIcon, path: '/admin/activity' },
+  ]
 
-    // Add superadmin-only pages
-    if (adminStore.isSuperAdmin) {
-        items.push({ key: 'plugin', label: 'Plugin Config', icon: PlugIcon, path: '/admin/plugin' })
-        items.push({
-            key: 'admins',
-            label: 'Admin Management',
-            icon: ShieldIcon,
-            path: '/admin/admins',
-        })
-    }
+  // Add superadmin-only pages
+  if (adminStore.isSuperAdmin) {
+    items.push({ key: 'plugin', label: 'Plugin Config', icon: PlugIcon, path: '/admin/plugin' })
+    items.push({
+      key: 'admins',
+      label: 'Admin Management',
+      icon: ShieldIcon,
+      path: '/admin/admins',
+    })
+  }
 
-    return items
+  return items
 })
 
 const menuOptions = computed(() =>
-    navigationItems.value.map((item) => ({
-        label: item.label,
-        key: item.path,
-        icon: () => h(NIcon, { size: 18 }, { default: () => h(item.icon) }),
-    }))
+  navigationItems.value.map((item) => ({
+    label: item.label,
+    key: item.path,
+    icon: () => h(NIcon, { size: 18 }, { default: () => h(item.icon) }),
+  }))
 )
 
 const selectedKey = ref('/admin')
 
 const resolveActivePath = (path: string) => {
-    if (path === '/admin' || path === '/admin/') return '/admin'
-    const match = navigationItems.value
-        .filter((item) => item.path !== '/admin')
-        .sort((a, b) => b.path.length - a.path.length)
-        .find((item) => path.startsWith(item.path))
-    return match?.path || path
+  if (path === '/admin' || path === '/admin/') return '/admin'
+  const match = navigationItems.value
+    .filter((item) => item.path !== '/admin')
+    .sort((a, b) => b.path.length - a.path.length)
+    .find((item) => path.startsWith(item.path))
+  return match?.path || path
 }
 
 watch(
-    () => route.path,
-    (path) => {
-        selectedKey.value = resolveActivePath(path)
-    },
-    { immediate: true }
+  () => route.path,
+  (path) => {
+    selectedKey.value = resolveActivePath(path)
+  },
+  { immediate: true }
 )
 
 function handleMenuSelect(key: string) {
-    if (key && key !== route.path) {
-        navigateTo(key)
-    }
+  if (key && key !== route.path) {
+    navigateTo(key)
+  }
 }
 
 const adminRoleLabel = computed(() => (adminStore.isSuperAdmin ? 'Super Admin' : 'Admin'))
 
 function handleLogout() {
-    steamAuth.logout()
-    user.value = null
-    window.location.href = '/'
+  steamAuth.logout()
+  user.value = null
+  window.location.href = '/'
 }
 
 // Load user on mount
 onMounted(() => {
-    user.value = steamAuth.getSavedUser()
+  user.value = steamAuth.getSavedUser()
 })
 </script>
 
 <template>
-    <div class="admin-layout">
-        <!-- Top Bar -->
-        <header class="admin-topbar">
-            <div class="admin-topbar-left">
-                <div class="admin-brand">
-                    <div class="admin-brand-icon">
-                        <NIcon :component="ShieldIcon" :size="22" />
-                    </div>
-                    <div class="admin-brand-text">
-                        <span class="admin-brand-title">Admin Panel</span>
-                        <span class="admin-brand-tagline">Control Center</span>
-                    </div>
-                </div>
+  <div class="admin-layout">
+    <!-- Top Bar -->
+    <header class="admin-topbar">
+      <div class="admin-topbar-left">
+        <div class="admin-brand">
+          <div class="admin-brand-icon">
+            <NIcon :component="ShieldIcon" :size="22" />
+          </div>
+          <div class="admin-brand-text">
+            <span class="admin-brand-title">Admin Panel</span>
+            <span class="admin-brand-tagline">Control Center</span>
+          </div>
+        </div>
 
-                <div v-if="user" class="admin-user-compact">
-                    <a
-                        :href="user.profileUrl"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="admin-user-avatar"
-                    >
-                        <img
-                            :src="user.avatarFull"
-                            :alt="user.personaName"
-                            class="w-9 h-9 rounded-full"
-                        />
-                    </a>
-                    <div class="admin-user-details">
-                        <span class="admin-user-name">{{ user.personaName }}</span>
-                        <span class="admin-user-role">{{ adminRoleLabel }}</span>
-                    </div>
-                </div>
-            </div>
+        <div v-if="user" class="admin-user-compact">
+          <a
+            :href="user.profileUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="admin-user-avatar"
+          >
+            <img :src="user.avatarFull" :alt="user.personaName" class="w-9 h-9 rounded-full" />
+          </a>
+          <div class="admin-user-details">
+            <span class="admin-user-name">{{ user.personaName }}</span>
+            <span class="admin-user-role">{{ adminRoleLabel }}</span>
+          </div>
+        </div>
+      </div>
 
-            <div class="admin-topbar-center">
-                <NMenu
-                    mode="horizontal"
-                    :options="menuOptions"
-                    :value="selectedKey"
-                    class="admin-topbar-menu"
-                    @update:value="handleMenuSelect"
-                />
-            </div>
+      <div class="admin-topbar-center">
+        <NMenu
+          mode="horizontal"
+          :options="menuOptions"
+          :value="selectedKey"
+          class="admin-topbar-menu"
+          @update:value="handleMenuSelect"
+        />
+      </div>
 
-            <div class="admin-topbar-right">
-                <SettingsDropdown
-                    trigger="hover"
-                    variant="icon"
-                    size="medium"
-                    @logout="handleLogout"
-                />
-                <NTooltip placement="bottom">
-                    <template #trigger>
-                        <NButton quaternary circle size="small" tag="a" href="/">
-                            <template #icon>
-                                <NIcon :component="HomeIcon" :size="18" />
-                            </template>
-                        </NButton>
-                    </template>
-                    Back to Site
-                </NTooltip>
-            </div>
-        </header>
+      <div class="admin-topbar-right">
+        <SettingsDropdown trigger="hover" variant="icon" size="medium" @logout="handleLogout" />
+        <NTooltip placement="bottom">
+          <template #trigger>
+            <NButton quaternary circle size="small" tag="a" href="/">
+              <template #icon>
+                <NIcon :component="HomeIcon" :size="18" />
+              </template>
+            </NButton>
+          </template>
+          Back to Site
+        </NTooltip>
+      </div>
+    </header>
 
-        <!-- Main Content -->
-        <main class="admin-content">
-            <div class="admin-content-body">
-                <slot />
-            </div>
-        </main>
-    </div>
+    <!-- Main Content -->
+    <main class="admin-content">
+      <div class="admin-content-body">
+        <slot />
+      </div>
+    </main>
+  </div>
 </template>
 
 <style lang="sass">

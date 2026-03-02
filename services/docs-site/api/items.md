@@ -29,38 +29,38 @@ Retrieve weapons of a specific type for the authenticated user's active loadout.
 
 ```json
 {
-    "success": true,
-    "data": [
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "steamid": "76561198012345678",
+      "loadoutid": 1,
+      "team": 2,
+      "weapon_defindex": 7,
+      "weapon_name": "AK-47",
+      "active": 1,
+      "paintindex": 253,
+      "paintseed": 661,
+      "paintwear": 0.15,
+      "stattrak_enabled": 1,
+      "stattrak_count": 1337,
+      "nametag": "The Beast",
+      "stickers": [
         {
-            "id": 1,
-            "steamid": "76561198012345678",
-            "loadoutid": 1,
-            "team": 2,
-            "weapon_defindex": 7,
-            "weapon_name": "AK-47",
-            "active": 1,
-            "paintindex": 253,
-            "paintseed": 661,
-            "paintwear": 0.15,
-            "stattrak_enabled": 1,
-            "stattrak_count": 1337,
-            "nametag": "The Beast",
-            "stickers": [
-                {
-                    "slot": 0,
-                    "stickerId": 1230,
-                    "wear": 0.0,
-                    "rotation": 0,
-                    "scale": 1.0
-                }
-            ],
-            "keychain": {
-                "keychainId": 6001,
-                "seed": 42
-            }
+          "slot": 0,
+          "stickerId": 1230,
+          "wear": 0.0,
+          "rotation": 0,
+          "scale": 1.0
         }
-    ],
-    "count": 1
+      ],
+      "keychain": {
+        "keychainId": 6001,
+        "seed": 42
+      }
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -74,27 +74,27 @@ Save or update a weapon customization.
 
 ```json
 {
-    "steamId": "76561198012345678",
-    "loadoutId": 1,
-    "team": 2,
-    "weaponDefindex": 7,
-    "paintindex": 253,
-    "paintseed": 661,
-    "paintwear": 0.15,
-    "statTrak": true,
-    "statTrakCount": 1337,
-    "nameTag": "The Beast",
-    "stickers": [
-        {
-            "slot": 0,
-            "stickerId": 1230,
-            "wear": 0.0
-        }
-    ],
-    "keychain": {
-        "keychainId": 6001,
-        "seed": 42
+  "steamId": "76561198012345678",
+  "loadoutId": 1,
+  "team": 2,
+  "weaponDefindex": 7,
+  "paintindex": 253,
+  "paintseed": 661,
+  "paintwear": 0.15,
+  "statTrak": true,
+  "statTrakCount": 1337,
+  "nameTag": "The Beast",
+  "stickers": [
+    {
+      "slot": 0,
+      "stickerId": 1230,
+      "wear": 0.0
     }
+  ],
+  "keychain": {
+    "keychainId": 6001,
+    "seed": 42
+  }
 }
 ```
 
@@ -102,11 +102,11 @@ Save or update a weapon customization.
 
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 1,
-        "message": "Weapon saved successfully"
-    }
+  "success": true,
+  "data": {
+    "id": 1,
+    "message": "Weapon saved successfully"
+  }
 }
 ```
 
@@ -128,25 +128,25 @@ Retrieve knives for the authenticated user's active loadout.
 
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 1,
-            "steamid": "76561198012345678",
-            "loadoutid": 1,
-            "team": 2,
-            "weapon_defindex": 507,
-            "weapon_name": "Karambit",
-            "active": 1,
-            "paintindex": 418,
-            "paintseed": 412,
-            "paintwear": 0.01,
-            "stattrak_enabled": 1,
-            "stattrak_count": 500,
-            "nametag": "Ruby Slayer"
-        }
-    ],
-    "count": 1
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "steamid": "76561198012345678",
+      "loadoutid": 1,
+      "team": 2,
+      "weapon_defindex": 507,
+      "weapon_name": "Karambit",
+      "active": 1,
+      "paintindex": 418,
+      "paintseed": 412,
+      "paintwear": 0.01,
+      "stattrak_enabled": 1,
+      "stattrak_count": 500,
+      "nametag": "Ruby Slayer"
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -160,16 +160,16 @@ Save or update a knife customization.
 
 ```json
 {
-    "steamId": "76561198012345678",
-    "loadoutId": 1,
-    "team": 2,
-    "weaponDefindex": 507,
-    "paintindex": 418,
-    "paintseed": 412,
-    "paintwear": 0.01,
-    "statTrak": true,
-    "statTrakCount": 500,
-    "nameTag": "Ruby Slayer"
+  "steamId": "76561198012345678",
+  "loadoutId": 1,
+  "team": 2,
+  "weaponDefindex": 507,
+  "paintindex": 418,
+  "paintseed": 412,
+  "paintwear": 0.01,
+  "statTrak": true,
+  "statTrakCount": 500,
+  "nameTag": "Ruby Slayer"
 }
 ```
 
@@ -177,11 +177,11 @@ Save or update a knife customization.
 
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 1,
-        "message": "Knife saved successfully"
-    }
+  "success": true,
+  "data": {
+    "id": 1,
+    "message": "Knife saved successfully"
+  }
 }
 ```
 
@@ -203,22 +203,22 @@ Retrieve gloves for the authenticated user's active loadout.
 
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 1,
-            "steamid": "76561198012345678",
-            "loadoutid": 1,
-            "team": 2,
-            "weapon_defindex": 5027,
-            "weapon_name": "Hand Wraps",
-            "active": 1,
-            "paintindex": 10006,
-            "paintseed": 0,
-            "paintwear": 0.25
-        }
-    ],
-    "count": 1
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "steamid": "76561198012345678",
+      "loadoutid": 1,
+      "team": 2,
+      "weapon_defindex": 5027,
+      "weapon_name": "Hand Wraps",
+      "active": 1,
+      "paintindex": 10006,
+      "paintseed": 0,
+      "paintwear": 0.25
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -232,13 +232,13 @@ Save or update glove customization.
 
 ```json
 {
-    "steamId": "76561198012345678",
-    "loadoutId": 1,
-    "team": 2,
-    "weaponDefindex": 5027,
-    "paintindex": 10006,
-    "paintseed": 0,
-    "paintwear": 0.25
+  "steamId": "76561198012345678",
+  "loadoutId": 1,
+  "team": 2,
+  "weaponDefindex": 5027,
+  "paintindex": 10006,
+  "paintseed": 0,
+  "paintwear": 0.25
 }
 ```
 
@@ -246,11 +246,11 @@ Save or update glove customization.
 
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 1,
-        "message": "Gloves saved successfully"
-    }
+  "success": true,
+  "data": {
+    "id": 1,
+    "message": "Gloves saved successfully"
+  }
 }
 ```
 
@@ -271,17 +271,17 @@ Retrieve pins for the authenticated user's active loadout.
 
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 1,
-            "steamid": "76561198012345678",
-            "loadoutid": 1,
-            "pin_defindex": 6001,
-            "pin_name": "Skillful Pin"
-        }
-    ],
-    "count": 1
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "steamid": "76561198012345678",
+      "loadoutid": 1,
+      "pin_defindex": 6001,
+      "pin_name": "Skillful Pin"
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -295,9 +295,9 @@ Add or update pins in the user's collection.
 
 ```json
 {
-    "steamId": "76561198012345678",
-    "loadoutId": 1,
-    "pins": [6001, 6002, 6003]
+  "steamId": "76561198012345678",
+  "loadoutId": 1,
+  "pins": [6001, 6002, 6003]
 }
 ```
 
@@ -305,8 +305,8 @@ Add or update pins in the user's collection.
 
 ```json
 {
-    "success": true,
-    "message": "Pins updated successfully"
+  "success": true,
+  "message": "Pins updated successfully"
 }
 ```
 

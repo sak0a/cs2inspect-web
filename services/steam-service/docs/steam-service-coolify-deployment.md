@@ -80,8 +80,8 @@ STEAM_QUEUE_TIMEOUT=30000
 #### Step 4: Configure Ports
 
 1. In Coolify application settings, set:
-    - **Port**: `3000`
-    - **Expose Port**: `3000`
+   - **Port**: `3000`
+   - **Expose Port**: `3000`
 
 #### Step 5: Configure Domain/Subdomain (Optional but Recommended)
 
@@ -125,8 +125,8 @@ Both services should be on the same Docker network:
 ```yaml
 # In docker-compose.yml
 networks:
-    app-network:
-        driver: bridge
+  app-network:
+    driver: bridge
 ```
 
 ### Service Discovery
@@ -144,7 +144,7 @@ So from your Nuxt container, `http://127.0.0.1:3655` will _never_ reach the stea
 #### Recommended (private, internal): Network alias + internal port
 
 1. In Coolify → **Steam Service** → **Network Aliases**, set something stable like:
-    - `steam-service`
+   - `steam-service`
 
 2. Ensure the Steam Service listens on a known **internal port** (its `PORT` env).
 3. In Coolify → **Main App** env vars:
@@ -212,12 +212,12 @@ Expected response:
 
 ```json
 {
-    "status": "ok",
-    "ready": true,
-    "checks": {
-        "steam_client": { "status": "ok" },
-        "queue": { "status": "ok" }
-    }
+  "status": "ok",
+  "ready": true,
+  "checks": {
+    "steam_client": { "status": "ok" },
+    "queue": { "status": "ok" }
+  }
 }
 ```
 
@@ -307,9 +307,9 @@ Coolify can monitor the service health:
 
 1. Go to application settings
 2. Configure health check:
-    - **Path**: `/api/health/ready`
-    - **Interval**: 30 seconds
-    - **Timeout**: 5 seconds
+   - **Path**: `/api/health/ready`
+   - **Interval**: 30 seconds
+   - **Timeout**: 5 seconds
 
 ### Logs
 

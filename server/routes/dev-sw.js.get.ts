@@ -5,6 +5,6 @@
  * Returns an empty uninstall script to deregister the stale worker.
  */
 export default defineEventHandler((event) => {
-    setResponseHeader(event, 'Content-Type', 'application/javascript')
-    return 'self.addEventListener("install", () => self.skipWaiting()); self.addEventListener("activate", () => self.clients.claim());'
+  setResponseHeader(event, 'Content-Type', 'application/javascript')
+  return 'self.addEventListener("install", () => self.skipWaiting()); self.addEventListener("activate", () => self.clients.claim());'
 })

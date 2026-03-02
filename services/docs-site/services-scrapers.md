@@ -232,14 +232,14 @@ services/charm-scraper/
 
 ```json
 [
-    {
-        "id": 6001,
-        "name": "Chicken"
-    },
-    {
-        "id": 6002,
-        "name": "Phoenix"
-    }
+  {
+    "id": 6001,
+    "name": "Chicken"
+  },
+  {
+    "id": 6002,
+    "name": "Phoenix"
+  }
 ]
 ```
 
@@ -416,39 +416,39 @@ For automated updates, use cron or GitHub Actions:
 name: Update Assets
 
 on:
-    schedule:
-        # Run every Monday at 2 AM
-        - cron: '0 2 * * 1'
-    workflow_dispatch:
+  schedule:
+    # Run every Monday at 2 AM
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
 
 jobs:
-    scrape:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-            - name: Setup Bun
-              uses: oven-sh/setup-bun@v1
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
 
-            - name: Run Sticker Scraper
-              run: |
-                  cd services/sticker-scraper
-                  bun install
-                  bun run start
+      - name: Run Sticker Scraper
+        run: |
+          cd services/sticker-scraper
+          bun install
+          bun run start
 
-            - name: Run Charm Scraper
-              run: |
-                  cd services/charm-scraper
-                  bun install
-                  bun run start
+      - name: Run Charm Scraper
+        run: |
+          cd services/charm-scraper
+          bun install
+          bun run start
 
-            - name: Upload Assets
-              uses: actions/upload-artifact@v4
-              with:
-                  name: cs2-assets
-                  path: |
-                      services/sticker-scraper/assets
-                      services/charm-scraper/assets
+      - name: Upload Assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: cs2-assets
+          path: |
+            services/sticker-scraper/assets
+            services/charm-scraper/assets
 ```
 
 ---
@@ -471,18 +471,18 @@ Assets are served via Nitro server assets:
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-    nitro: {
-        serverAssets: [
-            {
-                baseName: 'stickers',
-                dir: './storage/stickers',
-            },
-            {
-                baseName: 'charms',
-                dir: './storage/charms',
-            },
-        ],
-    },
+  nitro: {
+    serverAssets: [
+      {
+        baseName: 'stickers',
+        dir: './storage/stickers',
+      },
+      {
+        baseName: 'charms',
+        dir: './storage/charms',
+      },
+    ],
+  },
 })
 ```
 
@@ -491,13 +491,13 @@ export default defineNuxtConfig({
 ```typescript
 // nuxt.config.ts
 export default defineNuxtConfig({
-    runtimeConfig: {
-        public: {
-            assetsUrl: 'https://assets.cu.sakoa.xyz/cs2inspect',
-            assetsStickerPath: '/stickers',
-            assetsCharmsPath: '/charms',
-        },
+  runtimeConfig: {
+    public: {
+      assetsUrl: 'https://assets.cu.sakoa.xyz/cs2inspect',
+      assetsStickerPath: '/stickers',
+      assetsCharmsPath: '/charms',
     },
+  },
 })
 ```
 
@@ -508,17 +508,17 @@ export default defineNuxtConfig({
 const config = useRuntimeConfig()
 
 const getStickerUrl = (stickerId, wear = 0) => {
-    return `${config.public.assetsUrl}${config.public.assetsStickerPath}/${stickerId}/${wear}.webp`
+  return `${config.public.assetsUrl}${config.public.assetsStickerPath}/${stickerId}/${wear}.webp`
 }
 
 const getCharmUrl = (charmName, seed = 1) => {
-    return `${config.public.assetsUrl}${config.public.assetsCharmsPath}/${charmName}/${charmName}_seed_${seed}.webp`
+  return `${config.public.assetsUrl}${config.public.assetsCharmsPath}/${charmName}/${charmName}_seed_${seed}.webp`
 }
 </script>
 
 <template>
-    <img :src="getStickerUrl(1230, 0)" alt="Sticker" />
-    <img :src="getCharmUrl('chicken', 10000)" alt="Charm" />
+  <img :src="getStickerUrl(1230, 0)" alt="Sticker" />
+  <img :src="getCharmUrl('chicken', 10000)" alt="Charm" />
 </template>
 ```
 
@@ -593,8 +593,8 @@ Increase timeout in code:
 
 ```javascript
 const response = await axios({
-    timeout: 30000, // Increase to 30 seconds
-    // ...
+  timeout: 30000, // Increase to 30 seconds
+  // ...
 })
 ```
 
@@ -719,17 +719,17 @@ services/weapon-scraper/
 The scraping process follows three stages:
 
 1. **Scrape** — Download skin showcase videos from source CDN
-    - Multi-threaded downloading with configurable worker count
-    - Request delay handling for rate limiting
-    - Progress tracking to avoid duplicate downloads
+   - Multi-threaded downloading with configurable worker count
+   - Request delay handling for rate limiting
+   - Progress tracking to avoid duplicate downloads
 
 2. **Mask** — Remove blue backgrounds using weapon-specific PNG masks
-    - Per-weapon mask files in `masks/` directory
-    - Produces transparent-background videos
+   - Per-weapon mask files in `masks/` directory
+   - Produces transparent-background videos
 
 3. **Optimize** — Compress and convert videos for web use
-    - Codec conversion and quality settings
-    - File size optimization for fast loading
+   - Codec conversion and quality settings
+   - File size optimization for fast loading
 
 ### Usage
 

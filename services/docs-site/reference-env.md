@@ -278,9 +278,9 @@ DATABASE_NAME=csinspect
 - Database must exist before first run
 - Different database per environment recommended
 - Create with UTF-8 encoding:
-    ```sql
-    CREATE DATABASE csinspect CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-    ```
+  ```sql
+  CREATE DATABASE csinspect CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+  ```
 
 ---
 

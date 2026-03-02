@@ -51,19 +51,19 @@ Before contributing, ensure you have:
 If you're new to the project:
 
 1. **Read the Documentation**:
-    - [Architecture](architecture.md)
-    - [Components](components.md)
-    - [How It Works](how-it-works.md)
-    - [API Reference](api/)
+   - [Architecture](architecture.md)
+   - [Components](components.md)
+   - [How It Works](how-it-works.md)
+   - [API Reference](api/)
 
 2. **Look for Good First Issues**:
-    - Check GitHub Issues with label `good first issue`
-    - These are beginner-friendly tasks
+   - Check GitHub Issues with label `good first issue`
+   - These are beginner-friendly tasks
 
 3. **Join the Community**:
-    - Comment on issues you're interested in
-    - Ask questions if you're unsure
-    - Introduce yourself in discussions
+   - Comment on issues you're interested in
+   - Ask questions if you're unsure
+   - Introduce yourself in discussions
 
 ---
 
@@ -217,9 +217,9 @@ git push origin feature/add-weapon-preview
 ```typescript
 // ✅ GOOD: Use TypeScript interfaces for types
 interface WeaponConfig {
-    defindex: number
-    paintindex: number
-    paintwear: number
+  defindex: number
+  paintindex: number
+  paintwear: number
 }
 
 // ❌ AVOID: Using 'any' type
@@ -280,19 +280,19 @@ import type { PropType } from 'vue'
 
 // 2. Props interface
 interface Props {
-    weapon: WeaponData
-    show?: boolean
+  weapon: WeaponData
+  show?: boolean
 }
 
 // 3. Props definition
 const props = withDefaults(defineProps<Props>(), {
-    show: false,
+  show: false,
 })
 
 // 4. Emits
 const emit = defineEmits<{
-    (e: 'save', weapon: WeaponData): void
-    (e: 'close'): void
+  (e: 'save', weapon: WeaponData): void
+  (e: 'close'): void
 }>()
 
 // 5. State
@@ -303,26 +303,26 @@ const isValid = computed(() => selectedSkin.value !== null)
 
 // 7. Methods
 const handleSave = () => {
-    if (!isValid.value) return
-    emit('save', { ...props.weapon, paintindex: selectedSkin.value })
+  if (!isValid.value) return
+  emit('save', { ...props.weapon, paintindex: selectedSkin.value })
 }
 
 // 8. Lifecycle hooks
 onMounted(() => {
-    // Initialize
+  // Initialize
 })
 </script>
 
 <template>
-    <div class="weapon-modal">
-        <!-- Template content -->
-    </div>
+  <div class="weapon-modal">
+    <!-- Template content -->
+  </div>
 </template>
 
 <style scoped>
 /* Component-specific styles */
 .weapon-modal {
-    /* ... */
+  /* ... */
 }
 </style>
 ```
@@ -331,31 +331,31 @@ onMounted(() => {
 
 ```vue
 <template>
-    <!-- ✅ GOOD: Use semantic HTML -->
-    <section class="weapon-list">
-        <header>
-            <h2>Weapons</h2>
-        </header>
-        <article v-for="weapon in weapons" :key="weapon.id">
-            <!-- Weapon card -->
-        </article>
-    </section>
+  <!-- ✅ GOOD: Use semantic HTML -->
+  <section class="weapon-list">
+    <header>
+      <h2>Weapons</h2>
+    </header>
+    <article v-for="weapon in weapons" :key="weapon.id">
+      <!-- Weapon card -->
+    </article>
+  </section>
 
-    <!-- ✅ GOOD: Use v-show for frequent toggles -->
-    <div v-show="isVisible">Content</div>
+  <!-- ✅ GOOD: Use v-show for frequent toggles -->
+  <div v-show="isVisible">Content</div>
 
-    <!-- ✅ GOOD: Use v-if for conditional rendering -->
-    <div v-if="hasData">Data content</div>
-    <div v-else>No data</div>
+  <!-- ✅ GOOD: Use v-if for conditional rendering -->
+  <div v-if="hasData">Data content</div>
+  <div v-else>No data</div>
 
-    <!-- ✅ GOOD: Proper event binding -->
-    <button @click="handleClick">Click me</button>
+  <!-- ✅ GOOD: Proper event binding -->
+  <button @click="handleClick">Click me</button>
 
-    <!-- ❌ AVOID: Inline complex logic -->
-    <button @click="condition ? doThis() : doThat()">Bad</button>
+  <!-- ❌ AVOID: Inline complex logic -->
+  <button @click="condition ? doThis() : doThat()">Bad</button>
 
-    <!-- ✅ GOOD: Extract to method -->
-    <button @click="handleAction">Good</button>
+  <!-- ✅ GOOD: Extract to method -->
+  <button @click="handleAction">Good</button>
 </template>
 ```
 
@@ -384,21 +384,21 @@ onMounted(() => {
 ```scss
 // ✅ GOOD: Use SASS features
 .weapon-card {
-    @apply bg-gray-800 rounded-lg p-4;
+  @apply bg-gray-800 rounded-lg p-4;
 
-    &:hover {
-        @apply shadow-lg;
-    }
+  &:hover {
+    @apply shadow-lg;
+  }
 
-    .weapon-name {
-        @apply text-xl font-bold;
-    }
+  .weapon-name {
+    @apply text-xl font-bold;
+  }
 }
 
 // ✅ GOOD: Use CSS variables
 .theme-accent {
-    color: var(--selection-ring);
-    border-color: var(--selection-ring);
+  color: var(--selection-ring);
+  border-color: var(--selection-ring);
 }
 ```
 
@@ -412,35 +412,35 @@ import { defineEventHandler, readBody } from 'h3'
 import type { WeaponSaveRequest } from '~/types'
 
 export default defineEventHandler(async (event) => {
-    try {
-        // 1. Validate authentication
-        const user = await requireAuth(event)
+  try {
+    // 1. Validate authentication
+    const user = await requireAuth(event)
 
-        // 2. Parse and validate request body
-        const body = await readBody<WeaponSaveRequest>(event)
-        if (!body.weaponDefindex) {
-            throw createError({
-                statusCode: 400,
-                message: 'Invalid weapon data',
-            })
-        }
-
-        // 3. Perform business logic
-        const result = await saveWeaponToDatabase(user.steamId, body)
-
-        // 4. Return standardized response
-        return {
-            success: true,
-            data: result,
-        }
-    } catch (error: any) {
-        // 5. Handle errors consistently
-        console.error('Error saving weapon:', error)
-        throw createError({
-            statusCode: error.statusCode || 500,
-            message: error.message || 'Failed to save weapon',
-        })
+    // 2. Parse and validate request body
+    const body = await readBody<WeaponSaveRequest>(event)
+    if (!body.weaponDefindex) {
+      throw createError({
+        statusCode: 400,
+        message: 'Invalid weapon data',
+      })
     }
+
+    // 3. Perform business logic
+    const result = await saveWeaponToDatabase(user.steamId, body)
+
+    // 4. Return standardized response
+    return {
+      success: true,
+      data: result,
+    }
+  } catch (error: any) {
+    // 5. Handle errors consistently
+    console.error('Error saving weapon:', error)
+    throw createError({
+      statusCode: error.statusCode || 500,
+      message: error.message || 'Failed to save weapon',
+    })
+  }
 })
 ```
 
@@ -644,35 +644,35 @@ We welcome contributions for **translations**! CS2Inspect currently supports:
 To add a new language translation:
 
 1. **Create Language File**:
-    - Navigate to `locales/` directory in the project root
-    - Copy `en.json` as a template
-    - Name it with the appropriate language code (e.g., `fr.json` for French, `es.json` for Spanish)
+   - Navigate to `locales/` directory in the project root
+   - Copy `en.json` as a template
+   - Name it with the appropriate language code (e.g., `fr.json` for French, `es.json` for Spanish)
 
 2. **Translate Strings**:
 
-    ```json
-    {
-        "nav": {
-            "home": "Accueil", // French translation
-            "weapons": "Armes",
-            "loadouts": "Équipements"
-        }
-    }
-    ```
+   ```json
+   {
+     "nav": {
+       "home": "Accueil", // French translation
+       "weapons": "Armes",
+       "loadouts": "Équipements"
+     }
+   }
+   ```
 
 3. **Test Your Translation**:
-    - Change the app language in settings to your new language
-    - Navigate through all pages to verify translations
-    - Check for missing strings or formatting issues
+   - Change the app language in settings to your new language
+   - Navigate through all pages to verify translations
+   - Check for missing strings or formatting issues
 
 4. **Update Configuration**:
-    - Edit `nuxt.config.ts` to add your language to the `i18n` config
-    - Add your language code to the available locales array
+   - Edit `nuxt.config.ts` to add your language to the `i18n` config
+   - Add your language code to the available locales array
 
 5. **Submit Pull Request**:
-    - Include all translated strings
-    - Note any strings that were intentionally not translated (e.g., proper nouns)
-    - Test that the language switcher includes your new language
+   - Include all translated strings
+   - Note any strings that were intentionally not translated (e.g., proper nouns)
+   - Test that the language switcher includes your new language
 
 ### Translation Guidelines
 
@@ -712,16 +712,16 @@ import { mount } from '@vue/test-utils'
 import WeaponTabs from './WeaponTabs.vue'
 
 describe('WeaponTabs', () => {
-    it('renders weapon categories', () => {
-        const wrapper = mount(WeaponTabs)
-        expect(wrapper.find('.weapon-category').exists()).toBe(true)
-    })
+  it('renders weapon categories', () => {
+    const wrapper = mount(WeaponTabs)
+    expect(wrapper.find('.weapon-category').exists()).toBe(true)
+  })
 
-    it('emits selection event when weapon clicked', async () => {
-        const wrapper = mount(WeaponTabs)
-        await wrapper.find('.weapon-item').trigger('click')
-        expect(wrapper.emitted('select')).toBeTruthy()
-    })
+  it('emits selection event when weapon clicked', async () => {
+    const wrapper = mount(WeaponTabs)
+    await wrapper.find('.weapon-item').trigger('click')
+    expect(wrapper.emitted('select')).toBeTruthy()
+  })
 })
 ```
 
@@ -733,18 +733,18 @@ import { describe, it, expect } from 'vitest'
 import { createEvent } from '@nuxt/test-utils'
 
 describe('POST /api/weapons/save', () => {
-    it('saves weapon successfully', async () => {
-        const event = createEvent({
-            method: 'POST',
-            body: {
-                weaponDefindex: 7,
-                paintindex: 253,
-            },
-        })
-
-        const response = await handler(event)
-        expect(response.success).toBe(true)
+  it('saves weapon successfully', async () => {
+    const event = createEvent({
+      method: 'POST',
+      body: {
+        weaponDefindex: 7,
+        paintindex: 253,
+      },
     })
+
+    const response = await handler(event)
+    expect(response.success).toBe(true)
+  })
 })
 ```
 

@@ -23,26 +23,26 @@ Retrieve all loadouts for the authenticated user.
 
 ```json
 {
-    "success": true,
-    "data": [
-        {
-            "id": 1,
-            "steamid": "76561198012345678",
-            "name": "Competitive Setup",
-            "active": 1,
-            "is_default": 0,
-            "selected_knife_t": 507,
-            "selected_knife_ct": 507,
-            "selected_glove_t": 5027,
-            "selected_glove_ct": 5028,
-            "selected_agent_ct": 5400,
-            "selected_agent_t": 5600,
-            "selected_music": 3,
-            "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-15T10:30:00Z"
-        }
-    ],
-    "count": 1
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "steamid": "76561198012345678",
+      "name": "Competitive Setup",
+      "active": 1,
+      "is_default": 0,
+      "selected_knife_t": 507,
+      "selected_knife_ct": 507,
+      "selected_glove_t": 5027,
+      "selected_glove_ct": 5028,
+      "selected_agent_ct": 5400,
+      "selected_agent_t": 5600,
+      "selected_music": 3,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
+    }
+  ],
+  "count": 1
 }
 ```
 
@@ -69,19 +69,19 @@ Retrieve the currently equipped loadout for a user. This is primarily designed f
 
 ```json
 {
-    "success": true,
-    "message": "Equipped loadout retrieved successfully",
-    "data": {
-        "loadout": {
-            "id": 1,
-            "steamid": "76561198012345678",
-            "name": "Competitive Setup",
-            "active": 0,
-            "is_default": 1,
-            "created_at": "2024-01-01T00:00:00Z",
-            "updated_at": "2024-01-15T10:30:00Z"
-        }
+  "success": true,
+  "message": "Equipped loadout retrieved successfully",
+  "data": {
+    "loadout": {
+      "id": 1,
+      "steamid": "76561198012345678",
+      "name": "Competitive Setup",
+      "active": 0,
+      "is_default": 1,
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-15T10:30:00Z"
     }
+  }
 }
 ```
 
@@ -102,7 +102,7 @@ Create a new loadout for the authenticated user.
 
 ```json
 {
-    "name": "New Loadout"
+  "name": "New Loadout"
 }
 ```
 
@@ -110,13 +110,13 @@ Create a new loadout for the authenticated user.
 
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 2,
-        "steamid": "76561198012345678",
-        "name": "New Loadout",
-        "created_at": "2024-01-20T12:00:00Z"
-    }
+  "success": true,
+  "data": {
+    "id": 2,
+    "steamid": "76561198012345678",
+    "name": "New Loadout",
+    "created_at": "2024-01-20T12:00:00Z"
+  }
 }
 ```
 
@@ -137,8 +137,8 @@ Update an existing loadout.
 
 ```json
 {
-    "id": 1,
-    "name": "Updated Loadout Name"
+  "id": 1,
+  "name": "Updated Loadout Name"
 }
 ```
 
@@ -146,8 +146,8 @@ Update an existing loadout.
 
 ```json
 {
-    "success": true,
-    "message": "Loadout updated successfully"
+  "success": true,
+  "message": "Loadout updated successfully"
 }
 ```
 
@@ -173,8 +173,8 @@ Cannot delete if it's the only loadout.
 
 ```json
 {
-    "success": true,
-    "message": "Loadout deleted successfully"
+  "success": true,
+  "message": "Loadout deleted successfully"
 }
 ```
 
@@ -195,7 +195,7 @@ Switch the active loadout.
 
 ```json
 {
-    "loadoutId": 2
+  "loadoutId": 2
 }
 ```
 
@@ -203,8 +203,8 @@ Switch the active loadout.
 
 ```json
 {
-    "success": true,
-    "message": "Loadout selected successfully"
+  "success": true,
+  "message": "Loadout selected successfully"
 }
 ```
 
@@ -220,7 +220,7 @@ Set a loadout as the default for the CS2 plugin.
 
 ```json
 {
-    "loadoutId": 1
+  "loadoutId": 1
 }
 ```
 
@@ -228,8 +228,8 @@ Set a loadout as the default for the CS2 plugin.
 
 ```json
 {
-    "success": true,
-    "message": "Default loadout set successfully"
+  "success": true,
+  "message": "Default loadout set successfully"
 }
 ```
 
@@ -245,8 +245,8 @@ Create a copy of an existing loadout.
 
 ```json
 {
-    "loadoutId": 1,
-    "name": "Copy of Competitive Setup"
+  "loadoutId": 1,
+  "name": "Copy of Competitive Setup"
 }
 ```
 
@@ -254,11 +254,11 @@ Create a copy of an existing loadout.
 
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 3,
-        "name": "Copy of Competitive Setup"
-    }
+  "success": true,
+  "data": {
+    "id": 3,
+    "name": "Copy of Competitive Setup"
+  }
 }
 ```
 
@@ -274,7 +274,7 @@ Import a loadout from a shared configuration.
 
 ```json
 {
-    "shareCode": "ABC123XYZ"
+  "shareCode": "ABC123XYZ"
 }
 ```
 
@@ -282,11 +282,11 @@ Import a loadout from a shared configuration.
 
 ```json
 {
-    "success": true,
-    "data": {
-        "id": 4,
-        "name": "Imported Loadout"
-    }
+  "success": true,
+  "data": {
+    "id": 4,
+    "name": "Imported Loadout"
+  }
 }
 ```
 
@@ -302,7 +302,7 @@ Generate a share code for a loadout.
 
 ```json
 {
-    "loadoutId": 1
+  "loadoutId": 1
 }
 ```
 
@@ -310,11 +310,11 @@ Generate a share code for a loadout.
 
 ```json
 {
-    "success": true,
-    "data": {
-        "shareCode": "ABC123XYZ",
-        "expiresAt": "2024-02-01T00:00:00Z"
-    }
+  "success": true,
+  "data": {
+    "shareCode": "ABC123XYZ",
+    "expiresAt": "2024-02-01T00:00:00Z"
+  }
 }
 ```
 
@@ -330,7 +330,7 @@ Clear all items from a loadout.
 
 ```json
 {
-    "loadoutId": 1
+  "loadoutId": 1
 }
 ```
 
@@ -338,8 +338,8 @@ Clear all items from a loadout.
 
 ```json
 {
-    "success": true,
-    "message": "Loadout cleared successfully"
+  "success": true,
+  "message": "Loadout cleared successfully"
 }
 ```
 

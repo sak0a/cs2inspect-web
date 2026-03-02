@@ -152,13 +152,13 @@ Branded types provide compile-time safety for primitive values, preventing commo
 
 ```typescript
 import {
-    toFloatValue,
-    toFloatValueClamped,
-    toStickerSlotIndex,
-    toTeamId,
-    isValidFloatValue,
-    isValidInspectUrl,
-    floatValueToCondition,
+  toFloatValue,
+  toFloatValueClamped,
+  toStickerSlotIndex,
+  toTeamId,
+  isValidFloatValue,
+  isValidInspectUrl,
+  floatValueToCondition,
 } from '~/types'
 
 // Converting values with validation (throws on invalid)
@@ -173,13 +173,13 @@ const clampedWear = toFloatValueClamped(1.5) // Returns 1.0 as FloatValue
 
 // Type guards for validation
 if (isValidFloatValue(userInput)) {
-    // userInput is now typed as FloatValue
-    console.log(floatValueToCondition(userInput)) // "Factory New", etc.
+  // userInput is now typed as FloatValue
+  console.log(floatValueToCondition(userInput)) // "Factory New", etc.
 }
 
 if (isValidInspectUrl(url)) {
-    // url is now typed as InspectUrl
-    processInspectUrl(url)
+  // url is now typed as InspectUrl
+  processInspectUrl(url)
 }
 
 // Utility functions
@@ -197,13 +197,13 @@ console.log(teamIdToAbbr(team)) // "T"
 ```typescript
 // WITHOUT branded types - easy to mix up IDs!
 function loadWeapon(defindex: number, paintIndex: number) {
-    // Oops! Parameters in wrong order - no compile error!
+  // Oops! Parameters in wrong order - no compile error!
 }
 loadWeapon(paintIndex, defindex) // Bug not caught!
 
 // WITH branded types - compile-time safety
 function loadWeaponSafe(defindex: Defindex, paintIndex: PaintIndex) {
-    // Parameters have distinct types
+  // Parameters have distinct types
 }
 loadWeaponSafe(paintIndex, defindex) // ❌ Compile error!
 loadWeaponSafe(toDefindex(7), toPaintIndex(12)) // ✅ Correct
@@ -232,27 +232,27 @@ import type { WeaponItemData, WeaponConfiguration, isWeaponItemData } from '~/ty
 
 // Type-safe item handling
 function handleItem(item: ItemData) {
-    if (isWeaponItemData(item)) {
-        // TypeScript knows this is WeaponItemData
-        console.log(item.category) // ✅ Available
-        console.log(item.stickers) // ❌ Not available on ItemData
-    }
+  if (isWeaponItemData(item)) {
+    // TypeScript knows this is WeaponItemData
+    console.log(item.category) // ✅ Available
+    console.log(item.stickers) // ❌ Not available on ItemData
+  }
 }
 
 // Configuration with full type safety
 const weaponConfig: WeaponConfiguration = {
-    active: true,
-    team: TeamSide.Terrorist,
-    defindex: 7,
-    paintIndex: 12,
-    paintIndexOverride: false,
-    pattern: 123,
-    wear: 0.15,
-    statTrak: true,
-    statTrakCount: 1337,
-    nameTag: 'My AK-47',
-    stickers: [null, null, null, null, null],
-    keychain: null,
+  active: true,
+  team: TeamSide.Terrorist,
+  defindex: 7,
+  paintIndex: 12,
+  paintIndexOverride: false,
+  pattern: 123,
+  wear: 0.15,
+  statTrak: true,
+  statTrakCount: 1337,
+  nameTag: 'My AK-47',
+  stickers: [null, null, null, null, null],
+  keychain: null,
 }
 ```
 
@@ -263,35 +263,35 @@ import type { WeaponModalProps, WeaponModalEvents, WeaponModalState } from '~/ty
 
 // Component definition with proper typing
 const WeaponModal = defineComponent<WeaponModalProps, WeaponModalEvents>({
-    props: {
-        visible: { type: Boolean, required: true },
-        weapon: { type: Object as PropType<WeaponItemData | null>, default: null },
-        user: { type: Object as PropType<UserProfile | null>, default: null },
-        otherTeamHasSkin: { type: Boolean, default: false },
-    },
+  props: {
+    visible: { type: Boolean, required: true },
+    weapon: { type: Object as PropType<WeaponItemData | null>, default: null },
+    user: { type: Object as PropType<UserProfile | null>, default: null },
+    otherTeamHasSkin: { type: Boolean, default: false },
+  },
 
-    emits: ['update:visible', 'save', 'duplicate', 'error'],
+  emits: ['update:visible', 'save', 'duplicate', 'error'],
 
-    setup(props, { emit }) {
-        const state = ref<WeaponModalState>({
-            isLoadingSkins: false,
-            searchQuery: '',
-            currentPage: 1,
-            error: null,
-            showImportModal: false,
-            showDuplicateConfirm: false,
-            showResetConfirm: false,
-            showStickerModal: false,
-            showKeychainModal: false,
-            currentStickerPosition: 0,
-            isImporting: false,
-            isLoadingInspect: false,
-            isResetting: false,
-            isDuplicating: false,
-        })
+  setup(props, { emit }) {
+    const state = ref<WeaponModalState>({
+      isLoadingSkins: false,
+      searchQuery: '',
+      currentPage: 1,
+      error: null,
+      showImportModal: false,
+      showDuplicateConfirm: false,
+      showResetConfirm: false,
+      showStickerModal: false,
+      showKeychainModal: false,
+      currentStickerPosition: 0,
+      isImporting: false,
+      isLoadingInspect: false,
+      isResetting: false,
+      isDuplicating: false,
+    })
 
-        // ... component logic
-    },
+    // ... component logic
+  },
 })
 ```
 
@@ -302,11 +302,11 @@ import type { DBWeapon, DBWeaponQuery, DBCreateQuery } from '~/types'
 
 // Type-safe database queries
 async function getWeapons(query: DBWeaponQuery): Promise<DBWeapon[]> {
-    // Implementation with full type safety
+  // Implementation with full type safety
 }
 
 async function createWeapon(data: DBCreateQuery<DBWeapon>): Promise<DBWeapon> {
-    // Implementation with full type safety
+  // Implementation with full type safety
 }
 ```
 
@@ -344,17 +344,17 @@ import { isWeaponItemData, isItemOfType, isConfigurationOfType } from '~/types'
 
 // Runtime type checking
 if (isWeaponItemData(item)) {
-    // Safe to access weapon-specific properties
+  // Safe to access weapon-specific properties
 }
 
 // Generic type checking
 if (isItemOfType(item, 'weapon')) {
-    // TypeScript infers correct type
+  // TypeScript infers correct type
 }
 
 // Configuration validation
 if (isConfigurationOfType(config, 'weapon')) {
-    // Safe to access weapon configuration properties
+  // Safe to access weapon configuration properties
 }
 ```
 

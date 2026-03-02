@@ -4,17 +4,17 @@
  */
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm'
 import type {
-    loadouts,
-    pistols,
-    rifles,
-    smgs,
-    heavys,
-    knives,
-    gloves,
-    agents,
-    music,
-    pins,
-    healthCheckHistory,
+  loadouts,
+  pistols,
+  rifles,
+  smgs,
+  heavys,
+  knives,
+  gloves,
+  agents,
+  music,
+  pins,
+  healthCheckHistory,
 } from '../database/schema'
 
 // Re-export DBLoadout from loadoutHelpers for backward compatibility
@@ -24,20 +24,20 @@ export type { DBLoadout } from '../database/loadoutHelpers'
  * Base database record interface (for backward compatibility)
  */
 export interface BaseDBRecord {
-    id: number
-    created_at?: Date
-    updated_at?: Date
+  id: number
+  created_at?: Date
+  updated_at?: Date
 }
 
 /**
  * Base database item interface (for backward compatibility)
  */
 export interface BaseDBItem extends BaseDBRecord {
-    steamid: string
-    defindex: number
-    paintindex: number
-    paintwear: number
-    paintseed: number
+  steamid: string
+  defindex: number
+  paintindex: number
+  paintwear: number
+  paintseed: number
 }
 
 // Drizzle inferred types for loadouts

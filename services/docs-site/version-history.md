@@ -147,15 +147,15 @@ The `configuration` JSON column stores:
 
 ```typescript
 interface ItemHistorySnapshot {
-    paintindex: number // Skin paint index
-    paintseed: number // Pattern seed
-    paintwear: number // Wear float value
-    stattrak_enabled?: boolean
-    stattrak_count?: number
-    nametag?: string
-    stickers?: Array<StickerJSON | null> // For weapons only
-    keychain?: KeychainJSON | null // For weapons only
-    active?: boolean
+  paintindex: number // Skin paint index
+  paintseed: number // Pattern seed
+  paintwear: number // Wear float value
+  stattrak_enabled?: boolean
+  stattrak_count?: number
+  nametag?: string
+  stickers?: Array<StickerJSON | null> // For weapons only
+  keychain?: KeychainJSON | null // For weapons only
+  active?: boolean
 }
 ```
 
@@ -187,8 +187,8 @@ Request body:
 
 ```json
 {
-    "historyId": 123,
-    "steamId": "76561198012345678"
+  "historyId": 123,
+  "steamId": "76561198012345678"
 }
 ```
 

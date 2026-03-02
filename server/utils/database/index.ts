@@ -8,5 +8,5 @@ export * from './itemSaveHandler'
  * This provides a consistent way to access the database across the codebase
  */
 export function useDatabase() {
-    return db
+  return db
 }

@@ -120,7 +120,7 @@ export type PinDefindex = number & { readonly __brand: 'PinDefindex' }
  * ```
  */
 export function toLoadoutId(value: string | number): LoadoutId {
-    return Number(value) as LoadoutId
+  return Number(value) as LoadoutId
 }
 
 /**
@@ -130,7 +130,7 @@ export function toLoadoutId(value: string | number): LoadoutId {
  * @returns Branded SteamId
  */
 export function toSteamId(value: string): SteamId {
-    return value as SteamId
+  return value as SteamId
 }
 
 /**
@@ -140,7 +140,7 @@ export function toSteamId(value: string): SteamId {
  * @returns Branded Defindex
  */
 export function toDefindex(value: number): Defindex {
-    return value as Defindex
+  return value as Defindex
 }
 
 /**
@@ -150,7 +150,7 @@ export function toDefindex(value: number): Defindex {
  * @returns Branded PaintIndex
  */
 export function toPaintIndex(value: number): PaintIndex {
-    return value as PaintIndex
+  return value as PaintIndex
 }
 
 /**
@@ -160,7 +160,7 @@ export function toPaintIndex(value: number): PaintIndex {
  * @returns Branded PaintSeed
  */
 export function toPaintSeed(value: number): PaintSeed {
-    return value as PaintSeed
+  return value as PaintSeed
 }
 
 /**
@@ -170,7 +170,7 @@ export function toPaintSeed(value: number): PaintSeed {
  * @returns Branded StickerId
  */
 export function toStickerId(value: number): StickerId {
-    return value as StickerId
+  return value as StickerId
 }
 
 /**
@@ -180,7 +180,7 @@ export function toStickerId(value: number): StickerId {
  * @returns Branded KeychainId
  */
 export function toKeychainId(value: number): KeychainId {
-    return value as KeychainId
+  return value as KeychainId
 }
 
 /**
@@ -190,7 +190,7 @@ export function toKeychainId(value: number): KeychainId {
  * @returns Branded MusicKitDefindex
  */
 export function toMusicKitDefindex(value: number): MusicKitDefindex {
-    return value as MusicKitDefindex
+  return value as MusicKitDefindex
 }
 
 /**
@@ -200,7 +200,7 @@ export function toMusicKitDefindex(value: number): MusicKitDefindex {
  * @returns Branded PinDefindex
  */
 export function toPinDefindex(value: number): PinDefindex {
-    return value as PinDefindex
+  return value as PinDefindex
 }
 
 // ============================================================================
@@ -211,21 +211,21 @@ export function toPinDefindex(value: number): PinDefindex {
  * Check if a value is a valid LoadoutId (positive integer)
  */
 export function isValidLoadoutId(value: unknown): value is LoadoutId {
-    return typeof value === 'number' && Number.isInteger(value) && value > 0
+  return typeof value === 'number' && Number.isInteger(value) && value > 0
 }
 
 /**
  * Check if a value is a valid SteamId (17-digit string)
  */
 export function isValidSteamId(value: unknown): value is SteamId {
-    return typeof value === 'string' && /^\d{17}$/.test(value)
+  return typeof value === 'string' && /^\d{17}$/.test(value)
 }
 
 /**
  * Check if a value is a valid Defindex (non-negative integer)
  */
 export function isValidDefindex(value: unknown): value is Defindex {
-    return typeof value === 'number' && Number.isInteger(value) && value >= 0
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0
 }
 
 // ============================================================================
@@ -325,10 +325,10 @@ export type NormalizedCoordinate = number & { readonly __brand: 'NormalizedCoord
  * @throws Error if the URL format is invalid
  */
 export function toInspectUrl(value: string): InspectUrl {
-    if (!isValidInspectUrl(value)) {
-        throw new Error('Invalid inspect URL format. Must start with steam://rungame/730/')
-    }
-    return value as InspectUrl
+  if (!isValidInspectUrl(value)) {
+    throw new Error('Invalid inspect URL format. Must start with steam://rungame/730/')
+  }
+  return value as InspectUrl
 }
 
 /**
@@ -338,7 +338,7 @@ export function toInspectUrl(value: string): InspectUrl {
  * @returns Branded InspectUrl or null if invalid
  */
 export function tryToInspectUrl(value: string): InspectUrl | null {
-    return isValidInspectUrl(value) ? (value as InspectUrl) : null
+  return isValidInspectUrl(value) ? (value as InspectUrl) : null
 }
 
 /**
@@ -349,10 +349,10 @@ export function tryToInspectUrl(value: string): InspectUrl | null {
  * @throws Error if the format is invalid
  */
 export function toHexData(value: string): HexData {
-    if (!isValidHexData(value)) {
-        throw new Error('Invalid hex data format. Must contain only hexadecimal characters.')
-    }
-    return value as HexData
+  if (!isValidHexData(value)) {
+    throw new Error('Invalid hex data format. Must contain only hexadecimal characters.')
+  }
+  return value as HexData
 }
 
 /**
@@ -363,10 +363,10 @@ export function toHexData(value: string): HexData {
  * @throws Error if the value is out of range
  */
 export function toFloatValue(value: number): FloatValue {
-    if (!isValidFloatValue(value)) {
-        throw new Error('Float value must be between 0 and 1')
-    }
-    return value as FloatValue
+  if (!isValidFloatValue(value)) {
+    throw new Error('Float value must be between 0 and 1')
+  }
+  return value as FloatValue
 }
 
 /**
@@ -376,7 +376,7 @@ export function toFloatValue(value: number): FloatValue {
  * @returns Branded FloatValue clamped to [0, 1]
  */
 export function toFloatValueClamped(value: number): FloatValue {
-    return Math.max(0, Math.min(1, value)) as FloatValue
+  return Math.max(0, Math.min(1, value)) as FloatValue
 }
 
 /**
@@ -387,10 +387,10 @@ export function toFloatValueClamped(value: number): FloatValue {
  * @throws Error if the value is out of range
  */
 export function toStickerSlotIndex(value: number): StickerSlotIndex {
-    if (!isValidStickerSlotIndex(value)) {
-        throw new Error('Sticker slot index must be an integer between 0 and 4')
-    }
-    return value as StickerSlotIndex
+  if (!isValidStickerSlotIndex(value)) {
+    throw new Error('Sticker slot index must be an integer between 0 and 4')
+  }
+  return value as StickerSlotIndex
 }
 
 /**
@@ -401,10 +401,10 @@ export function toStickerSlotIndex(value: number): StickerSlotIndex {
  * @throws Error if the value is not 1 or 2
  */
 export function toTeamId(value: number): TeamId {
-    if (!isValidTeamId(value)) {
-        throw new Error('Team ID must be 1 (Terrorist) or 2 (Counter-Terrorist)')
-    }
-    return value as TeamId
+  if (!isValidTeamId(value)) {
+    throw new Error('Team ID must be 1 (Terrorist) or 2 (Counter-Terrorist)')
+  }
+  return value as TeamId
 }
 
 // ============================================================================
@@ -419,10 +419,10 @@ export function toTeamId(value: number): TeamId {
  * @throws Error if the value is negative
  */
 export function toStatTrakCount(value: number): StatTrakCount {
-    if (!isValidStatTrakCount(value)) {
-        throw new Error('StatTrak count must be a non-negative integer')
-    }
-    return value as StatTrakCount
+  if (!isValidStatTrakCount(value)) {
+    throw new Error('StatTrak count must be a non-negative integer')
+  }
+  return value as StatTrakCount
 }
 
 /**
@@ -433,10 +433,10 @@ export function toStatTrakCount(value: number): StatTrakCount {
  * @throws Error if the string is too long
  */
 export function toNameTag(value: string): NameTag {
-    if (!isValidNameTag(value)) {
-        throw new Error('Name tag must be max 32 characters')
-    }
-    return value as NameTag
+  if (!isValidNameTag(value)) {
+    throw new Error('Name tag must be max 32 characters')
+  }
+  return value as NameTag
 }
 
 /**
@@ -446,11 +446,11 @@ export function toNameTag(value: string): NameTag {
  * @returns Branded ISOTimestamp
  */
 export function toISOTimestamp(value: Date | string): ISOTimestamp {
-    const dateStr = value instanceof Date ? value.toISOString() : value
-    if (!isValidISOTimestamp(dateStr)) {
-        throw new Error('Invalid ISO 8601 timestamp format')
-    }
-    return dateStr as ISOTimestamp
+  const dateStr = value instanceof Date ? value.toISOString() : value
+  if (!isValidISOTimestamp(dateStr)) {
+    throw new Error('Invalid ISO 8601 timestamp format')
+  }
+  return dateStr as ISOTimestamp
 }
 
 /**
@@ -461,10 +461,10 @@ export function toISOTimestamp(value: Date | string): ISOTimestamp {
  * @throws Error if the value is out of range
  */
 export function toNormalizedCoordinate(value: number): NormalizedCoordinate {
-    if (!isValidNormalizedCoordinate(value)) {
-        throw new Error('Normalized coordinate must be between 0 and 1')
-    }
-    return value as NormalizedCoordinate
+  if (!isValidNormalizedCoordinate(value)) {
+    throw new Error('Normalized coordinate must be between 0 and 1')
+  }
+  return value as NormalizedCoordinate
 }
 
 /**
@@ -474,7 +474,7 @@ export function toNormalizedCoordinate(value: number): NormalizedCoordinate {
  * @returns Branded NormalizedCoordinate clamped to [0, 1]
  */
 export function toNormalizedCoordinateClamped(value: number): NormalizedCoordinate {
-    return Math.max(0, Math.min(1, value)) as NormalizedCoordinate
+  return Math.max(0, Math.min(1, value)) as NormalizedCoordinate
 }
 
 // ============================================================================
@@ -485,39 +485,39 @@ export function toNormalizedCoordinateClamped(value: number): NormalizedCoordina
  * Check if a value is a valid InspectUrl
  */
 export function isValidInspectUrl(value: unknown): value is InspectUrl {
-    return (
-        typeof value === 'string' &&
-        value.startsWith('steam://rungame/730/') &&
-        value.includes('+csgo_econ_action_preview')
-    )
+  return (
+    typeof value === 'string' &&
+    value.startsWith('steam://rungame/730/') &&
+    value.includes('+csgo_econ_action_preview')
+  )
 }
 
 /**
  * Check if a value is valid HexData
  */
 export function isValidHexData(value: unknown): value is HexData {
-    return typeof value === 'string' && /^[0-9A-Fa-f]+$/.test(value)
+  return typeof value === 'string' && /^[0-9A-Fa-f]+$/.test(value)
 }
 
 /**
  * Check if a value is a valid FloatValue (0-1 range)
  */
 export function isValidFloatValue(value: unknown): value is FloatValue {
-    return typeof value === 'number' && value >= 0 && value <= 1
+  return typeof value === 'number' && value >= 0 && value <= 1
 }
 
 /**
  * Check if a value is a valid StickerSlotIndex (0-4)
  */
 export function isValidStickerSlotIndex(value: unknown): value is StickerSlotIndex {
-    return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 4
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= 4
 }
 
 /**
  * Check if a value is a valid TeamId (1 or 2)
  */
 export function isValidTeamId(value: unknown): value is TeamId {
-    return value === 1 || value === 2
+  return value === 1 || value === 2
 }
 
 // ============================================================================
@@ -528,30 +528,30 @@ export function isValidTeamId(value: unknown): value is TeamId {
  * Check if a value is a valid StatTrakCount
  */
 export function isValidStatTrakCount(value: unknown): value is StatTrakCount {
-    return typeof value === 'number' && Number.isInteger(value) && value >= 0
+  return typeof value === 'number' && Number.isInteger(value) && value >= 0
 }
 
 /**
  * Check if a value is a valid NameTag
  */
 export function isValidNameTag(value: unknown): value is NameTag {
-    return typeof value === 'string' && value.length <= 32
+  return typeof value === 'string' && value.length <= 32
 }
 
 /**
  * Check if a value is a valid ISOTimestamp
  */
 export function isValidISOTimestamp(value: unknown): value is ISOTimestamp {
-    if (typeof value !== 'string') return false
-    const date = new Date(value)
-    return !isNaN(date.getTime()) && value === date.toISOString()
+  if (typeof value !== 'string') return false
+  const date = new Date(value)
+  return !isNaN(date.getTime()) && value === date.toISOString()
 }
 
 /**
  * Check if a value is a valid NormalizedCoordinate
  */
 export function isValidNormalizedCoordinate(value: unknown): value is NormalizedCoordinate {
-    return typeof value === 'number' && value >= 0 && value <= 1
+  return typeof value === 'number' && value >= 0 && value <= 1
 }
 
 // ============================================================================
@@ -565,11 +565,11 @@ export function isValidNormalizedCoordinate(value: unknown): value is Normalized
  * @returns Wear condition name
  */
 export function floatValueToCondition(value: FloatValue): string {
-    if (value < 0.07) return 'Factory New'
-    if (value < 0.15) return 'Minimal Wear'
-    if (value < 0.38) return 'Field-Tested'
-    if (value < 0.45) return 'Well-Worn'
-    return 'Battle-Scarred'
+  if (value < 0.07) return 'Factory New'
+  if (value < 0.15) return 'Minimal Wear'
+  if (value < 0.38) return 'Field-Tested'
+  if (value < 0.45) return 'Well-Worn'
+  return 'Battle-Scarred'
 }
 
 /**
@@ -579,11 +579,11 @@ export function floatValueToCondition(value: FloatValue): string {
  * @returns Wear condition abbreviation (FN, MW, FT, WW, BS)
  */
 export function floatValueToConditionAbbr(value: FloatValue): string {
-    if (value < 0.07) return 'FN'
-    if (value < 0.15) return 'MW'
-    if (value < 0.38) return 'FT'
-    if (value < 0.45) return 'WW'
-    return 'BS'
+  if (value < 0.07) return 'FN'
+  if (value < 0.15) return 'MW'
+  if (value < 0.38) return 'FT'
+  if (value < 0.45) return 'WW'
+  return 'BS'
 }
 
 /**
@@ -593,7 +593,7 @@ export function floatValueToConditionAbbr(value: FloatValue): string {
  * @returns Team name string
  */
 export function teamIdToName(teamId: TeamId): 'Terrorist' | 'Counter-Terrorist' {
-    return teamId === 1 ? 'Terrorist' : 'Counter-Terrorist'
+  return teamId === 1 ? 'Terrorist' : 'Counter-Terrorist'
 }
 
 /**
@@ -603,7 +603,7 @@ export function teamIdToName(teamId: TeamId): 'Terrorist' | 'Counter-Terrorist' 
  * @returns Team abbreviation (T or CT)
  */
 export function teamIdToAbbr(teamId: TeamId): 'T' | 'CT' {
-    return teamId === 1 ? 'T' : 'CT'
+  return teamId === 1 ? 'T' : 'CT'
 }
 
 // ============================================================================
@@ -629,40 +629,40 @@ export type SettingKey = string & { readonly __brand: 'SettingKey' }
  * Convert a number to an AdminId
  */
 export function toAdminId(value: number): AdminId {
-    return value as AdminId
+  return value as AdminId
 }
 
 /**
  * Convert a number to a BanId
  */
 export function toBanId(value: number): BanId {
-    return value as BanId
+  return value as BanId
 }
 
 /**
  * Convert a string to a SettingKey
  */
 export function toSettingKey(value: string): SettingKey {
-    return value as SettingKey
+  return value as SettingKey
 }
 
 /**
  * Check if a value is a valid AdminId
  */
 export function isValidAdminId(value: unknown): value is AdminId {
-    return typeof value === 'number' && Number.isInteger(value) && value > 0
+  return typeof value === 'number' && Number.isInteger(value) && value > 0
 }
 
 /**
  * Check if a value is a valid BanId
  */
 export function isValidBanId(value: unknown): value is BanId {
-    return typeof value === 'number' && Number.isInteger(value) && value > 0
+  return typeof value === 'number' && Number.isInteger(value) && value > 0
 }
 
 /**
  * Check if a value is a valid SettingKey
  */
 export function isValidSettingKey(value: unknown): value is SettingKey {
-    return typeof value === 'string' && value.length > 0 && value.length <= 64
+  return typeof value === 'string' && value.length > 0 && value.length <= 64
 }

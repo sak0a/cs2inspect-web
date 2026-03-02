@@ -41,8 +41,8 @@ Responses use the standard API wrapper:
 
 ```json
 {
-    "key": "MAX_LOADOUTS_PER_USER",
-    "value": 20
+  "key": "MAX_LOADOUTS_PER_USER",
+  "value": 20
 }
 ```
 
@@ -60,8 +60,8 @@ Updates are audited with `action = "update_setting"`.
 
 ```json
 {
-    "key": "Additional.KnifeEnabled",
-    "value": true
+  "key": "Additional.KnifeEnabled",
+  "value": true
 }
 ```
 

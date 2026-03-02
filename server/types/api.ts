@@ -20,10 +20,10 @@ export { CsTeam } from '~/types/core/common'
  * Used for agents and some skins that are team-specific
  */
 export interface ItemTeam {
-    /** Unique identifier for the team */
-    id: string
-    /** Display name of the team */
-    name: string
+  /** Unique identifier for the team */
+  id: string
+  /** Display name of the team */
+  name: string
 }
 
 /**
@@ -31,18 +31,18 @@ export interface ItemTeam {
  * Contains common fields shared across all item types
  */
 export interface BaseAPIItem {
-    /** Unique identifier for the item */
-    id: string
-    /** Display name of the item */
-    name: string
-    /** Optional description text */
-    description?: string
-    /** Rarity information for this item */
-    rarity: ItemRarity
-    /** URL to the item's image */
-    image: string
-    /** Steam market hash name for trading */
-    market_hash_name?: string
+  /** Unique identifier for the item */
+  id: string
+  /** Display name of the item */
+  name: string
+  /** Optional description text */
+  description?: string
+  /** Rarity information for this item */
+  rarity: ItemRarity
+  /** URL to the item's image */
+  image: string
+  /** Steam market hash name for trading */
+  market_hash_name?: string
 }
 
 // ============================================================================
@@ -54,40 +54,40 @@ export interface BaseAPIItem {
  * Extends BaseAPIItem with weapon-specific properties
  */
 export interface APISkin extends BaseAPIItem {
-    /** Weapon information this skin belongs to */
-    weapon: {
-        id: string
-        name: string
-        weapon_id: string
-    }
-    /** Category information (e.g., "Pistol", "Rifle") */
-    category: {
-        id: string
-        name: string
-    }
-    /** Pattern information for the skin */
-    pattern: {
-        id: string
-        name: string
-    }
-    /** Minimum float value for wear */
-    min_float: number
-    /** Maximum float value for wear */
-    max_float: number
-    /** Whether StatTrak version is available */
-    stattrak?: boolean
-    /** Whether souvenir version is available */
-    souvenir?: boolean
-    /** Paint index identifier */
-    paint_index: string
-    /** Available wear conditions */
-    wears?: Array<{ name: string; min: number; max: number }>
-    /** Collections this skin belongs to */
-    collections?: Array<{ id: string; name: string }>
-    /** Crates this skin can be found in */
-    crates?: Array<{ id: string; name: string }>
-    /** Team association if applicable */
-    team?: ItemTeam
+  /** Weapon information this skin belongs to */
+  weapon: {
+    id: string
+    name: string
+    weapon_id: string
+  }
+  /** Category information (e.g., "Pistol", "Rifle") */
+  category: {
+    id: string
+    name: string
+  }
+  /** Pattern information for the skin */
+  pattern: {
+    id: string
+    name: string
+  }
+  /** Minimum float value for wear */
+  min_float: number
+  /** Maximum float value for wear */
+  max_float: number
+  /** Whether StatTrak version is available */
+  stattrak?: boolean
+  /** Whether souvenir version is available */
+  souvenir?: boolean
+  /** Paint index identifier */
+  paint_index: string
+  /** Available wear conditions */
+  wears?: Array<{ name: string; min: number; max: number }>
+  /** Collections this skin belongs to */
+  collections?: Array<{ id: string; name: string }>
+  /** Crates this skin can be found in */
+  crates?: Array<{ id: string; name: string }>
+  /** Team association if applicable */
+  team?: ItemTeam
 }
 
 /**
@@ -95,16 +95,16 @@ export interface APISkin extends BaseAPIItem {
  * Extends BaseAPIItem with sticker-specific properties
  */
 export interface APISticker extends BaseAPIItem {
-    /** Crates this sticker can be found in */
-    crates?: Array<{ id: string; name: string }>
-    /** Tournament event this sticker is associated with */
-    tournament_event: string
-    /** Tournament team this sticker represents */
-    tournament_team: string
-    /** Type of sticker (e.g., "Team", "Player") */
-    type: string
-    /** Visual effect applied to the sticker */
-    effect?: string
+  /** Crates this sticker can be found in */
+  crates?: Array<{ id: string; name: string }>
+  /** Tournament event this sticker is associated with */
+  tournament_event: string
+  /** Tournament team this sticker represents */
+  tournament_team: string
+  /** Type of sticker (e.g., "Team", "Player") */
+  type: string
+  /** Visual effect applied to the sticker */
+  effect?: string
 }
 
 /**
@@ -112,10 +112,10 @@ export interface APISticker extends BaseAPIItem {
  * Extends BaseAPIItem with agent-specific properties
  */
 export interface APIAgent extends BaseAPIItem {
-    /** Collections this agent belongs to */
-    collections?: Array<{ id: string; name: string }>
-    /** Team this agent belongs to */
-    team: ItemTeam
+  /** Collections this agent belongs to */
+  collections?: Array<{ id: string; name: string }>
+  /** Team this agent belongs to */
+  team: ItemTeam
 }
 
 /**
@@ -123,8 +123,8 @@ export interface APIAgent extends BaseAPIItem {
  * Extends BaseAPIItem with music kit-specific properties
  */
 export interface APIMusicKit extends BaseAPIItem {
-    /** Whether this music kit is exclusive/limited */
-    exclusive?: boolean
+  /** Whether this music kit is exclusive/limited */
+  exclusive?: boolean
 }
 
 /**
@@ -138,10 +138,10 @@ export type APIKeychain = BaseAPIItem
  * Extends BaseAPIItem with collectible-specific properties
  */
 export interface APICollectible extends BaseAPIItem {
-    /** Type of collectible item */
-    type?: string
-    /** Whether this is a genuine item */
-    genuine?: boolean
+  /** Type of collectible item */
+  type?: string
+  /** Whether this is a genuine item */
+  genuine?: boolean
 }
 
 /**
@@ -149,30 +149,30 @@ export interface APICollectible extends BaseAPIItem {
  * Extends BaseAPIItem with highlight-specific properties
  */
 export interface APIHighlight extends BaseAPIItem {
-    /** Definition index */
-    def_index: string
-    /** Item description */
-    description: string
-    /** Tournament event name */
-    tournament_event: string
-    /** First team name */
-    team0: string
-    /** Second team name */
-    team1: string
-    /** Tournament stage */
-    stage: string
-    /** Tournament player name */
-    tournament_player: string
-    /** Map name */
-    map: string
-    /** Market hash name */
-    market_hash_name: string
-    /** Video URL */
-    video: string
-    /** Thumbnail image URL */
-    thumbnail: string
-    /** Original item data */
-    original: Record<string, unknown>
+  /** Definition index */
+  def_index: string
+  /** Item description */
+  description: string
+  /** Tournament event name */
+  tournament_event: string
+  /** First team name */
+  team0: string
+  /** Second team name */
+  team1: string
+  /** Tournament stage */
+  stage: string
+  /** Tournament player name */
+  tournament_player: string
+  /** Map name */
+  map: string
+  /** Market hash name */
+  market_hash_name: string
+  /** Video URL */
+  video: string
+  /** Thumbnail image URL */
+  thumbnail: string
+  /** Original item data */
+  original: Record<string, unknown>
 }
 
 // Note: CsTeam is now re-exported from ~/types/core/common at the top of this file

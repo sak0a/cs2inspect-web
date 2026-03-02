@@ -21,16 +21,16 @@ import type { Timestamp, ErrorInfo, PaginationMeta } from '../core/common'
  * @description Provides additional context and information about the response
  */
 export interface APIResponseMeta {
-    /** Timestamp when the response was generated */
-    timestamp: Timestamp
-    /** Time taken to process the request (in milliseconds) */
-    processingTime?: number
-    /** Version of the API that handled the request */
-    apiVersion?: string
-    /** Request ID for debugging and tracing */
-    requestId?: string
-    /** Additional metadata specific to the endpoint */
-    [key: string]: unknown
+  /** Timestamp when the response was generated */
+  timestamp: Timestamp
+  /** Time taken to process the request (in milliseconds) */
+  processingTime?: number
+  /** Version of the API that handled the request */
+  apiVersion?: string
+  /** Request ID for debugging and tracing */
+  requestId?: string
+  /** Additional metadata specific to the endpoint */
+  [key: string]: unknown
 }
 
 /**
@@ -53,16 +53,16 @@ export interface APIResponseMeta {
  * ```
  */
 export interface APIResponse<TData = unknown> {
-    /** Whether the request was successful */
-    success: boolean
-    /** The main data payload (present when success is true) */
-    data?: TData
-    /** Response metadata */
-    meta?: APIResponseMeta
-    /** Error information (present when success is false) */
-    error?: ErrorInfo
-    /** Human-readable message */
-    message?: string
+  /** Whether the request was successful */
+  success: boolean
+  /** The main data payload (present when success is true) */
+  data?: TData
+  /** Response metadata */
+  meta?: APIResponseMeta
+  /** Error information (present when success is false) */
+  error?: ErrorInfo
+  /** Human-readable message */
+  message?: string
 }
 
 /**
@@ -90,12 +90,12 @@ export interface APIResponse<TData = unknown> {
  * ```
  */
 export interface APIPaginatedResponse<TData = unknown> extends APIResponse<TData[]> {
-    /** Pagination information (required for paginated responses) */
-    pagination: PaginationMeta
-    /** Applied filters information */
-    appliedFilters?: Record<string, unknown>
-    /** Available filter options for the endpoint */
-    availableFilters?: Record<string, unknown[]>
+  /** Pagination information (required for paginated responses) */
+  pagination: PaginationMeta
+  /** Applied filters information */
+  appliedFilters?: Record<string, unknown>
+  /** Available filter options for the endpoint */
+  availableFilters?: Record<string, unknown[]>
 }
 
 /**
@@ -106,17 +106,17 @@ export interface APIPaginatedResponse<TData = unknown> extends APIResponse<TData
  * @description Used for endpoints that return collections with additional metadata
  */
 export interface APICollectionResponse<TData = unknown> extends APIResponse<TData[]> {
-    /** Collection-specific metadata */
-    collection: {
-        /** Total count of items in the collection */
-        totalCount: number
-        /** Available categories/types in the collection */
-        categories?: string[]
-        /** Available filters and their options */
-        filters?: Record<string, unknown[]>
-        /** Collection statistics */
-        stats?: Record<string, number>
-    }
+  /** Collection-specific metadata */
+  collection: {
+    /** Total count of items in the collection */
+    totalCount: number
+    /** Available categories/types in the collection */
+    categories?: string[]
+    /** Available filters and their options */
+    filters?: Record<string, unknown[]>
+    /** Collection statistics */
+    stats?: Record<string, number>
+  }
 }
 
 // ============================================================================
@@ -129,9 +129,9 @@ export interface APICollectionResponse<TData = unknown> extends APIResponse<TDat
  * @template TData - Type of successful response data
  */
 export type AnyAPIResponse<TData = unknown> =
-    | APIResponse<TData>
-    | APIPaginatedResponse<TData>
-    | APICollectionResponse<TData>
+  | APIResponse<TData>
+  | APIPaginatedResponse<TData>
+  | APICollectionResponse<TData>
 
 /**
  * Extract the data type from an API response type
@@ -147,9 +147,9 @@ export type ExtractAPIResponseData<T> = T extends APIResponse<infer U> ? U : nev
  * @returns True if the response indicates success
  */
 export function isSuccessfulResponse<T>(
-    response: AnyAPIResponse<T>
+  response: AnyAPIResponse<T>
 ): response is APIResponse<T> & { success: true; data: T } {
-    return response.success === true && response.data !== undefined
+  return response.success === true && response.data !== undefined
 }
 
 /**
@@ -159,7 +159,7 @@ export function isSuccessfulResponse<T>(
  * @returns True if the response indicates an error
  */
 export function isErrorResponse(
-    response: AnyAPIResponse
+  response: AnyAPIResponse
 ): response is AnyAPIResponse & { success: false; error: ErrorInfo } {
-    return response.success === false && response.error !== undefined
+  return response.success === false && response.error !== undefined
 }

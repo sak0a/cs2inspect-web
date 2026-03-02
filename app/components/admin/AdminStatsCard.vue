@@ -1,112 +1,112 @@
 <script setup lang="ts">
 import {
-    LucideTrendingUp as TrendingUpIcon,
-    LucideTrendingDown as TrendingDownIcon,
-    LucideUsers as UsersIcon,
-    LucidePackage as PackageIcon,
-    LucideSword as SwordIcon,
-    LucideActivity as ActivityIcon,
-    LucideShield as ShieldIcon,
-    LucideBan as BanIcon,
-    LucideDatabase as DatabaseIcon,
-    LucideCalendar as CalendarIcon,
+  LucideTrendingUp as TrendingUpIcon,
+  LucideTrendingDown as TrendingDownIcon,
+  LucideUsers as UsersIcon,
+  LucidePackage as PackageIcon,
+  LucideSword as SwordIcon,
+  LucideActivity as ActivityIcon,
+  LucideShield as ShieldIcon,
+  LucideBan as BanIcon,
+  LucideDatabase as DatabaseIcon,
+  LucideCalendar as CalendarIcon,
 } from 'lucide-vue-next'
 import type { Component } from 'vue'
 
 // Props
 interface Props {
-    /** Title of the stat card */
-    title: string
-    /** Value to display (number or formatted string) */
-    value: number | string
-    /** Icon name to display */
-    icon: string
-    /** Optional trend indicator */
-    trend?: {
-        value: number
-        label: string
-    }
-    /** Loading state */
-    loading?: boolean
+  /** Title of the stat card */
+  title: string
+  /** Value to display (number or formatted string) */
+  value: number | string
+  /** Icon name to display */
+  icon: string
+  /** Optional trend indicator */
+  trend?: {
+    value: number
+    label: string
+  }
+  /** Loading state */
+  loading?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
-    trend: undefined,
-    loading: false,
+  trend: undefined,
+  loading: false,
 })
 
 // Icon mapping
 const iconMap: Record<string, Component> = {
-    users: UsersIcon,
-    package: PackageIcon,
-    sword: SwordIcon,
-    activity: ActivityIcon,
-    shield: ShieldIcon,
-    ban: BanIcon,
-    database: DatabaseIcon,
-    calendar: CalendarIcon,
-    'trending-up': TrendingUpIcon,
-    'trending-down': TrendingDownIcon,
+  users: UsersIcon,
+  package: PackageIcon,
+  sword: SwordIcon,
+  activity: ActivityIcon,
+  shield: ShieldIcon,
+  ban: BanIcon,
+  database: DatabaseIcon,
+  calendar: CalendarIcon,
+  'trending-up': TrendingUpIcon,
+  'trending-down': TrendingDownIcon,
 }
 
 // Get the icon component
 const iconComponent = computed(() => {
-    return iconMap[props.icon] || PackageIcon
+  return iconMap[props.icon] || PackageIcon
 })
 
 const trendIcon = computed(() => {
-    if (!props.trend) return undefined
-    return props.trend.value >= 0 ? TrendingUpIcon : TrendingDownIcon
+  if (!props.trend) return undefined
+  return props.trend.value >= 0 ? TrendingUpIcon : TrendingDownIcon
 })
 
 const trendClass = computed(() => {
-    if (!props.trend) return ''
-    return props.trend.value >= 0 ? 'trend-up' : 'trend-down'
+  if (!props.trend) return ''
+  return props.trend.value >= 0 ? 'trend-up' : 'trend-down'
 })
 
 // Format value for display
 const displayValue = computed(() => {
-    if (typeof props.value === 'number') {
-        return new Intl.NumberFormat().format(props.value)
-    }
-    return props.value
+  if (typeof props.value === 'number') {
+    return new Intl.NumberFormat().format(props.value)
+  }
+  return props.value
 })
 </script>
 
 <template>
-    <NCard :bordered="false" class="admin-stats-card">
-        <!-- Loading State -->
-        <template v-if="loading">
-            <div class="stats-loading">
-                <NSkeleton :width="120" :height="16" :sharp="false" />
-                <NSkeleton :width="80" :height="32" :sharp="false" class="mt-3" />
-                <NSkeleton :width="100" :height="14" :sharp="false" class="mt-2" />
-            </div>
-        </template>
+  <NCard :bordered="false" class="admin-stats-card">
+    <!-- Loading State -->
+    <template v-if="loading">
+      <div class="stats-loading">
+        <NSkeleton :width="120" :height="16" :sharp="false" />
+        <NSkeleton :width="80" :height="32" :sharp="false" class="mt-3" />
+        <NSkeleton :width="100" :height="14" :sharp="false" class="mt-2" />
+      </div>
+    </template>
 
-        <!-- Content -->
-        <template v-else>
-            <NSpace vertical :size="12">
-                <!-- Header with Icon and Title -->
-                <NSpace align="center" justify="space-between">
-                    <span class="stats-title">{{ title }}</span>
-                    <div class="stats-icon-wrapper">
-                        <NIcon :component="iconComponent" :size="20" />
-                    </div>
-                </NSpace>
+    <!-- Content -->
+    <template v-else>
+      <NSpace vertical :size="12">
+        <!-- Header with Icon and Title -->
+        <NSpace align="center" justify="space-between">
+          <span class="stats-title">{{ title }}</span>
+          <div class="stats-icon-wrapper">
+            <NIcon :component="iconComponent" :size="20" />
+          </div>
+        </NSpace>
 
-                <!-- Value -->
-                <div class="stats-value">{{ displayValue }}</div>
+        <!-- Value -->
+        <div class="stats-value">{{ displayValue }}</div>
 
-                <!-- Trend Indicator -->
-                <div v-if="trend" class="stats-trend" :class="trendClass">
-                    <NIcon :component="trendIcon" :size="14" />
-                    <span class="trend-value">{{ Math.abs(trend.value) }}%</span>
-                    <span class="trend-label">{{ trend.label }}</span>
-                </div>
-            </NSpace>
-        </template>
-    </NCard>
+        <!-- Trend Indicator -->
+        <div v-if="trend" class="stats-trend" :class="trendClass">
+          <NIcon :component="trendIcon" :size="14" />
+          <span class="trend-value">{{ Math.abs(trend.value) }}%</span>
+          <span class="trend-label">{{ trend.label }}</span>
+        </div>
+      </NSpace>
+    </template>
+  </NCard>
 </template>
 
 <style scoped lang="sass">

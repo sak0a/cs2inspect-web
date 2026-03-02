@@ -7,13 +7,13 @@ import { toSteamId, toLoadoutId, toDefindex, toPaintIndex } from '~/types/core/c
  * Props interface for GloveTabs component
  */
 interface Props {
-    /** Glove data containing categories and gloves */
-    weaponData: {
-        weapons: GloveItemData[]
-        defaultName: string
-        availableTeams: string
-        [key: string]: unknown
-    }
+  /** Glove data containing categories and gloves */
+  weaponData: {
+    weapons: GloveItemData[]
+    defaultName: string
+    availableTeams: string
+    [key: string]: unknown
+  }
 }
 
 const props = defineProps<Props>()
@@ -22,48 +22,48 @@ const props = defineProps<Props>()
  * Events interface with enhanced type safety
  */
 const emit = defineEmits<{
-    (e: 'weaponClick', glove: GloveItemData): void
-    (e: 'error', error: string): void
+  (e: 'weaponClick', glove: GloveItemData): void
+  (e: 'error', error: string): void
 }>()
 
 // Persist last selected team tab in a cookie (client-side)
 const currentTeamTab = ref<'ct' | 't'>('ct')
 const cookieName = computed(() => {
-    const first = props.weaponData?.weapons?.[0]
-    const id = (first?.weapon_defindex ??
-        first?.weapon_name ??
-        props.weaponData?.defaultName ??
-        'unknown') as string | number
-    return `lastTeamTab_glove_${id}`
+  const first = props.weaponData?.weapons?.[0]
+  const id = (first?.weapon_defindex ??
+    first?.weapon_name ??
+    props.weaponData?.defaultName ??
+    'unknown') as string | number
+  return `lastTeamTab_glove_${id}`
 })
 
 function setCookie(name: string, val: string) {
-    try {
-        document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=15552000`
-    } catch {
-        // Ignore cookie errors
-    }
+  try {
+    document.cookie = `${name}=${encodeURIComponent(val)}; path=/; max-age=15552000`
+  } catch {
+    // Ignore cookie errors
+  }
 }
 function getCookie(name: string): string | null {
-    try {
-        const part = document.cookie.split('; ').find((row) => row.startsWith(name + '='))
-        return part ? decodeURIComponent(part.split('=')[1] ?? '') : null
-    } catch {
-        return null
-    }
+  try {
+    const part = document.cookie.split('; ').find((row) => row.startsWith(name + '='))
+    return part ? decodeURIComponent(part.split('=')[1] ?? '') : null
+  } catch {
+    return null
+  }
 }
 
 function setTeamCookie(val: 'ct' | 't') {
-    setCookie(cookieName.value, val)
+  setCookie(cookieName.value, val)
 }
 function getTeamCookie(): 'ct' | 't' | null {
-    const v = getCookie(cookieName.value)
-    return v === 'ct' || v === 't' ? v : null
+  const v = getCookie(cookieName.value)
+  return v === 'ct' || v === 't' ? v : null
 }
 
 onMounted(() => {
-    const v = getTeamCookie()
-    if (v) currentTeamTab.value = v
+  const v = getTeamCookie()
+  if (v) currentTeamTab.value = v
 })
 
 const { t } = useI18n()
@@ -74,59 +74,58 @@ const { t } = useI18n()
  * @param team - Team number (1 for Terrorist, 2 for Counter-Terrorist)
  */
 const handleDefaultWeaponClick = (team: number): void => {
-    try {
-        // Validate input
-        if (!team || (team !== 1 && team !== 2)) {
-            throw new Error('Invalid team number provided')
-        }
-
-        // Validate glove data
-        if (!props.weaponData?.weapons?.[0]) {
-            throw new Error('No glove data available')
-        }
-
-        const firstGlove = props.weaponData.weapons[0]
-
-        // Create default glove with proper type safety and weapon_name
-        const defaultWeapon: GloveItemData = {
-            type: 'glove',
-            id: `default-${firstGlove.id || 'glove'}`,
-            name: props.weaponData.defaultName,
-            defaultName: props.weaponData.defaultName,
-            image: firstGlove.defaultImage,
-            defaultImage: firstGlove.defaultImage,
-            itemName: firstGlove.itemName,
-            category: firstGlove.category,
-            minFloat: firstGlove.minFloat || 0,
-            maxFloat: firstGlove.maxFloat || 1,
-            availableTeams: firstGlove.availableTeams || 'both',
-            rarity: firstGlove.rarity,
-            // Add the missing weapon_name field from the first glove
-            weapon_name: firstGlove.weapon_name,
-            weapon_defindex: firstGlove.weapon_defindex || firstGlove.databaseInfo?.defindex || 0,
-            databaseInfo: {
-                id: `default-db-${firstGlove.id || 'glove'}`,
-                steamid: toSteamId(''),
-                loadoutid: toLoadoutId(0),
-                active: false,
-                team: team,
-                defindex: firstGlove.databaseInfo?.defindex || toDefindex(0),
-                paintindex: toPaintIndex(0),
-                paintseed: '0',
-                paintwear: '0.01',
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString(),
-            } as DBGlove,
-        }
-
-        console.log('GloveTabs - default glove clicked for team:', team)
-        emit('weaponClick', defaultWeapon)
-    } catch (error: unknown) {
-        console.error('Error handling default glove click:', error)
-        const errorMessage =
-            error instanceof Error ? error.message : 'Failed to select default glove'
-        emit('error', errorMessage)
+  try {
+    // Validate input
+    if (!team || (team !== 1 && team !== 2)) {
+      throw new Error('Invalid team number provided')
     }
+
+    // Validate glove data
+    if (!props.weaponData?.weapons?.[0]) {
+      throw new Error('No glove data available')
+    }
+
+    const firstGlove = props.weaponData.weapons[0]
+
+    // Create default glove with proper type safety and weapon_name
+    const defaultWeapon: GloveItemData = {
+      type: 'glove',
+      id: `default-${firstGlove.id || 'glove'}`,
+      name: props.weaponData.defaultName,
+      defaultName: props.weaponData.defaultName,
+      image: firstGlove.defaultImage,
+      defaultImage: firstGlove.defaultImage,
+      itemName: firstGlove.itemName,
+      category: firstGlove.category,
+      minFloat: firstGlove.minFloat || 0,
+      maxFloat: firstGlove.maxFloat || 1,
+      availableTeams: firstGlove.availableTeams || 'both',
+      rarity: firstGlove.rarity,
+      // Add the missing weapon_name field from the first glove
+      weapon_name: firstGlove.weapon_name,
+      weapon_defindex: firstGlove.weapon_defindex || firstGlove.databaseInfo?.defindex || 0,
+      databaseInfo: {
+        id: `default-db-${firstGlove.id || 'glove'}`,
+        steamid: toSteamId(''),
+        loadoutid: toLoadoutId(0),
+        active: false,
+        team: team,
+        defindex: firstGlove.databaseInfo?.defindex || toDefindex(0),
+        paintindex: toPaintIndex(0),
+        paintseed: '0',
+        paintwear: '0.01',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as DBGlove,
+    }
+
+    console.log('GloveTabs - default glove clicked for team:', team)
+    emit('weaponClick', defaultWeapon)
+  } catch (error: unknown) {
+    console.error('Error handling default glove click:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to select default glove'
+    emit('error', errorMessage)
+  }
 }
 
 /**
@@ -135,238 +134,212 @@ const handleDefaultWeaponClick = (team: number): void => {
  * @param weapon - Selected glove data
  */
 const handleSkinClick = (weapon: GloveItemData): void => {
-    try {
-        if (!weapon) {
-            throw new Error('Invalid glove data provided')
-        }
-
-        console.log('GloveTabs - skin clicked:', weapon.name)
-        emit('weaponClick', weapon)
-    } catch (error: unknown) {
-        console.error('Error handling glove skin click:', error)
-        const errorMessage = error instanceof Error ? error.message : 'Failed to select glove skin'
-        emit('error', errorMessage)
+  try {
+    if (!weapon) {
+      throw new Error('Invalid glove data provided')
     }
+
+    console.log('GloveTabs - skin clicked:', weapon.name)
+    emit('weaponClick', weapon)
+  } catch (error: unknown) {
+    console.error('Error handling glove skin click:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Failed to select glove skin'
+    emit('error', errorMessage)
+  }
 }
 </script>
 
 <template>
-    <!-- For gloves that both teams can use -->
-    <div v-if="weaponData.availableTeams === 'both'">
-        <NTabs
-            v-model:value="currentTeamTab"
-            type="line"
-            animated
-            size="small"
-            @update:value="(v) => setTeamCookie(v as 'ct' | 't')"
+  <!-- For gloves that both teams can use -->
+  <div v-if="weaponData.availableTeams === 'both'">
+    <NTabs
+      v-model:value="currentTeamTab"
+      type="line"
+      animated
+      size="small"
+      @update:value="(v) => setTeamCookie(v as 'ct' | 't')"
+    >
+      <NTabPane name="ct" :tab="String(t('teams.counterTerrorists'))">
+        <!-- Default glove if no skin selected -->
+        <NCard
+          v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 2)"
+          :style="{
+            borderColor: '#313030',
+            background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
+          }"
+          class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+          @click="handleDefaultWeaponClick(2)"
         >
-            <NTabPane name="ct" :tab="String(t('teams.counterTerrorists'))">
-                <!-- Default glove if no skin selected -->
-                <NCard
-                    v-if="
-                        !weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 2)
-                    "
-                    :style="{
-                        borderColor: '#313030',
-                        background:
-                            'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
-                    }"
-                    class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
-                    @click="handleDefaultWeaponClick(2)"
-                >
-                    <div class="flex flex-col items-center">
-                        <img
-                            :src="weaponData.weapons[0]?.defaultImage"
-                            :alt="weaponData.defaultName"
-                            class="w-full h-32 object-contain mb-2"
-                            loading="lazy"
-                        />
-                        <div class="w-full">
-                            <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-                            <div class="h-1 mt-2" :style="{ background: '#313030' }" />
-                        </div>
-                    </div>
-                </NCard>
-                <!-- CT skins -->
-                <NCard
-                    v-for="weapon in weaponData.weapons.filter(
-                        (w: GloveItemData) => w.databaseInfo?.team === 2
-                    )"
-                    :key="weapon.paintindex"
-                    :style="{
-                        borderColor: weapon.rarity?.color || '#313030',
-                        background: weapon.rarity?.color
-                            ? 'linear-gradient(135deg, #101010, ' +
-                              hexToRgba(weapon.rarity?.color, '0.15') +
-                              ')'
-                            : '#242424',
-                    }"
-                    class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
-                    @click="handleSkinClick(weapon)"
-                >
-                    <div class="flex flex-col items-center">
-                        <img
-                            :src="weapon.image"
-                            :alt="weapon.name"
-                            class="w-full h-32 object-contain mb-2"
-                            loading="lazy"
-                        />
-                        <div class="w-full">
-                            <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-                            <div
-                                class="h-1 mt-2"
-                                :style="{ background: weapon.rarity?.color || '#313030' }"
-                            />
-                        </div>
-                    </div>
-                </NCard>
-            </NTabPane>
+          <div class="flex flex-col items-center">
+            <img
+              :src="weaponData.weapons[0]?.defaultImage"
+              :alt="weaponData.defaultName"
+              class="w-full h-32 object-contain mb-2"
+              loading="lazy"
+            />
+            <div class="w-full">
+              <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
+              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+            </div>
+          </div>
+        </NCard>
+        <!-- CT skins -->
+        <NCard
+          v-for="weapon in weaponData.weapons.filter(
+            (w: GloveItemData) => w.databaseInfo?.team === 2
+          )"
+          :key="weapon.paintindex"
+          :style="{
+            borderColor: weapon.rarity?.color || '#313030',
+            background: weapon.rarity?.color
+              ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
+              : '#242424',
+          }"
+          class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+          @click="handleSkinClick(weapon)"
+        >
+          <div class="flex flex-col items-center">
+            <img
+              :src="weapon.image"
+              :alt="weapon.name"
+              class="w-full h-32 object-contain mb-2"
+              loading="lazy"
+            />
+            <div class="w-full">
+              <p class="text-sm text-white truncate">{{ weapon.name }}</p>
+              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
+            </div>
+          </div>
+        </NCard>
+      </NTabPane>
 
-            <NTabPane name="t" :tab="String(t('teams.terrorists'))">
-                <!-- Default glove if no skin selected -->
-                <NCard
-                    v-if="
-                        !weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 1)
-                    "
-                    :style="{
-                        borderColor: '#313030',
-                        background:
-                            'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
-                    }"
-                    class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
-                    @click="handleDefaultWeaponClick(1)"
-                >
-                    <div class="flex flex-col items-center">
-                        <img
-                            :src="weaponData.weapons[0]?.defaultImage"
-                            :alt="weaponData.defaultName"
-                            class="w-full h-32 object-contain mb-2"
-                            loading="lazy"
-                        />
-                        <div class="w-full">
-                            <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-                            <div class="h-1 mt-2" :style="{ background: '#313030' }" />
-                        </div>
-                    </div>
-                </NCard>
-                <!-- T skins -->
-                <NCard
-                    v-for="weapon in weaponData.weapons.filter(
-                        (w: GloveItemData) => w.databaseInfo?.team === 1
-                    )"
-                    :key="weapon.paintindex"
-                    :style="{
-                        borderColor: weapon.rarity?.color || '#313030',
-                        background: weapon.rarity?.color
-                            ? 'linear-gradient(135deg, #101010, ' +
-                              hexToRgba(weapon.rarity?.color, '0.15') +
-                              ')'
-                            : '#242424',
-                    }"
-                    class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
-                    @click="handleSkinClick(weapon)"
-                >
-                    <div class="flex flex-col items-center">
-                        <img
-                            :src="weapon.image"
-                            :alt="weapon.name"
-                            class="w-full h-32 object-contain mb-2"
-                            loading="lazy"
-                        />
-                        <div class="w-full">
-                            <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-                            <div
-                                class="h-1 mt-2"
-                                :style="{ background: weapon.rarity?.color || '#313030' }"
-                            />
-                        </div>
-                    </div>
-                </NCard>
-            </NTabPane>
-        </NTabs>
-    </div>
+      <NTabPane name="t" :tab="String(t('teams.terrorists'))">
+        <!-- Default glove if no skin selected -->
+        <NCard
+          v-if="!weaponData.weapons.some((w: GloveItemData) => w.databaseInfo?.team === 1)"
+          :style="{
+            borderColor: '#313030',
+            background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
+          }"
+          class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+          @click="handleDefaultWeaponClick(1)"
+        >
+          <div class="flex flex-col items-center">
+            <img
+              :src="weaponData.weapons[0]?.defaultImage"
+              :alt="weaponData.defaultName"
+              class="w-full h-32 object-contain mb-2"
+              loading="lazy"
+            />
+            <div class="w-full">
+              <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
+              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+            </div>
+          </div>
+        </NCard>
+        <!-- T skins -->
+        <NCard
+          v-for="weapon in weaponData.weapons.filter(
+            (w: GloveItemData) => w.databaseInfo?.team === 1
+          )"
+          :key="weapon.paintindex"
+          :style="{
+            borderColor: weapon.rarity?.color || '#313030',
+            background: weapon.rarity?.color
+              ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
+              : '#242424',
+          }"
+          class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+          @click="handleSkinClick(weapon)"
+        >
+          <div class="flex flex-col items-center">
+            <img
+              :src="weapon.image"
+              :alt="weapon.name"
+              class="w-full h-32 object-contain mb-2"
+              loading="lazy"
+            />
+            <div class="w-full">
+              <p class="text-sm text-white truncate">{{ weapon.name }}</p>
+              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
+            </div>
+          </div>
+        </NCard>
+      </NTabPane>
+    </NTabs>
+  </div>
 
-    <!-- For team-specific gloves -->
-    <div v-else>
-        <NTabs type="line" animated size="small">
-            <NTabPane
-                :name="weaponData.availableTeams === 'terrorists' ? 't' : 'ct'"
-                :tab="
-                    weaponData.availableTeams === 'terrorists'
-                        ? String(t('teams.terrorists'))
-                        : String(t('teams.counterTerrorists'))
-                "
-            >
-                <!-- Default glove if no skin selected -->
-                <NCard
-                    v-if="
-                        !weaponData.weapons.some(
-                            (w: GloveItemData) =>
-                                w.databaseInfo?.team ===
-                                (weaponData.availableTeams === 'terrorists' ? 1 : 2)
-                        )
-                    "
-                    :style="{
-                        borderColor: '#313030',
-                        background:
-                            'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
-                    }"
-                    class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
-                    @click="
-                        handleDefaultWeaponClick(weaponData.availableTeams === 'terrorists' ? 1 : 2)
-                    "
-                >
-                    <div class="flex flex-col items-center">
-                        <img
-                            :src="weaponData.weapons[0]?.defaultImage"
-                            :alt="weaponData.defaultName"
-                            class="w-full h-32 object-contain mb-2"
-                            loading="lazy"
-                        />
-                        <div class="w-full">
-                            <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-                            <div class="h-1 mt-2" :style="{ background: '#313030' }" />
-                        </div>
-                    </div>
-                </NCard>
-                <!-- Team-specific skins -->
-                <NCard
-                    v-for="weapon in weaponData.weapons.filter(
-                        (w: GloveItemData) =>
-                            w.databaseInfo?.team ===
-                            (weaponData.availableTeams === 'terrorists' ? 1 : 2)
-                    )"
-                    :key="weapon.paintindex"
-                    :style="{
-                        borderColor: weapon.rarity?.color || '#313030',
-                        background: weapon.rarity?.color
-                            ? 'linear-gradient(135deg, #101010, ' +
-                              hexToRgba(weapon.rarity?.color, '0.15') +
-                              ')'
-                            : '#242424',
-                    }"
-                    class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
-                    @click="handleSkinClick(weapon)"
-                >
-                    <div class="flex flex-col items-center">
-                        <img
-                            :src="weapon.image"
-                            :alt="weapon.name"
-                            class="w-full h-32 object-contain mb-2"
-                            loading="lazy"
-                        />
-                        <div class="w-full">
-                            <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-                            <div
-                                class="h-1 mt-2"
-                                :style="{ background: weapon.rarity?.color || '#313030' }"
-                            />
-                        </div>
-                    </div>
-                </NCard>
-            </NTabPane>
-        </NTabs>
-    </div>
+  <!-- For team-specific gloves -->
+  <div v-else>
+    <NTabs type="line" animated size="small">
+      <NTabPane
+        :name="weaponData.availableTeams === 'terrorists' ? 't' : 'ct'"
+        :tab="
+          weaponData.availableTeams === 'terrorists'
+            ? String(t('teams.terrorists'))
+            : String(t('teams.counterTerrorists'))
+        "
+      >
+        <!-- Default glove if no skin selected -->
+        <NCard
+          v-if="
+            !weaponData.weapons.some(
+              (w: GloveItemData) =>
+                w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2)
+            )
+          "
+          :style="{
+            borderColor: '#313030',
+            background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
+          }"
+          class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+          @click="handleDefaultWeaponClick(weaponData.availableTeams === 'terrorists' ? 1 : 2)"
+        >
+          <div class="flex flex-col items-center">
+            <img
+              :src="weaponData.weapons[0]?.defaultImage"
+              :alt="weaponData.defaultName"
+              class="w-full h-32 object-contain mb-2"
+              loading="lazy"
+            />
+            <div class="w-full">
+              <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
+              <div class="h-1 mt-2" :style="{ background: '#313030' }" />
+            </div>
+          </div>
+        </NCard>
+        <!-- Team-specific skins -->
+        <NCard
+          v-for="weapon in weaponData.weapons.filter(
+            (w: GloveItemData) =>
+              w.databaseInfo?.team === (weaponData.availableTeams === 'terrorists' ? 1 : 2)
+          )"
+          :key="weapon.paintindex"
+          :style="{
+            borderColor: weapon.rarity?.color || '#313030',
+            background: weapon.rarity?.color
+              ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
+              : '#242424',
+          }"
+          class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+          @click="handleSkinClick(weapon)"
+        >
+          <div class="flex flex-col items-center">
+            <img
+              :src="weapon.image"
+              :alt="weapon.name"
+              class="w-full h-32 object-contain mb-2"
+              loading="lazy"
+            />
+            <div class="w-full">
+              <p class="text-sm text-white truncate">{{ weapon.name }}</p>
+              <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
+            </div>
+          </div>
+        </NCard>
+      </NTabPane>
+    </NTabs>
+  </div>
 </template>
 
 <style scoped>

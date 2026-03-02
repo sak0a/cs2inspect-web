@@ -123,6 +123,6 @@ Use the downloaded images in your application:
 
 ```javascript
 const getStickerImage = (stickerId, wear) => {
-    return `/assets/stickers/${stickerId}/${wear}.webp`
+  return `/assets/stickers/${stickerId}/${wear}.webp`
 }
 ```
