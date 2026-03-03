@@ -113,6 +113,26 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
+const handleGlassMouseMove = (event: MouseEvent) => {
+  if (props.variant !== 'glass') return
+  const el = event.currentTarget as HTMLElement
+  const rect = el.getBoundingClientRect()
+  const x = ((event.clientX - rect.left) / rect.width) * 100
+  const y = ((event.clientY - rect.top) / rect.height) * 100
+  el.style.setProperty('--mouse-x', `${x}%`)
+  el.style.setProperty('--mouse-y', `${y}%`)
+}
+
+const handleGlassMouseEnter = (event: MouseEvent) => {
+  if (props.variant !== 'glass') return
+  ;(event.currentTarget as HTMLElement).style.setProperty('--mouse-glow-opacity', '1')
+}
+
+const handleGlassMouseLeave = (event: MouseEvent) => {
+  if (props.variant !== 'glass') return
+  ;(event.currentTarget as HTMLElement).style.setProperty('--mouse-glow-opacity', '0')
+}
+
 // Computed component tag
 const componentTag = computed(() => {
   if (props.to) return 'router-link'
@@ -256,6 +276,9 @@ const componentBindings = computed(() => {
     :style="computedStyle"
     @click="handleClick"
     @keydown="handleKeydown"
+    @mousemove="handleGlassMouseMove"
+    @mouseenter="handleGlassMouseEnter"
+    @mouseleave="handleGlassMouseLeave"
   >
     <!-- Ripple effects -->
     <span
