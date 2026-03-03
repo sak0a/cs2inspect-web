@@ -3,7 +3,7 @@ import type { Component } from 'vue'
 import { computed, ref, useSlots } from 'vue'
 
 export interface Props {
-  variant?: 'filled' | 'outlined' | 'light' | 'ghost' | 'link' | 'dashed'
+  variant?: 'filled' | 'outlined' | 'light' | 'ghost' | 'link' | 'dashed' | 'glass'
   type?: 'default' | 'primary' | 'error' | 'success' | 'info' | 'warning'
   size?: 'xs' | 'small' | 'medium' | 'large' | 'xl'
   color?: string
@@ -202,6 +202,12 @@ const computedStyle = computed(() => {
     style['--btn-bg-hover'] = alpha
     style['--btn-text'] = color
     style['--btn-border'] = color
+  } else if (props.variant === 'glass') {
+    style['--btn-bg'] = 'rgba(255, 255, 255, 0.06)'
+    style['--btn-bg-hover'] = 'rgba(255, 255, 255, 0.10)'
+    style['--btn-text'] = color
+    style['--btn-border'] = 'rgba(255, 255, 255, 0.12)'
+    style['--glass-glow-color'] = alpha
   }
 
   return style
