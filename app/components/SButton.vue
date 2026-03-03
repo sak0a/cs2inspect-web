@@ -203,10 +203,10 @@ const computedStyle = computed(() => {
     style['--btn-text'] = color
     style['--btn-border'] = color
   } else if (props.variant === 'glass') {
-    style['--btn-bg'] = 'rgba(255, 255, 255, 0.06)'
-    style['--btn-bg-hover'] = 'rgba(255, 255, 255, 0.10)'
+    style['--btn-bg'] = 'var(--s-glass-btn-bg)'
+    style['--btn-bg-hover'] = 'var(--s-glass-btn-bg-hover)'
     style['--btn-text'] = color
-    style['--btn-border'] = 'rgba(255, 255, 255, 0.12)'
+    style['--btn-border'] = 'var(--s-glass-btn-border)'
     style['--glass-glow-color'] = alpha
   }
 
