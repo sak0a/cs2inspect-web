@@ -10,19 +10,15 @@ import type { IDefaultItem } from '~/server/types'
 export const API_VERSION = '1.0.0'
 
 /**
- * Protected API paths that require authentication
+ * Public API paths that do NOT require authentication (deny-by-default model).
+ * All other /api/ paths require a valid JWT.
  */
-export const PROTECTED_API_PATHS = [
-  '/api/items/weapons',
-  '/api/loadouts',
-  '/api/items/knives',
-  '/api/items/knives/save',
-  '/api/items/weapons/save',
-  '/api/inspect',
-  '/api/items/weapons/[type]',
-  '/api/auth/',
-  '/api/admin/',
-  '/api/sync/',
+export const PUBLIC_API_PATHS = [
+  '/api/data/',
+  '/api/health/',
+  '/api/public/',
+  '/api/proxy/',
+  '/api/steam/',
 ]
 
 /**

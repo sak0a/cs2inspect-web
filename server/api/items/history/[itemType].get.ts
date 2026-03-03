@@ -20,6 +20,7 @@ import { eq, and, desc } from 'drizzle-orm'
 import { Logger } from '~/server/utils/logger'
 import type { HistoryItemType, HistoryItemCategory } from '~/server/database/schema/itemHistory'
 import { toSteamId, toLoadoutId, toDefindex, toTeamId } from '~/types/core/branded'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 import {
   createPaginatedResponse,
   createPaginationMeta,
@@ -41,13 +42,16 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    // Use authenticated Steam ID from JWT
+    const authSteamId = getAuthenticatedSteamId(event)
+
     // Validate query parameters with Zod
     const params = parseQueryWithSchema(itemHistoryQuerySchema, event)
     const { limit, offset } = params
     const category = params.category as HistoryItemCategory | undefined
 
-    // Convert to branded types
-    const steamId = toSteamId(params.steamId)
+    // Convert to branded types - use authenticated steamId, not query param
+    const steamId = toSteamId(authSteamId)
     const loadoutId = toLoadoutId(params.loadoutId)
     const defindex = toDefindex(params.defindex)
     const team = toTeamId(params.team)

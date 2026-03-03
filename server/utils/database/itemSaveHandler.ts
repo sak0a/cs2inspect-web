@@ -1,5 +1,6 @@
 import { defineEventHandler, createError, readBody, type H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { parseBodyWithSchema, parseQueryWithSchema } from '~/server/utils/validation/zodHelpers'
 import { saveItemQuerySchema } from '~/server/utils/validation/querySchemas'
 import {
@@ -69,8 +70,13 @@ export function createSaveHandler(itemType: ItemType) {
 
     Logger.info(`Save start item=${itemType} method=${event.method} path=${event.req.url}`, 'db')
 
+    // Use authenticated Steam ID from JWT instead of query parameter
+    const authenticatedSteamId = getAuthenticatedSteamId(event)
+
     // Validate query parameters with Zod
     const query = parseQueryWithSchema(saveItemQuerySchema, event)
+    // Override the query steamId with the authenticated one
+    query.steamId = authenticatedSteamId
 
     // Validate type parameter if required
     if (config.requiresType && !query.type) {

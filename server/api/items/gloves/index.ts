@@ -6,7 +6,7 @@ import { Logger } from '~/server/utils/logger'
 import type { APISkin, IDefaultItem, IEnhancedGlove } from '~/server/types'
 import { getSkinsDataAsync } from '~/server/utils/csgoAPI'
 import { DEFAULT_GLOVES } from '~/server/utils/constants'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { validateRequiredRequestData, getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { createDefaultItem, findMatchingSkin } from '~/server/utils/data/skinUtils'
 import { toLoadoutId } from '~/types/core/common'
 import { createCollectionResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
@@ -18,8 +18,7 @@ export default useErrorHandling(async (event) => {
 
   Logger.debug(`Request start method=${event.method} path=${event.req.url}`, 'gloves-api')
 
-  const steamId = query.steamId as string
-  validateRequiredRequestData(steamId, 'Steam ID')
+  const steamId = getAuthenticatedSteamId(event)
 
   const loadoutId = query.loadoutId as string
   validateRequiredRequestData(loadoutId, 'Loadout ID')

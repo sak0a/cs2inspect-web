@@ -17,6 +17,22 @@ export const validateRequiredRequestData = (
   }
 }
 
+/**
+ * Extract the authenticated Steam ID from the JWT context.
+ * Must be called on protected routes where 02.auth middleware has run.
+ */
+export const getAuthenticatedSteamId = (event: H3Event): string => {
+  const auth = (event.context as { auth?: { steamId?: string } })?.auth
+  if (!auth?.steamId) {
+    Logger.warn('No authenticated steamId in event context', 'auth')
+    throw createError({
+      statusCode: 401,
+      message: 'Authentication required',
+    })
+  }
+  return auth.steamId
+}
+
 export const verifyUserAccess = (steamId: string, event: H3Event) => {
   const auth = (event.context as { auth?: { steamId?: string } })?.auth
   if (!auth || auth.steamId !== steamId) {

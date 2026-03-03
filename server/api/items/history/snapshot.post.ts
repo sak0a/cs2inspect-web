@@ -15,6 +15,7 @@
  */
 
 import { createError, readBody } from 'h3'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { db } from '~/server/database/client'
 import { itemHistory } from '~/server/database/schema'
 import { Logger } from '~/server/utils/logger'
@@ -38,15 +39,8 @@ interface SnapshotRequestBody {
 
 export default defineEventHandler(async (event) => {
   try {
+    const steamId = getAuthenticatedSteamId(event)
     const body = await readBody<SnapshotRequestBody>(event)
-
-    // Validate required fields
-    if (!body.steamId) {
-      throw createError({
-        statusCode: 400,
-        message: 'steamId is required',
-      })
-    }
 
     if (!body.loadoutId || body.loadoutId <= 0) {
       throw createError({
@@ -86,7 +80,7 @@ export default defineEventHandler(async (event) => {
     // Insert snapshot record
     const versionId = generateVersionId()
     await db.insert(itemHistory).values({
-      steamid: body.steamId,
+      steamid: steamId,
       loadoutid: body.loadoutId,
       item_type: body.itemType,
       item_category: body.itemType === 'weapon' ? body.category || null : null,

@@ -9,6 +9,7 @@
  */
 
 import { createError, readBody } from 'h3'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { db } from '~/server/database/client'
 import {
   itemHistory,
@@ -41,6 +42,7 @@ const weaponTableMap = {
 
 export default defineEventHandler(async (event) => {
   try {
+    const steamId = getAuthenticatedSteamId(event)
     const body = await readBody<RestoreRequestBody>(event)
 
     // Validate required fields
@@ -48,13 +50,6 @@ export default defineEventHandler(async (event) => {
       throw createError({
         statusCode: 400,
         message: 'Valid historyId is required',
-      })
-    }
-
-    if (!body.steamId) {
-      throw createError({
-        statusCode: 400,
-        message: 'steamId is required',
       })
     }
 
@@ -74,8 +69,8 @@ export default defineEventHandler(async (event) => {
 
     const record = historyRecords[0]!
 
-    // Verify ownership
-    if (record.steamid !== body.steamId) {
+    // Verify ownership against authenticated user
+    if (record.steamid !== steamId) {
       throw createError({
         statusCode: 403,
         message: 'You do not have permission to restore this item',

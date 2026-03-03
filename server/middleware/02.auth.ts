@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { createError, defineEventHandler, parseCookies } from 'h3'
 import { eq, and } from 'drizzle-orm'
-import { PROTECTED_API_PATHS } from '~/server/utils/constants'
+import { PUBLIC_API_PATHS } from '~/server/utils/constants'
 import { bannedUsers } from '~/server/database/schema'
 import { useDatabase } from '~/server/utils/database'
 import { Logger } from '~/server/utils/logger'
@@ -13,8 +13,12 @@ if (!JWT_SECRET) {
 
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url
-  // Skip auth check for non-protected routes
-  if (!path || !PROTECTED_API_PATHS.some((route) => path.startsWith(route))) {
+  // Deny-by-default: skip auth only for explicitly public routes and non-API paths
+  if (
+    !path ||
+    !path.startsWith('/api/') ||
+    PUBLIC_API_PATHS.some((route) => path.startsWith(route))
+  ) {
     return
   }
 

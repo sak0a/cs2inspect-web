@@ -1,8 +1,8 @@
-import { getQuery, createError } from 'h3'
+import { createError } from 'h3'
 import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { getLoadoutsBySteamId } from '~/server/database/loadoutHelpers'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 
@@ -17,12 +17,10 @@ import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
  */
 export default useErrorHandling(async (event: H3Event) => {
   const startTime = Date.now()
-  const query = getQuery(event)
 
   Logger.header(`Get Equipped Loadout API request: ${event.req.url}`)
 
-  const steamId = query.steamId as string
-  validateRequiredRequestData(steamId, 'Steam ID')
+  const steamId = getAuthenticatedSteamId(event)
 
   const loadouts = await getLoadoutsBySteamId(steamId)
 

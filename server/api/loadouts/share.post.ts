@@ -2,7 +2,7 @@ import { readBody, createError } from 'h3'
 import type { H3Event } from 'h3'
 import { Logger } from '~/server/utils/logger'
 import { getLoadout, setShareCode, getLoadoutByShareCode } from '~/server/database/loadoutHelpers'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { validateRequiredRequestData, getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
 import { getCachedSetting } from '~/server/utils/settingsCache'
@@ -26,12 +26,11 @@ export default useErrorHandling(async (event: H3Event) => {
 
   Logger.header(`Share Loadout API request: ${event.req.url}`)
 
+  const steamId = getAuthenticatedSteamId(event)
   const body = await readBody(event)
   const loadoutId = body.loadoutId
-  const steamId = body.steamId // needed to verify ownership
 
   validateRequiredRequestData(loadoutId, 'Loadout ID')
-  validateRequiredRequestData(steamId, 'Steam ID')
 
   // Enforce FEATURE_SHARE_CODES
   const shareCodesEnabled = await getCachedSetting<boolean>('FEATURE_SHARE_CODES', true)

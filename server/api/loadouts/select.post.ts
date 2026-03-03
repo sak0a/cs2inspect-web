@@ -3,7 +3,7 @@ import { eq, and } from 'drizzle-orm'
 import { db } from '~/server/database/client'
 import { loadouts } from '~/server/database/schema'
 import { Logger } from '~/server/utils/logger'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { validateRequiredRequestData, getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { VALID_GLOVE_DEFINDEXES, VALID_KNIFE_DEFINDEXES } from '~/server/utils/constants'
 import { toLoadoutId } from '~/types/core/common'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
@@ -16,8 +16,7 @@ export default useErrorHandling(async (event) => {
 
   Logger.header(`Select Loadout Item request: ${event.method} ${event.req.url}`)
 
-  const steamId = query.steamId as string
-  validateRequiredRequestData(steamId, 'Steam ID')
+  const steamId = getAuthenticatedSteamId(event)
 
   const loadoutId = query.loadoutId as string
   validateRequiredRequestData(loadoutId, 'Loadout ID')

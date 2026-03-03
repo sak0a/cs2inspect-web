@@ -23,7 +23,7 @@ import {
   findSkinByPaintIndex,
   createDefaultItem,
 } from '~/server/utils/data/skinUtils'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { validateRequiredRequestData, getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
 import { createError, getQuery } from 'h3'
 import { toLoadoutId } from '~/types/core/common'
@@ -108,8 +108,7 @@ export default useErrorHandling(async (event) => {
 
   Logger.header(`Weapons API request: ${event.method} ${event.req.url}`)
 
-  const steamId = query.steamId as string
-  validateRequiredRequestData(steamId, 'Steam ID')
+  const steamId = getAuthenticatedSteamId(event)
 
   const type = event.context.params?.type as string
   validateRequiredRequestData(type, 'Type')

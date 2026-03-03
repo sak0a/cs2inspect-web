@@ -1,6 +1,6 @@
 // server/api/loadouts/index.post.ts
-import { getQuery, readBody, createError } from 'h3'
-import { validateRequiredRequestData } from '~/server/utils/helpers'
+import { readBody, createError } from 'h3'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { Logger } from '~/server/utils/logger'
 import {
   createLoadout,
@@ -19,13 +19,11 @@ import { getCachedSetting } from '~/server/utils/settingsCache'
  */
 export default useErrorHandling(async (event) => {
   const startTime = Date.now()
-  const query = getQuery(event)
 
   Logger.header(`Loadouts POST request: ${event.req.url}`)
 
+  const steamId = getAuthenticatedSteamId(event)
   const body = await readBody(event)
-  const steamId = (query.steamId as string) || body.steamId
-  validateRequiredRequestData(steamId, 'Steam ID')
 
   const { name } = parseBodyWithSchema(loadoutCreateBodySchema, body)
 

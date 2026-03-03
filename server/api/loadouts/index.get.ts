@@ -4,8 +4,7 @@ import type { DBLoadout } from '~/server/types'
 import { getLoadoutsBySteamId } from '~/server/database/loadoutHelpers'
 import { createCollectionResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { useErrorHandling, ErrorCodes } from '~/server/utils/errorHandler'
-import { parseQueryWithSchema } from '~/server/utils/validation/zodHelpers'
-import { steamIdQuerySchema } from '~/server/utils/validation/querySchemas'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 
 /**
  * GET /api/loadouts
@@ -16,7 +15,7 @@ export default useErrorHandling(async (event) => {
 
   Logger.header(`Loadouts GET request: ${event.req.url}`)
 
-  const { steamId } = parseQueryWithSchema(steamIdQuerySchema, event)
+  const steamId = getAuthenticatedSteamId(event)
 
   const data: DBLoadout[] = await getLoadoutsBySteamId(steamId)
   Logger.success(`Loadouts fetched successfully.`)
