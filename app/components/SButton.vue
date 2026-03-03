@@ -269,6 +269,7 @@ const componentBindings = computed(() => {
         'hover:brightness-110': variant === 'filled' && !disabled && !loading,
         'hover:underline': variant === 'link' && !disabled && !loading,
         's-button--dashed': variant === 'dashed',
+        's-button--glass': variant === 'glass',
         's-button--animate': hasAnimateSlot && !animateInactive,
         [`s-button--animate-${animationType}`]: hasAnimateSlot && !animateInactive,
       },
@@ -485,5 +486,56 @@ const componentBindings = computed(() => {
 .s-button--animate-rotate:hover .s-button__animate--rotate {
   transform: rotate(0);
   opacity: 1;
+}
+
+/* ── Glass variant ─────────────────────────────────────── */
+
+.s-button--glass {
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    0 4px 16px rgba(0, 0, 0, 0.35),
+    0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Mouse-tracking glow pseudo-element */
+.s-button--glass::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--glass-glow-color, rgba(255, 255, 255, 0.12)),
+    transparent 60%
+  );
+  opacity: var(--mouse-glow-opacity, 0);
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Push content above the glow layer */
+.s-button--glass .s-button__content,
+.s-button--glass .s-button__animate,
+.s-button--glass .s-button__spinner {
+  position: relative;
+  z-index: 1;
+}
+
+/* Override base hover shadow for glass */
+.s-button--glass:not(:disabled):not(.opacity-50):hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 8px 24px rgba(0, 0, 0, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+/* Override base active shadow for glass */
+.s-button--glass:not(:disabled):not(.opacity-50):active {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    0 2px 8px rgba(0, 0, 0, 0.3);
 }
 </style>
