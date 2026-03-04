@@ -100,6 +100,14 @@
   --s-glass-btn-bg: rgba(255, 255, 255, 0.06);
   --s-glass-btn-bg-hover: rgba(255, 255, 255, 0.1);
   --s-glass-btn-border: rgba(255, 255, 255, 0.12);
+
+  /* Glass button glow colors (higher opacity for visible specular highlight) */
+  --s-glass-glow-default: rgba(255, 255, 255, 0.25);
+  --s-glass-glow-primary: rgba(250, 204, 21, 0.35);
+  --s-glass-glow-error: rgba(232, 128, 128, 0.4);
+  --s-glass-glow-success: rgba(99, 226, 183, 0.35);
+  --s-glass-glow-info: rgba(112, 192, 232, 0.35);
+  --s-glass-glow-warning: rgba(242, 201, 125, 0.35);
 }
 
 /* Light theme overrides */
@@ -175,4 +183,12 @@
   --s-glass-btn-bg: rgba(0, 0, 0, 0.05);
   --s-glass-btn-bg-hover: rgba(0, 0, 0, 0.08);
   --s-glass-btn-border: rgba(0, 0, 0, 0.1);
+
+  /* Glass button glow colors for light theme (dark-tinted for visibility on light backgrounds) */
+  --s-glass-glow-default: rgba(0, 0, 0, 0.12);
+  --s-glass-glow-primary: rgba(202, 138, 4, 0.3);
+  --s-glass-glow-error: rgba(208, 48, 80, 0.3);
+  --s-glass-glow-success: rgba(24, 160, 88, 0.3);
+  --s-glass-glow-info: rgba(32, 128, 240, 0.3);
+  --s-glass-glow-warning: rgba(240, 160, 32, 0.3);
 }

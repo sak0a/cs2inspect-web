@@ -55,18 +55,39 @@ const emit = defineEmits<{
 
 // Type-to-color mapping
 type ButtonType = NonNullable<Props['type']>
-const typeColors: Record<ButtonType, { color: string; alpha: string }> = {
-  default: { color: 'var(--s-default)', alpha: 'var(--s-default-alpha)' },
-  primary: { color: 'var(--s-primary)', alpha: 'var(--s-primary-alpha)' },
-  error: { color: 'var(--s-error)', alpha: 'var(--s-error-alpha)' },
-  success: { color: 'var(--s-success)', alpha: 'var(--s-success-alpha)' },
-  info: { color: 'var(--s-info)', alpha: 'var(--s-info-alpha)' },
-  warning: { color: 'var(--s-warning)', alpha: 'var(--s-warning-alpha)' },
+const typeColors: Record<ButtonType, { color: string; alpha: string; glow: string }> = {
+  default: {
+    color: 'var(--s-default)',
+    alpha: 'var(--s-default-alpha)',
+    glow: 'var(--s-glass-glow-default)',
+  },
+  primary: {
+    color: 'var(--s-primary)',
+    alpha: 'var(--s-primary-alpha)',
+    glow: 'var(--s-glass-glow-primary)',
+  },
+  error: {
+    color: 'var(--s-error)',
+    alpha: 'var(--s-error-alpha)',
+    glow: 'var(--s-glass-glow-error)',
+  },
+  success: {
+    color: 'var(--s-success)',
+    alpha: 'var(--s-success-alpha)',
+    glow: 'var(--s-glass-glow-success)',
+  },
+  info: { color: 'var(--s-info)', alpha: 'var(--s-info-alpha)', glow: 'var(--s-glass-glow-info)' },
+  warning: {
+    color: 'var(--s-warning)',
+    alpha: 'var(--s-warning-alpha)',
+    glow: 'var(--s-glass-glow-warning)',
+  },
 }
 
 // Resolve color: explicit color prop wins, otherwise derive from type
-const resolvedColor = computed((): { color: string; alpha: string } => {
-  if (props.color) return { color: props.color, alpha: `${props.color}15` }
+const resolvedColor = computed((): { color: string; alpha: string; glow: string } => {
+  if (props.color)
+    return { color: props.color, alpha: `${props.color}15`, glow: `${props.color}40` }
   return typeColors[props.type]
 })
 
@@ -190,7 +211,7 @@ const radiusClasses = computed(() => {
 // Computed styles based on variant and resolved color
 const computedStyle = computed(() => {
   const style: Record<string, string> = {}
-  const { color, alpha } = resolvedColor.value
+  const { color, alpha, glow } = resolvedColor.value
 
   if (props.variant === 'filled') {
     style['--btn-bg'] = color
@@ -227,7 +248,7 @@ const computedStyle = computed(() => {
     style['--btn-bg-hover'] = 'var(--s-glass-btn-bg-hover)'
     style['--btn-text'] = color
     style['--btn-border'] = 'var(--s-glass-btn-border)'
-    style['--glass-glow-color'] = alpha
+    style['--glass-glow-color'] = glow
   }
 
   return style
@@ -277,9 +298,9 @@ const componentBindings = computed(() => {
     :style="computedStyle"
     @click="handleClick"
     @keydown="handleKeydown"
-    @mousemove="handleGlassMouseMove"
-    @mouseenter="handleGlassMouseEnter"
-    @mouseleave="handleGlassMouseLeave"
+    @mousemove="variant === 'glass' ? handleGlassMouseMove : undefined"
+    @mouseenter="variant === 'glass' ? handleGlassMouseEnter : undefined"
+    @mouseleave="variant === 'glass' ? handleGlassMouseLeave : undefined"
   >
     <!-- Ripple effects -->
     <span
@@ -519,7 +540,8 @@ const componentBindings = computed(() => {
 /* Push content above the glow layer */
 .s-button--glass .s-button__content,
 .s-button--glass .s-button__animate,
-.s-button--glass .s-button__spinner {
+.s-button--glass .s-button__spinner,
+.s-button--glass .animate-ripple {
   position: relative;
   z-index: 1;
 }
