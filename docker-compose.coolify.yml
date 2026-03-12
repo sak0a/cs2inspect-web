@@ -18,9 +18,6 @@
 #
 # NOTE: Do NOT define custom networks — Coolify manages networking automatically.
 # All services can reach each other by service name (e.g., http://database:3306).
-# Coolify's proxy (Traefik) is injected into the network to handle SSL + routing.
-# The 'web' service uses extra_hosts to resolve other Coolify-proxied domains
-# (e.g., assets CDN) via the Docker host gateway.
 #
 # Environment variable prefixes (all shown in one global tab in Coolify):
 #   DB_*     → MariaDB database service
@@ -114,11 +111,11 @@ services:
       - STEAM_SERVICE_API_KEY=${WEB_STEAM_SERVICE_API_KEY:-changeme-internal-api-key}
       # Logging
       - LOG_API_REQUESTS=${WEB_LOG_API_REQUESTS:-false}
-      # Assets
-      - ASSETS_URL=${WEB_ASSETS_URL:-}
-      - ASSETS_STICKER_PATH=${WEB_ASSETS_STICKER_PATH:-/stickers}
-      - ASSETS_CHARMS_PATH=${WEB_ASSETS_CHARMS_PATH:-/charms}
-      - ASSETS_WEAPONS_PATH=${WEB_ASSETS_WEAPONS_PATH:-/weapons}
+      # Assets — NUXT_PUBLIC_* prefix required for runtime override of public runtimeConfig
+      - NUXT_PUBLIC_ASSETS_URL=${WEB_ASSETS_URL:-}
+      - NUXT_PUBLIC_ASSETS_STICKER_PATH=${WEB_ASSETS_STICKER_PATH:-/stickers}
+      - NUXT_PUBLIC_ASSETS_CHARMS_PATH=${WEB_ASSETS_CHARMS_PATH:-/charms}
+      - NUXT_PUBLIC_ASSETS_WEAPONS_PATH=${WEB_ASSETS_WEAPONS_PATH:-/weapons}
     expose:
       - '${WEB_PORT:-3210}'
     depends_on:
@@ -127,8 +124,6 @@ services:
       steam-service:
         # Do not block web startup on steam readiness.
         condition: service_started
-    extra_hosts:
-      - 'host.docker.internal:host-gateway'
     healthcheck:
       test: ['CMD', 'curl', '-fsS', 'http://localhost:${WEB_PORT:-3210}/api/health/live']
       interval: 30s
