@@ -8,8 +8,7 @@
     "loadout": "Loadout",
     "theme": "Theme",
     "mainNav": "Main navigation",
-    "settings": "Settings",
-    "switchToSidebar": "Switch to sidebar"
+    "settings": "Settings"
   },
   "weapons": {
     "rifles": "Rifles",
