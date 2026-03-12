@@ -480,42 +480,38 @@ function handleLanguageSelect(key: string) {
       <!-- TOP MODE -->
       <template v-else>
         <nav
-          class="flex items-center w-full px-3 gap-2 py-1.5 min-h-[52px]"
+          class="flex items-center w-full px-3 gap-2 py-1.5 min-h-[56px]"
           role="navigation"
           :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
         >
-          <!-- Left side: Avatar + Settings -->
+          <!-- Left side: User capsule + Team Toggle -->
           <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0">
-            <!-- Avatar -->
-            <NTooltip v-if="user" placement="bottom">
-              <template #trigger>
-                <a
-                  :href="user.profileUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  :aria-label="String(t('auth.openSteamProfile'))"
-                  class="avatar-link flex-shrink-0"
-                >
-                  <img
-                    class="rounded-full"
-                    alt="Steam Avatar"
-                    :src="user.avatarFull"
-                    style="width: 34px; height: 34px"
-                  />
-                </a>
-              </template>
-              {{ user.personaName }}
-            </NTooltip>
-
-            <!-- Settings (language, logout, future settings) -->
-            <div data-tutorial="settings-dropdown">
-              <SettingsDropdown
-                trigger="hover"
-                variant="icon"
-                size="md"
-                :aria-label="t('navigation.settings') || 'Settings'"
-                @logout="showLogoutModal = true"
-              />
+            <!-- User capsule: Avatar + Name + Settings -->
+            <div v-if="user" class="nav-user-capsule">
+              <a
+                :href="user.profileUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                :aria-label="String(t('auth.openSteamProfile'))"
+                class="nav-user-avatar"
+              >
+                <img
+                  class="rounded-full"
+                  alt="Steam Avatar"
+                  :src="user.avatarFull"
+                  style="width: 34px; height: 34px"
+                />
+              </a>
+              <span class="nav-user-name">{{ user.personaName }}</span>
+              <div data-tutorial="settings-dropdown">
+                <SettingsDropdown
+                  trigger="hover"
+                  variant="icon"
+                  size="md"
+                  :aria-label="t('navigation.settings') || 'Settings'"
+                  @logout="showLogoutModal = true"
+                />
+              </div>
             </div>
 
             <!-- Global Team Toggle -->
@@ -790,6 +786,36 @@ body
 .group:hover .menu-label
   opacity: 1
   transform: translateY(0)
+
+// User capsule in top nav bar
+.nav-user-capsule
+  display: flex
+  align-items: center
+  gap: 8px
+  padding: 5px 10px
+  border-radius: 12px
+  background: rgba(255, 255, 255, 0.04)
+  border: 1px solid rgba(255, 255, 255, 0.07)
+  backdrop-filter: blur(8px)
+  -webkit-backdrop-filter: blur(8px)
+  flex-shrink: 0
+
+.nav-user-avatar
+  flex-shrink: 0
+  cursor: pointer
+  display: block
+  transition: transform 0.2s ease
+  &:hover
+    transform: scale(1.05)
+
+.nav-user-name
+  font-size: 13px
+  font-weight: 600
+  color: rgba(255, 255, 255, 0.9)
+  white-space: nowrap
+  overflow: hidden
+  text-overflow: ellipsis
+  max-width: 120px
 
 .avatar-link
   cursor: pointer
