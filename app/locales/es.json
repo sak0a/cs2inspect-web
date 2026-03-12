@@ -408,6 +408,7 @@
       "duplicate": "Duplicar",
       "share": "Compartir",
       "setDefault": "Marcar como predeterminado",
+      "isDefault": "Loadout predeterminado",
       "clear": "Vaciar Loadout",
       "delete": "Eliminar"
     }

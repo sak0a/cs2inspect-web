@@ -13,8 +13,7 @@ const CUSTOM_KEYCHAINS: APIKeychain[] = [
       name: 'Common',
       color: '#b0c3d9',
     },
-    image:
-      'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/images/keychains/sticker_slab_common.png', // Default Common image
+    image: 'https://csgo-api.c.sakoa.xyz/api/en/images/keychains/sticker_slab_common.png', // Default Common image
     market_hash_name: 'Charm | Sticker Slab',
   },
   // Austin 2025 Highlight
@@ -27,8 +26,7 @@ const CUSTOM_KEYCHAINS: APIKeychain[] = [
       name: 'Extraordinary',
       color: '#eb4b4b',
     },
-    image:
-      'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/images/keychains/austin_2025_highlight.png',
+    image: 'https://csgo-api.c.sakoa.xyz/api/en/images/keychains/austin_2025_highlight.png',
     market_hash_name: 'Souvenir Charm | Austin 2025 Highlight',
   },
   // Budapest 2025 Highlight (Assuming similar ID structure/naming for now as placeholder if exact name unknown, but user asked for "Budapest Major")
@@ -41,8 +39,7 @@ const CUSTOM_KEYCHAINS: APIKeychain[] = [
       name: 'Extraordinary',
       color: '#eb4b4b',
     },
-    image:
-      'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/images/keychains/budapest_2025_highlight.png', // Placeholder
+    image: 'https://csgo-api.c.sakoa.xyz/api/en/images/keychains/budapest_2025_highlight.png', // Placeholder
     market_hash_name: 'Souvenir Charm | Budapest 2025 Highlight',
   },
 ]

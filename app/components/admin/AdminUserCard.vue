@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideBan as BanIcon,
   LucideShieldCheck as UnbanIcon,
@@ -90,32 +91,43 @@ function formatRelativeTime(isoDate: string): string {
 
         <!-- Action Buttons -->
         <NSpace :size="8">
-          <NButton
+          <SButton
             v-if="user.isBanned"
-            type="success"
-            secondary
-            size="small"
+            :color="buttonColor.success"
+            variant="light"
+            size="sm"
             @click="emit('unban', user)"
           >
-            <template #icon>
-              <NIcon :component="UnbanIcon" />
+            <template #icon-left>
+              <UnbanIcon />
             </template>
             Unban
-          </NButton>
+          </SButton>
 
-          <NButton v-else type="warning" secondary size="small" @click="emit('ban', user)">
-            <template #icon>
-              <NIcon :component="BanIcon" />
+          <SButton
+            v-else
+            :color="buttonColor.warning"
+            variant="light"
+            size="sm"
+            @click="emit('ban', user)"
+          >
+            <template #icon-left>
+              <BanIcon />
             </template>
             Ban
-          </NButton>
+          </SButton>
 
-          <NButton type="error" secondary size="small" @click="emit('delete', user)">
-            <template #icon>
-              <NIcon :component="DeleteIcon" />
+          <SButton
+            :color="buttonColor.error"
+            variant="light"
+            size="sm"
+            @click="emit('delete', user)"
+          >
+            <template #icon-left>
+              <DeleteIcon />
             </template>
             Delete
-          </NButton>
+          </SButton>
         </NSpace>
       </div>
 

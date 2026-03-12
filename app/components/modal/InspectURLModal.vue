@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
+
 interface Props {
   visible: boolean
   loading?: boolean
@@ -56,9 +58,9 @@ const handleClose = () => {
       <div class="grid grid-cols-2 gap-4">
         <NTooltip>
           <template #trigger>
-            <NButton type="info" size="small" secondary>{{
+            <SButton :color="buttonColor.info" size="sm" variant="light">{{
               t('modals.inspectUrl.maskedLinks')
-            }}</NButton>
+            }}</SButton>
           </template>
           <h3 class="font-bold text-center">
             {{ t('modals.inspectUrl.maskedLinksDescription') }}
@@ -75,9 +77,9 @@ const handleClose = () => {
         </NTooltip>
         <NTooltip>
           <template #trigger>
-            <NButton type="info" size="small" secondary>{{
+            <SButton :color="buttonColor.info" size="sm" variant="light">{{
               t('modals.inspectUrl.unmaskedLinks')
-            }}</NButton>
+            }}</SButton>
           </template>
           <h3 class="font-bold text-center">
             {{ t('modals.inspectUrl.unmaskedLinksDescription') }}
@@ -105,18 +107,23 @@ const handleClose = () => {
       </div>
 
       <div class="flex justify-end gap-4">
-        <NButton secondary type="error" :disabled="_props.loading" @click="handleClose">
+        <SButton
+          variant="light"
+          :color="buttonColor.error"
+          :disabled="_props.loading"
+          @click="handleClose"
+        >
           {{ t('modals.inspectUrl.cancel') }}
-        </NButton>
-        <NButton
+        </SButton>
+        <SButton
           :disabled="inspectUrl.length <= 15"
-          secondary
-          type="success"
+          variant="light"
+          :color="buttonColor.success"
           :loading="_props.loading"
           @click="handleSubmit"
         >
           {{ t('modals.inspectUrl.confirm') }}
-        </NButton>
+        </SButton>
       </div>
     </NSpace>
   </NModal>

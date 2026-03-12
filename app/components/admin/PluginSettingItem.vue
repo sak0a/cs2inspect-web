@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { PluginSetting } from '~/types'
+import { buttonColor } from '~/lib/buttonColors'
 
 interface Props {
   setting: PluginSetting
@@ -156,9 +157,15 @@ const displayValue = computed(() => {
         </div>
 
         <!-- Edit button (when not editing) -->
-        <NButton v-if="!isEditing" size="small" secondary type="primary" @click="startEditing">
+        <SButton
+          v-if="!isEditing"
+          size="sm"
+          variant="light"
+          :color="buttonColor.primary"
+          @click="startEditing"
+        >
           Edit
-        </NButton>
+        </SButton>
       </div>
 
       <!-- Value Display (when not editing) -->
@@ -231,8 +238,12 @@ const displayValue = computed(() => {
         </template>
 
         <div class="flex gap-2 mt-2">
-          <NButton size="small" secondary type="success" @click="handleSave"> Save </NButton>
-          <NButton size="small" secondary type="error" @click="cancelEditing"> Cancel </NButton>
+          <SButton size="sm" variant="light" :color="buttonColor.success" @click="handleSave">
+            Save
+          </SButton>
+          <SButton size="sm" variant="light" :color="buttonColor.error" @click="cancelEditing">
+            Cancel
+          </SButton>
         </div>
       </div>
     </div>

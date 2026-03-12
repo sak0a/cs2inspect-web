@@ -408,6 +408,7 @@
       "duplicate": "Dupliquer",
       "share": "Partager",
       "setDefault": "Définir par défaut",
+      "isDefault": "Loadout par défaut",
       "clear": "Vider le loadout",
       "delete": "Supprimer"
     }

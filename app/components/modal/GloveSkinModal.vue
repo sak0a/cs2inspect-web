@@ -1,26 +1,26 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import type {
-  KnifeModalProps,
-  KnifeConfiguration,
+  GloveModalProps,
+  GloveConfiguration,
   APIWeaponSkin,
   UserProfile,
-  IEnhancedKnife,
+  IEnhancedGlove,
   IEnhancedItem,
 } from '~/types'
-import type { EconItem } from 'cs2-inspect-lib'
 import { useItemModal } from '~/composables/useItemModal'
 import { digitOnlyInputProps } from '~/utils/inputProps'
 import { useAutoSave } from '~/composables/useAutoSave'
-import SaveStatusIndicator from './SaveStatusIndicator.vue'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
+import type { EconItem } from 'cs2-inspect-lib'
 
 /**
  * Props interface using new type system with backward compatibility
  */
-interface Props extends Omit<KnifeModalProps, 'weapon' | 'user'> {
+interface Props extends Omit<GloveModalProps, 'weapon' | 'user'> {
   // Maintain backward compatibility with existing prop names
-  weapon: IEnhancedKnife | null
+  weapon: IEnhancedGlove | null
   isLoading?: boolean
   pageSize?: number
   user: UserProfile
@@ -34,9 +34,9 @@ const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'update:visible', value: boolean): void
   (
-    e: 'save' | 'duplicate' | 'auto-save',
+    e: 'select' | 'duplicate' | 'auto-save',
     skin: IEnhancedItem,
-    customization: KnifeConfiguration
+    customization: GloveConfiguration
   ): void
   (e: 'error', error: string): void
 }>()
@@ -53,7 +53,7 @@ const showHistoryPanel = ref(false)
  */
 const { state, apiState, filteredSkins, paginatedSkins, totalPages, fetchSkins, clearState } =
   useItemModal({
-    itemType: 'knife',
+    itemType: 'glove',
     pageSize: props.pageSize || 10,
   })
 
@@ -61,10 +61,10 @@ const inheritedWeapon = ref<IEnhancedItem | null>()
 const selectedSkin = ref<IEnhancedItem | null>()
 
 /**
- * Default knife configuration using new KnifeConfiguration interface
+ * Default glove configuration using new GloveConfiguration interface
  * Field names match database columns for consistency
  */
-const defaultCustomization: KnifeConfiguration = {
+const defaultCustomization: GloveConfiguration = {
   active: false,
   team: 1, // Default to Terrorist team
   defindex: 0,
@@ -72,17 +72,14 @@ const defaultCustomization: KnifeConfiguration = {
   paintIndexOverride: false,
   paintseed: 0,
   paintwear: 0,
-  stattrak_enabled: false,
-  stattrak_count: 0,
-  nametag: '',
 }
 
-const customization = ref<KnifeConfiguration>({ ...defaultCustomization })
+const customization = ref<GloveConfiguration>({ ...defaultCustomization })
 
 /**
  * Auto-save functionality
  */
-const autoSave = useAutoSave<KnifeConfiguration>(
+const autoSave = useAutoSave<GloveConfiguration>(
   async (data) => {
     if (!selectedSkin.value) return
     emit('auto-save', selectedSkin.value, data)
@@ -116,11 +113,11 @@ watch(
 )
 
 /**
- * Fetch available skins for the current knife using composable
+ * Fetch available skins for the current glove using composable
  */
-const fetchAvailableSkinsForKnife = async () => {
+const fetchSkinsForGlove = async () => {
   if (!props.weapon) {
-    console.warn('KnifeSkinModal: No weapon provided for skin fetching')
+    console.warn('GloveSkinModal: No weapon provided for skin fetching')
     return
   }
   const displayName = props.weapon.name.split(' | ')[0] || props.weapon.weapon_name
@@ -133,7 +130,7 @@ const fetchAvailableSkinsForKnife = async () => {
 }
 
 /**
- * Handle knife reset with improved error handling
+ * Handle glove reset with improved error handling
  */
 const handleReset = () => {
   if (!props.weapon || !props.user) {
@@ -142,34 +139,42 @@ const handleReset = () => {
     return
   }
 
+  state.value.isResetting = true
   try {
     state.value.error = null
-    state.value.isResetting = true
 
-    // Create reset configuration
-    const resetConfig: KnifeConfiguration = {
-      ...customization.value,
-      reset: true,
+    // Create reset customization with default values using new GloveConfiguration interface
+    const resetCustomization: GloveConfiguration = {
+      active: true,
+      team: customization.value.team,
+      defindex: props.weapon.weapon_defindex,
+      paintindex: 0, // Default paint index
+      paintIndexOverride: false,
+      paintseed: 0,
+      paintwear: 0,
+      reset: true, // Signal to the server this is a reset operation
     }
 
-    emit('save', props.weapon, resetConfig)
+    // Emit the select event with reset values
+    emit('select', props.weapon, resetCustomization)
     state.value.showResetConfirm = false
+    handleClose()
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to reset knife'
+    const errorMessage = error instanceof Error ? error.message : 'Failed to reset glove'
     state.value.error = errorMessage
     emit('error', errorMessage)
-    console.error('Error resetting knife:', error)
+    console.error('Error resetting glove:', error)
   } finally {
     state.value.isResetting = false
   }
 }
 
 /**
- * Handle knife duplication with improved error handling
+ * Handle glove duplication with improved error handling
  */
 const handleDuplicate = async () => {
   if (!selectedSkin.value) {
-    state.value.error = 'No knife selected for duplication'
+    state.value.error = 'No glove selected for duplication'
     emit('error', state.value.error)
     return
   }
@@ -178,21 +183,24 @@ const handleDuplicate = async () => {
   try {
     state.value.error = null
 
-    // Calculate the other team number (if current is 1, other is 2 and vice versa)
+    // Calculate the other team number (if current is 1 (T), other is 2 (CT) and vice versa)
     const otherTeam = props.weapon?.databaseInfo?.team === 1 ? 2 : 1
 
-    const duplicateData: KnifeConfiguration = {
+    // Create copy of current customization for other team
+    const duplicateData: GloveConfiguration = {
       ...customization.value,
       team: otherTeam,
     }
 
+    // Emit duplicate event to parent
     emit('duplicate', selectedSkin.value, duplicateData)
+
     state.value.showDuplicateConfirm = false
   } catch (error: unknown) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to duplicate knife'
+    const errorMessage = error instanceof Error ? error.message : 'Failed to duplicate glove'
     state.value.error = errorMessage
     emit('error', errorMessage)
-    console.error('Error duplicating knife:', error)
+    console.error('Error duplicating glove:', error)
   } finally {
     state.value.isDuplicating = false
   }
@@ -243,54 +251,39 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
   }
 }
 
-/**
- * Handle inspect link import with improved error handling and type safety
- */
 const handleImportInspectLink = async (inspectUrl: string) => {
-  if (!props.weapon || !props.user) {
-    state.value.error = 'Missing weapon or user data'
-    emit('error', state.value.error)
-    return
-  }
+  if (!props.weapon || !props.user) return
 
   try {
     state.value.isImporting = true
-    state.value.error = null
-
     const data = await $fetch<{ item: EconItem; message?: string }>(
       `/api/inspect?action=inspect-item&steamId=${props.user.steamId}`,
       {
         method: 'POST',
-        body: { inspectUrl, itemType: 'knife' },
+        body: { inspectUrl, itemType: 'glove' },
       }
     )
 
     if (data.item.defindex !== props.weapon.weapon_defindex) {
-      throw new Error(t('modals.knifeSkin.invalidInspectLink') as string)
+      throw new Error(t('modals.gloveSkin.invalidInspectLink') as string)
     }
 
-    // Update customization with complete data using new KnifeConfiguration interface
     customization.value = {
       active: true,
-      team: props.weapon.databaseInfo?.team || 1, // Default to Terrorist team
-      defindex: data.item.defindex,
       paintindex: data.item.paintindex,
       paintIndexOverride: false,
       paintseed: data.item.paintseed,
       paintwear: data.item.paintwear,
-      stattrak_enabled: data.item.killeaterscoretype !== null,
-      stattrak_count: data.item.killeatervalue || 0,
-      nametag: data.item.customname || '',
-    }
+      team: props.weapon.databaseInfo?.team || 1,
+    } as GloveConfiguration
 
-    // Update selected skin based on paint index
     const matchingSkin = apiState.value.skins.find(
       (skin) => Number(skin.paint_index) === data.item.paintindex
     )
 
     if (matchingSkin) {
       selectedSkin.value = {
-        ...props.weapon,
+        ...props.weapon!,
         name: matchingSkin.name,
         defaultName: matchingSkin.name,
         image: matchingSkin.image,
@@ -303,64 +296,43 @@ const handleImportInspectLink = async (inspectUrl: string) => {
       }
     }
 
-    message.success(t('modals.knifeSkin.importSuccess') as string, { duration: 3000 })
+    message.success(t('modals.gloveSkin.importSuccess') as string, { duration: 3000 })
     state.value.showImportModal = false
   } catch (error: unknown) {
     const errorMessage =
-      error instanceof Error ? error.message : (t('modals.knifeSkin.importFailed') as string)
-    state.value.error = errorMessage
+      error instanceof Error ? error.message : (t('modals.gloveSkin.importFailed') as string)
     message.error(errorMessage, { duration: 3000 })
-    emit('error', errorMessage)
   } finally {
     state.value.isImporting = false
   }
 }
-/**
- * Handle inspect link creation with improved error handling
- */
 const handleCreateInspectLink = async () => {
-  if (!props.weapon || !selectedSkin.value || !props.user) {
-    state.value.error = 'Missing required data for inspect link creation'
-    emit('error', state.value.error)
-    return
-  }
+  if (!props.weapon || !selectedSkin.value || !props.user) return
 
   try {
     state.value.isLoadingInspect = true
-    state.value.error = null
-
     const data = await $fetch<{ inspectUrl: string; message?: string }>(
       `/api/inspect?action=create-url&steamId=${props.user.steamId}`,
       {
         method: 'POST',
         body: {
-          itemType: 'knife',
+          itemType: 'glove',
           defindex: props.weapon.weapon_defindex,
           paintindex: customization.value.paintindex,
           paintseed: customization.value.paintseed,
           paintwear: customization.value.paintwear,
           rarity: 0,
-          stattrak_enabled: customization.value.stattrak_enabled,
-          stattrak_count: customization.value.stattrak_count,
-          nametag: customization.value.nametag,
         },
       }
     )
-
     const link: string = data.inspectUrl
     await navigator.clipboard.writeText(link)
-    message.success(t('modals.knifeSkin.generateInspectUrlSuccess') as string, {
+    message.success(t('modals.gloveSkin.generateInspectUrlSuccess') as string, {
       duration: 3000,
     })
-  } catch (error: unknown) {
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : (t('modals.knifeSkin.generateInspectUrlFailed') as string)
-    state.value.error = errorMessage
-    message.error(errorMessage, { duration: 3000 })
-    emit('error', errorMessage)
-    console.error('Error generating inspect link:', error)
+  } catch (error) {
+    message.error(t('modals.gloveSkin.generateInspectUrlFailed') as string, { duration: 3000 })
+    console.log('Error generating inspect link:', error)
   } finally {
     state.value.isLoadingInspect = false
   }
@@ -392,9 +364,6 @@ const handleHistoryRestore = (record: ItemHistoryRecord) => {
       paintindex: config.paintindex,
       paintseed: config.paintseed,
       paintwear: config.paintwear,
-      stattrak_enabled: config.stattrak_enabled ?? false,
-      stattrak_count: config.stattrak_count ?? 0,
-      nametag: config.nametag ?? '',
     }
     showHistoryPanel.value = false
     // Note: Success message is shown by ItemHistoryPanel, no need to duplicate here
@@ -422,8 +391,8 @@ watch(
 )
 
 /**
- * Watch for changes to props.weapon to initialize state when a knife is selected
- * Updated to use new KnifeConfiguration interface
+ * Watch for changes to props.weapon to initialize state when a glove is selected
+ * Updated to use new GloveConfiguration interface
  */
 watch(
   () => props.weapon,
@@ -436,22 +405,25 @@ watch(
         autoSave.resetStatus()
 
         inheritedWeapon.value = props.weapon
-        fetchAvailableSkinsForKnife()
+        fetchSkinsForGlove()
 
-        // Cast to the correct database interface for knives
+        // databaseInfo is already typed as IMappedDBGlove | undefined from IEnhancedGlove
         const dbInfo = props.weapon.databaseInfo
         if (dbInfo) {
           customization.value = {
-            active: dbInfo.active || false,
+            active: Boolean(dbInfo.active),
             team: dbInfo.team || 1,
             defindex: props.weapon.weapon_defindex,
             paintindex: dbInfo.paintindex || 0,
             paintIndexOverride: false,
-            paintseed: parseInt(String(dbInfo.paintseed)) || 0,
-            paintwear: parseFloat(String(dbInfo.paintwear)) || 0,
-            stattrak_enabled: dbInfo.stattrak_enabled || false,
-            stattrak_count: dbInfo.stattrak_count || 0,
-            nametag: dbInfo.nametag || '',
+            paintseed:
+              typeof dbInfo.paintseed === 'string'
+                ? parseInt(dbInfo.paintseed) || 0
+                : dbInfo.paintseed || 0,
+            paintwear:
+              typeof dbInfo.paintwear === 'string'
+                ? parseFloat(dbInfo.paintwear) || 0
+                : dbInfo.paintwear || 0,
           }
         } else {
           customization.value = {
@@ -470,9 +442,10 @@ watch(
       } catch (error: unknown) {
         isInitializing.value = false
         const errorMessage =
-          error instanceof Error ? error.message : 'Failed to initialize knife data'
+          error instanceof Error ? error.message : 'Failed to initialize glove data'
         state.value.error = errorMessage
         emit('error', errorMessage)
+        console.error('Error initializing glove:', error)
       }
     }
   }
@@ -487,14 +460,15 @@ watch(
     :bordered="false"
     size="huge"
     :auto-focus="false"
+    header-extra-style="flex-shrink: 0"
     @update:show="handleClose"
   >
     <template #header>
       <div class="flex items-center gap-3">
         <span class="leading-none">{{
           weapon
-            ? String(t('modals.knifeSkin.title', { weaponName: weapon?.defaultName }))
-            : String(t('modals.knifeSkin.defaultTitle'))
+            ? String(t('modals.gloveSkin.title', { weaponName: weapon?.defaultName }))
+            : String(t('modals.gloveSkin.defaultTitle'))
         }}</span>
         <!-- Auto-save status indicator (fixed position like NaiveUI messages) -->
         <SaveStatusIndicator
@@ -506,192 +480,173 @@ watch(
       </div>
     </template>
     <template #header-extra>
-      <!-- Reset Button -->
-      <NButton
-        secondary
-        type="error"
-        :disabled="!selectedSkin || customization.paintindex == 0"
-        @click="state.showResetConfirm = true"
-      >
-        <template #icon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-            <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-          </svg>
-        </template>
-        {{ t('modals.knifeSkin.buttons.reset') }}
-      </NButton>
-      <NDivider vertical />
+      <div class="flex items-center shrink-0">
+        <!-- Reset Button -->
+        <SButton
+          variant="light"
+          :color="buttonColor.error"
+          :disabled="!selectedSkin"
+          @click="state.showResetConfirm = true"
+        >
+          <template #icon-left>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
+              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
+            </svg>
+          </template>
+          {{ t('modals.gloveSkin.buttons.reset') }}
+        </SButton>
+        <NDivider vertical />
 
-      <!-- Import Knife by Inspect Link -->
-      <NButton
-        :loading="state.isImporting"
-        secondary
-        type="default"
-        :disabled="!selectedSkin"
-        @click="state.showImportModal = true"
-      >
-        <template #icon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-            <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-            <path d="M16 16l-2.5 -2.5" />
-          </svg>
-        </template>
-        {{ t('modals.knifeSkin.buttons.importFromLink') }}
-      </NButton>
-      <NDivider vertical />
+        <!-- Import Glove by Inspect Link -->
+        <SButton
+          :loading="state.isImporting"
+          variant="light"
+          :disabled="!selectedSkin"
+          @click="state.showImportModal = true"
+        >
+          <template #icon-left>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+              <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+              <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+              <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+              <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+              <path d="M16 16l-2.5 -2.5" />
+            </svg>
+          </template>
+          {{ t('modals.gloveSkin.buttons.importFromLink') }}
+        </SButton>
+        <NDivider vertical />
 
-      <!-- Generate Knife Inspect Link -->
-      <NButton
-        :loading="state.isLoadingInspect"
-        secondary
-        type="default"
-        :disabled="!selectedSkin"
-        @click="handleCreateInspectLink"
-      >
-        <template #icon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-            <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-            <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-            <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-            <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-            <path d="M16 16l-2.5 -2.5" />
-          </svg>
-        </template>
-        {{ t('modals.knifeSkin.buttons.generateLink') }}
-      </NButton>
-      <NDivider vertical />
+        <!-- Generate Glove Inspect Link -->
+        <SButton
+          :loading="state.isLoadingInspect"
+          variant="light"
+          :disabled="!selectedSkin"
+          @click="handleCreateInspectLink"
+        >
+          <template #icon-left>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
+              <path d="M4 16v2a2 2 0 0 0 2 2h2" />
+              <path d="M16 4h2a2 2 0 0 1 2 2v2" />
+              <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
+              <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+              <path d="M16 16l-2.5 -2.5" />
+            </svg>
+          </template>
+          {{ t('modals.gloveSkin.buttons.generateLink') }}
+        </SButton>
+        <NDivider vertical />
 
-      <!-- History Button -->
-      <NButton secondary type="default" :disabled="!selectedSkin" @click="showHistoryPanel = true">
-        <template #icon>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            class="icon icon-tabler icons-tabler-outline icon-tabler-history"
-          >
-            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-            <path d="M12 8l0 4l2 2" />
-            <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
-          </svg>
-        </template>
-        {{ t('history.title') }}
-      </NButton>
-      <NDivider vertical />
+        <!-- History Button -->
+        <SButton variant="light" :disabled="!selectedSkin" @click="showHistoryPanel = true">
+          <template #icon-left>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-history"
+            >
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M12 8l0 4l2 2" />
+              <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
+            </svg>
+          </template>
+          {{ t('history.title') }}
+        </SButton>
+        <NDivider vertical />
 
-      <!-- Knife Search -->
-      <NInput
-        v-model:value="state.searchQuery"
-        :placeholder="String(t('modals.knifeSkin.inputs.searchPlaceholder'))"
-        class="pl-1 w-96"
-      />
+        <!-- Glove Search -->
+        <NInput
+          v-model:value="state.searchQuery"
+          :placeholder="String(t('modals.gloveSkin.inputs.searchPlaceholder'))"
+          class="pl-1 max-w-64"
+        />
+      </div>
     </template>
 
     <NSpace vertical size="large" class="-mt-2">
       <!-- Selected Skin Preview -->
-      <div v-if="inheritedWeapon" class="bg-[var(--bg-secondary)] p-6 rounded-lg bg-opacity-50">
+      <div v-if="inheritedWeapon" class="bg-[var(--bg-secondary)] p-4 rounded-lg bg-opacity-50">
         <div class="grid grid-cols-2 gap-6">
           <!-- Left side - Image -->
-          <div>
+          <div class="relative">
             <img
               :src="selectedSkin?.image"
               :alt="selectedSkin?.name"
               class="w-full h-64 object-contain"
             />
-            <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
+            <h3
+              class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1 bg-gradient-to-t from-black/60 to-transparent"
+            >
+              {{ selectedSkin?.name }}
+            </h3>
           </div>
 
           <!-- Right side - Customization -->
-          <div class="space-y-6 flex flex-col items-center">
-            <!-- StatTrak and Name Tag -->
-            <div class="grid grid-cols-2 gap-4 w-full">
-              <div class="flex items-center space-x-4">
-                <NSwitch v-model:value="customization.stattrak_enabled" />
-                <span>{{ t('modals.knifeSkin.labels.stattrak') }}</span>
-                <NInputNumber
-                  v-model:value="customization.stattrak_count"
-                  :disabled="!customization.stattrak_enabled"
-                  :min="0"
-                  :max="999999"
-                  :precision="0"
-                  :show-button="false"
-                  class="w-28"
-                  :input-props="digitOnlyInputProps"
-                />
-              </div>
-              <NInput
-                v-model:value="customization.nametag"
-                :placeholder="String(t('modals.knifeSkin.inputs.nameTagPlaceholder'))"
-                class="pl-1"
-              />
-            </div>
-
+          <div class="space-y-4 flex flex-col items-center">
             <!-- Paint Settings -->
             <div class="grid grid-cols-2 gap-4 w-full">
               <div class="space-y-2">
                 <div class="flex items-center justify-between">
                   <h4 class="font-bold">
-                    {{ t('modals.knifeSkin.labels.paintIndex') }}
+                    {{ t('modals.gloveSkin.labels.paintIndex') }}
                   </h4>
                   <div class="flex items-center space-x-2">
                     <NSwitch v-model:value="customization.paintIndexOverride" />
                     <span class="text-sm">{{
-                      t('modals.knifeSkin.labels.paintIndexOverride')
+                      t('modals.gloveSkin.labels.paintIndexOverride')
                     }}</span>
                   </div>
                 </div>
                 <NInputNumber
                   v-model:value="customization.paintindex"
                   :min="0"
-                  :max="9999"
+                  :max="10100"
                   :disabled="!customization.paintIndexOverride"
                   :input-props="digitOnlyInputProps"
                 />
@@ -699,12 +654,12 @@ watch(
 
               <div class="space-y-2">
                 <h4 class="font-bold">
-                  {{ t('modals.knifeSkin.labels.pattern') }}
+                  {{ t('modals.gloveSkin.labels.pattern') }}
                 </h4>
                 <NInputNumber
                   v-model:value="customization.paintseed"
                   :min="0"
-                  :max="1000"
+                  :max="10100"
                   :input-props="digitOnlyInputProps"
                 />
               </div>
@@ -713,7 +668,7 @@ watch(
             <!-- Wear Slider -->
             <div class="w-full">
               <div class="flex items-start justify-between">
-                <h4 class="font-bold">{{ t('modals.knifeSkin.labels.wear') }}</h4>
+                <h4 class="font-bold">{{ t('modals.gloveSkin.labels.wear') }}</h4>
               </div>
               <WearSlider
                 v-model="customization.paintwear"
@@ -723,30 +678,23 @@ watch(
             </div>
 
             <!-- Duplicate & Active Switch -->
-            <div class="flex items-center justify-center w-full mt-0 gap-2">
-              <!-- Duplicate Knife -->
-              <div>
-                <NButton
-                  :disabled="!selectedSkin || customization.paintindex == 0"
-                  type="default"
-                  secondary
-                  class="w-full"
-                  @click="state.showDuplicateConfirm = true"
-                >
-                  {{ t('modals.knifeSkin.buttons.duplicate') }}
-                </NButton>
-              </div>
+            <div class="flex items-center justify-between w-full">
+              <SButton
+                :disabled="!selectedSkin"
+                variant="light"
+                @click="state.showDuplicateConfirm = true"
+              >
+                {{ t('modals.gloveSkin.buttons.duplicate') }}
+              </SButton>
 
-              <NSpace justify="center" align="center" class="w-full h-full">
-                <NSwitch v-model:value="customization.active" size="large" class="col-span-1">
-                  <template #checked>
-                    {{ t('modals.knifeSkin.labels.itemActive') }}
-                  </template>
-                  <template #unchecked>
-                    {{ t('modals.knifeSkin.labels.itemInactive') }}
-                  </template>
-                </NSwitch>
-              </NSpace>
+              <NSwitch v-model:value="customization.active" size="large">
+                <template #checked>
+                  {{ t('modals.gloveSkin.labels.itemActive') }}
+                </template>
+                <template #unchecked>
+                  {{ t('modals.gloveSkin.labels.itemInactive') }}
+                </template>
+              </NSwitch>
             </div>
           </div>
         </div>
@@ -817,7 +765,7 @@ watch(
         v-if="!state.isLoadingSkins && filteredSkins.length === 0"
         class="flex justify-center items-center h-64"
       >
-        <NEmpty :description="String(t('modals.knifeSkin.noSearchResults'))" />
+        <NEmpty :description="String(t('modals.gloveSkin.noSearchResults'))" />
       </div>
 
       <!-- Pagination -->
@@ -838,7 +786,7 @@ watch(
       v-model:visible="state.showDuplicateConfirm"
       :loading="state.isDuplicating"
       :other-team-has-skin="otherTeamHasSkin"
-      :item-type="String(t('modals.duplicateItem.type.knife'))"
+      :item-type="String(t('modals.duplicateItem.type.glove'))"
       @confirm="handleDuplicate"
     />
 
@@ -852,7 +800,7 @@ watch(
     <!-- Item History Panel -->
     <LazyItemHistoryPanel
       v-model:visible="showHistoryPanel"
-      item-type="knife"
+      item-type="glove"
       :defindex="props.weapon?.weapon_defindex || 0"
       :team="customization.team"
       :steam-id="props.user?.steamId || ''"

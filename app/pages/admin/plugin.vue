@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import {
   LucidePlug as PlugIcon,
   LucideSettings as GeneralIcon,
@@ -114,12 +115,22 @@ function handleReset() {
         </div>
       </div>
       <div class="flex gap-2">
-        <NButton secondary type="warning" :loading="isLoading" @click="handleReset">
+        <SButton
+          variant="light"
+          :color="buttonColor.warning"
+          :loading="isLoading"
+          @click="handleReset"
+        >
           Reset to Defaults
-        </NButton>
-        <NButton secondary type="primary" :loading="isLoading" @click="handleRefresh">
+        </SButton>
+        <SButton
+          variant="light"
+          :color="buttonColor.primary"
+          :loading="isLoading"
+          @click="handleRefresh"
+        >
           Refresh
-        </NButton>
+        </SButton>
       </div>
     </div>
 

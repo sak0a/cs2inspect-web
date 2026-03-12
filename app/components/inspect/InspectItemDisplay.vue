@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import type {
   ItemConfiguration,
   WeaponConfiguration,
@@ -310,17 +311,32 @@ const handleGenerateLink = () => {
 
         <!-- Action Buttons -->
         <div class="mt-4 flex justify-between w-full">
-          <NButton type="primary" :disabled="isLoading" @click="handleCustomize">
+          <SButton
+            :color="buttonColor.primary"
+            variant="filled"
+            :disabled="isLoading"
+            @click="handleCustomize"
+          >
             {{ t('common.customize') }}
-          </NButton>
+          </SButton>
 
-          <NButton type="info" :disabled="isLoading" @click="handleGenerateLink">
+          <SButton
+            :color="buttonColor.info"
+            variant="filled"
+            :disabled="isLoading"
+            @click="handleGenerateLink"
+          >
             {{ t('common.generateLink') }}
-          </NButton>
+          </SButton>
 
-          <NButton type="error" :disabled="isLoading" @click="handleClear">
+          <SButton
+            :color="buttonColor.error"
+            variant="filled"
+            :disabled="isLoading"
+            @click="handleClear"
+          >
             {{ t('common.clear') }}
-          </NButton>
+          </SButton>
         </div>
       </div>
     </NCard>

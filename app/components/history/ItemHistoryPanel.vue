@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 /**
  * ItemHistoryPanel - Shows version history for an item
  *
@@ -329,22 +330,22 @@ watch(
               </div>
 
               <!-- Restore Button -->
-              <NButton
-                size="tiny"
-                quaternary
+              <SButton
+                size="xs"
+                variant="ghost"
                 class="rounded-full bg-gray-300"
                 @click="handleRestoreClick(record)"
               >
                 {{ t('history.restore') }}
-              </NButton>
+              </SButton>
             </div>
           </div>
 
           <!-- Load More -->
           <div v-if="state.pagination.hasNext" class="pt-4">
-            <NButton block :loading="state.isLoading" @click="loadMore">
+            <SButton variant="filled" block :loading="state.isLoading" @click="loadMore">
               {{ t('history.loadMore') }}
-            </NButton>
+            </SButton>
           </div>
         </div>
       </div>
@@ -381,16 +382,21 @@ watch(
           </p>
         </div>
         <div class="flex justify-end mt-5 gap-3">
-          <NButton
-            secondary
+          <SButton
+            variant="light"
             :disabled="state.isRestoring"
             @click="state.showRestoreConfirm = false"
           >
             {{ t('common.cancel') }}
-          </NButton>
-          <NButton type="primary" :loading="state.isRestoring" @click="handleRestore">
+          </SButton>
+          <SButton
+            :color="buttonColor.primary"
+            variant="filled"
+            :loading="state.isRestoring"
+            @click="handleRestore"
+          >
             {{ t('history.restore') }}
-          </NButton>
+          </SButton>
         </div>
       </NModal>
     </NDrawerContent>

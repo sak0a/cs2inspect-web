@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideLogOut as LogOutIcon,
   LucidePanelLeft as PanelLeftIcon,
@@ -382,20 +383,32 @@ function handleLanguageSelect(key: string) {
               <!-- Logout button -->
               <NTooltip v-if="menuCollapsed" placement="right">
                 <template #trigger>
-                  <NButton secondary type="error" circle @click="showLogoutModal = true">
-                    <template #icon>
-                      <NIcon><LogOutIcon /></NIcon>
+                  <SButton
+                    variant="light"
+                    :color="buttonColor.error"
+                    icon-only
+                    rounded="full"
+                    @click="showLogoutModal = true"
+                  >
+                    <template #icon-left>
+                      <LogOutIcon :size="16" />
                     </template>
-                  </NButton>
+                  </SButton>
                 </template>
                 {{ t('auth.logoutButton') }}
               </NTooltip>
-              <NButton v-else secondary type="error" class="w-full" @click="showLogoutModal = true">
-                <template #icon>
-                  <NIcon><LogOutIcon /></NIcon>
+              <SButton
+                v-else
+                variant="light"
+                :color="buttonColor.error"
+                class="w-full"
+                @click="showLogoutModal = true"
+              >
+                <template #icon-left>
+                  <LogOutIcon :size="16" />
                 </template>
                 {{ t('auth.logoutButton') }}
-              </NButton>
+              </SButton>
 
               <!-- Language switcher + Mode toggle row -->
               <div v-if="menuCollapsed" class="flex flex-col gap-2 items-center">
@@ -408,11 +421,11 @@ function handleLanguageSelect(key: string) {
                 >
                   <NTooltip placement="right">
                     <template #trigger>
-                      <NButton quaternary circle size="small">
-                        <template #icon>
-                          <NIcon size="18"><LanguagesIcon /></NIcon>
+                      <SButton variant="ghost" icon-only rounded="full" size="sm">
+                        <template #icon-left>
+                          <LanguagesIcon :size="18" />
                         </template>
-                      </NButton>
+                      </SButton>
                     </template>
                     {{ currentLocaleDisplay }}
                   </NTooltip>
@@ -420,11 +433,11 @@ function handleLanguageSelect(key: string) {
 
                 <NTooltip placement="right">
                   <template #trigger>
-                    <NButton quaternary circle size="small" @click="toggleMode">
-                      <template #icon>
-                        <NIcon size="18"><PanelTopIcon /></NIcon>
+                    <SButton variant="ghost" icon-only rounded="full" size="sm" @click="toggleMode">
+                      <template #icon-left>
+                        <PanelTopIcon :size="18" />
                       </template>
-                    </NButton>
+                    </SButton>
                   </template>
                   Switch to top bar
                 </NTooltip>
@@ -437,21 +450,21 @@ function handleLanguageSelect(key: string) {
                   placement="right-start"
                   @select="handleLanguageSelect"
                 >
-                  <NButton quaternary class="flex-1" size="small">
-                    <template #icon>
-                      <NIcon size="18"><LanguagesIcon /></NIcon>
+                  <SButton variant="ghost" class="flex-1" size="sm">
+                    <template #icon-left>
+                      <LanguagesIcon :size="18" />
                     </template>
                     {{ currentLocaleDisplay }}
-                  </NButton>
+                  </SButton>
                 </NDropdown>
 
                 <NTooltip placement="right">
                   <template #trigger>
-                    <NButton quaternary circle size="small" @click="toggleMode">
-                      <template #icon>
-                        <NIcon size="18"><PanelTopIcon /></NIcon>
+                    <SButton variant="ghost" icon-only rounded="full" size="sm" @click="toggleMode">
+                      <template #icon-left>
+                        <PanelTopIcon :size="18" />
                       </template>
-                    </NButton>
+                    </SButton>
                   </template>
                   Switch to top bar
                 </NTooltip>
@@ -496,7 +509,7 @@ function handleLanguageSelect(key: string) {
               <SettingsDropdown
                 trigger="hover"
                 variant="icon"
-                size="medium"
+                size="md"
                 :aria-label="t('navigation.settings') || 'Settings'"
                 @logout="showLogoutModal = true"
               />
@@ -555,17 +568,18 @@ function handleLanguageSelect(key: string) {
             <!-- Mode toggle -->
             <NTooltip placement="bottom">
               <template #trigger>
-                <NButton
-                  quaternary
-                  circle
-                  size="medium"
+                <SButton
+                  variant="ghost"
+                  icon-only
+                  rounded="full"
+                  size="md"
                   :aria-label="t('navigation.switchToSidebar') || 'Switch to sidebar'"
                   @click="toggleMode"
                 >
-                  <template #icon>
-                    <NIcon size="20"><PanelLeftIcon /></NIcon>
+                  <template #icon-left>
+                    <PanelLeftIcon :size="20" />
                   </template>
-                </NButton>
+                </SButton>
               </template>
               Switch to sidebar
             </NTooltip>
@@ -598,12 +612,13 @@ function handleLanguageSelect(key: string) {
         </div>
 
         {{ t('auth.loginRequired') }}
-        <NButton
-          size="large"
+        <SButton
+          variant="filled"
+          size="lg"
           class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md"
           @click="handleLogin"
         >
-          <template #icon>
+          <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="1em"
@@ -617,7 +632,7 @@ function handleLanguageSelect(key: string) {
             </svg>
           </template>
           {{ t('auth.loginButton') }}
-        </NButton>
+        </SButton>
 
         <!-- Copyright footer -->
         <div class="absolute bottom-4 text-gray-500 text-sm">&copy; saka 2025</div>
@@ -650,17 +665,18 @@ function handleLanguageSelect(key: string) {
           <!-- Site Announcement Banner -->
           <div v-if="showAnnouncement" class="announcement-banner">
             <span>{{ siteAnnouncement }}</span>
-            <NButton
-              quaternary
-              circle
-              size="tiny"
+            <SButton
+              variant="ghost"
+              icon-only
+              rounded="full"
+              size="xs"
               class="ml-2 flex-shrink-0"
               @click="dismissAnnouncement"
             >
-              <template #icon>
-                <NIcon :size="14"><XIcon /></NIcon>
+              <template #icon-left>
+                <XIcon :size="14" />
               </template>
-            </NButton>
+            </SButton>
           </div>
           <div class="flex flex-col min-h-full">
             <div class="flex-1">
@@ -699,12 +715,12 @@ function handleLanguageSelect(key: string) {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <NButton secondary type="default" @click="showLogoutModal = false">
+          <SButton variant="light" @click="showLogoutModal = false">
             {{ t('modals.logout.cancel') }}
-          </NButton>
-          <NButton secondary type="error" @click="handleLogout">
+          </SButton>
+          <SButton variant="light" :color="buttonColor.error" @click="handleLogout">
             {{ t('modals.logout.confirm') }}
-          </NButton>
+          </SButton>
         </div>
       </template>
     </NModal>

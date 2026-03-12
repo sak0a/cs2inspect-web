@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
+
 interface Props {
   visible: boolean
   loading: boolean
@@ -52,12 +54,22 @@ const handleConfirm = () => {
         </p>
       </div>
       <div class="flex justify-end gap-4">
-        <NButton :disabled="_props.loading" type="error" secondary @click="handleClose">
+        <SButton
+          :disabled="_props.loading"
+          :color="buttonColor.error"
+          variant="light"
+          @click="handleClose"
+        >
           {{ t('modals.duplicateItem.cancel') }}
-        </NButton>
-        <NButton :loading="_props.loading" type="success" secondary @click="handleConfirm">
+        </SButton>
+        <SButton
+          :loading="_props.loading"
+          :color="buttonColor.success"
+          variant="light"
+          @click="handleConfirm"
+        >
           {{ t('modals.duplicateItem.confirm') }}
-        </NButton>
+        </SButton>
       </div>
     </NSpace>
   </NModal>

@@ -136,14 +136,21 @@ onMounted(() => {
       </div>
 
       <div class="admin-topbar-right">
-        <SettingsDropdown trigger="hover" variant="icon" size="medium" @logout="handleLogout" />
+        <SettingsDropdown
+          trigger="hover"
+          variant="icon"
+          size="md"
+          :show-tutorials="false"
+          :show-admin-link="false"
+          @logout="handleLogout"
+        />
         <NTooltip placement="bottom">
           <template #trigger>
-            <NButton quaternary circle size="small" tag="a" href="/">
-              <template #icon>
-                <NIcon :component="HomeIcon" :size="18" />
+            <SButton variant="ghost" icon-only rounded="full" size="sm" tag="a" href="/">
+              <template #icon-left>
+                <HomeIcon :size="18" />
               </template>
-            </NButton>
+            </SButton>
           </template>
           Back to Site
         </NTooltip>

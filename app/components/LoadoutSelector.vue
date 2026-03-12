@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import { steamAuth } from '~/services/steamAuth'
 import type { DBLoadout } from '~/types'
 import {
@@ -13,7 +14,6 @@ import {
   LucideEllipsisVertical as MenuIcon,
   LucideRefreshCw as RefreshIcon,
 } from 'lucide-vue-next'
-import { NIcon } from 'naive-ui'
 import { toSteamId, toLoadoutId } from '~/types/core/branded'
 import type { LoadoutId } from '~/types/core/branded'
 
@@ -31,70 +31,6 @@ const showModal = ref({
   share: false,
   clear: false,
   import: false,
-})
-
-const selectShow = ref(false)
-let hoverTimeout: ReturnType<typeof setTimeout> | null = null
-const overDropdown = ref(false)
-
-const onHoverEnter = () => {
-  if (hoverTimeout) clearTimeout(hoverTimeout)
-  hoverTimeout = null
-  selectShow.value = true
-}
-
-const onHoverLeave = () => {
-  if (hoverTimeout) clearTimeout(hoverTimeout)
-  hoverTimeout = setTimeout(() => {
-    if (!overDropdown.value) {
-      selectShow.value = false
-    }
-  }, 200)
-}
-
-// Track mouseenter/mouseleave on the teleported dropdown panel
-const onDropdownEnter = () => {
-  overDropdown.value = true
-  if (hoverTimeout) clearTimeout(hoverTimeout)
-  hoverTimeout = null
-}
-
-const onDropdownLeave = () => {
-  overDropdown.value = false
-  if (hoverTimeout) clearTimeout(hoverTimeout)
-  hoverTimeout = setTimeout(() => {
-    selectShow.value = false
-  }, 200)
-}
-
-// Attach listeners to the dropdown panel when it appears/disappears
-let trackedPanel: HTMLElement | null = null
-
-watch(selectShow, (open) => {
-  if (!open) {
-    if (trackedPanel) {
-      trackedPanel.removeEventListener('mouseenter', onDropdownEnter)
-      trackedPanel.removeEventListener('mouseleave', onDropdownLeave)
-      trackedPanel = null
-    }
-    overDropdown.value = false
-    return
-  }
-  // Wait for the DOM to render the dropdown
-  nextTick(() => {
-    // Naive UI teleports select menus into .v-binder-follower-content wrappers.
-    // Find the one that contains a .n-base-select-menu that is currently visible.
-    const menus = document.querySelectorAll('.v-binder-follower-content .n-base-select-menu')
-    for (const menu of menus) {
-      const follower = menu.closest('.v-binder-follower-content') as HTMLElement | null
-      if (follower && follower.style.display !== 'none') {
-        trackedPanel = follower
-        follower.addEventListener('mouseenter', onDropdownEnter)
-        follower.addEventListener('mouseleave', onDropdownLeave)
-        break
-      }
-    }
-  })
 })
 
 const formInputs = ref({
@@ -307,74 +243,20 @@ const handleGenerateShareCode = async () => {
   }
 }
 
-const dropdownOptions = computed(() => {
-  // Check if current loadout is default
-  const isDefault =
-    loadoutStore.selectedLoadout?.is_default === 1 ||
-    loadoutStore.selectedLoadout?.is_default === true
-  const hasSelection = loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId
+const hasSelection = computed(() => loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId)
+const isSelectedDefault = computed(() => !!loadoutStore.selectedLoadout?.is_default)
 
-  const items: Array<Record<string, unknown>> = [
-    {
-      label: t('loadout.create'),
-      key: 'create',
-      icon: () => h(NIcon, { color: '#22c55e' }, { default: () => h(NewIcon) }),
+// Filled star icon for "is default" state
+const DefaultIconFilled = markRaw(
+  defineComponent({
+    inheritAttrs: false,
+    setup(_, { attrs }) {
+      return () => h(DefaultIcon, { ...attrs, fill: 'currentColor' })
     },
-    {
-      label: t('loadout.import'),
-      key: 'import',
-      icon: () => h(NIcon, { color: '#3b82f6' }, { default: () => h(ImportIcon) }),
-    },
-  ]
+  })
+)
 
-  if (hasSelection) {
-    items.push(
-      { type: 'divider', key: 'd0' },
-      {
-        label: t('loadout.actions.rename'),
-        key: 'rename',
-        icon: () => h(NIcon, null, { default: () => h(RenameIcon) }),
-      },
-      {
-        label: t('loadout.actions.duplicate'),
-        key: 'duplicate',
-        icon: () => h(NIcon, null, { default: () => h(DuplicateIcon) }),
-      },
-      {
-        label: t('loadout.actions.share'),
-        key: 'share',
-        icon: () => h(NIcon, null, { default: () => h(ShareIcon) }),
-      },
-      {
-        label: t('loadout.actions.setDefault'),
-        key: 'default',
-        icon: () =>
-          h(
-            NIcon,
-            { color: '#f59e0b' },
-            { default: () => h(DefaultIcon, isDefault ? { fill: '#f59e0b' } : {}) }
-          ),
-      },
-      { type: 'divider', key: 'd1' },
-      {
-        label: t('loadout.actions.clear'),
-        key: 'clear',
-        icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(ClearIcon) }),
-      },
-      {
-        label: t('loadout.actions.delete'),
-        key: 'delete',
-        icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(DeleteIcon) }),
-      }
-    )
-  }
-
-  return items
-})
-
-const menuProps = () => ({ class: 'glassmorphism-dropdown' })
-
-const handleDropdownSelect = (key: string | number) => {
+const handleDropdownSelect = (key: string) => {
   if (key === 'create') showModal.value.create = true
   else if (key === 'import') showModal.value.import = true
   else if (key === 'rename') showModal.value.rename = true
@@ -392,49 +274,98 @@ onMounted(async () => {
 </script>
 
 <template>
-  <NSpace vertical>
-    <NSpace align="center">
-      <div
-        v-if="loadoutStore.hasLoadouts"
-        data-tutorial="loadout-selector"
-        @mouseenter="onHoverEnter"
-        @mouseleave="onHoverLeave"
-      >
-        <NSelect
-          v-model:value="loadoutStore.selectedLoadoutId"
-          v-model:show="selectShow"
-          :options="
-            loadoutStore.loadouts.map((loadout: DBLoadout) => ({
-              label: loadout.name + (loadout.is_default ? ' (Default)' : ''),
-              value: loadout.id,
-            }))
-          "
-          :placeholder="t('loadout.select') as string"
-          :loading="loadoutStore.isLoading"
-          class="min-w-[180px]"
-        />
-      </div>
+  <div class="flex items-center gap-2">
+    <SSelect
+      v-if="loadoutStore.hasLoadouts"
+      v-model:model-value="loadoutStore.selectedLoadoutId"
+      :options="
+        loadoutStore.loadouts.map((loadout: DBLoadout) => ({
+          label: loadout.name + (loadout.is_default ? ' (Default)' : ''),
+          value: loadout.id,
+        }))
+      "
+      :placeholder="t('loadout.select') as string"
+      :loading="loadoutStore.isLoading"
+      variant="outlined"
+      rounded="lg"
+      size="sm"
+      trigger="hover"
+      class="min-w-[180px]"
+      data-tutorial="loadout-selector"
+    />
 
-      <NDropdown
-        trigger="hover"
-        :options="dropdownOptions"
-        :menu-props="menuProps"
-        @select="handleDropdownSelect"
-      >
-        <NButton
-          circle
-          strong
-          secondary
+    <SDropdown trigger="hover" variant="glass" @select="handleDropdownSelect">
+      <template #trigger>
+        <SButton
+          icon-only
+          rounded="full"
+          variant="light"
           data-tutorial="loadout-create"
           :aria-label="t('loadout.manage') as string"
         >
-          <template #icon
-            ><NIcon><MenuIcon /></NIcon
-          ></template>
-        </NButton>
-      </NDropdown>
-    </NSpace>
-  </NSpace>
+          <template #icon-left>
+            <MenuIcon :size="16" />
+          </template>
+        </SButton>
+      </template>
+
+      <SDropdownItem
+        item-key="create"
+        :label="String(t('loadout.create'))"
+        :icon="NewIcon"
+        icon-color="#22c55e"
+      />
+      <SDropdownItem
+        item-key="import"
+        :label="String(t('loadout.import'))"
+        :icon="ImportIcon"
+        icon-color="#3b82f6"
+      />
+
+      <template v-if="hasSelection">
+        <SDropdownDivider class="bg-gray-500/20" />
+        <SDropdownItem
+          item-key="rename"
+          :label="String(t('loadout.actions.rename'))"
+          :icon="RenameIcon"
+        />
+        <SDropdownItem
+          item-key="duplicate"
+          :label="String(t('loadout.actions.duplicate'))"
+          :icon="DuplicateIcon"
+        />
+        <SDropdownItem
+          item-key="share"
+          :label="String(t('loadout.actions.share'))"
+          :icon="ShareIcon"
+        />
+        <SDropdownItem
+          item-key="default"
+          :label="
+            String(
+              isSelectedDefault ? t('loadout.actions.isDefault') : t('loadout.actions.setDefault')
+            )
+          "
+          :icon="isSelectedDefault ? DefaultIconFilled : DefaultIcon"
+          icon-color="#f59e0b"
+          :disabled="isSelectedDefault"
+        />
+        <SDropdownDivider class="bg-gray-500/20" />
+        <SDropdownItem
+          item-key="clear"
+          :label="String(t('loadout.actions.clear'))"
+          :icon="ClearIcon"
+          icon-color="#ef4444"
+        />
+        <SDropdownItem
+          item-key="delete"
+          :label="String(t('loadout.actions.delete'))"
+          :icon="DeleteIcon"
+          icon-color="#ef4444"
+        />
+      </template>
+    </SDropdown>
+  </div>
 
   <!-- Create Modal (Existing) -->
   <NModal
@@ -454,9 +385,9 @@ onMounted(async () => {
     />
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton
-          type="error"
-          secondary
+        <SButton
+          :color="buttonColor.error"
+          variant="light"
           @click="
             () => {
               showModal.create = false
@@ -465,15 +396,15 @@ onMounted(async () => {
           "
         >
           {{ t('modals.loadout.create.cancel') }}
-        </NButton>
-        <NButton
-          type="success"
-          secondary
+        </SButton>
+        <SButton
+          :color="buttonColor.success"
+          variant="light"
           :disabled="formInputs.newName === '' || formInputs.newName.length > 20"
           @click="handleLoadoutAction('create')"
         >
           {{ t('modals.loadout.create.confirm') }}
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
@@ -499,9 +430,9 @@ onMounted(async () => {
     />
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton
-          type="error"
-          secondary
+        <SButton
+          :color="buttonColor.error"
+          variant="light"
           @click="
             () => {
               showModal.rename = false
@@ -510,15 +441,15 @@ onMounted(async () => {
           "
         >
           {{ t('modals.loadout.rename.cancel') }}
-        </NButton>
-        <NButton
-          type="success"
-          secondary
+        </SButton>
+        <SButton
+          :color="buttonColor.success"
+          variant="light"
           :disabled="formInputs.renameName === '' || formInputs.renameName.length > 20"
           @click="handleLoadoutAction('rename')"
         >
           {{ t('modals.loadout.rename.confirm') }}
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
@@ -555,9 +486,9 @@ onMounted(async () => {
     </div>
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton
-          type="error"
-          secondary
+        <SButton
+          :color="buttonColor.error"
+          variant="light"
           @click="
             () => {
               showModal.delete = false
@@ -566,15 +497,15 @@ onMounted(async () => {
           "
         >
           {{ t('modals.loadout.delete.cancel') }}
-        </NButton>
-        <NButton
-          type="error"
-          secondary
+        </SButton>
+        <SButton
+          :color="buttonColor.error"
+          variant="light"
           :disabled="formInputs.deleteConfirm !== loadoutStore.selectedLoadout?.name"
           @click="handleLoadoutAction('delete')"
         >
           {{ t('modals.loadout.delete.confirm') }}
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
@@ -620,12 +551,12 @@ onMounted(async () => {
     </div>
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton type="default" secondary @click="showModal.clear = false">
+        <SButton variant="light" @click="showModal.clear = false">
           {{ t('modals.loadout.clear.cancel') }}
-        </NButton>
-        <NButton
-          type="error"
-          secondary
+        </SButton>
+        <SButton
+          :color="buttonColor.error"
+          variant="light"
           :disabled="
             formInputs.clearConfirm !== loadoutStore.selectedLoadout?.name ||
             formInputs.clearCategories.length === 0
@@ -633,7 +564,7 @@ onMounted(async () => {
           @click="handleLoadoutAction('clear')"
         >
           {{ t('modals.loadout.clear.confirm') }}
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
@@ -657,37 +588,47 @@ onMounted(async () => {
         <p>{{ t('modals.loadout.share.description') }}</p>
         <NInputGroup>
           <NInput v-model:value="formInputs.shareCode" readonly />
-          <NButton type="primary" ghost @click="copyToClipboard">
-            <template #icon
-              ><NIcon><DuplicateIcon /></NIcon
-            ></template>
-          </NButton>
+          <SButton :color="buttonColor.primary" variant="outlined" @click="copyToClipboard">
+            <template #icon-left>
+              <DuplicateIcon :size="16" />
+            </template>
+          </SButton>
         </NInputGroup>
         <div class="flex gap-2">
-          <NButton type="warning" secondary size="small" @click="handleGenerateShareCode">
-            <template #icon
-              ><NIcon><RefreshIcon /></NIcon
-            ></template>
+          <SButton
+            :color="buttonColor.warning"
+            variant="light"
+            size="sm"
+            @click="handleGenerateShareCode"
+          >
+            <template #icon-left>
+              <RefreshIcon :size="16" />
+            </template>
             {{ t('modals.loadout.share.regenerateButton') }}
-          </NButton>
-          <NButton type="error" secondary size="small" @click="handleDeleteShareCode">
-            <template #icon
-              ><NIcon><DeleteIcon /></NIcon
-            ></template>
+          </SButton>
+          <SButton
+            :color="buttonColor.error"
+            variant="light"
+            size="sm"
+            @click="handleDeleteShareCode"
+          >
+            <template #icon-left>
+              <DeleteIcon :size="16" />
+            </template>
             {{ t('modals.loadout.share.deleteButton') }}
-          </NButton>
+          </SButton>
         </div>
       </template>
 
       <!-- State: No share code -->
       <template v-else>
         <p>{{ t('modals.loadout.share.noCode') }}</p>
-        <NButton type="primary" secondary @click="handleGenerateShareCode">
-          <template #icon
-            ><NIcon><ShareIcon /></NIcon
-          ></template>
+        <SButton :color="buttonColor.primary" variant="light" @click="handleGenerateShareCode">
+          <template #icon-left>
+            <ShareIcon :size="16" />
+          </template>
           {{ t('modals.loadout.share.generateButton') }}
-        </NButton>
+        </SButton>
       </template>
     </div>
   </NModal>
@@ -711,39 +652,19 @@ onMounted(async () => {
     </div>
     <template #footer>
       <div class="flex justify-end gap-4">
-        <NButton type="default" secondary @click="showModal.import = false">
+        <SButton variant="light" @click="showModal.import = false">
           {{ t('modals.loadout.import.cancel') }}
-        </NButton>
-        <NButton
-          type="success"
-          secondary
+        </SButton>
+        <SButton
+          :color="buttonColor.success"
+          variant="light"
           :disabled="formInputs.importCode.length < 13"
           @click="handleLoadoutAction('import')"
         >
           {{ t('modals.loadout.import.confirm') }}
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
 </template>
-<style>
-.glassmorphism-dropdown {
-  background-color: var(--glass-bg-primary, rgba(16, 16, 16, 0.6)) !important;
-  backdrop-filter: blur(16px) !important;
-  -webkit-backdrop-filter: blur(16px) !important;
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08)) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
-}
-.glassmorphism-dropdown .n-dropdown-option {
-  color: white !important;
-  border-radius: 8px !important;
-  margin: 0px 4px !important;
-}
-.glassmorphism-dropdown .n-dropdown-option .n-dropdown-option-body::before {
-  background-color: transparent !important;
-}
-.glassmorphism-dropdown .n-dropdown-option:hover {
-  background-color: rgba(255, 255, 255, 0.1) !important;
-}
-</style>
+<!-- glassmorphism-dropdown CSS removed — SDropdown variant="glass" handles this -->

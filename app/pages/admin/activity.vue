@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { h } from 'vue'
+import { buttonColor } from '~/lib/buttonColors'
 import { LucideActivity as ActivityIcon } from 'lucide-vue-next'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
 import { useAdminStore } from '~/stores/adminStore'
@@ -185,9 +186,14 @@ onMounted(() => {
           style="width: 200px"
           @update:value="handleFilterChange"
         />
-        <NButton secondary type="primary" :loading="isLoading" @click="handleRefresh">
+        <SButton
+          variant="light"
+          :color="buttonColor.primary"
+          :loading="isLoading"
+          @click="handleRefresh"
+        >
           Refresh
-        </NButton>
+        </SButton>
       </div>
     </div>
 

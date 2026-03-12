@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 
 const user = ref<SteamUser | null>(null)
@@ -184,15 +185,16 @@ onMounted(() => {
                     class="absolute inset-0 rounded-xl border border-blue-500/0 group-focus-within:border-blue-500/50 transition-all pointer-events-none"
                   />
                 </div>
-                <NButton
-                  type="primary"
-                  size="large"
+                <SButton
+                  :color="buttonColor.primary"
+                  variant="filled"
+                  size="lg"
                   :loading="isLoading"
                   class="decode-button px-8 font-bold"
                   data-tutorial="decode-button"
                   @click="handleDecode"
                 >
-                  <template #icon>
+                  <template #icon-left>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="20"
@@ -211,7 +213,7 @@ onMounted(() => {
                     </svg>
                   </template>
                   {{ trans.importButton.value }}
-                </NButton>
+                </SButton>
               </div>
             </div>
 
@@ -238,14 +240,14 @@ onMounted(() => {
                   {{ trans.decodedJsonLabel.value }}
                 </label>
                 <div class="flex gap-2">
-                  <NButton
-                    quaternary
-                    size="tiny"
-                    type="info"
+                  <SButton
+                    variant="ghost"
+                    size="xs"
+                    :color="buttonColor.info"
                     class="hover:bg-blue-500/10 transition-colors"
                     @click="handleCopyJson"
                   >
-                    <template #icon>
+                    <template #icon-left>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="14"
@@ -262,7 +264,7 @@ onMounted(() => {
                       </svg>
                     </template>
                     {{ trans.copy.value }}
-                  </NButton>
+                  </SButton>
                 </div>
               </div>
               <div
@@ -290,16 +292,17 @@ onMounted(() => {
                 <div class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse" />
                 API connected and ready
               </div>
-              <NButton
-                type="info"
-                size="large"
+              <SButton
+                :color="buttonColor.info"
+                variant="filled"
+                size="lg"
                 :loading="isGenerating"
                 :disabled="!decodedJson"
                 class="generate-button px-10 shadow-lg shadow-blue-500/20"
                 data-tutorial="generate-button"
                 @click="handleGenerate"
               >
-                <template #icon>
+                <template #icon-left>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="20"
@@ -317,7 +320,7 @@ onMounted(() => {
                   </svg>
                 </template>
                 {{ trans.generateButton.value }}
-              </NButton>
+              </SButton>
             </div>
           </div>
         </div>

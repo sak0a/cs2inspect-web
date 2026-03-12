@@ -127,12 +127,12 @@ function formatDate(isoDate: string): string {
   <div class="space-y-6">
     <!-- Back Button -->
     <div>
-      <NButton quaternary @click="handleBack">
-        <template #icon>
-          <NIcon :component="BackIcon" />
+      <SButton variant="ghost" @click="handleBack">
+        <template #icon-left>
+          <BackIcon :size="16" />
         </template>
         Back to Users
-      </NButton>
+      </SButton>
     </div>
 
     <!-- Loading State -->
@@ -143,7 +143,7 @@ function formatDate(isoDate: string): string {
     <!-- Error State -->
     <div v-else-if="error" class="glass-card p-6 text-center">
       <p class="text-red-400 mb-4">{{ error }}</p>
-      <NButton secondary @click="fetchUserDetails"> Try Again </NButton>
+      <SButton variant="light" @click="fetchUserDetails"> Try Again </SButton>
     </div>
 
     <!-- User Content -->

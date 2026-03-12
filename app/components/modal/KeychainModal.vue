@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import type { APIKeychain, IEnhancedWeaponKeychain, APISticker } from '~/server/types'
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
 import WrappedStickerModal from './WrappedStickerModal.vue'
@@ -321,13 +322,13 @@ watch(
     </template>
     <template #header-extra>
       <div class="flex items-center gap-2">
-        <NButton
-          secondary
-          type="error"
+        <SButton
+          variant="light"
+          :color="buttonColor.error"
           :disabled="!currentKeychain && !state.selectedItem"
           @click="handleResetConfig"
         >
-          <template #icon>
+          <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="24"
@@ -346,12 +347,12 @@ watch(
             </svg>
           </template>
           {{ t('modals.weaponSkin.buttons.reset') }}
-        </NButton>
+        </SButton>
         <NDivider vertical />
         <NInput
           v-model:value="state.searchQuery"
           :placeholder="t('modals.keychain.searchPlaceholder') as string"
-          class="w-96"
+          class="w-64"
         />
       </div>
     </template>
@@ -476,18 +477,24 @@ watch(
                       }}
                     </div>
                   </div>
-                  <NButton size="tiny" type="error" ghost @click="clearWrappedSticker">×</NButton>
+                  <SButton
+                    size="xs"
+                    :color="buttonColor.error"
+                    variant="outlined"
+                    @click="clearWrappedSticker"
+                    >×</SButton
+                  >
                 </div>
 
-                <NButton
+                <SButton
                   v-else
                   block
-                  dashed
-                  size="small"
+                  variant="dashed"
+                  size="sm"
                   @click="state.wrappedStickerModalVisible = true"
                 >
                   + Select Sticker to Wrap
-                </NButton>
+                </SButton>
               </div>
             </div>
 
@@ -500,10 +507,10 @@ watch(
               </h3>
 
               <div class="flex gap-3 w-full lg:w-auto justify-end">
-                <NButton
-                  type="primary"
+                <SButton
+                  :color="buttonColor.primary"
                   class="flex-1 lg:flex-none lg:w-40"
-                  secondary
+                  variant="light"
                   @click="handleSave"
                 >
                   {{
@@ -511,16 +518,16 @@ watch(
                       ? t('modals.keychain.buttons.update')
                       : t('modals.keychain.buttons.create')
                   }}
-                </NButton>
-                <NButton
+                </SButton>
+                <SButton
                   v-if="currentKeychain"
-                  type="error"
+                  :color="buttonColor.error"
                   class="flex-1 lg:flex-none lg:w-40"
-                  secondary
+                  variant="light"
                   @click="handleRemove"
                 >
                   {{ t('modals.keychain.delete') }}
-                </NButton>
+                </SButton>
               </div>
             </div>
           </div>
@@ -537,25 +544,25 @@ watch(
             class="w-44"
             :options="keychainSortOptions"
           />
-          <NButton
-            size="small"
-            secondary
-            type="default"
+          <SButton
+            size="xs"
+            icon-only
+            variant="light"
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
             {{ sortDir === 'asc' ? '↑' : '↓' }}
-          </NButton>
+          </SButton>
         </div>
 
         <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
-          <NButton
+          <SButton
             v-for="rarity in availableRarities"
             :key="rarity.id"
-            size="small"
-            secondary
-            :type="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+            size="xs"
+            variant="light"
+            :color="rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default"
             :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
@@ -565,7 +572,7 @@ watch(
               <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
               {{ rarity.name }}
             </span>
-          </NButton>
+          </SButton>
         </div>
       </div>
 

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { SelectOption } from 'naive-ui'
+import { buttonColor } from '~/lib/buttonColors'
 
 interface Props {
   show: boolean
@@ -191,8 +192,10 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <NButton secondary type="default" @click="handleClose"> Cancel </NButton>
-      <NButton secondary type="primary" @click="handleConfirm"> Add Admin </NButton>
+      <SButton variant="light" @click="handleClose"> Cancel </SButton>
+      <SButton variant="light" :color="buttonColor.primary" @click="handleConfirm">
+        Add Admin
+      </SButton>
     </div>
   </NModal>
 </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import type {
   WeaponModalProps,
   WeaponConfiguration,
@@ -1186,7 +1187,7 @@ onUnmounted(() => {
         <SButton
           :loading="state.isResetting"
           variant="glass"
-          type="error"
+          :color="buttonColor.error"
           :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
           data-tutorial="reset-button"
@@ -1217,7 +1218,6 @@ onUnmounted(() => {
         <!-- History Button -->
         <SButton
           variant="glass"
-          type="default"
           :disabled="!selectedSkin"
           :aria-label="String(t('history.title'))"
           data-tutorial="history-button"
@@ -1248,7 +1248,6 @@ onUnmounted(() => {
         <SButton
           :loading="state.isImporting"
           variant="glass"
-          type="default"
           :disabled="!selectedSkin"
           :aria-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
           data-tutorial="import-button"
@@ -1284,7 +1283,6 @@ onUnmounted(() => {
         <SButton
           :loading="state.isLoadingInspect"
           variant="glass"
-          type="default"
           :disabled="!selectedSkin || customization.paintindex === 0"
           :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
           data-tutorial="save-button"
@@ -1326,7 +1324,11 @@ onUnmounted(() => {
       </div>
       <div v-else class="flex items-center shrink-0">
         <!-- Exit Visual Mode Button -->
-        <SButton variant="light" type="warning" @click="handleExitInlineVisualCustomizer">
+        <SButton
+          variant="light"
+          :color="buttonColor.warning"
+          @click="handleExitInlineVisualCustomizer"
+        >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1537,9 +1539,8 @@ onUnmounted(() => {
                       <SButton
                         v-if="selectedSkin?.availableTeams === 'both'"
                         :disabled="!selectedSkin"
-                        type="default"
                         variant="light"
-                        size="small"
+                        size="sm"
                         @click="state.showDuplicateConfirm = true"
                       >
                         {{ t('modals.weaponSkin.buttons.duplicate') }}
@@ -1741,7 +1742,6 @@ onUnmounted(() => {
                   size="xs"
                   icon-only
                   variant="light"
-                  type="default"
                   :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
                   @click="toggleSortDir"
                 >
@@ -1758,7 +1758,9 @@ onUnmounted(() => {
                   :key="rarity.id"
                   size="xs"
                   variant="light"
-                  :type="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+                  :color="
+                    rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default
+                  "
                   :style="
                     rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined
                   "

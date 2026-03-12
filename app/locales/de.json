@@ -397,6 +397,7 @@
       "duplicate": "Duplizieren",
       "share": "Teilen",
       "setDefault": "Als Standard festlegen",
+      "isDefault": "Standard-Loadout",
       "clear": "Loadout leeren",
       "delete": "Löschen"
     }

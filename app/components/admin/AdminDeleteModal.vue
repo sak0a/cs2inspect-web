@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
+
 interface Props {
   show: boolean
   steamId: string
@@ -139,10 +141,15 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <NButton secondary type="default" @click="handleClose"> Cancel </NButton>
-      <NButton secondary type="error" :disabled="!isConfirmed" @click="handleConfirm">
+      <SButton variant="light" @click="handleClose"> Cancel </SButton>
+      <SButton
+        variant="light"
+        :color="buttonColor.error"
+        :disabled="!isConfirmed"
+        @click="handleConfirm"
+      >
         Delete All Data
-      </NButton>
+      </SButton>
     </div>
   </NModal>
 </template>

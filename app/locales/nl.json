@@ -408,6 +408,7 @@
       "duplicate": "Dupliceren",
       "share": "Delen",
       "setDefault": "Als standaard instellen",
+      "isDefault": "Standaard loadout",
       "clear": "Loadout legen",
       "delete": "Verwijderen"
     }

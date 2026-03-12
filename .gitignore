@@ -41,6 +41,7 @@ services/weapon-scraper/__pycache__
 # Build artifacts
 server/assets/_locales
 storage/
+.claude/settings.json
 notes_19_dec.txt
 .gitignore
 docs/todos_19_dec.md

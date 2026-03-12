@@ -108,11 +108,18 @@ function formatValue(value: unknown): string {
         <span v-if="check.latency_ms !== undefined" class="latency-badge">
           {{ check.latency_ms }}ms
         </span>
-        <NButton quaternary circle size="small" :loading="loading" @click="emit('recheck')">
-          <template #icon>
-            <NIcon :component="RefreshIcon" :size="14" />
+        <SButton
+          variant="ghost"
+          icon-only
+          rounded="full"
+          size="sm"
+          :loading="loading"
+          @click="emit('recheck')"
+        >
+          <template #icon-left>
+            <RefreshIcon :size="14" />
           </template>
-        </NButton>
+        </SButton>
       </div>
     </div>
 

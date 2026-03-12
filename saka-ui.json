@@ -1,0 +1,7 @@
+{
+  "componentDir": "app/components/sui",
+  "composableDir": "app/composables",
+  "libDir": "app/lib",
+  "typescript": true,
+  "overwrite": true
+}

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideShield as ShieldIcon,
   LucideShieldAlert as ShieldAlertIcon,
@@ -128,9 +129,9 @@ function formatDate(dateStr: string) {
       <p class="text-gray-400">
         You do not have permission to access this page. Only superadmins can manage administrators.
       </p>
-      <NButton type="primary" secondary class="mt-6" tag="a" href="/admin">
+      <SButton variant="light" :color="buttonColor.primary" class="mt-6" tag="a" href="/admin">
         Back to Dashboard
-      </NButton>
+      </SButton>
     </div>
 
     <!-- Main Content (Superadmin only) -->
@@ -147,15 +148,13 @@ function formatDate(dateStr: string) {
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <NButton secondary type="default" :loading="isLoading" @click="handleRefresh">
-            Refresh
-          </NButton>
-          <NButton type="primary" @click="showAddModal = true">
-            <template #icon>
-              <NIcon :component="UserPlusIcon" />
+          <SButton variant="light" :loading="isLoading" @click="handleRefresh"> Refresh </SButton>
+          <SButton variant="filled" :color="buttonColor.primary" @click="showAddModal = true">
+            <template #icon-left>
+              <UserPlusIcon :size="16" />
             </template>
             Add Admin
-          </NButton>
+          </SButton>
         </div>
       </div>
 
@@ -209,19 +208,19 @@ function formatDate(dateStr: string) {
 
             <!-- Actions -->
             <div class="flex items-center gap-2">
-              <NButton
-                secondary
-                type="error"
-                size="small"
+              <SButton
+                variant="light"
+                :color="buttonColor.error"
+                size="sm"
                 :loading="removingAdminId === admin.steamId"
                 :disabled="admin.role === 'superadmin'"
                 @click="handleRemoveAdmin(admin)"
               >
-                <template #icon>
-                  <NIcon :component="TrashIcon" />
+                <template #icon-left>
+                  <TrashIcon :size="16" />
                 </template>
                 Remove
-              </NButton>
+              </SButton>
             </div>
           </div>
         </div>
@@ -234,12 +233,17 @@ function formatDate(dateStr: string) {
         <p class="text-sm text-gray-500 mt-2">
           There are no administrators configured yet. Add your first admin to get started.
         </p>
-        <NButton type="primary" class="mt-4" @click="showAddModal = true">
-          <template #icon>
-            <NIcon :component="UserPlusIcon" />
+        <SButton
+          variant="filled"
+          :color="buttonColor.primary"
+          class="mt-4"
+          @click="showAddModal = true"
+        >
+          <template #icon-left>
+            <UserPlusIcon :size="16" />
           </template>
           Add First Admin
-        </NButton>
+        </SButton>
       </div>
     </template>
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideRefreshCw as RefreshIcon,
   LucideSend as SendIcon,
@@ -185,11 +186,11 @@ function tryFormatJson(str: string): string {
           <span class="toggle-label">Auto-refresh</span>
           <NSwitch :value="autoRefreshEnabled" size="small" @update:value="toggleAutoRefresh" />
         </div>
-        <NButton quaternary circle :loading="isLoading" @click="refreshAll">
-          <template #icon>
-            <NIcon :component="RefreshIcon" />
+        <SButton variant="ghost" icon-only rounded="full" :loading="isLoading" @click="refreshAll">
+          <template #icon-left>
+            <RefreshIcon :size="16" />
           </template>
-        </NButton>
+        </SButton>
       </div>
     </div>
 
@@ -263,30 +264,31 @@ function tryFormatJson(str: string): string {
           clearable
           @keydown.enter="sendFetchTest"
         />
-        <NButton
-          type="primary"
-          size="small"
+        <SButton
+          variant="filled"
+          :color="buttonColor.primary"
+          size="sm"
           :loading="fetchTestLoading"
           :disabled="!fetchTestUrl.trim()"
           @click="sendFetchTest"
         >
-          <template #icon>
-            <NIcon :component="SendIcon" :size="14" />
+          <template #icon-left>
+            <SendIcon :size="14" />
           </template>
           Send
-        </NButton>
+        </SButton>
       </div>
 
       <!-- Headers -->
       <div class="fetch-headers">
         <div class="fetch-section-label">
           <span>Headers</span>
-          <NButton quaternary size="tiny" @click="addHeader">
-            <template #icon>
-              <NIcon :component="PlusIcon" :size="12" />
+          <SButton variant="ghost" size="xs" @click="addHeader">
+            <template #icon-left>
+              <PlusIcon :size="12" />
             </template>
             Add
-          </NButton>
+          </SButton>
         </div>
         <div v-for="(header, index) in fetchTestHeaders" :key="index" class="fetch-header-row">
           <NInput
@@ -295,11 +297,11 @@ function tryFormatJson(str: string): string {
             size="tiny"
           />
           <NInput v-model:value="header.value" placeholder="Value" size="tiny" />
-          <NButton quaternary circle size="tiny" @click="removeHeader(index)">
-            <template #icon>
-              <NIcon :component="RemoveIcon" :size="12" />
+          <SButton variant="ghost" icon-only rounded="full" size="xs" @click="removeHeader(index)">
+            <template #icon-left>
+              <RemoveIcon :size="12" />
             </template>
-          </NButton>
+          </SButton>
         </div>
       </div>
 

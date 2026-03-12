@@ -77,17 +77,17 @@ function closeMobileSidebar() {
   <div class="admin-layout">
     <!-- Mobile Header -->
     <header class="admin-mobile-header">
-      <NButton quaternary circle size="large" @click="toggleMobileSidebar">
-        <template #icon>
-          <NIcon :component="MenuIcon" />
+      <SButton variant="ghost" icon-only rounded="full" size="lg" @click="toggleMobileSidebar">
+        <template #icon-left>
+          <MenuIcon />
         </template>
-      </NButton>
+      </SButton>
       <h1 class="text-lg font-semibold">{{ title }}</h1>
-      <NButton quaternary circle size="large" tag="a" href="/">
-        <template #icon>
-          <NIcon :component="BackIcon" />
+      <SButton variant="ghost" icon-only rounded="full" size="lg" tag="a" href="/">
+        <template #icon-left>
+          <BackIcon />
         </template>
-      </NButton>
+      </SButton>
     </header>
 
     <!-- Mobile Sidebar Overlay -->
@@ -103,17 +103,18 @@ function closeMobileSidebar() {
           <NIcon :component="ShieldIcon" :size="24" color="var(--primary-color)" />
           <span class="text-lg font-bold">Admin Panel</span>
         </NSpace>
-        <NButton
-          quaternary
-          circle
-          size="small"
+        <SButton
+          variant="ghost"
+          icon-only
+          rounded="full"
+          size="sm"
           class="admin-sidebar-close"
           @click="closeMobileSidebar"
         >
-          <template #icon>
-            <NIcon :component="CloseIcon" />
+          <template #icon-left>
+            <CloseIcon />
           </template>
-        </NButton>
+        </SButton>
       </div>
 
       <!-- Navigation -->

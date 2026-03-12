@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import type { VisualCustomizerProps, CanvasElement, CanvasState } from '~/types/canvas'
 import type { StickerConfiguration, KeychainConfiguration } from '~/types'
 import {
@@ -1456,11 +1457,12 @@ defineExpose({
       <!-- Debug Toggle (Dev only) -->
       <div v-if="isDevelopment" class="absolute top-2 right-2 z-50 flex flex-col gap-2 items-end">
         <!-- Fullscreen Toggle -->
-        <NButton
-          size="tiny"
-          secondary
-          circle
-          :type="isFullscreen ? 'primary' : 'default'"
+        <SButton
+          size="xs"
+          variant="light"
+          icon-only
+          rounded="full"
+          :color="isFullscreen ? buttonColor.primary : buttonColor.default"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Fullscreen"
           @click="
@@ -1470,7 +1472,7 @@ defineExpose({
             }
           "
         >
-          <template #icon>
+          <template #icon-left>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
@@ -1478,18 +1480,19 @@ defineExpose({
               />
             </svg>
           </template>
-        </NButton>
+        </SButton>
 
-        <NButton
-          size="tiny"
-          secondary
-          circle
-          :type="showCoordinateOverlay ? 'primary' : 'default'"
+        <SButton
+          size="xs"
+          variant="light"
+          icon-only
+          rounded="full"
+          :color="showCoordinateOverlay ? buttonColor.primary : buttonColor.default"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Debug Overlay"
           @click="showCoordinateOverlay = !showCoordinateOverlay"
         >
-          <template #icon>
+          <template #icon-left>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
@@ -1497,19 +1500,20 @@ defineExpose({
               />
             </svg>
           </template>
-        </NButton>
+        </SButton>
 
         <!-- Calibration Toggle -->
-        <NButton
-          size="tiny"
-          secondary
-          circle
-          :type="calibration.active ? 'warning' : 'default'"
+        <SButton
+          size="xs"
+          variant="light"
+          icon-only
+          rounded="full"
+          :color="calibration.active ? buttonColor.warning : buttonColor.default"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Calibration UI"
           @click="calibration.active = !calibration.active"
         >
-          <template #icon>
+          <template #icon-left>
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24">
               <path
                 fill="currentColor"
@@ -1517,7 +1521,7 @@ defineExpose({
               />
             </svg>
           </template>
-        </NButton>
+        </SButton>
 
         <!-- Calibration Panel -->
         <div
@@ -1572,9 +1576,15 @@ defineExpose({
             </div>
           </div>
 
-          <NButton size="tiny" block secondary type="info" @click="copyCalibrationConfig">
+          <SButton
+            size="xs"
+            block
+            variant="light"
+            :color="buttonColor.info"
+            @click="copyCalibrationConfig"
+          >
             Copy Config
-          </NButton>
+          </SButton>
         </div>
       </div>
 
@@ -1599,7 +1609,14 @@ defineExpose({
 
             <!-- Scale -->
             <div class="flex items-center gap-1 border-r border-white/10 pr-2">
-              <NButton size="tiny" secondary circle @click="handleUpdateScale(-0.1)">-</NButton>
+              <SButton
+                size="xs"
+                variant="light"
+                icon-only
+                rounded="full"
+                @click="handleUpdateScale(-0.1)"
+                >-</SButton
+              >
               <NInputNumber
                 :value="selectedElement.scale"
                 :min="0.1"
@@ -1611,7 +1628,14 @@ defineExpose({
                 :show-button="false"
                 @update:value="handleSetScale"
               />
-              <NButton size="tiny" secondary circle @click="handleUpdateScale(0.1)">+</NButton>
+              <SButton
+                size="xs"
+                variant="light"
+                icon-only
+                rounded="full"
+                @click="handleUpdateScale(0.1)"
+                >+</SButton
+              >
             </div>
 
             <!-- Rotation -->
@@ -1619,7 +1643,14 @@ defineExpose({
               >Rotation</span
             >
             <div class="flex items-center gap-1 border-r border-white/10 pr-2">
-              <NButton size="tiny" secondary circle @click="handleUpdateRotation(-15)">↺</NButton>
+              <SButton
+                size="xs"
+                variant="light"
+                icon-only
+                rounded="full"
+                @click="handleUpdateRotation(-15)"
+                >↺</SButton
+              >
               <NInputNumber
                 :value="selectedElement.rotation"
                 :min="0"
@@ -1631,7 +1662,14 @@ defineExpose({
                 :show-button="false"
                 @update:value="handleSetRotation"
               />
-              <NButton size="tiny" secondary circle @click="handleUpdateRotation(15)">↻</NButton>
+              <SButton
+                size="xs"
+                variant="light"
+                icon-only
+                rounded="full"
+                @click="handleUpdateRotation(15)"
+                >↻</SButton
+              >
             </div>
 
             <!-- Wear (Sticker only) -->
@@ -1652,8 +1690,15 @@ defineExpose({
             </div>
 
             <!-- Remove -->
-            <NButton type="error" size="tiny" secondary circle @click="handleRemoveSelected">
-              <template #icon>
+            <SButton
+              :color="buttonColor.error"
+              size="xs"
+              variant="light"
+              icon-only
+              rounded="full"
+              @click="handleRemoveSelected"
+            >
+              <template #icon-left>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24">
                   <path
                     fill="currentColor"
@@ -1661,7 +1706,7 @@ defineExpose({
                   />
                 </svg>
               </template>
-            </NButton>
+            </SButton>
           </div>
 
           <!-- Row 2: Position -->
@@ -1741,17 +1786,18 @@ defineExpose({
                   </div>
                 </template>
 
-                <NButton
+                <SButton
                   v-if="isDevelopment"
-                  size="tiny"
-                  secondary
-                  circle
-                  type="info"
+                  size="xs"
+                  variant="light"
+                  icon-only
+                  rounded="full"
+                  :color="buttonColor.info"
                   class="ml-1"
                   title="Copy Position Object"
                   @click="copySelectedElementPosition"
                 >
-                  <template #icon>
+                  <template #icon-left>
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       width="10"
@@ -1764,7 +1810,7 @@ defineExpose({
                       />
                     </svg>
                   </template>
-                </NButton>
+                </SButton>
               </div>
             </div>
 
@@ -1807,17 +1853,18 @@ defineExpose({
                 @update:value="(v) => updateElementZ(v || 0)"
               />
 
-              <NButton
+              <SButton
                 v-if="isDevelopment"
-                size="tiny"
-                secondary
-                circle
-                type="info"
+                size="xs"
+                variant="light"
+                icon-only
+                rounded="full"
+                :color="buttonColor.info"
                 class="ml-1"
                 title="Copy Position Object"
                 @click="copySelectedElementPosition"
               >
-                <template #icon>
+                <template #icon-left>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="10"
@@ -1830,7 +1877,7 @@ defineExpose({
                     />
                   </svg>
                 </template>
-              </NButton>
+              </SButton>
             </div>
           </div>
         </div>
@@ -1858,9 +1905,9 @@ defineExpose({
 
       <!-- Right: Save Button -->
       <!--<div class="flex-none">
-        <NButton type="success" secondary class="w-28" @click="handleSave">
+        <SButton type="success" variant="light" class="w-28" @click="handleSave">
           {{ t('modals.weaponSkin.buttons.save') }}
-        </NButton>
+        </SButton>
       </div>-->
     </div>
   </div>

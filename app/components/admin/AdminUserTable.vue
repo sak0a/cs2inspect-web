@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { h } from 'vue'
 import type { AdminUserSummary } from '~/types'
-import { NButton, type DataTableColumns } from 'naive-ui'
+import type { DataTableColumns } from 'naive-ui'
+import SButton from '~/components/sui/SButton.vue'
+import { buttonColor } from '~/lib/buttonColors'
 
 interface Props {
   users: AdminUserSummary[]
@@ -118,32 +120,32 @@ const columns: DataTableColumns<AdminUserSummary> = [
     render(row) {
       return h('div', { class: 'flex gap-2 justify-center' }, [
         h(
-          NButton,
+          SButton,
           {
-            size: 'small',
-            secondary: true,
-            type: 'info',
+            size: 'sm',
+            variant: 'light',
+            color: buttonColor.info,
             onClick: () => emit('view', row.steamId),
           },
           { default: () => 'View' }
         ),
         row.isBanned
           ? h(
-              NButton,
+              SButton,
               {
-                size: 'small',
-                secondary: true,
-                type: 'success',
+                size: 'sm',
+                variant: 'light',
+                color: buttonColor.success,
                 onClick: () => emit('unban', row.steamId),
               },
               { default: () => 'Unban' }
             )
           : h(
-              NButton,
+              SButton,
               {
-                size: 'small',
-                secondary: true,
-                type: 'error',
+                size: 'sm',
+                variant: 'light',
+                color: buttonColor.error,
                 onClick: () => emit('ban', row.steamId),
               },
               { default: () => 'Ban' }

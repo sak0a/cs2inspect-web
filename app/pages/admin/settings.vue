@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideSettings as SettingsIcon,
   LucideShield as GeneralIcon,
@@ -115,9 +116,14 @@ async function handleRefresh() {
           <p class="text-sm text-gray-400">Manage application configuration and preferences</p>
         </div>
       </div>
-      <NButton secondary type="primary" :loading="isLoading" @click="handleRefresh">
+      <SButton
+        variant="light"
+        :color="buttonColor.primary"
+        :loading="isLoading"
+        @click="handleRefresh"
+      >
         Refresh
-      </NButton>
+      </SButton>
     </div>
 
     <!-- Loading State -->

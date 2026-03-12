@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import type { APISticker } from '~/server/types'
 
 interface Props {
@@ -136,7 +137,7 @@ watch(
         <NInput
           v-model:value="state.searchQuery"
           :placeholder="t('modals.sticker.searchPlaceholder') as string"
-          class="w-96"
+          class="w-64"
         />
       </div>
     </template>
@@ -147,25 +148,25 @@ watch(
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
           <NSelect v-model:value="sortBy" size="small" class="w-44" :options="stickerSortOptions" />
-          <NButton
-            size="small"
-            secondary
-            type="default"
+          <SButton
+            size="xs"
+            icon-only
+            variant="light"
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
             {{ sortDir === 'asc' ? '↑' : '↓' }}
-          </NButton>
+          </SButton>
         </div>
 
         <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
-          <NButton
+          <SButton
             v-for="rarity in availableRarities"
             :key="rarity.id"
-            size="small"
-            secondary
-            :type="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
+            size="xs"
+            variant="light"
+            :color="rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default"
             :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
@@ -175,24 +176,24 @@ watch(
               <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
               {{ rarity.name }}
             </span>
-          </NButton>
+          </SButton>
         </div>
       </div>
 
       <div v-if="availableEffects.length > 0" class="flex flex-wrap items-center gap-2 -mt-2">
         <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.effect') }}</span>
-        <NButton
+        <SButton
           v-for="effect in availableEffects"
           :key="effect.id"
-          size="small"
-          secondary
-          :type="effectFilterIds.includes(effect.id) ? 'primary' : 'default'"
+          size="xs"
+          variant="light"
+          :color="effectFilterIds.includes(effect.id) ? buttonColor.primary : buttonColor.default"
           :aria-label="`Filter by ${effect.label} effect`"
           :aria-pressed="effectFilterIds.includes(effect.id)"
           @click="toggleEffectFilter(effect.id)"
         >
           {{ effect.label }}
-        </NButton>
+        </SButton>
       </div>
 
       <!-- Stickers Grid -->

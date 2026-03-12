@@ -5,28 +5,14 @@ import {
   LucideSettings as SettingsIcon,
   LucideBookOpen as TutorialIcon,
   LucideShield as AdminIcon,
+  LucideChevronRight as ChevronRightIcon,
 } from 'lucide-vue-next'
-import { NIcon } from 'naive-ui'
+import type { DropdownTrigger, DropdownPlacement } from '~/components/sui/dropdown/context'
 import { getAllTutorials } from '~/utils/tutorialDefinitions'
-
-type DropdownTrigger = 'click' | 'hover'
-type DropdownPlacement =
-  | 'top'
-  | 'top-start'
-  | 'top-end'
-  | 'bottom'
-  | 'bottom-start'
-  | 'bottom-end'
-  | 'left'
-  | 'left-start'
-  | 'left-end'
-  | 'right'
-  | 'right-start'
-  | 'right-end'
 
 type ButtonVariant = 'icon' | 'full'
 
-type ButtonSize = 'small' | 'medium' | 'large'
+type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 interface Props {
   trigger?: DropdownTrigger
@@ -34,15 +20,19 @@ interface Props {
   variant?: ButtonVariant
   size?: ButtonSize
   showLogout?: boolean
+  showTutorials?: boolean
+  showAdminLink?: boolean
   ariaLabel?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   trigger: 'click',
   placement: 'bottom-start',
   variant: 'icon',
-  size: 'small',
+  size: 'sm',
   showLogout: true,
+  showTutorials: true,
+  showAdminLink: true,
   ariaLabel: 'Settings',
 })
 
@@ -90,83 +80,27 @@ const currentLocaleDisplay = computed(() => {
   return loc?.displayName || locale
 })
 
-const languageOptions = computed(() => {
-  const current = getLocale()
-  return getLocales().map((loc) => {
-    const isActive = loc.code === current
-    const text = `${getFlag(loc.code)} ${loc.displayName || loc.code}`
-    return {
-      label: isActive
-        ? () => h('span', { style: 'color: var(--primary-color); font-weight: 600' }, text)
-        : text,
-      key: `lang:${loc.code}`,
-      props: isActive ? { class: 'lang-option-active' } : undefined,
-    }
+// Commented out — replaced by SDropdown with SDropdownGroup + SDropdownItem components
+// const languageOptions = computed(() => { ... })
+// const tutorialOptions = computed(() => { ... })
+// const dropdownOptions = computed(() => { ... })
+
+const tutorialsEnabled = computed(() => {
+  return !settingsLoaded.value || isFeatureEnabled('FEATURE_TUTORIALS')
+})
+
+const filteredTutorials = computed(() => {
+  return getAllTutorials().filter((tutorial) => {
+    if (!settingsLoaded.value) return true
+    return isFeatureEnabled(tutorialSettingKey(tutorial.id))
   })
 })
 
-const tutorialOptions = computed(() => {
-  return getAllTutorials()
-    .filter((tutorial) => {
-      // Filter out tutorials whose individual setting is disabled
-      if (!settingsLoaded.value) return true
-      return isFeatureEnabled(tutorialSettingKey(tutorial.id))
-    })
-    .map((tutorial) => {
-      const completed = tutorialStore.isTutorialCompleted(tutorial.id)
-      const label = String(t(tutorial.nameKey) || tutorial.id)
-      const displayLabel = completed ? `✓ ${label}` : label
-      return {
-        label: completed
-          ? () => h('span', { style: 'color: #22c55e' }, displayLabel)
-          : displayLabel,
-        key: `tutorial:${tutorial.id}`,
-        disabled: tutorialStore.isActive,
-      }
-    })
-})
-
-const dropdownOptions = computed(() => {
-  const options: Array<Record<string, unknown>> = [
-    {
-      label: String(t('navigation.language') || 'Language'),
-      key: 'language',
-      icon: () => h(NIcon, { size: 16 }, { default: () => h(LanguagesIcon) }),
-      children: languageOptions.value,
-    },
-  ]
-
-  // Only show tutorials submenu when the feature is enabled and there are tutorials
-  const tutorialsEnabled = !settingsLoaded.value || isFeatureEnabled('FEATURE_TUTORIALS')
-  if (tutorialsEnabled && tutorialOptions.value.length > 0) {
-    options.push({
-      label: String(t('tutorial.menuTitle') || 'Tutorials'),
-      key: 'tutorials',
-      icon: () => h(NIcon, { size: 16 }, { default: () => h(TutorialIcon) }),
-      children: tutorialOptions.value,
-    })
-  }
-
-  if (adminStore.isAdmin) {
-    options.push({
-      label: String(t('admin.panelTitle') || 'Admin Panel'),
-      key: 'admin',
-      icon: () => h(NIcon, { size: 16 }, { default: () => h(AdminIcon) }),
-    })
-  }
-
-  if (props.showLogout) {
-    options.push({ type: 'divider', key: 'divider' })
-    options.push({
-      label: () =>
-        h('span', { style: 'color: #e88080' }, String(t('auth.logoutButton') || 'Logout')),
-      key: 'logout',
-      icon: () => h(NIcon, { color: '#e88080' }, { default: () => h(LogOutIcon) }),
-    })
-  }
-
-  return options
-})
+const getTutorialLabel = (tutorial: { id: string; nameKey: string }) => {
+  const completed = tutorialStore.isTutorialCompleted(tutorial.id)
+  const label = String(t(tutorial.nameKey) || tutorial.id)
+  return completed ? `✓ ${label}` : label
+}
 
 const buttonLabel = computed(() => `${getFlag(getLocale())} ${currentLocaleDisplay.value}`)
 
@@ -202,52 +136,112 @@ function handleSelect(key: string) {
 </script>
 
 <template>
-  <NDropdown
-    :options="dropdownOptions"
-    :trigger="trigger"
-    :placement="placement"
-    :menu-props="() => ({ class: 'glassmorphism-dropdown' })"
-    @select="handleSelect"
-  >
-    <NButton v-if="variant === 'icon'" quaternary circle :size="size" :aria-label="ariaLabel">
-      <template #icon>
-        <NIcon :size="18">
-          <SettingsIcon />
-        </NIcon>
-      </template>
-    </NButton>
+  <SDropdown :trigger="trigger" :placement="placement" variant="glass" @select="handleSelect">
+    <template #trigger>
+      <SButton
+        v-if="variant === 'icon'"
+        variant="ghost"
+        icon-only
+        rounded="full"
+        :size="size"
+        :aria-label="ariaLabel"
+      >
+        <template #icon-left>
+          <SettingsIcon :size="18" />
+        </template>
+      </SButton>
 
-    <NButton v-else quaternary class="w-full justify-start" :size="size" :aria-label="ariaLabel">
-      <template #icon>
-        <NIcon :size="18">
-          <SettingsIcon />
-        </NIcon>
+      <SButton
+        v-else
+        variant="ghost"
+        class="w-full justify-start"
+        :size="size"
+        :aria-label="ariaLabel"
+      >
+        <template #icon-left>
+          <SettingsIcon :size="18" />
+        </template>
+        {{ buttonLabel }}
+      </SButton>
+    </template>
+
+    <!-- Language submenu (nested SDropdown) -->
+    <SDropdown
+      class="block"
+      trigger="hover"
+      placement="right-start"
+      variant="glass"
+      :close-on-select="false"
+      @select="handleSelect"
+    >
+      <template #trigger>
+        <div
+          class="s-dropdown-item relative flex items-center cursor-pointer transition-all duration-150 select-none rounded-lg px-2.5 py-1.5 text-sm text-foreground hover:bg-accent"
+        >
+          <LanguagesIcon :size="14" class="mr-2.5 shrink-0 text-muted-foreground" />
+          <div class="flex-1 min-w-0 truncate">
+            {{ String(t('navigation.language') || 'Language') }}
+          </div>
+          <ChevronRightIcon :size="14" class="ml-4 shrink-0 text-muted-foreground" />
+        </div>
       </template>
-      {{ buttonLabel }}
-    </NButton>
-  </NDropdown>
+      <SDropdownItem
+        v-for="loc in getLocales()"
+        :key="`lang:${loc.code}`"
+        :item-key="`lang:${loc.code}`"
+        :label="`${getFlag(loc.code)} ${loc.displayName || loc.code}`"
+      />
+    </SDropdown>
+
+    <!-- Tutorials submenu (nested SDropdown) -->
+    <SDropdown
+      v-if="showTutorials && tutorialsEnabled && filteredTutorials.length > 0"
+      class="block"
+      trigger="hover"
+      placement="right-start"
+      variant="glass"
+      :close-on-select="false"
+      @select="handleSelect"
+    >
+      <template #trigger>
+        <div
+          class="s-dropdown-item relative flex items-center cursor-pointer transition-all duration-150 select-none rounded-lg px-2.5 py-1.5 text-sm text-foreground hover:bg-accent"
+        >
+          <TutorialIcon :size="14" class="mr-2.5 shrink-0 text-muted-foreground" />
+          <div class="flex-1 min-w-0 truncate">
+            {{ String(t('tutorial.menuTitle') || 'Tutorials') }}
+          </div>
+          <ChevronRightIcon :size="14" class="ml-4 shrink-0 text-muted-foreground" />
+        </div>
+      </template>
+      <SDropdownItem
+        v-for="tutorial in filteredTutorials"
+        :key="`tutorial:${tutorial.id}`"
+        :item-key="`tutorial:${tutorial.id}`"
+        :label="getTutorialLabel(tutorial)"
+        :disabled="tutorialStore.isActive"
+      />
+    </SDropdown>
+
+    <!-- Admin Panel -->
+    <SDropdownItem
+      v-if="showAdminLink && adminStore.isAdmin"
+      item-key="admin"
+      :label="String(t('admin.panelTitle') || 'Admin Panel')"
+      :icon="AdminIcon"
+    />
+
+    <!-- Logout -->
+    <template v-if="showLogout">
+      <SDropdownDivider class="bg-gray-500/20" />
+      <SDropdownItem
+        item-key="logout"
+        :label="String(t('auth.logoutButton') || 'Logout')"
+        :icon="LogOutIcon"
+        danger
+      />
+    </template>
+  </SDropdown>
 </template>
 
-<style lang="sass">
-.glassmorphism-dropdown
-  background-color: var(--glass-bg-primary, rgba(16, 16, 16, 0.6)) !important
-  backdrop-filter: blur(16px) !important
-  -webkit-backdrop-filter: blur(16px) !important
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08)) !important
-  border-radius: 12px !important
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important
-
-.glassmorphism-dropdown .n-dropdown-option
-  color: white !important
-  border-radius: 8px !important
-  margin: 0 4px !important
-
-.glassmorphism-dropdown .n-dropdown-option .n-dropdown-option-body::before
-  background-color: transparent !important
-
-.glassmorphism-dropdown .n-dropdown-option:hover
-  background-color: rgba(255, 255, 255, 0.1) !important
-
-.lang-option-active .n-dropdown-option-body::before
-  background-color: rgba(99, 226, 183, 0.1) !important
-</style>
+<!-- glassmorphism-dropdown CSS removed — SDropdown variant="glass" handles this -->

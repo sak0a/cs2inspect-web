@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { buttonColor } from '~/lib/buttonColors'
 import { LucideUsers as UsersIcon } from 'lucide-vue-next'
 
 definePageMeta({
@@ -145,36 +146,36 @@ async function handleUnbanUser(steamId: string) {
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-400">Sort by</span>
           <NSelect v-model:value="sortBy" size="small" class="w-40" :options="sortOptions" />
-          <NButton size="small" secondary @click="toggleSortDir">
+          <SButton size="sm" variant="light" @click="toggleSortDir">
             {{ sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc' }}
-          </NButton>
+          </SButton>
         </div>
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-400">Status</span>
-          <NButton
-            size="small"
-            :type="statusFilter === 'all' ? 'primary' : 'default'"
-            secondary
+          <SButton
+            size="sm"
+            :color="statusFilter === 'all' ? buttonColor.primary : buttonColor.default"
+            variant="light"
             @click="statusFilter = 'all'"
           >
             All
-          </NButton>
-          <NButton
-            size="small"
-            :type="statusFilter === 'active' ? 'primary' : 'default'"
-            secondary
+          </SButton>
+          <SButton
+            size="sm"
+            :color="statusFilter === 'active' ? buttonColor.primary : buttonColor.default"
+            variant="light"
             @click="statusFilter = 'active'"
           >
             Active
-          </NButton>
-          <NButton
-            size="small"
-            :type="statusFilter === 'banned' ? 'primary' : 'default'"
-            secondary
+          </SButton>
+          <SButton
+            size="sm"
+            :color="statusFilter === 'banned' ? buttonColor.primary : buttonColor.default"
+            variant="light"
             @click="statusFilter = 'banned'"
           >
             Banned
-          </NButton>
+          </SButton>
         </div>
       </div>
 
@@ -194,7 +195,7 @@ async function handleUnbanUser(steamId: string) {
       <!-- Error State -->
       <div v-else-if="adminStore.error" class="py-6 text-center">
         <p class="text-red-400">{{ adminStore.error }}</p>
-        <NButton class="mt-4" secondary @click="fetchUsers"> Try Again </NButton>
+        <SButton class="mt-4" variant="light" @click="fetchUsers"> Try Again </SButton>
       </div>
 
       <!-- Empty State -->

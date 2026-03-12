@@ -1,16 +1,9 @@
 <script setup lang="ts">
 import { h } from 'vue'
-import {
-  LucideTrash2 as DeleteIcon,
-  LucidePencil as RenameIcon,
-  LucideCopy as DuplicateIcon,
-  LucideShare as ShareIcon,
-  LucideStar as DefaultIcon,
-  LucideEraser as ClearIcon,
-  LucideDownload as ImportIcon,
-  LucideEllipsisVertical as MenuIcon,
-} from 'lucide-vue-next'
-import { NButton, NIcon, NTag, NDropdown, type DataTableColumns } from 'naive-ui'
+import { buttonColor } from '~/lib/buttonColors'
+import { LucideCopy as DuplicateIcon, LucideDownload as ImportIcon } from 'lucide-vue-next'
+import { NTag, type DataTableColumns } from 'naive-ui'
+import AdminLoadoutActions from '~/components/admin/AdminLoadoutActions.vue'
 import type { DBLoadout } from '~/types'
 import { api } from '~/utils/api'
 
@@ -98,49 +91,8 @@ function formatDate(dateStr: string | null): string {
   }).format(date)
 }
 
-// Dropdown options for each row
-function getDropdownOptions(row: DBLoadout) {
-  const isDefault = row.is_default === 1 || row.is_default === true
-  return [
-    {
-      label: 'Rename',
-      key: 'rename',
-      icon: () => h(NIcon, null, { default: () => h(RenameIcon) }),
-    },
-    {
-      label: 'Duplicate',
-      key: 'duplicate',
-      icon: () => h(NIcon, null, { default: () => h(DuplicateIcon) }),
-    },
-    {
-      label: 'Share Code',
-      key: 'share',
-      icon: () => h(NIcon, null, { default: () => h(ShareIcon) }),
-    },
-    {
-      label: isDefault ? 'Default' : 'Set Default',
-      key: 'default',
-      disabled: isDefault,
-      icon: () =>
-        h(
-          NIcon,
-          { color: '#f59e0b' },
-          { default: () => h(DefaultIcon, isDefault ? { fill: '#f59e0b' } : {}) }
-        ),
-    },
-    { type: 'divider' as const, key: 'd1' },
-    {
-      label: 'Clear Items',
-      key: 'clear',
-      icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(ClearIcon) }),
-    },
-    {
-      label: 'Delete',
-      key: 'delete',
-      icon: () => h(NIcon, { color: '#ef4444' }, { default: () => h(DeleteIcon) }),
-    },
-  ]
-}
+// Commented out — replaced by AdminLoadoutActions component with SDropdown
+// function getDropdownOptions(row: DBLoadout) { ... }
 
 // Handle dropdown action selection
 async function handleAction(key: string, row: DBLoadout) {
@@ -341,23 +293,10 @@ const columns: DataTableColumns<DBLoadout> = [
     width: 60,
     align: 'center',
     render(row) {
-      return h(
-        NDropdown,
-        {
-          trigger: 'click',
-          options: getDropdownOptions(row),
-          menuProps: () => ({ class: 'glassmorphism-dropdown' }),
-          onSelect: (key: string) => handleAction(key, row),
-        },
-        {
-          default: () =>
-            h(
-              NButton,
-              { quaternary: true, size: 'small', circle: true },
-              { icon: () => h(NIcon, null, { default: () => h(MenuIcon) }) }
-            ),
-        }
-      )
+      return h(AdminLoadoutActions, {
+        row,
+        onAction: (key: string) => handleAction(key, row),
+      })
     },
   },
 ]
@@ -368,12 +307,12 @@ const columns: DataTableColumns<DBLoadout> = [
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white">Manage Loadouts</h3>
-      <NButton secondary size="small" @click="showModal.import = true">
-        <template #icon>
-          <NIcon :component="ImportIcon" />
+      <SButton variant="light" size="sm" @click="showModal.import = true">
+        <template #icon-left>
+          <ImportIcon />
         </template>
         Import
-      </NButton>
+      </SButton>
     </div>
 
     <!-- Table -->
@@ -412,15 +351,15 @@ const columns: DataTableColumns<DBLoadout> = [
     />
     <template #footer>
       <div class="flex justify-end gap-3">
-        <NButton secondary @click="showModal.rename = false"> Cancel </NButton>
-        <NButton
-          type="success"
-          secondary
+        <SButton variant="light" @click="showModal.rename = false"> Cancel </SButton>
+        <SButton
+          :color="buttonColor.success"
+          variant="light"
           :disabled="formInputs.renameName.length === 0 || formInputs.renameName.length > 25"
           @click="handleRenameConfirm"
         >
           Rename
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
@@ -453,15 +392,15 @@ const columns: DataTableColumns<DBLoadout> = [
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <NButton secondary @click="showModal.delete = false"> Cancel </NButton>
-        <NButton
-          type="error"
-          secondary
+        <SButton variant="light" @click="showModal.delete = false"> Cancel </SButton>
+        <SButton
+          :color="buttonColor.error"
+          variant="light"
           :disabled="formInputs.deleteConfirm !== selectedLoadout?.name"
           @click="handleDeleteConfirm"
         >
           Delete
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
@@ -498,10 +437,10 @@ const columns: DataTableColumns<DBLoadout> = [
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <NButton secondary @click="showModal.clear = false"> Cancel </NButton>
-        <NButton
-          type="error"
-          secondary
+        <SButton variant="light" @click="showModal.clear = false"> Cancel </SButton>
+        <SButton
+          :color="buttonColor.error"
+          variant="light"
           :disabled="
             formInputs.clearConfirm !== selectedLoadout?.name ||
             formInputs.clearCategories.length === 0
@@ -509,7 +448,7 @@ const columns: DataTableColumns<DBLoadout> = [
           @click="handleClearConfirm"
         >
           Clear Items
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
@@ -527,11 +466,11 @@ const columns: DataTableColumns<DBLoadout> = [
       <p class="text-sm text-gray-400">Share this code to let others import this loadout.</p>
       <NInputGroup>
         <NInput v-model:value="formInputs.shareCode" readonly />
-        <NButton type="primary" ghost @click="copyToClipboard">
-          <template #icon>
-            <NIcon :component="DuplicateIcon" />
+        <SButton :color="buttonColor.primary" variant="outlined" icon-only @click="copyToClipboard">
+          <template #icon-left>
+            <DuplicateIcon />
           </template>
-        </NButton>
+        </SButton>
       </NInputGroup>
     </div>
   </NModal>
@@ -552,15 +491,15 @@ const columns: DataTableColumns<DBLoadout> = [
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <NButton secondary @click="showModal.import = false"> Cancel </NButton>
-        <NButton
-          type="success"
-          secondary
+        <SButton variant="light" @click="showModal.import = false"> Cancel </SButton>
+        <SButton
+          :color="buttonColor.success"
+          variant="light"
           :disabled="formInputs.importCode.length < 13"
           @click="handleImportConfirm"
         >
           Import
-        </NButton>
+        </SButton>
       </div>
     </template>
   </NModal>
