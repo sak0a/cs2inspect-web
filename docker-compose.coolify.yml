@@ -16,10 +16,11 @@
 #      External users still access https://your-domain.com on port 443.
 #   5. Deploy
 #
-# NOTE: Coolify manages networking automatically for inter-service communication.
+# NOTE: Do NOT define custom networks — Coolify manages networking automatically.
 # All services can reach each other by service name (e.g., http://database:3306).
-# The 'web' service also joins the 'coolify' proxy network so it can reach other
-# Coolify-managed resources (e.g., assets.example.com) from the server side (SSR/proxy).
+# Coolify's proxy (Traefik) is injected into the network to handle SSL + routing.
+# The 'web' service uses extra_hosts to resolve other Coolify-proxied domains
+# (e.g., assets CDN) via the Docker host gateway.
 #
 # Environment variable prefixes (all shown in one global tab in Coolify):
 #   DB_*     → MariaDB database service
@@ -126,19 +127,14 @@ services:
       steam-service:
         # Do not block web startup on steam readiness.
         condition: service_started
-    networks:
-      - default # internal: database, steam-service
-      - coolify # external: reach other Coolify-proxied resources (e.g., assets CDN)
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
     healthcheck:
       test: ['CMD', 'curl', '-fsS', 'http://localhost:${WEB_PORT:-3210}/api/health/live']
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 60s
-
-networks:
-  coolify:
-    external: true
 
 volumes:
   db_data:
