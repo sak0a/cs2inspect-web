@@ -14,6 +14,7 @@ const agents = ref<APIAgent[]>([])
 const loadoutStore = useLoadoutStore()
 const message = useMessage()
 const { t } = useI18n()
+const { teamSide } = useTeamToggle()
 
 // Initialize agents with an empty array to prevent undefined errors
 agents.value = []
@@ -27,6 +28,19 @@ const tAgents = computed(() => {
 const ctAgents = computed(() => {
   if (!agents.value) return []
   return agents.value.filter((agent) => agent.team.id === 'counter-terrorists')
+})
+
+// Current team's agents and options based on global toggle
+const currentAgents = computed(() => (teamSide.value === 't' ? tAgents.value : ctAgents.value))
+const currentAgentOptions = computed(() =>
+  teamSide.value === 't' ? tAgentOptions.value : ctAgentOptions.value
+)
+const currentAgentType = computed({
+  get: () => (teamSide.value === 't' ? tAgentType.value : ctAgentType.value),
+  set: (val) => {
+    if (teamSide.value === 't') tAgentType.value = val
+    else ctAgentType.value = val
+  },
 })
 
 // Create options for the dropdowns
@@ -294,14 +308,19 @@ watch(
         <div v-else class="overflow-x-auto">
           <div class="flex gap-6 w-[800px]">
             <h2 class="text-xl font-bold mb-4 text-center pt-0.5 w-[200px]">
-              {{ t('teams.counterTerrorists') }}
+              {{ teamSide === 'ct' ? t('teams.counterTerrorists') : t('teams.terrorists') }}
             </h2>
             <NSelect
-              v-model:value="ctAgentType"
-              :options="ctAgentOptions"
+              v-model:value="currentAgentType"
+              :options="currentAgentOptions"
               placeholder="Select agent"
               class="w-72"
-              @update:value="handleCtAgentDropdownChange"
+              @update:value="
+                (val: number) =>
+                  teamSide === 't'
+                    ? handleTAgentDropdownChange(val)
+                    : handleCtAgentDropdownChange(val)
+              "
             />
           </div>
           <div
@@ -309,46 +328,16 @@ watch(
             class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll"
             style="min-width: max-content"
           >
-            <template v-if="ctAgents && ctAgents.length > 0">
+            <template v-if="currentAgents && currentAgents.length > 0">
               <AgentTabs
-                v-for="agent in ctAgents"
+                v-for="agent in currentAgents"
                 :key="agent.id"
                 :agent="agent"
-                :is-selected="ctAgentType === parseInt(agent.id.replace('agent-', ''))"
+                :is-selected="currentAgentType === parseInt(agent.id.replace('agent-', ''))"
                 @select="handleAgentSelect"
               />
             </template>
-            <p v-else class="text-gray-400 py-4">No Counter-Terrorist agents available</p>
-          </div>
-
-          <div class="flex gap-6 w-[800px]">
-            <h2 class="text-xl text-center font-bold mb-4 pt-0.5 w-[200px]">
-              {{ t('teams.terrorists') }}
-            </h2>
-            <NSelect
-              v-model:value="tAgentType"
-              :options="tAgentOptions"
-              placeholder="Select agent"
-              class="w-72"
-              @update:value="handleTAgentDropdownChange"
-            />
-          </div>
-
-          <div
-            ref="tScrollContainer"
-            class="flex gap-4 pb-2 overflow-x-auto horizontal-scroll"
-            style="min-width: max-content"
-          >
-            <template v-if="tAgents && tAgents.length > 0">
-              <AgentTabs
-                v-for="agent in tAgents"
-                :key="agent.id"
-                :agent="agent"
-                :is-selected="tAgentType === parseInt(agent.id.replace('agent-', ''))"
-                @select="handleAgentSelect"
-              />
-            </template>
-            <p v-else class="text-gray-400 py-4">No Terrorist agents available</p>
+            <p v-else class="text-gray-400 py-4">No agents available for this team</p>
           </div>
         </div>
       </div>

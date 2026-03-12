@@ -13,6 +13,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     NAlert: typeof import('naive-ui')['NAlert']
+    NButtonGroup: typeof import('naive-ui')['NButtonGroup']
     NCard: typeof import('naive-ui')['NCard']
     NCheckbox: typeof import('naive-ui')['NCheckbox']
     NCheckboxGroup: typeof import('naive-ui')['NCheckboxGroup']
@@ -58,6 +59,7 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const NAlert: (typeof import('naive-ui'))['NAlert']
+  const NButtonGroup: (typeof import('naive-ui'))['NButtonGroup']
   const NCard: (typeof import('naive-ui'))['NCard']
   const NCheckbox: (typeof import('naive-ui'))['NCheckbox']
   const NCheckboxGroup: (typeof import('naive-ui'))['NCheckboxGroup']

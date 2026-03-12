@@ -20,8 +20,18 @@ const selectedTeamKnives = ref({
 const loadoutStore = useLoadoutStore()
 const message = useMessage()
 const { t } = useI18n()
+const { teamSide } = useTeamToggle()
 const otherTeamHasSkin = useOtherTeamSkin(selectedKnife, skins)
 const groupedKnives = useGroupedWeapons(skins)
+
+// Single knife type computed that reacts to global team toggle
+const currentKnifeType = computed({
+  get: () => (teamSide.value === 't' ? tKnifeType.value : ctKnifeType.value),
+  set: (val) => {
+    if (teamSide.value === 't') tKnifeType.value = val
+    else ctKnifeType.value = val
+  },
+})
 
 const knifeOptions = computed(() => {
   return [
@@ -339,31 +349,17 @@ watch(
 
         <!-- Content when loaded -->
         <template v-else>
-          <div class="flex gap-x-10 justify-start">
-            <div class="flex items-center justify-end space-x-2">
-              <span class="font-bold whitespace-nowrap text-white">
-                {{ t('teams.counterTerrorists') }}
-              </span>
-              <NSelect
-                v-model:value="ctKnifeType"
-                :options="knifeOptions"
-                placeholder="Select knife type"
-                class="w-72"
-                @update:value="handleKnifeTypeChange('ct', $event)"
-              />
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-white">
-                {{ t('teams.terrorists') }}
-              </span>
-              <NSelect
-                v-model:value="tKnifeType"
-                :options="knifeOptions"
-                placeholder="Select knife type"
-                class="w-72"
-                @update:value="handleKnifeTypeChange('t', $event)"
-              />
-            </div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold whitespace-nowrap text-white">
+              {{ t('navigation.melee') }}
+            </span>
+            <NSelect
+              v-model:value="currentKnifeType"
+              :options="knifeOptions"
+              placeholder="Select knife type"
+              class="w-72"
+              @update:value="handleKnifeTypeChange(teamSide, $event)"
+            />
           </div>
           <!-- Skins Grid -->
           <TransitionGroup

@@ -20,8 +20,18 @@ const selectedTeamGloves = ref({
 const loadoutStore = useLoadoutStore()
 const message = useMessage()
 const { t } = useI18n()
+const { teamSide } = useTeamToggle()
 const otherTeamHasSkin = useOtherTeamSkin(selectedGlove, skins)
 const groupedGloves = useGroupedWeapons(skins)
+
+// Single glove type computed that reacts to global team toggle
+const currentGloveType = computed({
+  get: () => (teamSide.value === 't' ? tGloveType.value : ctGloveType.value),
+  set: (val) => {
+    if (teamSide.value === 't') tGloveType.value = val
+    else ctGloveType.value = val
+  },
+})
 
 const gloveOptions = computed(() => {
   return [
@@ -298,31 +308,17 @@ watch(
 
         <!-- Content when loaded -->
         <template v-else>
-          <div class="flex gap-x-10 justify-start">
-            <div class="flex items-center justify-end space-x-2">
-              <span class="font-bold whitespace-nowrap text-neutral-200">
-                {{ t('teams.counterTerrorists') }}
-              </span>
-              <NSelect
-                v-model:value="ctGloveType"
-                :options="gloveOptions"
-                placeholder="Select glove type"
-                class="w-72"
-                @update:value="handleGloveTypeChange('ct', $event)"
-              />
-            </div>
-            <div class="flex items-center space-x-2">
-              <span class="font-bold text-neutral-200">
-                {{ t('teams.terrorists') }}
-              </span>
-              <NSelect
-                v-model:value="tGloveType"
-                :options="gloveOptions"
-                placeholder="Select glove type"
-                class="w-72"
-                @update:value="handleGloveTypeChange('t', $event)"
-              />
-            </div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold whitespace-nowrap text-neutral-200">
+              {{ t('navigation.melee') }}
+            </span>
+            <NSelect
+              v-model:value="currentGloveType"
+              :options="gloveOptions"
+              placeholder="Select glove type"
+              class="w-72"
+              @update:value="handleGloveTypeChange(teamSide, $event)"
+            />
           </div>
           <!-- Skins Grid -->
           <TransitionGroup

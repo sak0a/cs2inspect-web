@@ -410,6 +410,9 @@ function handleLanguageSelect(key: string) {
                 {{ t('auth.logoutButton') }}
               </SButton>
 
+              <!-- Global Team Toggle -->
+              <TeamToggle />
+
               <!-- Language switcher + Mode toggle row -->
               <div v-if="menuCollapsed" class="flex flex-col gap-2 items-center">
                 <NDropdown
@@ -514,6 +517,9 @@ function handleLanguageSelect(key: string) {
                 @logout="showLogoutModal = true"
               />
             </div>
+
+            <!-- Global Team Toggle -->
+            <TeamToggle />
           </div>
 
           <!-- Center: All navigation menus -->
