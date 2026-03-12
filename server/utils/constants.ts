@@ -132,13 +132,16 @@ export const DEFAULT_APP_SETTINGS = {
  * External API URLs for CS2 data
  */
 export const EXTERNAL_API_URLS = {
-  SKINS: 'https://csgo-api.c.sakoa.xyz/api/en/skins.json',
-  STICKERS: 'https://csgo-api.c.sakoa.xyz/api/en/stickers.json',
-  KEYCHAINS: 'https://csgo-api.c.sakoa.xyz/api/en/keychains.json',
-  AGENTS: 'https://csgo-api.c.sakoa.xyz/api/en/agents.json',
-  MUSIC_KITS: 'https://csgo-api.c.sakoa.xyz/api/en/music_kits.json',
-  COLLECTIBLES: 'https://csgo-api.c.sakoa.xyz/api/en/collectibles.json',
-  HIGHLIGHTS: 'https://csgo-api.c.sakoa.xyz/api/en/highlights.json',
+  SKINS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/skins.json',
+  STICKERS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/stickers.json',
+  KEYCHAINS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/keychains.json',
+  AGENTS: 'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/agents.json',
+  MUSIC_KITS:
+    'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/music_kits.json',
+  COLLECTIBLES:
+    'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/collectibles.json',
+  HIGHLIGHTS:
+    'https://raw.githubusercontent.com/ByMykel/CSGO-API/main/public/api/en/highlights.json',
 }
 
 // ============================================================================
