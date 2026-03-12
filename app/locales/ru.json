@@ -8,8 +8,7 @@
     "loadout": "Снаряжение",
     "theme": "Тема",
     "mainNav": "Главная навигация",
-    "settings": "Настройки",
-    "switchToSidebar": "Переключить на боковую панель"
+    "settings": "Настройки"
   },
   "weapons": {
     "rifles": "Винтовки",

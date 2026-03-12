@@ -1,13 +1,6 @@
 <script setup lang="ts">
 import { buttonColor } from '~/lib/buttonColors'
-import {
-  LucideLogOut as LogOutIcon,
-  LucidePanelLeft as PanelLeftIcon,
-  LucidePanelTop as PanelTopIcon,
-  LucideLanguages as LanguagesIcon,
-  LucideX as XIcon,
-  LucideConstruction as ConstructionIcon,
-} from 'lucide-vue-next'
+import { LucideX as XIcon, LucideConstruction as ConstructionIcon } from 'lucide-vue-next'
 import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 
@@ -47,24 +40,13 @@ function dismissAnnouncement() {
   dismissedAnnouncementText.value = siteAnnouncement.value
 }
 
-const {
-  sidebarCollapsed,
-  sidebarMode,
-  hoverExpanded,
-  isEffectivelyExpanded,
-  isReady,
-  toggleMode,
-  onMouseEnter,
-  onMouseLeave,
-} = useSidebarMode()
-
 // Cookie-based SSR hint: tells the server which layout branch to render,
 // avoiding a layout shift when localStorage user data loads on mount.
 const loggedInHint = useCookie('steam_logged_in')
 const isLoggedIn = computed(() => !!user.value || !!loggedInHint.value)
 
 const message = useMessage()
-const { t, getLocale, switchLocale, getLocales } = useI18n()
+const { t, getLocale, getLocales } = useI18n()
 
 const translatedHomeMenuOptions = computed(() =>
   homeMenuOptions.map((item) => ({
@@ -173,9 +155,6 @@ onMounted(async () => {
   }
 })
 
-// Computed: use expanded state for menu collapsed prop
-const menuCollapsed = computed(() => !isEffectivelyExpanded.value)
-
 // Language dropdown for top bar (compact globe icon button)
 const getFlag = (code: string) => {
   switch (code) {
@@ -196,400 +175,106 @@ const getFlag = (code: string) => {
   }
 }
 
-const languageDropdownOptions = computed(() => {
-  const current = getLocale()
-  return getLocales().map((loc) => {
-    const isActive = loc.code === current
-    const text = `${getFlag(loc.code)} ${loc.displayName || loc.code}`
-    return {
-      label: isActive
-        ? () =>
-            h(
-              'span',
-              {
-                style: 'color: var(--n-option-text-color-active, #63e2b7); font-weight: 600',
-              },
-              text
-            )
-        : text,
-      key: loc.code,
-      props: isActive ? { class: 'lang-option-active' } : undefined,
-    }
-  })
-})
-
 const currentLocaleDisplay = computed(() => {
   const locale = getLocale()
   const loc = getLocales().find((l) => l.code === locale)
   return loc?.displayName || locale
 })
-
-function handleLanguageSelect(key: string) {
-  const langCookie = useCookie('i18n_locale', {
-    maxAge: 60 * 60 * 24 * 365,
-    path: '/',
-  })
-  langCookie.value = key
-  switchLocale(key)
-
-  const currentPath = window.location.pathname
-  const localePrefix = /^\/(en|de|ru|fr|es|nl)/
-  if (localePrefix.test(currentPath)) {
-    const newPath = currentPath.replace(localePrefix, '')
-    if (newPath !== currentPath) {
-      window.location.replace(newPath || '/')
-    }
-  }
-}
 </script>
 <template>
-  <SLayout :has-sider="sidebarMode === 'left'" :sider-position="sidebarMode">
-    <SLayoutSider
-      v-if="isLoggedIn"
-      v-model:collapsed="sidebarCollapsed"
-      :collapsed-width="64"
-      :width="200"
-      show-trigger
-      :mode="sidebarMode"
-      data-tutorial="sidebar-nav"
-      :hover-expanded="hoverExpanded"
-      :enable-transitions="isReady"
-      @mouseenter="onMouseEnter"
-      @mouseleave="onMouseLeave"
-    >
-      <!-- LEFT MODE -->
-      <template v-if="sidebarMode === 'left'">
-        <div class="grid grid-rows-[auto_1fr_auto] h-full">
-          <!-- Steam Account Menu Section -->
-          <div :class="menuCollapsed ? 'p-2' : 'p-4'" class="flex flex-col items-center">
-            <div v-if="user" class="flex items-center flex-col">
-              <a
-                :href="user.profileUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                :aria-label="t('auth.openSteamProfile') as string"
-                :title="t('auth.openSteamProfile') as string"
-                class="avatar-link"
-              >
-                <img
-                  class="rounded-full"
-                  :class="isReady ? 'transition-all duration-200' : ''"
-                  alt="Steam Avatar"
-                  :src="user.avatarFull"
-                  :style="{
-                    width: menuCollapsed ? '40px' : '100px',
-                    height: menuCollapsed ? '40px' : '100px',
-                  }"
-                />
-              </a>
-              <div v-if="!menuCollapsed" class="mt-3 text-center">
-                <span class="font-bold text-[15px]">{{ user.personaName }}</span>
-              </div>
-            </div>
-            <div v-else class="flex items-center flex-col">
-              <div
-                :style="{
-                  width: menuCollapsed ? '40px' : '100px',
-                  height: menuCollapsed ? '40px' : '100px',
-                  borderRadius: '50%',
-                }"
-                class="bg-gray-800 animate-pulse"
-                :class="isReady ? 'transition-all duration-200' : ''"
+  <SLayout>
+    <SLayoutSider v-if="isLoggedIn" data-tutorial="sidebar-nav">
+      <nav
+        class="flex items-center w-full px-3 gap-2 py-1.5 min-h-[56px]"
+        role="navigation"
+        :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
+      >
+        <!-- Left side: User capsule + Team Toggle -->
+        <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0">
+          <!-- User capsule: Avatar + Name + Settings -->
+          <div v-if="user" class="nav-user-capsule">
+            <a
+              :href="user.profileUrl"
+              target="_blank"
+              rel="noopener noreferrer"
+              :aria-label="String(t('auth.openSteamProfile'))"
+              class="nav-user-avatar"
+            >
+              <img
+                class="rounded-full"
+                alt="Steam Avatar"
+                :src="user.avatarFull"
+                style="width: 34px; height: 34px"
               />
-              <div v-if="!menuCollapsed" class="mt-3">
-                <div class="h-4 w-20 bg-gray-800 rounded animate-pulse" />
-              </div>
-            </div>
-          </div>
-
-          <!-- Middle: Menu Sections with equal spacing -->
-          <div class="flex flex-col justify-between flex-1">
-            <!-- Home Menu Section -->
-            <div class="flex flex-col">
-              <NMenu
-                :collapsed="menuCollapsed"
-                :collapsed-icon-size="26"
-                :icon-size="26"
-                :indent="28"
-                :options="translatedHomeMenuOptions"
-                :value="selectedKey"
-                class="text-[15px]"
-                @update:value="handleSelect"
-              />
-            </div>
-
-            <!-- Weapon Menu Section -->
-            <div class="flex flex-col">
-              <div v-if="!menuCollapsed" class="px-4">
-                <span class="text-xs font-bold text-gray-400">{{ t('navigation.weapons') }}</span>
-              </div>
-              <div v-else class="mx-3 my-1 border-t border-gray-700" />
-              <NMenu
-                :collapsed="menuCollapsed"
-                :collapsed-icon-size="36"
-                :icon-size="45"
-                :indent="24"
-                :options="translatedWeaponMenuOptions"
-                :value="selectedKey"
-                class="text-[15px]"
-                @update:value="handleSelect"
-              />
-            </div>
-
-            <!-- Melee Menu Section -->
-            <div class="flex flex-col">
-              <div v-if="!menuCollapsed" class="px-4">
-                <span class="text-xs font-bold text-gray-400">{{ t('navigation.melee') }}</span>
-              </div>
-              <div v-else class="mx-3 my-1 border-t border-gray-700" />
-              <NMenu
-                :collapsed="menuCollapsed"
-                :collapsed-icon-size="36"
-                :icon-size="45"
-                :indent="24"
-                :options="translatedEquipmentMenuOptions"
-                :value="selectedKey"
-                class="text-[15px]"
-                @update:value="handleSelect"
-              />
-            </div>
-
-            <!-- Extras Menu Section -->
-            <div class="flex flex-col">
-              <div v-if="!menuCollapsed" class="px-4">
-                <span class="text-xs font-bold text-gray-400">{{ t('navigation.extras') }}</span>
-              </div>
-              <div v-else class="mx-3 my-1 border-t border-gray-700" />
-              <NMenu
-                :collapsed="menuCollapsed"
-                :collapsed-icon-size="26"
-                :icon-size="30"
-                :indent="24"
-                :options="translatedExtrasMenuOptions"
-                :value="selectedKey"
-                class="text-[15px]"
-                @update:value="handleSelect"
+            </a>
+            <span class="nav-user-name">{{ user.personaName }}</span>
+            <div data-tutorial="settings-dropdown">
+              <SettingsDropdown
+                trigger="hover"
+                variant="icon"
+                size="md"
+                :aria-label="t('navigation.settings') || 'Settings'"
+                @logout="showLogoutModal = true"
               />
             </div>
           </div>
 
-          <!-- Bottom: Actions Section -->
-          <div :class="menuCollapsed ? 'px-2 py-2' : 'p-4'">
-            <div v-if="!menuCollapsed" class="mb-2">
-              <span class="text-xs font-bold text-gray-400">{{ t('navigation.actions') }}</span>
-            </div>
-            <div v-else class="mx-1 mb-2 border-t border-gray-700" />
-            <div class="flex flex-col gap-2 items-center">
-              <!-- Logout button -->
-              <NTooltip v-if="menuCollapsed" placement="right">
-                <template #trigger>
-                  <SButton
-                    variant="light"
-                    :color="buttonColor.error"
-                    icon-only
-                    rounded="full"
-                    @click="showLogoutModal = true"
-                  >
-                    <template #icon-left>
-                      <LogOutIcon :size="16" />
-                    </template>
-                  </SButton>
-                </template>
-                {{ t('auth.logoutButton') }}
-              </NTooltip>
-              <SButton
-                v-else
-                variant="light"
-                :color="buttonColor.error"
-                class="w-full"
-                @click="showLogoutModal = true"
-              >
-                <template #icon-left>
-                  <LogOutIcon :size="16" />
-                </template>
-                {{ t('auth.logoutButton') }}
-              </SButton>
+          <!-- Global Team Toggle -->
+          <TeamToggle />
+        </div>
 
-              <!-- Global Team Toggle -->
-              <TeamToggle />
+        <!-- Center: All navigation menus -->
+        <div class="flex items-center gap-1 flex-shrink-0">
+          <!-- Home menu -->
+          <NMenu
+            mode="horizontal"
+            :icon-size="24"
+            :options="translatedHomeMenuOptions"
+            :value="selectedKey"
+            class="text-[14px] top-bar-menu"
+            @update:value="handleSelect"
+          />
 
-              <!-- Language switcher + Mode toggle row -->
-              <div v-if="menuCollapsed" class="flex flex-col gap-2 items-center">
-                <NDropdown
-                  :options="languageDropdownOptions"
-                  trigger="click"
-                  :menu-props="() => ({ class: 'glassmorphism-dropdown' })"
-                  placement="right-start"
-                  @select="handleLanguageSelect"
-                >
-                  <NTooltip placement="right">
-                    <template #trigger>
-                      <SButton variant="ghost" icon-only rounded="full" size="sm">
-                        <template #icon-left>
-                          <LanguagesIcon :size="18" />
-                        </template>
-                      </SButton>
-                    </template>
-                    {{ currentLocaleDisplay }}
-                  </NTooltip>
-                </NDropdown>
+          <!-- Weapons menu -->
+          <NMenu
+            mode="horizontal"
+            :icon-size="36"
+            :options="translatedWeaponMenuOptions"
+            :value="selectedKey"
+            class="text-[14px] top-bar-menu"
+            @update:value="handleSelect"
+          />
 
-                <NTooltip placement="right">
-                  <template #trigger>
-                    <SButton variant="ghost" icon-only rounded="full" size="sm" @click="toggleMode">
-                      <template #icon-left>
-                        <PanelTopIcon :size="18" />
-                      </template>
-                    </SButton>
-                  </template>
-                  Switch to top bar
-                </NTooltip>
-              </div>
-              <div v-else class="flex gap-2 w-full">
-                <NDropdown
-                  :options="languageDropdownOptions"
-                  trigger="click"
-                  :menu-props="() => ({ class: 'glassmorphism-dropdown' })"
-                  placement="right-start"
-                  @select="handleLanguageSelect"
-                >
-                  <SButton variant="ghost" class="flex-1" size="sm">
-                    <template #icon-left>
-                      <LanguagesIcon :size="18" />
-                    </template>
-                    {{ currentLocaleDisplay }}
-                  </SButton>
-                </NDropdown>
+          <!-- Equipment menu -->
+          <NMenu
+            mode="horizontal"
+            :icon-size="36"
+            :options="translatedEquipmentMenuOptions"
+            :value="selectedKey"
+            class="text-[14px] top-bar-menu"
+            @update:value="handleSelect"
+          />
 
-                <NTooltip placement="right">
-                  <template #trigger>
-                    <SButton variant="ghost" icon-only rounded="full" size="sm" @click="toggleMode">
-                      <template #icon-left>
-                        <PanelTopIcon :size="18" />
-                      </template>
-                    </SButton>
-                  </template>
-                  Switch to top bar
-                </NTooltip>
-              </div>
-            </div>
+          <!-- Extras menu -->
+          <NMenu
+            mode="horizontal"
+            :icon-size="24"
+            :options="translatedExtrasMenuOptions"
+            :value="selectedKey"
+            class="text-[14px] top-bar-menu"
+            @update:value="handleSelect"
+          />
+        </div>
+
+        <!-- Right side: Loadout -->
+        <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0 justify-end">
+          <div v-if="user" data-tutorial="loadout-area">
+            <LoadoutSelector />
           </div>
         </div>
-      </template>
-
-      <!-- TOP MODE -->
-      <template v-else>
-        <nav
-          class="flex items-center w-full px-3 gap-2 py-1.5 min-h-[56px]"
-          role="navigation"
-          :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
-        >
-          <!-- Left side: User capsule + Team Toggle -->
-          <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0">
-            <!-- User capsule: Avatar + Name + Settings -->
-            <div v-if="user" class="nav-user-capsule">
-              <a
-                :href="user.profileUrl"
-                target="_blank"
-                rel="noopener noreferrer"
-                :aria-label="String(t('auth.openSteamProfile'))"
-                class="nav-user-avatar"
-              >
-                <img
-                  class="rounded-full"
-                  alt="Steam Avatar"
-                  :src="user.avatarFull"
-                  style="width: 34px; height: 34px"
-                />
-              </a>
-              <span class="nav-user-name">{{ user.personaName }}</span>
-              <div data-tutorial="settings-dropdown">
-                <SettingsDropdown
-                  trigger="hover"
-                  variant="icon"
-                  size="md"
-                  :aria-label="t('navigation.settings') || 'Settings'"
-                  @logout="showLogoutModal = true"
-                />
-              </div>
-            </div>
-
-            <!-- Global Team Toggle -->
-            <TeamToggle />
-          </div>
-
-          <!-- Center: All navigation menus -->
-          <div class="flex items-center gap-1 flex-shrink-0">
-            <!-- Home menu -->
-            <NMenu
-              mode="horizontal"
-              :icon-size="24"
-              :options="translatedHomeMenuOptions"
-              :value="selectedKey"
-              class="text-[14px] top-bar-menu"
-              @update:value="handleSelect"
-            />
-
-            <!-- Weapons menu -->
-            <NMenu
-              mode="horizontal"
-              :icon-size="36"
-              :options="translatedWeaponMenuOptions"
-              :value="selectedKey"
-              class="text-[14px] top-bar-menu"
-              @update:value="handleSelect"
-            />
-
-            <!-- Equipment menu -->
-            <NMenu
-              mode="horizontal"
-              :icon-size="36"
-              :options="translatedEquipmentMenuOptions"
-              :value="selectedKey"
-              class="text-[14px] top-bar-menu"
-              @update:value="handleSelect"
-            />
-
-            <!-- Extras menu -->
-            <NMenu
-              mode="horizontal"
-              :icon-size="24"
-              :options="translatedExtrasMenuOptions"
-              :value="selectedKey"
-              class="text-[14px] top-bar-menu"
-              @update:value="handleSelect"
-            />
-          </div>
-
-          <!-- Right side: Loadout, Mode toggle -->
-          <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0 justify-end">
-            <div v-if="user" data-tutorial="loadout-area">
-              <LoadoutSelector />
-            </div>
-
-            <!-- Mode toggle -->
-            <NTooltip placement="bottom">
-              <template #trigger>
-                <SButton
-                  variant="ghost"
-                  icon-only
-                  rounded="full"
-                  size="md"
-                  :aria-label="t('navigation.switchToSidebar') || 'Switch to sidebar'"
-                  @click="toggleMode"
-                >
-                  <template #icon-left>
-                    <PanelLeftIcon :size="20" />
-                  </template>
-                </SButton>
-              </template>
-              Switch to sidebar
-            </NTooltip>
-          </div>
-        </nav>
-      </template>
+      </nav>
     </SLayoutSider>
-    <SLayoutContent :sider-position="sidebarMode" class="min-w-0 min-h-0 flex-1">
+    <SLayoutContent class="min-w-0 min-h-0 flex-1">
       <!-- Maintenance Mode Overlay -->
       <div
         v-if="isMaintenanceMode"
@@ -640,30 +325,7 @@ function handleLanguageSelect(key: string) {
         <div class="absolute bottom-4 text-gray-500 text-sm">&copy; saka 2025</div>
       </div>
       <div v-else class="h-full flex flex-col">
-        <div
-          class="flex-1 relative"
-          :class="sidebarMode === 'left' ? 'overflow-auto' : ''"
-          style="contain: layout style"
-        >
-          <!-- Secondary Menu — absolutely positioned so content flows underneath -->
-          <div
-            v-if="sidebarMode === 'left'"
-            class="p-2 sticky top-0 z-10 pointer-events-none"
-            style="
-              background: rgba(0, 0, 0, 0.15);
-              backdrop-filter: blur(12px);
-              -webkit-backdrop-filter: blur(12px);
-            "
-          >
-            <div class="flex justify-end items-end">
-              <div class="flex items-center gap-6">
-                <div v-if="user" class="menu-item group pointer-events-auto">
-                  <LoadoutSelector />
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Secondary Menu End -->
+        <div class="flex-1 relative" style="contain: layout style">
           <!-- Site Announcement Banner -->
           <div v-if="showAnnouncement" class="announcement-banner">
             <span>{{ siteAnnouncement }}</span>
@@ -748,23 +410,6 @@ body
 .n-menu
   flex-shrink: 0
 
-  &.n-menu--collapsed .n-menu-item .n-menu-item-content
-    padding-left: 0 !important
-    padding-right: 0 !important
-    display: flex !important
-    justify-content: center !important
-
-    .n-menu-item-content__icon
-      margin-right: 0 !important
-
-    .n-menu-item-content-header
-      display: none !important
-      width: 0 !important
-      overflow: hidden !important
-
-    .n-menu-item-content__arrow
-      display: none !important
-
 .menu-item
   position: relative
   display: flex
@@ -817,14 +462,6 @@ body
   text-overflow: ellipsis
   max-width: 120px
 
-.avatar-link
-  cursor: pointer
-  transition: opacity 0.2s ease, transform 0.2s ease
-  display: block
-  &:hover
-    opacity: 0.8
-    transform: scale(1.2)
-
 // Top bar menu: prevent NMenu from stretching full width
 .top-bar-menu
   flex-shrink: 0
@@ -870,10 +507,6 @@ body
     align-items: center !important
     justify-content: center !important
     padding: 0 8px !important
-
-// Active language option highlight in dropdown
-.lang-option-active .n-dropdown-option-body::before
-  background-color: rgba(99, 226, 183, 0.1) !important
 
 // Announcement banner
 .announcement-banner

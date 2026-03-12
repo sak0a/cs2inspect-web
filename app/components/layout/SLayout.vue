@@ -1,20 +1,7 @@
-<script setup lang="ts">
-interface Props {
-  hasSider?: boolean
-  siderPosition?: 'left' | 'top'
-}
-
-withDefaults(defineProps<Props>(), {
-  hasSider: false,
-  siderPosition: 'left',
-})
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <div
-    class="flex h-screen bg-transparent relative"
-    :class="[hasSider && siderPosition === 'left' ? 'flex-row' : 'flex-col overflow-auto']"
-  >
+  <div class="flex flex-col h-screen bg-transparent relative overflow-auto">
     <slot />
   </div>
 </template>
