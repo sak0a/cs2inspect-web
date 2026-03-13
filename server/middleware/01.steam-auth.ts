@@ -7,8 +7,9 @@ import { Logger } from '~/server/utils/logger'
 import { db } from '~/server/database/client'
 import { userProfiles } from '~/server/database/schema'
 import { getCachedSetting } from '~/server/utils/settingsCache'
+import { env } from '~/server/env'
 
-const JWT_SECRET = process.env.JWT_TOKEN || ''
+const JWT_SECRET = env.JWT_TOKEN
 
 export default defineEventHandler(async (event) => {
   const url = event.node.req.url
