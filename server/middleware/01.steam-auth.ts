@@ -7,9 +7,11 @@ import { Logger } from '~/server/utils/logger'
 import { db } from '~/server/database/client'
 import { userProfiles } from '~/server/database/schema'
 import { getCachedSetting } from '~/server/utils/settingsCache'
-import { env } from '~/server/env'
 
-const JWT_SECRET = env.JWT_TOKEN
+// Use process.env directly instead of ~/server/env to avoid pulling
+// @t3-oss/env-nuxt validation into the Nitro prerender bundle, which
+// would fail in CI where DATABASE_HOST etc. are not set.
+const JWT_SECRET = process.env.JWT_TOKEN || ''
 
 export default defineEventHandler(async (event) => {
   const url = event.node.req.url
