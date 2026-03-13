@@ -10,6 +10,56 @@ import { useErrorHandling } from '~/server/utils/errorHandler'
 import { createSuccessResponse, createResponseMeta } from '~/server/utils/api/responseHelpers'
 import { ADMIN_ERROR_CODES } from '~/server/utils/constants'
 
+/** Hosts that the fetch-test endpoint is allowed to reach. */
+const ALLOWED_HOSTS = new Set([
+  'api.steampowered.com',
+  'steamcommunity.com',
+  'community.cloudflare.steamstatic.com',
+])
+
+function isAllowedUrl(urlString: string): boolean {
+  let parsed: URL
+  try {
+    parsed = new URL(urlString)
+  } catch {
+    return false
+  }
+
+  // Only allow http and https schemes
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return false
+  }
+
+  // Allow configured steam service URL (internal network)
+  const steamServiceUrl = process.env.STEAM_SERVICE_URL
+  if (steamServiceUrl) {
+    try {
+      const steamServiceHost = new URL(steamServiceUrl).hostname
+      if (parsed.hostname === steamServiceHost) return true
+    } catch {
+      // ignore invalid STEAM_SERVICE_URL
+    }
+  }
+
+  // Allow configured proxy health base URL
+  const proxyHealthUrl = process.env.PROXY_HEALTH_BASE_URL
+  if (proxyHealthUrl) {
+    try {
+      const proxyHost = new URL(proxyHealthUrl).hostname
+      if (parsed.hostname === proxyHost) return true
+    } catch {
+      // ignore
+    }
+  }
+
+  if (ALLOWED_HOSTS.has(parsed.hostname)) return true
+
+  // Allow localhost/127.0.0.1 for local service connectivity testing
+  if (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1') return true
+
+  return false
+}
+
 interface FetchTestRequest {
   url: string
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
@@ -31,11 +81,12 @@ export default useErrorHandling(async (event) => {
     throw createError({ statusCode: 400, message: 'url is required' })
   }
 
-  // Basic URL validation
-  try {
-    new URL(input.url)
-  } catch {
-    throw createError({ statusCode: 400, message: 'Invalid URL format' })
+  // Validate URL against allowlist to prevent SSRF
+  if (!isAllowedUrl(input.url)) {
+    throw createError({
+      statusCode: 403,
+      message: 'URL not allowed. Only Steam API, configured services, and localhost are permitted.',
+    })
   }
 
   const method = input.method || 'GET'

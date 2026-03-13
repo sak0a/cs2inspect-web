@@ -1,5 +1,5 @@
 import { createReadStream, statSync, existsSync } from 'fs'
-import { join, extname } from 'path'
+import { resolve, extname } from 'path'
 import { sendStream, setHeader, createError } from 'h3'
 import { Logger } from '~/server/utils/logger'
 
@@ -12,7 +12,13 @@ export default defineEventHandler(async (event) => {
 
   // Sanitize path to prevent directory traversal
   const sanitizedPath = path.replace(/\.\./g, '')
-  const filePath = join(process.cwd(), 'storage', 'stickers', sanitizedPath)
+  const baseDir = resolve(process.cwd(), 'storage', 'stickers')
+  const filePath = resolve(baseDir, sanitizedPath)
+
+  // Jail check: ensure resolved path stays within the stickers directory
+  if (!filePath.startsWith(baseDir + '/') && filePath !== baseDir) {
+    throw createError({ statusCode: 403, message: 'Access denied' })
+  }
 
   if (!existsSync(filePath)) {
     throw createError({ statusCode: 404, message: 'Sticker not found' })
