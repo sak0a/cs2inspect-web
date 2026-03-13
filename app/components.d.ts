@@ -13,7 +13,6 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     NAlert: typeof import('naive-ui')['NAlert']
-    NButtonGroup: typeof import('naive-ui')['NButtonGroup']
     NCard: typeof import('naive-ui')['NCard']
     NCheckbox: typeof import('naive-ui')['NCheckbox']
     NCheckboxGroup: typeof import('naive-ui')['NCheckboxGroup']
@@ -25,7 +24,6 @@ declare module 'vue' {
     NDivider: typeof import('naive-ui')['NDivider']
     NDrawer: typeof import('naive-ui')['NDrawer']
     NDrawerContent: typeof import('naive-ui')['NDrawerContent']
-    NDropdown: typeof import('naive-ui')['NDropdown']
     NEmpty: typeof import('naive-ui')['NEmpty']
     NH2: typeof import('naive-ui')['NH2']
     NH3: typeof import('naive-ui')['NH3']
@@ -59,7 +57,6 @@ declare module 'vue' {
 // For TSX support
 declare global {
   const NAlert: (typeof import('naive-ui'))['NAlert']
-  const NButtonGroup: (typeof import('naive-ui'))['NButtonGroup']
   const NCard: (typeof import('naive-ui'))['NCard']
   const NCheckbox: (typeof import('naive-ui'))['NCheckbox']
   const NCheckboxGroup: (typeof import('naive-ui'))['NCheckboxGroup']
@@ -71,7 +68,6 @@ declare global {
   const NDivider: (typeof import('naive-ui'))['NDivider']
   const NDrawer: (typeof import('naive-ui'))['NDrawer']
   const NDrawerContent: (typeof import('naive-ui'))['NDrawerContent']
-  const NDropdown: (typeof import('naive-ui'))['NDropdown']
   const NEmpty: (typeof import('naive-ui'))['NEmpty']
   const NH2: (typeof import('naive-ui'))['NH2']
   const NH3: (typeof import('naive-ui'))['NH3']
