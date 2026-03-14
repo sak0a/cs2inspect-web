@@ -16,6 +16,13 @@ const trans = {
   decodedJsonLabel: computed(() => t('inspectLink.decodedJsonLabel') as string),
   copy: computed(() => t('common.copy') as string),
   generateButton: computed(() => t('inspectLink.generateButton') as string),
+  featureDecodingTitle: computed(() => t('inspectLink.features.decodingTitle') as string),
+  featureDecodingDesc: computed(() => t('inspectLink.features.decodingDescription') as string),
+  featureEncodingTitle: computed(() => t('inspectLink.features.encodingTitle') as string),
+  featureEncodingDesc: computed(() => t('inspectLink.features.encodingDescription') as string),
+  featureMetadataTitle: computed(() => t('inspectLink.features.metadataTitle') as string),
+  featureMetadataDesc: computed(() => t('inspectLink.features.metadataDescription') as string),
+  apiStatus: computed(() => t('inspectLink.apiStatus') as string),
 }
 
 const inspectUrl = ref('')
@@ -101,7 +108,7 @@ const handleGenerate = async () => {
       message.error(t('inspectLink.invalidJson') as string)
     } else {
       const errorMessage = err instanceof Error ? err.message : String(err)
-      message.error(errorMessage || 'Failed to generate inspect link')
+      message.error(errorMessage || (t('inspectLink.generateFailed') as string))
     }
   } finally {
     isGenerating.value = false
@@ -290,7 +297,7 @@ onMounted(() => {
             <div class="flex items-center justify-between pt-4 border-t border-white/5">
               <div class="text-xs text-gray-500 font-medium flex items-center gap-2">
                 <div class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse" />
-                API connected and ready
+                {{ trans.apiStatus.value }}
               </div>
               <SButton
                 :color="buttonColor.info"
@@ -350,9 +357,9 @@ onMounted(() => {
               <line x1="12" y1="22.08" x2="12" y2="12" />
             </svg>
           </div>
-          <h3 class="text-white font-bold">Real-time Decoding</h3>
+          <h3 class="text-white font-bold">{{ trans.featureDecodingTitle.value }}</h3>
           <p class="text-xs text-gray-500">
-            Instantly convert masked and unmasked links to readable JSON format.
+            {{ trans.featureDecodingDesc.value }}
           </p>
         </div>
         <div
@@ -373,9 +380,9 @@ onMounted(() => {
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <h3 class="text-white font-bold">Secure Encoding</h3>
+          <h3 class="text-white font-bold">{{ trans.featureEncodingTitle.value }}</h3>
           <p class="text-xs text-gray-500">
-            Safe and standard-compliant generation of Steam-compatible inspect links.
+            {{ trans.featureEncodingDesc.value }}
           </p>
         </div>
         <div
@@ -399,9 +406,9 @@ onMounted(() => {
               />
             </svg>
           </div>
-          <h3 class="text-white font-bold">Metadata Support</h3>
+          <h3 class="text-white font-bold">{{ trans.featureMetadataTitle.value }}</h3>
           <p class="text-xs text-gray-500">
-            Including stickers, keychains, and custom names in your generated links.
+            {{ trans.featureMetadataDesc.value }}
           </p>
         </div>
       </div>

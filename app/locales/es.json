@@ -491,7 +491,17 @@
     "invalidJson": "Datos JSON no válidos",
     "decodeSuccess": "Enlace de inspección decodificado correctamente",
     "generateSuccess": "Enlace de inspección generado correctamente",
-    "copySuccess": "Enlace de inspección copiado al portapapeles"
+    "copySuccess": "Enlace de inspección copiado al portapapeles",
+    "generateFailed": "Error al generar el enlace de inspección",
+    "features": {
+      "decodingTitle": "Decodificación en tiempo real",
+      "decodingDescription": "Convierte instantáneamente enlaces enmascarados y desenmascarados a formato JSON legible.",
+      "encodingTitle": "Codificación segura",
+      "encodingDescription": "Generación segura y conforme a estándares de enlaces de inspección compatibles con Steam.",
+      "metadataTitle": "Soporte de metadatos",
+      "metadataDescription": "Incluye stickers, llaveros y nombres personalizados en tus enlaces generados."
+    },
+    "apiStatus": "API conectada y lista"
   },
   "tutorial": {
     "menuTitle": "Tutoriales",

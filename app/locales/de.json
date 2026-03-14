@@ -491,7 +491,17 @@
     "invalidJson": "Ungültige JSON-Daten",
     "decodeSuccess": "Inspect-Link erfolgreich dekodiert",
     "generateSuccess": "Inspect-Link erfolgreich generiert",
-    "copySuccess": "Inspect-Link in die Zwischenablage kopiert"
+    "copySuccess": "Inspect-Link in die Zwischenablage kopiert",
+    "generateFailed": "Inspect-Link konnte nicht generiert werden",
+    "features": {
+      "decodingTitle": "Echtzeit-Dekodierung",
+      "decodingDescription": "Maskierte und unmaskierte Links sofort in lesbares JSON-Format umwandeln.",
+      "encodingTitle": "Sichere Kodierung",
+      "encodingDescription": "Sichere und standardkonforme Generierung von Steam-kompatiblen Inspect-Links.",
+      "metadataTitle": "Metadaten-Unterstützung",
+      "metadataDescription": "Einschließlich Sticker, Schlüsselanhänger und benutzerdefinierte Namen in deinen generierten Links."
+    },
+    "apiStatus": "API verbunden und bereit"
   },
   "tutorial": {
     "menuTitle": "Tutorials",

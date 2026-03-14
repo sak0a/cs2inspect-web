@@ -491,7 +491,17 @@
     "invalidJson": "Données JSON invalides",
     "decodeSuccess": "Lien d'inspection décodé avec succès",
     "generateSuccess": "Lien d'inspection généré avec succès",
-    "copySuccess": "Lien d'inspection copié dans le presse-papiers"
+    "copySuccess": "Lien d'inspection copié dans le presse-papiers",
+    "generateFailed": "Échec de la génération du lien d'inspection",
+    "features": {
+      "decodingTitle": "Décodage en temps réel",
+      "decodingDescription": "Convertissez instantanément les liens masqués et non masqués en format JSON lisible.",
+      "encodingTitle": "Encodage sécurisé",
+      "encodingDescription": "Génération sûre et conforme aux standards de liens d'inspection compatibles Steam.",
+      "metadataTitle": "Support des métadonnées",
+      "metadataDescription": "Incluant les stickers, porte-clés et noms personnalisés dans vos liens générés."
+    },
+    "apiStatus": "API connectée et prête"
   },
   "tutorial": {
     "menuTitle": "Tutoriels",

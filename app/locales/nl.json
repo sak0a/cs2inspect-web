@@ -491,7 +491,17 @@
     "invalidJson": "Ongeldige JSON-gegevens",
     "decodeSuccess": "Inspectielink succesvol gedecodeerd",
     "generateSuccess": "Inspectielink succesvol gegenereerd",
-    "copySuccess": "Inspectielink gekopieerd naar klembord"
+    "copySuccess": "Inspectielink gekopieerd naar klembord",
+    "generateFailed": "Inspectielink genereren mislukt",
+    "features": {
+      "decodingTitle": "Realtime decodering",
+      "decodingDescription": "Converteer gemaskeerde en ongemaskeerde links direct naar leesbaar JSON-formaat.",
+      "encodingTitle": "Veilige codering",
+      "encodingDescription": "Veilige en standaardconforme generatie van Steam-compatibele inspectielinks.",
+      "metadataTitle": "Metadata-ondersteuning",
+      "metadataDescription": "Inclusief stickers, sleutelhangers en aangepaste namen in je gegenereerde links."
+    },
+    "apiStatus": "API verbonden en gereed"
   },
   "tutorial": {
     "menuTitle": "Tutorials",

@@ -491,7 +491,17 @@
     "invalidJson": "Неверные JSON-данные",
     "decodeSuccess": "Inspect-ссылка успешно декодирована",
     "generateSuccess": "Inspect-ссылка успешно сгенерирована",
-    "copySuccess": "Inspect-ссылка скопирована в буфер обмена"
+    "copySuccess": "Inspect-ссылка скопирована в буфер обмена",
+    "generateFailed": "Не удалось сгенерировать inspect-ссылку",
+    "features": {
+      "decodingTitle": "Декодирование в реальном времени",
+      "decodingDescription": "Мгновенно конвертируйте маскированные и немаскированные ссылки в читаемый формат JSON.",
+      "encodingTitle": "Безопасное кодирование",
+      "encodingDescription": "Безопасная и стандартная генерация inspect-ссылок, совместимых со Steam.",
+      "metadataTitle": "Поддержка метаданных",
+      "metadataDescription": "Включая стикеры, брелоки и пользовательские имена в сгенерированных ссылках."
+    },
+    "apiStatus": "API подключён и готов"
   },
   "tutorial": {
     "menuTitle": "Обучение",
