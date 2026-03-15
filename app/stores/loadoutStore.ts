@@ -51,15 +51,7 @@ export const useLoadoutStore = defineStore('loadout', {
           loadoutId: String(this.selectedLoadoutId),
           steamId: String(steamId),
         })
-
         this.currentSkins = response.data ?? []
-        console.info(
-          `Fetched ${this.currentSkins.length} skins for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`
-        )
-        console.log('Fetched skins: ', this.currentSkins)
-      } catch (error) {
-        console.error(error)
-        throw error
       } finally {
         this.isLoading = false
       }
@@ -72,15 +64,7 @@ export const useLoadoutStore = defineStore('loadout', {
           loadoutId: String(this.selectedLoadoutId),
           steamId: String(steamId),
         })
-
         this.currentSkins = response.data ?? []
-        console.info(
-          `Fetched ${this.currentSkins.length} knives for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`
-        )
-        console.log('Fetched knives: ', this.currentSkins)
-      } catch (error) {
-        console.error(error)
-        throw error
       } finally {
         this.isLoading = false
       }
@@ -93,15 +77,7 @@ export const useLoadoutStore = defineStore('loadout', {
           loadoutId: String(this.selectedLoadoutId),
           steamId: String(steamId),
         })
-
         this.currentSkins = response.data ?? []
-        console.info(
-          `Fetched ${this.currentSkins.length} gloves for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`
-        )
-        console.log('Fetched gloves: ', this.currentSkins)
-      } catch (error) {
-        console.error(error)
-        throw error
       } finally {
         this.isLoading = false
       }
@@ -114,15 +90,7 @@ export const useLoadoutStore = defineStore('loadout', {
           loadoutId: String(this.selectedLoadoutId),
           steamId: String(steamId),
         })
-
         this.currentSkins = response.data ?? []
-        console.info(
-          `Fetched ${this.currentSkins.length} music kits for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`
-        )
-        console.log('Fetched music kits: ', this.currentSkins)
-      } catch (error) {
-        console.error(error)
-        throw error
       } finally {
         this.isLoading = false
       }
@@ -135,15 +103,7 @@ export const useLoadoutStore = defineStore('loadout', {
           loadoutId: String(this.selectedLoadoutId),
           steamId: String(steamId),
         })
-
         this.currentSkins = response.data ?? []
-        console.info(
-          `Fetched ${this.currentSkins.length} pins for loadout ${response.meta?.loadoutId || 'unknown'} from ${response.meta?.steamId || 'unknown'}`
-        )
-        console.log('Fetched pins: ', this.currentSkins)
-      } catch (error) {
-        console.error(error)
-        throw error
       } finally {
         this.isLoading = false
       }
