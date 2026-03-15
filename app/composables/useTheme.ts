@@ -1,7 +1,7 @@
 // @saka-ui/registry v0.1.0 — composable:useTheme
 // Source: saka-ui@0.1.0
 // Do not remove this header if you want `saka-ui diff` to work.
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
 
 export type Theme = 'light' | 'dark' | 'system'
 
@@ -67,11 +67,11 @@ export function useTheme() {
       }
     }
 
-    // Modern addEventListener
     mediaQuery.addEventListener('change', handler)
 
-    // Cleanup not strictly necessary for global composable used in root,
-    // but good practice if used in smaller components
+    onBeforeUnmount(() => {
+      mediaQuery.removeEventListener('change', handler)
+    })
   })
 
   return {
