@@ -43,6 +43,18 @@ const STORAGE_KEY_CUSTOMIZATION = 'cs2inspect-customization'
 const STORAGE_KEY_ITEM_TYPE = 'cs2inspect-item-type'
 
 /**
+ * CS2 defindex ranges for item type detection
+ */
+const DEFINDEX_RANGES = {
+  KNIFE: { min: 500, max: 525, specials: [42, 59] },
+  GLOVE: { min: 5000, max: 5035 },
+  AGENT: { min: 5400, max: 5500 },
+  MUSICKIT: { min: 1, max: 50, exclude: [42] },
+  PIN: { min: 6000, max: 6100 },
+  WEAPON: { min: 1, max: 500 },
+} as const
+
+/**
  * Composable for handling inspect item functionality
  *
  * @description Provides functionality for analyzing inspect links,
@@ -87,32 +99,30 @@ export function useInspectItem() {
       return null
     }
 
-    // Knife defindex ranges
-    if ((defindex >= 500 && defindex <= 525) || defindex === 42 || defindex === 59) {
+    const { KNIFE, GLOVE, AGENT, MUSICKIT, PIN, WEAPON } = DEFINDEX_RANGES
+
+    if (
+      (defindex >= KNIFE.min && defindex <= KNIFE.max) ||
+      KNIFE.specials.includes(defindex as (typeof KNIFE.specials)[number])
+    ) {
       return 'knife'
-    }
-    // Glove defindex ranges
-    else if (defindex >= 5000 && defindex <= 5035) {
+    } else if (defindex >= GLOVE.min && defindex <= GLOVE.max) {
       return 'glove'
-    }
-    // Agent defindex ranges
-    else if (defindex >= 5400 && defindex <= 5500) {
+    } else if (defindex >= AGENT.min && defindex <= AGENT.max) {
       return 'agent'
-    }
-    // Music kit defindex ranges
-    else if (defindex >= 1 && defindex <= 50 && defindex !== 42) {
+    } else if (
+      defindex >= MUSICKIT.min &&
+      defindex <= MUSICKIT.max &&
+      !MUSICKIT.exclude.includes(defindex as (typeof MUSICKIT.exclude)[number])
+    ) {
       return 'musickit'
-    }
-    // Pin defindex ranges
-    else if (defindex >= 6000 && defindex <= 6100) {
+    } else if (defindex >= PIN.min && defindex <= PIN.max) {
       return 'pin'
-    }
-    // Default to weapon for standard weapon defindex ranges
-    else if (defindex >= 1 && defindex <= 500) {
+    } else if (defindex >= WEAPON.min && defindex <= WEAPON.max) {
       return 'weapon'
     }
 
-    return 'weapon' // Default fallback
+    return 'weapon'
   }
 
   /**
