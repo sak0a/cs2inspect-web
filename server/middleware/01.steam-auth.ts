@@ -11,7 +11,10 @@ import { getCachedSetting } from '~/server/utils/settingsCache'
 // Use process.env directly instead of ~/server/env to avoid pulling
 // @t3-oss/env-nuxt validation into the Nitro prerender bundle, which
 // would fail in CI where DATABASE_HOST etc. are not set.
-const JWT_SECRET = process.env.JWT_TOKEN || ''
+const JWT_SECRET = process.env.JWT_TOKEN
+if (!JWT_SECRET) {
+  throw new Error('JWT_TOKEN environment variable is required')
+}
 
 export default defineEventHandler(async (event) => {
   const url = event.node.req.url
