@@ -245,11 +245,10 @@ export function withErrorHandling<R>(
         )
       }
 
-      // Create standardized error response
+      // Create standardized error response (never leak raw error objects to clients)
       const errorInfo = createErrorInfo(
         errorCode,
-        error instanceof Error ? error.message : 'An unexpected error occurred',
-        error
+        error instanceof Error ? error.message : 'An unexpected error occurred'
       )
 
       createErrorResponse(errorInfo, meta, statusCode)
