@@ -83,43 +83,36 @@ export function useInspectItem() {
    * @returns Item type or null if invalid
    */
   const detectItemType = (defindex: number): ItemType | null => {
-    try {
-      if (!Number.isInteger(defindex) || defindex < 0) {
-        console.warn('Invalid defindex provided:', defindex)
-        return null
-      }
-
-      // Knife defindex ranges
-      if ((defindex >= 500 && defindex <= 525) || defindex === 42 || defindex === 59) {
-        return 'knife'
-      }
-      // Glove defindex ranges
-      else if (defindex >= 5000 && defindex <= 5035) {
-        return 'glove'
-      }
-      // Agent defindex ranges
-      else if (defindex >= 5400 && defindex <= 5500) {
-        return 'agent'
-      }
-      // Music kit defindex ranges
-      else if (defindex >= 1 && defindex <= 50 && defindex !== 42) {
-        return 'musickit'
-      }
-      // Pin defindex ranges
-      else if (defindex >= 6000 && defindex <= 6100) {
-        return 'pin'
-      }
-      // Default to weapon for standard weapon defindex ranges
-      else if (defindex >= 1 && defindex <= 500) {
-        return 'weapon'
-      }
-
-      console.warn('Unknown defindex range:', defindex)
-      return 'weapon' // Default fallback
-    } catch (error) {
-      console.error('Error detecting item type:', error)
+    if (!Number.isInteger(defindex) || defindex < 0) {
       return null
     }
+
+    // Knife defindex ranges
+    if ((defindex >= 500 && defindex <= 525) || defindex === 42 || defindex === 59) {
+      return 'knife'
+    }
+    // Glove defindex ranges
+    else if (defindex >= 5000 && defindex <= 5035) {
+      return 'glove'
+    }
+    // Agent defindex ranges
+    else if (defindex >= 5400 && defindex <= 5500) {
+      return 'agent'
+    }
+    // Music kit defindex ranges
+    else if (defindex >= 1 && defindex <= 50 && defindex !== 42) {
+      return 'musickit'
+    }
+    // Pin defindex ranges
+    else if (defindex >= 6000 && defindex <= 6100) {
+      return 'pin'
+    }
+    // Default to weapon for standard weapon defindex ranges
+    else if (defindex >= 1 && defindex <= 500) {
+      return 'weapon'
+    }
+
+    return 'weapon' // Default fallback
   }
 
   /**
@@ -174,7 +167,6 @@ export function useInspectItem() {
 
       return data
     } catch (err) {
-      console.error(`Error fetching item data for ${type}:`, err)
       error.value = err instanceof Error ? err.message : 'Failed to fetch item data'
       return null
     }
@@ -215,8 +207,6 @@ export function useInspectItem() {
 
       const data = responseData.item
 
-      console.log('Inspect link decoded data:', data)
-
       // Validate essential data
       if (!data || typeof data !== 'object') {
         throw new Error('Invalid response data from inspect API')
@@ -227,19 +217,13 @@ export function useInspectItem() {
       }
 
       // Normalize and validate numeric data with proper error handling
-      const normalizeNumber = (
-        value: unknown,
-        fieldName: string,
-        defaultValue: number = 0
-      ): number => {
+      const normalizeNumber = (value: unknown, defaultValue: number = 0): number => {
         if (value === undefined || value === null) {
-          console.warn(`No ${fieldName} found in inspect data, defaulting to ${defaultValue}`)
           return defaultValue
         }
 
         const numValue = Number(value)
         if (isNaN(numValue)) {
-          console.warn(`Invalid ${fieldName} value: ${value}, defaulting to ${defaultValue}`)
           return defaultValue
         }
 
@@ -247,24 +231,20 @@ export function useInspectItem() {
       }
 
       // Normalize data fields
-      data.defindex = normalizeNumber(data.defindex, 'defindex')
-      data.paintindex = normalizeNumber(data.paintindex, 'paintindex', 0)
-      data.paintseed = normalizeNumber(data.paintseed, 'paintseed', 0)
-      data.paintwear = normalizeNumber(data.paintwear, 'paintwear', 0)
+      data.defindex = normalizeNumber(data.defindex)
+      data.paintindex = normalizeNumber(data.paintindex, 0)
+      data.paintseed = normalizeNumber(data.paintseed, 0)
+      data.paintwear = normalizeNumber(data.paintwear, 0)
 
       // Ensure paintwear is within valid range (0-1) using branded type helper
       if (!isValidFloatValue(data.paintwear)) {
-        console.warn(`Invalid paintwear value: ${data.paintwear}, clamping to valid range`)
         data.paintwear = toFloatValueClamped(data.paintwear)
       }
 
       // Handle StatTrak information with proper validation
       try {
-        // Initialize StatTrak data
-        data.stattrak_count = normalizeNumber(data.killeatervalue, 'killeatervalue', 0)
+        data.stattrak_count = normalizeNumber(data.killeatervalue, 0)
         data.stattrak_enabled = false
-
-        console.log(`StatTrak count: ${data.stattrak_count}`)
 
         // Determine item type first for proper StatTrak handling
         const detectedType = detectItemType(data.defindex)
@@ -275,11 +255,7 @@ export function useInspectItem() {
         // StatTrak logic varies by item type
         if (detectedType === 'knife') {
           // For knives, killeaterscoretype must be 1 for StatTrak
-          const killeaterscoretype = normalizeNumber(
-            data.killeaterscoretype,
-            'killeaterscoretype',
-            0
-          )
+          const killeaterscoretype = normalizeNumber(data.killeaterscoretype, 0)
           data.stattrak_enabled = killeaterscoretype === 1
         } else if (detectedType === 'weapon') {
           // For weapons, having a StatTrak count > 0 indicates StatTrak
@@ -287,22 +263,17 @@ export function useInspectItem() {
         }
         // Gloves and other items don't support StatTrak
 
-        console.log(`StatTrak enabled: ${data.stattrak_enabled} for ${detectedType}`)
-
-        // Set item type
         itemType.value = detectedType
-        console.log(`Detected item type: ${detectedType} for defindex ${data.defindex}`)
 
         // Save item type to storage
         if (import.meta.client) {
           try {
             localStorage.setItem(STORAGE_KEY_ITEM_TYPE, detectedType)
-          } catch (storageError) {
-            console.warn('Failed to save item type to localStorage:', storageError)
+          } catch {
+            // Storage errors are non-critical
           }
         }
-      } catch (statTrakError) {
-        console.error('Error processing StatTrak information:', statTrakError)
+      } catch {
         // Set safe defaults
         data.stattrak_count = 0
         data.stattrak_enabled = false
@@ -321,10 +292,8 @@ export function useInspectItem() {
             data.paintindex,
             itemType.value
           )) as APISkin
-          console.log('Additional item data:', itemData)
         }
-      } catch (fetchError) {
-        console.warn('Failed to fetch additional item data:', fetchError)
+      } catch {
         // Continue with basic data
       }
 
@@ -400,17 +369,13 @@ export function useInspectItem() {
           }
         }
 
-        console.log('Created customization for', itemType.value, ':', customization.value)
-
         // Save to localStorage
         saveToStorage()
-      } catch (configError) {
-        console.error('Error creating item configuration:', configError)
+      } catch {
         error.value = 'Failed to create item configuration'
         clearItem()
       }
     } catch (err: unknown) {
-      console.error('Error analyzing inspect link:', err)
       error.value = err instanceof Error ? err.message : 'Failed to analyze inspect link'
       clearItem()
     } finally {
@@ -429,11 +394,9 @@ export function useInspectItem() {
         localStorage.setItem(STORAGE_KEY_ITEM, JSON.stringify(inspectedItem.value))
         localStorage.setItem(STORAGE_KEY_CUSTOMIZATION, JSON.stringify(customization.value))
         localStorage.setItem(STORAGE_KEY_ITEM_TYPE, itemType.value)
-        console.log('Item saved to localStorage')
       }
-    } catch (storageError) {
-      console.error('Error saving to localStorage:', storageError)
-      // Don't throw error, just log it
+    } catch {
+      // Storage errors are non-critical
     }
   }
 
@@ -452,7 +415,6 @@ export function useInspectItem() {
         // Validate item type
         const validItemTypes: ItemType[] = ['weapon', 'knife', 'glove', 'agent', 'musickit', 'pin']
         if (!validItemTypes.includes(storedItemType as ItemType)) {
-          console.warn('Invalid stored item type:', storedItemType)
           clearStorage()
           return
         }
@@ -463,7 +425,6 @@ export function useInspectItem() {
 
         // Basic validation
         if (!parsedItem || !parsedCustomization) {
-          console.warn('Invalid stored data structure')
           clearStorage()
           return
         }
@@ -472,11 +433,8 @@ export function useInspectItem() {
         inspectedItem.value = parsedItem
         customization.value = parsedCustomization
         itemType.value = storedItemType as ItemType
-
-        console.log('Item loaded from localStorage:', storedItemType)
       }
-    } catch (err) {
-      console.error('Error loading from localStorage:', err)
+    } catch {
       clearStorage()
     }
   }
@@ -491,9 +449,8 @@ export function useInspectItem() {
       localStorage.removeItem(STORAGE_KEY_ITEM)
       localStorage.removeItem(STORAGE_KEY_CUSTOMIZATION)
       localStorage.removeItem(STORAGE_KEY_ITEM_TYPE)
-      console.log('Storage cleared')
-    } catch (storageError) {
-      console.error('Error clearing storage:', storageError)
+    } catch {
+      // Storage errors are non-critical
     }
   }
 
@@ -519,9 +476,7 @@ export function useInspectItem() {
 
       customization.value = newCustomization
       saveToStorage()
-      console.log('Customization updated')
-    } catch (updateError) {
-      console.error('Error updating customization:', updateError)
+    } catch {
       error.value = 'Failed to update customization'
     }
   }
@@ -537,9 +492,7 @@ export function useInspectItem() {
 
       inspectedItem.value = newItem
       saveToStorage()
-      console.log('Item updated')
-    } catch (updateError) {
-      console.error('Error updating item:', updateError)
+    } catch {
       error.value = 'Failed to update item'
     }
   }
@@ -631,10 +584,8 @@ export function useInspectItem() {
         throw new Error('Invalid response: missing inspect URL')
       }
 
-      console.log('Inspect link generated successfully')
       return data.inspectUrl
     } catch (err: unknown) {
-      console.error('Error generating inspect link:', err)
       error.value = err instanceof Error ? err.message : 'Failed to generate inspect link'
       return null
     } finally {
