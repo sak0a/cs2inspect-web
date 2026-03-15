@@ -24,8 +24,8 @@ const { t } = useI18n()
 
 <style scoped>
 .team-toggle-btn {
-  padding: 3px 12px;
-  font-size: 12px;
+  padding: 6px 16px;
+  font-size: 13.5px;
   font-weight: 600;
   line-height: 1.4;
   border: 1px solid transparent;

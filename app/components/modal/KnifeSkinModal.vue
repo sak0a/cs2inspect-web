@@ -510,23 +510,25 @@ watch(
       <div class="flex items-center shrink-0">
         <!-- Reset Button -->
         <SButton
-          variant="light"
+          variant="elevated"
+          rounded="full"
           :color="buttonColor.error"
+          tinted
           :disabled="!selectedSkin || customization.paintindex == 0"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
           @click="state.showResetConfirm = true"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -540,22 +542,23 @@ watch(
         <!-- Import Knife by Inspect Link -->
         <SButton
           :loading="state.isImporting"
-          variant="light"
+          variant="elevated"
+          rounded="full"
           :disabled="!selectedSkin"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
           @click="state.showImportModal = true"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -573,22 +576,23 @@ watch(
         <!-- Generate Knife Inspect Link -->
         <SButton
           :loading="state.isLoadingInspect"
-          variant="light"
+          variant="elevated"
+          rounded="full"
           :disabled="!selectedSkin"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
           @click="handleCreateInspectLink"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -604,19 +608,24 @@ watch(
         <NDivider vertical />
 
         <!-- History Button -->
-        <SButton variant="light" :disabled="!selectedSkin" @click="showHistoryPanel = true">
+        <SButton
+          variant="elevated"
+          rounded="full"
+          :disabled="!selectedSkin"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          @click="showHistoryPanel = true"
+        >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-history"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M12 8l0 4l2 2" />

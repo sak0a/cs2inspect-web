@@ -64,7 +64,7 @@ const value3 = ref(5)
             <!-- Light background to showcase the glass effect -->
             <div class="glass-demo-bg rounded-xl p-12 flex flex-col items-center gap-8">
               <!-- Main example with sparkles icon (matching Figma) -->
-              <SGlassButton size="large">
+              <SGlassButton size="lg">
                 <template #icon-left>
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -91,9 +91,9 @@ const value3 = ref(5)
 
               <!-- Size variants -->
               <div class="flex items-center gap-4">
-                <SGlassButton size="small">Small</SGlassButton>
-                <SGlassButton size="medium">Medium</SGlassButton>
-                <SGlassButton size="large">Large</SGlassButton>
+                <SGlassButton size="sm">Small</SGlassButton>
+                <SGlassButton size="md">Medium</SGlassButton>
+                <SGlassButton size="lg">Large</SGlassButton>
               </div>
 
               <!-- States -->

@@ -1186,18 +1186,21 @@ onUnmounted(() => {
         <!-- Reset Weapon Configuration -->
         <SButton
           :loading="state.isResetting"
-          variant="glass"
+          variant="elevated"
+          rounded="full"
           :color="buttonColor.error"
           :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          tinted
           data-tutorial="reset-button"
           @click="state.showResetConfirm = true"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -1217,17 +1220,19 @@ onUnmounted(() => {
 
         <!-- History Button -->
         <SButton
-          variant="glass"
+          variant="elevated"
+          rounded="full"
           :disabled="!selectedSkin"
           :aria-label="String(t('history.title'))"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
           data-tutorial="history-button"
           @click="weaponState.showHistoryPanel = true"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -1247,17 +1252,19 @@ onUnmounted(() => {
         <!-- Import Weapon by Inspect Link -->
         <SButton
           :loading="state.isImporting"
-          variant="glass"
+          variant="elevated"
+          rounded="full"
           :disabled="!selectedSkin"
           :aria-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
           data-tutorial="import-button"
           @click="state.showImportModal = true"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -1282,17 +1289,19 @@ onUnmounted(() => {
         <!-- Generate Weapon Inspect Link by Data -->
         <SButton
           :loading="state.isLoadingInspect"
-          variant="glass"
+          variant="elevated"
+          rounded="full"
           :disabled="!selectedSkin || customization.paintindex === 0"
           :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
           data-tutorial="save-button"
           @click="handleCreateInspectLink"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

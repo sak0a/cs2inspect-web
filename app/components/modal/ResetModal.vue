@@ -41,15 +41,28 @@ const handleConfirm = () => {
     "
   >
     <p>{{ t('modals.reset.question') }}</p>
-    <div class="flex justify-end mt-4 gap-2">
-      <SButton variant="light" :color="buttonColor.error" :loading="loading" @click="handleClose">
+    <div class="flex justify-end mt-4 gap-3">
+      <SButton
+        variant="elevated"
+        rounded="full"
+        size="md"
+        :color="buttonColor.error"
+        :loading="loading"
+        class="px-5 py-1.5"
+        tinted
+        @click="handleClose"
+      >
         {{ t('modals.reset.cancel') }}
       </SButton>
 
       <SButton
-        variant="light"
+        variant="elevated"
+        rounded="full"
+        size="md"
         :color="buttonColor.success"
         :loading="loading"
+        class="px-5 py-1.5"
+        tinted
         @click="handleConfirm"
       >
         {{ t('modals.reset.confirm') }}

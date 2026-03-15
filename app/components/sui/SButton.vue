@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// @saka-ui/registry v0.2.10 — button
-// Source: saka-ui@0.2.10
+// @saka-ui/registry v0.2.11 — button
+// Source: saka-ui@0.2.11
 // Do not remove this header if you want `saka-ui diff` to work.
 import { computed, ref, useSlots, type CSSProperties } from 'vue'
 import { cn } from '../../lib/utils'
@@ -8,7 +8,7 @@ import { type IconProp, isIconComponent } from '../../lib/icon'
 import { buttonVariants } from './button'
 
 export interface Props {
-  variant?: 'filled' | 'outlined' | 'light' | 'ghost' | 'link' | 'dashed' | 'glass'
+  variant?: 'filled' | 'outlined' | 'light' | 'ghost' | 'link' | 'dashed' | 'glass' | 'elevated'
   size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
   color?: string
   type?: 'default' | 'primary' | 'error' | 'success' | 'info' | 'warning'
@@ -29,6 +29,7 @@ export interface Props {
   animateInactive?: boolean
   contentClass?: string
   iconClass?: string
+  tinted?: boolean
 }
 
 const iconOnlySizes: Record<string, string> = {
@@ -61,6 +62,7 @@ const props = withDefaults(defineProps<Props>(), {
   animateInactive: false,
   contentClass: undefined,
   iconClass: undefined,
+  tinted: false,
 })
 
 const typeColorMap: Record<string, string> = {
@@ -176,6 +178,14 @@ const colorStyle = computed<CSSProperties | undefined>(() => {
     return { backgroundColor: 'transparent', borderColor: c, color: c, borderStyle: 'dashed' }
   } else if (props.variant === 'glass') {
     return { '--glass-glow-color': `${c}40`, color: c } as CSSProperties
+  } else if (props.variant === 'elevated') {
+    if (props.tinted) {
+      return {
+        color: c,
+        background: `linear-gradient(to bottom, color-mix(in srgb, ${c} 15%, transparent), color-mix(in srgb, ${c} 5%, transparent))`,
+      } as CSSProperties
+    }
+    return { color: c } as CSSProperties
   }
 
   return undefined
@@ -194,6 +204,7 @@ const buttonClasses = computed(() => {
     resolvedColor.value && props.variant === 'filled' && 'hover:brightness-110 active:scale-[0.98]',
     resolvedColor.value && props.variant === 'link' && 'hover:underline',
     props.variant === 'glass' && 's-button--glass',
+    props.variant === 'elevated' && 's-button--elevated',
     {
       'w-full': props.block,
       'opacity-(--s-opacity-disabled) cursor-not-allowed': props.disabled || props.loading,
@@ -416,5 +427,36 @@ const componentBindings = computed(() => {
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.14),
     0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Elevated variant */
+.s-button--elevated {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 2px 4px rgba(0, 0, 0, 0.25);
+  border: none !important;
+  transition: box-shadow 200ms ease-in-out;
+}
+
+.s-button--elevated::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.03));
+  opacity: 0;
+  transition: opacity 200ms ease-in-out;
+  pointer-events: none;
+  border-radius: inherit;
+}
+
+.s-button--elevated:not(:disabled):not([data-disabled]):hover {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.s-button--elevated:not(:disabled):not([data-disabled]):hover::before {
+  opacity: 1;
 }
 </style>

@@ -13,6 +13,7 @@ import {
   LucideDownload as ImportIcon,
   LucideEllipsisVertical as MenuIcon,
   LucideRefreshCw as RefreshIcon,
+  LucideCheck as CheckIcon,
 } from 'lucide-vue-next'
 import { toSteamId, toLoadoutId } from '~/types/core/branded'
 import type { LoadoutId } from '~/types/core/branded'
@@ -275,31 +276,54 @@ onMounted(async () => {
 
 <template>
   <div class="flex items-center gap-2">
-    <SSelect
+    <SDropdown
       v-if="loadoutStore.hasLoadouts"
-      v-model:model-value="loadoutStore.selectedLoadoutId"
-      :options="
-        loadoutStore.loadouts.map((loadout: DBLoadout) => ({
-          label: loadout.name + (loadout.is_default ? ' (Default)' : ''),
-          value: loadout.id,
-        }))
-      "
-      :placeholder="t('loadout.select') as string"
-      :loading="loadoutStore.isLoading"
-      variant="outlined"
-      rounded="lg"
-      size="sm"
       trigger="hover"
-      class="min-w-[180px]"
+      variant="glass"
       data-tutorial="loadout-selector"
-    />
+      @select="(key: string) => (loadoutStore.selectedLoadoutId = toLoadoutId(Number(key)))"
+    >
+      <template #trigger>
+        <SButton
+          rounded="full"
+          variant="elevated"
+          size="md"
+          class="min-w-[140px] h-10 pl-4 pr-3 justify-between"
+        >
+          {{
+            loadoutStore.selectedLoadout
+              ? loadoutStore.selectedLoadout.name +
+                (loadoutStore.selectedLoadout.is_default ? ' (Default)' : '')
+              : t('loadout.select')
+          }}
+          <template #icon-right>
+            <span class="mdi mdi-chevron-down text-xs" />
+          </template>
+        </SButton>
+      </template>
+
+      <SDropdownItem
+        v-for="loadout in loadoutStore.loadouts"
+        :key="loadout.id"
+        :item-key="String(loadout.id)"
+        :label="loadout.name + (loadout.is_default ? ' (Default)' : '')"
+        :class="{
+          '!border !border-primary !text-primary':
+            toLoadoutId(loadout.id) === loadoutStore.selectedLoadoutId,
+        }"
+      >
+        <template v-if="toLoadoutId(loadout.id) === loadoutStore.selectedLoadoutId" #trailing>
+          <CheckIcon :size="14" class="text-primary" />
+        </template>
+      </SDropdownItem>
+    </SDropdown>
 
     <SDropdown trigger="hover" variant="glass" @select="handleDropdownSelect">
       <template #trigger>
         <SButton
           icon-only
           rounded="full"
-          variant="light"
+          variant="elevated"
           data-tutorial="loadout-create"
           :aria-label="t('loadout.manage') as string"
         >
@@ -384,10 +408,14 @@ onMounted(async () => {
       data-tutorial="loadout-name-input"
     />
     <template #footer>
-      <div class="flex justify-end gap-4">
+      <div class="flex justify-end gap-3">
         <SButton
           :color="buttonColor.error"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           @click="
             () => {
               showModal.create = false
@@ -399,7 +427,11 @@ onMounted(async () => {
         </SButton>
         <SButton
           :color="buttonColor.success"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           :disabled="formInputs.newName === '' || formInputs.newName.length > 20"
           @click="handleLoadoutAction('create')"
         >
@@ -429,10 +461,14 @@ onMounted(async () => {
       :placeholder="t('modals.loadout.rename.formPlaceholder') as string"
     />
     <template #footer>
-      <div class="flex justify-end gap-4">
+      <div class="flex justify-end gap-3">
         <SButton
           :color="buttonColor.error"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           @click="
             () => {
               showModal.rename = false
@@ -444,7 +480,11 @@ onMounted(async () => {
         </SButton>
         <SButton
           :color="buttonColor.success"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           :disabled="formInputs.renameName === '' || formInputs.renameName.length > 20"
           @click="handleLoadoutAction('rename')"
         >
@@ -485,10 +525,14 @@ onMounted(async () => {
       />
     </div>
     <template #footer>
-      <div class="flex justify-end gap-4">
+      <div class="flex justify-end gap-3">
         <SButton
           :color="buttonColor.error"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           @click="
             () => {
               showModal.delete = false
@@ -500,7 +544,11 @@ onMounted(async () => {
         </SButton>
         <SButton
           :color="buttonColor.error"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           :disabled="formInputs.deleteConfirm !== loadoutStore.selectedLoadout?.name"
           @click="handleLoadoutAction('delete')"
         >
@@ -550,13 +598,23 @@ onMounted(async () => {
       />
     </div>
     <template #footer>
-      <div class="flex justify-end gap-4">
-        <SButton variant="light" @click="showModal.clear = false">
+      <div class="flex justify-end gap-3">
+        <SButton
+          variant="elevated"
+          rounded="full"
+          size="md"
+          class="px-5 py-1.5"
+          @click="showModal.clear = false"
+        >
           {{ t('modals.loadout.clear.cancel') }}
         </SButton>
         <SButton
           :color="buttonColor.error"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           :disabled="
             formInputs.clearConfirm !== loadoutStore.selectedLoadout?.name ||
             formInputs.clearCategories.length === 0
@@ -575,7 +633,7 @@ onMounted(async () => {
     preset="card"
     :bordered="false"
     :auto-focus="false"
-    style="width: 400px"
+    style="width: 500px"
     :title="
       t('modals.loadout.share.title', {
         name: loadoutStore.selectedLoadout?.name || '',
@@ -588,17 +646,26 @@ onMounted(async () => {
         <p>{{ t('modals.loadout.share.description') }}</p>
         <NInputGroup>
           <NInput v-model:value="formInputs.shareCode" readonly />
-          <SButton :color="buttonColor.primary" variant="outlined" @click="copyToClipboard">
+          <SButton
+            :color="buttonColor.primary"
+            variant="elevated"
+            tinted
+            rounded="full"
+            @click="copyToClipboard"
+          >
             <template #icon-left>
               <DuplicateIcon :size="16" />
             </template>
           </SButton>
         </NInputGroup>
-        <div class="flex gap-2">
+        <div class="flex gap-2 justify-center">
           <SButton
             :color="buttonColor.warning"
-            variant="light"
-            size="sm"
+            variant="elevated"
+            rounded="full"
+            size="md"
+            tinted
+            class="px-5 py-1.5"
             @click="handleGenerateShareCode"
           >
             <template #icon-left>
@@ -608,8 +675,11 @@ onMounted(async () => {
           </SButton>
           <SButton
             :color="buttonColor.error"
-            variant="light"
-            size="sm"
+            variant="elevated"
+            rounded="full"
+            size="md"
+            tinted
+            class="px-5 py-1.5"
             @click="handleDeleteShareCode"
           >
             <template #icon-left>
@@ -623,7 +693,15 @@ onMounted(async () => {
       <!-- State: No share code -->
       <template v-else>
         <p>{{ t('modals.loadout.share.noCode') }}</p>
-        <SButton :color="buttonColor.primary" variant="light" @click="handleGenerateShareCode">
+        <SButton
+          :color="buttonColor.primary"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
+          @click="handleGenerateShareCode"
+        >
           <template #icon-left>
             <ShareIcon :size="16" />
           </template>
@@ -651,13 +729,23 @@ onMounted(async () => {
       />
     </div>
     <template #footer>
-      <div class="flex justify-end gap-4">
-        <SButton variant="light" @click="showModal.import = false">
+      <div class="flex justify-end gap-3">
+        <SButton
+          variant="elevated"
+          rounded="full"
+          size="md"
+          class="px-5 py-1.5"
+          @click="showModal.import = false"
+        >
           {{ t('modals.loadout.import.cancel') }}
         </SButton>
         <SButton
           :color="buttonColor.success"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           :disabled="formInputs.importCode.length < 13"
           @click="handleLoadoutAction('import')"
         >

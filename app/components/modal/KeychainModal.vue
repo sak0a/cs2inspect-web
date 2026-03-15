@@ -323,23 +323,25 @@ watch(
     <template #header-extra>
       <div class="flex items-center gap-2">
         <SButton
-          variant="light"
+          variant="elevated"
+          rounded="full"
           :color="buttonColor.error"
+          tinted
           :disabled="!currentKeychain && !state.selectedItem"
+          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
           @click="handleResetConfig"
         >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
+              width="20"
+              height="20"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -509,8 +511,10 @@ watch(
               <div class="flex gap-3 w-full lg:w-auto justify-end">
                 <SButton
                   :color="buttonColor.primary"
-                  class="flex-1 lg:flex-none lg:w-40"
-                  variant="light"
+                  variant="elevated"
+                  rounded="full"
+                  tinted
+                  class="flex-1 lg:flex-none lg:w-40 px-5 py-1.5"
                   @click="handleSave"
                 >
                   {{
@@ -522,8 +526,10 @@ watch(
                 <SButton
                   v-if="currentKeychain"
                   :color="buttonColor.error"
-                  class="flex-1 lg:flex-none lg:w-40"
-                  variant="light"
+                  variant="elevated"
+                  rounded="full"
+                  tinted
+                  class="flex-1 lg:flex-none lg:w-40 px-5 py-1.5"
                   @click="handleRemove"
                 >
                   {{ t('modals.keychain.delete') }}

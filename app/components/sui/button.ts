@@ -1,5 +1,5 @@
-// @saka-ui/registry v0.2.10 — button
-// Source: saka-ui@0.2.10
+// @saka-ui/registry v0.2.11 — button
+// Source: saka-ui@0.2.11
 // Do not remove this header if you want `saka-ui diff` to work.
 import { cva, type VariantProps } from 'class-variance-authority'
 
@@ -15,6 +15,7 @@ export const buttonVariants = cva(
         link: 'bg-transparent text-primary hover:underline',
         dashed: 'bg-transparent border-primary text-primary border-dashed hover:bg-primary/10',
         glass: '',
+        elevated: '',
       },
       size: {
         xs: 'px-1.5 py-0.5 text-xs gap-1',

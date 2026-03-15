@@ -53,11 +53,15 @@ const handleConfirm = () => {
           }}
         </p>
       </div>
-      <div class="flex justify-end gap-4">
+      <div class="flex justify-end gap-3">
         <SButton
           :disabled="_props.loading"
           :color="buttonColor.error"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           @click="handleClose"
         >
           {{ t('modals.duplicateItem.cancel') }}
@@ -65,7 +69,11 @@ const handleConfirm = () => {
         <SButton
           :loading="_props.loading"
           :color="buttonColor.success"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
+          tinted
+          class="px-5 py-1.5"
           @click="handleConfirm"
         >
           {{ t('modals.duplicateItem.confirm') }}

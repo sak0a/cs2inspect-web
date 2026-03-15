@@ -204,15 +204,15 @@ const currentLocaleDisplay = computed(() => {
                 class="rounded-full"
                 alt="Steam Avatar"
                 :src="user.avatarFull"
-                style="width: 34px; height: 34px"
+                style="width: 36px; height: 36px"
               />
             </a>
             <span class="nav-user-name">{{ user.personaName }}</span>
-            <div data-tutorial="settings-dropdown">
+            <div data-tutorial="settings-dropdown" class="ml-2">
               <SettingsDropdown
                 trigger="hover"
                 variant="icon"
-                size="md"
+                size="sm"
                 :aria-label="t('navigation.settings') || 'Settings'"
                 @logout="showLogoutModal = true"
               />
@@ -267,7 +267,7 @@ const currentLocaleDisplay = computed(() => {
         </div>
 
         <!-- Right side: Loadout -->
-        <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0 justify-end">
+        <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0 justify-end ml-6">
           <div v-if="user" data-tutorial="loadout-area">
             <LoadoutSelector />
           </div>
@@ -437,13 +437,31 @@ body
   display: flex
   align-items: center
   gap: 8px
-  padding: 5px 10px
-  border-radius: 12px
-  background: rgba(255, 255, 255, 0.04)
-  border: 1px solid rgba(255, 255, 255, 0.07)
-  backdrop-filter: blur(8px)
-  -webkit-backdrop-filter: blur(8px)
+  padding: 3px 4px 3px 3px
+  border-radius: 9999px
+  height: 40px
+  position: relative
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04))
+  border: none !important
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.25)
   flex-shrink: 0
+  transition: box-shadow 200ms ease-in-out
+
+  &::before
+    content: ''
+    position: absolute
+    inset: 0
+    border-radius: inherit
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03))
+    opacity: 0
+    transition: opacity 200ms ease-in-out
+    pointer-events: none
+
+  &:hover
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 6px rgba(0, 0, 0, 0.3)
+
+    &::before
+      opacity: 1
 
 .nav-user-avatar
   flex-shrink: 0
@@ -454,7 +472,7 @@ body
     transform: scale(1.05)
 
 .nav-user-name
-  font-size: 13px
+  font-size: 14px
   font-weight: 600
   color: rgba(255, 255, 255, 0.9)
   white-space: nowrap

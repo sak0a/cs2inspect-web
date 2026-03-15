@@ -58,9 +58,15 @@ const handleClose = () => {
       <div class="grid grid-cols-2 gap-4">
         <NTooltip>
           <template #trigger>
-            <SButton :color="buttonColor.info" size="sm" variant="light">{{
-              t('modals.inspectUrl.maskedLinks')
-            }}</SButton>
+            <SButton
+              :color="buttonColor.info"
+              size="md"
+              variant="elevated"
+              rounded="full"
+              class="px-5 py-1.5"
+              tinted
+              >{{ t('modals.inspectUrl.maskedLinks') }}</SButton
+            >
           </template>
           <h3 class="font-bold text-center">
             {{ t('modals.inspectUrl.maskedLinksDescription') }}
@@ -77,9 +83,15 @@ const handleClose = () => {
         </NTooltip>
         <NTooltip>
           <template #trigger>
-            <SButton :color="buttonColor.info" size="sm" variant="light">{{
-              t('modals.inspectUrl.unmaskedLinks')
-            }}</SButton>
+            <SButton
+              :color="buttonColor.info"
+              size="md"
+              variant="elevated"
+              rounded="full"
+              class="px-5 py-1.5"
+              tinted
+              >{{ t('modals.inspectUrl.unmaskedLinks') }}</SButton
+            >
           </template>
           <h3 class="font-bold text-center">
             {{ t('modals.inspectUrl.unmaskedLinksDescription') }}
@@ -106,20 +118,28 @@ const handleClose = () => {
         <p v-if="error" class="text-red-500 text-sm mt-1">{{ error }}</p>
       </div>
 
-      <div class="flex justify-end gap-4">
+      <div class="flex justify-end gap-3">
         <SButton
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
           :color="buttonColor.error"
           :disabled="_props.loading"
+          class="px-5 py-1.5"
+          tinted
           @click="handleClose"
         >
           {{ t('modals.inspectUrl.cancel') }}
         </SButton>
         <SButton
           :disabled="inspectUrl.length <= 15"
-          variant="light"
+          variant="elevated"
+          rounded="full"
+          size="md"
           :color="buttonColor.success"
           :loading="_props.loading"
+          class="px-5 py-1.5"
+          tinted
           @click="handleSubmit"
         >
           {{ t('modals.inspectUrl.confirm') }}
