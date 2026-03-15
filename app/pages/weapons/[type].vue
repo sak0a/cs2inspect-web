@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
-import type { IEnhancedWeapon, WeaponConfiguration, UserProfile, WeaponItemData } from '~/types'
+import type { IEnhancedWeapon, WeaponConfiguration, WeaponItemData } from '~/types'
 import { toSteamId } from '~/types/core/common'
 
 definePageMeta({
@@ -43,17 +43,6 @@ const visibleGroupedWeapons = computed(() => {
   return result
 })
 
-// Convert SteamUser to UserProfile for components that expect branded types
-computed((): UserProfile | null => {
-  if (!user.value) return null
-  return {
-    steamId: toSteamId(user.value.steamId),
-    personaName: user.value.personaName,
-    avatar: user.value.avatar,
-    profileUrl: user.value.profileUrl,
-  }
-})
-
 const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   selectedWeapon.value = weapon
   showSkinModal.value = true
@@ -90,18 +79,14 @@ const handleAutoSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
       method: 'POST',
       body: { ...test },
     }
-  )
-    .then(async (data) => {
-      if (data.success) {
-        // Silently refresh data without closing modal or showing message
-        await fetchLoadoutSkins()
-      } else {
-        throw new Error(data.message)
-      }
-    })
-    .finally(() => {
-      console.log(test)
-    })
+  ).then(async (data) => {
+    if (data.success) {
+      // Silently refresh data without closing modal or showing message
+      await fetchLoadoutSkins()
+    } else {
+      throw new Error(data.message)
+    }
+  })
 }
 
 const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfiguration) => {
@@ -142,8 +127,7 @@ const handleSkinSave = async (skin: IEnhancedWeapon, customization: WeaponConfig
         throw new Error(data.message)
       }
     })
-    .catch((error) => {
-      console.error('Error saving weapon:', error)
+    .catch(() => {
       message.error('Failed to save weapon configuration')
     })
 }
@@ -153,7 +137,6 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
     message.error(t('loadout.selectLoadoutFirst') as string)
     return
   }
-  console.log('Duplicating weapon: ', skin, customization)
   try {
     // Format stickers data
     const formattedStickers = customization.stickers.map(
@@ -189,7 +172,6 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
           seed: customization.keychain.seed || 0,
         }
       : null
-    console.log('DUPLICATE CUSTOM TEAM: ', customization.team)
     const result = await $fetch<{ success: boolean; message: string }>(
       `/api/items/weapons/save?steamId=${user.value?.steamId}&loadoutId=${loadoutStore.selectedLoadoutId}&type=${WEAPON_TYPE}`,
       {
@@ -216,8 +198,7 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
     } else {
       throw new Error(result.message)
     }
-  } catch (error) {
-    console.error('Error duplicating weapon:', error)
+  } catch {
     message.error('Failed to duplicate weapon')
   }
 }
@@ -272,8 +253,7 @@ onMounted(async () => {
       } else {
         isLoading.value = false
       }
-    } catch (e) {
-      console.error(e)
+    } catch {
       isLoading.value = false
     }
   } else {
