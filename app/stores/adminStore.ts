@@ -237,7 +237,6 @@ export const useAdminStore = defineStore('admin', {
      */
     async checkAdminStatus(): Promise<boolean> {
       this.error = null
-      console.log('[adminStore] Checking admin status...')
 
       const now = Date.now()
       const adminStatusFresh =
@@ -256,15 +255,12 @@ export const useAdminStore = defineStore('admin', {
         // Try fetching overview stats - if it succeeds, user is admin
         const response = await api.get<AdminOverviewStats>('/api/admin/stats/overview')
 
-        console.log('[adminStore] API response:', response)
-
         if (response.success && response.data) {
           this.isAdmin = true
           this.error = null
           this.lastFetch.adminStatus = Date.now()
           // Role is set from the API context, we'll fetch it from admins endpoint
           await this.fetchCurrentAdminInfo()
-          console.log('[adminStore] Admin status confirmed, role:', this.adminRole)
           return true
         }
 
@@ -272,14 +268,12 @@ export const useAdminStore = defineStore('admin', {
         this.adminRole = null
         this.lastFetch.adminStatus = null
         this.error = response.error?.message || 'Admin access denied'
-        console.log('[adminStore] Admin check failed:', this.error)
         return false
       } catch (err) {
         this.isAdmin = false
         this.adminRole = null
         this.lastFetch.adminStatus = null
         this.error = err instanceof Error ? err.message : 'Failed to verify admin status'
-        console.log('[adminStore] Admin check error:', this.error)
         return false
       }
     },
