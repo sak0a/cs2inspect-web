@@ -149,7 +149,7 @@ export type ExtractAPIResponseData<T> = T extends APIResponse<infer U> ? U : nev
 export function isSuccessfulResponse<T>(
   response: AnyAPIResponse<T>
 ): response is APIResponse<T> & { success: true; data: T } {
-  return response.success === true && response.data !== undefined
+  return response.success && response.data !== undefined
 }
 
 /**
@@ -161,5 +161,5 @@ export function isSuccessfulResponse<T>(
 export function isErrorResponse(
   response: AnyAPIResponse
 ): response is AnyAPIResponse & { success: false; error: ErrorInfo } {
-  return response.success === false && response.error !== undefined
+  return !response.success && response.error !== undefined
 }
