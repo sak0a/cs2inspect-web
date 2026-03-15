@@ -184,61 +184,45 @@ export default useErrorHandling(async (event) => {
       : []
   const profileMap = new Map(profilesResult.map((p) => [p.steamid, p]))
 
-  // For items sorting, compute item counts for all filtered users via a single aggregate query
+  // Compute item counts via a single UNION ALL aggregate query
+  // When sorting by items, we need counts for ALL filtered users (before pagination).
+  // Otherwise, we defer to after pagination and only query the paginated subset.
   let itemCountMap: Map<string, number> | undefined
-  if (sortBy === 'items' && allFilteredSteamIds.length > 0) {
+
+  async function fetchItemCounts(steamIds: string[]): Promise<Map<string, number>> {
+    if (steamIds.length === 0) return new Map()
+    const idList = steamIds.map((id) => sql`${id}`)
+    const joined = sql.join(idList, sql`, `)
     const itemCounts = await db.execute(sql`
             SELECT steamid, SUM(cnt) as total FROM (
-                SELECT ${pistols.steamid} as steamid, COUNT(*) as cnt FROM ${pistols} WHERE ${pistols.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${pistols.steamid}
+                SELECT ${pistols.steamid} as steamid, COUNT(*) as cnt FROM ${pistols} WHERE ${pistols.steamid} IN (${joined}) GROUP BY ${pistols.steamid}
                 UNION ALL
-                SELECT ${rifles.steamid}, COUNT(*) FROM ${rifles} WHERE ${rifles.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${rifles.steamid}
+                SELECT ${rifles.steamid}, COUNT(*) FROM ${rifles} WHERE ${rifles.steamid} IN (${joined}) GROUP BY ${rifles.steamid}
                 UNION ALL
-                SELECT ${smgs.steamid}, COUNT(*) FROM ${smgs} WHERE ${smgs.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${smgs.steamid}
+                SELECT ${smgs.steamid}, COUNT(*) FROM ${smgs} WHERE ${smgs.steamid} IN (${joined}) GROUP BY ${smgs.steamid}
                 UNION ALL
-                SELECT ${heavys.steamid}, COUNT(*) FROM ${heavys} WHERE ${heavys.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${heavys.steamid}
+                SELECT ${heavys.steamid}, COUNT(*) FROM ${heavys} WHERE ${heavys.steamid} IN (${joined}) GROUP BY ${heavys.steamid}
                 UNION ALL
-                SELECT ${knives.steamid}, COUNT(*) FROM ${knives} WHERE ${knives.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${knives.steamid}
+                SELECT ${knives.steamid}, COUNT(*) FROM ${knives} WHERE ${knives.steamid} IN (${joined}) GROUP BY ${knives.steamid}
                 UNION ALL
-                SELECT ${gloves.steamid}, COUNT(*) FROM ${gloves} WHERE ${gloves.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${gloves.steamid}
+                SELECT ${gloves.steamid}, COUNT(*) FROM ${gloves} WHERE ${gloves.steamid} IN (${joined}) GROUP BY ${gloves.steamid}
                 UNION ALL
-                SELECT ${agents.steamid}, COUNT(*) FROM ${agents} WHERE ${agents.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${agents.steamid}
+                SELECT ${agents.steamid}, COUNT(*) FROM ${agents} WHERE ${agents.steamid} IN (${joined}) GROUP BY ${agents.steamid}
                 UNION ALL
-                SELECT ${music.steamid}, COUNT(*) FROM ${music} WHERE ${music.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${music.steamid}
+                SELECT ${music.steamid}, COUNT(*) FROM ${music} WHERE ${music.steamid} IN (${joined}) GROUP BY ${music.steamid}
                 UNION ALL
-                SELECT ${pins.steamid}, COUNT(*) FROM ${pins} WHERE ${pins.steamid} IN (${sql.join(
-                  allFilteredSteamIds.map((id) => sql`${id}`),
-                  sql`, `
-                )}) GROUP BY ${pins.steamid}
+                SELECT ${pins.steamid}, COUNT(*) FROM ${pins} WHERE ${pins.steamid} IN (${joined}) GROUP BY ${pins.steamid}
             ) as item_counts GROUP BY steamid
         `)
-    itemCountMap = new Map()
+    const map = new Map<string, number>()
     for (const row of itemCounts[0] as unknown as { steamid: string; total: number }[]) {
-      itemCountMap.set(row.steamid, Number(row.total))
+      map.set(row.steamid, Number(row.total))
     }
+    return map
+  }
+
+  if (sortBy === 'items') {
+    itemCountMap = await fetchItemCounts(allFilteredSteamIds)
   }
 
   // Sort filtered users
@@ -275,92 +259,24 @@ export default useErrorHandling(async (event) => {
   // Apply pagination
   const paginatedUsers = filteredUsers.slice(offset, offset + limit)
 
-  // Get item counts for each user in the paginated result
-  const users: AdminUserListItem[] = await Promise.all(
-    paginatedUsers.map(async (user) => {
-      // If we already computed item counts for sorting, reuse them
-      if (itemCountMap) {
-        const profile = profileMap.get(user.steamid)
-        return {
-          steamId: user.steamid,
-          personaName: profile?.personaname ?? null,
-          avatarFull: profile?.avatarfull ?? null,
-          loadoutCount: Number(user.loadoutCount),
-          totalItems: itemCountMap.get(user.steamid) ?? 0,
-          lastActivity: user.lastActivity,
-          isBanned: bannedSteamIds.has(user.steamid),
-        }
-      }
+  // If item counts weren't already fetched for sorting, fetch them for the paginated subset
+  if (!itemCountMap) {
+    itemCountMap = await fetchItemCounts(paginatedUsers.map((u) => u.steamid))
+  }
 
-      // Count items across all tables
-      const [pistolCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(pistols)
-        .where(eq(pistols.steamid, user.steamid))
-
-      const [rifleCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(rifles)
-        .where(eq(rifles.steamid, user.steamid))
-
-      const [smgCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(smgs)
-        .where(eq(smgs.steamid, user.steamid))
-
-      const [heavyCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(heavys)
-        .where(eq(heavys.steamid, user.steamid))
-
-      const [knifeCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(knives)
-        .where(eq(knives.steamid, user.steamid))
-
-      const [gloveCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(gloves)
-        .where(eq(gloves.steamid, user.steamid))
-
-      const [agentCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(agents)
-        .where(eq(agents.steamid, user.steamid))
-
-      const [musicCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(music)
-        .where(eq(music.steamid, user.steamid))
-
-      const [pinCount] = await db
-        .select({ count: sql<number>`COUNT(*)` })
-        .from(pins)
-        .where(eq(pins.steamid, user.steamid))
-
-      const totalItemCount =
-        Number(pistolCount?.count || 0) +
-        Number(rifleCount?.count || 0) +
-        Number(smgCount?.count || 0) +
-        Number(heavyCount?.count || 0) +
-        Number(knifeCount?.count || 0) +
-        Number(gloveCount?.count || 0) +
-        Number(agentCount?.count || 0) +
-        Number(musicCount?.count || 0) +
-        Number(pinCount?.count || 0)
-
-      const profile = profileMap.get(user.steamid)
-      return {
-        steamId: user.steamid,
-        personaName: profile?.personaname ?? null,
-        avatarFull: profile?.avatarfull ?? null,
-        loadoutCount: Number(user.loadoutCount),
-        totalItems: totalItemCount,
-        lastActivity: user.lastActivity,
-        isBanned: bannedSteamIds.has(user.steamid),
-      }
-    })
-  )
+  // Map paginated users to response items
+  const users: AdminUserListItem[] = paginatedUsers.map((user) => {
+    const profile = profileMap.get(user.steamid)
+    return {
+      steamId: user.steamid,
+      personaName: profile?.personaname ?? null,
+      avatarFull: profile?.avatarfull ?? null,
+      loadoutCount: Number(user.loadoutCount),
+      totalItems: itemCountMap!.get(user.steamid) ?? 0,
+      lastActivity: user.lastActivity,
+      isBanned: bannedSteamIds.has(user.steamid),
+    }
+  })
 
   Logger.success(`Fetched ${users.length} users (page ${page})`)
 
