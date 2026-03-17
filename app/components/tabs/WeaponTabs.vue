@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { DBWeapon, WeaponItemData } from '~/types'
 import { toSteamId, toLoadoutId, toDefindex, toPaintIndex } from '~/types/core/common'
+import { LucideEyeOff as EyeOffIcon } from 'lucide-vue-next'
 
 interface Props {
   weaponData: {
@@ -27,6 +28,20 @@ const filteredWeapons = computed(() =>
 
 // Check if there's any skin for the current team
 const hasCurrentTeamSkin = computed(() => filteredWeapons.value.length > 0)
+
+const isVanillaSkin = (weapon: WeaponItemData): boolean => {
+  return (
+    weapon.databaseInfo !== undefined &&
+    (weapon.databaseInfo.paintindex === 0 || weapon.paintindex === 0)
+  )
+}
+
+const getWeaponLabel = (weapon: WeaponItemData): string => {
+  if (isVanillaSkin(weapon)) {
+    return `${weapon.defaultName} | Vanilla`
+  }
+  return weapon.name
+}
 
 const handleDefaultWeaponClick = (team: number): void => {
   try {
@@ -102,30 +117,34 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
 
 <template>
   <div data-tutorial="weapon-card">
-    <!-- Default weapon if no skin for current team -->
+    <!-- State 1: Not configured — no DB entry for this weapon/team -->
     <NCard
       v-if="!hasCurrentTeamSkin"
-      :style="{
-        borderColor: '#B0C3D9',
-        background: 'linear-gradient(135deg, #101010, ' + hexToRgba('#B0C3D9', '0.15') + ')',
-      }"
-      class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
+      class="hover:shadow-lg cursor-pointer rounded-xl weapon-card weapon-card--unconfigured"
+      tabindex="0"
+      role="button"
+      :aria-label="`${weaponData.defaultName} — not configured, click to configure`"
       @click="handleDefaultWeaponClick(teamNumber)"
+      @keydown.enter.space.prevent="handleDefaultWeaponClick(teamNumber)"
     >
       <div class="flex flex-col items-center">
         <img
           :src="weaponData.weapons[0]?.defaultImage"
           :alt="weaponData.defaultName"
-          class="w-full h-32 object-contain mb-2"
+          class="w-full h-32 object-contain mb-2 opacity-40"
           loading="lazy"
         />
         <div class="w-full">
-          <p class="text-sm text-white truncate">{{ weaponData.defaultName }} | Default</p>
-          <div class="h-1 mt-2" :style="{ background: '#B0C3D9' }" />
+          <p class="text-sm text-[var(--text-tertiary)] truncate">
+            {{ weaponData.defaultName }}
+            <span class="text-xs opacity-60">(Not Configured)</span>
+          </p>
+          <div class="h-1 mt-2 bg-[var(--border-subtle)]" />
         </div>
       </div>
     </NCard>
-    <!-- Skins for the current team -->
+
+    <!-- State 2 & 3: DB entry exists — vanilla skin or custom skin, active or inactive -->
     <NCard
       v-for="weapon in filteredWeapons"
       :key="weapon.paintindex"
@@ -135,21 +154,143 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
           ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
           : '#242424',
       }"
-      class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
+      class="hover:shadow-lg cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
+      :class="{ 'weapon-card--inactive': !weapon.databaseInfo?.active }"
+      tabindex="0"
+      role="button"
+      :aria-label="`${getWeaponLabel(weapon)}${!weapon.databaseInfo?.active ? ', inactive' : ''}`"
       @click="handleSkinClick(weapon)"
+      @keydown.enter.space.prevent="handleSkinClick(weapon)"
     >
       <div class="flex flex-col items-center">
-        <img
-          :src="weapon.image"
-          :alt="weapon.name"
-          class="w-full h-32 object-contain mb-2"
-          loading="lazy"
-        />
+        <div class="relative w-full">
+          <img
+            :src="weapon.image"
+            :alt="weapon.name"
+            class="w-full h-32 object-contain mb-2"
+            loading="lazy"
+          />
+
+          <!-- Inactive icon — State 3 -->
+          <span
+            v-if="!weapon.databaseInfo?.active"
+            class="inactive-icon"
+            aria-hidden="true"
+          >
+            <EyeOffIcon :size="18" />
+          </span>
+
+          <!-- Vanilla badge — State 2 (paintindex = 0, DB entry exists) -->
+          <span
+            v-else-if="isVanillaSkin(weapon)"
+            class="weapon-badge weapon-badge--vanilla"
+            aria-hidden="true"
+          >
+            Vanilla
+          </span>
+        </div>
+
         <div class="w-full">
-          <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-          <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
+          <p class="text-sm truncate text-white">
+            {{ getWeaponLabel(weapon) }}
+          </p>
+          <div
+            class="h-1 mt-2"
+            :style="{ background: weapon.rarity?.color || '#313030' }"
+          />
         </div>
       </div>
     </NCard>
   </div>
 </template>
+
+<style scoped>
+.weapon-card--unconfigured {
+  border: 1px dashed var(--border-subtle) !important;
+  background: var(--bg-dark) !important;
+  transition:
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+.weapon-card--unconfigured:hover {
+  border-color: var(--text-tertiary) !important;
+}
+
+.weapon-card {
+  transition:
+    box-shadow 150ms ease,
+    transform 150ms ease,
+    filter 150ms ease;
+}
+
+.weapon-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.weapon-card:active {
+  transform: scale(0.98);
+}
+
+.weapon-card:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Inactive: dashed border signals "configured but not active" */
+.weapon-card--inactive {
+  border-style: dashed !important;
+  opacity: 0.65;
+}
+
+.weapon-card--inactive:hover {
+  opacity: 0.9;
+}
+
+/* Small eye-off icon in the corner */
+.inactive-icon {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--text-tertiary);
+}
+
+/* Vanilla badge */
+.weapon-badge {
+  position: absolute;
+  top: 6px;
+  right: 0;
+  padding: 2px 8px;
+  border-radius: 999px 0 0 999px;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.weapon-badge--vanilla {
+  background: rgba(176, 195, 217, 0.18);
+  color: #b0c3d9;
+  border: 1px solid rgba(176, 195, 217, 0.25);
+  border-right: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .weapon-card,
+  .weapon-card--unconfigured {
+    transition: none;
+  }
+
+  .weapon-card:active {
+    transform: none;
+  }
+}
+</style>

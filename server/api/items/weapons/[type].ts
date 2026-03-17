@@ -229,9 +229,9 @@ export default useErrorHandling(async (event) => {
         paintIndexToUse = skinInfo.paint_index
         rarityToUse = skinInfo.rarity
       } else {
-        // Default weapon (paint index 0 or no custom skin)
+        // Vanilla weapon — explicit DB entry with paintindex 0 (stock appearance)
         displayImage = baseWeapon.defaultImage
-        displayName = `${baseWeapon.defaultName} | Default`
+        displayName = `${baseWeapon.defaultName} | Vanilla`
         paintIndexToUse = 0
         rarityToUse = { id: 'default', name: 'Default', color: '#B0C3D9' }
       }
