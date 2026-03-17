@@ -102,7 +102,7 @@
     "docs:build": "cd services/docs-site && bun run build",
     "docs:preview": "cd services/docs-site && bun run preview",
     "docs:generate": "cd services/docs-site && bun run generate",
-    "docs:install": "cd services/docs-site && bun install",
+    "docs:install": "cd services/docs-site && bun install"
   },
   "type": "module"
 }
