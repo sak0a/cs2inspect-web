@@ -50,9 +50,7 @@
     "eslint": "^9.39.3",
     "eslint-config-prettier": "^10.1.8",
     "happy-dom": "^20.8.1",
-    "husky": "^9.1.7",
     "jsonwebtoken": "^9.0.3",
-    "lint-staged": "^16.3.1",
     "naive-ui": "^2.43.2",
     "nuxt": "^4.3.1",
     "nuxt-lucide-icons": "2.0.0",
@@ -70,15 +68,6 @@
   },
   "engines": {
     "node": ">=20"
-  },
-  "lint-staged": {
-    "*.{ts,vue,js,mjs}": [
-      "prettier --write",
-      "eslint --fix"
-    ],
-    "*.{json,css,md,yml,yaml}": [
-      "prettier --write"
-    ]
   },
   "overrides": {
     "esbuild": "^0.24.0",
@@ -114,7 +103,6 @@
     "docs:preview": "cd services/docs-site && bun run preview",
     "docs:generate": "cd services/docs-site && bun run generate",
     "docs:install": "cd services/docs-site && bun install",
-    "prepare": "husky"
   },
   "type": "module"
 }
