@@ -26,6 +26,12 @@ const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
 const groupedWeapons = useGroupedWeapons(skins)
 const { teamSide } = useTeamToggle()
 
+// Quick action state
+const quickActionTarget = ref<WeaponItemData | null>(null)
+const showQuickResetModal = ref(false)
+const showQuickImportModal = ref(false)
+const quickImportLoading = ref(false)
+
 // Filter grouped weapons to only include items visible for the current team
 const visibleGroupedWeapons = computed(() => {
   const groups = groupedWeapons.value
@@ -203,6 +209,61 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
   }
 }
 
+const handleQuickAction = async (payload: { action: 'generate' | 'import' | 'toggle' | 'reset'; weapon: WeaponItemData }) => {
+  const { action, weapon } = payload
+  const db = weapon.databaseInfo
+
+  if (!db) return
+
+  switch (action) {
+    case 'toggle':
+      await quickActions.toggleActive(weapon.weapon_defindex, db)
+      break
+    case 'generate':
+      await quickActions.generateLink(weapon.weapon_defindex, db)
+      break
+    case 'reset':
+      quickActionTarget.value = weapon
+      showQuickResetModal.value = true
+      break
+    case 'import':
+      quickActionTarget.value = weapon
+      showQuickImportModal.value = true
+      break
+  }
+}
+
+const handleQuickReset = async () => {
+  if (!quickActionTarget.value?.databaseInfo) return
+  const db = quickActionTarget.value.databaseInfo
+  showQuickResetModal.value = false
+  await quickActions.reset(quickActionTarget.value.weapon_defindex, db.team)
+  quickActionTarget.value = null
+}
+
+const handleQuickImport = async (inspectUrl: string) => {
+  if (!quickActionTarget.value?.databaseInfo) return
+  const db = quickActionTarget.value.databaseInfo
+
+  try {
+    quickImportLoading.value = true
+    const config = await quickActions.importFromLink(
+      quickActionTarget.value.weapon_defindex,
+      db.team,
+      inspectUrl,
+    )
+    await quickActions.save(quickActionTarget.value.weapon_defindex, db.team, config)
+    showQuickImportModal.value = false
+    message.success('Import successful', { duration: 3000 })
+    quickActionTarget.value = null
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Import failed'
+    message.error(errorMessage, { duration: 3000 })
+  } finally {
+    quickImportLoading.value = false
+  }
+}
+
 const fetchLoadoutSkins = async () => {
   if (!loadoutStore.selectedLoadoutId || !user.value?.steamId) {
     message.error(t('loadout.selectLoadoutFirst') as string)
@@ -220,6 +281,13 @@ const fetchLoadoutSkins = async () => {
     })
     .finally(() => (isLoading.value = false))
 }
+
+const quickActions = useWeaponQuickActions({
+  user,
+  loadoutId: computed(() => loadoutStore.selectedLoadoutId),
+  weaponType: WEAPON_TYPE,
+  onSuccess: fetchLoadoutSkins,
+})
 
 // Wrapper handlers that handle type conversion for WeaponTabs events
 const handleWeaponClickWrapper = (weapon: WeaponItemData) => {
@@ -359,6 +427,7 @@ watch(
                 :key="weaponName"
                 :weapon-data="weaponData as any"
                 @weapon-click="handleWeaponClickWrapper"
+                @quick-action="handleQuickAction"
               />
             </div>
           </Transition>
@@ -379,6 +448,19 @@ watch(
         @select="handleSkinSave"
         @auto-save="handleAutoSave"
         @duplicate="handleWeaponDuplicate"
+      />
+
+      <!-- Quick Action Modals -->
+      <ResetModal
+        v-model:visible="showQuickResetModal"
+        :loading="quickActions.isLoading.value"
+        @confirm="handleQuickReset"
+      />
+
+      <InspectURLModal
+        v-model:visible="showQuickImportModal"
+        :loading="quickImportLoading"
+        @submit="handleQuickImport"
       />
     </div>
   </div>
