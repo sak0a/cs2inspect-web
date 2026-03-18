@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import type { DBWeapon, WeaponItemData } from '~/types'
 import { toSteamId, toLoadoutId, toDefindex, toPaintIndex } from '~/types/core/common'
-import { LucideEyeOff as EyeOffIcon } from 'lucide-vue-next'
+import {
+  LucideEllipsisVertical,
+  LucideLink,
+  LucideEye,
+  LucideEyeOff,
+  LucideRotateCcw,
+  LucideImport,
+} from 'lucide-vue-next'
 
 interface Props {
   weaponData: {
@@ -16,6 +23,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'weaponClick', weapon: WeaponItemData): void
+  (e: 'quick-action', payload: { action: 'generate' | 'import' | 'toggle' | 'reset'; weapon: WeaponItemData }): void
   (e: 'error', error: string): void
 }>()
 
@@ -101,6 +109,11 @@ const handleDefaultWeaponClick = (team: number): void => {
   }
 }
 
+const handleQuickAction = (key: string, weapon: WeaponItemData) => {
+  const action = key as 'generate' | 'import' | 'toggle' | 'reset'
+  emit('quick-action', { action, weapon })
+}
+
 const handleSkinClick = (weapon: WeaponItemData): void => {
   try {
     if (!weapon) {
@@ -171,18 +184,55 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
             loading="lazy"
           />
 
-          <!-- Inactive icon — State 3 -->
-          <span
-            v-if="!weapon.databaseInfo?.active"
-            class="inactive-icon"
-            aria-hidden="true"
+          <!-- Three-dots dropdown — only for configured cards -->
+          <div
+            class="absolute top-1 right-1 z-10"
+            @click.stop
+            @keydown.stop
           >
-            <EyeOffIcon :size="18" />
-          </span>
+            <SDropdown
+              trigger="click"
+              placement="bottom-end"
+              size="sm"
+              @select="(key: string) => handleQuickAction(key, weapon)"
+            >
+              <template #trigger>
+                <button
+                  class="dropdown-trigger"
+                  tabindex="0"
+                  :aria-label="`Actions for ${getWeaponLabel(weapon)}`"
+                >
+                  <LucideEllipsisVertical :size="16" />
+                </button>
+              </template>
+              <SDropdownItem
+                item-key="generate"
+                label="Generate Inspect Link"
+                :icon="LucideLink"
+                :disabled="weapon.databaseInfo?.paintindex === 0"
+              />
+              <SDropdownItem
+                item-key="toggle"
+                :label="weapon.databaseInfo?.active ? 'Deactivate' : 'Activate'"
+                :icon="weapon.databaseInfo?.active ? LucideEyeOff : LucideEye"
+              />
+              <SDropdownItem
+                item-key="reset"
+                label="Reset"
+                :icon="LucideRotateCcw"
+                danger
+              />
+              <SDropdownItem
+                item-key="import"
+                label="Import From Link"
+                :icon="LucideImport"
+              />
+            </SDropdown>
+          </div>
 
-          <!-- Vanilla badge — State 2 (paintindex = 0, DB entry exists) -->
+          <!-- Vanilla badge — keep, but only show when active -->
           <span
-            v-else-if="isVanillaSkin(weapon)"
+            v-if="isVanillaSkin(weapon) && weapon.databaseInfo?.active"
             class="weapon-badge weapon-badge--vanilla"
             aria-hidden="true"
           >
@@ -247,21 +297,6 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
   opacity: 0.9;
 }
 
-/* Small eye-off icon in the corner */
-.inactive-icon {
-  position: absolute;
-  top: 4px;
-  right: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  color: var(--text-tertiary);
-}
-
 /* Vanilla badge */
 .weapon-badge {
   position: absolute;
@@ -281,6 +316,31 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
   color: #b0c3d9;
   border: 1px solid rgba(176, 195, 217, 0.25);
   border-right: none;
+}
+
+.dropdown-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--text-tertiary);
+  cursor: pointer;
+  transition: color 150ms ease, background 150ms ease;
+  border: none;
+  padding: 0;
+}
+
+.dropdown-trigger:hover {
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.dropdown-trigger:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
