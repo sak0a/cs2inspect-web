@@ -222,6 +222,15 @@ const user = computed((): UserProfile | null => {
 
 const loadoutStore = useLoadoutStore()
 
+const quickActions = useWeaponQuickActions({
+  user: computed(() => user.value),
+  loadoutId: computed(() => loadoutStore.selectedLoadoutId),
+  weaponType: props.weapon?.category || '',
+  onSuccess: async () => {
+    // Modal doesn't need to refresh external data — it manages its own state
+  },
+})
+
 const skinSortOptions = computed(() => [
   { label: t('modals.weaponSkin.sort.name') as string, value: 'name' },
   { label: t('modals.weaponSkin.sort.rarity') as string, value: 'rarity' },
@@ -305,131 +314,18 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     state.value.isImporting = true
     state.value.error = null
 
-    const data = await $fetch<{ item: EconItem; message?: string }>(
-      `/api/inspect?action=inspect-item&steamId=${user.value.steamId}`,
-      {
-        method: 'POST',
-        body: { inspectUrl, itemType: 'weapon' },
-      }
+    const config = await quickActions.importFromLink(
+      props.weapon.weapon_defindex,
+      customization.value.team,
+      inspectUrl,
     )
 
-    if (data.item.defindex !== props.weapon.weapon_defindex) {
-      throw new Error(t('modals.weaponSkin.importFailedNoMatchingWeapon') as string)
-    }
-
-    // Fetch sticker data in parallel
-    const stickerPromises =
-      data.item.stickers?.map(
-        async (
-          sticker: {
-            sticker_id: number
-            offset_x?: number
-            offset_y?: number
-            wear?: number
-            scale?: number
-            rotation?: number
-          },
-          index: number
-        ) => {
-          if (!sticker) return null
-          const stickerResponse = await $fetch<{ success: boolean; data: APISticker[] }>(
-            `/api/data/stickers?id=sticker-${sticker.sticker_id}`
-          )
-          const stickerData = stickerResponse.data?.[0]
-
-          if (!stickerData) return null
-
-          return {
-            id: sticker.sticker_id,
-            x: sticker.offset_x || 0,
-            y: sticker.offset_y || 0,
-            wear: sticker.wear || 0,
-            scale: sticker.scale || 1,
-            rotation: sticker.rotation || 0,
-            index,
-            api: {
-              name: stickerData.name,
-              image: stickerData.image,
-              type: stickerData.type,
-              effect: stickerData.effect,
-              tournament_event: stickerData.tournament_event,
-              tournament_team: stickerData.tournament_team,
-              rarity: stickerData.rarity,
-            },
-          }
-        }
-      ) || []
-
-    // Fetch keychain data if exists
-    let keychainPromise
-    const itemKeychain = data.item.keychains?.[0]
-    if (itemKeychain) {
-      keychainPromise = $fetch<{ success: boolean; data: APIKeychain[] }>(
-        `/api/data/keychains?id=keychain-${itemKeychain.sticker_id}`
-      ).then((keychainData) => {
-        const keychain = keychainData.data?.[0]
-        if (!keychain) return null
-
-        return {
-          id: itemKeychain.sticker_id,
-          name: keychain.name || 'Unknown Keychain',
-          image: keychain.image || '',
-          x: 0, // These are not used when offset_x/y are present
-          y: 0,
-          z: itemKeychain.offset_z || 0,
-          offset_x: itemKeychain.offset_x || 0,
-          offset_y: itemKeychain.offset_y || 0,
-          offset_z: itemKeychain.offset_z || 0,
-          seed: itemKeychain.pattern || 0,
-          api: {
-            name: keychain.name,
-            image: keychain.image,
-            rarity: keychain.rarity,
-          },
-        }
-      })
-    }
-
-    // Wait for all data to be fetched
-    const [stickerResults, keychainData] = await Promise.all([
-      Promise.all(stickerPromises),
-      keychainPromise,
-    ])
-
-    // Initialize array with nulls
-    const stickers = Array(5).fill(null)
-
-    // Sort sticker results by their original index and place them in order
-    stickerResults
-      .filter((s): s is NonNullable<typeof s> => s !== null) // Remove any null results
-      .sort((a, b) => a.index - b.index) // Sort by original index
-      .forEach((stickerData, index) => {
-        if (stickerData && index < 5) {
-          // Remove the temporary index property before assigning
-          const { index: _, ...stickerWithoutIndex } = stickerData
-          stickers[index] = stickerWithoutIndex
-        }
-      })
-
-    // Update customization with complete data using new WeaponConfiguration interface
-    customization.value = {
-      active: true,
-      team: props.weapon.databaseInfo?.team || 1, // Default to Terrorist team
-      defindex: data.item.defindex,
-      paintindex: data.item.paintindex,
-      paintIndexOverride: false,
-      paintseed: data.item.paintseed,
-      paintwear: data.item.paintwear,
-      stattrak_enabled: data.item.killeaterscoretype !== null,
-      stattrak_count: data.item.killeatervalue || 0,
-      nametag: data.item.customname || '',
-      stickers,
-      keychain: keychainData ?? null,
-    }
+    // Update local customization state (modal doesn't save directly)
+    customization.value = config
 
     // Update selected skin based on paint index
     const matchingSkin = apiState.value.skins.find(
-      (skin) => Number(skin.paint_index) === data.item.paintindex
+      (skin) => Number(skin.paint_index) === config.paintindex,
     )
 
     if (matchingSkin) {
