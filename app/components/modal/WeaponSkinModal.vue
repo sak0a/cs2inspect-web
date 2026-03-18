@@ -13,7 +13,6 @@ import type {
   IMappedDBWeapon,
 } from '~/types'
 import { toSteamId } from '~/types'
-import type { EconItem } from 'cs2-inspect-lib'
 import type { APISticker } from '~/server/types'
 import { digitOnlyInputProps } from '~/utils/inputProps'
 import { useItemModal } from '~/composables/useItemModal'

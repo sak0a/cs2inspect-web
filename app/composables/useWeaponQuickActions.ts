@@ -1,6 +1,5 @@
-import type { DBWeapon, WeaponConfiguration } from '~/types'
+import type { DBWeapon, WeaponConfiguration, LoadoutId } from '~/types'
 import type { SteamUser } from '~/services/steamAuth'
-import type { LoadoutId } from '~/types'
 import type { EconItem } from 'cs2-inspect-lib'
 import type { APISticker, APIKeychain } from '~/server/types'
 
