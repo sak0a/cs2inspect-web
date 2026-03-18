@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// @saka-ui/registry v0.2.10 — tooltip
-// Source: saka-ui@0.2.10
+// @saka-ui/registry v0.2.11 — tooltip
+// Source: saka-ui@0.2.11
 // Do not remove this header if you want `saka-ui diff` to work.
 import { ref, computed, watch, onMounted, onBeforeUnmount, nextTick, type CSSProperties } from 'vue'
 import { cn } from '../../lib/utils'
@@ -8,19 +8,7 @@ import { cn } from '../../lib/utils'
 defineOptions({ inheritAttrs: false })
 
 export interface Props {
-  placement?:
-    | 'top'
-    | 'bottom'
-    | 'left'
-    | 'right'
-    | 'top-start'
-    | 'top-end'
-    | 'bottom-start'
-    | 'bottom-end'
-    | 'left-start'
-    | 'left-end'
-    | 'right-start'
-    | 'right-end'
+  placement?: 'top' | 'bottom' | 'left' | 'right' | 'top-start' | 'top-end' | 'bottom-start' | 'bottom-end' | 'left-start' | 'left-end' | 'right-start' | 'right-end'
   trigger?: 'hover' | 'click' | 'focus' | 'manual'
   content?: string
   showDelay?: number
@@ -60,7 +48,7 @@ const props = withDefaults(defineProps<Props>(), {
   zIndex: 9999,
   interactive: false,
   transition: 'tooltip-fade',
-  tooltipClass: undefined,
+  tooltipClass: undefined
 })
 
 const emit = defineEmits<{
@@ -90,7 +78,7 @@ const tooltipStyle = computed<CSSProperties>(() => {
     top: `${tooltipPosition.value.top}px`,
     left: `${tooltipPosition.value.left}px`,
     maxWidth: props.maxWidth,
-    zIndex: props.zIndex,
+    zIndex: props.zIndex
   }
 
   if (props.theme === 'custom') {
@@ -106,7 +94,7 @@ const arrowStyle = computed<CSSProperties>(() => {
     position: 'absolute',
     width: '0',
     height: '0',
-    borderStyle: 'solid',
+    borderStyle: 'solid'
   }
 
   const size = props.arrowSize
@@ -164,7 +152,7 @@ function calculatePosition() {
   const tooltip = tooltipRef.value.getBoundingClientRect()
   const viewport = {
     width: window.innerWidth,
-    height: window.innerHeight,
+    height: window.innerHeight
   }
 
   let placement = props.placement
@@ -173,54 +161,54 @@ function calculatePosition() {
 
   // Calculate initial position based on placement
   const positions: Record<string, { top: number; left: number }> = {
-    top: {
+    'top': {
       top: trigger.top - tooltip.height - props.offset,
-      left: trigger.left + trigger.width / 2 - tooltip.width / 2,
+      left: trigger.left + (trigger.width / 2) - (tooltip.width / 2)
     },
     'top-start': {
       top: trigger.top - tooltip.height - props.offset,
-      left: trigger.left,
+      left: trigger.left
     },
     'top-end': {
       top: trigger.top - tooltip.height - props.offset,
-      left: trigger.right - tooltip.width,
+      left: trigger.right - tooltip.width
     },
-    bottom: {
+    'bottom': {
       top: trigger.bottom + props.offset,
-      left: trigger.left + trigger.width / 2 - tooltip.width / 2,
+      left: trigger.left + (trigger.width / 2) - (tooltip.width / 2)
     },
     'bottom-start': {
       top: trigger.bottom + props.offset,
-      left: trigger.left,
+      left: trigger.left
     },
     'bottom-end': {
       top: trigger.bottom + props.offset,
-      left: trigger.right - tooltip.width,
+      left: trigger.right - tooltip.width
     },
-    left: {
-      top: trigger.top + trigger.height / 2 - tooltip.height / 2,
-      left: trigger.left - tooltip.width - props.offset,
+    'left': {
+      top: trigger.top + (trigger.height / 2) - (tooltip.height / 2),
+      left: trigger.left - tooltip.width - props.offset
     },
     'left-start': {
       top: trigger.top,
-      left: trigger.left - tooltip.width - props.offset,
+      left: trigger.left - tooltip.width - props.offset
     },
     'left-end': {
       top: trigger.bottom - tooltip.height,
-      left: trigger.left - tooltip.width - props.offset,
+      left: trigger.left - tooltip.width - props.offset
     },
-    right: {
-      top: trigger.top + trigger.height / 2 - tooltip.height / 2,
-      left: trigger.right + props.offset,
+    'right': {
+      top: trigger.top + (trigger.height / 2) - (tooltip.height / 2),
+      left: trigger.right + props.offset
     },
     'right-start': {
       top: trigger.top,
-      left: trigger.right + props.offset,
+      left: trigger.right + props.offset
     },
     'right-end': {
       top: trigger.bottom - tooltip.height,
-      left: trigger.right + props.offset,
-    },
+      left: trigger.right + props.offset
+    }
   }
 
   const pos = positions[placement]!
@@ -230,9 +218,9 @@ function calculatePosition() {
   // Edge detection and auto-repositioning
   const overflow = {
     top: top < 0,
-    bottom: top + tooltip.height > viewport.height,
+    bottom: (top + tooltip.height) > viewport.height,
     left: left < 0,
-    right: left + tooltip.width > viewport.width,
+    right: (left + tooltip.width) > viewport.width
   }
 
   // Flip placement if needed
@@ -271,20 +259,16 @@ function calculatePosition() {
   calculateArrowPosition(trigger, tooltip, placement)
 }
 
-function calculateArrowPosition(
-  trigger: DOMRect,
-  tooltip: DOMRect,
-  placement: typeof props.placement
-) {
+function calculateArrowPosition(trigger: DOMRect, tooltip: DOMRect, placement: typeof props.placement) {
   const arrowPos: typeof arrowPosition.value = { top: '', left: '', right: '', bottom: '' }
 
   if (placement.startsWith('top') || placement.startsWith('bottom')) {
-    const triggerCenter = trigger.left + trigger.width / 2
+    const triggerCenter = trigger.left + (trigger.width / 2)
     const tooltipLeft = tooltipPosition.value.left
     const arrowLeft = triggerCenter - tooltipLeft - props.arrowSize
     arrowPos.left = `${Math.max(props.arrowSize, Math.min(arrowLeft, tooltip.width - props.arrowSize * 3))}px`
   } else if (placement.startsWith('left') || placement.startsWith('right')) {
-    const triggerCenter = trigger.top + trigger.height / 2
+    const triggerCenter = trigger.top + (trigger.height / 2)
     const tooltipTop = tooltipPosition.value.top
     const arrowTop = triggerCenter - tooltipTop - props.arrowSize
     arrowPos.top = `${Math.max(props.arrowSize, Math.min(arrowTop, tooltip.height - props.arrowSize * 3))}px`
@@ -408,18 +392,15 @@ function handleScroll() {
 }
 
 // Watchers
-watch(
-  () => props.visible,
-  (newVal) => {
-    if (isManual.value && newVal !== undefined) {
-      if (newVal) {
-        show()
-      } else {
-        hide()
-      }
+watch(() => props.visible, (newVal) => {
+  if (isManual.value && newVal !== undefined) {
+    if (newVal) {
+      show()
+    } else {
+      hide()
     }
   }
-)
+})
 
 // Lifecycle
 onMounted(() => {
@@ -444,7 +425,7 @@ onBeforeUnmount(() => {
 defineExpose({
   show,
   hide,
-  toggle,
+  toggle
 })
 </script>
 
@@ -482,7 +463,10 @@ defineExpose({
           </div>
 
           <!-- Arrow -->
-          <div v-if="arrow" :style="arrowStyle" />
+          <div
+            v-if="arrow"
+            :style="arrowStyle"
+          />
         </div>
       </Transition>
     </Teleport>
@@ -493,9 +477,7 @@ defineExpose({
 /* Transitions */
 .tooltip-fade-enter-active,
 .tooltip-fade-leave-active {
-  transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
 .tooltip-fade-enter-from,

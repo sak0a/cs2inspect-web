@@ -130,8 +130,10 @@ const handleClick = (event: MouseEvent) => {
         sizeConfig.item,
         {
           'opacity-(--s-opacity-disabled) cursor-not-allowed': disabled,
-          'text-red-500 hover:bg-red-500/10': danger && !disabled,
-          'text-foreground hover:bg-accent': !danger && !disabled,
+          'text-red-500': danger,
+          'hover:bg-red-500/10': danger && !disabled,
+          'text-foreground': !danger,
+          'hover:bg-accent': !danger && !disabled,
           'bg-accent': isHighlighted && !disabled,
         },
         $attrs.class ?? ''
