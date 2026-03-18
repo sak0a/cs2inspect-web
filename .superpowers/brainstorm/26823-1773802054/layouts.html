@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeaponSkinModal — Layout Concepts</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #0f0f13;
+    color: #e2e8f0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    padding: 24px;
+    min-height: 100vh;
+  }
+  h1 { font-size: 22px; font-weight: 700; color: #f8fafc; margin-bottom: 6px; }
+  .subtitle { color: #94a3b8; font-size: 14px; margin-bottom: 32px; }
+
+  .layouts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .layout-card {
+    border: 2px solid #1e293b;
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+    background: #131620;
+    position: relative;
+  }
+  .layout-card:hover { border-color: #f59e0b; transform: translateY(-2px); box-shadow: 0 8px 30px rgba(245,158,11,0.15); }
+  .layout-card.selected { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.25); }
+  .layout-card .badge {
+    position: absolute; top: 10px; right: 10px;
+    background: #f59e0b; color: #000; font-size: 11px; font-weight: 700;
+    padding: 3px 8px; border-radius: 20px; z-index: 10;
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .layout-card.selected .badge { opacity: 1; }
+
+  .card-label {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid #1e293b;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .card-label .number {
+    background: #f59e0b; color: #000; font-size: 12px; font-weight: 700;
+    width: 22px; height: 22px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .card-label h3 { font-size: 14px; font-weight: 700; color: #f8fafc; }
+  .card-label p { font-size: 12px; color: #64748b; margin-top: 1px; }
+
+  .mockup-area { padding: 12px; }
+
+  /* ─── MOCKUP PRIMITIVES ─── */
+  .m-modal {
+    background: #1a1d2e;
+    border-radius: 8px;
+    border: 1px solid #2d3148;
+    overflow: hidden;
+    font-size: 10px;
+  }
+  .m-titlebar {
+    background: #13151f;
+    padding: 6px 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #2d3148;
+    gap: 6px;
+  }
+  .m-title { font-size: 10px; font-weight: 700; color: #e2e8f0; }
+  .m-team-badge {
+    background: rgba(59,130,246,0.25); color: #93c5fd;
+    font-size: 8px; padding: 1px 5px; border-radius: 10px; border: 1px solid rgba(59,130,246,0.4);
+  }
+  .m-btn {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px; padding: 2px 7px; font-size: 8px; color: #94a3b8; white-space: nowrap;
+  }
+  .m-btn.danger { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.3); color: #f87171; }
+  .m-btn.amber { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3); color: #fbbf24; }
+  .m-input {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 6px; padding: 2px 6px; font-size: 8px; color: #64748b; min-width: 0;
+  }
+  .m-search {
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(245,158,11,0.3);
+    border-radius: 6px; padding: 3px 8px; font-size: 8px; color: #94a3b8;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .m-search svg { opacity: 0.5; }
+  .m-weapon-img {
+    background: linear-gradient(135deg, #1e2235 0%, #252840 100%);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .m-weapon-img::after {
+    content: '';
+    position: absolute; bottom: 0; left: 0; right: 0; height: 30%;
+    background: linear-gradient(transparent, rgba(0,0,0,0.5));
+  }
+  .m-weapon-name {
+    position: absolute; bottom: 4px; left: 6px; font-size: 8px; font-weight: 700; color: #f8fafc; z-index: 1;
+  }
+  .m-gun {
+    width: 80%; height: 55%;
+    background: linear-gradient(90deg, #4a5568 0%, #718096 30%, #4a5568 60%, #2d3748 100%);
+    border-radius: 4px;
+    clip-path: polygon(0% 40%, 5% 20%, 15% 20%, 20% 10%, 70% 10%, 75% 25%, 85% 25%, 95% 40%, 95% 60%, 90% 70%, 80% 70%, 75% 60%, 65% 60%, 60% 70%, 40% 70%, 35% 60%, 25% 60%, 15% 70%, 10% 70%, 0% 60%);
+  }
+  .m-sticker {
+    background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,255,255,0.15);
+    border-radius: 4px; display: flex; align-items: center; justify-content: center;
+    font-size: 7px; color: #475569;
+  }
+  .m-sticker.filled { background: rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.4); border-style: solid; }
+  .m-sticker-dot {
+    width: 8px; height: 8px; border-radius: 2px;
+    background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.35);
+  }
+  .m-sticker-dot.filled { background: rgba(245,158,11,0.5); border-color: #f59e0b; }
+  .m-keychain-dot {
+    width: 8px; height: 12px; border-radius: 3px;
+    background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.35);
+  }
+  .m-keychain-dot.filled { background: rgba(139,92,246,0.5); border-color: #8b5cf6; }
+  .m-wear-bar {
+    height: 5px; border-radius: 3px;
+    background: linear-gradient(90deg, #22c55e 0%, #86efac 25%, #fbbf24 50%, #f97316 75%, #ef4444 100%);
+    position: relative;
+  }
+  .m-wear-thumb {
+    position: absolute; top: 50%; width: 8px; height: 8px;
+    background: white; border-radius: 50%; transform: translate(-50%, -50%);
+    border: 1px solid #cbd5e1;
+    left: 10%;
+  }
+  .m-skin-card {
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px; overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .m-skin-card.active { border-color: #f59e0b; background: rgba(245,158,11,0.08); }
+  .m-skin-img {
+    background: linear-gradient(135deg, #1e2235, #252840);
+    display: flex; align-items: center; justify-content: center; overflow: hidden;
+  }
+  .m-skin-mini-gun {
+    width: 90%; height: 60%;
+    background: linear-gradient(90deg, #4a5568, #718096, #4a5568);
+    border-radius: 2px;
+    clip-path: polygon(0% 35%, 8% 15%, 65% 15%, 70% 30%, 82% 30%, 100% 45%, 100% 65%, 82% 70%, 65% 70%, 60% 85%, 20% 85%, 8% 70%, 0% 65%);
+    opacity: 0.7;
+  }
+  .m-skin-label { padding: 3px 4px; font-size: 7px; color: #94a3b8; }
+  .m-rarity-bar { height: 2px; }
+  .m-toggle { width: 22px; height: 12px; background: rgba(255,255,255,0.1); border-radius: 6px; position: relative; }
+  .m-toggle.on { background: rgba(245,158,11,0.6); }
+  .m-toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; background: white; border-radius: 50%; transition: left 0.15s; }
+  .m-toggle.on::after { left: 12px; }
+  .m-label-row { display: flex; align-items: center; gap: 4px; color: #64748b; font-size: 8px; }
+  .m-section-label { font-size: 8px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.04em; }
+  .m-divider { width: 1px; background: #1e293b; align-self: stretch; }
+  .m-tab {
+    padding: 3px 8px; border-radius: 4px; font-size: 8px; cursor: pointer;
+    color: #64748b;
+  }
+  .m-tab.active { background: rgba(245,158,11,0.15); color: #f59e0b; font-weight: 700; }
+  .m-canvas-area {
+    background: linear-gradient(135deg, #0f1117 0%, #1a1d2e 100%);
+    border-radius: 6px;
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .m-canvas-controls {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: rgba(13,15,25,0.85); backdrop-filter: blur(8px);
+    padding: 4px 6px;
+    display: flex; align-items: center; gap: 6px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+  .m-chip {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 4px; padding: 1px 5px; font-size: 7px; color: #94a3b8;
+  }
+  .m-sort-bar {
+    display: flex; align-items: center; gap: 4px;
+    padding: 4px 0;
+  }
+  .m-rarity-pill {
+    border-radius: 10px; padding: 1px 5px; font-size: 7px;
+    border: 1px solid; white-space: nowrap;
+  }
+  .m-pagination { display: flex; align-items: center; gap: 3px; margin-top: 4px; }
+  .m-page-btn {
+    width: 14px; height: 14px; border-radius: 3px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center; font-size: 7px; color: #64748b;
+  }
+  .m-page-btn.active { background: rgba(245,158,11,0.2); border-color: rgba(245,158,11,0.5); color: #f59e0b; }
+
+  /* selection UI */
+  .select-indicator {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #1e293b; border: 1px solid #334155; border-radius: 8px;
+    padding: 8px 16px; font-size: 13px; color: #94a3b8;
+    transition: all 0.2s; pointer-events: none;
+  }
+  .select-indicator.visible { color: #f59e0b; border-color: rgba(245,158,11,0.4); }
+  .select-indicator strong { color: #f8fafc; }
+</style>
+</head>
+<body>
+
+<h1>WeaponSkinModal — 5 Layout Concepts</h1>
+<p class="subtitle">Click a layout to select it. Each addresses the space efficiency, search, sticker, and preview pain points differently.</p>
+
+<div class="layouts-grid">
+
+  <!-- ─── LAYOUT 1: Command Center ─── -->
+  <div class="layout-card" data-choice="1" onclick="selectLayout(this)">
+    <span class="badge">✓ Selected</span>
+    <div class="card-label">
+      <div class="number">1</div>
+      <div>
+        <h3>Command Center</h3>
+        <p>Fixed left panel: preview + stickers. Right panel: search + skin browser</p>
+      </div>
+    </div>
+    <div class="mockup-area">
+      <div class="m-modal">
+        <!-- titlebar -->
+        <div class="m-titlebar">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span class="m-title">Select Skin for M4A1-S</span>
+            <span class="m-team-badge">CT</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span class="m-btn danger">↺ Reset</span>
+            <span class="m-btn">🕐 History</span>
+            <span class="m-btn">⇧ Import</span>
+            <span class="m-btn amber">⛓ Link</span>
+            <span style="width:1px;height:14px;background:#1e293b;margin:0 2px;"></span>
+            <span style="color:#555;font-size:9px;">✕</span>
+          </div>
+        </div>
+        <!-- body: two columns -->
+        <div style="display:flex;height:320px;">
+          <!-- LEFT PANEL: static width ~38% -->
+          <div style="width:38%;flex-shrink:0;padding:10px;display:flex;flex-direction:column;gap:8px;border-right:1px solid #1e293b;">
+            <!-- Large weapon preview -->
+            <div class="m-weapon-img" style="flex:1;min-height:120px;">
+              <div class="m-gun" style="background:linear-gradient(90deg,#3b4ad4,#6875e8,#8b5cf6,#4a5568);"></div>
+              <span class="m-weapon-name">M4A1-S | Black Lotus</span>
+              <!-- wand icon overlay top-right -->
+              <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.5);border-radius:4px;padding:2px 4px;font-size:8px;color:#f59e0b;">✦ Edit</div>
+            </div>
+            <!-- Stattrak + nametag row -->
+            <div style="display:flex;gap:4px;align-items:center;">
+              <div class="m-toggle on"></div>
+              <span style="font-size:7px;color:#94a3b8;">StatTrak™</span>
+              <div class="m-input" style="flex:1;">dskdks... 20/20</div>
+            </div>
+            <!-- Wear slider -->
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                <span style="font-size:7px;font-weight:700;color:#94a3b8;">WEAR (FLOAT)</span>
+                <span style="font-size:7px;color:#f59e0b;">0.010</span>
+              </div>
+              <div class="m-wear-bar"><div class="m-wear-thumb"></div></div>
+            </div>
+            <!-- Paint index / seed compact row -->
+            <div style="display:flex;gap:4px;">
+              <div style="flex:1;">
+                <div style="font-size:7px;color:#64748b;margin-bottom:2px;">Paint Index</div>
+                <div class="m-input" style="display:flex;align-items:center;gap:2px;">1166 <span style="color:#334155;">−+</span></div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:7px;color:#64748b;margin-bottom:2px;">Pattern</div>
+                <div class="m-input" style="display:flex;align-items:center;gap:2px;">0 <span style="color:#334155;">−+</span></div>
+              </div>
+              <div style="display:flex;flex-direction:column;justify-content:flex-end;">
+                <div class="m-toggle" style=""></div>
+                <div style="font-size:6px;color:#64748b;margin-top:1px;">Active</div>
+              </div>
+            </div>
+            <!-- Sticker strip — compact 5 + keychain -->
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span class="m-section-label">Stickers &amp; Keychain</span>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;">
+                <div class="m-sticker" style="aspect-ratio:1;"></div>
+                <div class="m-sticker filled" style="aspect-ratio:1;background:rgba(245,158,11,0.15);">
+                  <div style="width:70%;height:70%;background:linear-gradient(135deg,#f59e0b44,#ef444444);border-radius:2px;"></div>
+                </div>
+                <div class="m-sticker" style="aspect-ratio:1;"></div>
+                <div class="m-sticker" style="aspect-ratio:1;"></div>
+                <div class="m-sticker filled" style="aspect-ratio:1;background:rgba(59,130,246,0.12);border-color:rgba(59,130,246,0.4);">
+                  <div style="width:70%;height:70%;background:linear-gradient(135deg,#3b82f644,#2563eb44);border-radius:2px;"></div>
+                </div>
+                <div class="m-sticker filled" style="aspect-ratio:1;background:rgba(139,92,246,0.12);border-color:rgba(139,92,246,0.4);">
+                  <div style="width:70%;height:70%;background:linear-gradient(135deg,#8b5cf644,#6d28d944);border-radius:2px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- RIGHT PANEL: skin browser -->
+          <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:6px;overflow:hidden;">
+            <!-- search at top of browser -->
+            <div class="m-search" style="width:100%;">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Search skins...
+            </div>
+            <!-- sort + rarity -->
+            <div class="m-sort-bar">
+              <div class="m-input" style="font-size:7px;">Name ▾</div>
+              <span style="font-size:9px;color:#334155;">↑</span>
+              <div style="flex:1;"></div>
+              <div class="m-rarity-pill" style="border-color:rgba(239,68,68,0.4);color:#f87171;background:rgba(239,68,68,0.08);">Covert</div>
+              <div class="m-rarity-pill" style="border-color:rgba(139,92,246,0.4);color:#a78bfa;background:rgba(139,92,246,0.08);">Classified</div>
+            </div>
+            <!-- skin grid: 4 columns -->
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;flex:1;overflow:hidden;">
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#ef4444,#f97316,#4a5568);"></div></div>
+                <div class="m-skin-label">Atomic Alloy</div>
+                <div class="m-rarity-bar" style="background:#8b5cf6;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#64748b,#94a3b8,#64748b);"></div></div>
+                <div class="m-skin-label">Basilisk</div>
+                <div class="m-rarity-bar" style="background:#3b82f6;"></div>
+              </div>
+              <div class="m-skin-card active">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#3b4ad4,#6875e8,#8b5cf6);"></div></div>
+                <div class="m-skin-label" style="color:#f59e0b;">Black Lotus</div>
+                <div class="m-rarity-bar" style="background:#f59e0b;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#78350f,#92400e,#4a5568);"></div></div>
+                <div class="m-skin-label">Blood Tiger</div>
+                <div class="m-rarity-bar" style="background:#a855f7;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#1e3a5f,#2563eb,#1e40af);"></div></div>
+                <div class="m-skin-label">Blue Phosphor</div>
+                <div class="m-rarity-bar" style="background:#6366f1;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#1a2e1a,#166534,#14532d);"></div></div>
+                <div class="m-skin-label">Briefing</div>
+                <div class="m-rarity-bar" style="background:#22c55e;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#3c1753,#7c3aed,#4c1d95);"></div></div>
+                <div class="m-skin-label">Chaos Mosaic</div>
+                <div class="m-rarity-bar" style="background:#a855f7;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#78350f,#d97706,#78350f);"></div></div>
+                <div class="m-skin-label">Cyrex</div>
+                <div class="m-rarity-bar" style="background:#f59e0b;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#111827,#374151,#111827);"></div></div>
+                <div class="m-skin-label">Dark Water</div>
+                <div class="m-rarity-bar" style="background:#6366f1;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#1e1b4b,#4338ca,#3730a3);"></div></div>
+                <div class="m-skin-label">Decimator</div>
+                <div class="m-rarity-bar" style="background:#8b5cf6;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"><div class="m-skin-mini-gun"></div></div>
+                <div class="m-skin-label">Desolate Space</div>
+                <div class="m-rarity-bar" style="background:#3b82f6;"></div>
+              </div>
+              <div class="m-skin-card">
+                <div class="m-skin-img" style="height:42px;"></div>
+                <div class="m-skin-label">Flashback</div>
+                <div class="m-rarity-bar" style="background:#22c55e;"></div>
+              </div>
+            </div>
+            <!-- pagination -->
+            <div class="m-pagination">
+              <div class="m-page-btn">‹</div>
+              <div class="m-page-btn active">1</div>
+              <div class="m-page-btn">2</div>
+              <div class="m-page-btn">3</div>
+              <div class="m-page-btn">›</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LAYOUT 2: Top Banner ─── -->
+  <div class="layout-card" data-choice="2" onclick="selectLayout(this)">
+    <span class="badge">✓ Selected</span>
+    <div class="card-label">
+      <div class="number">2</div>
+      <div>
+        <h3>Top Banner</h3>
+        <p>Full-width hero preview + controls row. Skin browser below. Stickers collapsible.</p>
+      </div>
+    </div>
+    <div class="mockup-area">
+      <div class="m-modal">
+        <div class="m-titlebar">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span class="m-title">Select Skin for M4A1-S</span>
+            <span class="m-team-badge">CT</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span class="m-btn danger">↺ Reset</span>
+            <span class="m-btn">🕐</span>
+            <span class="m-btn">⇧</span>
+            <span class="m-btn amber">⛓</span>
+            <span style="color:#555;font-size:9px;margin-left:4px;">✕</span>
+          </div>
+        </div>
+        <!-- HERO: full-width weapon preview -->
+        <div class="m-weapon-img" style="width:100%;height:100px;border-radius:0;">
+          <div class="m-gun" style="width:70%;background:linear-gradient(90deg,#3b4ad4,#6875e8,#8b5cf6,#4a5568);"></div>
+          <span class="m-weapon-name" style="font-size:10px;">M4A1-S | Black Lotus</span>
+          <div style="position:absolute;top:6px;right:8px;background:rgba(0,0,0,0.6);border-radius:6px;padding:2px 6px;font-size:8px;color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">✦ Visual Editor</div>
+        </div>
+        <!-- Controls strip -->
+        <div style="background:#13151f;border-bottom:1px solid #1e293b;padding:6px 10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:3px;"><div class="m-toggle on"></div><span style="font-size:7px;color:#94a3b8;">StatTrak™</span><div class="m-input" style="width:40px;">0</div></div>
+          <div style="width:1px;height:16px;background:#1e293b;"></div>
+          <div style="display:flex;align-items:center;gap:4px;flex:1;min-width:80px;">
+            <span style="font-size:7px;color:#64748b;">Float</span>
+            <div class="m-wear-bar" style="flex:1;"><div class="m-wear-thumb"></div></div>
+            <span style="font-size:7px;color:#f59e0b;">0.010</span>
+          </div>
+          <div style="width:1px;height:16px;background:#1e293b;"></div>
+          <div style="display:flex;align-items:center;gap:3px;">
+            <span style="font-size:7px;color:#64748b;">Seed</span>
+            <div class="m-input" style="width:28px;">0</div>
+          </div>
+          <div class="m-input" style="min-width:60px;font-size:7px;">Name tag...</div>
+          <div style="display:flex;align-items:center;gap:3px;"><div class="m-toggle"></div><span style="font-size:7px;color:#64748b;">Active</span></div>
+        </div>
+        <!-- Collapsible sticker strip -->
+        <div style="background:#0f1117;border-bottom:1px solid #1e293b;padding:5px 10px;">
+          <div style="display:flex;align-items:center;gap:4px;margin-bottom:4px;">
+            <span class="m-section-label">Stickers &amp; Keychain</span>
+            <span style="font-size:7px;color:#334155;margin-left:auto;">▲ hide</span>
+          </div>
+          <div style="display:flex;gap:4px;align-items:center;">
+            <div class="m-sticker" style="width:36px;height:28px;flex-shrink:0;"></div>
+            <div class="m-sticker filled" style="width:36px;height:28px;flex-shrink:0;">
+              <div style="width:60%;height:60%;background:linear-gradient(135deg,#f59e0b44,#ef444444);border-radius:2px;"></div>
+            </div>
+            <div class="m-sticker" style="width:36px;height:28px;flex-shrink:0;"></div>
+            <div class="m-sticker" style="width:36px;height:28px;flex-shrink:0;"></div>
+            <div class="m-sticker filled" style="width:36px;height:28px;flex-shrink:0;background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.35);">
+              <div style="width:60%;height:60%;background:linear-gradient(135deg,#3b82f644,#2563eb44);border-radius:2px;"></div>
+            </div>
+            <div style="width:1px;height:20px;background:#1e293b;margin:0 2px;"></div>
+            <div class="m-sticker filled" style="width:28px;height:28px;flex-shrink:0;background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.35);">
+              <div style="width:60%;height:60%;background:linear-gradient(135deg,#8b5cf644,#6d28d944);border-radius:2px;"></div>
+            </div>
+          </div>
+        </div>
+        <!-- Search + sort -->
+        <div style="padding:6px 8px;display:flex;align-items:center;gap:6px;border-bottom:1px solid #1e293b;">
+          <div class="m-search" style="flex:1;">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            Search skins...
+          </div>
+          <div class="m-input" style="font-size:7px;white-space:nowrap;">Name ▾</div>
+          <span style="font-size:9px;color:#334155;">↑</span>
+          <div class="m-rarity-pill" style="border-color:rgba(239,68,68,0.4);color:#f87171;background:rgba(239,68,68,0.08);">Covert</div>
+          <div class="m-rarity-pill" style="border-color:rgba(139,92,246,0.4);color:#a78bfa;background:rgba(139,92,246,0.08);">Classified</div>
+        </div>
+        <!-- Skin grid: 5 cols -->
+        <div style="padding:6px 8px;">
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;">
+            <div class="m-skin-card"><div class="m-skin-img" style="height:36px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#ef4444,#f97316);"></div></div><div class="m-skin-label">Atomic Alloy</div><div class="m-rarity-bar" style="background:#8b5cf6;"></div></div>
+            <div class="m-skin-card"><div class="m-skin-img" style="height:36px;"></div><div class="m-skin-label">Basilisk</div><div class="m-rarity-bar" style="background:#3b82f6;"></div></div>
+            <div class="m-skin-card active"><div class="m-skin-img" style="height:36px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#3b4ad4,#8b5cf6);"></div></div><div class="m-skin-label" style="color:#f59e0b;">Black Lotus</div><div class="m-rarity-bar" style="background:#f59e0b;"></div></div>
+            <div class="m-skin-card"><div class="m-skin-img" style="height:36px;"></div><div class="m-skin-label">Blood Tiger</div><div class="m-rarity-bar" style="background:#a855f7;"></div></div>
+            <div class="m-skin-card"><div class="m-skin-img" style="height:36px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#1e3a5f,#2563eb);"></div></div><div class="m-skin-label">Blue Phosphor</div><div class="m-rarity-bar" style="background:#6366f1;"></div></div>
+          </div>
+          <div class="m-pagination" style="justify-content:center;margin-top:6px;">
+            <div class="m-page-btn">‹</div><div class="m-page-btn active">1</div><div class="m-page-btn">2</div><div class="m-page-btn">3</div><div class="m-page-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LAYOUT 3: Split Inspector (3-column) ─── -->
+  <div class="layout-card" data-choice="3" onclick="selectLayout(this)">
+    <span class="badge">✓ Selected</span>
+    <div class="card-label">
+      <div class="number">3</div>
+      <div>
+        <h3>Split Inspector</h3>
+        <p>3 columns: skin list | large canvas preview | controls + stickers</p>
+      </div>
+    </div>
+    <div class="mockup-area">
+      <div class="m-modal">
+        <div class="m-titlebar">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span class="m-title">Select Skin — M4A1-S</span>
+            <span class="m-team-badge">CT</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span class="m-btn danger">↺</span>
+            <span class="m-btn">🕐</span>
+            <span class="m-btn">⇧</span>
+            <span class="m-btn amber">⛓</span>
+            <span style="color:#555;font-size:9px;margin-left:2px;">✕</span>
+          </div>
+        </div>
+        <div style="display:flex;height:310px;">
+          <!-- COL 1: compact skin list with integrated search -->
+          <div style="width:24%;flex-shrink:0;border-right:1px solid #1e293b;display:flex;flex-direction:column;">
+            <div style="padding:6px;">
+              <div class="m-search" style="width:100%;margin-bottom:5px;">
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                Search...
+              </div>
+              <div style="display:flex;gap:2px;flex-wrap:wrap;">
+                <div class="m-rarity-pill" style="border-color:rgba(239,68,68,0.4);color:#f87171;background:rgba(239,68,68,0.08);font-size:6px;">Covert</div>
+                <div class="m-rarity-pill" style="border-color:rgba(139,92,246,0.4);color:#a78bfa;background:rgba(139,92,246,0.08);font-size:6px;">Classified</div>
+              </div>
+            </div>
+            <!-- list items -->
+            <div style="flex:1;overflow:hidden;padding:0 4px;">
+              <div style="display:flex;flex-direction:column;gap:2px;">
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#ef4444,#f97316);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Atomic Alloy</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#8b5cf6;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#64748b,#94a3b8);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Basilisk</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#3b82f6;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#3b4ad4,#8b5cf6);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#f59e0b;font-weight:700;">Black Lotus</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#f59e0b;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#78350f,#92400e);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Blood Tiger</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#a855f7;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#1e3a5f,#2563eb);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Blue Phosphor</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#6366f1;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#1a2e1a,#166534);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Briefing</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#22c55e;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#3c1753,#7c3aed);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Chaos Mosaic</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#a855f7;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#78350f,#d97706);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Cyrex</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#f59e0b;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+                <div style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:4px;background:rgba(255,255,255,0.03);">
+                  <div style="width:28px;height:18px;background:linear-gradient(90deg,#111827,#374151);border-radius:2px;flex-shrink:0;"></div>
+                  <span style="font-size:7px;color:#94a3b8;">Dark Water</span>
+                  <div style="width:4px;height:4px;border-radius:50%;background:#6366f1;margin-left:auto;flex-shrink:0;"></div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:4px;border-top:1px solid #1e293b;">
+              <div class="m-pagination" style="justify-content:center;">
+                <div class="m-page-btn">‹</div><div class="m-page-btn active">1</div><div class="m-page-btn">2</div><div class="m-page-btn">›</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COL 2: large canvas/preview — visual customizer integrated -->
+          <div style="flex:1;display:flex;flex-direction:column;border-right:1px solid #1e293b;">
+            <div class="m-canvas-area" style="flex:1;">
+              <div style="width:80%;height:50%;background:linear-gradient(90deg,#3b4ad4,#6875e8,#8b5cf6,#4a5568);border-radius:4px;clip-path:polygon(0% 40%, 5% 20%, 15% 20%, 20% 10%, 70% 10%, 75% 25%, 85% 25%, 95% 40%, 95% 60%, 90% 70%, 80% 70%, 75% 60%, 65% 60%, 60% 70%, 40% 70%, 35% 60%, 25% 60%, 15% 70%, 10% 70%, 0% 60%);"></div>
+              <!-- Sticker overlays on the gun -->
+              <div style="position:absolute;top:40%;left:46%;width:14px;height:14px;background:rgba(245,158,11,0.5);border-radius:3px;border:1px solid #f59e0b;display:flex;align-items:center;justify-content:center;font-size:6px;">S</div>
+              <div style="position:absolute;bottom:24%;right:30%;width:10px;height:10px;background:rgba(139,92,246,0.6);border-radius:50%;border:1px solid #8b5cf6;"></div>
+              <div class="m-canvas-controls">
+                <div class="m-chip">Scale 1.0</div>
+                <div class="m-chip">Rot 0°</div>
+                <div class="m-wear-bar" style="flex:1;"><div class="m-wear-thumb"></div></div>
+                <span style="font-size:7px;color:#f59e0b;">0.010</span>
+              </div>
+            </div>
+            <!-- Sticker strip below canvas -->
+            <div style="background:#13151f;padding:5px 8px;border-top:1px solid #1e293b;">
+              <div style="font-size:7px;color:#64748b;margin-bottom:3px;">STICKERS / KEYCHAIN</div>
+              <div style="display:flex;gap:4px;align-items:center;">
+                <div class="m-sticker" style="flex:1;height:24px;max-width:40px;"></div>
+                <div class="m-sticker filled" style="flex:1;height:24px;max-width:40px;"><div style="width:60%;height:60%;background:linear-gradient(135deg,#f59e0b44,#ef444444);border-radius:2px;"></div></div>
+                <div class="m-sticker" style="flex:1;height:24px;max-width:40px;"></div>
+                <div class="m-sticker" style="flex:1;height:24px;max-width:40px;"></div>
+                <div class="m-sticker filled" style="flex:1;height:24px;max-width:40px;background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.35);"><div style="width:60%;height:60%;background:linear-gradient(135deg,#3b82f644,#2563eb44);border-radius:2px;"></div></div>
+                <div style="width:1px;height:16px;background:#1e293b;"></div>
+                <div class="m-sticker filled" style="height:24px;width:28px;background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.35);flex-shrink:0;"><div style="width:60%;height:60%;background:linear-gradient(135deg,#8b5cf644);border-radius:2px;"></div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- COL 3: controls -->
+          <div style="width:26%;flex-shrink:0;padding:8px;display:flex;flex-direction:column;gap:6px;">
+            <div>
+              <div class="m-section-label" style="margin-bottom:3px;">StatTrak™</div>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <div class="m-toggle on"></div>
+                <div class="m-input" style="flex:1;">0</div>
+              </div>
+            </div>
+            <div>
+              <div class="m-section-label" style="margin-bottom:3px;">Name Tag</div>
+              <div class="m-input" style="width:100%;font-size:7px;">dskdks... 20/20</div>
+            </div>
+            <div>
+              <div class="m-section-label" style="margin-bottom:3px;">Wear (Float)</div>
+              <div class="m-wear-bar"><div class="m-wear-thumb"></div></div>
+              <span style="font-size:7px;color:#f59e0b;">0.010 FN</span>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <div style="flex:1;">
+                <div class="m-section-label" style="margin-bottom:2px;">Paint Index</div>
+                <div class="m-input" style="display:flex;align-items:center;gap:2px;font-size:7px;">1166 <span style="color:#334155;">−+</span></div>
+              </div>
+              <div style="flex:1;">
+                <div class="m-section-label" style="margin-bottom:2px;">Pattern</div>
+                <div class="m-input" style="display:flex;align-items:center;gap:2px;font-size:7px;">0 <span style="color:#334155;">−+</span></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
+              <div class="m-toggle"></div>
+              <span style="font-size:7px;color:#64748b;">Active</span>
+            </div>
+            <div style="flex:1;"></div>
+            <div style="border-top:1px solid #1e293b;padding-top:6px;">
+              <div class="m-btn" style="display:block;text-align:center;padding:4px;font-size:8px;color:#94a3b8;border-radius:6px;">Duplicate for other team</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LAYOUT 4: Tab-Based ─── -->
+  <div class="layout-card" data-choice="4" onclick="selectLayout(this)">
+    <span class="badge">✓ Selected</span>
+    <div class="card-label">
+      <div class="number">4</div>
+      <div>
+        <h3>Tab-Based Workspace</h3>
+        <p>Two tabs: [Customize] big preview + all controls inline · [Browse] grid view</p>
+      </div>
+    </div>
+    <div class="mockup-area">
+      <div class="m-modal">
+        <div class="m-titlebar">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span class="m-title">M4A1-S | Black Lotus</span>
+            <span class="m-team-badge">CT</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <span class="m-btn danger">↺ Reset</span>
+            <span class="m-btn">⇧</span><span class="m-btn amber">⛓</span>
+            <span style="color:#555;font-size:9px;margin-left:2px;">✕</span>
+          </div>
+        </div>
+        <!-- Tab bar -->
+        <div style="background:#13151f;border-bottom:1px solid #1e293b;padding:0 10px;display:flex;align-items:center;gap:2px;">
+          <div class="m-tab active">✦ Customize</div>
+          <div class="m-tab">⊞ Browse Skins</div>
+          <div style="flex:1;"></div>
+          <div class="m-btn" style="font-size:7px;margin:4px 0;">🕐 History</div>
+        </div>
+        <!-- Customize Tab content -->
+        <div style="display:flex;height:285px;">
+          <!-- Big preview left -->
+          <div style="width:55%;flex-shrink:0;padding:8px;display:flex;flex-direction:column;gap:6px;border-right:1px solid #1e293b;">
+            <div class="m-canvas-area" style="flex:1;">
+              <div style="width:82%;height:52%;background:linear-gradient(90deg,#3b4ad4,#6875e8,#8b5cf6,#4a5568);border-radius:4px;clip-path:polygon(0% 40%, 5% 20%, 15% 20%, 20% 10%, 70% 10%, 75% 25%, 85% 25%, 95% 40%, 95% 60%, 90% 70%, 80% 70%, 75% 60%, 65% 60%, 60% 70%, 40% 70%, 35% 60%, 25% 60%, 15% 70%, 10% 70%, 0% 60%);"></div>
+              <div style="position:absolute;top:35%;left:44%;width:16px;height:16px;background:rgba(245,158,11,0.5);border-radius:3px;border:1px dashed #f59e0b;display:flex;align-items:center;justify-content:center;font-size:7px;color:#f59e0b;">1</div>
+            </div>
+            <!-- Stickers as full-width square grid -->
+            <div>
+              <div class="m-section-label" style="margin-bottom:4px;">Stickers</div>
+              <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;">
+                <div class="m-sticker" style="aspect-ratio:1;max-height:32px;"></div>
+                <div class="m-sticker filled" style="aspect-ratio:1;max-height:32px;"><div style="width:65%;height:65%;background:linear-gradient(135deg,#f59e0b66,#ef444466);border-radius:2px;"></div></div>
+                <div class="m-sticker" style="aspect-ratio:1;max-height:32px;"></div>
+                <div class="m-sticker" style="aspect-ratio:1;max-height:32px;"></div>
+                <div class="m-sticker filled" style="aspect-ratio:1;max-height:32px;background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.35);"><div style="width:65%;height:65%;background:linear-gradient(135deg,#3b82f666);border-radius:2px;"></div></div>
+              </div>
+            </div>
+            <!-- Keychain compact row -->
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="m-section-label">Keychain</span>
+              <div class="m-sticker filled" style="width:36px;height:36px;background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.35);">
+                <div style="width:60%;height:70%;background:linear-gradient(180deg,#8b5cf666,#6d28d966);border-radius:3px;"></div>
+              </div>
+              <span style="font-size:7px;color:#a78bfa;">8 Ball [G]</span>
+            </div>
+          </div>
+          <!-- Controls right -->
+          <div style="flex:1;padding:8px;display:flex;flex-direction:column;gap:5px;">
+            <div>
+              <div class="m-section-label" style="margin-bottom:3px;">StatTrak™</div>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <div class="m-toggle on"></div>
+                <div class="m-input" style="width:36px;">0</div>
+              </div>
+            </div>
+            <div>
+              <div class="m-section-label" style="margin-bottom:2px;">Name Tag</div>
+              <div class="m-input" style="width:100%;font-size:7px;">dskdks... 20/20</div>
+            </div>
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                <span class="m-section-label">Wear (Float)</span>
+                <span style="font-size:7px;color:#f59e0b;">0.010 FN</span>
+              </div>
+              <div class="m-wear-bar"><div class="m-wear-thumb"></div></div>
+            </div>
+            <div style="display:flex;gap:4px;">
+              <div style="flex:1;">
+                <div class="m-section-label" style="margin-bottom:2px;">Paint Idx</div>
+                <div class="m-input" style="display:flex;align-items:center;gap:2px;font-size:7px;">1166 <span style="color:#334155;">−+</span></div>
+              </div>
+              <div style="flex:1;">
+                <div class="m-section-label" style="margin-bottom:2px;">Seed</div>
+                <div class="m-input" style="display:flex;align-items:center;gap:2px;font-size:7px;">0 <span style="color:#334155;">−+</span></div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:4px;">
+              <div class="m-toggle"></div>
+              <span style="font-size:7px;color:#64748b;">Inactive</span>
+            </div>
+            <div style="flex:1;"></div>
+            <!-- Browse button -->
+            <div class="m-tab active" style="display:block;text-align:center;padding:5px;border-radius:6px;font-size:8px;">⊞ Browse &amp; Change Skin</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── LAYOUT 5: Compact Sidebar ─── -->
+  <div class="layout-card" data-choice="5" onclick="selectLayout(this)" style="grid-column:1/-1;">
+    <span class="badge">✓ Selected</span>
+    <div class="card-label">
+      <div class="number">5</div>
+      <div>
+        <h3>Compact Sidebar</h3>
+        <p>Right sidebar for preview + controls, left area = full skin browser. No wasted vertical space. Stickers as a dense 6-slot row.</p>
+      </div>
+    </div>
+    <div class="mockup-area">
+      <div class="m-modal">
+        <div class="m-titlebar">
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span class="m-title">Select Skin for M4A1-S</span>
+            <span class="m-team-badge">CT</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <!-- Search in header -->
+            <div class="m-search" style="min-width:140px;">
+              <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              Search skins...
+            </div>
+            <span class="m-btn danger">↺</span>
+            <span class="m-btn">🕐</span>
+            <span class="m-btn">⇧</span>
+            <span class="m-btn amber">⛓</span>
+            <span style="color:#555;font-size:9px;margin-left:2px;">✕</span>
+          </div>
+        </div>
+        <div style="display:flex;height:300px;">
+          <!-- LEFT: Browser -->
+          <div style="flex:1;display:flex;flex-direction:column;padding:6px;border-right:1px solid #1e293b;gap:4px;">
+            <!-- sort + rarity pills -->
+            <div class="m-sort-bar">
+              <div class="m-input" style="font-size:7px;">Name ▾</div>
+              <span style="font-size:9px;color:#334155;">↑</span>
+              <span style="font-size:7px;color:#334155;margin-left:4px;">Rarity:</span>
+              <div class="m-rarity-pill" style="border-color:rgba(239,68,68,0.4);color:#f87171;background:rgba(239,68,68,0.08);">Covert</div>
+              <div class="m-rarity-pill" style="border-color:rgba(139,92,246,0.4);color:#a78bfa;background:rgba(139,92,246,0.08);">Classified</div>
+              <div class="m-rarity-pill" style="border-color:rgba(59,130,246,0.4);color:#93c5fd;background:rgba(59,130,246,0.08);">Restricted</div>
+              <div class="m-rarity-pill" style="border-color:rgba(99,102,241,0.4);color:#a5b4fc;background:rgba(99,102,241,0.08);">Mil-Spec</div>
+            </div>
+            <!-- Bigger skin grid: 5 cols × 3 rows -->
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:4px;flex:1;overflow:hidden;">
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#ef4444,#f97316);"></div></div><div class="m-skin-label">Atomic Alloy</div><div class="m-rarity-bar" style="background:#8b5cf6;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"></div><div class="m-skin-label">Basilisk</div><div class="m-rarity-bar" style="background:#3b82f6;"></div></div>
+              <div class="m-skin-card active"><div class="m-skin-img" style="height:48px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#3b4ad4,#8b5cf6);"></div></div><div class="m-skin-label" style="color:#f59e0b;">Black Lotus</div><div class="m-rarity-bar" style="background:#f59e0b;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"></div><div class="m-skin-label">Blood Tiger</div><div class="m-rarity-bar" style="background:#a855f7;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#1e3a5f,#2563eb);"></div></div><div class="m-skin-label">Blue Phosphor</div><div class="m-rarity-bar" style="background:#6366f1;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"></div><div class="m-skin-label">Briefing</div><div class="m-rarity-bar" style="background:#22c55e;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#3c1753,#7c3aed);"></div></div><div class="m-skin-label">Chaos Mosaic</div><div class="m-rarity-bar" style="background:#a855f7;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"><div class="m-skin-mini-gun" style="background:linear-gradient(90deg,#78350f,#d97706);"></div></div><div class="m-skin-label">Cyrex</div><div class="m-rarity-bar" style="background:#f59e0b;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"></div><div class="m-skin-label">Dark Water</div><div class="m-rarity-bar" style="background:#6366f1;"></div></div>
+              <div class="m-skin-card"><div class="m-skin-img" style="height:48px;"></div><div class="m-skin-label">Decimator</div><div class="m-rarity-bar" style="background:#8b5cf6;"></div></div>
+            </div>
+            <div class="m-pagination" style="justify-content:center;">
+              <div class="m-page-btn">‹</div><div class="m-page-btn active">1</div><div class="m-page-btn">2</div><div class="m-page-btn">3</div><div class="m-page-btn">›</div>
+            </div>
+          </div>
+          <!-- RIGHT SIDEBAR: preview + controls (fixed width) -->
+          <div style="width:220px;flex-shrink:0;display:flex;flex-direction:column;overflow:hidden;">
+            <!-- Larger preview -->
+            <div class="m-weapon-img" style="height:100px;border-radius:0;flex-shrink:0;">
+              <div class="m-gun" style="width:85%;background:linear-gradient(90deg,#3b4ad4,#6875e8,#8b5cf6,#4a5568);"></div>
+              <span class="m-weapon-name">Black Lotus</span>
+              <div style="position:absolute;top:5px;right:5px;background:rgba(0,0,0,0.55);border-radius:4px;padding:2px 5px;font-size:8px;color:#f59e0b;border:1px solid rgba(245,158,11,0.3);">✦</div>
+            </div>
+            <!-- Sticker strip (compact squares) -->
+            <div style="padding:5px 6px;background:#13151f;border-bottom:1px solid #1e293b;">
+              <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:3px;align-items:center;">
+                <div class="m-sticker" style="aspect-ratio:1;"></div>
+                <div class="m-sticker filled" style="aspect-ratio:1;"><div style="width:65%;height:65%;background:linear-gradient(135deg,#f59e0b66,#ef444466);border-radius:2px;"></div></div>
+                <div class="m-sticker" style="aspect-ratio:1;"></div>
+                <div class="m-sticker" style="aspect-ratio:1;"></div>
+                <div class="m-sticker filled" style="aspect-ratio:1;background:rgba(59,130,246,0.1);border-color:rgba(59,130,246,0.35);"><div style="width:65%;height:65%;background:linear-gradient(135deg,#3b82f666);border-radius:2px;"></div></div>
+                <div class="m-sticker filled" style="aspect-ratio:1;background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.35);"><div style="width:65%;height:65%;background:linear-gradient(135deg,#8b5cf666);border-radius:2px;"></div></div>
+              </div>
+            </div>
+            <!-- Scrollable controls -->
+            <div style="flex:1;padding:6px 8px;display:flex;flex-direction:column;gap:5px;overflow:hidden;">
+              <div style="display:flex;align-items:center;gap:4px;">
+                <div class="m-toggle on"></div>
+                <span style="font-size:7px;color:#94a3b8;">StatTrak™</span>
+                <div class="m-input" style="width:32px;margin-left:auto;">0</div>
+              </div>
+              <div class="m-input" style="width:100%;font-size:7px;">dskdks... 20/20</div>
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">
+                  <span style="font-size:7px;font-weight:700;color:#94a3b8;">WEAR</span>
+                  <span style="font-size:7px;color:#f59e0b;">0.010</span>
+                </div>
+                <div class="m-wear-bar"><div class="m-wear-thumb"></div></div>
+              </div>
+              <div style="display:flex;gap:4px;">
+                <div style="flex:1;">
+                  <div style="font-size:6px;color:#64748b;margin-bottom:2px;">Paint Idx</div>
+                  <div class="m-input" style="font-size:7px;">1166</div>
+                </div>
+                <div style="flex:1;">
+                  <div style="font-size:6px;color:#64748b;margin-bottom:2px;">Seed</div>
+                  <div class="m-input" style="font-size:7px;">0</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:auto;">
+                <div class="m-toggle"></div>
+                <span style="font-size:7px;color:#64748b;">Inactive</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="select-indicator" id="indicator">Click a layout to select it</div>
+
+<script>
+const selections = new Set();
+function selectLayout(el) {
+  el.classList.toggle('selected');
+  const choice = el.dataset.choice;
+  if (selections.has(choice)) {
+    selections.delete(choice);
+  } else {
+    selections.add(choice);
+  }
+  const ind = document.getElementById('indicator');
+  if (selections.size === 0) {
+    ind.textContent = 'Click a layout to select it';
+    ind.classList.remove('visible');
+  } else {
+    const names = { '1': 'Command Center', '2': 'Top Banner', '3': 'Split Inspector', '4': 'Tab-Based', '5': 'Compact Sidebar' };
+    ind.textContent = 'Selected: ' + [...selections].map(s => names[s]).join(', ');
+    ind.classList.add('visible');
+  }
+  // Record for server
+  if (window.__recordChoice) window.__recordChoice(choice, el.querySelector('h3').textContent);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WeaponSkinModal — Final Layout for Approval</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: #0a0c14;
+  color: #e2e8f0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 28px;
+  min-height: 100vh;
+}
+
+/* ── PAGE CHROME ── */
+h1 { font-size: 21px; font-weight: 700; color: #f8fafc; margin-bottom: 4px; }
+.page-sub { color: #64748b; font-size: 13px; margin-bottom: 36px; }
+
+.state-block { margin-bottom: 40px; }
+.state-heading {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 15px; font-weight: 700; color: #f8fafc;
+  margin-bottom: 6px;
+}
+.state-heading .pill {
+  font-size: 10px; padding: 2px 9px; border-radius: 10px; font-weight: 600;
+}
+.pill-default { background: rgba(99,102,241,0.18); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.35); }
+.pill-sticker { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.35); }
+.pill-keychain { background: rgba(139,92,246,0.15); color: #c4b5fd; border: 1px solid rgba(139,92,246,0.35); }
+.state-desc { font-size: 12px; color: #64748b; margin-bottom: 14px; line-height: 1.55; max-width: 900px; }
+.state-desc strong { color: #94a3b8; }
+
+/* ── LAYOUT CARD ── */
+.lcard {
+  border: 2px solid #1e2235;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #111420;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.15s;
+  position: relative;
+}
+.lcard:hover { border-color: #2d3460; }
+.lcard.selected { border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.18); }
+.lcard .appr {
+  position: absolute; top: 12px; right: 14px; z-index: 20;
+  background: #f59e0b; color: #000; font-size: 10px; font-weight: 700;
+  padding: 3px 9px; border-radius: 10px; opacity: 0; transition: opacity 0.15s; pointer-events: none;
+}
+.lcard.selected .appr { opacity: 1; }
+
+/* ── MOCKUP PRIMITIVES ── */
+.mw { padding: 12px; } /* mockup wrapper */
+
+/* The mock modal shell */
+.mm {
+  background: #181b2a;
+  border-radius: 10px;
+  border: 1px solid #252840;
+  overflow: hidden;
+  /* display at roughly 95% of real size — scaled down via transform */
+  transform-origin: top left;
+}
+
+/* titlebar */
+.ttbar {
+  background: #111420;
+  padding: 6px 12px;
+  display: flex; align-items: center; gap: 6px;
+  border-bottom: 1px solid #1e2235;
+  flex-shrink: 0;
+}
+.tt { font-size: 10px; font-weight: 700; color: #f0f4ff; }
+.tbadge { background: rgba(59,130,246,0.2); color: #93c5fd; font-size: 7.5px; padding: 1px 6px; border-radius: 8px; border: 1px solid rgba(59,130,246,0.35); }
+.tbtn { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 11px; padding: 2px 8px; font-size: 7.5px; color: #94a3b8; white-space: nowrap; }
+.tbtn.red { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); color: #f87171; }
+.tbtn.gold { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); color: #fbbf24; }
+
+/* search / input */
+.msearch { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 7px; padding: 3px 8px; font-size: 7.5px; color: #64748b; display: flex; align-items: center; gap: 4px; }
+.msearch.active { border-color: rgba(245,158,11,0.3); }
+.minput { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.09); border-radius: 5px; padding: 2px 7px; font-size: 7.5px; color: #94a3b8; }
+.slabel { font-size: 7px; font-weight: 700; color: #3d4a60; text-transform: uppercase; letter-spacing: .07em; }
+
+/* wear bar */
+.wbar { height: 5px; border-radius: 3px; background: linear-gradient(90deg,#22c55e,#86efac 25%,#fbbf24 50%,#f97316 75%,#ef4444); position: relative; }
+.wthumb { position: absolute; top: 50%; width: 8px; height: 8px; background: #fff; border-radius: 50%; transform: translate(-50%,-50%); border: 1px solid #94a3b8; left: 10%; }
+
+/* toggle */
+.tog { width: 22px; height: 12px; background: rgba(255,255,255,0.08); border-radius: 6px; flex-shrink: 0; position: relative; transition: background 0.15s; }
+.tog::after { content: ''; position: absolute; top: 2px; left: 2px; width: 8px; height: 8px; background: rgba(255,255,255,0.35); border-radius: 50%; transition: left 0.15s, background 0.15s; }
+.tog.on { background: rgba(245,158,11,0.55); }
+.tog.on::after { left: 12px; background: #fff; }
+
+/* gun image */
+.gun { background: linear-gradient(90deg,#3b4ad4,#6875e8,#8b5cf6,#4a5568); border-radius: 4px; clip-path: polygon(0% 40%,5% 20%,15% 20%,20% 10%,70% 10%,75% 25%,85% 25%,95% 40%,95% 60%,90% 70%,80% 70%,75% 60%,65% 60%,60% 70%,40% 70%,35% 60%,25% 60%,15% 70%,10% 70%,0% 60%); }
+.gunmini { border-radius: 2px; opacity: 0.75; clip-path: polygon(0% 35%,8% 15%,65% 15%,70% 30%,82% 30%,100% 45%,100% 65%,82% 70%,65% 70%,60% 85%,20% 85%,8% 70%,0% 65%); }
+
+/* canvas area */
+.mcanvas { background: linear-gradient(145deg,#0d101c,#181b2a); position: relative; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.cbar { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(8,10,20,0.88); backdrop-filter: blur(6px); border-top: 1px solid rgba(255,255,255,0.06); padding: 4px 10px; display: flex; align-items: center; gap: 7px; }
+
+/* sticker slots */
+.sslot { background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.13); border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+.sslot.has { background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.35); }
+.sslot.has-b { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.35); }
+.sslot.kc { background: rgba(139,92,246,0.1); border: 1px solid rgba(139,92,246,0.35); }
+.sslot.active-ring { box-shadow: 0 0 0 2px #f59e0b; }
+.sslot.active-ring-kc { box-shadow: 0 0 0 2px #8b5cf6; }
+
+/* drag handles */
+.dhandle { position: absolute; border: 1.5px dashed rgba(245,158,11,0.85); border-radius: 4px; background: rgba(245,158,11,0.07); }
+.dcorner { position: absolute; width: 7px; height: 7px; background: #f59e0b; border-radius: 1.5px; border: 1px solid #0d0f1a; }
+.dcorner.tl { top:-3px; left:-3px; }
+.dcorner.tr { top:-3px; right:-3px; }
+.dcorner.bl { bottom:-3px; left:-3px; }
+.dcorner.br { bottom:-3px; right:-3px; }
+.khandle { position: absolute; border: 1.5px dashed rgba(139,92,246,0.85); border-radius: 50%; background: rgba(139,92,246,0.08); }
+.kcorner { position: absolute; width: 7px; height: 7px; background: #8b5cf6; border-radius: 50%; border: 1px solid #0d0f1a; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+
+/* skin cards */
+.skcard { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 5px; overflow: hidden; cursor: pointer; }
+.skcard.cur { border-color: #f59e0b; background: rgba(245,158,11,0.07); }
+.skimg { background: linear-gradient(135deg,#181b2a,#232640); display: flex; align-items: center; justify-content: center; }
+.skname { padding: 2px 4px 3px; font-size: 7px; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.skname.cur { color: #f59e0b; }
+.skbar { height: 2px; }
+.rpill { border-radius: 8px; padding: 1.5px 5px; font-size: 6.5px; border: 1px solid; white-space: nowrap; }
+
+/* separator / divider label */
+.sep-label {
+  display: flex; align-items: center; gap: 6px; margin: 6px 0 5px;
+}
+.sep-label span { font-size: 7px; font-weight: 700; white-space: nowrap; }
+.sep-label::before, .sep-label::after { content: ''; flex: 1; height: 1px; background: #1e2235; }
+
+/* control row util */
+.ctrl { display: flex; flex-direction: column; gap: 2px; }
+.ctrl-label { font-size: 6.5px; color: #3d4a60; text-transform: uppercase; font-weight: 700; letter-spacing: .06em; }
+.ctrl-row { display: flex; align-items: center; gap: 4px; }
+.icon-btn { width: 16px; height: 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09); border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #64748b; flex-shrink: 0; }
+
+/* transition arrow marker */
+.trans-arrow {
+  display: flex; align-items: center; justify-content: center;
+  color: #334155; font-size: 28px; padding: 0 8px; flex-shrink: 0;
+}
+
+.states-row { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; align-items: start; gap: 0; }
+
+/* approval bar at bottom */
+.appr-bar { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,12,20,0.95); border-top: 1px solid #1e2235; padding: 10px 28px; display: flex; align-items: center; gap: 12px; z-index: 50; }
+.appr-msg { font-size: 13px; color: #64748b; }
+.appr-msg.has { color: #f59e0b; }
+</style>
+</head>
+<body>
+
+<h1>WeaponSkinModal — Final Layout (Layout 6 Refined) · Approval Mockups</h1>
+<p class="page-sub">3 interactive states. Click any card to approve it. All 3 should be approved before implementation begins.</p>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STATE 1: DEFAULT / NORMAL -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="state-block">
+  <div class="state-heading">
+    State 1 — Default
+    <span class="pill pill-default">Normal browsing &amp; customization</span>
+  </div>
+  <p class="state-desc">
+    Left panel: <strong>Search bar at top → rarity filter dots → 2-col skin grid → pagination.</strong>
+    Center: big canvas with weapon preview, sticker strip at bottom (stickers fill their slots as equal squares, keychain as a 6th slot separated by a divider). Canvas bottom bar has wear slider + float value.
+    Right: all weapon controls stacked (StatTrak, nametag, wear, paint idx, seed, active). Search lives in the left panel — the titlebar is clean.
+  </p>
+
+  <div class="lcard" data-st="1" onclick="approve(this)">
+    <div class="appr">✓ Approved</div>
+    <div class="mw">
+      <div class="mm">
+        <!-- TITLEBAR -->
+        <div class="ttbar">
+          <span class="tt">M4A1-S | Black Lotus</span>
+          <span class="tbadge">CT</span>
+          <div style="flex:1"></div>
+          <span class="tbtn red">↺ Reset</span>
+          <span class="tbtn">🕐 History</span>
+          <span class="tbtn">⇧ Import</span>
+          <span class="tbtn gold">⛓ Link</span>
+          <span style="font-size:10px;color:#334155;margin-left:4px;">✕</span>
+        </div>
+
+        <div style="display:flex;height:340px;">
+
+          <!-- ── LEFT: skin picker ── -->
+          <div style="width:230px;flex-shrink:0;border-right:1px solid #1e2235;display:flex;flex-direction:column;transition:width 0.3s;">
+            <!-- Search -->
+            <div style="padding:8px 8px 0;">
+              <div class="msearch active" style="width:100%;margin-bottom:6px;">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                Search skins...
+              </div>
+              <!-- Rarity filters: dots + labels -->
+              <div style="display:flex;align-items:center;gap:2px;flex-wrap:wrap;padding-bottom:6px;border-bottom:1px solid #1e2235;">
+                <span class="slabel" style="margin-right:3px;">Rarity</span>
+                <div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);cursor:pointer;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#ef4444;"></div>
+                  <span style="font-size:6.5px;color:#f87171;">Covert</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:8px;background:rgba(139,92,246,0.1);border:1px solid rgba(139,92,246,0.3);cursor:pointer;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#a855f7;"></div>
+                  <span style="font-size:6.5px;color:#a78bfa;">Classified</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.07);cursor:pointer;opacity:0.5;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#6366f1;"></div>
+                  <span style="font-size:6.5px;color:#64748b;">Restricted</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:3px;padding:2px 6px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.07);cursor:pointer;opacity:0.5;">
+                  <div style="width:6px;height:6px;border-radius:50%;background:#3b82f6;"></div>
+                  <span style="font-size:6.5px;color:#64748b;">Mil-Spec</span>
+                </div>
+              </div>
+            </div>
+            <!-- Sort row -->
+            <div style="padding:5px 8px;display:flex;align-items:center;gap:4px;border-bottom:1px solid #1e2235;">
+              <span class="slabel">Sort</span>
+              <div class="minput" style="font-size:7px;flex:1;">Name ▾</div>
+              <div style="font-size:11px;color:#475569;">↑</div>
+            </div>
+            <!-- Skin grid -->
+            <div style="flex:1;padding:5px;overflow:hidden;">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;">
+                <div class="skcard"><div class="skimg" style="height:42px;"><div class="gunmini" style="width:80%;height:55%;background:linear-gradient(90deg,#ef4444,#f97316);"></div></div><div class="skname">Atomic Alloy</div><div class="skbar" style="background:#8b5cf6;"></div></div>
+                <div class="skcard"><div class="skimg" style="height:42px;"><div class="gunmini" style="width:80%;height:55%;background:linear-gradient(90deg,#64748b,#94a3b8);"></div></div><div class="skname">Basilisk</div><div class="skbar" style="background:#3b82f6;"></div></div>
+                <div class="skcard cur"><div class="skimg" style="height:42px;"><div class="gunmini" style="width:80%;height:55%;background:linear-gradient(90deg,#3b4ad4,#8b5cf6);"></div></div><div class="skname cur">Black Lotus ✓</div><div class="skbar" style="background:#f59e0b;"></div></div>
+                <div class="skcard"><div class="skimg" style="height:42px;"><div class="gunmini" style="width:80%;height:55%;background:linear-gradient(90deg,#78350f,#92400e);"></div></div><div class="skname">Blood Tiger</div><div class="skbar" style="background:#a855f7;"></div></div>
+                <div class="skcard"><div class="skimg" style="height:42px;"><div class="gunmini" style="width:80%;height:55%;background:linear-gradient(90deg,#1e3a5f,#2563eb);"></div></div><div class="skname">Blue Phosphor</div><div class="skbar" style="background:#6366f1;"></div></div>
+                <div class="skcard"><div class="skimg" style="height:42px;"></div><div class="skname">Briefing</div><div class="skbar" style="background:#22c55e;"></div></div>
+                <div class="skcard"><div class="skimg" style="height:42px;"><div class="gunmini" style="width:80%;height:55%;background:linear-gradient(90deg,#3c1753,#7c3aed);"></div></div><div class="skname">Chaos Mosaic</div><div class="skbar" style="background:#a855f7;"></div></div>
+                <div class="skcard"><div class="skimg" style="height:42px;"><div class="gunmini" style="width:80%;height:55%;background:linear-gradient(90deg,#78350f,#d97706);"></div></div><div class="skname">Cyrex</div><div class="skbar" style="background:#f59e0b;"></div></div>
+              </div>
+            </div>
+            <!-- Pagination -->
+            <div style="padding:5px;border-top:1px solid #1e2235;display:flex;align-items:center;justify-content:center;gap:3px;">
+              <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:8px;color:#64748b;">‹</div>
+              <div style="width:16px;height:16px;border-radius:4px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);display:flex;align-items:center;justify-content:center;font-size:8px;color:#f59e0b;">1</div>
+              <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:8px;color:#64748b;">2</div>
+              <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:8px;color:#64748b;">3</div>
+              <div style="width:16px;height:16px;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;font-size:8px;color:#64748b;">›</div>
+            </div>
+          </div>
+
+          <!-- ── CENTER: canvas ── -->
+          <div style="flex:1;display:flex;flex-direction:column;border-right:1px solid #1e2235;">
+            <div class="mcanvas" style="flex:1;">
+              <div class="gun" style="width:75%;height:42%;"></div>
+              <!-- sticker dot on gun -->
+              <div style="position:absolute;top:42%;left:50%;width:14px;height:14px;background:rgba(245,158,11,0.55);border-radius:2px;border:1px solid #f59e0b;"></div>
+              <!-- keychain dot -->
+              <div style="position:absolute;bottom:25%;left:38%;width:10px;height:10px;background:rgba(139,92,246,0.55);border-radius:50%;border:1.5px solid #8b5cf6;"></div>
+              <div style="position:absolute;bottom:13%;left:calc(38% + 4px);width:1px;height:18%;background:rgba(139,92,246,0.25);"></div>
+              <!-- canvas bottom bar -->
+              <div class="cbar">
+                <span style="font-size:7px;color:#475569;">FLOAT</span>
+                <div class="wbar" style="flex:1;"><div class="wthumb"></div></div>
+                <span style="font-size:8px;color:#f59e0b;font-weight:600;">0.010 FN</span>
+              </div>
+            </div>
+            <!-- Sticker + keychain strip -->
+            <div style="background:#0d101c;padding:6px 10px;border-top:1px solid #1e2235;">
+              <div style="display:flex;align-items:center;gap:2px;margin-bottom:5px;">
+                <span class="slabel">Stickers</span>
+                <div style="flex:1;"></div>
+                <span class="slabel">Keychain</span>
+              </div>
+              <div style="display:flex;gap:5px;align-items:stretch;">
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;font-size:7px;color:#2d3a50;">＋</div>
+                <div class="sslot has" style="flex:1;aspect-ratio:1;max-height:46px;">
+                  <div style="width:65%;height:65%;background:linear-gradient(135deg,#f59e0b77,#ef444477);border-radius:3px;"></div>
+                </div>
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;font-size:7px;color:#2d3a50;">＋</div>
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;font-size:7px;color:#2d3a50;">＋</div>
+                <div class="sslot has-b" style="flex:1;aspect-ratio:1;max-height:46px;">
+                  <div style="width:65%;height:65%;background:linear-gradient(135deg,#3b82f677);border-radius:3px;"></div>
+                </div>
+                <div style="width:1px;background:#1e2235;height:46px;flex-shrink:0;"></div>
+                <div class="sslot kc" style="width:46px;height:46px;flex-shrink:0;">
+                  <div style="width:50%;height:65%;background:linear-gradient(180deg,#8b5cf677,#6d28d977);border-radius:3px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── RIGHT: weapon controls ── -->
+          <div style="width:200px;flex-shrink:0;padding:10px 12px;display:flex;flex-direction:column;gap:8px;overflow-y:auto;">
+            <!-- StatTrak -->
+            <div class="ctrl">
+              <div class="ctrl-label">StatTrak™</div>
+              <div class="ctrl-row">
+                <div class="tog on"></div>
+                <div class="minput" style="flex:1;text-align:center;">0</div>
+              </div>
+            </div>
+            <!-- Nametag -->
+            <div class="ctrl">
+              <div class="ctrl-label">Name Tag</div>
+              <div class="minput" style="width:100%;">dskdksdkskdks… <span style="color:#334155;">20/20</span></div>
+            </div>
+            <!-- Wear -->
+            <div class="ctrl">
+              <div class="ctrl-row" style="justify-content:space-between;margin-bottom:3px;">
+                <span class="ctrl-label">Wear (Float)</span>
+                <span style="font-size:7.5px;color:#f59e0b;">0.010</span>
+              </div>
+              <div class="wbar"><div class="wthumb"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:2px;">
+                <span style="font-size:6.5px;color:#2d3a50;">min 0.00</span>
+                <span style="font-size:6.5px;color:#2d3a50;">max 0.07</span>
+              </div>
+            </div>
+            <!-- Paint index -->
+            <div class="ctrl">
+              <div class="ctrl-row" style="gap:5px;margin-bottom:2px;">
+                <span class="ctrl-label">Paint Index</span>
+                <div class="tog" style="width:16px;height:9px;margin-left:auto;"></div>
+                <span style="font-size:6.5px;color:#2d3a50;">override</span>
+              </div>
+              <div class="minput" style="display:flex;align-items:center;justify-content:space-between;">
+                1166
+                <span style="color:#2d3a50;font-size:10px;">−+</span>
+              </div>
+            </div>
+            <!-- Seed -->
+            <div class="ctrl">
+              <div class="ctrl-label">Pattern Seed</div>
+              <div class="minput" style="display:flex;align-items:center;justify-content:space-between;">
+                0
+                <span style="color:#2d3a50;font-size:10px;">−+</span>
+              </div>
+            </div>
+            <!-- Active + dupe -->
+            <div style="display:flex;align-items:center;gap:5px;padding-top:2px;">
+              <div class="tog"></div>
+              <span style="font-size:7.5px;color:#64748b;">Inactive</span>
+              <div style="flex:1;"></div>
+              <div class="tbtn" style="font-size:6.5px;">Copy team</div>
+            </div>
+            <!-- Save status -->
+            <div style="border-top:1px solid #1e2235;padding-top:6px;margin-top:auto;">
+              <div style="font-size:7px;color:#2d3a50;text-align:center;">● auto-saved</div>
+            </div>
+          </div>
+
+        </div>
+      </div><!-- /mm -->
+    </div><!-- /mw -->
+  </div><!-- /lcard -->
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STATE 2: STICKER SELECTED / EDIT MODE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="state-block">
+  <div class="state-heading">
+    State 2 — Sticker Selected
+    <span class="pill pill-sticker">Left panel slides away · Canvas expands · Sticker controls appended below weapon settings</span>
+  </div>
+  <p class="state-desc">
+    Clicking a filled sticker slot activates edit mode. <strong>The left skin-picker panel slides out</strong> (animates to width 0, or collapses to a narrow "▶ Skins" toggle strip) giving the canvas more horizontal space. The canvas expands to fill the gap. The right panel keeps all weapon controls exactly as-is, then a <strong>labeled separator</strong> "Sticker #2" appears and below it: scale, rotation, X/Y position. A <strong>Done ✓</strong> button at the bottom exits edit mode. The selected sticker slot in the strip pulses with a gold ring. An empty slot click still opens the sticker-picker modal.
+  </p>
+
+  <div class="lcard" data-st="2" onclick="approve(this)">
+    <div class="appr">✓ Approved</div>
+    <div class="mw">
+      <div class="mm">
+        <!-- TITLEBAR — edit mode banner replaces normal right area -->
+        <div class="ttbar">
+          <span class="tt">M4A1-S | Black Lotus</span>
+          <span class="tbadge">CT</span>
+          <div style="flex:1"></div>
+          <div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.35);border-radius:6px;padding:3px 10px;font-size:8px;color:#f59e0b;font-weight:700;letter-spacing:.03em;">
+            ✦ Sticker Edit — click Done when finished
+          </div>
+          <span style="font-size:10px;color:#334155;margin-left:8px;">✕</span>
+        </div>
+
+        <div style="display:flex;height:340px;">
+
+          <!-- ── LEFT: COLLAPSED to narrow strip ── -->
+          <div style="width:32px;flex-shrink:0;border-right:1px solid #1e2235;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:6px;background:#0d101c;">
+            <div style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:7px;color:#334155;letter-spacing:.05em;margin-top:4px;">SKINS</div>
+            <div style="font-size:12px;color:#334155;margin-top:auto;">▶</div>
+          </div>
+
+          <!-- ── CENTER: expanded canvas ── -->
+          <div style="flex:1;display:flex;flex-direction:column;border-right:1px solid #1e2235;">
+            <div class="mcanvas" style="flex:1;">
+              <div class="gun" style="width:78%;height:44%;"></div>
+
+              <!-- SELECTED sticker #2 with resize handles -->
+              <div class="dhandle" style="top:36%;left:47%;width:28px;height:26px;">
+                <div class="dcorner tl"></div>
+                <div class="dcorner tr"></div>
+                <div class="dcorner bl"></div>
+                <div class="dcorner br"></div>
+                <!-- rotation handle -->
+                <div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:1px;height:14px;background:rgba(245,158,11,0.6);"></div>
+                <div style="position:absolute;top:-23px;left:50%;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:rgba(245,158,11,0.7);border:1px solid #f59e0b;"></div>
+                <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+                  <div style="width:65%;height:65%;background:linear-gradient(135deg,#f59e0b77,#ef444477);border-radius:2px;"></div>
+                </div>
+              </div>
+
+              <!-- Other sticker (unselected, dimmed) -->
+              <div style="position:absolute;top:55%;right:27%;width:11px;height:11px;background:rgba(59,130,246,0.25);border-radius:50%;border:1px dashed rgba(59,130,246,0.35);opacity:0.5;"></div>
+              <!-- Keychain (dimmed) -->
+              <div style="position:absolute;bottom:23%;left:36%;opacity:0.4;width:8px;height:8px;border-radius:50%;background:rgba(139,92,246,0.5);border:1px solid #8b5cf6;"></div>
+
+              <div class="cbar">
+                <span style="font-size:7.5px;color:#f59e0b;font-weight:700;">Sticker #2 · drag or adjust in panel →</span>
+                <div style="flex:1;"></div>
+                <div style="background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:5px;padding:3px 10px;font-size:8px;color:#f59e0b;font-weight:700;cursor:pointer;">Done ✓</div>
+              </div>
+            </div>
+
+            <!-- Sticker strip — slot 2 highlighted -->
+            <div style="background:#0d101c;padding:6px 10px;border-top:1px solid #1e2235;">
+              <div style="display:flex;gap:5px;align-items:stretch;">
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.3;font-size:7px;color:#2d3a50;">＋</div>
+                <div class="sslot has active-ring" style="flex:1;aspect-ratio:1;max-height:46px;">
+                  <div style="width:65%;height:65%;background:linear-gradient(135deg,#f59e0b77,#ef444477);border-radius:3px;"></div>
+                </div>
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.3;font-size:7px;color:#2d3a50;">＋</div>
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.3;font-size:7px;color:#2d3a50;">＋</div>
+                <div class="sslot has-b" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.35;">
+                  <div style="width:65%;height:65%;background:linear-gradient(135deg,#3b82f677);border-radius:3px;"></div>
+                </div>
+                <div style="width:1px;background:#1e2235;height:46px;flex-shrink:0;"></div>
+                <div class="sslot kc" style="width:46px;height:46px;flex-shrink:0;opacity:0.35;">
+                  <div style="width:50%;height:65%;background:linear-gradient(180deg,#8b5cf677);border-radius:3px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── RIGHT: weapon controls + sticker controls below ── -->
+          <div style="width:200px;flex-shrink:0;padding:10px 12px;display:flex;flex-direction:column;gap:7px;overflow-y:auto;">
+            <!-- WEAPON CONTROLS (unchanged) -->
+            <div class="ctrl">
+              <div class="ctrl-label">StatTrak™</div>
+              <div class="ctrl-row">
+                <div class="tog on"></div>
+                <div class="minput" style="flex:1;text-align:center;">0</div>
+              </div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Name Tag</div>
+              <div class="minput" style="width:100%;">dskdks… <span style="color:#334155;">20/20</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-row" style="justify-content:space-between;margin-bottom:3px;">
+                <span class="ctrl-label">Wear (Float)</span>
+                <span style="font-size:7.5px;color:#f59e0b;">0.010</span>
+              </div>
+              <div class="wbar"><div class="wthumb"></div></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Paint Index</div>
+              <div class="minput" style="display:flex;align-items:center;justify-content:space-between;">1166 <span style="color:#2d3a50;font-size:10px;">−+</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Seed</div>
+              <div class="minput" style="display:flex;align-items:center;justify-content:space-between;">0 <span style="color:#2d3a50;font-size:10px;">−+</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <div class="tog"></div>
+              <span style="font-size:7.5px;color:#64748b;">Inactive</span>
+            </div>
+
+            <!-- SEPARATOR: Sticker section -->
+            <div class="sep-label">
+              <div style="width:10px;height:10px;background:linear-gradient(135deg,#f59e0b77,#ef444477);border-radius:2px;border:1px solid #f59e0b;flex-shrink:0;"></div>
+              <span style="color:#f59e0b;">Sticker #2</span>
+            </div>
+
+            <!-- Sticker-specific controls -->
+            <div class="ctrl">
+              <div class="ctrl-label">Scale</div>
+              <div class="ctrl-row">
+                <div class="icon-btn">−</div>
+                <div class="minput" style="flex:1;text-align:center;">1.0</div>
+                <div class="icon-btn">+</div>
+              </div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Rotation</div>
+              <div class="ctrl-row">
+                <div class="icon-btn">↺</div>
+                <div class="minput" style="flex:1;text-align:center;">0°</div>
+                <div class="icon-btn">↻</div>
+              </div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Position</div>
+              <div class="ctrl-row">
+                <span style="font-size:7px;color:#475569;width:10px;">X</span>
+                <div class="minput" style="flex:1;text-align:center;">423</div>
+                <span style="font-size:7px;color:#475569;width:10px;">Y</span>
+                <div class="minput" style="flex:1;text-align:center;">-71</div>
+              </div>
+            </div>
+            <div style="display:flex;gap:4px;margin-top:2px;">
+              <div style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:4px;font-size:7.5px;color:#f87171;text-align:center;cursor:pointer;">Remove</div>
+              <div style="flex:1;background:rgba(245,158,11,0.18);border:1px solid rgba(245,158,11,0.4);border-radius:6px;padding:4px;font-size:7.5px;color:#f59e0b;font-weight:700;text-align:center;cursor:pointer;">Done ✓</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════ -->
+<!-- STATE 3: KEYCHAIN SELECTED / EDIT MODE -->
+<!-- ═══════════════════════════════════════════════════════ -->
+<div class="state-block">
+  <div class="state-heading">
+    State 3 — Keychain Selected
+    <span class="pill pill-keychain">Same expansion · Keychain-specific controls below weapon settings</span>
+  </div>
+  <p class="state-desc">
+    Clicking the keychain slot behaves identically to sticker: left panel collapses, canvas expands. The canvas shows a <strong>purple circular drag handle</strong> — drag it anywhere on the gun to reposition the keychain. The right panel appends a <strong>"Keychain" separator</strong> below weapon controls — keychain only exposes an X/Y position (no scale, no rotation since keychains hang from a fixed anchor). A thin vertical "chain" line below the dot is drawn for visual feedback. <strong>Remove</strong> and <strong>Done ✓</strong> at the bottom.
+  </p>
+
+  <div class="lcard" data-st="3" onclick="approve(this)">
+    <div class="appr">✓ Approved</div>
+    <div class="mw">
+      <div class="mm">
+        <div class="ttbar">
+          <span class="tt">M4A1-S | Black Lotus</span>
+          <span class="tbadge">CT</span>
+          <div style="flex:1"></div>
+          <div style="background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.35);border-radius:6px;padding:3px 10px;font-size:8px;color:#c4b5fd;font-weight:700;letter-spacing:.03em;">
+            ⛓ Keychain Edit — drag the anchor on the canvas
+          </div>
+          <span style="font-size:10px;color:#334155;margin-left:8px;">✕</span>
+        </div>
+
+        <div style="display:flex;height:340px;">
+
+          <!-- LEFT: collapsed -->
+          <div style="width:32px;flex-shrink:0;border-right:1px solid #1e2235;display:flex;flex-direction:column;align-items:center;padding:8px 0;gap:6px;background:#0d101c;">
+            <div style="writing-mode:vertical-rl;text-orientation:mixed;transform:rotate(180deg);font-size:7px;color:#334155;letter-spacing:.05em;margin-top:4px;">SKINS</div>
+            <div style="font-size:12px;color:#334155;margin-top:auto;">▶</div>
+          </div>
+
+          <!-- CENTER: expanded canvas -->
+          <div style="flex:1;display:flex;flex-direction:column;border-right:1px solid #1e2235;">
+            <div class="mcanvas" style="flex:1;">
+              <div class="gun" style="width:78%;height:44%;"></div>
+
+              <!-- Stickers (dimmed) -->
+              <div style="position:absolute;top:39%;left:49%;width:13px;height:13px;background:rgba(245,158,11,0.3);border-radius:2px;border:1px dashed rgba(245,158,11,0.35);opacity:0.45;"></div>
+              <div style="position:absolute;top:55%;right:27%;width:10px;height:10px;background:rgba(59,130,246,0.2);border-radius:50%;opacity:0.35;"></div>
+
+              <!-- KEYCHAIN drag handle -->
+              <div class="khandle" style="bottom:28%;left:36%;width:22px;height:22px;">
+                <div class="kcorner"></div>
+              </div>
+              <!-- Chain line below -->
+              <div style="position:absolute;bottom:14%;left:calc(36% + 10px);width:1.5px;height:20%;background:linear-gradient(to bottom,rgba(139,92,246,0.55),transparent);"></div>
+              <!-- Keychain charm (the actual item dangling) -->
+              <div style="position:absolute;bottom:8%;left:calc(36% + 5px);width:12px;height:12px;background:rgba(139,92,246,0.3);border-radius:3px;border:1px solid rgba(139,92,246,0.5);display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:700;color:#8b5cf6;">8</div>
+
+              <div class="cbar" style="border-top-color:rgba(139,92,246,0.2);">
+                <span style="font-size:7.5px;color:#c4b5fd;font-weight:700;">⛓ Drag the purple anchor to reposition keychain</span>
+                <div style="flex:1;"></div>
+                <div style="background:rgba(139,92,246,0.2);border:1px solid rgba(139,92,246,0.4);border-radius:5px;padding:3px 10px;font-size:8px;color:#c4b5fd;font-weight:700;cursor:pointer;">Done ✓</div>
+              </div>
+            </div>
+
+            <!-- Sticker strip — keychain slot highlighted -->
+            <div style="background:#0d101c;padding:6px 10px;border-top:1px solid #1e2235;">
+              <div style="display:flex;gap:5px;align-items:stretch;">
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.3;"></div>
+                <div class="sslot has" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.35;">
+                  <div style="width:65%;height:65%;background:linear-gradient(135deg,#f59e0b77,#ef444477);border-radius:3px;"></div>
+                </div>
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.3;"></div>
+                <div class="sslot" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.3;"></div>
+                <div class="sslot has-b" style="flex:1;aspect-ratio:1;max-height:46px;opacity:0.35;">
+                  <div style="width:65%;height:65%;background:linear-gradient(135deg,#3b82f677);border-radius:3px;"></div>
+                </div>
+                <div style="width:1px;background:#1e2235;height:46px;flex-shrink:0;"></div>
+                <div class="sslot kc active-ring-kc" style="width:46px;height:46px;flex-shrink:0;">
+                  <div style="width:50%;height:65%;background:linear-gradient(180deg,#8b5cf677,#6d28d977);border-radius:3px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: weapon controls + keychain below -->
+          <div style="width:200px;flex-shrink:0;padding:10px 12px;display:flex;flex-direction:column;gap:7px;overflow-y:auto;">
+            <!-- Weapon controls (same as always) -->
+            <div class="ctrl">
+              <div class="ctrl-label">StatTrak™</div>
+              <div class="ctrl-row">
+                <div class="tog on"></div>
+                <div class="minput" style="flex:1;text-align:center;">0</div>
+              </div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Name Tag</div>
+              <div class="minput" style="width:100%;">dskdks… <span style="color:#334155;">20/20</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-row" style="justify-content:space-between;margin-bottom:3px;">
+                <span class="ctrl-label">Wear (Float)</span>
+                <span style="font-size:7.5px;color:#f59e0b;">0.010</span>
+              </div>
+              <div class="wbar"><div class="wthumb"></div></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Paint Index</div>
+              <div class="minput" style="display:flex;align-items:center;justify-content:space-between;">1166 <span style="color:#2d3a50;font-size:10px;">−+</span></div>
+            </div>
+            <div class="ctrl">
+              <div class="ctrl-label">Seed</div>
+              <div class="minput" style="display:flex;align-items:center;justify-content:space-between;">0 <span style="color:#2d3a50;font-size:10px;">−+</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <div class="tog"></div>
+              <span style="font-size:7.5px;color:#64748b;">Inactive</span>
+            </div>
+
+            <!-- SEPARATOR: Keychain section -->
+            <div class="sep-label">
+              <div style="width:10px;height:10px;background:rgba(139,92,246,0.5);border-radius:50%;border:1.5px solid #8b5cf6;flex-shrink:0;"></div>
+              <span style="color:#c4b5fd;">Keychain</span>
+            </div>
+
+            <!-- Keychain name -->
+            <div style="background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.2);border-radius:6px;padding:4px 7px;font-size:7.5px;color:#c4b5fd;">8 Ball [G]</div>
+
+            <!-- Position only -->
+            <div class="ctrl">
+              <div class="ctrl-label">Position (drag on canvas or type)</div>
+              <div class="ctrl-row">
+                <span style="font-size:7px;color:#475569;width:10px;">X</span>
+                <div class="minput" style="flex:1;text-align:center;">380</div>
+                <span style="font-size:7px;color:#475569;width:10px;">Y</span>
+                <div class="minput" style="flex:1;text-align:center;">-84</div>
+              </div>
+            </div>
+
+            <div style="flex:1;"></div>
+            <div style="display:flex;gap:4px;">
+              <div style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:6px;padding:4px;font-size:7.5px;color:#f87171;text-align:center;cursor:pointer;">Remove</div>
+              <div style="flex:1;background:rgba(139,92,246,0.18);border:1px solid rgba(139,92,246,0.4);border-radius:6px;padding:4px;font-size:7.5px;color:#c4b5fd;font-weight:700;text-align:center;cursor:pointer;">Done ✓</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="height:60px;"></div>
+
+<!-- Approval bar -->
+<div class="appr-bar">
+  <div class="appr-msg" id="msg">Click each state card to approve it (0 / 3 approved)</div>
+  <div style="flex:1;"></div>
+  <div id="go-btn" style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:6px 16px;font-size:12px;color:#334155;cursor:default;transition:all 0.2s;">
+    Approve all 3 to proceed →
+  </div>
+</div>
+
+<script>
+const approved = {};
+function approve(el) {
+  const s = el.dataset.st;
+  if (approved[s]) { delete approved[s]; el.classList.remove('selected'); }
+  else { approved[s] = true; el.classList.add('selected'); }
+  const count = Object.keys(approved).length;
+  const msg = document.getElementById('msg');
+  const btn = document.getElementById('go-btn');
+  msg.textContent = `${count} / 3 states approved`;
+  msg.className = 'appr-msg' + (count > 0 ? ' has' : '');
+  if (count === 3) {
+    btn.style.background = 'rgba(245,158,11,0.18)';
+    btn.style.borderColor = 'rgba(245,158,11,0.4)';
+    btn.style.color = '#f59e0b';
+    btn.style.fontWeight = '700';
+    btn.textContent = '✓ All approved — tell Claude to implement';
+  } else {
+    btn.style.background = 'rgba(255,255,255,0.04)';
+    btn.style.borderColor = 'rgba(255,255,255,0.08)';
+    btn.style.color = '#334155';
+    btn.style.fontWeight = 'normal';
+    btn.textContent = 'Approve all 3 to proceed →';
+  }
+  if (window.__recordChoice) window.__recordChoice('state-' + s, 'State ' + s + ' approved');
+}
+</script>
+</body>
+</html>

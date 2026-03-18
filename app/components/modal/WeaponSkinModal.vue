@@ -53,13 +53,6 @@ const { t } = useI18n()
 const message = useMessage()
 
 const modalTitle = computed(() => {
-  // Show visual customizer title when in inline mode
-  if (weaponState.value.inlineVisualCustomizerActive && selectedSkin.value) {
-    return t('modals.weaponSkin.visualCustomizer.modalTitle', {
-      weaponName: selectedSkin.value.name,
-    }) as string
-  }
-
   return props.weapon
     ? (t('modals.weaponSkin.title', { weaponName: props.weapon?.defaultName }) as string)
     : (t('modals.weaponSkin.defaultTitle') as string)
@@ -1050,6 +1043,11 @@ const resetAllState = () => {
 
   // Reset selected skin
   selectedSkin.value = null
+
+  // Exit any edit modes
+  editingSticker.value = null
+  editingKeychain.value = false
+  leftPanelCollapsed.value = false
 }
 
 // Watch for changes to props.visible to properly reset state when modal is opened/closed
@@ -1147,6 +1145,100 @@ onUnmounted(() => {
     previewVideoManager.value.destroy()
   }
 })
+
+// ─────────────────────────────────────────────────────────────
+// 3-column layout: Edit mode state
+// ─────────────────────────────────────────────────────────────
+
+const editingSticker = ref<number | null>(null)
+const editingKeychain = ref(false)
+const leftPanelCollapsed = ref(false)
+const isEditMode = computed(() => editingSticker.value !== null || editingKeychain.value)
+watch(isEditMode, (val) => {
+  leftPanelCollapsed.value = val
+})
+
+// Per-sticker edit values
+const editStickerScale = ref(1.0)
+const editStickerRotation = ref(0)
+const editStickerX = ref(0)
+const editStickerY = ref(0)
+
+// Keychain edit values
+const editKeychainX = ref(0)
+const editKeychainY = ref(0)
+
+const handleStickerStripClick = (index: number) => {
+  if (customization.value.stickers[index]) {
+    editingSticker.value = index
+    const s = customization.value.stickers[index]!
+    editStickerScale.value = (s as any).scale ?? 1.0
+    editStickerRotation.value = (s as any).rotation ?? 0
+    editStickerX.value = (s as any).x ?? 0
+    editStickerY.value = (s as any).y ?? 0
+  } else {
+    weaponState.value.currentStickerPosition = index
+    weaponState.value.showStickerModal = true
+  }
+}
+
+const handleKeychainStripClick = () => {
+  if (customization.value.keychain) {
+    editingKeychain.value = true
+    editKeychainX.value = (customization.value.keychain as any).x ?? 0
+    editKeychainY.value = (customization.value.keychain as any).y ?? 0
+  } else {
+    weaponState.value.showKeychainModal = true
+  }
+}
+
+const exitEditMode = () => {
+  editingSticker.value = null
+  editingKeychain.value = false
+}
+
+const applyEditStickerValues = () => {
+  if (editingSticker.value === null) return
+  const stickers = JSON.parse(
+    JSON.stringify(customization.value.stickers || [null, null, null, null, null])
+  )
+  if (stickers[editingSticker.value]) {
+    stickers[editingSticker.value].scale = editStickerScale.value
+    stickers[editingSticker.value].rotation = editStickerRotation.value
+    stickers[editingSticker.value].x = editStickerX.value
+    stickers[editingSticker.value].y = editStickerY.value
+  }
+  customization.value.stickers = stickers
+}
+
+const removeEditingSticker = () => {
+  if (editingSticker.value === null) return
+  const stickers = JSON.parse(
+    JSON.stringify(customization.value.stickers || [null, null, null, null, null])
+  )
+  stickers[editingSticker.value] = null
+  customization.value.stickers = stickers
+  exitEditMode()
+}
+
+const removeEditingKeychain = () => {
+  customization.value.keychain = null
+  exitEditMode()
+}
+
+// Watch sticker edit values to apply on change
+watch([editStickerScale, editStickerRotation, editStickerX, editStickerY], () => {
+  applyEditStickerValues()
+})
+
+// Watch keychain edit values to apply on change
+watch([editKeychainX, editKeychainY], () => {
+  if (!editingKeychain.value || !customization.value.keychain) return
+  const kc = JSON.parse(JSON.stringify(customization.value.keychain))
+  kc.x = editKeychainX.value
+  kc.y = editKeychainY.value
+  customization.value.keychain = kc
+})
 </script>
 
 <template>
@@ -1182,7 +1274,8 @@ onUnmounted(() => {
       </div>
     </template>
     <template #header-extra>
-      <div v-if="!weaponState.inlineVisualCustomizerActive" class="flex items-center shrink-0">
+      <!-- Normal mode: action buttons -->
+      <div v-if="!isEditMode" class="flex items-center shrink-0">
         <!-- Reset Weapon Configuration -->
         <SButton
           :loading="state.isResetting"
@@ -1207,7 +1300,6 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -1271,7 +1363,6 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -1308,7 +1399,6 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -1321,490 +1411,126 @@ onUnmounted(() => {
           </template>
           {{ t('modals.weaponSkin.buttons.generateLink') }}
         </SButton>
-        <NDivider vertical />
-
-        <!-- Weapon Search -->
-        <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
-          class="pl-1 max-w-72"
-          data-tutorial="skin-search"
-        />
       </div>
+      <!-- Edit mode: colored banner -->
       <div v-else class="flex items-center shrink-0">
-        <!-- Exit Visual Mode Button -->
-        <SButton
-          variant="light"
-          :color="buttonColor.warning"
-          @click="handleExitInlineVisualCustomizer"
+        <span
+          v-if="editingSticker !== null"
+          class="text-sm font-semibold px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40"
         >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-x"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M18 6l-12 12" />
-              <path d="M6 6l12 12" />
-            </svg>
-          </template>
-          {{ t('modals.weaponSkin.visualCustomizer.exit') }}
-        </SButton>
+          ✦ Sticker Edit — click Done when finished
+        </span>
+        <span
+          v-else-if="editingKeychain"
+          class="text-sm font-semibold px-3 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40"
+        >
+          ✦ Keychain Edit — click Done when finished
+        </span>
       </div>
     </template>
 
-    <div @keydown="handleModalKeydown">
-      <NSpace vertical size="large" class="-mt-2">
-        <Transition name="fade" mode="out-in">
-          <div v-if="weaponState.inlineVisualCustomizerActive" key="inline">
-            <!-- Visual Customizer Inline Mode -->
-            <LazyInlineVisualCustomizer
-              :visible="true"
-              :weapon-skin="{
-                name: selectedSkin?.name || '',
-                image: selectedSkin?.image || '',
-                defindex: selectedSkin?.weapon_defindex || 0,
-                paintindex: customization.paintindex ?? undefined,
-              }"
-              :stickers="customization.stickers"
-              :keychain="customization.keychain"
-              :weapon-wear="customization.paintwear"
-              :min-wear="selectedSkin?.minFloat || 0"
-              :max-wear="selectedSkin?.maxFloat || 1"
-              @save="handleInlineSave"
-              @update-wear="(val) => (customization.paintwear = val)"
-              @update-stickers="(stickers) => (customization.stickers = stickers)"
-              @update-keychain="(keychain) => (customization.keychain = keychain)"
-              @open-sticker-modal="handleInlineOpenStickerModal"
-            />
-          </div>
-          <div v-else key="normal">
-            <!-- Selected Skin Preview -->
-            <div v-if="selectedSkin" class="bg-[var(--bg-secondary)] p-6 rounded-lg bg-opacity-50">
-              <div class="grid grid-cols-2 gap-6">
-                <!-- Left side - Video/Image Preview -->
-                <div>
-                  <div class="relative">
-                    <!-- Hidden video element for frame extraction -->
-                    <video
-                      ref="previewVideo"
-                      crossorigin="anonymous"
-                      playsinline
-                      style="display: none"
-                    />
+    <!-- 3-column layout -->
+    <div class="flex h-full gap-0" style="height: 580px" @keydown="handleModalKeydown">
+      <!-- ── LEFT PANEL ── -->
+      <div
+        class="left-panel flex flex-col border-r border-white/5 transition-all duration-300 overflow-hidden"
+        :style="leftPanelCollapsed ? 'width: 32px; min-width: 32px;' : 'width: 290px; min-width: 290px;'"
+      >
+        <!-- Collapsed state: vertical label + expand arrow -->
+        <div v-if="leftPanelCollapsed" class="flex flex-col items-center justify-start h-full pt-4 gap-3">
+          <button
+            class="flex flex-col items-center gap-1 text-gray-400 hover:text-white transition-colors cursor-pointer"
+            @click="leftPanelCollapsed = false"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+              <path d="M9 6l6 6l-6 6" />
+            </svg>
+            <span class="text-xs font-bold tracking-widest" style="writing-mode: vertical-rl; text-orientation: mixed;">SKINS</span>
+          </button>
+        </div>
 
-                    <!-- Canvas for video rendering (shown when video available) -->
-                    <canvas
-                      v-show="isPreviewVideoMode && !isPreviewVideoLoading"
-                      ref="previewCanvas"
-                      class="w-full h-64"
-                      width="640"
-                      height="256"
-                    />
-
-                    <!-- Static image fallback (shown when no video or loading) -->
-                    <img
-                      v-show="!isPreviewVideoMode || isPreviewVideoLoading"
-                      :src="previewImageUrl"
-                      :alt="selectedSkin?.name"
-                      class="w-full h-64 object-contain"
-                    />
-                    <!-- Visual Customizer Overlay Button -->
-                    <button
-                      class="visual-customizer-overlay"
-                      :class="{ disabled: !selectedSkin }"
-                      :disabled="!selectedSkin"
-                      :title="
-                        (t('modals.weaponSkin.visualCustomizer.button') as string) ||
-                        'Visual Customizer'
-                      "
-                      :aria-label="
-                        (t('modals.weaponSkin.visualCustomizer.button') as string) ||
-                        'Visual Customizer'
-                      "
-                      @click.stop="weaponState.inlineVisualCustomizerActive = true"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="magic-wand-icon"
-                      >
-                        <!-- Magic Wand Icon (Tabler: wand) -->
-                        <path d="M6 21l15 -15l-3 -3l-15 15l3 3" />
-                        <path d="M15 6l3 3" />
-                        <path
-                          d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
-                        />
-                        <path
-                          d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
-                        />
-                      </svg>
-                    </button>
-                    <!-- Skin Name Overlay -->
-                    <h3 class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1">
-                      {{ selectedSkin?.name }}
-                    </h3>
-                  </div>
-                </div>
-
-                <!-- Right side - Customization -->
-                <div class="space-y-4 flex flex-col items-center">
-                  <!-- StatTrak and Name Tag -->
-                  <div class="grid grid-cols-2 gap-4 w-full">
-                    <div class="flex items-center space-x-4">
-                      <NSwitch v-model:value="customization.stattrak_enabled" />
-                      <span>{{ t('modals.weaponSkin.labels.stattrak') }}</span>
-                      <NInputNumber
-                        v-model:value="customization.stattrak_count"
-                        :disabled="!customization.stattrak_enabled"
-                        :min="0"
-                        :max="99999"
-                        class="w-28"
-                        :input-props="digitOnlyInputProps"
-                      />
-                    </div>
-                    <NInput
-                      v-model:value="customization.nametag"
-                      :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
-                      class="pl-1"
-                      maxlength="20"
-                      show-count
-                    />
-                  </div>
-
-                  <!-- Wear Slider -->
-                  <div class="w-full" data-tutorial="wear-slider">
-                    <div class="flex items-start justify-between">
-                      <h4 class="font-bold">
-                        {{ t('modals.weaponSkin.labels.wear') }}
-                      </h4>
-                    </div>
-                    <WearSlider
-                      v-model="customization.paintwear"
-                      :max="selectedSkin?.maxFloat ?? 1"
-                      :min="selectedSkin?.minFloat ?? 0"
-                    />
-                  </div>
-
-                  <!-- Paint Settings & Active Toggle -->
-                  <div class="flex flex-wrap items-end gap-4 w-full">
-                    <div class="flex flex-col gap-1" data-tutorial="paint-index-override">
-                      <div class="flex items-center gap-2">
-                        <span class="text-sm font-medium">{{
-                          t('modals.weaponSkin.labels.paintIndex')
-                        }}</span>
-                        <NSwitch v-model:value="customization.paintIndexOverride" size="small" />
-                      </div>
-                      <NInputNumber
-                        v-model:value="customization.paintindex"
-                        :min="0"
-                        :max="9999"
-                        :disabled="!customization.paintIndexOverride"
-                        :input-props="digitOnlyInputProps"
-                        class="w-28"
-                      />
-                    </div>
-
-                    <div class="flex flex-col gap-1">
-                      <span class="text-sm font-medium">{{
-                        t('modals.weaponSkin.labels.pattern')
-                      }}</span>
-                      <NInputNumber
-                        v-model:value="customization.paintseed"
-                        :min="0"
-                        :max="1000"
-                        :input-props="digitOnlyInputProps"
-                        class="w-28"
-                      />
-                    </div>
-
-                    <!-- Active/Inactive Toggle & Duplicate -->
-                    <div class="flex items-center gap-4 flex-1" data-tutorial="active-switch">
-                      <NSwitch v-model:value="customization.active" size="medium">
-                        <template #checked>
-                          {{ t('modals.weaponSkin.labels.itemActive') }}
-                        </template>
-                        <template #unchecked>
-                          {{ t('modals.weaponSkin.labels.itemInactive') }}
-                        </template>
-                      </NSwitch>
-
-                      <!-- Duplicate Weapon -->
-                      <SButton
-                        v-if="selectedSkin?.availableTeams === 'both'"
-                        :disabled="!selectedSkin"
-                        variant="light"
-                        size="sm"
-                        @click="state.showDuplicateConfirm = true"
-                      >
-                        {{ t('modals.weaponSkin.buttons.duplicate') }}
-                      </SButton>
-                    </div>
-                  </div>
-
-                  <!-- Stickers & Keychain Toggle and Duplicate Weapon Buttons -->
-                  <!--<div class="flex flex-row w-max items-center justify-center gap-4">
-              <SButton
-                  text
-                  class="text-gray-400 hover:text-gray-200"
-                  @click="state.showDetails = !state.showDetails"
-                  icon-placement="right"
-              >
-                <template #icon-left>
-                  <ChevronUpIcon v-if="state.showDetails" :size="16" />
-                  <ChevronDownIcon v-else :size="16" />
-                </template>
-                {{ state.showDetails ? 'Hide' : 'Show' }} Stickers & Keychain
-              </SButton>
-            </div>-->
-                </div>
-              </div>
-
-              <!-- Sticker and Keychain customization-->
-              <div
-                class="grid grid-cols-6 gap-4 auto-rows-fr"
-                data-tutorial="sticker-section"
-                :class="{ 'h-[0px]': apiState.showDetails }"
-              >
-                <!-- Stickers -->
-                <div
-                  class="col-span-5 lg:col-span-5 md:col-span-3 mt-4"
-                  data-tutorial="sticker-slots"
-                >
-                  <h4 class="font-bold mb-1">
-                    {{ t('modals.weaponSkin.stickers.title') }}
-                  </h4>
-                  <div
-                    class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-x-1.5 min-h-32 max-h-32"
-                  >
-                    <div
-                      v-for="(sticker, index) in customization.stickers"
-                      :key="index"
-                      class="sticker-slot group flex items-center justify-center bg-[var(--card-bg)] p-2 rounded cursor-move transition-all relative hover:bg-[var(--bg-hover)] hover:shadow-md active:scale-[0.98]"
-                      :class="{
-                        'inactive-item': !sticker,
-                        'active-item': sticker,
-                      }"
-                      draggable="true"
-                      @dragstart="handleStickerDragStart($event, index)"
-                      @dragend="handleStickerDragEnd"
-                      @dragover="handleStickerDragOver"
-                      @dragleave="handleStickerDragLeave"
-                      @drop="handleStickerDrop($event, index)"
-                      @click.stop="handleAddSticker(index)"
-                    >
-                      <button
-                        v-if="sticker"
-                        type="button"
-                        class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
-                        :title="t('modals.weaponSkin.stickers.remove') as string"
-                        :aria-label="`${t('modals.weaponSkin.stickers.remove')} #${index + 1}`"
-                        draggable="false"
-                        @mousedown.stop.prevent
-                        @click.stop.prevent="removeSticker(index)"
-                      >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M18 6l-12 12" />
-                          <path d="M6 6l12 12" />
-                        </svg>
-                      </button>
-                      <div v-if="sticker" class="h-24 relative group">
-                        <img
-                          :src="generateStickerImageUrl(sticker.id, sticker.wear || 0)"
-                          :alt="sticker.api?.name ?? ''"
-                          class="w-full h-full object-contain"
-                          @error="
-                            (e) => ((e.target as HTMLImageElement).src = sticker?.api?.image || '')
-                          "
-                        />
-                        <div
-                          class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
-                        >
-                          <span class="text-white text-xs">{{
-                            t('modals.weaponSkin.stickers.reposition')
-                          }}</span>
-                        </div>
-                      </div>
-                      <div v-else class="h-24 flex items-center justify-center">
-                        <span class="text-gray-400 text-sm">{{
-                          t('modals.weaponSkin.stickers.add')
-                        }}</span>
-                      </div>
-                      <div class="mt-1 absolute top-0 left-1 text-xs text-gray-400">
-                        #{{ index + 1 }}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <!-- Keychain -->
-                <div
-                  class="col-span-1 lg:col-span-1 md:col-span-3 sm:col-span-2 mt-4"
-                  data-tutorial="keychain-section"
-                >
-                  <h4 class="font-bold mb-1">
-                    {{ t('modals.weaponSkin.keychain.title') }}
-                  </h4>
-                  <div
-                    class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
-                    :class="{
-                      'inactive-item': !customization.keychain,
-                      'active-item': customization.keychain,
-                    }"
-                    @click="handleAddKeychain"
-                  >
-                    <button
-                      v-if="customization.keychain"
-                      type="button"
-                      class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
-                      :title="String(t('modals.weaponSkin.keychain.remove'))"
-                      :aria-label="String(t('modals.weaponSkin.keychain.remove'))"
-                      draggable="false"
-                      @mousedown.stop.prevent
-                      @click.stop.prevent="removeKeychain"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M18 6l-12 12" />
-                        <path d="M6 6l12 12" />
-                      </svg>
-                    </button>
-                    <div
-                      v-if="customization.keychain"
-                      class="relative group h-24 flex flex-col items-center justify-center w-full"
-                    >
-                      <img
-                        :src="
-                          generateFlatKeychainUrl(
-                            customization.keychain.api?.name ?? '',
-                            customization.keychain.seed,
-                            undefined,
-                            customization.keychain.wrapped_sticker_id || undefined
-                          )
-                        "
-                        :alt="customization.keychain.api?.name ?? ''"
-                        class="h-full w-full object-contain max-h-[85%]"
-                      />
-                      <p class="text-xs text-center text-gray-400 mt-1 truncate w-full px-1">
-                        {{ (customization.keychain.api?.name ?? '').replace('Charm | ', '') }}
-                      </p>
-                    </div>
-                    <div v-else class="h-24 flex items-center justify-center">
-                      <span class="text-gray-400 text-sm">{{
-                        t('modals.weaponSkin.keychain.add')
-                      }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Skin list controls (Phase 2) -->
-            <div
-              class="flex flex-wrap items-center justify-between gap-3 my-3"
-              data-tutorial="sort-filter"
+        <!-- Expanded state: full panel content -->
+        <div v-else class="flex flex-col h-full overflow-hidden">
+          <!-- Search input -->
+          <div class="p-2 pb-1">
+            <NInput
+              v-model:value="state.searchQuery"
+              :placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
+              size="small"
+              clearable
+              data-tutorial="skin-search"
             >
-              <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.sort.label') }}</span>
-                <NSelect
-                  v-model:value="sortBy"
-                  size="small"
-                  class="w-44"
-                  :options="skinSortOptions"
-                />
-                <SButton
-                  size="xs"
-                  icon-only
-                  variant="light"
-                  :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
-                  @click="toggleSortDir"
-                >
-                  {{ sortDir === 'asc' ? '↑' : '↓' }}
-                </SButton>
-              </div>
+              <template #prefix>
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-gray-400">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                  <circle cx="10" cy="10" r="7" />
+                  <path d="M21 21l-6 -6" />
+                </svg>
+              </template>
+            </NInput>
+          </div>
 
-              <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
-                <span class="text-sm text-gray-300">{{
-                  t('modals.weaponSkin.filters.rarity')
-                }}</span>
-                <SButton
-                  v-for="rarity in availableRarities"
-                  :key="rarity.id"
-                  size="xs"
-                  variant="light"
-                  :color="
-                    rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default
-                  "
-                  :style="
-                    rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined
-                  "
-                  :aria-label="`Filter by ${rarity.name} rarity`"
-                  :aria-pressed="rarityFilterIds.includes(rarity.id)"
-                  @click="toggleRarityFilter(rarity.id)"
-                >
-                  <span class="flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
-                    {{ rarity.name }}
-                  </span>
-                </SButton>
-              </div>
-            </div>
+          <!-- Sort row -->
+          <div class="px-2 pb-1 flex items-center gap-1" data-tutorial="sort-filter">
+            <NSelect
+              v-model:value="sortBy"
+              size="tiny"
+              class="flex-1"
+              :options="skinSortOptions"
+            />
+            <SButton
+              size="xs"
+              icon-only
+              variant="light"
+              :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
+              @click="toggleSortDir"
+            >
+              {{ sortDir === 'asc' ? '↑' : '↓' }}
+            </SButton>
+          </div>
 
-            <!-- Skins Grid -->
-            <div v-if="state.isLoadingSkins" class="grid grid-cols-5 gap-4">
+          <!-- Rarity filter pills -->
+          <div v-if="availableRarities.length > 0" class="px-2 pb-1 flex flex-wrap gap-1">
+            <SButton
+              v-for="rarity in availableRarities"
+              :key="rarity.id"
+              size="xs"
+              variant="light"
+              :color="rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default"
+              :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+              :aria-label="`Filter by ${rarity.name} rarity`"
+              :aria-pressed="rarityFilterIds.includes(rarity.id)"
+              class="!px-1.5"
+              @click="toggleRarityFilter(rarity.id)"
+            >
+              <span class="flex items-center gap-1">
+                <span class="h-1.5 w-1.5 rounded-full flex-shrink-0" :style="{ background: rarity.color }" />
+                <span class="text-[10px]">{{ rarity.name }}</span>
+              </span>
+            </SButton>
+          </div>
+
+          <!-- Skins grid (2 columns) -->
+          <div class="flex-1 overflow-y-auto px-2 pb-1">
+            <!-- Loading skeleton -->
+            <div v-if="state.isLoadingSkins" class="grid grid-cols-2 gap-1.5">
               <div
-                v-for="i in PAGE_SIZE"
+                v-for="i in 8"
                 :key="i"
-                class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
+                class="rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-2"
               >
-                <NSkeleton height="128px" />
-                <div class="mt-3">
+                <NSkeleton height="60px" />
+                <div class="mt-1.5">
                   <NSkeleton text :repeat="1" />
-                  <div class="mt-2">
-                    <NSkeleton height="4px" />
-                  </div>
                 </div>
               </div>
             </div>
 
+            <!-- Skin grid -->
             <div
               v-else
-              class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
+              class="grid grid-cols-2 gap-1.5"
               data-tutorial="skin-grid"
             >
               <NCard
@@ -1813,31 +1539,30 @@ onUnmounted(() => {
                 :style="{
                   borderColor: skin.rarity?.color || '#313030',
                   background:
-                    'linear-gradient(135deg, ' +
-                    '#101010' +
-                    ', ' +
+                    'linear-gradient(135deg, #101010, ' +
                     (hexToRgba(skin.rarity?.color, '0.15') || '#313030') +
                     ')',
                 }"
                 :class="[
-                  'hover:shadow-lg cursor-pointer transition-all rounded-xl',
+                  'hover:shadow-lg cursor-pointer transition-all rounded-lg skin-card',
                   customization.paintindex === Number(skin.paint_index)
                     ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
                     : '',
                 ]"
+                size="small"
                 @click="handleSkinSelect(skin)"
               >
                 <div class="flex flex-col items-center">
                   <img
                     :src="skin.image"
                     :alt="skin.name"
-                    class="w-full h-32 object-contain mb-2"
+                    class="w-full h-14 object-contain mb-1"
                     loading="lazy"
                   />
                   <div class="w-full">
-                    <p class="text-sm text-white truncate">{{ skin.name }}</p>
+                    <p class="text-[10px] text-white truncate leading-tight">{{ skin.name }}</p>
                     <div
-                      class="h-1 mt-2"
+                      class="h-0.5 mt-1"
                       :style="{ background: skin.rarity?.color || '#313030' }"
                     />
                   </div>
@@ -1848,82 +1573,346 @@ onUnmounted(() => {
             <!-- No Results -->
             <div
               v-if="!state.isLoadingSkins && sortedSkins.length === 0"
-              class="flex justify-center items-center h-64"
+              class="flex justify-center items-center h-32"
             >
               <NEmpty :description="String(t('modals.weaponSkin.noSearchResults'))" />
             </div>
+          </div>
 
-            <!-- Pagination -->
-            <div
-              v-if="totalPages > 1"
-              class="flex justify-center mt-4"
-              data-tutorial="skin-pagination"
-            >
-              <NPagination
-                v-model:page="state.currentPage"
-                :page-count="totalPages"
-                :page-slot="5"
+          <!-- Pagination -->
+          <div
+            v-if="totalPages > 1"
+            class="px-2 py-1.5 border-t border-white/5"
+            data-tutorial="skin-pagination"
+          >
+            <NPagination
+              v-model:page="state.currentPage"
+              :page-count="totalPages"
+              :page-slot="3"
+              size="small"
+              class="justify-center"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── CENTER CANVAS ── -->
+      <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
+        <!-- InlineVisualCustomizer always visible -->
+        <div class="flex-1 min-h-0">
+          <LazyInlineVisualCustomizer
+            :visible="true"
+            :weapon-skin="{
+              name: selectedSkin?.name || '',
+              image: selectedSkin?.image || '',
+              defindex: selectedSkin?.weapon_defindex || 0,
+              paintindex: customization.paintindex ?? undefined,
+            }"
+            :stickers="customization.stickers"
+            :keychain="customization.keychain"
+            :weapon-wear="customization.paintwear"
+            :min-wear="selectedSkin?.minFloat || 0"
+            :max-wear="selectedSkin?.maxFloat || 1"
+            @save="handleInlineSave"
+            @update-wear="(val) => (customization.paintwear = val)"
+            @update-stickers="(stickers) => (customization.stickers = stickers)"
+            @update-keychain="(keychain) => (customization.keychain = keychain)"
+            @open-sticker-modal="handleInlineOpenStickerModal"
+          />
+        </div>
+
+        <!-- Sticker/Keychain strip -->
+        <div class="flex items-stretch border-t border-white/5 bg-[var(--bg-dark)]" style="height: 60px;">
+          <!-- 5 sticker slots -->
+          <div
+            v-for="(sticker, index) in customization.stickers"
+            :key="index"
+            class="sticker-strip-slot flex-1 flex items-center justify-center cursor-pointer transition-all relative border-r border-white/5"
+            :class="{
+              'active-strip-item': sticker,
+              'inactive-strip-item': !sticker,
+              'ring-2 ring-amber-400': editingSticker === index,
+              'opacity-50': isEditMode && editingSticker !== index,
+            }"
+            :title="sticker ? sticker.api?.name || `Sticker ${index + 1}` : `Add Sticker ${index + 1}`"
+            draggable="true"
+            @dragstart="handleStickerDragStart($event, index)"
+            @dragend="handleStickerDragEnd"
+            @dragover="handleStickerDragOver"
+            @dragleave="handleStickerDragLeave"
+            @drop="handleStickerDrop($event, index)"
+            @click.stop="handleStickerStripClick(index)"
+          >
+            <img
+              v-if="sticker"
+              :src="generateStickerImageUrl(sticker.id, sticker.wear || 0)"
+              :alt="sticker.api?.name ?? ''"
+              class="h-8 w-auto object-contain"
+              @error="(e) => ((e.target as HTMLImageElement).src = sticker?.api?.image || '')"
+            />
+            <span v-else class="text-gray-500 text-xs">+</span>
+            <!-- Slot label -->
+            <span class="absolute top-0 left-0.5 text-[9px] text-gray-600 leading-none">{{ index + 1 }}</span>
+          </div>
+
+          <!-- Divider -->
+          <div class="w-px bg-white/10 self-stretch" />
+
+          <!-- Keychain slot -->
+          <div
+            class="keychain-strip-slot flex items-center justify-center cursor-pointer transition-all relative"
+            style="width: 46px;"
+            :class="{
+              'active-strip-keychain': customization.keychain,
+              'inactive-strip-item': !customization.keychain,
+              'ring-2 ring-purple-400': editingKeychain,
+              'opacity-50': isEditMode && !editingKeychain,
+            }"
+            :title="customization.keychain ? customization.keychain.api?.name || 'Keychain' : 'Add Keychain'"
+            @click.stop="handleKeychainStripClick"
+          >
+            <img
+              v-if="customization.keychain"
+              :src="generateFlatKeychainUrl(
+                customization.keychain.api?.name ?? '',
+                customization.keychain.seed,
+                undefined,
+                customization.keychain.wrapped_sticker_id || undefined
+              )"
+              :alt="customization.keychain.api?.name ?? ''"
+              class="h-8 w-auto object-contain"
+            />
+            <span v-else class="text-gray-500 text-xs">K</span>
+          </div>
+        </div>
+
+        <!-- ── Item controls bar ── -->
+        <div
+          class="flex items-center gap-2 border-t border-white/5 px-3 flex-shrink-0"
+          style="height: 52px; background: var(--bg-elevated);"
+        >
+          <!-- Active -->
+          <NSwitch v-model:value="customization.active" size="small" data-tutorial="active-switch">
+            <template #checked>{{ t('modals.weaponSkin.labels.itemActive') }}</template>
+            <template #unchecked>{{ t('modals.weaponSkin.labels.itemInactive') }}</template>
+          </NSwitch>
+
+          <div class="w-px h-7 bg-white/10 flex-shrink-0" />
+
+          <!-- StatTrak -->
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <NSwitch v-model:value="customization.stattrak_enabled" size="small" />
+            <span class="text-xs text-gray-400 whitespace-nowrap">{{ t('modals.weaponSkin.labels.stattrak') }}</span>
+            <NInputNumber
+              v-model:value="customization.stattrak_count"
+              :disabled="!customization.stattrak_enabled"
+              :min="0"
+              :max="99999"
+              size="small"
+              style="width: 80px;"
+              :input-props="digitOnlyInputProps"
+            />
+          </div>
+
+          <div class="w-px h-7 bg-white/10 flex-shrink-0" />
+
+          <!-- Name Tag -->
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <span class="text-xs text-gray-400 whitespace-nowrap">Tag</span>
+            <NInput
+              v-model:value="customization.nametag"
+              :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
+              size="small"
+              maxlength="20"
+              style="width: 130px;"
+            />
+          </div>
+
+          <div class="w-px h-7 bg-white/10 flex-shrink-0" />
+
+          <!-- Wear -->
+          <div class="flex items-center gap-2 flex-1 min-w-0" data-tutorial="wear-slider">
+            <span class="text-xs text-gray-400 whitespace-nowrap flex-shrink-0">{{ t('modals.weaponSkin.labels.wear') }}</span>
+            <div class="flex-1 min-w-0">
+              <WearSlider
+                v-model="customization.paintwear"
+                :max="selectedSkin?.maxFloat ?? 1"
+                :min="selectedSkin?.minFloat ?? 0"
               />
             </div>
           </div>
-        </Transition>
-      </NSpace>
 
-      <!-- Sticker Modal -->
-      <LazyStickerModal
-        v-model:visible="weaponState.showStickerModal"
-        :position="weaponState.currentStickerPosition"
-        :current-sticker="customization.stickers[weaponState.currentStickerPosition]"
-        :weapon-name="selectedSkin?.name || weapon?.defaultName"
-        :team="customization.team"
-        @select="handleStickerSelect"
-      />
+          <div class="w-px h-7 bg-white/10 flex-shrink-0" />
 
-      <!-- Keychain Modal -->
-      <KeychainModal
-        v-model:visible="weaponState.showKeychainModal"
-        :current-keychain="customization.keychain"
-        :weapon-name="selectedSkin?.name || weapon?.defaultName"
-        :team="customization.team"
-        @select="handleKeychainSelect"
-      />
+          <!-- Pattern Seed -->
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <span class="text-xs text-gray-400 whitespace-nowrap">{{ t('modals.weaponSkin.labels.pattern') }}</span>
+            <NInputNumber
+              v-model:value="customization.paintseed"
+              :min="0"
+              :max="1000"
+              size="small"
+              style="width: 72px;"
+              :input-props="digitOnlyInputProps"
+            />
+          </div>
 
-      <!-- Import via InspectURL Modal -->
-      <InspectURLModal
-        v-model:visible="state.showImportModal"
-        :loading="state.isImporting"
-        @submit="handleImportInspectLink"
-      />
+          <div class="w-px h-7 bg-white/10 flex-shrink-0" />
 
-      <!-- Duplicate Modal -->
-      <DuplicateItemModal
-        v-model:visible="state.showDuplicateConfirm"
-        :loading="state.isDuplicating"
-        :other-team-has-skin="otherTeamHasSkin"
-        :item-type="String(t('modals.duplicateItem.type.weapon'))"
-        @confirm="handleDuplicate"
-      />
+          <!-- Paint Index -->
+          <div class="flex items-center gap-1.5 flex-shrink-0" data-tutorial="paint-index-override">
+            <span class="text-xs text-gray-400 whitespace-nowrap">{{ t('modals.weaponSkin.labels.paintIndex') }}</span>
+            <NSwitch v-model:value="customization.paintIndexOverride" size="small" />
+            <NInputNumber
+              v-model:value="customization.paintindex"
+              :min="0"
+              :max="9999"
+              :disabled="!customization.paintIndexOverride"
+              size="small"
+              style="width: 72px;"
+              :input-props="digitOnlyInputProps"
+            />
+          </div>
 
-      <ResetModal
-        v-model:visible="state.showResetConfirm"
-        :loading="state.isResetting"
-        @confirm="handleReset"
-      />
+          <!-- Duplicate -->
+          <SButton
+            v-if="selectedSkin?.availableTeams === 'both'"
+            :disabled="!selectedSkin"
+            variant="light"
+            size="sm"
+            class="flex-shrink-0 ml-1"
+            @click="state.showDuplicateConfirm = true"
+          >
+            {{ t('modals.weaponSkin.buttons.duplicate') }}
+          </SButton>
+        </div>
 
-      <!-- Item History Panel -->
-      <LazyItemHistoryPanel
-        v-model:visible="weaponState.showHistoryPanel"
-        item-type="weapon"
-        :category="props.weapon?.category as any"
-        :defindex="props.weapon?.weapon_defindex || 0"
-        :team="customization.team"
-        :steam-id="user?.steamId || ''"
-        :loadout-id="loadoutStore.selectedLoadoutId || 0"
-        @restore="handleHistoryRestore"
-      />
+        <!-- ── Sticker edit bar ── -->
+        <template v-if="editingSticker !== null">
+          <div
+            class="flex items-center gap-2 border-t border-amber-400/20 px-3 flex-shrink-0"
+            style="height: 44px; background: rgba(251,191,36,0.05);"
+          >
+            <span class="text-xs text-amber-400 font-semibold whitespace-nowrap flex-shrink-0">Sticker #{{ editingSticker + 1 }}</span>
+            <div class="w-px h-5 bg-amber-400/20 flex-shrink-0" />
+
+            <!-- Scale -->
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[10px] text-gray-500">Scale</span>
+              <SButton size="xs" variant="light" icon-only @click="editStickerScale = Math.max(0.1, editStickerScale - 0.1)">-</SButton>
+              <NInputNumber v-model:value="editStickerScale" :min="0.1" :max="3" :step="0.1" :precision="1" size="tiny" style="width: 52px;" :show-button="false" />
+              <SButton size="xs" variant="light" icon-only @click="editStickerScale = Math.min(3, editStickerScale + 0.1)">+</SButton>
+            </div>
+            <div class="w-px h-5 bg-amber-400/20 flex-shrink-0" />
+
+            <!-- Rotation -->
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[10px] text-gray-500">Rot</span>
+              <SButton size="xs" variant="light" icon-only @click="editStickerRotation = ((editStickerRotation - 15) + 360) % 360">↺</SButton>
+              <NInputNumber v-model:value="editStickerRotation" :min="0" :max="360" :step="1" :precision="0" size="tiny" style="width: 52px;" :show-button="false" />
+              <SButton size="xs" variant="light" icon-only @click="editStickerRotation = (editStickerRotation + 15) % 360">↻</SButton>
+            </div>
+            <div class="w-px h-5 bg-amber-400/20 flex-shrink-0" />
+
+            <!-- Position X/Y -->
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[10px] text-gray-500">X</span>
+              <NInputNumber v-model:value="editStickerX" :step="0.001" :precision="4" size="tiny" style="width: 72px;" :show-button="false" />
+              <span class="text-[10px] text-gray-500">Y</span>
+              <NInputNumber v-model:value="editStickerY" :step="0.001" :precision="4" size="tiny" style="width: 72px;" :show-button="false" />
+            </div>
+            <div class="w-px h-5 bg-amber-400/20 flex-shrink-0" />
+
+            <SButton size="sm" variant="light" :color="buttonColor.error" class="flex-shrink-0" @click="removeEditingSticker">Remove</SButton>
+            <SButton size="sm" variant="light" :color="buttonColor.success" class="flex-shrink-0" @click="exitEditMode">Done ✓</SButton>
+          </div>
+        </template>
+
+        <!-- ── Keychain edit bar ── -->
+        <template v-if="editingKeychain">
+          <div
+            class="flex items-center gap-2 border-t border-purple-400/20 px-3 flex-shrink-0"
+            style="height: 44px; background: rgba(192,132,252,0.05);"
+          >
+            <span class="text-xs text-purple-400 font-semibold whitespace-nowrap flex-shrink-0">Keychain</span>
+            <div v-if="customization.keychain" class="text-xs text-gray-400 truncate max-w-[140px] flex-shrink-0">
+              {{ (customization.keychain.api?.name ?? '').replace('Charm | ', '') }}
+            </div>
+            <div class="w-px h-5 bg-purple-400/20 flex-shrink-0" />
+
+            <!-- Position X/Y -->
+            <div class="flex items-center gap-1 flex-shrink-0">
+              <span class="text-[10px] text-gray-500">X</span>
+              <NInputNumber v-model:value="editKeychainX" :step="0.01" :min="-2" :max="2" :precision="4" size="tiny" style="width: 72px;" :show-button="false" />
+              <span class="text-[10px] text-gray-500">Y</span>
+              <NInputNumber v-model:value="editKeychainY" :step="0.01" :min="-2" :max="2" :precision="4" size="tiny" style="width: 72px;" :show-button="false" />
+            </div>
+            <div class="w-px h-5 bg-purple-400/20 flex-shrink-0" />
+
+            <SButton size="sm" variant="light" :color="buttonColor.error" class="flex-shrink-0" @click="removeEditingKeychain">Remove</SButton>
+            <SButton size="sm" variant="light" :color="buttonColor.success" class="flex-shrink-0" @click="exitEditMode">Done ✓</SButton>
+          </div>
+        </template>
+      </div>
     </div>
+
+    <!-- All modal dialogs preserved -->
+
+    <!-- Sticker Modal -->
+    <LazyStickerModal
+      v-model:visible="weaponState.showStickerModal"
+      :position="weaponState.currentStickerPosition"
+      :current-sticker="customization.stickers[weaponState.currentStickerPosition]"
+      :weapon-name="selectedSkin?.name || weapon?.defaultName"
+      :team="customization.team"
+      @select="handleStickerSelect"
+    />
+
+    <!-- Keychain Modal -->
+    <KeychainModal
+      v-model:visible="weaponState.showKeychainModal"
+      :current-keychain="customization.keychain"
+      :weapon-name="selectedSkin?.name || weapon?.defaultName"
+      :team="customization.team"
+      @select="handleKeychainSelect"
+    />
+
+    <!-- Import via InspectURL Modal -->
+    <InspectURLModal
+      v-model:visible="state.showImportModal"
+      :loading="state.isImporting"
+      @submit="handleImportInspectLink"
+    />
+
+    <!-- Duplicate Modal -->
+    <DuplicateItemModal
+      v-model:visible="state.showDuplicateConfirm"
+      :loading="state.isDuplicating"
+      :other-team-has-skin="otherTeamHasSkin"
+      :item-type="String(t('modals.duplicateItem.type.weapon'))"
+      @confirm="handleDuplicate"
+    />
+
+    <ResetModal
+      v-model:visible="state.showResetConfirm"
+      :loading="state.isResetting"
+      @confirm="handleReset"
+    />
+
+    <!-- Item History Panel -->
+    <LazyItemHistoryPanel
+      v-model:visible="weaponState.showHistoryPanel"
+      item-type="weapon"
+      :category="props.weapon?.category as any"
+      :defindex="props.weapon?.weapon_defindex || 0"
+      :team="customization.team"
+      :steam-id="user?.steamId || ''"
+      :loadout-id="loadoutStore.selectedLoadoutId || 0"
+      @restore="handleHistoryRestore"
+    />
   </NModal>
 </template>
+
 <style scoped lang="scss">
 @reference "tailwindcss";
 
@@ -1935,7 +1924,7 @@ onUnmounted(() => {
   @apply border-2 border-dashed border-gray-600;
 }
 
-.sticker-slot {
+.sticker-strip-slot {
   touch-action: none;
   transition: all 0.15s ease-in-out;
 
@@ -1945,90 +1934,35 @@ onUnmounted(() => {
   }
 
   &.drag-over {
-    background-color: #2a2a2a;
+    background-color: rgba(255, 255, 255, 0.08);
     transform: scale(1.05);
   }
+}
 
-  &:empty {
-    cursor: default;
+.active-strip-item {
+  @apply border border-solid border-amber-400/60;
+}
+
+.active-strip-keychain {
+  @apply border border-solid border-purple-400/60;
+}
+
+.inactive-strip-item {
+  @apply border border-dashed border-gray-700/60;
+}
+
+.skin-card {
+  :deep(.n-card__content) {
+    padding: 6px !important;
   }
-
-  &:not(:empty) {
-    cursor: grab;
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
 }
 
-/* Visual Customizer Overlay Button */
-.visual-customizer-overlay {
-  position: absolute;
-  top: 8px;
-  left: 8px;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  cursor: pointer;
-  transition:
-    border-color 0.5s ease-in-out,
-    transform 0.5s ease-in-out,
-    box-shadow 0.5s ease-in-out;
-  z-index: 10;
-  overflow: hidden;
+.left-panel {
+  flex-shrink: 0;
 }
 
-.visual-customizer-overlay:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--selection-ring);
-}
-
-.visual-customizer-overlay::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, var(--selection-ring), #f59e0b);
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-  z-index: -1;
-}
-
-.visual-customizer-overlay:hover:not(.disabled) {
-  border-color: transparent;
-  transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.3);
-}
-
-.visual-customizer-overlay:hover:not(.disabled)::before {
-  opacity: 1;
-}
-
-.visual-customizer-overlay:active:not(.disabled) {
-  transform: scale(0.95);
-}
-
-.visual-customizer-overlay.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.visual-customizer-overlay .magic-wand-icon {
-  color: rgba(255, 255, 255, 0.8);
-  transition: color 0.5s ease-in-out;
-}
-
-.visual-customizer-overlay:hover:not(.disabled) .magic-wand-icon {
-  color: #ffffff;
+.right-panel {
+  flex-shrink: 0;
 }
 
 .fade-enter-active,

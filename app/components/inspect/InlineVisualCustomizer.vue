@@ -1427,13 +1427,12 @@ defineExpose({
 </script>
 
 <template>
-  <div class="inline-visual-customizer flex flex-col items-center">
+  <div class="inline-visual-customizer flex flex-col h-full w-full">
     <!-- Full-width Canvas Container -->
     <div
       ref="canvasContainer"
-      class="canvas-container w-full relative bg-[var(--bg-dark)] rounded-lg overflow-hidden"
+      class="canvas-container w-full flex-1 min-h-0 relative bg-[var(--bg-dark)] rounded-lg overflow-hidden"
       :class="{ 'fixed inset-0 z-[9999] h-screen w-screen rounded-none': isFullscreen }"
-      :style="!isFullscreen ? { height: '700px' } : {}"
     >
       <video ref="video" crossorigin="anonymous" playsinline style="display: none" />
       <canvas
