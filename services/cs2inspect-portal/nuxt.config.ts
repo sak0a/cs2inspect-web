@@ -1,8 +1,14 @@
+import { fileURLToPath } from 'node:url'
+
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   future: { compatibilityVersion: 4 },
   devServer: { port: 3220 },
   ssr: true,
+
+  alias: {
+    '~/server': fileURLToPath(new URL('./server', import.meta.url)),
+  },
 
   modules: [
     '@nuxtjs/tailwindcss',
