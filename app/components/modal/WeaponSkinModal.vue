@@ -249,9 +249,22 @@ const initializePreviewVideo = async () => {
     return
   }
 
+  // Scale canvas backing buffer for HiDPI sharpness
+  const dpr = window.devicePixelRatio || 1
+  const rect = previewCanvas.value.getBoundingClientRect()
+  const cssW = rect.width || 640
+  const cssH = rect.height || 256
+  previewCanvas.value.width = cssW * dpr
+  previewCanvas.value.height = cssH * dpr
+  previewCanvas.value.style.width = `${cssW}px`
+  previewCanvas.value.style.height = `${cssH}px`
+
   // Get canvas context
   previewCtx.value = previewCanvas.value.getContext('2d')
   if (!previewCtx.value) return
+
+  // Scale context so all draw calls use CSS-pixel coordinates
+  previewCtx.value.setTransform(dpr, 0, 0, dpr, 0, 0)
 
   // Generate video URL from skin name
   const weaponName = selectedSkin.value.name.split(' | ')[0] || 'weapon'
@@ -272,8 +285,8 @@ const initializePreviewVideo = async () => {
         video: previewVideo.value,
         ctx: previewCtx.value,
         canvasSize: {
-          width: previewCanvas.value.width,
-          height: previewCanvas.value.height,
+          width: cssW,
+          height: cssH,
         },
         wearValue: customization.value.paintwear,
         minWear: selectedSkin.value.minFloat ?? 0,
@@ -1301,8 +1314,6 @@ onUnmounted(() => {
                       v-show="isPreviewVideoMode && !isPreviewVideoLoading"
                       ref="previewCanvas"
                       class="w-full h-64"
-                      width="640"
-                      height="256"
                     />
 
                     <!-- Static image fallback (shown when no video or loading) -->

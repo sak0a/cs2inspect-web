@@ -186,7 +186,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
 
           <!-- Three-dots dropdown — only for configured cards -->
           <div
-            class="absolute top-1 right-1 z-10"
+            class="absolute -top-2 -right-2 z-10"
             @click.stop
             @keydown.stop
           >
@@ -194,6 +194,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
               trigger="click"
               placement="bottom-end"
               size="sm"
+              variant="glass"
               @select="(key: string) => handleQuickAction(key, weapon)"
             >
               <template #trigger>

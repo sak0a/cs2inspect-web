@@ -512,18 +512,26 @@ const initializeCanvas = async () => {
   if (!canvas.value || !canvasContainer.value || !video.value) return
 
   const containerRect = canvasContainer.value.getBoundingClientRect()
+  const dpr = window.devicePixelRatio || 1
 
   canvasState.value.canvasSize = {
     width: containerRect.width,
     height: containerRect.height || 600, // Fallback height
   }
 
-  canvas.value.width = canvasState.value.canvasSize.width
-  canvas.value.height = canvasState.value.canvasSize.height
+  // Set backing buffer to physical pixels for HiDPI sharpness
+  canvas.value.width = canvasState.value.canvasSize.width * dpr
+  canvas.value.height = canvasState.value.canvasSize.height * dpr
+  // CSS size stays at logical pixels
+  canvas.value.style.width = `${canvasState.value.canvasSize.width}px`
+  canvas.value.style.height = `${canvasState.value.canvasSize.height}px`
 
   ctx.value = canvas.value.getContext('2d')
 
   if (!ctx.value) return
+
+  // Scale context so all draw calls use CSS-pixel coordinates
+  ctx.value.setTransform(dpr, 0, 0, dpr, 0, 0)
 
   currentWear.value = props.weaponWear || 0
 
@@ -696,8 +704,8 @@ const renderCanvas = () => {
   if (isVideoMode.value && videoManager.value) {
     videoManager.value.renderFrame()
     const meta = videoManager.value.getMetadata()
-    const cw = canvas.value.width
-    const ch = canvas.value.height
+    const cw = canvasState.value.canvasSize.width
+    const ch = canvasState.value.canvasSize.height
     if (meta.width > 0 && meta.height > 0) {
       const videoAspect = meta.width / meta.height
       const canvasAspect = cw / ch
@@ -754,12 +762,14 @@ const drawImageWithAspectRatio = (
 
 const renderStaticBackground = () => {
   if (!ctx.value || !canvas.value) return
-  ctx.value.clearRect(0, 0, canvas.value.width, canvas.value.height)
+  const cw = canvasState.value.canvasSize.width
+  const ch = canvasState.value.canvasSize.height
+  ctx.value.clearRect(0, 0, cw, ch)
   if (canvasState.value.weaponImage) {
     const img = new Image()
     img.onload = () => {
       if (ctx.value && canvas.value) {
-        drawImageWithAspectRatio(img, ctx.value, canvas.value.width, canvas.value.height)
+        drawImageWithAspectRatio(img, ctx.value, cw, ch)
         drawElements()
       }
     }
@@ -769,20 +779,20 @@ const renderStaticBackground = () => {
       const fallbackImg = new Image()
       fallbackImg.onload = () => {
         if (ctx.value && canvas.value) {
-          drawImageWithAspectRatio(fallbackImg, ctx.value, canvas.value.width, canvas.value.height)
+          drawImageWithAspectRatio(fallbackImg, ctx.value, cw, ch)
           drawElements()
         }
       }
       fallbackImg.onerror = () => {
         if (ctx.value) {
           ctx.value.fillStyle = '#2a2a2a'
-          ctx.value.fillRect(0, 0, canvas.value!.width, canvas.value!.height)
+          ctx.value.fillRect(0, 0, cw, ch)
         }
         backgroundDrawRect.value = {
           x: 0,
           y: 0,
-          width: canvas.value!.width,
-          height: canvas.value!.height,
+          width: cw,
+          height: ch,
         }
         drawElements()
       }
@@ -795,8 +805,8 @@ const renderStaticBackground = () => {
     backgroundDrawRect.value = {
       x: 0,
       y: 0,
-      width: canvas.value!.width,
-      height: canvas.value!.height,
+      width: cw,
+      height: ch,
     }
     drawElements()
   }
@@ -882,24 +892,27 @@ const drawCoordinateOverlay = () => {
 
   ctx.value.save()
 
+  const overlayW = canvasState.value.canvasSize.width
+  const overlayH = canvasState.value.canvasSize.height
+
   // Draw grid lines every 100px
   ctx.value.strokeStyle = '#00ff00'
   ctx.value.lineWidth = 1
   ctx.value.globalAlpha = 0.5
 
   // Vertical lines
-  for (let x = 0; x <= canvas.value.width; x += 100) {
+  for (let x = 0; x <= overlayW; x += 100) {
     ctx.value.beginPath()
     ctx.value.moveTo(x, 0)
-    ctx.value.lineTo(x, canvas.value.height)
+    ctx.value.lineTo(x, overlayH)
     ctx.value.stroke()
   }
 
   // Horizontal lines
-  for (let y = 0; y <= canvas.value.height; y += 100) {
+  for (let y = 0; y <= overlayH; y += 100) {
     ctx.value.beginPath()
     ctx.value.moveTo(0, y)
-    ctx.value.lineTo(canvas.value.width, y)
+    ctx.value.lineTo(overlayW, y)
     ctx.value.stroke()
   }
 
@@ -909,12 +922,12 @@ const drawCoordinateOverlay = () => {
   ctx.value.globalAlpha = 0.8
 
   // X-axis labels
-  for (let x = 0; x <= canvas.value.width; x += 100) {
+  for (let x = 0; x <= overlayW; x += 100) {
     ctx.value.fillText(x.toString(), x + 2, 15)
   }
 
   // Y-axis labels
-  for (let y = 0; y <= canvas.value.height; y += 100) {
+  for (let y = 0; y <= overlayH; y += 100) {
     if (y > 0) ctx.value.fillText(y.toString(), 2, y - 2)
   }
 
@@ -924,12 +937,12 @@ const drawCoordinateOverlay = () => {
   ctx.value.fillText(
     `Mouse: (${mousePosition.value.x}, ${mousePosition.value.y})`,
     10,
-    canvas.value.height - 40
+    overlayH - 40
   )
   ctx.value.fillText(
     'Coordinate Overlay Active - Hover to see positions',
     10,
-    canvas.value.height - 20
+    overlayH - 20
   )
 
   ctx.value.restore()
@@ -1226,9 +1239,16 @@ const handleWearUpdate = (val: number) => {
 const handleResize = () => {
   if (!canvas.value || !canvasContainer.value) return
   const containerRect = canvasContainer.value.getBoundingClientRect()
+  const dpr = window.devicePixelRatio || 1
   canvasState.value.canvasSize = { width: containerRect.width, height: containerRect.height }
-  canvas.value.width = containerRect.width
-  canvas.value.height = containerRect.height
+  // Set backing buffer to physical pixels for HiDPI sharpness
+  canvas.value.width = containerRect.width * dpr
+  canvas.value.height = containerRect.height * dpr
+  canvas.value.style.width = `${containerRect.width}px`
+  canvas.value.style.height = `${containerRect.height}px`
+  if (ctx.value) {
+    ctx.value.setTransform(dpr, 0, 0, dpr, 0, 0)
+  }
   if (videoManager.value) videoManager.value.updateCanvasSize(canvasState.value.canvasSize)
   renderCanvas()
 }
