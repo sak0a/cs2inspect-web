@@ -70,6 +70,22 @@ export default defineEventHandler(async (event) => {
     return { url: session.url, provider: 'stripe' }
   }
 
-  // PayPal will be added in Task 6
-  throw createError({ statusCode: 501, statusMessage: 'PayPal not yet implemented' })
+  if (provider === 'paypal') {
+    const { createPayPalOrder } = await import('~/server/utils/paypal')
+    const amountEur = (priceCents / 100).toFixed(2)
+    const description = `CS2Inspect Plugin — ${PLANS[plan].label}${discountPct > 0 ? ` (${discountPct}% discount)` : ''}`
+    const metadata = {
+      customerId: String(customer.id),
+      licenseId: String(licenseId),
+      plan,
+      daysAdded: String(PLANS[plan].days),
+      discountPct: String(discountPct),
+      amountCents: String(priceCents),
+    }
+
+    const { approveUrl } = await createPayPalOrder(amountEur, description, metadata)
+    return { url: approveUrl, provider: 'paypal' }
+  }
+
+  throw createError({ statusCode: 400, statusMessage: 'Invalid provider' })
 })
