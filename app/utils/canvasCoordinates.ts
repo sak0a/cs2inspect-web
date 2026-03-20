@@ -103,6 +103,9 @@ export function getExternalNormalizationRefs(weaponName?: string): { x: number; 
  * AK-47 1333,5px wide, 382,5px high, stickers 128x96, keychains 100x100
  * Our canvas: AWP 1110px wide
  */
+/**
+ * Default (fallback) asset sizes per weapon when no resolution-specific override exists
+ */
 export const WEAPON_ASSET_SIZES: Record<string, { sticker: Size; keychain: Size }> = {
   awp: {
     sticker: { width: 50, height: 50 }, // 4:3 ratio (1110 × 0.0693 = 77)
@@ -115,6 +118,22 @@ export const WEAPON_ASSET_SIZES: Record<string, { sticker: Size; keychain: Size 
 }
 
 /**
+ * Resolution-specific asset size overrides
+ * Format: weapon -> 'widthxheight' -> { sticker, keychain }
+ * Takes priority over WEAPON_ASSET_SIZES when the video resolution matches
+ */
+export const WEAPON_ASSET_SIZES_BY_RESOLUTION: Record<
+  string,
+  Record<string, { sticker: Size; keychain: Size }>
+> = {
+  // Example: M4A1-S has two resolutions with different framing
+  'm4a1-s': {
+     '3884x972': { sticker: { width: 80*0.98, height: 60*0.98 }, keychain: { width: 65, height: 65 } },
+     '3784x978': { sticker: { width: 80*1.05, height: 60*1.05 }, keychain: { width: 60, height: 60 } },
+   },
+}
+
+/**
  * Default asset sizes when weapon-specific sizes are not defined
  */
 export const DEFAULT_ASSET_SIZES = {
@@ -124,13 +143,31 @@ export const DEFAULT_ASSET_SIZES = {
 
 /**
  * Get sticker and keychain display sizes for a weapon
+ * @param weaponName - weapon name (e.g. 'AWP', 'M4A1-S')
+ * @param videoWidth - optional video width for resolution-specific lookup
+ * @param videoHeight - optional video height for resolution-specific lookup
  */
-export function getWeaponAssetSizes(weaponName?: string): { sticker: Size; keychain: Size } {
+export function getWeaponAssetSizes(
+  weaponName?: string,
+  videoWidth?: number,
+  videoHeight?: number
+): { sticker: Size; keychain: Size } {
   if (weaponName) {
     const clean = weaponName
       .toLowerCase()
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-]/g, '')
+
+    // Check resolution-specific override first
+    if (videoWidth && videoHeight) {
+      const resKey = `${videoWidth}x${videoHeight}`
+      const resOverrides = WEAPON_ASSET_SIZES_BY_RESOLUTION[clean]
+      if (resOverrides && resOverrides[resKey]) {
+        return resOverrides[resKey]
+      }
+    }
+
+    // Fall back to weapon-level default
     const found = WEAPON_ASSET_SIZES[clean]
     if (found) return found
   }

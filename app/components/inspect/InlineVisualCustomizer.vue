@@ -88,10 +88,11 @@ const REF_HEIGHT = 384
 const showCoordinateOverlay = ref(false)
 const mousePosition = ref({ x: 0, y: 0 })
 
-// Asset sizes are now computed based on weapon type
+// Asset sizes are now computed based on weapon type and video resolution
 const assetSizes = computed(() => {
   const weaponName = props.weaponSkin?.name.split(' | ')[0] || 'unknown'
-  return getWeaponAssetSizes(weaponName)
+  const meta = videoManager.value?.getMetadata()
+  return getWeaponAssetSizes(weaponName, meta?.width, meta?.height)
 })
 
 const STICKER_MAX_WIDTH_PX = computed(() => assetSizes.value.sticker.width)
