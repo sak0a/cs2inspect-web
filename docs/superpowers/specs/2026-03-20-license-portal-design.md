@@ -42,14 +42,15 @@ A standalone Nuxt 4 application (`manage.cs2inspect.com`) that handles plugin li
 |--------|------|-------|
 | id | int, PK, auto-increment | |
 | customer_id | FK → customers | |
-| license_key | varchar, unique | Generated key (format: `CS2I-XXXX-XXXX-XXXX`) |
-| server_ip | varchar, nullable | Bound on first plugin activation |
+| license_key | varchar, unique | Generated key (format: `CS2I-XXXX-XXXX-XXXX`, uppercase alphanumeric A-Z0-9, 36^12 entropy) |
+| server_address | varchar, nullable | Bound on first plugin activation (format: `IP:port`, e.g. `1.2.3.4:27015`) |
 | activated_at | datetime, nullable | First heartbeat timestamp |
 | expires_at | datetime | Calculated from purchases |
 | is_trial | boolean | 3-day trial flag |
 | status | enum: active, expired, revoked | |
 | last_heartbeat | datetime, nullable | |
 | created_at | datetime | |
+| updated_at | datetime | Auto-updated on any change |
 
 ### `purchases`
 
@@ -59,7 +60,7 @@ A standalone Nuxt 4 application (`manage.cs2inspect.com`) that handles plugin li
 | customer_id | FK → customers | |
 | license_id | FK → licenses | |
 | provider | enum: stripe, paypal | |
-| provider_tx_id | varchar | Stripe/PayPal transaction ID |
+| provider_tx_id | varchar, unique | Stripe/PayPal transaction ID (unique constraint for webhook idempotency) |
 | plan | enum: 30d, 90d, 365d | |
 | amount_cents | int | e.g., 300 for €3 |
 | currency | varchar, default 'eur' | |
@@ -71,15 +72,26 @@ A standalone Nuxt 4 application (`manage.cs2inspect.com`) that handles plugin li
 ### Key constraints
 
 - One customer can have multiple licenses (one per server)
-- `expires_at` is extended (stacked) on each purchase, not reset
-- `server_ip` is bound on first plugin activation — prevents key sharing
+- `expires_at` stacking: `new_expires_at = max(now, current_expires_at) + days_added` (expired licenses count from now, not from old expiry)
+- `server_address` is bound on first plugin activation — prevents key sharing
+- `server_address` can be rebound from the dashboard (max once per 7 days, cooldown per license)
 - `trial_used` is per customer, not per license — only one trial ever
+- Webhook handlers must be idempotent — check `provider_tx_id` uniqueness before creating purchase records
+- All prices are in EUR only for v1
 
 ## License Validation API
 
-### `GET /api/licenses/validate`
+### `POST /api/licenses/validate`
 
-**Query parameters:** `key` (license key), `server_ip` (server's IP address)
+**Request body:**
+```json
+{
+  "key": "CS2I-XXXX-XXXX-XXXX",
+  "server_address": "1.2.3.4:27015"
+}
+```
+
+POST is used instead of GET to keep the license key out of URL logs, proxy logs, and CDN logs.
 
 **Success response (200):**
 ```json
@@ -87,7 +99,7 @@ A standalone Nuxt 4 application (`manage.cs2inspect.com`) that handles plugin li
   "valid": true,
   "expires_at": "2026-04-20T00:00:00Z",
   "days_remaining": 31,
-  "server_ip": "1.2.3.4"
+  "server_address": "1.2.3.4:27015"
 }
 ```
 
@@ -95,17 +107,18 @@ A standalone Nuxt 4 application (`manage.cs2inspect.com`) that handles plugin li
 ```json
 {
   "valid": false,
-  "reason": "expired | revoked | ip_mismatch | not_found"
+  "reason": "expired | revoked | address_mismatch | not_found"
 }
 ```
 
 ### Behaviors
 
-- First call with a new `server_ip` binds the license to that IP
-- Subsequent calls from a different IP return `ip_mismatch`
+- First call with a new `server_address` binds the license to that address (IP:port)
+- Subsequent calls from a different address return `address_mismatch`
 - Updates `last_heartbeat` on every valid call
 - No auth required — the license key itself is the credential
-- Rate limited per IP to prevent brute-force key scanning
+- Rate limited: 10 requests per minute per IP, returns 429 when exceeded
+- TLS required — the portal must be served over HTTPS
 
 ## Plugin Modifications (C#)
 
@@ -135,15 +148,16 @@ Steam OpenID login (reuse existing auth pattern from cs2inspect-web). JWT cookie
 #### 1. Dashboard (Home)
 
 - Trial banner (if trial not yet used): "Your 3-day trial is ready" with link to setup guide
-- License cards: shows each license with key (copyable), status badge, server IP, expiry date, days remaining
-- "Add Server License" card with multi-server discount note (10-20% off)
+- License cards: shows each license with key (copyable), status badge, server address, expiry date, days remaining
+- "Add Server License" card with multi-server discount note (15% off)
+- Each license card has a "Change Server" button (rebind address, 7-day cooldown)
 - Quick actions: "Buy More Time", "View Purchase History"
 
 #### 2. Buy Time (Pricing)
 
 - Select which license to extend
 - Three plan cards: 30d/€3, 90d/€8 (highlighted as "Popular", save 11%), 365d/€30 (save 17%)
-- Multi-server discount applied automatically for 2nd+ licenses
+- Multi-server discount (15%) applied automatically for 2nd+ licenses
 - Payment method selection: Stripe or PayPal → redirect to hosted checkout
 
 #### 3. Setup Guide (Onboarding)
@@ -178,8 +192,12 @@ Steam OpenID login (reuse existing auth pattern from cs2inspect-web). JWT cookie
 1. On first Steam login → customer record created with `trial_used: false`
 2. Customer clicks "Start Trial" → creates license with `is_trial: true`, `expires_at: now + 3 days`
 3. Sets `trial_used: true` on customer (can never trial again)
-4. Trial activates on first plugin heartbeat (binds server IP)
+4. Trial activates on first plugin heartbeat (binds server address)
 5. On expiry → license status flips to `expired`, plugin disables on next heartbeat
+
+### Trial-to-paid conversion
+
+When a customer buys time for a trial license, the purchase extends that same license. The `is_trial` flag is cleared on first purchase. No new license is created — the trial license becomes the paid license.
 
 ### Refund handling (v1)
 
@@ -195,7 +213,7 @@ Steam OpenID login (reuse existing auth pattern from cs2inspect-web). JWT cookie
 | 90 days | €8 | ~€2.67/mo | 11% |
 | 365 days | €30 | €2.50/mo | 17% |
 
-**Multi-server discount:** 10-20% off additional licenses for the same customer.
+**Multi-server discount:** flat 15% off all additional licenses (2nd+) for the same customer. Applied at checkout automatically.
 
 ## Deployment
 
