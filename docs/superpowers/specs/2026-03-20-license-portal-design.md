@@ -143,7 +143,17 @@ POST is used instead of GET to keep the license key out of URL logs, proxy logs,
 
 Steam OpenID login (reuse existing auth pattern from cs2inspect-web). JWT cookie-based sessions.
 
-### Pages (4 total)
+### Pages (5 total)
+
+#### 0. Landing Page (public, non-authenticated)
+
+- Hero section: headline, short description of the plugin, "Start Free Trial" CTA
+- Features section: key capabilities (weapon skins, knives, gloves, stickers, StatTrak, etc.)
+- Pricing section: 3 plan cards (30d/90d/365d) with savings, multi-server discount note
+- How it works: 3-step overview (sign up, get key, activate on server)
+- FAQ section (common questions: what happens when license expires, can I change servers, etc.)
+- Footer with "Login with Steam" button
+- Redirects to Dashboard if already authenticated
 
 #### 1. Dashboard (Home)
 
@@ -217,10 +227,12 @@ When a customer buys time for a trial license, the purchase extends that same li
 
 ## Deployment
 
+- Private GitHub repository (commercial code, not open source)
 - Standalone Coolify stack (separate from cs2inspect-web)
+- Coolify builds directly from the private repo (via GitHub App integration) using Nixpacks or Docker Compose
+- No GHCR — no public image registry needed
 - Services: Nuxt app + MariaDB
 - Own domain: `manage.cs2inspect.com` (or similar)
-- Docker image built and pushed to GHCR (same CI/CD pattern as cs2inspect-web)
 
 ## Out of Scope (v1)
 
