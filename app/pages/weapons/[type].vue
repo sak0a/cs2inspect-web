@@ -21,6 +21,7 @@ const message = useMessage()
 
 const showSkinModal = ref<boolean>(false)
 const selectedWeapon = ref<IEnhancedWeapon | null>(null)
+const weaponCardTriggerRect = ref<DOMRect | null>(null)
 
 const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
 const groupedWeapons = useGroupedWeapons(skins)
@@ -49,8 +50,11 @@ const visibleGroupedWeapons = computed(() => {
   return result
 })
 
-const handleWeaponClick = (weapon: IEnhancedWeapon) => {
+const handleWeaponClick = (weapon: IEnhancedWeapon, event?: MouseEvent) => {
   selectedWeapon.value = weapon
+  if (event?.currentTarget instanceof HTMLElement) {
+    weaponCardTriggerRect.value = event.currentTarget.getBoundingClientRect()
+  }
   showSkinModal.value = true
 }
 
@@ -290,8 +294,8 @@ const quickActions = useWeaponQuickActions({
 })
 
 // Wrapper handlers that handle type conversion for WeaponTabs events
-const handleWeaponClickWrapper = (weapon: WeaponItemData) => {
-  handleWeaponClick(weapon as unknown as IEnhancedWeapon)
+const handleWeaponClickWrapper = (weapon: WeaponItemData, event?: MouseEvent) => {
+  handleWeaponClick(weapon as unknown as IEnhancedWeapon, event)
 }
 
 // No animation code
@@ -439,12 +443,11 @@ watch(
       </div>
 
       <!-- Skin Selection & Customization Modal -->
-      <LazyWeaponSkinModal
+      <LazyWeaponSkinModalV2
         v-if="user"
         v-model:visible="showSkinModal"
-        :user="user"
         :weapon="selectedWeapon"
-        :other-team-has-skin="otherTeamHasSkin"
+        :trigger-rect="weaponCardTriggerRect"
         @select="handleSkinSave"
         @auto-save="handleAutoSave"
         @duplicate="handleWeaponDuplicate"

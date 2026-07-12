@@ -25,6 +25,10 @@ export interface ItemModalState {
   currentPage: number
   error: string | null
 
+  // Infinite scroll state
+  displayedCount: number
+  isLoadingMore: boolean
+
   // Sub-modal visibility
   showImportModal: boolean
   showResetConfirm: boolean
@@ -73,6 +77,8 @@ export function useItemModal(options: UseItemModalOptions) {
     showImportModal: false,
     showResetConfirm: false,
     showDuplicateConfirm: false,
+    displayedCount: 0,
+    isLoadingMore: false,
   })
 
   // API state for skin data
@@ -152,9 +158,34 @@ export function useItemModal(options: UseItemModalOptions) {
    */
   const totalPages = computed(() => Math.ceil(sortedSkins.value.length / PAGE_SIZE.value))
 
+  /** Skins shown so far (for infinite scroll mode) */
+  const displayedSkins = computed(() => {
+    return sortedSkins.value.slice(0, state.value.displayedCount)
+  })
+
+  /** Whether there are more skins to load */
+  const hasMore = computed(() => {
+    return state.value.displayedCount < sortedSkins.value.length
+  })
+
   // ============================================================================
   // Methods - Core Functionality
   // ============================================================================
+
+  /** Load next batch of skins (for infinite scroll) */
+  function loadMore() {
+    if (state.value.isLoadingMore || !hasMore.value) return
+    state.value.isLoadingMore = true
+    nextTick(() => {
+      state.value.displayedCount += PAGE_SIZE.value
+      state.value.isLoadingMore = false
+    })
+  }
+
+  /** Reset displayed count (call when filters/sort change) */
+  function resetDisplayedCount() {
+    state.value.displayedCount = PAGE_SIZE.value
+  }
 
   function toggleSortDir() {
     sortDir.value = sortDir.value === 'asc' ? 'desc' : 'asc'
@@ -214,6 +245,7 @@ export function useItemModal(options: UseItemModalOptions) {
         pattern: { id: 'default', name: 'Default' },
       }
       apiState.value.skins = [defaultSkin, ...skins]
+      state.value.displayedCount = PAGE_SIZE.value
 
       if (skins.length === 0) {
         console.warn(`useItemModal(${itemType}): No skins found for:`, itemName)
@@ -273,6 +305,8 @@ export function useItemModal(options: UseItemModalOptions) {
       showImportModal: false,
       showResetConfirm: false,
       showDuplicateConfirm: false,
+      displayedCount: 0,
+      isLoadingMore: false,
     }
     apiState.value.skins = []
     if (enableSortFilter) {
@@ -301,6 +335,13 @@ export function useItemModal(options: UseItemModalOptions) {
     }
   )
 
+  /**
+   * Watch search/sort/filter changes to reset infinite scroll displayed count
+   */
+  watch([() => state.value.searchQuery, sortBy, sortDir, rarityFilterIds], () => {
+    resetDisplayedCount()
+  }, { deep: true })
+
   // ============================================================================
   // Return Public API
   // ============================================================================
@@ -322,6 +363,8 @@ export function useItemModal(options: UseItemModalOptions) {
     sortedSkins,
     paginatedSkins,
     totalPages,
+    displayedSkins,
+    hasMore,
 
     // Methods
     fetchSkins,
@@ -330,5 +373,7 @@ export function useItemModal(options: UseItemModalOptions) {
     clearState,
     toggleSortDir,
     toggleRarityFilter,
+    loadMore,
+    resetDisplayedCount,
   }
 }

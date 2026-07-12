@@ -8,6 +8,33 @@ class SteamClientService {
   private initPromise: Promise<void> | null = null
   private initStartTime: number | null = null
 
+  private logSteamAccountIdForTesting(): void {
+    if (!this.client) {
+      return
+    }
+
+    const clientWithInternals = this.client as unknown as {
+      steamManager?: {
+        client?: {
+          steamClient?: {
+            steamID?: {
+              accountid?: number
+            }
+          }
+        }
+      }
+    }
+
+    const accountId = clientWithInternals.steamManager?.client?.steamClient?.steamID?.accountid
+
+    if (accountId !== undefined) {
+      console.log(`[steam-service] Logged in Steam accountid: ${accountId}`)
+      return
+    }
+
+    logger.warn('Steam client initialized but could not read Steam accountid for testing log')
+  }
+
   async initialize(): Promise<void> {
     if (this.isInitialized && this.client) {
       return
@@ -68,6 +95,7 @@ class SteamClientService {
       // The main app doesn't use retry logic, so let's try without it first
       if (steamConfig.enabled) {
         await this.client.initializeSteamClient()
+        this.logSteamAccountIdForTesting()
       }
 
       this.isInitialized = true
