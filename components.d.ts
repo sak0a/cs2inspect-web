@@ -21,8 +21,8 @@ declare module 'vue' {
 
 // For TSX support
 declare global {
-  const NButton: (typeof import('naive-ui'))['NButton']
-  const NInput: (typeof import('naive-ui'))['NInput']
-  const RouterLink: (typeof import('vue-router'))['RouterLink']
-  const RouterView: (typeof import('vue-router'))['RouterView']
+  const NButton: typeof import('naive-ui')['NButton']
+  const NInput: typeof import('naive-ui')['NInput']
+  const RouterLink: typeof import('vue-router')['RouterLink']
+  const RouterView: typeof import('vue-router')['RouterView']
 }

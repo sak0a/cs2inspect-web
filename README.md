@@ -4,7 +4,7 @@ A full-stack web application for Counter-Strike 2 players to customize and manag
 
 ![Nuxt](https://img.shields.io/badge/Nuxt-4.x-00DC82?style=flat-square&logo=nuxt.js)
 ![Vue](https://img.shields.io/badge/Vue-3.x-4FC08D?style=flat-square&logo=vue.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript)
+![TypeScript](https://img.shields.io/badge/TypeScript-7.x-3178C6?style=flat-square&logo=typescript)
 ![MariaDB](https://img.shields.io/badge/MariaDB-11-003545?style=flat-square&logo=mariadb)
 ![CI](https://github.com/sak0a/cs2inspect-web/workflows/CI/badge.svg)
 ![Docker](https://github.com/sak0a/cs2inspect-web/workflows/Build%20Docker%20Images/badge.svg)

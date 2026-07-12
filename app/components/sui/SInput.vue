@@ -512,8 +512,8 @@ const enforceDecimalPlaces = (value: string): string => {
   if (props.decimalPlaces === undefined) return value
   
   const parts = value.split('.')
-  if (parts.length === 2 && parts[1].length > props.decimalPlaces) {
-    return parts[0] + '.' + parts[1].slice(0, props.decimalPlaces)
+  if (parts.length === 2 && parts[1] != null && parts[1].length > props.decimalPlaces) {
+    return `${parts[0]}.${parts[1].slice(0, props.decimalPlaces)}`
   }
   return value
 }
@@ -537,7 +537,7 @@ const handleBeforeInput = (event: InputEvent) => {
   // Check decimal places
   if (props.decimalPlaces !== undefined && char !== '.') {
     const parts = newValue.split('.')
-    if (parts.length === 2 && parts[1].length > props.decimalPlaces) {
+    if (parts.length === 2 && parts[1] != null && parts[1].length > props.decimalPlaces) {
       event.preventDefault()
       return
     }
@@ -629,7 +629,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     }
     if (event.key === 'Enter' && selectedSuggestionIndex.value >= 0) {
       event.preventDefault()
-      selectSuggestion(filteredSuggestions.value[selectedSuggestionIndex.value])
+      selectSuggestion(filteredSuggestions.value[selectedSuggestionIndex.value]!)
       return
     }
     if (event.key === 'Escape') {
@@ -640,7 +640,7 @@ const handleKeydown = (event: KeyboardEvent) => {
     if (event.key === 'Tab' && filteredSuggestions.value.length > 0) {
       // Auto-complete with first suggestion on Tab
       event.preventDefault()
-      selectSuggestion(filteredSuggestions.value[0])
+      selectSuggestion(filteredSuggestions.value[0]!)
       return
     }
   }
