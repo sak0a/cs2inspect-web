@@ -32,8 +32,8 @@ async function ensureMigrationJournal(): Promise<void> {
     const journalExists = journalCount > 0
 
     if (journalExists) {
-      // Journal exists — check for gap migrations (tables created via db:push
-      // after the journal was initially seeded)
+      // Journal exists — repair bulk-seeded entries and gap migrations
+      await repairIncorrectJournalEntries(connection, journal, fs, path, crypto)
       await seedGapMigrations(connection, journal, fs, path, crypto)
       return
     }
@@ -52,7 +52,7 @@ async function ensureMigrationJournal(): Promise<void> {
       return
     }
 
-    // DB has tables but no journal — seed the journal with all migrations
+    // DB has tables but no journal — seed only migrations whose tables already exist
     Logger.info('Journal missing, seeding from applied schema', 'migrations')
 
     // Create the journal table (same schema Drizzle uses)
@@ -64,21 +64,118 @@ async function ensureMigrationJournal(): Promise<void> {
             )
         `)
 
-    // Mark all existing migrations as applied
+    let seededCount = 0
     for (const entry of journal.entries) {
       const migrationPath = path.resolve(`./server/database/drizzle/${entry.tag}.sql`)
       const sqlContent = fs.readFileSync(migrationPath, 'utf-8')
       const hash = crypto.createHash('sha256').update(sqlContent).digest('hex')
 
+      if (!(await migrationTablesExist(connection, sqlContent))) {
+      continue
+    }
+
       await connection.query(
         `INSERT INTO \`__drizzle_migrations\` (\`hash\`, \`created_at\`) VALUES (?, ?)`,
         [hash, entry.when]
       )
+      seededCount++
     }
 
-    Logger.info(`Journal seeded count=${journal.entries.length}`, 'migrations')
+    Logger.info(`Journal seeded count=${seededCount}`, 'migrations')
   } finally {
     connection.release()
+  }
+}
+
+function extractCreateTableNames(sqlContent: string): string[] {
+  const matches = sqlContent.matchAll(/CREATE TABLE [`"]?(\w+)[`"]?/gi)
+  return [...matches].map((match) => match[1])
+}
+
+async function tableExists(
+  connection: import('mysql2/promise').PoolConnection,
+  tableName: string
+): Promise<boolean> {
+  const [tableCheck] = (await connection.query(
+    `SELECT COUNT(*) as cnt FROM information_schema.tables
+           WHERE table_schema = DATABASE() AND table_name = ?`,
+    [tableName]
+  )) as [Array<{ cnt: number }>, unknown]
+
+  return (tableCheck[0]?.cnt ?? 0) > 0
+}
+
+async function migrationTablesExist(
+  connection: import('mysql2/promise').PoolConnection,
+  sqlContent: string
+): Promise<boolean> {
+  const tableNames = extractCreateTableNames(sqlContent)
+  if (tableNames.length === 0) {
+    // ALTER-only migrations can't be verified from CREATE TABLE metadata.
+    // Treat them as applied to avoid re-running destructive schema changes.
+    return true
+  }
+
+  for (const tableName of tableNames) {
+    if (!(await tableExists(connection, tableName))) {
+      return false
+    }
+  }
+
+  return true
+}
+
+async function migrationNeedsApplication(
+  connection: import('mysql2/promise').PoolConnection,
+  sqlContent: string
+): Promise<boolean> {
+  const tableNames = extractCreateTableNames(sqlContent)
+  if (tableNames.length === 0) {
+    return false
+  }
+
+  return !(await migrationTablesExist(connection, sqlContent))
+}
+
+/**
+ * Remove journal entries for migrations whose tables were never created.
+ * Repairs databases that were incorrectly bulk-seeded as fully migrated.
+ */
+async function repairIncorrectJournalEntries(
+  connection: import('mysql2/promise').PoolConnection,
+  journal: { entries: Array<{ idx: number; tag: string; when: number }> },
+  fs: typeof import('fs'),
+  path: typeof import('path'),
+  crypto: typeof import('crypto')
+): Promise<void> {
+  const [appliedRows] = (await connection.query(
+    `SELECT id, hash FROM \`__drizzle_migrations\``
+  )) as [Array<{ id: number; hash: string }>, unknown]
+  const appliedByHash = new Map(appliedRows.map((row) => [row.hash, row.id]))
+
+  let repairedCount = 0
+
+  for (const entry of journal.entries) {
+    const migrationPath = path.resolve(`./server/database/drizzle/${entry.tag}.sql`)
+    const sqlContent = fs.readFileSync(migrationPath, 'utf-8')
+    const hash = crypto.createHash('sha256').update(sqlContent).digest('hex')
+    const appliedId = appliedByHash.get(hash)
+
+    if (!appliedId) {
+      continue
+    }
+
+    if (!(await migrationNeedsApplication(connection, sqlContent))) {
+      continue
+    }
+
+    await connection.query(`DELETE FROM \`__drizzle_migrations\` WHERE id = ?`, [appliedId])
+    repairedCount++
+    Logger.info(`Journal repair unmarked ${entry.tag}`, 'migrations')
+  }
+
+  if (repairedCount > 0) {
+    Logger.info(`Journal repair count=${repairedCount}`, 'migrations')
   }
 }
 
@@ -112,22 +209,13 @@ async function seedGapMigrations(
       continue // Already applied
     }
 
-    // Extract the first CREATE TABLE name from the migration SQL
-    const tableMatch = sqlContent.match(/CREATE TABLE [`"]?(\w+)[`"]?/i)
-    if (!tableMatch) {
+    const tableNames = extractCreateTableNames(sqlContent)
+    if (tableNames.length === 0) {
       continue // No CREATE TABLE — let migrate() handle it
     }
 
-    const tableName = tableMatch[1]
-
-    // Check if this table already exists in the database
-    const [tableCheck] = (await connection.query(
-      `SELECT COUNT(*) as cnt FROM information_schema.tables
-             WHERE table_schema = DATABASE() AND table_name = ?`,
-      [tableName]
-    )) as [Array<{ cnt: number }>, unknown]
-
-    if ((tableCheck[0]?.cnt ?? 0) > 0) {
+    const allTablesExist = await migrationTablesExist(connection, sqlContent)
+    if (allTablesExist) {
       // Table exists but migration isn't recorded — seed it
       await connection.query(
         `INSERT INTO \`__drizzle_migrations\` (\`hash\`, \`created_at\`) VALUES (?, ?)`,
@@ -135,7 +223,7 @@ async function seedGapMigrations(
       )
       seededCount++
       Logger.info(
-        `Gap migration seeded: ${entry.tag} (table ${tableName} already exists)`,
+        `Gap migration seeded: ${entry.tag} (tables ${tableNames.join(', ')} already exist)`,
         'migrations'
       )
     }
@@ -149,7 +237,20 @@ async function seedGapMigrations(
 /**
  * Run all pending Drizzle migrations
  */
+let migrationsPromise: Promise<void> | null = null
+
+export function waitForMigrations(): Promise<void> {
+  return migrationsPromise ?? Promise.resolve()
+}
+
 export async function runMigrations(): Promise<void> {
+  if (!migrationsPromise) {
+    migrationsPromise = executeMigrations()
+  }
+  return migrationsPromise
+}
+
+async function executeMigrations(): Promise<void> {
   try {
     Logger.info('Migration check start', 'migrations')
 

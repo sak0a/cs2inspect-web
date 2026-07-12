@@ -98,6 +98,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:introspect": "drizzle-kit introspect",
+    "db:repair": "bun --env-file=.env scripts/repair-database-migrations.ts",
     "docs:dev": "cd services/docs-site && bun run dev",
     "docs:build": "cd services/docs-site && bun run build",
     "docs:preview": "cd services/docs-site && bun run preview",

@@ -156,6 +156,14 @@ const categories: Category[] = [
         dangerMessage: 'apply pending migrations to the database',
       },
       {
+        id: 'db:repair',
+        label: 'Repair migration journal',
+        hint: 'Applies missing admin tables and fixes incorrectly seeded migration state',
+        run: 'bun run db:repair',
+        dangerous: true,
+        dangerMessage: 'repair the migration journal and apply missing schema tables',
+      },
+      {
         id: 'db:studio',
         label: 'Open Drizzle Studio',
         hint: 'Launches a web GUI for browsing and editing database records',

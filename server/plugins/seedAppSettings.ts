@@ -4,6 +4,9 @@ import { DEFAULT_APP_SETTINGS } from '~/server/utils/constants'
 import { Logger } from '~/server/utils/logger'
 
 export default defineNitroPlugin(async () => {
+  const { waitForMigrations } = await import('~/server/database/migrate')
+  await waitForMigrations()
+
   try {
     const existingSettings = await db.select({ key: appSettings.key }).from(appSettings)
 

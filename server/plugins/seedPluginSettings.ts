@@ -5,6 +5,9 @@ import { PLUGIN_SETTINGS_SEEDS } from '~/server/utils/pluginSettingsSeeds'
 import { Logger } from '~/server/utils/logger'
 
 export default defineNitroPlugin(async () => {
+  const { waitForMigrations } = await import('~/server/database/migrate')
+  await waitForMigrations()
+
   try {
     const [result] = await db.select({ count: count() }).from(pluginSettings)
     if (result && result.count === 0) {
