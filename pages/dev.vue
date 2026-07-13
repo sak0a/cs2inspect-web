@@ -1,19 +1,38 @@
 <script setup lang="ts">
-const router = useRouter()
-const isDev = import.meta.env.DEV
+import { steamAuth } from '~/services/steamAuth'
 
-// Access control: Redirect if not in development
+const router = useRouter()
+const config = useRuntimeConfig()
+const isDev = import.meta.env.DEV
+const devAuthEnabled = computed(() => config.public.devAuthEnabled === true)
+const allowDevPage = computed(() => isDev || devAuthEnabled.value)
+const loginMessage = ref('')
+const loginError = ref('')
+
+// Access control: allow in dev mode or when dev mock auth is enabled
 onMounted(() => {
-  if (!import.meta.env.DEV) {
+  if (!allowDevPage.value) {
     router.replace('/')
   }
 })
+
+async function handleDevLogin(as: 'user' | 'admin') {
+  loginMessage.value = ''
+  loginError.value = ''
+
+  try {
+    const user = await steamAuth.devLogin(as)
+    loginMessage.value = `Logged in as ${user.personaName} (${user.steamId})`
+    await navigateTo('/')
+  } catch (error: unknown) {
+    loginError.value = error instanceof Error ? error.message : 'Dev login failed'
+  }
+}
 
 // Input number demo values
 const value1 = ref(0)
 const value2 = ref(100)
 const value3 = ref(5)
-
 </script>
 
 <template>
@@ -22,6 +41,25 @@ const value3 = ref(5)
       <div class="max-w-5xl mx-auto">
         <n-h2>Developer UI Test Page</n-h2>
         <p class="mb-8 text-gray-400">Environment: {{ isDev ? 'Development' : 'Production' }}</p>
+
+        <n-card v-if="devAuthEnabled" title="Dev Authentication" class="bg-[#1a1a1a] border-gray-800 mb-8" data-testid="dev-auth-card">
+          <n-space vertical>
+            <p class="text-gray-400">
+              Mock Steam login for local development and AI agents. Requires
+              <code class="text-orange-300">DEV_AUTH_ENABLED=true</code> in .env.
+            </p>
+            <n-space>
+              <n-button type="primary" data-testid="dev-login-user" @click="handleDevLogin('user')">
+                Login as Dev User
+              </n-button>
+              <n-button type="warning" data-testid="dev-login-admin" @click="handleDevLogin('admin')">
+                Login as Dev Admin
+              </n-button>
+            </n-space>
+            <p v-if="loginMessage" class="text-green-400">{{ loginMessage }}</p>
+            <p v-if="loginError" class="text-red-400">{{ loginError }}</p>
+          </n-space>
+        </n-card>
 
         <n-space vertical size="large">
         

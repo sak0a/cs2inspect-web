@@ -95,7 +95,12 @@ async function handleLogin() {
 }
 
 const route = useRoute()
-const isDevPage = computed(() => route.path === '/dev' && import.meta.env.DEV)
+const config = useRuntimeConfig()
+const isDevPage = computed(
+  () =>
+    route.path === '/dev' &&
+    (import.meta.env.DEV || config.public.devAuthEnabled === true)
+)
 
 onMounted(async () => {
   if (!selectedKey.value) {
@@ -216,12 +221,13 @@ function handleLanguageSelect(key: string) {
                       class="rounded-full"
                       :class="isReady ? 'transition-all duration-200' : ''"
                       alt="Steam Avatar"
+                      data-testid="logged-in-avatar"
                       :src="user.avatarFull"
                       :style="{ width: menuCollapsed ? '40px' : '100px', height: menuCollapsed ? '40px' : '100px' }"
                   >
                 </a>
                 <div v-if="!menuCollapsed" class="mt-3 text-center">
-                  <span class="font-bold text-[15px]">{{ user.personaName }}</span>
+                  <span class="font-bold text-[15px]" data-testid="logged-in-user">{{ user.personaName }}</span>
                 </div>
               </div>
               <div v-else class="flex items-center flex-col">
