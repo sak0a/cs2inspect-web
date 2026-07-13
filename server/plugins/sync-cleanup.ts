@@ -5,6 +5,10 @@ import { lt, sql } from 'drizzle-orm'
 let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
 export default defineNitroPlugin(() => {
+    if (process.env.E2E_DISABLE_BACKGROUND_JOBS === 'true') {
+        return
+    }
+
     // Run cleanup every 5 minutes
     cleanupInterval = setInterval(async () => {
         try {

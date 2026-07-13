@@ -80,10 +80,11 @@ export default defineNitroPlugin(async () => {
         console.log('Steam service configured - using external service instead of local client');
     }
 
-    // Import health check sampler dynamically to avoid circular dependencies
-    const { startHealthCheckSampler } = await import('../utils/health/sampler');
+    if (process.env.E2E_DISABLE_BACKGROUND_JOBS !== 'true') {
+        const { startHealthCheckSampler } = await import('../utils/health/sampler');
 
-    // Start health check sampler with 60 second interval
-    startHealthCheckSampler(60000);
-    console.log('Health check sampler started');
+        // Start health check sampler with 60 second interval
+        startHealthCheckSampler(60000);
+        console.log('Health check sampler started');
+    }
 });

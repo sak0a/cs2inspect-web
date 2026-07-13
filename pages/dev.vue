@@ -5,12 +5,13 @@ const router = useRouter()
 const config = useRuntimeConfig()
 const isDev = import.meta.env.DEV
 const devAuthEnabled = computed(() => config.public.devAuthEnabled === true)
+const allowDevPage = computed(() => isDev || devAuthEnabled.value)
 const loginMessage = ref('')
 const loginError = ref('')
 
-// Access control: Redirect if not in development
+// Access control: allow in dev mode or when dev mock auth is enabled
 onMounted(() => {
-  if (!import.meta.env.DEV) {
+  if (!allowDevPage.value) {
     router.replace('/')
   }
 })
@@ -41,15 +42,19 @@ const value3 = ref(5)
         <n-h2>Developer UI Test Page</n-h2>
         <p class="mb-8 text-gray-400">Environment: {{ isDev ? 'Development' : 'Production' }}</p>
 
-        <n-card v-if="devAuthEnabled" title="Dev Authentication" class="bg-[#1a1a1a] border-gray-800 mb-8">
+        <n-card v-if="devAuthEnabled" title="Dev Authentication" class="bg-[#1a1a1a] border-gray-800 mb-8" data-testid="dev-auth-card">
           <n-space vertical>
             <p class="text-gray-400">
               Mock Steam login for local development and AI agents. Requires
               <code class="text-orange-300">DEV_AUTH_ENABLED=true</code> in .env.
             </p>
             <n-space>
-              <n-button type="primary" @click="handleDevLogin('user')">Login as Dev User</n-button>
-              <n-button type="warning" @click="handleDevLogin('admin')">Login as Dev Admin</n-button>
+              <n-button type="primary" data-testid="dev-login-user" @click="handleDevLogin('user')">
+                Login as Dev User
+              </n-button>
+              <n-button type="warning" data-testid="dev-login-admin" @click="handleDevLogin('admin')">
+                Login as Dev Admin
+              </n-button>
             </n-space>
             <p v-if="loginMessage" class="text-green-400">{{ loginMessage }}</p>
             <p v-if="loginError" class="text-red-400">{{ loginError }}</p>

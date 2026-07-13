@@ -69,7 +69,7 @@ Reserved SteamID block: `76561198000000XXX`. Override via `DEV_MOCK_STEAMID`, `D
 
 ### Browser UI
 
-When dev auth is enabled, `/dev` shows **Login as Dev User** and **Login as Dev Admin** buttons.
+When dev auth is enabled, `/dev` shows **Login as Dev User** and **Login as Dev Admin** buttons. Playwright/browser tests click these like a real user would.
 
 ### Security rules for agents
 
@@ -80,21 +80,42 @@ When dev auth is enabled, `/dev` shows **Login as Dev User** and **Login as Dev 
 
 ## E2E tests
 
-API-level e2e tests live in `test/e2e/` and use `@nuxt/test-utils` with Bun:
+E2E tests live in `scripts/run-e2e.ts` with helpers under `test/e2e/helpers/`. They build Nuxt, start the production server, run API checks, and drive Chromium via Playwright.
 
 ```bash
+bun run test:e2e:install-browsers   # first time / CI
 bun run test:e2e
 ```
 
-These build Nuxt, start a test server, and verify dev login, session cookies, protected routes, and mock Steam profiles. They are excluded from `bun test` (see `bunfig.toml`) because they are slower.
+**What is covered**
 
-Optional database-backed admin test:
+- API: dev login, invalid credentials, session cookie on protected routes
+- Browser: click **Login as Dev User** on `/dev`, assert `localStorage.steamUser`
+- With MariaDB: dev admin API + admin panel browser flow
+
+**Database strategy: MariaDB, not SQLite**
+
+The app uses Drizzle with the MySQL/MariaDB dialect (`mysql2`). SQLite would require a separate schema and driver stack, so e2e uses MariaDB:
+
+| Environment | How to get a database |
+|-------------|----------------------|
+| **CI** | GitHub Actions `mariadb:11` service container (see `.github/workflows/ci.yml`) |
+| **Local** | `./scripts/e2e-db.sh` starts Docker MariaDB on port 3306 |
+
+Without a database, API/browser user tests still run; admin/database tests are skipped automatically.
+
+**Local database helper**
 
 ```bash
-E2E_WITH_DB=true bun run test:e2e
+./scripts/e2e-db.sh          # Docker MariaDB (user/password/db: test)
+bun run test:e2e
 ```
 
-Requires a running MariaDB matching `.env` database settings.
+**Environment**
+
+E2E env defaults are in `test/e2e/helpers/env.ts` (`DEV_AUTH_ENABLED`, mock credentials, `JWT_TOKEN`, etc.). Override `DATABASE_*` to point at your instance.
+
+Unit tests remain in `bun test`; e2e is separate because it builds the app and launches a browser (~90s).
 
 ## Key files
 
@@ -103,7 +124,10 @@ Requires a running MariaDB matching `.env` database settings.
 | `server/utils/devAuth.ts` | Core dev auth helpers |
 | `server/api/auth/dev/login.post.ts` | Login endpoint |
 | `scripts/dev-auth.ts` | CLI seed/login helpers |
+| `scripts/run-e2e.ts` | E2E runner (API + Playwright) |
+| `scripts/e2e-db.sh` | Local Docker MariaDB for e2e |
 | `services/steamAuth.ts` | Client `devLogin()` method |
+| `pages/dev.vue` | Dev login buttons (`data-testid`) |
 
 ## See also
 

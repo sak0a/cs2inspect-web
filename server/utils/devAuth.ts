@@ -22,7 +22,13 @@ export interface DevAuthProfile {
 }
 
 export function isDevAuthEnabled(): boolean {
-  return process.env.DEV_AUTH_ENABLED === 'true' && process.env.NODE_ENV !== 'production'
+  if (process.env.DEV_AUTH_ENABLED !== 'true') {
+    return false
+  }
+
+  // Read dynamically so Nitro does not constant-fold NODE_ENV at build time.
+  const nodeEnv = process.env['NODE_ENV']
+  return nodeEnv !== 'production'
 }
 
 export function isMockSteamId(steamId: string): boolean {
@@ -153,7 +159,7 @@ export function issueAuthCookie(
 
   setCookie(event, 'auth_token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env['NODE_ENV'] === 'production',
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7,
   })

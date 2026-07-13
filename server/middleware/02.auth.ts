@@ -66,20 +66,28 @@ export default defineEventHandler(async (event) => {
     }
 
     if (decoded.steamId) {
-      const db = useDatabase()
-      const [ban] = await db
-        .select({ id: bannedUsers.id, reason: bannedUsers.reason })
-        .from(bannedUsers)
-        .where(and(eq(bannedUsers.steamid, decoded.steamId), eq(bannedUsers.active, 1)))
-        .limit(1)
+      try {
+        const db = useDatabase()
+        const [ban] = await db
+          .select({ id: bannedUsers.id, reason: bannedUsers.reason })
+          .from(bannedUsers)
+          .where(and(eq(bannedUsers.steamid, decoded.steamId), eq(bannedUsers.active, 1)))
+          .limit(1)
 
-      if (ban) {
-        throw createError({
-          statusCode: 403,
-          message: ban.reason
-            ? `Your account has been banned: ${ban.reason}`
-            : 'Your account has been banned',
-        })
+        if (ban) {
+          throw createError({
+            statusCode: 403,
+            message: ban.reason
+              ? `Your account has been banned: ${ban.reason}`
+              : 'Your account has been banned',
+          })
+        }
+      } catch (error) {
+        if (error && typeof error === 'object' && 'statusCode' in error) {
+          throw error
+        }
+
+        console.error('[Auth] Ban check skipped:', error)
       }
     }
   } catch (error) {

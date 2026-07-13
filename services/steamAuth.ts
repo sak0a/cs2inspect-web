@@ -149,6 +149,28 @@ export class SteamAuthService {
             throw new Error('Dev auth is not enabled')
         }
 
+        const body: {
+            as: 'user' | 'admin'
+            username?: string
+            password?: string
+        } = { as }
+
+        if (as === 'admin') {
+            if (config.public.devMockAdminUsername) {
+                body.username = config.public.devMockAdminUsername
+            }
+            if (config.public.devMockAdminPassword) {
+                body.password = config.public.devMockAdminPassword
+            }
+        } else {
+            if (config.public.devAuthUsername) {
+                body.username = config.public.devAuthUsername
+            }
+            if (config.public.devAuthPassword) {
+                body.password = config.public.devAuthPassword
+            }
+        }
+
         const data = await $fetch<{
             steamId: string
             personaName: string
@@ -157,7 +179,7 @@ export class SteamAuthService {
             authenticated: boolean
         }>('/api/auth/dev/login', {
             method: 'POST',
-            body: { as },
+            body,
             credentials: 'include',
         })
 
