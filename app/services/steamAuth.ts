@@ -143,6 +143,47 @@ export class SteamAuthService {
       document.cookie = 'steam_logged_in=1; path=/; max-age=31536000; SameSite=Lax'
     }
   }
+
+  async devLogin(as: 'user' | 'admin' = 'user'): Promise<SteamUser> {
+    const config = useRuntimeConfig()
+    if (!config.public.devAuthEnabled) {
+      throw new Error('Dev auth is not enabled')
+    }
+
+    try {
+      const data = await $fetch<{
+        steamId: string
+        personaName: string
+        avatarFull: string
+        role: 'user' | 'admin'
+        authenticated: boolean
+      }>('/api/auth/dev/login', {
+        method: 'POST',
+        body: { as },
+        credentials: 'include',
+      })
+
+      const user: SteamUser = {
+        steamId: data.steamId,
+        personaName: data.personaName,
+        profileUrl: `https://steamcommunity.com/profiles/${data.steamId}`,
+        avatar: data.avatarFull.replace(/_full\.jpg$/, '.jpg'),
+        avatarMedium: data.avatarFull.replace(/_full\.jpg$/, '_medium.jpg'),
+        avatarFull: data.avatarFull,
+        realName: data.personaName,
+        timeCreated: 0,
+        lastLogoff: 0,
+      }
+
+      this.saveUser(user)
+      return user
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+        this.handleUnauthorized()
+      }
+      throw error
+    }
+  }
 }
 
 export const steamAuth = new SteamAuthService()

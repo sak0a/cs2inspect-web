@@ -192,6 +192,10 @@ export default defineNuxtConfig({
       assetsStickerPath: process.env.ASSETS_STICKER_PATH || '/stickers',
       assetsCharmsPath: process.env.ASSETS_CHARMS_PATH || '/charms',
       assetsWeaponsPath: process.env.ASSETS_WEAPONS_PATH || '/weapons',
+      devAuthEnabled:
+        process.env['NODE_ENV'] !== 'production' &&
+        (process.env.NUXT_PUBLIC_DEV_AUTH_ENABLED === 'true' ||
+          process.env.DEV_AUTH_ENABLED === 'true'),
     },
   },
   // PWA config ready to enable — uncomment @vite-pwa/nuxt module above and this block

@@ -92,10 +92,10 @@ export default defineNitroPlugin(async () => {
     Logger.info('Steam service enabled mode=external', 'startup')
   }
 
-  // Import health check sampler dynamically to avoid circular dependencies
-  const { startHealthCheckSampler } = await import('../utils/health/sampler')
+  if (process.env.E2E_DISABLE_BACKGROUND_JOBS !== 'true') {
+    const { startHealthCheckSampler } = await import('../utils/health/sampler')
 
-  // Start health check sampler with 60 second interval
-  startHealthCheckSampler(60000)
-  Logger.info('Health sampler start interval=60s', 'startup')
+    startHealthCheckSampler(60000)
+    Logger.info('Health sampler start interval=60s', 'startup')
+  }
 })

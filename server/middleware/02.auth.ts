@@ -4,6 +4,7 @@ import { eq, and } from 'drizzle-orm'
 import { PUBLIC_API_PATHS } from '~/server/utils/constants'
 import { bannedUsers } from '~/server/database/schema'
 import { useDatabase } from '~/server/utils/database'
+import { isDevAuthEnabled } from '~/server/utils/devAuth'
 import { Logger } from '~/server/utils/logger'
 
 const JWT_SECRET = process.env.JWT_TOKEN
@@ -13,6 +14,11 @@ if (!JWT_SECRET) {
 
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url
+
+  if (path?.startsWith('/api/auth/dev/') && isDevAuthEnabled()) {
+    return
+  }
+
   // Deny-by-default: skip auth only for explicitly public routes and non-API paths
   if (
     !path ||
@@ -42,18 +48,42 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  let decoded: { steamId?: string; type?: string }
+
   try {
-    // Verify JWT token
-    // Add user info to event context for use in API routes
-    const decoded = jwt.verify(token, JWT_SECRET) as { steamId?: string }
-    event.context.auth = decoded
-
+    decoded = jwt.verify(token, JWT_SECRET) as { steamId?: string; type?: string }
+  } catch (error) {
     if (isAdminRoute) {
-      Logger.debug(`JWT valid steamId=${decoded.steamId}`, 'auth')
+      Logger.warn(
+        `Auth deny reason=invalid_token error=${error instanceof Error ? error.message : error}`,
+        'auth'
+      )
     }
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'Invalid or expired token. Please log in again.',
+      data: { reason: 'invalid_token', path },
+    })
+  }
 
-    // Check if user is banned
-    if (decoded.steamId) {
+  if (decoded.type === 'dev_auth' && !isDevAuthEnabled()) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'Dev authentication is disabled.',
+      data: { reason: 'dev_auth_disabled', path },
+    })
+  }
+
+  event.context.auth = decoded
+
+  if (isAdminRoute) {
+    Logger.debug(`JWT valid steamId=${decoded.steamId}`, 'auth')
+  }
+
+  if (decoded.steamId) {
+    try {
       const db = useDatabase()
       const [ban] = await db
         .select({ id: bannedUsers.id, reason: bannedUsers.reason })
@@ -69,23 +99,21 @@ export default defineEventHandler(async (event) => {
             : 'Your account has been banned',
         })
       }
-    }
-  } catch (error) {
-    // Re-throw H3 errors (like our ban error)
-    if (error && typeof error === 'object' && 'statusCode' in error) {
-      throw error
-    }
-    if (isAdminRoute) {
-      Logger.warn(
-        `Auth deny reason=invalid_token error=${error instanceof Error ? error.message : error}`,
+    } catch (error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
+        throw error
+      }
+
+      Logger.error(
+        `Ban check failed error=${error instanceof Error ? error.message : String(error)}`,
         'auth'
       )
+      throw createError({
+        statusCode: 503,
+        statusMessage: 'Service Unavailable',
+        message: 'Authentication service temporarily unavailable.',
+        data: { reason: 'ban_check_failed', path },
+      })
     }
-    throw createError({
-      statusCode: 401,
-      statusMessage: 'Unauthorized',
-      message: 'Invalid or expired token. Please log in again.',
-      data: { reason: 'invalid_token', path },
-    })
   }
 })

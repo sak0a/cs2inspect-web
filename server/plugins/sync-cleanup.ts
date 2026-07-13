@@ -6,7 +6,10 @@ import { Logger } from '~/server/utils/logger'
 let cleanupInterval: ReturnType<typeof setInterval> | null = null
 
 export default defineNitroPlugin(() => {
-  // Run cleanup every 5 minutes
+  if (process.env.E2E_DISABLE_BACKGROUND_JOBS === 'true') {
+    return
+  }
+
   cleanupInterval = setInterval(
     async () => {
       try {

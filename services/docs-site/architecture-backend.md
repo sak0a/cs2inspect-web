@@ -145,6 +145,12 @@ Middlewares execute in numbered order on every request:
 - Checks session expiry
 - Attaches `event.context.auth` with `steamId`
 - Rejects unauthorized requests to protected routes
+- Bypasses `/api/auth/dev/*` when dev mock auth is enabled
+
+**Dev mock auth** (`DEV_AUTH_ENABLED=true`, development only):
+- `POST /api/auth/dev/login` issues the same `auth_token` cookie without Steam OpenID
+- Mock `/api/steam/user` responses for reserved SteamIDs (`76561198000000XXX`)
+- See `AGENTS.md` and [Authentication API](/api/authentication#dev-mock-authentication)
 
 **`03.admin-auth.ts`** — Admin Authorization:
 

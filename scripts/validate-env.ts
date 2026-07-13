@@ -231,6 +231,30 @@ function validateSteam(env: Record<string, string>): void {
   }
 }
 
+function validateDevAuth(env: Record<string, string>): void {
+  p.log.step(chalk.bold('Dev Auth Configuration'))
+
+  if (env.DEV_AUTH_ENABLED !== 'true') {
+    logSuccess('DEV_AUTH_ENABLED is off')
+    return
+  }
+
+  if (env.NODE_ENV === 'production') {
+    logError('DEV_AUTH_ENABLED must not be set in production')
+    return
+  }
+
+  logWarning('DEV_AUTH_ENABLED is on — mock login is active (development only)')
+  logSuccess(`DEV_MOCK_STEAMID = ${env.DEV_MOCK_STEAMID || '76561198000000001 (default)'}`)
+  logSuccess(`DEV_MOCK_ADMIN_STEAMID = ${env.DEV_MOCK_ADMIN_STEAMID || '76561198000000002 (default)'}`)
+
+  if (env.DEV_AUTH_USERNAME && !env.DEV_AUTH_PASSWORD) {
+    logWarning('DEV_AUTH_USERNAME is set but DEV_AUTH_PASSWORD is missing')
+  } else if (env.DEV_AUTH_USERNAME) {
+    logSuccess('Dev login credential gate is configured')
+  }
+}
+
 function validatePermissions(): void {
   p.log.step(chalk.bold('File Permissions'))
 
@@ -282,6 +306,7 @@ async function main(): Promise<void> {
   validateJwt(env)
   validateDatabase(env)
   validateSteam(env)
+  validateDevAuth(env)
   validatePermissions()
 
   // Summary

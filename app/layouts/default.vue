@@ -120,7 +120,12 @@ async function handleLogin() {
 }
 
 const route = useRoute()
-const isDevPage = computed(() => route.path === '/dev' && import.meta.env.DEV)
+const config = useRuntimeConfig()
+const isDevPage = computed(
+  () =>
+    route.path === '/dev' &&
+    (import.meta.env.DEV || config.public.devAuthEnabled === true)
+)
 
 onMounted(async () => {
   // Fetch public app settings

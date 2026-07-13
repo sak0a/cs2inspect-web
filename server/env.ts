@@ -65,6 +65,23 @@ export const env = createEnv({
 
     // Proxy Health Check
     PROXY_HEALTH_BASE_URL: z.string().url().optional(),
+
+    // Dev Auth (never enable in production)
+    DEV_AUTH_ENABLED: z
+      .string()
+      .default('false')
+      .transform((val) => val === 'true'),
+    DEV_MOCK_STEAMID: z.string().optional(),
+    DEV_MOCK_PERSONANAME: z.string().optional(),
+    DEV_MOCK_AVATAR: z.string().url().optional(),
+    DEV_AUTH_USERNAME: z.string().optional(),
+    DEV_AUTH_PASSWORD: z.string().optional(),
+    DEV_MOCK_ADMIN_STEAMID: z.string().optional(),
+    DEV_MOCK_ADMIN_PERSONANAME: z.string().optional(),
+    DEV_MOCK_ADMIN_AVATAR: z.string().url().optional(),
+    DEV_MOCK_ADMIN_ROLE: z.enum(['admin', 'superadmin']).optional(),
+    DEV_MOCK_ADMIN_USERNAME: z.string().optional(),
+    DEV_MOCK_ADMIN_PASSWORD: z.string().optional(),
   },
 
   /**
@@ -76,6 +93,10 @@ export const env = createEnv({
     NUXT_PUBLIC_ASSETS_STICKER_PATH: z.string().optional(),
     NUXT_PUBLIC_ASSETS_CHARMS_PATH: z.string().optional(),
     NUXT_PUBLIC_ASSETS_WEAPONS_PATH: z.string().optional(),
+    NUXT_PUBLIC_DEV_AUTH_ENABLED: z
+      .string()
+      .default('false')
+      .transform((val) => val === 'true'),
   },
 })
 

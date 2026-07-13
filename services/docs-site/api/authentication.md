@@ -95,6 +95,69 @@ Consider implementing token refresh for better UX.
 3. **Token Validation**: Every authenticated request validates the token signature
 4. **Steam Verification**: OpenID responses are verified against Steam's servers
 
+## Dev Mock Authentication
+
+::: warning Development Only
+Dev mock auth is for local development and AI agents. It is disabled when `NODE_ENV=production` or `DEV_AUTH_ENABLED` is not `true`.
+:::
+
+When enabled, agents and developers can log in without Steam OpenID. The endpoint issues the same `auth_token` JWT cookie used by real Steam login.
+
+### `POST /api/auth/dev/login`
+
+**Authentication**: Not required (returns 404 when dev auth is disabled)
+
+**Request**:
+```json
+{
+  "as": "user"
+}
+```
+
+When `DEV_AUTH_USERNAME` / `DEV_AUTH_PASSWORD` are set, you may include credentials in the body for API/CLI login. The `/dev` page buttons send only `as`; omitted credentials are allowed when the credential gate is enabled.
+
+```json
+{
+  "username": "dev",
+  "password": "devpassword",
+  "as": "user"
+}
+```
+
+Use `"as": "admin"` for the dev admin user (inserted into `admin_users`).
+
+**Response**:
+```json
+{
+  "steamId": "76561198000000001",
+  "personaName": "Dev User",
+  "avatarFull": "https://avatars.steamstatic.com/...",
+  "role": "user",
+  "authenticated": true
+}
+```
+
+The `auth_token` cookie is set automatically on the response.
+
+### CLI helpers
+
+```bash
+bun run cli dev:seed          # Seed dev user + admin in database
+bun run cli dev:login         # Print curl command for dev user (does not log in)
+bun run cli dev:login:admin   # Print curl command for dev admin (does not log in)
+```
+
+### Default mock SteamIDs
+
+| Role | SteamID |
+|------|---------|
+| User | `76561198000000001` |
+| Admin | `76561198000000002` |
+
+Reserved block: `76561198000000XXX`. Mock `/api/steam/user` responses are returned for these IDs when dev auth is enabled.
+
+See also: [Environment Variables — Dev Auth](/reference-env#dev-mock-authentication) and `AGENTS.md` in the repository root.
+
 ## Error Responses
 
 | Code                  | HTTP Status | Description                      |

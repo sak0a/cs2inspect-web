@@ -330,6 +330,37 @@ The application will be available at:
 - Check console for migration progress
 - Monitor startup health at `/api/health/details`
 
+### Dev mock authentication (AI agents)
+
+For automated agents or local testing without a Steam account, enable dev mock auth in `.env`:
+
+```env
+DEV_AUTH_ENABLED=true
+DEV_AUTH_USERNAME=dev
+DEV_AUTH_PASSWORD=devpassword
+```
+
+Then log in programmatically:
+
+```bash
+# Prints a curl command — does not perform login itself
+bun run cli dev:login
+```
+
+Or use the buttons on http://localhost:3210/dev when the dev server is running (buttons send only `as`; credentials are validated server-side when configured).
+
+See **`AGENTS.md`** (repository root) and [Authentication — Dev Mock](/api/authentication#dev-mock-authentication) for curl examples, default SteamIDs, and admin login.
+
+### E2E tests
+
+API-level e2e tests verify the dev login flow against a built Nuxt server:
+
+```bash
+bun run test:e2e
+```
+
+Optional admin test (requires MariaDB): `E2E_WITH_DB=true bun run test:e2e`
+
 ### Production Build
 
 Build the application for production:
