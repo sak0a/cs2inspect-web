@@ -245,11 +245,14 @@ DEV_MOCK_ADMIN_PASSWORD=adminpassword
 ```bash
 bun run cli dev:seed
 bun run cli dev:login
+bun run test:e2e
 
 curl -c /tmp/cs2-cookies.txt -X POST http://127.0.0.1:3210/api/auth/dev/login \
   -H 'Content-Type: application/json' \
   -d '{"username":"dev","password":"devpassword"}'
 ```
+
+E2E tests build Nuxt and verify the dev login flow. Optional DB-backed admin test: `E2E_WITH_DB=true bun run test:e2e`.
 
 See `AGENTS.md` in the repository root for the full agent workflow.
 

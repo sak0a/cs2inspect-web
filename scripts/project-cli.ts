@@ -106,6 +106,12 @@ const categories: Category[] = [
         run: 'bun test --watch',
       },
       {
+        id: 'test:e2e',
+        label: 'Run E2E tests',
+        hint: 'Builds Nuxt and tests dev mock auth against a real server (set E2E_WITH_DB=true for admin DB tests)',
+        run: 'bun run test:e2e',
+      },
+      {
         id: 'test:coverage',
         label: 'Run tests with coverage',
         hint: 'Generates a code coverage report after running tests',

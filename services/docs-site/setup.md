@@ -332,6 +332,16 @@ Or use the buttons on http://localhost:3210/dev when the dev server is running.
 
 See **`AGENTS.md`** (repository root) and [Authentication — Dev Mock](/api/authentication#dev-mock-authentication) for curl examples, default SteamIDs, and admin login.
 
+### E2E tests
+
+API-level e2e tests verify the dev login flow against a built Nuxt server:
+
+```bash
+bun run test:e2e
+```
+
+Optional admin test (requires MariaDB): `E2E_WITH_DB=true bun run test:e2e`
+
 ### Production Build
 
 Build the application for production:

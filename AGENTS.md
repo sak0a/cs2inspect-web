@@ -78,6 +78,24 @@ When dev auth is enabled, `/dev` shows **Login as Dev User** and **Login as Dev 
 - Dev JWTs use `type: "dev_auth"` and are rejected when dev auth is off.
 - The dev login endpoint returns **404** when disabled.
 
+## E2E tests
+
+API-level e2e tests live in `test/e2e/` and use `@nuxt/test-utils` with Bun:
+
+```bash
+bun run test:e2e
+```
+
+These build Nuxt, start a test server, and verify dev login, session cookies, protected routes, and mock Steam profiles. They are excluded from `bun test` (see `bunfig.toml`) because they are slower.
+
+Optional database-backed admin test:
+
+```bash
+E2E_WITH_DB=true bun run test:e2e
+```
+
+Requires a running MariaDB matching `.env` database settings.
+
 ## Key files
 
 | File | Purpose |

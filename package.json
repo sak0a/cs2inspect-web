@@ -19,6 +19,7 @@
     "test:watch": "bun test --watch",
     "test:coverage": "bun test --coverage",
     "test:bun": "bun test",
+    "test:e2e": "bun test --timeout 300000 test/e2e",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
