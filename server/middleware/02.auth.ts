@@ -1,92 +1,100 @@
 import jwt from 'jsonwebtoken'
 import { createError, defineEventHandler, parseCookies } from 'h3'
 import { eq, and } from 'drizzle-orm'
-import { PROTECTED_API_PATHS } from "~/server/utils/constants";
-import { bannedUsers } from '~/server/database/schema';
-import { useDatabase } from '~/server/utils/database';
-import { Logger } from '~/server/utils/logger';
+import { PROTECTED_API_PATHS } from '~/server/utils/constants'
+import { bannedUsers } from '~/server/database/schema'
+import { useDatabase } from '~/server/utils/database'
+import { isDevAuthEnabled } from '~/server/utils/devAuth'
+import { Logger } from '~/server/utils/logger'
 
 const JWT_SECRET = process.env.JWT_TOKEN
 if (!JWT_SECRET) {
-    throw new Error('JWT_TOKEN environment variable is required. Set it before starting the server.')
+  throw new Error('JWT_TOKEN environment variable is required. Set it before starting the server.')
 }
 
 export default defineEventHandler(async (event) => {
-    const path = event.node.req.url
-    // Skip auth check for non-protected routes
-    if (!path || !PROTECTED_API_PATHS.some(route => path.startsWith(route))) {
-        return;
-    }
+  const path = event.node.req.url
 
-    const isAdminRoute = path.startsWith('/api/admin/');
+  // Dev login is public when dev auth is enabled
+  if (path?.startsWith('/api/auth/dev/') && isDevAuthEnabled()) {
+    return
+  }
+
+  // Skip auth check for non-protected routes
+  if (!path || !PROTECTED_API_PATHS.some((route) => path.startsWith(route))) {
+    return
+  }
+
+  const isAdminRoute = path.startsWith('/api/admin/')
+  if (isAdminRoute) {
+    Logger.header('ADMIN ROUTE AUTHENTICATION')
+    Logger.info(`Path: ${path}`, 'auth')
+  }
+
+  const cookies: Record<string, string> = parseCookies(event)
+  const token = cookies.auth_token
+
+  if (!token) {
     if (isAdminRoute) {
-        Logger.header('ADMIN ROUTE AUTHENTICATION');
-        Logger.info(`Path: ${path}`, 'auth');
+      Logger.error('FAILED - No auth_token cookie found', 'auth')
+      Logger.info('User needs to log in first', 'auth')
+    }
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'Authentication required. Please log in.',
+      data: { reason: 'no_token', path },
+    })
+  }
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET) as { steamId?: string; type?: string }
+
+    if (decoded.type === 'dev_auth' && !isDevAuthEnabled()) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+        message: 'Dev authentication is disabled.',
+        data: { reason: 'dev_auth_disabled', path },
+      })
     }
 
-    const cookies: Record<string, string> = parseCookies(event);
-    const token = cookies.auth_token;
+    event.context.auth = decoded
 
-    if (!token) {
-        if (isAdminRoute) {
-            Logger.error('FAILED - No auth_token cookie found', 'auth');
-            Logger.info('User needs to log in first', 'auth');
-        }
+    if (isAdminRoute) {
+      Logger.success(`JWT valid - Steam ID: ${decoded.steamId}`, 'auth')
+    }
+
+    if (decoded.steamId) {
+      const db = useDatabase()
+      const [ban] = await db
+        .select({ id: bannedUsers.id, reason: bannedUsers.reason })
+        .from(bannedUsers)
+        .where(and(eq(bannedUsers.steamid, decoded.steamId), eq(bannedUsers.active, 1)))
+        .limit(1)
+
+      if (ban) {
         throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'Authentication required. Please log in.',
-            data: { reason: 'no_token', path }
+          statusCode: 403,
+          message: ban.reason
+            ? `Your account has been banned: ${ban.reason}`
+            : 'Your account has been banned',
         })
+      }
     }
-
-    try {
-        // Verify JWT token
-        // Add user info to event context for use in API routes
-        const decoded = jwt.verify(token, JWT_SECRET) as { steamId?: string }
-        event.context.auth = decoded
-
-        if (isAdminRoute) {
-            Logger.success(`JWT valid - Steam ID: ${decoded.steamId}`, 'auth');
-        }
-
-        // Check if user is banned
-        if (decoded.steamId) {
-            const db = useDatabase()
-            const [ban] = await db
-                .select({ id: bannedUsers.id, reason: bannedUsers.reason })
-                .from(bannedUsers)
-                .where(
-                    and(
-                        eq(bannedUsers.steamid, decoded.steamId),
-                        eq(bannedUsers.active, 1)
-                    )
-                )
-                .limit(1)
-
-            if (ban) {
-                throw createError({
-                    statusCode: 403,
-                    message: ban.reason
-                        ? `Your account has been banned: ${ban.reason}`
-                        : 'Your account has been banned'
-                })
-            }
-        }
-    } catch (error) {
-        // Re-throw H3 errors (like our ban error)
-        if (error && typeof error === 'object' && 'statusCode' in error) {
-            throw error
-        }
-        if (isAdminRoute) {
-            Logger.error('FAILED - JWT verification error', 'auth');
-            Logger.error(`Error: ${error instanceof Error ? error.message : error}`, 'auth');
-        }
-        throw createError({
-            statusCode: 401,
-            statusMessage: 'Unauthorized',
-            message: 'Invalid or expired token. Please log in again.',
-            data: { reason: 'invalid_token', path }
-        })
+  } catch (error) {
+    if (error && typeof error === 'object' && 'statusCode' in error) {
+      throw error
     }
+    if (isAdminRoute) {
+      Logger.error('FAILED - JWT verification error', 'auth')
+      Logger.error(`Error: ${error instanceof Error ? error.message : error}`, 'auth')
+    }
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'Invalid or expired token. Please log in again.',
+      data: { reason: 'invalid_token', path },
+    })
+  }
 })

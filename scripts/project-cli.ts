@@ -67,6 +67,24 @@ const categories: Category[] = [
         hint: 'Pre-renders all routes to static HTML files',
         run: 'bun run generate',
       },
+      {
+        id: 'dev:seed',
+        label: 'Seed dev mock users',
+        hint: 'Creates dev user and admin records in the database from env vars',
+        run: './scripts/dev-auth.ts seed',
+      },
+      {
+        id: 'dev:login',
+        label: 'Print dev login curl',
+        hint: 'Prints a curl command for AI agents to authenticate as the dev user',
+        run: './scripts/dev-auth.ts login',
+      },
+      {
+        id: 'dev:login:admin',
+        label: 'Print dev admin login curl',
+        hint: 'Prints a curl command to authenticate as the dev admin user',
+        run: './scripts/dev-auth.ts login --admin',
+      },
     ],
   },
   {
