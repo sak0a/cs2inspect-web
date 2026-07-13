@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LucideRefreshCw as RefreshIcon } from 'lucide-vue-next'
+import { LucideRefreshCw as RefreshIcon } from '@lucide/vue'
 import type { HealthCheck } from '~/composables/useAdminHealth'
 
 interface Props {

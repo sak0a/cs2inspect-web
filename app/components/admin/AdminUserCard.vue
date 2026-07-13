@@ -5,7 +5,7 @@ import {
   LucideShieldCheck as UnbanIcon,
   LucideTrash2 as DeleteIcon,
   LucideAlertCircle as AlertIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import type { AdminUserDetails } from '~/types'
 
 // Props

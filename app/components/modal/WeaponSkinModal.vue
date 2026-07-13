@@ -222,7 +222,7 @@ const user = computed((): UserProfile | null => {
 const loadoutStore = useLoadoutStore()
 
 const quickActions = useWeaponQuickActions({
-  user: computed(() => user.value),
+  user: computed(() => steamAuth.getSavedUser()),
   loadoutId: computed(() => loadoutStore.selectedLoadoutId),
   weaponType: props.weapon?.category || '',
   onSuccess: async () => {

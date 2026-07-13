@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { buttonColor } from '~/lib/buttonColors'
-import { LucideUsers as UsersIcon } from 'lucide-vue-next'
+import { LucideUsers as UsersIcon } from '@lucide/vue'
 
 definePageMeta({
   middleware: 'admin',

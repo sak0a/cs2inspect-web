@@ -12,6 +12,7 @@ export default withNuxt(
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
       'no-console': 'off', // allow console.log in TypeScript files
+      'no-useless-assignment': 'off', // ESLint 10: too noisy for try/catch init patterns
     },
   },
   // Disable ESLint rules that conflict with Prettier

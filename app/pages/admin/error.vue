@@ -5,7 +5,7 @@ import {
   LucideHome as HomeIcon,
   LucideRefreshCw as RefreshIcon,
   LucideArrowLeft as ArrowLeftIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 
 definePageMeta({

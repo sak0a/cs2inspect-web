@@ -6,7 +6,7 @@ import {
   LucideBookOpen as TutorialIcon,
   LucideShield as AdminIcon,
   LucideChevronRight as ChevronRightIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import type { DropdownTrigger, DropdownPlacement } from '~/components/sui/dropdown/context'
 import { getAllTutorials } from '~/utils/tutorialDefinitions'
 

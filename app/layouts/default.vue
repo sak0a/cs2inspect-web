@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { buttonColor } from '~/lib/buttonColors'
-import { LucideX as XIcon, LucideConstruction as ConstructionIcon } from 'lucide-vue-next'
+import { LucideX as XIcon, LucideConstruction as ConstructionIcon } from '@lucide/vue'
 import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 

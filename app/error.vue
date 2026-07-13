@@ -9,7 +9,7 @@ import {
   LucideAlertTriangle,
   LucideArrowLeft,
   LucideHome,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import type { NuxtError } from '#app'
 
 interface ErrorConfig {

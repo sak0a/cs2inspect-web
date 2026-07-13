@@ -1,4 +1,4 @@
-import { LucideMusic as Music, LucidePin as Pin, LucideHome as Home } from 'lucide-vue-next'
+import { LucideMusic as Music, LucidePin as Pin, LucideHome as Home } from '@lucide/vue'
 import { NIcon } from 'naive-ui'
 import { h, type Component } from 'vue'
 

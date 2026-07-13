@@ -8,7 +8,7 @@ import {
   LucideTerminal as CommandsIcon,
   LucideRefreshCw as SyncIcon,
   LucideFileText as LoggingIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { useAdminStore } from '~/stores/adminStore'
 import type { PluginSettingCategory } from '~/types'
 

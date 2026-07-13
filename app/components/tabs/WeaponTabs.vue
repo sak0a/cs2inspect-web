@@ -8,7 +8,7 @@ import {
   LucideEyeOff,
   LucideRotateCcw,
   LucideImport,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 
 interface Props {
   weaponData: {

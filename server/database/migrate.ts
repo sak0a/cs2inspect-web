@@ -89,7 +89,9 @@ async function ensureMigrationJournal(): Promise<void> {
 
 function extractCreateTableNames(sqlContent: string): string[] {
   const matches = sqlContent.matchAll(/CREATE TABLE [`"]?(\w+)[`"]?/gi)
-  return [...matches].map((match) => match[1])
+  return [...matches]
+    .map((match) => match[1])
+    .filter((name): name is string => name !== undefined)
 }
 
 async function tableExists(

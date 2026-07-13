@@ -10,7 +10,7 @@ import {
   LucideBan as BanIcon,
   LucideDatabase as DatabaseIcon,
   LucideCalendar as CalendarIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import type { Component } from 'vue'
 
 // Props

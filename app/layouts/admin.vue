@@ -9,7 +9,7 @@ import {
   LucideShield as ShieldIcon,
   LucidePlug as PlugIcon,
   LucideHome as HomeIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 import { useAdminStore } from '~/stores/adminStore'
