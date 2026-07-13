@@ -2,7 +2,7 @@
 set -euo pipefail
 
 CONTAINER_NAME="${E2E_DB_CONTAINER:-cs2inspect-e2e-db}"
-PORT="${E2E_DB_PORT:-3306}"
+PORT=3306
 
 if docker ps --format '{{.Names}}' | grep -qx "$CONTAINER_NAME"; then
   echo "E2E database container '$CONTAINER_NAME' is already running."

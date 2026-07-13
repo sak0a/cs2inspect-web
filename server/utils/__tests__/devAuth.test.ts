@@ -86,5 +86,13 @@ describe('devAuth', () => {
       expect(validateDevCredentials('admin', 'admin', 'admin-secret')).toBe(true)
       expect(validateDevCredentials('admin', 'admin', 'wrong')).toBe(false)
     })
+
+    it('allows omitted credentials when gate is enabled (dev UI buttons)', () => {
+      process.env.DEV_AUTH_USERNAME = 'dev'
+      process.env.DEV_AUTH_PASSWORD = 'secret'
+
+      expect(validateDevCredentials('user')).toBe(true)
+      expect(validateDevCredentials('admin')).toBe(true)
+    })
   })
 })

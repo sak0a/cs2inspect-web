@@ -2,9 +2,11 @@ import { execSync } from 'node:child_process'
 import { e2eRootDir } from './env'
 
 export async function isDatabaseAvailable(): Promise<boolean> {
+  let connection: { ping: () => Promise<void>; end: () => Promise<void> } | undefined
+
   try {
     const mysql = await import('mysql2/promise')
-    const connection = await mysql.createConnection({
+    connection = await mysql.createConnection({
       host: process.env.DATABASE_HOST || '127.0.0.1',
       port: Number(process.env.DATABASE_PORT || 3306),
       user: process.env.DATABASE_USER || 'test',
@@ -14,10 +16,13 @@ export async function isDatabaseAvailable(): Promise<boolean> {
     })
 
     await connection.ping()
-    await connection.end()
     return true
   } catch {
     return false
+  } finally {
+    if (connection) {
+      await connection.end().catch(() => undefined)
+    }
   }
 }
 

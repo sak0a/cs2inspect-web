@@ -1,7 +1,7 @@
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const rootDir = resolve(fileURLToPath(new URL('../..', import.meta.url)))
+const rootDir = resolve(fileURLToPath(new URL('../../..', import.meta.url)))
 
 export const e2eRootDir = rootDir
 

@@ -145,13 +145,9 @@ export default defineNuxtConfig({
       assetsCharmsPath: process.env.ASSETS_CHARMS_PATH || '/charms',
       assetsWeaponsPath: process.env.ASSETS_WEAPONS_PATH || '/weapons',
       devAuthEnabled:
-        process.env.NUXT_PUBLIC_DEV_AUTH_ENABLED === 'true' ||
-        (process.env.DEV_AUTH_ENABLED === 'true' &&
-          process.env['NODE_ENV'] !== 'production'),
-      devAuthUsername: process.env.DEV_AUTH_USERNAME || '',
-      devAuthPassword: process.env.DEV_AUTH_PASSWORD || '',
-      devMockAdminUsername: process.env.DEV_MOCK_ADMIN_USERNAME || '',
-      devMockAdminPassword: process.env.DEV_MOCK_ADMIN_PASSWORD || '',
+        process.env['NODE_ENV'] !== 'production' &&
+        (process.env.NUXT_PUBLIC_DEV_AUTH_ENABLED === 'true' ||
+          process.env.DEV_AUTH_ENABLED === 'true'),
     }
   },
   // PWA config ready to enable — uncomment @vite-pwa/nuxt module above and this block

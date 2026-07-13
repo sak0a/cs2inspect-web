@@ -47,53 +47,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  let decoded: { steamId?: string; type?: string }
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { steamId?: string; type?: string }
-
-    if (decoded.type === 'dev_auth' && !isDevAuthEnabled()) {
-      throw createError({
-        statusCode: 401,
-        statusMessage: 'Unauthorized',
-        message: 'Dev authentication is disabled.',
-        data: { reason: 'dev_auth_disabled', path },
-      })
-    }
-
-    event.context.auth = decoded
-
-    if (isAdminRoute) {
-      Logger.success(`JWT valid - Steam ID: ${decoded.steamId}`, 'auth')
-    }
-
-    if (decoded.steamId) {
-      try {
-        const db = useDatabase()
-        const [ban] = await db
-          .select({ id: bannedUsers.id, reason: bannedUsers.reason })
-          .from(bannedUsers)
-          .where(and(eq(bannedUsers.steamid, decoded.steamId), eq(bannedUsers.active, 1)))
-          .limit(1)
-
-        if (ban) {
-          throw createError({
-            statusCode: 403,
-            message: ban.reason
-              ? `Your account has been banned: ${ban.reason}`
-              : 'Your account has been banned',
-          })
-        }
-      } catch (error) {
-        if (error && typeof error === 'object' && 'statusCode' in error) {
-          throw error
-        }
-
-        console.error('[Auth] Ban check skipped:', error)
-      }
-    }
+    decoded = jwt.verify(token, JWT_SECRET) as { steamId?: string; type?: string }
   } catch (error) {
-    if (error && typeof error === 'object' && 'statusCode' in error) {
-      throw error
-    }
     if (isAdminRoute) {
       Logger.error('FAILED - JWT verification error', 'auth')
       Logger.error(`Error: ${error instanceof Error ? error.message : error}`, 'auth')
@@ -104,5 +62,52 @@ export default defineEventHandler(async (event) => {
       message: 'Invalid or expired token. Please log in again.',
       data: { reason: 'invalid_token', path },
     })
+  }
+
+  if (decoded.type === 'dev_auth' && !isDevAuthEnabled()) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+      message: 'Dev authentication is disabled.',
+      data: { reason: 'dev_auth_disabled', path },
+    })
+  }
+
+  event.context.auth = decoded
+
+  if (isAdminRoute) {
+    Logger.success(`JWT valid - Steam ID: ${decoded.steamId}`, 'auth')
+  }
+
+  if (decoded.steamId) {
+    try {
+      const db = useDatabase()
+      const [ban] = await db
+        .select({ id: bannedUsers.id, reason: bannedUsers.reason })
+        .from(bannedUsers)
+        .where(and(eq(bannedUsers.steamid, decoded.steamId), eq(bannedUsers.active, 1)))
+        .limit(1)
+
+      if (ban) {
+        throw createError({
+          statusCode: 403,
+          message: ban.reason
+            ? `Your account has been banned: ${ban.reason}`
+            : 'Your account has been banned',
+        })
+      }
+    } catch (error) {
+      if (error && typeof error === 'object' && 'statusCode' in error) {
+        throw error
+      }
+
+      console.error('[Auth] Ban check failed:', error)
+      throw createError({
+        statusCode: 503,
+        statusMessage: 'Service Unavailable',
+        message: 'Authentication service temporarily unavailable.',
+        data: { reason: 'ban_check_failed', path },
+      })
+    }
   }
 })

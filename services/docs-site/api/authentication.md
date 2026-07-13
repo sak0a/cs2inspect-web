@@ -108,6 +108,14 @@ When enabled, agents and developers can log in without Steam OpenID. The endpoin
 **Request**:
 ```json
 {
+  "as": "user"
+}
+```
+
+When `DEV_AUTH_USERNAME` / `DEV_AUTH_PASSWORD` are set, you may include credentials in the body for API/CLI login. The `/dev` page buttons send only `as`; omitted credentials are allowed when the credential gate is enabled.
+
+```json
+{
   "username": "dev",
   "password": "devpassword",
   "as": "user"
@@ -133,8 +141,8 @@ The `auth_token` cookie is set automatically on the response.
 
 ```bash
 bun run cli dev:seed          # Seed dev user + admin in database
-bun run cli dev:login         # Print curl command for dev user
-bun run cli dev:login:admin   # Print curl command for dev admin
+bun run cli dev:login         # Print curl command for dev user (does not log in)
+bun run cli dev:login:admin   # Print curl command for dev admin (does not log in)
 ```
 
 ### Default mock SteamIDs

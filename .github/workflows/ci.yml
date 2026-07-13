@@ -89,7 +89,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: test
     services:
-      mariadb:
+      database:
         image: mariadb:11
         env:
           MARIADB_ROOT_PASSWORD: test

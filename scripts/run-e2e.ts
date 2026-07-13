@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { dirname, resolve } from 'node:path'
 import { chromium } from 'playwright-core'
 import { expect as playwrightExpect } from '@playwright/test'
-import { getPort, waitForPort } from 'get-port-please'
+import { waitForPort } from 'get-port-please'
 import {
   DEFAULT_DEV_MOCK_ADMIN_STEAMID,
   DEFAULT_DEV_MOCK_STEAMID,
@@ -15,6 +15,8 @@ import { prepareTestDatabase, waitForDatabase } from '../test/e2e/helpers/databa
 
 const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const serverEntry = resolve(rootDir, '.output/server/index.mjs')
+const host = '127.0.0.1'
+const port = 3210
 
 applyE2eTestEnv()
 
@@ -48,15 +50,15 @@ async function stopServer(): Promise<void> {
   }
 
   serverProcess.kill('SIGTERM')
-  await new Promise<void>((resolve) => {
+  await new Promise<void>((resolvePromise) => {
     const timeout = setTimeout(() => {
       serverProcess?.kill('SIGKILL')
-      resolve()
+      resolvePromise()
     }, 5000)
 
     serverProcess?.once('exit', () => {
       clearTimeout(timeout)
-      resolve()
+      resolvePromise()
     })
   })
 }
@@ -72,11 +74,9 @@ async function extractAuthCookie(response: Response): Promise<string> {
   return raw.split(';')[0]?.trim() ?? ''
 }
 
-async function apiFetch(
-  baseUrl: string,
-  path: string,
-  init?: RequestInit & { body?: unknown }
-): Promise<Response> {
+type ApiFetchInit = Omit<RequestInit, 'body'> & { body?: unknown }
+
+async function apiFetch(baseUrl: string, path: string, init?: ApiFetchInit): Promise<Response> {
   const headers = new Headers(init?.headers)
   if (init?.body !== undefined && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
@@ -116,33 +116,31 @@ execSync('bun run build', {
   stdio: 'inherit',
 })
 
-const host = '127.0.0.1'
-const port = await getPort({ host })
-
-serverProcess = spawn('node', [serverEntry], {
-  cwd: rootDir,
-  env: {
-    ...process.env,
-    PORT: String(port),
-    HOST: host,
-    NODE_ENV: 'development',
-    DEV_AUTH_ENABLED: 'true',
-    NUXT_PUBLIC_DEV_AUTH_ENABLED: 'true',
-    E2E_DISABLE_BACKGROUND_JOBS: 'true',
-  },
-  stdio: ['ignore', 'pipe', 'pipe'],
-})
-
-serverProcess.stdout?.on('data', (chunk) => process.stdout.write(chunk))
-serverProcess.stderr?.on('data', (chunk) => process.stderr.write(chunk))
-
-await waitForPort(port, { host, retries: 60 })
-const baseUrl = `http://${host}:${port}`
-console.log(`E2E server listening at ${baseUrl}`)
-
 let authCookie = ''
+let baseUrl = ''
 
 try {
+  serverProcess = spawn('node', [serverEntry], {
+    cwd: rootDir,
+    env: {
+      ...process.env,
+      PORT: String(port),
+      HOST: host,
+      NODE_ENV: 'development',
+      DEV_AUTH_ENABLED: 'true',
+      NUXT_PUBLIC_DEV_AUTH_ENABLED: 'true',
+      E2E_DISABLE_BACKGROUND_JOBS: 'true',
+    },
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+
+  serverProcess.stdout?.on('data', (chunk) => process.stdout.write(chunk))
+  serverProcess.stderr?.on('data', (chunk) => process.stdout.write(chunk))
+
+  await waitForPort(port, { host, retries: 60 })
+  baseUrl = `http://${host}:${port}`
+  console.log(`E2E server listening at ${baseUrl}`)
+
   await runStep('dev user login sets auth session', async () => {
     const response = await apiFetch(baseUrl, '/api/auth/dev/login', {
       method: 'POST',
@@ -185,24 +183,26 @@ try {
     }
   })
 
-  await runStep('protected routes accept dev session cookie', async () => {
-    const response = await apiFetch(
-      baseUrl,
-      `/api/auth/validate?steamId=${DEFAULT_DEV_MOCK_STEAMID}`,
-      {
-        headers: { Cookie: authCookie },
+  if (databaseReady) {
+    await runStep('protected routes accept dev session cookie', async () => {
+      const response = await apiFetch(
+        baseUrl,
+        `/api/auth/validate?steamId=${DEFAULT_DEV_MOCK_STEAMID}`,
+        {
+          headers: { Cookie: authCookie },
+        }
+      )
+
+      if (response.status !== 200) {
+        throw new Error(`Expected status 200, got ${response.status}`)
       }
-    )
 
-    if (response.status !== 200) {
-      throw new Error(`Expected status 200, got ${response.status}`)
-    }
-
-    const validation = (await response.json()) as { authenticated: boolean; steamId: string }
-    if (!validation.authenticated || validation.steamId !== DEFAULT_DEV_MOCK_STEAMID) {
-      throw new Error(`Unexpected validation response: ${JSON.stringify(validation)}`)
-    }
-  })
+      const validation = (await response.json()) as { authenticated: boolean; steamId: string }
+      if (!validation.authenticated || validation.steamId !== DEFAULT_DEV_MOCK_STEAMID) {
+        throw new Error(`Unexpected validation response: ${JSON.stringify(validation)}`)
+      }
+    })
+  }
 
   if (databaseReady) {
     await runStep('dev admin login works with database', async () => {

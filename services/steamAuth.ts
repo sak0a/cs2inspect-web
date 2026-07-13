@@ -149,54 +149,39 @@ export class SteamAuthService {
             throw new Error('Dev auth is not enabled')
         }
 
-        const body: {
-            as: 'user' | 'admin'
-            username?: string
-            password?: string
-        } = { as }
+        try {
+            const data = await $fetch<{
+                steamId: string
+                personaName: string
+                avatarFull: string
+                role: 'user' | 'admin'
+                authenticated: boolean
+            }>('/api/auth/dev/login', {
+                method: 'POST',
+                body: { as },
+                credentials: 'include',
+            })
 
-        if (as === 'admin') {
-            if (config.public.devMockAdminUsername) {
-                body.username = config.public.devMockAdminUsername
+            const user: SteamUser = {
+                steamId: data.steamId,
+                personaName: data.personaName,
+                profileUrl: `https://steamcommunity.com/profiles/${data.steamId}`,
+                avatar: data.avatarFull.replace(/_full\.jpg$/, '.jpg'),
+                avatarMedium: data.avatarFull.replace(/_full\.jpg$/, '_medium.jpg'),
+                avatarFull: data.avatarFull,
+                realName: data.personaName,
+                timeCreated: 0,
+                lastLogoff: 0,
             }
-            if (config.public.devMockAdminPassword) {
-                body.password = config.public.devMockAdminPassword
+
+            this.saveUser(user)
+            return user
+        } catch (error: unknown) {
+            if (error && typeof error === 'object' && 'status' in error && error.status === 401) {
+                this.handleUnauthorized()
             }
-        } else {
-            if (config.public.devAuthUsername) {
-                body.username = config.public.devAuthUsername
-            }
-            if (config.public.devAuthPassword) {
-                body.password = config.public.devAuthPassword
-            }
+            throw error
         }
-
-        const data = await $fetch<{
-            steamId: string
-            personaName: string
-            avatarFull: string
-            role: 'user' | 'admin'
-            authenticated: boolean
-        }>('/api/auth/dev/login', {
-            method: 'POST',
-            body,
-            credentials: 'include',
-        })
-
-        const user: SteamUser = {
-            steamId: data.steamId,
-            personaName: data.personaName,
-            profileUrl: `https://steamcommunity.com/profiles/${data.steamId}`,
-            avatar: data.avatarFull.replace(/_full\.jpg$/, '.jpg'),
-            avatarMedium: data.avatarFull.replace(/_full\.jpg$/, '_medium.jpg'),
-            avatarFull: data.avatarFull,
-            realName: data.personaName,
-            timeCreated: 0,
-            lastLogoff: 0,
-        }
-
-        this.saveUser(user)
-        return user
     }
 }
 

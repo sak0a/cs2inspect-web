@@ -56,6 +56,11 @@ async function runSeed(): Promise<void> {
     process.exit(1)
   }
 
+  if (process.env.NODE_ENV === 'production') {
+    console.error(chalk.red('Dev auth must not be used in production.'))
+    process.exit(1)
+  }
+
   const { seedDevUsers } = await import('../server/utils/devAuth')
   await seedDevUsers()
 
@@ -76,6 +81,11 @@ function runLogin(isAdmin: boolean): void {
     process.exit(1)
   }
 
+  if (process.env.NODE_ENV === 'production') {
+    console.error(chalk.red('Dev auth must not be used in production.'))
+    process.exit(1)
+  }
+
   const port = process.env.PORT || '3210'
   const host = process.env.HOST || '127.0.0.1'
   const baseUrl = `http://${host === '0.0.0.0' ? '127.0.0.1' : host}:${port}`
@@ -88,7 +98,7 @@ function runLogin(isAdmin: boolean): void {
     ? process.env.DEV_MOCK_ADMIN_PASSWORD || process.env.DEV_AUTH_PASSWORD || 'adminpassword'
     : process.env.DEV_AUTH_PASSWORD || 'devpassword'
 
-  const body = JSON.stringify({ username, password, as: role })
+  const body = JSON.stringify({ username, password, as: role }).replace(/'/g, "'\\''")
 
   console.log(chalk.bold(`Dev ${role} login curl command:`))
   console.log()

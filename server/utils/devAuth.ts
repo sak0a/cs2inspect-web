@@ -68,6 +68,11 @@ export function validateDevCredentials(
     return true
   }
 
+  // Dev UI buttons submit only `as`; allow when credentials are omitted.
+  if (username === undefined && password === undefined) {
+    return true
+  }
+
   const expectedUser =
     role === 'admin'
       ? process.env.DEV_MOCK_ADMIN_USERNAME || process.env.DEV_AUTH_USERNAME

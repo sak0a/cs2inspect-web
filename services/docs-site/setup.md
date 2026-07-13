@@ -325,10 +325,11 @@ DEV_AUTH_PASSWORD=devpassword
 Then log in programmatically:
 
 ```bash
+# Prints a curl command — does not perform login itself
 bun run cli dev:login
 ```
 
-Or use the buttons on http://localhost:3210/dev when the dev server is running.
+Or use the buttons on http://localhost:3210/dev when the dev server is running (buttons send only `as`; credentials are validated server-side when configured).
 
 See **`AGENTS.md`** (repository root) and [Authentication — Dev Mock](/api/authentication#dev-mock-authentication) for curl examples, default SteamIDs, and admin login.
 
