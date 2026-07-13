@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h } from 'vue'
 import { buttonColor } from '~/lib/buttonColors'
-import { LucideActivity as ActivityIcon } from 'lucide-vue-next'
+import { LucideActivity as ActivityIcon } from '@lucide/vue'
 import type { DataTableColumns, SelectOption } from 'naive-ui'
 import { useAdminStore } from '~/stores/adminStore'
 import type { AdminActivityLogEntry } from '~/types'

@@ -9,7 +9,7 @@ import {
   LucideMenu as MenuIcon,
   LucideX as CloseIcon,
   LucideArrowLeft as BackIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { useAdminAuth } from '~/composables/useAdminAuth'
 
 // Props

@@ -5,7 +5,7 @@ import {
   LucideShieldAlert as ShieldAlertIcon,
   LucideUserPlus as UserPlusIcon,
   LucideTrash2 as TrashIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { useAdminStore } from '~/stores/adminStore'
 import { useAdminAuth } from '~/composables/useAdminAuth'
 import type { AdminInfo } from '~/types'

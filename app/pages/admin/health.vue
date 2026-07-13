@@ -5,7 +5,7 @@ import {
   LucideSend as SendIcon,
   LucidePlus as PlusIcon,
   LucideX as RemoveIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { useAdminHealth, formatBytes, formatUptime } from '~/composables/useAdminHealth'
 
 definePageMeta({

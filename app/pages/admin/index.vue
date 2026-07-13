@@ -4,7 +4,7 @@ import {
   LucideActivity as ActivityLogIcon,
   LucideShield as UserManagementIcon,
   LucideRefreshCw as RefreshIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { useAdminStats, type TimeRange } from '~/composables/useAdminStats'
 import type { AdminActivityData, AdminHeatmapData, AdminTopUser } from '~/types'
 

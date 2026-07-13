@@ -7,7 +7,7 @@ import {
   LucideBookOpen as TutorialsIcon,
   LucideGauge as LimitsIcon,
   LucideBox as OtherIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { useAdminStore } from '~/stores/adminStore'
 import { APP_SETTING_CATEGORIES } from '~/utils/settingsCategories'
 import type { AppSettingCategory } from '~/utils/settingsCategories'

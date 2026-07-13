@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { h } from 'vue'
 import { buttonColor } from '~/lib/buttonColors'
-import { LucideCopy as DuplicateIcon, LucideDownload as ImportIcon } from 'lucide-vue-next'
+import { LucideCopy as DuplicateIcon, LucideDownload as ImportIcon } from '@lucide/vue'
 import { NTag, type DataTableColumns } from 'naive-ui'
 import AdminLoadoutActions from '~/components/admin/AdminLoadoutActions.vue'
 import type { DBLoadout } from '~/types'

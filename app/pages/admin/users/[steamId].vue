@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LucideArrowLeft as BackIcon, LucidePackage as LoadoutIcon } from 'lucide-vue-next'
+import { LucideArrowLeft as BackIcon, LucidePackage as LoadoutIcon } from '@lucide/vue'
 import type { AdminUserDetails } from '~/types'
 
 definePageMeta({

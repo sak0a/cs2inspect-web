@@ -14,7 +14,7 @@ import {
   LucideEllipsisVertical as MenuIcon,
   LucideRefreshCw as RefreshIcon,
   LucideCheck as CheckIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import { toSteamId, toLoadoutId } from '~/types/core/branded'
 import type { LoadoutId } from '~/types/core/branded'
 

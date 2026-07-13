@@ -7,7 +7,7 @@ import {
   LucideStar as DefaultIcon,
   LucideEraser as ClearIcon,
   LucideEllipsisVertical as MenuIcon,
-} from 'lucide-vue-next'
+} from '@lucide/vue'
 import type { DBLoadout } from '~/types'
 
 interface Props {

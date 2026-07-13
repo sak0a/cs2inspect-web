@@ -2,7 +2,7 @@
   "name": "nuxt-app",
   "module": "index.ts",
   "dependencies": {
-    "@formkit/auto-animate": "^0.10.0",
+    "@lucide/vue": "^1.24.0",
     "@iconify/vue": "^5.0.1",
     "@nuxtjs/dotenv": "^1.4.2",
     "@pinia/nuxt": "^0.11.3",
