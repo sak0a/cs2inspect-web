@@ -9,6 +9,7 @@ Diagrams are primarily created using Mermaid syntax and embedded directly in mar
 ## Current Diagrams
 
 All diagrams are embedded in documentation files using Mermaid:
+
 - Architecture diagrams in [architecture.md](../architecture.md)
 - Sequence diagrams in [how-it-works.md](../how-it-works.md)
 - Flow diagrams throughout documentation

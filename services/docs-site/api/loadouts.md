@@ -20,6 +20,7 @@ Retrieve all loadouts for the authenticated user.
 | `steamId` | string | Yes | User's Steam ID |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -59,11 +60,13 @@ Retrieve the currently equipped loadout for a user. This is primarily designed f
 | `steamId` | string | Yes | User's Steam ID |
 
 **Loadout Selection Logic**:
+
 1. Checks for a loadout with `is_default = 1`
 2. If none, checks for a loadout with `active = 1`
 3. If none, falls back to the first available loadout
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -96,6 +99,7 @@ Create a new loadout for the authenticated user.
 | `steamId` | string | Yes | User's Steam ID |
 
 **Request Body**:
+
 ```json
 {
   "name": "New Loadout"
@@ -103,6 +107,7 @@ Create a new loadout for the authenticated user.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -129,6 +134,7 @@ Update an existing loadout.
 | `steamId` | string | Yes | User's Steam ID |
 
 **Request Body**:
+
 ```json
 {
   "id": 1,
@@ -137,6 +143,7 @@ Update an existing loadout.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -163,6 +170,7 @@ Cannot delete if it's the only loadout.
 | `id` | number | Yes | Loadout ID to delete |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -184,6 +192,7 @@ Switch the active loadout.
 | `steamId` | string | Yes | User's Steam ID |
 
 **Request Body**:
+
 ```json
 {
   "loadoutId": 2
@@ -191,6 +200,7 @@ Switch the active loadout.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -207,6 +217,7 @@ Switch the active loadout.
 Set a loadout as the default for the CS2 plugin.
 
 **Request Body**:
+
 ```json
 {
   "loadoutId": 1
@@ -214,6 +225,7 @@ Set a loadout as the default for the CS2 plugin.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -230,6 +242,7 @@ Set a loadout as the default for the CS2 plugin.
 Create a copy of an existing loadout.
 
 **Request Body**:
+
 ```json
 {
   "loadoutId": 1,
@@ -238,6 +251,7 @@ Create a copy of an existing loadout.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -257,6 +271,7 @@ Create a copy of an existing loadout.
 Import a loadout from a shared configuration.
 
 **Request Body**:
+
 ```json
 {
   "shareCode": "ABC123XYZ"
@@ -264,6 +279,7 @@ Import a loadout from a shared configuration.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -283,6 +299,7 @@ Import a loadout from a shared configuration.
 Generate a share code for a loadout.
 
 **Request Body**:
+
 ```json
 {
   "loadoutId": 1
@@ -290,6 +307,7 @@ Generate a share code for a loadout.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -309,6 +327,7 @@ Generate a share code for a loadout.
 Clear all items from a loadout.
 
 **Request Body**:
+
 ```json
 {
   "loadoutId": 1
@@ -316,6 +335,7 @@ Clear all items from a loadout.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -327,8 +347,8 @@ Clear all items from a loadout.
 
 ## Loadout Limits
 
-| Limit | Value |
-|-------|-------|
-| Max loadouts per user | 10 |
-| Max name length | 50 characters |
-| Share code expiry | 7 days |
+| Limit                 | Value         |
+| --------------------- | ------------- |
+| Max loadouts per user | 10            |
+| Max name length       | 50 characters |
+| Share code expiry     | 7 days        |

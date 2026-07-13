@@ -5,8 +5,17 @@
  */
 
 import { db } from '~/server/database/client'
-import { itemHistory, pistols, rifles, smgs, heavys, knives, gloves } from '~/server/database/schema'
-import { eq, and } from 'drizzle-orm'
+import {
+  itemHistory,
+  pistols,
+  rifles,
+  smgs,
+  heavys,
+  knives,
+  gloves,
+} from '~/server/database/schema'
+import { eq, and, asc, count } from 'drizzle-orm'
+import { getSettingTyped } from '~/server/database/adminHelpers'
 import { toLoadoutId } from '~/types/core/common'
 import { Logger } from '~/server/utils/logger'
 import { generateVersionId } from '~/server/utils/versionIdGenerator'
@@ -17,7 +26,7 @@ import type {
   HistoryItemType,
   HistoryItemCategory,
   ItemHistorySnapshot,
-  ChangeType
+  ChangeType,
 } from '~/server/database/schema/itemHistory'
 import type { StickerJSON, KeychainJSON } from '~/server/types/jsonSchemas'
 
@@ -26,7 +35,7 @@ const weaponTableMap = {
   pistols,
   rifles,
   smgs,
-  heavys
+  heavys,
 } as const
 
 type WeaponCategory = keyof typeof weaponTableMap
@@ -55,21 +64,24 @@ function parseJsonColumn<T>(value: T | string | null | undefined): T | null {
  * Handles weapon records (with stickers/keychain), knife records (with stattrak/nametag),
  * and glove records (basic paint fields only).
  */
-function dbRecordToSnapshot(record: {
-  paintindex: number
-  paintseed: number
-  paintwear: number
-  active?: number | null
-  stattrak_enabled?: number | null
-  stattrak_count?: number | null
-  nametag?: string | null
-  sticker_0?: StickerJSON | string | null
-  sticker_1?: StickerJSON | string | null
-  sticker_2?: StickerJSON | string | null
-  sticker_3?: StickerJSON | string | null
-  sticker_4?: StickerJSON | string | null
-  keychain?: KeychainJSON | string | null
-}, options?: { includeStickers?: boolean; includeStattrak?: boolean }): ItemHistorySnapshot {
+function dbRecordToSnapshot(
+  record: {
+    paintindex: number
+    paintseed: number
+    paintwear: number
+    active?: number | null
+    stattrak_enabled?: number | null
+    stattrak_count?: number | null
+    nametag?: string | null
+    sticker_0?: StickerJSON | string | null
+    sticker_1?: StickerJSON | string | null
+    sticker_2?: StickerJSON | string | null
+    sticker_3?: StickerJSON | string | null
+    sticker_4?: StickerJSON | string | null
+    keychain?: KeychainJSON | string | null
+  },
+  options?: { includeStickers?: boolean; includeStattrak?: boolean }
+): ItemHistorySnapshot {
   const snapshot: ItemHistorySnapshot = {
     paintindex: record.paintindex,
     paintseed: record.paintseed,
@@ -89,7 +101,7 @@ function dbRecordToSnapshot(record: {
       parseJsonColumn<StickerJSON>(record.sticker_1),
       parseJsonColumn<StickerJSON>(record.sticker_2),
       parseJsonColumn<StickerJSON>(record.sticker_3),
-      parseJsonColumn<StickerJSON>(record.sticker_4)
+      parseJsonColumn<StickerJSON>(record.sticker_4),
     ]
     snapshot.keychain = parseJsonColumn<KeychainJSON>(record.keychain)
   }
@@ -111,8 +123,11 @@ function extractKeychainName(fullName: string): string {
   return parts.length > 1 ? parts[1]! : fullName
 }
 
-function findKeychainById(keychainId: number, keychainData: APIKeychain[]): APIKeychain | undefined {
-  return keychainData.find(k => {
+function findKeychainById(
+  keychainId: number,
+  keychainData: APIKeychain[]
+): APIKeychain | undefined {
+  return keychainData.find((k) => {
     const apiId = typeof k.id === 'string' ? parseInt(k.id.replace('keychain-', ''), 10) : k.id
     return apiId === keychainId
   })
@@ -125,7 +140,7 @@ function findKeychainById(keychainId: number, keychainData: APIKeychain[]): APIK
 function getStickerIdNormalized(sticker: StickerJSON | null | undefined): number {
   if (!sticker) return 0
   const id = typeof sticker.id === 'string' ? parseInt(sticker.id, 10) : sticker.id
-  return (id && !isNaN(id)) ? id : 0
+  return id && !isNaN(id) ? id : 0
 }
 
 function getKeychainIdNormalized(keychain: KeychainJSON | string | null | undefined): number {
@@ -144,7 +159,7 @@ function getKeychainIdNormalized(keychain: KeychainJSON | string | null | undefi
 
   if (!keychainObj) return 0
   const id = typeof keychainObj.id === 'string' ? parseInt(keychainObj.id, 10) : keychainObj.id
-  return (id && !isNaN(id)) ? id : 0
+  return id && !isNaN(id) ? id : 0
 }
 
 // ============================================================================
@@ -172,8 +187,16 @@ function detectChangeType(
     if (skinsData) {
       const oldSkin = findSkinByPaintIndex(oldSnapshot.paintindex, skinsData)
       const newSkin = findSkinByPaintIndex(newSnapshot.paintindex, skinsData)
-      const oldName = oldSkin ? extractSkinName(oldSkin.name) : (oldSnapshot.paintindex === 0 ? 'Default' : null)
-      const newName = newSkin ? extractSkinName(newSkin.name) : (newSnapshot.paintindex === 0 ? 'Default' : null)
+      const oldName = oldSkin
+        ? extractSkinName(oldSkin.name)
+        : oldSnapshot.paintindex === 0
+          ? 'Default'
+          : null
+      const newName = newSkin
+        ? extractSkinName(newSkin.name)
+        : newSnapshot.paintindex === 0
+          ? 'Default'
+          : null
       if (oldName && newName) {
         skinChangeDesc = `${oldName} → ${newName}`
       } else if (newName) {
@@ -268,22 +291,37 @@ function detectChangeType(
   }
 
   if (changes.length === 1) {
-    if (changes[0]?.includes('→') && !changes[0]?.includes('pattern') && !changes[0]?.includes('wear')) changeType = 'paint_changed'
+    if (
+      changes[0]?.includes('→') &&
+      !changes[0]?.includes('pattern') &&
+      !changes[0]?.includes('wear')
+    )
+      changeType = 'paint_changed'
     else if (changes[0]?.includes('wear')) changeType = 'wear_changed'
     else if (changes[0]?.includes('pattern')) changeType = 'pattern_changed'
-    else if (changes[0]?.includes('StatTrak enabled') || changes[0]?.includes('StatTrak disabled')) changeType = 'stattrak_toggled'
+    else if (changes[0]?.includes('StatTrak enabled') || changes[0]?.includes('StatTrak disabled'))
+      changeType = 'stattrak_toggled'
     else if (changes[0]?.includes('StatTrak count')) changeType = 'stattrak_count_changed'
     else if (changes[0]?.includes('nametag')) changeType = 'nametag_changed'
-    else if (changes[0]?.includes('sticker') && changes[0]?.includes('added')) changeType = 'sticker_added'
-    else if (changes[0]?.includes('sticker') && changes[0]?.includes('removed')) changeType = 'sticker_removed'
-    else if (changes[0]?.includes('sticker') && changes[0]?.includes('changed')) changeType = 'sticker_modified'
-    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('added')) changeType = 'keychain_added'
-    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('removed')) changeType = 'keychain_removed'
-    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('changed')) changeType = 'keychain_modified'
+    else if (changes[0]?.includes('sticker') && changes[0]?.includes('added'))
+      changeType = 'sticker_added'
+    else if (changes[0]?.includes('sticker') && changes[0]?.includes('removed'))
+      changeType = 'sticker_removed'
+    else if (changes[0]?.includes('sticker') && changes[0]?.includes('changed'))
+      changeType = 'sticker_modified'
+    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('added'))
+      changeType = 'keychain_added'
+    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('removed'))
+      changeType = 'keychain_removed'
+    else if (changes[0]?.includes('Keychain') && changes[0]?.includes('changed'))
+      changeType = 'keychain_modified'
   }
 
   const description = changes.slice(0, 3).join(', ')
-  return { changeType, description: changes.length > 3 ? `${description}, +${changes.length - 3} more` : description }
+  return {
+    changeType,
+    description: changes.length > 3 ? `${description}, +${changes.length - 3} more` : description,
+  }
 }
 
 // ============================================================================
@@ -322,25 +360,42 @@ async function recordItemHistory(
     // Get skins data (and optionally keychain data) for name lookups
     const [skinsData, keychainData] = await Promise.all([
       getSkinsDataAsync(),
-      config.needsKeychainData ? getKeychainDataAsync() : Promise.resolve(undefined)
+      config.needsKeychainData ? getKeychainDataAsync() : Promise.resolve(undefined),
     ])
 
     // Get current state from database
-    const current = await db.select()
+    const current = await db
+      .select()
       .from(table)
-      .where(and(
-        eq(table.steamid, steamId),
-        eq(table.loadoutid, loadoutIdNum),
-        eq(table.defindex, defindex),
-        eq(table.team, team)
-      ))
+      .where(
+        and(
+          eq(table.steamid, steamId),
+          eq(table.loadoutid, loadoutIdNum),
+          eq(table.defindex, defindex),
+          eq(table.team, team)
+        )
+      )
       .limit(1)
 
-    const oldSnapshot = current[0] ? dbRecordToSnapshot(current[0] as Parameters<typeof dbRecordToSnapshot>[0], config.snapshotOptions) : null
-    const { changeType, description } = detectChangeType(oldSnapshot, newSnapshot, skinsData, keychainData)
+    const oldSnapshot = current[0]
+      ? dbRecordToSnapshot(
+          current[0] as Parameters<typeof dbRecordToSnapshot>[0],
+          config.snapshotOptions
+        )
+      : null
+    const { changeType, description } = detectChangeType(
+      oldSnapshot,
+      newSnapshot,
+      skinsData,
+      keychainData
+    )
 
     // Don't record if nothing changed
-    if (oldSnapshot && changeType === 'multiple_changes' && description === 'Configuration updated') {
+    if (
+      oldSnapshot &&
+      changeType === 'multiple_changes' &&
+      description === 'Configuration updated'
+    ) {
       return
     }
 
@@ -356,13 +411,82 @@ async function recordItemHistory(
       change_type: changeType,
       change_description: description,
       version_id: versionId,
-      is_snapshot: 0
+      is_snapshot: 0,
     })
 
-    Logger.info(`Recorded ${config.itemType} history [${versionId}]: ${description}`)
+    Logger.info(
+      `History save item=${config.itemType} version=${versionId} change=${description}`,
+      'db'
+    )
+
+    // Prune oldest history entries if over the limit
+    await pruneItemHistory(steamId, loadoutIdNum, config.itemType, defindex, team)
   } catch (error) {
-    Logger.error(`Failed to record ${config.itemType} history: ${error instanceof Error ? error.message : String(error)}`)
+    Logger.error(
+      `History save failed item=${config.itemType} error=${error instanceof Error ? error.message : String(error)}`,
+      'db'
+    )
     // Don't throw - history recording should not block saves
+  }
+}
+
+// ============================================================================
+// HISTORY PRUNING
+// ============================================================================
+
+/**
+ * Remove oldest history entries for an item if the count exceeds the configured limit.
+ * The limit is read from the MAX_VERSION_HISTORY_PER_ITEM app setting (0 = unlimited).
+ */
+async function pruneItemHistory(
+  steamId: string,
+  loadoutId: number,
+  itemType: HistoryItemType,
+  defindex: number,
+  team: number
+): Promise<void> {
+  try {
+    const maxHistory = await getSettingTyped<number>('MAX_VERSION_HISTORY_PER_ITEM', 50)
+    if (maxHistory <= 0) return // 0 = unlimited
+
+    const whereCondition = and(
+      eq(itemHistory.steamid, steamId),
+      eq(itemHistory.loadoutid, loadoutId),
+      eq(itemHistory.item_type, itemType),
+      eq(itemHistory.defindex, defindex),
+      eq(itemHistory.team, team)
+    )
+
+    // Count total entries for this item
+    const countResult = await db.select({ total: count() }).from(itemHistory).where(whereCondition)
+
+    const total = countResult[0]?.total ?? 0
+    if (total <= maxHistory) return
+
+    // Find the IDs of the oldest entries that exceed the limit
+    const excess = total - maxHistory
+    const oldestEntries = await db
+      .select({ id: itemHistory.id })
+      .from(itemHistory)
+      .where(whereCondition)
+      .orderBy(asc(itemHistory.created_at))
+      .limit(excess)
+
+    if (oldestEntries.length > 0) {
+      for (const entry of oldestEntries) {
+        await db.delete(itemHistory).where(eq(itemHistory.id, entry.id))
+      }
+      Logger.info(
+        `Pruned ${oldestEntries.length} old history entries for item=${itemType} defindex=${defindex}`,
+        'db'
+      )
+    }
+  } catch (error) {
+    Logger.error(
+      `History prune failed item=${itemType} error=${error instanceof Error ? error.message : String(error)}`,
+      'db'
+    )
+    // Don't throw - pruning should not block saves
   }
 }
 
@@ -381,13 +505,20 @@ export async function recordWeaponHistory(
   category: WeaponCategory,
   newSnapshot: ItemHistorySnapshot
 ): Promise<void> {
-  return recordItemHistory({
-    table: weaponTableMap[category],
-    itemType: 'weapon' as HistoryItemType,
-    itemCategory: category as HistoryItemCategory,
-    snapshotOptions: { includeStickers: true, includeStattrak: true },
-    needsKeychainData: true
-  }, steamId, loadoutId, defindex, team, newSnapshot)
+  return recordItemHistory(
+    {
+      table: weaponTableMap[category],
+      itemType: 'weapon' as HistoryItemType,
+      itemCategory: category as HistoryItemCategory,
+      snapshotOptions: { includeStickers: true, includeStattrak: true },
+      needsKeychainData: true,
+    },
+    steamId,
+    loadoutId,
+    defindex,
+    team,
+    newSnapshot
+  )
 }
 
 /**
@@ -400,13 +531,20 @@ export async function recordKnifeHistory(
   team: number,
   newSnapshot: ItemHistorySnapshot
 ): Promise<void> {
-  return recordItemHistory({
-    table: knives,
-    itemType: 'knife' as HistoryItemType,
-    itemCategory: null,
-    snapshotOptions: { includeStickers: false, includeStattrak: true },
-    needsKeychainData: false
-  }, steamId, loadoutId, defindex, team, newSnapshot)
+  return recordItemHistory(
+    {
+      table: knives,
+      itemType: 'knife' as HistoryItemType,
+      itemCategory: null,
+      snapshotOptions: { includeStickers: false, includeStattrak: true },
+      needsKeychainData: false,
+    },
+    steamId,
+    loadoutId,
+    defindex,
+    team,
+    newSnapshot
+  )
 }
 
 /**
@@ -419,11 +557,18 @@ export async function recordGloveHistory(
   team: number,
   newSnapshot: ItemHistorySnapshot
 ): Promise<void> {
-  return recordItemHistory({
-    table: gloves,
-    itemType: 'glove' as HistoryItemType,
-    itemCategory: null,
-    snapshotOptions: { includeStickers: false, includeStattrak: false },
-    needsKeychainData: false
-  }, steamId, loadoutId, defindex, team, newSnapshot)
+  return recordItemHistory(
+    {
+      table: gloves,
+      itemType: 'glove' as HistoryItemType,
+      itemCategory: null,
+      snapshotOptions: { includeStickers: false, includeStattrak: false },
+      needsKeychainData: false,
+    },
+    steamId,
+    loadoutId,
+    defindex,
+    team,
+    newSnapshot
+  )
 }

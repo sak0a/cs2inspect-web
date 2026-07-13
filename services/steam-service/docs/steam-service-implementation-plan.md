@@ -57,18 +57,22 @@ cs2inspect-web/
 ### Phase 1: Service Setup
 
 #### 1.1 Create Service Directory Structure
+
 - Create `services/steam-service/` directory
 - Initialize new Node.js project with TypeScript
 - Set up build configuration
 
 #### 1.2 Choose Framework
+
 **Recommendation: Fastify** (faster than Express, built-in TypeScript support)
+
 - Lightweight and performant
 - Built-in JSON schema validation
 - Excellent TypeScript support
 - Plugin architecture
 
 #### 1.3 Dependencies
+
 ```json
 {
   "dependencies": {
@@ -89,66 +93,68 @@ cs2inspect-web/
 ### Phase 2: Core Service Implementation
 
 #### 2.1 Steam Client Service (`src/services/steamClient.ts`)
+
 ```typescript
-import { CS2Inspect } from 'cs2-inspect-lib';
-import type { SteamClientConfig } from 'cs2-inspect-lib';
+import { CS2Inspect } from 'cs2-inspect-lib'
+import type { SteamClientConfig } from 'cs2-inspect-lib'
 
 class SteamClientService {
-  private client: CS2Inspect | null = null;
-  private isInitialized = false;
-  private initPromise: Promise<void> | null = null;
+  private client: CS2Inspect | null = null
+  private isInitialized = false
+  private initPromise: Promise<void> | null = null
 
   async initialize(config: SteamClientConfig): Promise<void> {
     if (this.isInitialized && this.client) {
-      return;
+      return
     }
 
     if (this.initPromise) {
-      return this.initPromise;
+      return this.initPromise
     }
 
-    this.initPromise = this._doInitialize(config);
-    await this.initPromise;
+    this.initPromise = this._doInitialize(config)
+    await this.initPromise
   }
 
   private async _doInitialize(config: SteamClientConfig): Promise<void> {
     this.client = new CS2Inspect({
       steamClient: config,
       enableLogging: process.env.LOG_API_REQUESTS === 'true',
-      validateInput: true
-    });
+      validateInput: true,
+    })
 
     if (config.enabled) {
-      await this.client.initializeSteamClient();
+      await this.client.initializeSteamClient()
     }
 
-    this.isInitialized = true;
+    this.isInitialized = true
   }
 
   getClient(): CS2Inspect {
     if (!this.client) {
-      throw new Error('Steam client not initialized');
+      throw new Error('Steam client not initialized')
     }
-    return this.client;
+    return this.client
   }
 
   getStatus() {
     if (!this.client) {
-      return { available: false, status: 'not_initialized' };
+      return { available: false, status: 'not_initialized' }
     }
-    const stats = this.client.getSteamClientStats();
+    const stats = this.client.getSteamClientStats()
     return {
       available: stats.isAvailable,
       status: stats.status,
-      ...stats
-    };
+      ...stats,
+    }
   }
 }
 
-export const steamClientService = new SteamClientService();
+export const steamClientService = new SteamClientService()
 ```
 
 #### 2.2 Request Queue Service (`src/services/queue.ts`)
+
 - Manage concurrent requests
 - Rate limiting (1.5s between requests)
 - Queue size limits
@@ -157,56 +163,63 @@ export const steamClientService = new SteamClientService();
 #### 2.3 API Routes
 
 **Inspect Routes (`src/routes/inspect.ts`)**
+
 ```typescript
-POST /api/inspect/create-url
-POST /api/inspect/inspect-item
-POST /api/inspect/decode-masked-only
-POST /api/inspect/decode-hex-data
-POST /api/inspect/validate-url
-POST /api/inspect/analyze-url
+POST / api / inspect / create - url
+POST / api / inspect / inspect - item
+POST / api / inspect / decode - masked - only
+POST / api / inspect / decode - hex - data
+POST / api / inspect / validate - url
+POST / api / inspect / analyze - url
 ```
 
 **Health Routes (`src/routes/health.ts`)**
+
 ```typescript
-GET /api/health
-GET /api/health/ready
-GET /api/health/live
+GET / api / health
+GET / api / health / ready
+GET / api / health / live
 ```
 
 **Status Routes (`src/routes/status.ts`)**
+
 ```typescript
-GET /api/status
-GET /api/status/steam-client
-GET /api/status/queue
+GET / api / status
+GET / api / status / steam - client
+GET / api / status / queue
 ```
 
 ### Phase 3: Authentication & Security
 
 #### 3.1 API Key Authentication
+
 - Each client application gets an API key
 - Store keys in environment variables or database
 - Validate on every request via middleware
 
 #### 3.2 Rate Limiting
+
 - Per-API-key rate limiting
 - Global rate limiting
 - Queue-based throttling
 
 #### 3.3 CORS Configuration
+
 - Allow specific origins
 - Configurable via environment variables
 
 ### Phase 4: Main App Integration
 
 #### 4.1 Create Service Client (`server/utils/steamServiceClient.ts`)
+
 ```typescript
 class SteamServiceClient {
-  private baseUrl: string;
-  private apiKey: string;
+  private baseUrl: string
+  private apiKey: string
 
   constructor() {
-    this.baseUrl = process.env.STEAM_SERVICE_URL || 'http://localhost:3001';
-    this.apiKey = process.env.STEAM_SERVICE_API_KEY || '';
+    this.baseUrl = process.env.STEAM_SERVICE_URL || 'http://localhost:3001'
+    this.apiKey = process.env.STEAM_SERVICE_API_KEY || ''
   }
 
   async inspectItem(inspectUrl: string, itemType?: string) {
@@ -214,11 +227,11 @@ class SteamServiceClient {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'X-API-Key': this.apiKey
+        'X-API-Key': this.apiKey,
       },
-      body: JSON.stringify({ inspectUrl, itemType })
-    });
-    return response.json();
+      body: JSON.stringify({ inspectUrl, itemType }),
+    })
+    return response.json()
   }
 
   async createInspectUrl(itemData: CreateUrlRequest) {
@@ -228,15 +241,17 @@ class SteamServiceClient {
   // ... other methods
 }
 
-export const steamServiceClient = new SteamServiceClient();
+export const steamServiceClient = new SteamServiceClient()
 ```
 
 #### 4.2 Update Main App Inspect Endpoint
+
 - Replace direct `getCS2Client()` calls with `steamServiceClient` calls
 - Handle service unavailable errors gracefully
 - Add fallback mechanisms if needed
 
 #### 4.3 Remove Steam Client from Main App
+
 - Remove `initializeSteamClient()` from `server/plugins/init.ts`
 - Remove Steam client dependencies from main app
 - Update health checks
@@ -246,6 +261,7 @@ export const steamServiceClient = new SteamServiceClient();
 #### 5.1 Environment Variables
 
 **Steam Service (`.env`)**
+
 ```env
 # Server Configuration
 PORT=3001
@@ -271,6 +287,7 @@ RATE_LIMIT_WINDOW=60000  # 1 minute
 ```
 
 **Main App (`.env`)**
+
 ```env
 # Steam Service Configuration
 STEAM_SERVICE_URL=http://localhost:3001
@@ -284,6 +301,7 @@ STEAM_SERVICE_API_KEY=your_api_key_here
 #### 5.2 Docker Configuration
 
 **docker-compose.yml** (add service)
+
 ```yaml
 services:
   steam-service:
@@ -291,7 +309,7 @@ services:
       context: ./services/steam-service
       dockerfile: Dockerfile
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - STEAM_USERNAME=${STEAM_USERNAME}
       - STEAM_PASSWORD=${STEAM_PASSWORD}
@@ -305,6 +323,7 @@ services:
 ```
 
 #### 5.3 Process Management
+
 - Use PM2 for production
 - Or systemd service
 - Health check endpoints for monitoring
@@ -312,7 +331,9 @@ services:
 ## API Specification
 
 ### Authentication
+
 All requests require an `X-API-Key` header:
+
 ```
 X-API-Key: your_api_key_here
 ```
@@ -320,6 +341,7 @@ X-API-Key: your_api_key_here
 ### Endpoints
 
 #### 1. Create Inspect URL
+
 ```http
 POST /api/inspect/create-url
 Content-Type: application/json
@@ -338,6 +360,7 @@ X-API-Key: your_api_key
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -348,6 +371,7 @@ X-API-Key: your_api_key
 ```
 
 #### 2. Inspect Item
+
 ```http
 POST /api/inspect/inspect-item
 Content-Type: application/json
@@ -360,6 +384,7 @@ X-API-Key: your_api_key
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -369,12 +394,14 @@ X-API-Key: your_api_key
 ```
 
 #### 3. Get Service Status
+
 ```http
 GET /api/status
 X-API-Key: your_api_key
 ```
 
 **Response:**
+
 ```json
 {
   "steamClient": {
@@ -395,11 +422,13 @@ X-API-Key: your_api_key
 ```
 
 #### 4. Health Check
+
 ```http
 GET /api/health/ready
 ```
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -414,6 +443,7 @@ GET /api/health/ready
 ## Error Handling
 
 ### Error Response Format
+
 ```json
 {
   "success": false,
@@ -426,6 +456,7 @@ GET /api/health/ready
 ```
 
 ### Error Codes
+
 - `STEAM_CLIENT_UNAVAILABLE` - Steam client not initialized/connected
 - `INVALID_API_KEY` - API key authentication failed
 - `RATE_LIMIT_EXCEEDED` - Too many requests
@@ -437,21 +468,25 @@ GET /api/health/ready
 ## Migration Strategy
 
 ### Step 1: Deploy Service (Non-Breaking)
+
 1. Deploy steam service alongside main app
 2. Keep existing Steam client in main app
 3. Test service endpoints independently
 
 ### Step 2: Gradual Migration
+
 1. Add feature flag to switch between local client and service
 2. Migrate one endpoint at a time
 3. Monitor for errors
 
 ### Step 3: Full Migration
+
 1. Remove Steam client from main app
 2. Update all endpoints to use service
 3. Remove unused dependencies
 
 ### Step 4: Cleanup
+
 1. Remove old Steam client code
 2. Update documentation
 3. Update deployment scripts
@@ -459,16 +494,19 @@ GET /api/health/ready
 ## Testing Strategy
 
 ### Unit Tests
+
 - Steam client service initialization
 - Queue management
 - Error handling
 
 ### Integration Tests
+
 - API endpoint testing
 - Authentication/authorization
 - Rate limiting
 
 ### Load Tests
+
 - Concurrent request handling
 - Queue overflow scenarios
 - Rate limit enforcement
@@ -476,6 +514,7 @@ GET /api/health/ready
 ## Monitoring & Observability
 
 ### Metrics to Track
+
 - Request count per endpoint
 - Response times
 - Queue size
@@ -484,12 +523,14 @@ GET /api/health/ready
 - API key usage
 
 ### Logging
+
 - Request/response logging
 - Error logging with stack traces
 - Steam client events
 - Queue events
 
 ### Alerts
+
 - Steam client disconnection
 - High error rate
 - Queue overflow

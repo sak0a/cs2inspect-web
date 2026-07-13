@@ -21,7 +21,7 @@ on:
       - 'services/docs-site/**'
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
   BUN_VERSION: 'latest'
 
 jobs:
@@ -40,11 +40,8 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.bun/install/cache
-            node_modules
-            services/steam-service/node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'services/steam-service/bun.lock') }}
           restore-keys: ${{ runner.os }}-bun-
 
       - run: bun install
@@ -53,7 +50,8 @@ jobs:
         working-directory: services/steam-service
       - run: bun run typecheck
       - run: bun run lint
-      - run: bun test
+      - run: bun run test:unit
+      - run: bun run test:nuxt
 
   build:
     name: Build
@@ -71,10 +69,8 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.bun/install/cache
-            node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'services/steam-service/bun.lock') }}
           restore-keys: ${{ runner.os }}-bun-
 
       - run: bun install
@@ -115,10 +111,8 @@ jobs:
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
-          path: |
-            ~/.bun/install/cache
-            node_modules
-          key: ${{ runner.os }}-bun-${{ hashFiles('**/bun.lockb') }}
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'services/steam-service/bun.lock') }}
           restore-keys: ${{ runner.os }}-bun-
 
       - run: bun install

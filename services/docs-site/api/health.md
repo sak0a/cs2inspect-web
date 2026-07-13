@@ -15,6 +15,7 @@ All health check endpoints are public and do not require authentication.
 Check if the application process is running.
 
 **Response**:
+
 ```json
 {
   "status": "ok",
@@ -38,6 +39,7 @@ Check if the application process is running.
 Check if the application is ready to serve traffic.
 
 **Response (Healthy)**:
+
 ```json
 {
   "status": "ok",
@@ -59,6 +61,7 @@ Check if the application is ready to serve traffic.
 ```
 
 **Response (Unhealthy)**:
+
 ```json
 {
   "status": "fail",
@@ -82,6 +85,7 @@ Check if the application is ready to serve traffic.
 | `503 Service Unavailable` | One or more critical dependencies are unhealthy |
 
 **Critical Checks**:
+
 - Database connectivity
 - Environment configuration
 
@@ -94,6 +98,7 @@ Check if the application is ready to serve traffic.
 Get comprehensive health information for all system components.
 
 **Response**:
+
 ```json
 {
   "status": "ok",
@@ -176,6 +181,7 @@ Get historical health check data with trends.
 | `component` | string | - | Filter by component name |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -219,6 +225,7 @@ Get historical health check data with trends.
 Check the health of the external Steam service proxy (if configured).
 
 **Response**:
+
 ```json
 {
   "status": "ok",
@@ -237,19 +244,19 @@ apiVersion: v1
 kind: Pod
 spec:
   containers:
-  - name: cs2inspect
-    livenessProbe:
-      httpGet:
-        path: /api/health/live
-        port: 3210
-      initialDelaySeconds: 10
-      periodSeconds: 10
-    readinessProbe:
-      httpGet:
-        path: /api/health/ready
-        port: 3210
-      initialDelaySeconds: 5
-      periodSeconds: 5
+    - name: cs2inspect
+      livenessProbe:
+        httpGet:
+          path: /api/health/live
+          port: 3210
+        initialDelaySeconds: 10
+        periodSeconds: 10
+      readinessProbe:
+        httpGet:
+          path: /api/health/ready
+          port: 3210
+        initialDelaySeconds: 5
+        periodSeconds: 5
 ```
 
 ## Docker Compose Example
@@ -258,7 +265,7 @@ spec:
 services:
   app:
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3210/api/health/ready"]
+      test: ['CMD', 'curl', '-f', 'http://localhost:3210/api/health/ready']
       interval: 30s
       timeout: 10s
       retries: 3

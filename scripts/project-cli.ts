@@ -26,8 +26,16 @@ interface Category {
   commands: Command[]
 }
 
-interface HealthCheck { name: string; status: string; latency_ms?: number }
-interface HealthResponse { status?: string; uptime?: number; checks?: HealthCheck[] }
+interface HealthCheck {
+  name: string
+  status: string
+  latency_ms?: number
+}
+interface HealthResponse {
+  status?: string
+  uptime?: number
+  checks?: HealthCheck[]
+}
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -170,6 +178,14 @@ const categories: Category[] = [
         run: 'bun run db:migrate',
         dangerous: true,
         dangerMessage: 'apply pending migrations to the database',
+      },
+      {
+        id: 'db:repair',
+        label: 'Repair migration journal',
+        hint: 'Applies missing admin tables and fixes incorrectly seeded migration state',
+        run: 'bun run db:repair',
+        dangerous: true,
+        dangerMessage: 'repair the migration journal and apply missing schema tables',
       },
       {
         id: 'db:studio',
@@ -329,7 +345,8 @@ const categories: Category[] = [
         hint: 'Full reset \u2014 removes all build artifacts AND node_modules',
         run: '__special:clean:all',
         dangerous: true,
-        dangerMessage: 'delete node_modules and all build artifacts (you\'ll need to run bun install again)',
+        dangerMessage:
+          "delete node_modules and all build artifacts (you'll need to run bun install again)",
       },
       {
         id: 'update',
@@ -429,7 +446,7 @@ async function runHealthCheck(): Promise<void> {
       return
     }
 
-    const data = await response.json() as Record<string, unknown>
+    const data = (await response.json()) as Record<string, unknown>
     s.stop(chalk.green('Application is healthy'))
 
     if (data && typeof data === 'object') {
@@ -440,7 +457,9 @@ async function runHealthCheck(): Promise<void> {
       if (Array.isArray(healthData.checks)) {
         for (const check of healthData.checks) {
           const icon = check.status === 'ok' ? chalk.green('\u2713') : chalk.red('\u2717')
-          lines.push(`${icon} ${check.name}${check.latency_ms ? chalk.dim(` (${check.latency_ms}ms)`) : ''}`)
+          lines.push(
+            `${icon} ${check.name}${check.latency_ms ? chalk.dim(` (${check.latency_ms}ms)`) : ''}`
+          )
         }
       }
       if (lines.length > 0) {
@@ -461,7 +480,8 @@ async function showProjectInfo(): Promise<void> {
   const nodeVersion = exec('node --version')
   const gitBranch = exec('git rev-parse --abbrev-ref HEAD')
   const gitHash = exec('git rev-parse --short HEAD')
-  const gitDirty = exec('git status --porcelain') !== '' ? chalk.yellow(' (dirty)') : chalk.green(' (clean)')
+  const gitDirty =
+    exec('git status --porcelain') !== '' ? chalk.yellow(' (dirty)') : chalk.green(' (clean)')
   const hasEnv = existsSync(resolve(PROJECT_ROOT, '.env'))
   const hasOutput = existsSync(resolve(PROJECT_ROOT, '.output'))
   const hasNodeModules = existsSync(resolve(PROJECT_ROOT, 'node_modules'))
@@ -481,7 +501,7 @@ async function showProjectInfo(): Promise<void> {
       `${chalk.dim('.output/ dir:')}   ${hasOutput ? chalk.green('Built') : chalk.dim('Not built')}`,
       `${chalk.dim('node_modules:')}   ${hasNodeModules ? chalk.green('Installed') : chalk.red('Missing')}`,
     ].join('\n'),
-    'CS2Inspect Project Info',
+    'CS2Inspect Project Info'
   )
 }
 
@@ -508,7 +528,9 @@ async function runClean(includeNodeModules: boolean): Promise<void> {
   }
 
   if (includeNodeModules) {
-    p.log.warning('node_modules was deleted. Run ' + chalk.cyan('bun install') + ' to restore dependencies.')
+    p.log.warning(
+      'node_modules was deleted. Run ' + chalk.cyan('bun install') + ' to restore dependencies.'
+    )
     p.log.info('The CLI will now exit.')
     process.exit(0)
   }
@@ -567,7 +589,9 @@ async function executeCommand(command: Command): Promise<void> {
 
 function showHelp(): void {
   console.log()
-  console.log(chalk.bold('CS2Inspect CLI') + chalk.dim(` v${VERSION}`) + ' \u2014 Unified project management')
+  console.log(
+    chalk.bold('CS2Inspect CLI') + chalk.dim(` v${VERSION}`) + ' \u2014 Unified project management'
+  )
   console.log()
   console.log(chalk.dim('Usage:'))
   console.log(`  ${chalk.cyan('bun run cli')}              Interactive mode (menu-driven)`)
@@ -577,7 +601,10 @@ function showHelp(): void {
   console.log()
 
   for (const category of categories) {
-    console.log(chalk.bold(`${category.emoji} ${category.label}`) + chalk.dim(` \u2014 ${category.description}`))
+    console.log(
+      chalk.bold(`${category.emoji} ${category.label}`) +
+        chalk.dim(` \u2014 ${category.description}`)
+    )
     for (const cmd of category.commands) {
       const id = chalk.cyan(cmd.id.padEnd(20))
       const danger = cmd.dangerous ? chalk.yellow(' \u26A0\uFE0F') : ''
@@ -610,8 +637,8 @@ async function runDirect(commandId: string): Promise<void> {
 
     // Suggest similar commands
     const allIds = categories.flatMap((c) => c.commands.map((cmd) => cmd.id))
-    const suggestions = allIds.filter((id) =>
-      id.includes(commandId) || commandId.includes(id.split(':')[0] ?? ''),
+    const suggestions = allIds.filter(
+      (id) => id.includes(commandId) || commandId.includes(id.split(':')[0] ?? '')
     )
     if (suggestions.length > 0) {
       p.log.info(`Did you mean: ${suggestions.map((s) => chalk.cyan(s)).join(', ')}?`)
@@ -629,17 +656,19 @@ async function runDirect(commandId: string): Promise<void> {
 // ─── Interactive Mode ────────────────────────────────────────────────────────
 
 async function showSubMenu(category: Category): Promise<void> {
-  const commandId = handleCancel(await p.select({
-    message: `${category.emoji} ${category.label}`,
-    options: [
-      ...category.commands.map((cmd) => ({
-        value: cmd.id,
-        label: cmd.label + (cmd.dangerous ? chalk.yellow(' \u26A0\uFE0F') : ''),
-        hint: cmd.hint,
-      })),
-      { value: '__back', label: chalk.dim('\u2190 Back to main menu'), hint: '' },
-    ],
-  }))
+  const commandId = handleCancel(
+    await p.select({
+      message: `${category.emoji} ${category.label}`,
+      options: [
+        ...category.commands.map((cmd) => ({
+          value: cmd.id,
+          label: cmd.label + (cmd.dangerous ? chalk.yellow(' \u26A0\uFE0F') : ''),
+          hint: cmd.hint,
+        })),
+        { value: '__back', label: chalk.dim('\u2190 Back to main menu'), hint: '' },
+      ],
+    })
+  )
 
   if (commandId === '__back') return
 
@@ -654,17 +683,19 @@ async function showMainMenu(): Promise<void> {
 
   // Main loop
   while (true) {
-    const categoryId = handleCancel(await p.select({
-      message: 'What would you like to do?',
-      options: [
-        ...categories.map((cat) => ({
-          value: cat.id,
-          label: `${cat.emoji}  ${cat.label}`,
-          hint: cat.description,
-        })),
-        { value: '__quit', label: '\u{1F44B}  Quit', hint: 'Exit the CLI' },
-      ],
-    }))
+    const categoryId = handleCancel(
+      await p.select({
+        message: 'What would you like to do?',
+        options: [
+          ...categories.map((cat) => ({
+            value: cat.id,
+            label: `${cat.emoji}  ${cat.label}`,
+            hint: cat.description,
+          })),
+          { value: '__quit', label: '\u{1F44B}  Quit', hint: 'Exit the CLI' },
+        ],
+      })
+    )
 
     if (categoryId === '__quit') {
       p.outro('See you later!')

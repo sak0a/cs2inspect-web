@@ -23,12 +23,12 @@ server/types/
 **Recommended approach** - Import from the main index file:
 
 ```typescript
-import type { 
-  ItemType, 
-  InspectRequest, 
+import type {
+  ItemType,
+  InspectRequest,
   CreateUrlResponse,
   SteamUser,
-  WeaponCustomization 
+  WeaponCustomization,
 } from '~/server/types'
 ```
 
@@ -42,6 +42,7 @@ import type { SteamUser } from '~/server/types/common'
 ### Type Categories
 
 #### API Types (`api.ts`)
+
 - **Response Interfaces**: `BaseAPIResponse`, `PaginatedAPIResponse`, `CollectionAPIResponse`
 - **Metadata Types**: `PaginationMeta`, `ResponseMeta`, `ErrorInfo`
 - **Item Interfaces**: `APISkin`, `APISticker`, `APIAgent`, `APIMusicKit`, `APIKeychain`
@@ -49,6 +50,7 @@ import type { SteamUser } from '~/server/types/common'
 - **Enums**: `CsTeam`
 
 #### Common Types (`common.ts`)
+
 - **Steam Types**: `SteamUser`
 - **API Response Types**: `ApiResponse`, `PaginatedResponse`
 - **Item Types**: `BaseItem`, `EnhancedItem`
@@ -56,20 +58,24 @@ import type { SteamUser } from '~/server/types/common'
 - **Utility Types**: `ID`, `Callback`, `Optional`, `RequiredFields`
 
 #### Database Types (`database.ts`)
+
 - **Base Interfaces**: `BaseDBRecord`, `BaseDBItem`
 - **Specific Records**: `DBWeapon`, `DBKnife`, `DBGlove`, `DBLoadout`
 - **Other Records**: `DBAgent`, `DBMusicKit`, `DBPin`
 
 #### Item Types (`items.ts`)
+
 - **Customization Interfaces**: `WeaponStickerCustomization`, `WeaponKeychainCustomization`
 - **Enhanced Items**: `IEnhancedWeapon`, `IEnhancedKnife`, `IEnhancedGlove`
 - **Weapon Components**: `IEnhancedWeaponSticker`, `IEnhancedWeaponKeychain`
 
 #### Classes (`classes.ts`)
+
 - **Enhanced Classes**: `EnhancedWeaponSticker`, `EnhancedWeaponKeychain`
 - **Database Conversion**: Methods for converting to/from database strings
 
 #### Inspect API Types (`inspect.ts`)
+
 - **Action Types**: `ItemType`, `InspectAction`, `UrlType`
 - **Request Interfaces**: `CreateUrlRequest`, `InspectUrlRequest`, `DecodeHexRequest`
 - **Response Interfaces**: `CreateUrlResponse`, `InspectItemResponse`, `ValidateUrlResponse`
@@ -78,21 +84,25 @@ import type { SteamUser } from '~/server/types/common'
 ## Benefits
 
 ### 1. **Centralized Type Management**
+
 - All types in one location for easy maintenance
 - Consistent naming conventions across the application
 - Single source of truth for type definitions
 
 ### 2. **Better Developer Experience**
+
 - IntelliSense support with proper type hints
 - Compile-time error checking
 - Easier refactoring with TypeScript's rename functionality
 
 ### 3. **Scalability**
+
 - Easy to add new type files as the application grows
 - Clear separation of concerns between different type categories
 - Follows enterprise patterns used in large-scale applications
 
 ### 4. **Import Consistency**
+
 - Single import point reduces import statement complexity
 - Easier to track type usage across the codebase
 - Prevents circular dependency issues
@@ -100,6 +110,7 @@ import type { SteamUser } from '~/server/types/common'
 ## Adding New Types
 
 ### 1. Create a new type file
+
 ```typescript
 // server/types/newFeature.ts
 export interface NewFeatureType {
@@ -109,12 +120,14 @@ export interface NewFeatureType {
 ```
 
 ### 2. Export from index.ts
+
 ```typescript
 // server/types/index.ts
 export type { NewFeatureType } from './newFeature'
 ```
 
 ### 3. Use in your code
+
 ```typescript
 import type { NewFeatureType } from '~/server/types'
 ```
@@ -122,21 +135,25 @@ import type { NewFeatureType } from '~/server/types'
 ## Best Practices
 
 ### 1. **Naming Conventions**
+
 - Use PascalCase for interfaces and types
 - Use descriptive names that clearly indicate the purpose
 - Prefix with the feature name for feature-specific types
 
 ### 2. **Documentation**
+
 - Add JSDoc comments for complex types
 - Include usage examples for non-obvious types
 - Document any constraints or validation rules
 
 ### 3. **Organization**
+
 - Group related types together
 - Use clear section headers with comments
 - Keep files focused on a single domain
 
 ### 4. **Backwards Compatibility**
+
 - Use `Optional<T, K>` helper for making properties optional
 - Avoid breaking changes to existing interfaces
 - Use union types for extending functionality
@@ -144,34 +161,28 @@ import type { NewFeatureType } from '~/server/types'
 ## Examples
 
 ### API Endpoint with Types
+
 ```typescript
-import type { 
-  InspectRequest, 
-  CreateUrlResponse, 
-  ItemType 
-} from '~/server/types'
+import type { InspectRequest, CreateUrlResponse, ItemType } from '~/server/types'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event) as InspectRequest
+  const body = (await readBody(event)) as InspectRequest
   const itemType: ItemType = body.itemType || 'weapon'
-  
+
   // ... implementation
-  
+
   return {
     success: true,
     inspectUrl: 'steam://...',
-    itemType
+    itemType,
   } as CreateUrlResponse
 })
 ```
 
 ### Frontend Component with Types
+
 ```typescript
-import type { 
-  WeaponCustomization, 
-  SteamUser, 
-  EnhancedItem 
-} from '~/server/types'
+import type { WeaponCustomization, SteamUser, EnhancedItem } from '~/server/types'
 
 interface Props {
   weapon: EnhancedItem

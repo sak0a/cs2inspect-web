@@ -5,6 +5,7 @@ This pipeline downloads weapon skin videos from exampleskins.com and removes the
 ## Overview
 
 The workflow consists of two main steps:
+
 1. **Download** weapon skin videos using:
    - `skins_scraper.py` (by weapon)
    - `skins_scraper-container.py` (by container/case)
@@ -18,6 +19,7 @@ pip install -r requirements.txt
 ```
 
 Requires:
+
 - Python 3.11+
 - FFmpeg installed and available in PATH
 - OpenCV, Pillow, NumPy, Requests, BeautifulSoup4
@@ -32,14 +34,14 @@ python skins_scraper.py --weapon awp
 
 ### Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--weapon`, `-w` | Weapon type (awp, ak-47, m4a4, etc.) | awp |
-| `--workers`, `-t` | Concurrent download threads | 5 |
-| `--delay`, `-d` | Delay between requests (seconds) | 1.0 |
-| `--page`, `-p` | Page number for multi-page weapons | 1 |
-| `--force`, `-f` | Force re-download even if already tracked | false |
-| `--show-stats` | Show tracking statistics and exit | - |
+| Option            | Description                               | Default |
+| ----------------- | ----------------------------------------- | ------- |
+| `--weapon`, `-w`  | Weapon type (awp, ak-47, m4a4, etc.)      | awp     |
+| `--workers`, `-t` | Concurrent download threads               | 5       |
+| `--delay`, `-d`   | Delay between requests (seconds)          | 1.0     |
+| `--page`, `-p`    | Page number for multi-page weapons        | 1       |
+| `--force`, `-f`   | Force re-download even if already tracked | false   |
+| `--show-stats`    | Show tracking statistics and exit         | -       |
 
 ### Examples
 
@@ -79,13 +81,13 @@ python skins_scraper-container.py --container sealed-genesis-terminal
 
 ### Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
-| `--container`, `-c` | Container name from exampleskins.com URL | sealed-genesis-terminal |
-| `--workers`, `-t` | Concurrent download threads | 5 |
-| `--delay`, `-d` | Delay between requests (seconds) | 1.0 |
-| `--force`, `-f` | Force re-download even if already tracked | false |
-| `--show-stats` | Show tracking statistics and exit | - |
+| Option              | Description                               | Default                 |
+| ------------------- | ----------------------------------------- | ----------------------- |
+| `--container`, `-c` | Container name from exampleskins.com URL  | sealed-genesis-terminal |
+| `--workers`, `-t`   | Concurrent download threads               | 5                       |
+| `--delay`, `-d`     | Delay between requests (seconds)          | 1.0                     |
+| `--force`, `-f`     | Force re-download even if already tracked | false                   |
+| `--show-stats`      | Show tracking statistics and exit         | -                       |
 
 ### Examples
 
@@ -103,12 +105,14 @@ python skins_scraper-container.py -c sealed-revolution
 ### Finding Container Names
 
 Container names come from the exampleskins.com URL. For example:
+
 - URL: `https://exampleskins.com/containers/sealed-genesis-terminal`
 - Container name: `sealed-genesis-terminal`
 
 ### Auto-Organization
 
 Videos are automatically sorted into weapon directories:
+
 ```
 downloads/
 ├── ak-47_videos/
@@ -134,13 +138,13 @@ python skins_scraper-collection.py --collection the-harlequin-collection
 
 ### Options
 
-| Option | Description | Default |
-|--------|-------------|---------|
+| Option               | Description                               | Default                  |
+| -------------------- | ----------------------------------------- | ------------------------ |
 | `--collection`, `-c` | Collection name from exampleskins.com URL | the-harlequin-collection |
-| `--workers`, `-t` | Concurrent download threads | 5 |
-| `--delay`, `-d` | Delay between requests (seconds) | 1.0 |
-| `--force`, `-f` | Force re-download even if already tracked | false |
-| `--show-stats` | Show tracking statistics and exit | - |
+| `--workers`, `-t`    | Concurrent download threads               | 5                        |
+| `--delay`, `-d`      | Delay between requests (seconds)          | 1.0                      |
+| `--force`, `-f`      | Force re-download even if already tracked | false                    |
+| `--show-stats`       | Show tracking statistics and exit         | -                        |
 
 ### Examples
 
@@ -158,6 +162,7 @@ python skins_scraper-collection.py -c the-control-collection
 ### Finding Collection Names
 
 Collection names come from the exampleskins.com URL. For example:
+
 - URL: `https://exampleskins.com/collections/the-harlequin-collection`
 - Collection name: `the-harlequin-collection`
 
@@ -183,6 +188,7 @@ You need to create mask images for each weapon type. Masks define which parts ar
 ### Multiple Masks
 
 Some weapons have different "forms" (e.g., stock vs no stock). Create multiple masks:
+
 - `masks/awp_mask.png` - Primary mask
 - `masks/awp_mask_2.png` - Alternate mask
 
@@ -214,6 +220,7 @@ python mask_based_remover.py --list-masks
 ```
 
 The script will:
+
 1. Auto-detect masks from `masks/` directory (or use explicit `--masks`)
 2. Try the first mask
 3. Verify if the mask properly covers the weapon
@@ -221,17 +228,17 @@ The script will:
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `--masks`, `-m` | Mask image paths (optional - auto-detected if not specified) |
-| `--masks-dir` | Directory containing masks (default: `masks/`) |
-| `--list-masks` | List available masks for a weapon and exit |
-| `--suffix` | Output filename suffix (default: `_masked`) |
-| `--single`, `-s` | Process a single video file |
-| `--output`, `-o` | Output path for single file mode |
-| `--force`, `-f` | Force re-process even if already tracked |
-| `--show-stats` | Show tracking statistics and exit |
-| `--auto`, `-a` | Process all tracked unmasked videos automatically |
+| Option           | Description                                                  |
+| ---------------- | ------------------------------------------------------------ |
+| `--masks`, `-m`  | Mask image paths (optional - auto-detected if not specified) |
+| `--masks-dir`    | Directory containing masks (default: `masks/`)               |
+| `--list-masks`   | List available masks for a weapon and exit                   |
+| `--suffix`       | Output filename suffix (default: `_masked`)                  |
+| `--single`, `-s` | Process a single video file                                  |
+| `--output`, `-o` | Output path for single file mode                             |
+| `--force`, `-f`  | Force re-process even if already tracked                     |
+| `--show-stats`   | Show tracking statistics and exit                            |
+| `--auto`, `-a`   | Process all tracked unmasked videos automatically            |
 
 ### Examples
 
@@ -261,6 +268,7 @@ python mask_based_remover.py --auto --masks-dir custom_masks/
 ```
 
 This will:
+
 1. Query the tracking database for all unmasked videos
 2. Group them by weapon type
 3. Auto-detect masks for each weapon
@@ -286,13 +294,13 @@ This copies all videos from `downloads/*/masked/` to `masked-videos/`.
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `--output`, `-o` | Output directory (default: `masked-videos/`) |
-| `--downloads`, `-d` | Downloads directory (default: `downloads/`) |
-| `--dry-run`, `-n` | Show what would be done without copying |
-| `--force`, `-f` | Overwrite existing files |
-| `--verbose`, `-v` | Show verbose output |
+| Option              | Description                                  |
+| ------------------- | -------------------------------------------- |
+| `--output`, `-o`    | Output directory (default: `masked-videos/`) |
+| `--downloads`, `-d` | Downloads directory (default: `downloads/`)  |
+| `--dry-run`, `-n`   | Show what would be done without copying      |
+| `--force`, `-f`     | Overwrite existing files                     |
+| `--verbose`, `-v`   | Show verbose output                          |
 
 ### Examples
 
@@ -323,14 +331,14 @@ This reads from `masked-videos/` and outputs to `masked-videos-optimized/`.
 
 ### Options
 
-| Option | Description |
-|--------|-------------|
-| `--input`, `-i` | Input directory (default: `masked-videos/`) |
-| `--output`, `-o` | Output directory (default: `masked-videos-optimized/`) |
-| `--crf` | Quality setting 0-63, lower=better (default: 32) |
-| `--workers` | Parallel workers (default: half of CPU cores) |
-| `--test`, `-t` | Process only first video for testing |
-| `--sequential`, `-s` | Disable parallel processing |
+| Option               | Description                                            |
+| -------------------- | ------------------------------------------------------ |
+| `--input`, `-i`      | Input directory (default: `masked-videos/`)            |
+| `--output`, `-o`     | Output directory (default: `masked-videos-optimized/`) |
+| `--crf`              | Quality setting 0-63, lower=better (default: 32)       |
+| `--workers`          | Parallel workers (default: half of CPU cores)          |
+| `--test`, `-t`       | Process only first video for testing                   |
+| `--sequential`, `-s` | Disable parallel processing                            |
 
 ### Examples
 
@@ -432,6 +440,7 @@ ls downloads/*/masked/
 ## Video Tracking System
 
 All download and masking operations are tracked in `tracking.json`. This allows:
+
 - Skipping already processed videos on re-runs
 - Tracking progress across sessions
 - Viewing statistics about your processing pipeline
@@ -439,6 +448,7 @@ All download and masking operations are tracked in `tracking.json`. This allows:
 ### Tracking File Location
 
 `tracking.json` is created in the working directory and tracks:
+
 - Video ID, weapon type, and skin name
 - Download timestamp, file path, size, and MD5 checksum
 - Masking timestamp, output path, size, checksum, and mask used

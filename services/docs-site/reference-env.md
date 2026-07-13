@@ -37,11 +37,13 @@ cp .env.example .env
 Port number on which the server will listen for incoming connections.
 
 **Example**:
+
 ```env
 PORT=3210
 ```
 
 **Notes**:
+
 - Use non-privileged ports (1024-65535) for security
 - Default is `3210` for the web app, `3211` for the steam service
 - Must be available (not used by another service)
@@ -58,6 +60,7 @@ PORT=3210
 Host address where the server will bind.
 
 **Example**:
+
 ```env
 # Local development (localhost only)
 HOST=127.0.0.1
@@ -67,11 +70,13 @@ HOST=0.0.0.0
 ```
 
 **Values**:
+
 - `127.0.0.1` - Localhost only (development)
 - `0.0.0.0` - All network interfaces (production)
 - Specific IP - Bind to specific interface
 
 **Security**:
+
 - Use `127.0.0.1` for development
 - Use `0.0.0.0` for production with reverse proxy
 - Never expose directly to internet without reverse proxy
@@ -89,17 +94,20 @@ HOST=0.0.0.0
 Secret key for generating and verifying JWT tokens for API authentication.
 
 **Example**:
+
 ```env
 JWT_TOKEN=K32DJVFIRF93EDKKCSLFRPL2AO20E
 ```
 
 **Security**:
+
 - **CRITICAL**: Use a strong, random string (minimum 32 characters)
 - **NEVER** commit to version control
 - Rotate periodically (every 90 days)
 - Different value per environment
 
 **Generate secure token**:
+
 ```bash
 # Using OpenSSL
 openssl rand -hex 32
@@ -124,12 +132,14 @@ JWT token expiration time.
 **Format**: `<number><unit>`
 
 **Units**:
+
 - `s` - seconds
 - `m` - minutes
 - `h` - hours
 - `d` - days
 
 **Examples**:
+
 ```env
 # 1 hour
 JWT_EXPIRY=1h
@@ -145,6 +155,7 @@ JWT_EXPIRY=30d
 ```
 
 **Recommendations**:
+
 - Development: `1h` or `24h`
 - Production: `7d` or `14d`
 - Consider security vs user convenience
@@ -269,6 +280,7 @@ See `AGENTS.md` in the repository root for the full agent workflow.
 Database server hostname or IP address.
 
 **Example**:
+
 ```env
 # Local development
 DATABASE_HOST=127.0.0.1
@@ -291,11 +303,13 @@ DATABASE_HOST=db.example.com
 Database server port number.
 
 **Example**:
+
 ```env
 DATABASE_PORT=3306
 ```
 
 **Common Ports**:
+
 - MySQL/MariaDB: `3306`
 - PostgreSQL: `5432` (not currently supported)
 
@@ -310,11 +324,13 @@ DATABASE_PORT=3306
 Database username for authentication.
 
 **Example**:
+
 ```env
 DATABASE_USER=csinspect
 ```
 
 **Recommendations**:
+
 - Create dedicated user for the application
 - Grant only necessary privileges
 - Different user per environment
@@ -330,11 +346,13 @@ DATABASE_USER=csinspect
 Database password for authentication.
 
 **Example**:
+
 ```env
 DATABASE_PASSWORD=securePassword123!
 ```
 
 **Security**:
+
 - **Use strong passwords** (16+ characters)
 - Mix uppercase, lowercase, numbers, symbols
 - Different password per environment
@@ -342,6 +360,7 @@ DATABASE_PASSWORD=securePassword123!
 - Rotate periodically
 
 **Generate secure password**:
+
 ```bash
 openssl rand -base64 24
 ```
@@ -357,11 +376,13 @@ openssl rand -base64 24
 Name of the database to use.
 
 **Example**:
+
 ```env
 DATABASE_NAME=csinspect
 ```
 
 **Notes**:
+
 - Database must exist before first run
 - Different database per environment recommended
 - Create with UTF-8 encoding:
@@ -380,6 +401,7 @@ DATABASE_NAME=csinspect
 Maximum number of concurrent database connections in the pool.
 
 **Example**:
+
 ```env
 # Development
 DATABASE_CONNECTION_LIMIT=5
@@ -389,6 +411,7 @@ DATABASE_CONNECTION_LIMIT=20
 ```
 
 **Tuning**:
+
 - Development: `5-10`
 - Small production: `10-20`
 - High traffic: `20-50`
@@ -407,11 +430,13 @@ DATABASE_CONNECTION_LIMIT=20
 Steam Web API Key for user authentication and profile data.
 
 **Required for**:
+
 - User authentication via Steam OpenID
 - Fetching user profile data
 - Inventory information
 
 **How to obtain**:
+
 1. Visit [https://steamcommunity.com/dev/apikey](https://steamcommunity.com/dev/apikey)
 2. Log in with Steam account
 3. Register new API key
@@ -419,11 +444,13 @@ Steam Web API Key for user authentication and profile data.
 5. Copy the generated key
 
 **Example**:
+
 ```env
 STEAM_API_KEY=KDBEDI9593393EFKSKDBE3992206Z
 ```
 
 **Security**:
+
 - Keep secure and never expose in client-side code
 - Different key per environment recommended
 - Monitor usage in Steam API dashboard
@@ -441,12 +468,14 @@ STEAM_API_KEY=KDBEDI9593393EFKSKDBE3992206Z
 Base URL of the Steam Service Client API (microservice for Steam interactions).
 
 **Benefits**:
+
 - Load balancing across multiple app instances
 - Separation of concerns
 - Easier scaling and maintenance
 - Better resource management
 
 **Example**:
+
 ```env
 # Local development
 STEAM_SERVICE_URL=http://127.0.0.1:3211
@@ -461,6 +490,7 @@ STEAM_SERVICE_URL=https://steam-service.yourdomain.com
 **Format**: `http://hostname:port` (no trailing slash)
 
 **Notes**:
+
 - If set, this takes precedence over `STEAM_USERNAME`/`STEAM_PASSWORD`
 - See [Steam Service Documentation](./services-steam.md) for setup
 
@@ -475,17 +505,20 @@ STEAM_SERVICE_URL=https://steam-service.yourdomain.com
 API key for authenticating requests to the Steam Service.
 
 **Example**:
+
 ```env
 STEAM_SERVICE_API_KEY=sKqBnyZjaWjBx62JXTzsGKq85rdLm6JKJ
 ```
 
 **Security**:
+
 - Must match key configured in Steam Service
 - Use strong, random key
 - Never expose in client-side code
 - Different key per environment
 
 **Generate**:
+
 ```bash
 openssl rand -hex 32
 ```
@@ -503,11 +536,13 @@ openssl rand -hex 32
 Steam account username for direct Steam client login.
 
 **Example**:
+
 ```env
 STEAM_USERNAME=csinspectuser
 ```
 
 **Important**:
+
 - Use dedicated account (not personal)
 - Steam Guard (2FA) NOT supported
 - Only used if `STEAM_SERVICE_URL` not set
@@ -525,11 +560,13 @@ STEAM_USERNAME=csinspectuser
 Steam account password for direct Steam client login.
 
 **Example**:
+
 ```env
 STEAM_PASSWORD=securePassword123!
 ```
 
 **Security**:
+
 - Use strong password
 - Never commit to version control
 - Use dedicated account only
@@ -547,6 +584,7 @@ STEAM_PASSWORD=securePassword123!
 Base URL for static assets (stickers, charms, weapon images).
 
 **Example**:
+
 ```env
 # Development (local)
 ASSETS_URL=http://localhost:3210
@@ -571,6 +609,7 @@ ASSETS_URL=https://assets.yourdomain.com/cs2inspect
 Path to sticker assets relative to `ASSETS_URL`.
 
 **Example**:
+
 ```env
 ASSETS_STICKER_PATH=/stickers
 ```
@@ -588,6 +627,7 @@ ASSETS_STICKER_PATH=/stickers
 Path to charm assets relative to `ASSETS_URL`.
 
 **Example**:
+
 ```env
 ASSETS_CHARMS_PATH=/charms
 ```
@@ -603,6 +643,7 @@ ASSETS_CHARMS_PATH=/charms
 Path to weapon images relative to `ASSETS_URL`.
 
 **Example**:
+
 ```env
 ASSETS_WEAPONS_PATH=/weapons
 ```
@@ -610,6 +651,67 @@ ASSETS_WEAPONS_PATH=/weapons
 ---
 
 ## Logging & Monitoring
+
+### `LOG_LEVEL`
+
+**Type**: `string`
+**Required**: No
+**Default**: `info`
+
+Server log level.
+
+**Allowed values**:
+
+- `fatal`
+- `error`
+- `warn`
+- `info`
+- `debug`
+- `trace`
+
+**Example**:
+
+```env
+LOG_LEVEL=info
+```
+
+**Recommendations**:
+
+- Development: `debug` or `info`
+- Production: `info` or `warn`
+
+---
+
+### `LOG_FORMAT`
+
+**Type**: `string`
+**Required**: No
+**Default**: `pretty` in development, `json` in production
+
+Log output format.
+
+**Allowed values**:
+
+- `pretty` - human-readable output
+- `json` - structured output for log aggregation
+
+**Pretty output behavior**:
+
+- Server logs are prefixed with compact tags like `[Health]`, `[Auth]`, `[DB]`, `[Boot]`, `[Sync]`
+- Prefixes are generated from structured `tag/context` metadata
+- Avoid manual `[Tag]` text in message strings
+
+**Example**:
+
+```env
+# Development
+LOG_FORMAT=pretty
+
+# Production
+LOG_FORMAT=json
+```
+
+---
 
 ### `LOG_API_REQUESTS`
 
@@ -620,6 +722,7 @@ ASSETS_WEAPONS_PATH=/weapons
 Enable detailed logging of API requests for debugging and monitoring.
 
 **Example**:
+
 ```env
 # Development
 LOG_API_REQUESTS=true
@@ -629,14 +732,58 @@ LOG_API_REQUESTS=false
 ```
 
 **Recommendations**:
+
 - Development: `true`
 - Staging: `true`
 - Production: `false` (unless debugging)
 
 **Notes**:
+
 - Logs include request method, path, params
 - Can increase log volume significantly
 - May contain sensitive data
+
+### Log Tag Catalog (Server)
+
+| Context                        | Pretty Prefix |
+| ------------------------------ | ------------- |
+| `healthcheck`                  | `[Health]`    |
+| `auth`                         | `[Auth]`      |
+| `migrations`, `db`, `database` | `[DB]`        |
+| `startup`                      | `[Boot]`      |
+| `sync-cleanup`, `sync`         | `[Sync]`      |
+| `csgo-api`                     | `[Data]`      |
+| `gloves-api`                   | `[Gloves]`    |
+| `skin-match`                   | `[Skin]`      |
+| `stickers`                     | `[Img]`       |
+| request logger default         | `[Req]`       |
+
+Compact style example:
+
+- `Sampler start interval=60s`
+- `Request done statusCode=200 durationMs=12`
+
+---
+
+### `LOG_HEALTH_REQUESTS`
+
+**Type**: `boolean`
+**Required**: No
+**Default**: `false`
+
+Enable access logs for health endpoints (`/api/health`, `/health`, `/status`).
+
+**Example**:
+
+```env
+LOG_HEALTH_REQUESTS=false
+```
+
+**Recommendations**:
+
+- Development: `false` (unless debugging health probes)
+- Staging: `true` (optional)
+- Production: `false` (enable temporarily for incident debugging)
 
 ---
 
@@ -649,15 +796,18 @@ LOG_API_REQUESTS=false
 Base URL used for image proxy health check endpoint.
 
 **When to set**:
+
 - App runs behind reverse proxy (nginx, Apache, Cloudflare)
 - App accessed via different external URL than HOST:PORT
 - Using load balancer or CDN
 
 **When to leave empty**:
+
 - App directly accessible at HOST:PORT
 - Health check auto-derives URL
 
 **Example**:
+
 ```env
 # Local development
 PROXY_HEALTH_BASE_URL=http://127.0.0.1:3210
@@ -684,16 +834,19 @@ PROXY_HEALTH_BASE_URL=https://api.yourdomain.com
 Node.js environment mode.
 
 **Values**:
+
 - `development` - Development mode
 - `production` - Production mode
 - `test` - Test environment
 
 **Example**:
+
 ```env
 NODE_ENV=production
 ```
 
 **Effects**:
+
 - Enables/disables certain features
 - Changes logging levels
 - Affects performance optimizations
@@ -709,6 +862,7 @@ NODE_ENV=production
 Disable Nuxt telemetry data collection.
 
 **Example**:
+
 ```env
 NUXT_TELEMETRY_DISABLED=true
 ```
@@ -750,7 +904,10 @@ ASSETS_CHARMS_PATH=/charms
 ASSETS_WEAPONS_PATH=/weapons
 
 ########## Logging ##########
+LOG_LEVEL=debug
+LOG_FORMAT=pretty
 LOG_API_REQUESTS=true
+LOG_HEALTH_REQUESTS=false
 PROXY_HEALTH_BASE_URL=http://127.0.0.1:3210
 
 ########## Advanced ##########
@@ -800,7 +957,10 @@ ASSETS_CHARMS_PATH=/charms
 ASSETS_WEAPONS_PATH=/weapons
 
 ########## Logging ##########
+LOG_LEVEL=info
+LOG_FORMAT=json
 LOG_API_REQUESTS=false
+LOG_HEALTH_REQUESTS=false
 PROXY_HEALTH_BASE_URL=https://cs2inspect.yourdomain.com
 
 ########## Advanced ##########
@@ -847,7 +1007,10 @@ ASSETS_CHARMS_PATH=/charms
 ASSETS_WEAPONS_PATH=/weapons
 
 ########## Logging ##########
+LOG_LEVEL=info
+LOG_FORMAT=json
 LOG_API_REQUESTS=true
+LOG_HEALTH_REQUESTS=false
 PROXY_HEALTH_BASE_URL=http://localhost:3210
 
 ########## Advanced ##########
@@ -861,11 +1024,13 @@ NODE_ENV=production
 The application uses `@t3-oss/env-nuxt` with Zod schemas for environment variable validation. The validation is defined in `server/env.ts` using `createEnv()` with Zod schemas for type-safe runtime validation.
 
 **Validation rules**:
+
 - Required variables must be set
 - Type checking enforced
 - Format validation for specific variables
 
 **Error messages**:
+
 ```
 ❌ Invalid environment variables: {
   "JWT_TOKEN": "Required"
@@ -879,6 +1044,7 @@ The application uses `@t3-oss/env-nuxt` with Zod schemas for environment variabl
 ### 1. **Never Commit Secrets**
 
 Add to `.gitignore`:
+
 ```gitignore
 .env
 .env.local
@@ -889,6 +1055,7 @@ Add to `.gitignore`:
 ### 2. **Use Strong Random Values**
 
 Generate secure values:
+
 ```bash
 # For JWT_TOKEN, STEAM_SERVICE_API_KEY
 openssl rand -hex 32
@@ -908,6 +1075,7 @@ Production:   prod_jwt_xyz789...
 ### 4. **Rotate Regularly**
 
 Schedule for sensitive values:
+
 - JWT tokens: Every 90 days
 - Database passwords: Every 180 days
 - API keys: Yearly or on suspected compromise
@@ -915,6 +1083,7 @@ Schedule for sensitive values:
 ### 5. **Use Secret Management**
 
 For production, consider:
+
 - Docker Secrets
 - Kubernetes Secrets
 - HashiCorp Vault
@@ -928,6 +1097,7 @@ For production, consider:
 ### Variable Not Loading
 
 **Check**:
+
 1. Variable defined in `.env`
 2. No spaces around `=`
 3. File in correct location (project root)
@@ -944,6 +1114,7 @@ const portNum = Number(process.env.PORT) // Type: number
 ### Missing Required Variables
 
 Application will fail to start with clear error:
+
 ```
 Error: Missing required environment variables:
 - JWT_TOKEN

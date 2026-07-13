@@ -1,17 +1,17 @@
 /**
  * Type definitions for the unified inspect API endpoint
  * Handles all item types: weapons, knives, gloves, agents, music kits
- * 
+ *
  * ## Branded Types
- * 
+ *
  * This module uses branded types for type-safe URL and data handling:
  * - `InspectUrl` - Steam inspect protocol URLs
  * - `HexData` - Hex-encoded item data
  * - `FloatValue` - Wear values (0-1)
- * 
+ *
  * Use conversion functions like `toInspectUrl()`, `toHexData()`, `toFloatValue()`
  * when working with these values in business logic.
- * 
+ *
  * @see {@link ~/types/core/branded.ts} for branded type definitions
  */
 
@@ -30,7 +30,7 @@ export type ItemType = 'weapon' | 'knife' | 'glove' | 'agent' | 'music-kit'
 /**
  * Supported inspect actions
  */
-export type InspectAction = 
+export type InspectAction =
   | 'create-url'
   | 'inspect-item'
   | 'decode-masked-only'
@@ -58,7 +58,7 @@ export interface BaseInspectRequest {
 
 /**
  * Request interface for creating inspect URLs
- * 
+ *
  * Note: Uses plain number types for API compatibility.
  * Values are validated and converted to branded types internally.
  */
@@ -80,7 +80,14 @@ export interface CreateUrlRequest extends BaseInspectRequest {
   /** Custom name tag (max 32 chars) */
   nametag?: string
   /** Stickers array (weapons only) */
-  stickers?: Array<{ id: number; x?: number; y?: number; wear?: number; scale?: number; rotation?: number }>
+  stickers?: Array<{
+    id: number
+    x?: number
+    y?: number
+    wear?: number
+    scale?: number
+    rotation?: number
+  }>
   /** Keychain object (weapons only) */
   keychain?: { id: number; x?: number; y?: number; z?: number; seed?: number } | null
   /** Complete customization object (weapons only) */
@@ -221,7 +228,7 @@ export interface ClientStatusResponse extends BaseInspectResponse {
 /**
  * Union type for all possible inspect response types
  */
-export type InspectResponse = 
+export type InspectResponse =
   | CreateUrlResponse
   | InspectItemResponse
   | DecodeResponse

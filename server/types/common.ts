@@ -1,6 +1,6 @@
 /**
  * Common type definitions used across the CS2Inspect server
- * 
+ *
  * This file now re-exports shared types from ~/types for consistency,
  * while maintaining server-specific types.
  */
@@ -13,13 +13,7 @@
 export type { UserProfile as SteamUser } from '~/types'
 
 // Utility types
-export type {
-  Callback,
-  AsyncCallback,
-  Optional,
-  RequiredFields,
-  ID
-} from '~/types/core/common'
+export type { Callback, AsyncCallback, Optional, RequiredFields, ID } from '~/types/core/common'
 
 /**
  * Base item interface (server-specific)
@@ -58,7 +52,7 @@ export type {
   KeychainConfiguration as KeychainCustomization,
   WeaponConfiguration as WeaponCustomization,
   KnifeConfiguration as KnifeCustomization,
-  GloveConfiguration as GloveCustomization
+  GloveConfiguration as GloveCustomization,
 } from '~/types/business/items'
 
 // ============================================================================

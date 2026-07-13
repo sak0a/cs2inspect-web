@@ -29,6 +29,7 @@ Validate Steam OpenID response and receive a JWT token.
 **Authentication**: Not required
 
 **Request**:
+
 ```json
 {
   "steamId": "76561198012345678",
@@ -40,6 +41,7 @@ Validate Steam OpenID response and receive a JWT token.
 ```
 
 **Response**:
+
 ```json
 {
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
@@ -53,11 +55,11 @@ Validate Steam OpenID response and receive a JWT token.
 
 ### Token Details
 
-| Property | Value |
-|----------|-------|
-| Algorithm | HS256 |
-| Expiry | 7 days (configurable via `JWT_EXPIRY` env var) |
-| Payload | `{ steamId, iat, exp }` |
+| Property  | Value                                          |
+| --------- | ---------------------------------------------- |
+| Algorithm | HS256                                          |
+| Expiry    | 7 days (configurable via `JWT_EXPIRY` env var) |
+| Payload   | `{ steamId, iat, exp }`                        |
 
 ## Steam OpenID Flow
 
@@ -158,9 +160,9 @@ See also: [Environment Variables — Dev Auth](/reference-env#dev-mock-authentic
 
 ## Error Responses
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `UNAUTHORIZED` | 401 | Missing or invalid token |
-| `TOKEN_EXPIRED` | 401 | Token has expired |
-| `INVALID_STEAM_ID` | 400 | Invalid Steam ID format |
-| `STEAM_VERIFY_FAILED` | 400 | Steam OpenID verification failed |
+| Code                  | HTTP Status | Description                      |
+| --------------------- | ----------- | -------------------------------- |
+| `UNAUTHORIZED`        | 401         | Missing or invalid token         |
+| `TOKEN_EXPIRED`       | 401         | Token has expired                |
+| `INVALID_STEAM_ID`    | 400         | Invalid Steam ID format          |
+| `STEAM_VERIFY_FAILED` | 400         | Steam OpenID verification failed |

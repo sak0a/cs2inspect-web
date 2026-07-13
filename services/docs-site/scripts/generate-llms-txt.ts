@@ -9,13 +9,13 @@
  * Run: bun run scripts/generate-llms-txt.ts
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const DOCS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
-const OUTPUT_DIR = join(DOCS_DIR, 'public');
-const OUTPUT_FILE = join(OUTPUT_DIR, 'llms-full.txt');
+const DOCS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
+const OUTPUT_DIR = join(DOCS_DIR, 'public')
+const OUTPUT_FILE = join(OUTPUT_DIR, 'llms-full.txt')
 
 // Pages in sidebar order (matching .vitepress/config.ts)
 const pages: { section: string; files: { path: string; title: string }[] }[] = [
@@ -110,7 +110,7 @@ const pages: { section: string; files: { path: string; title: string }[] }[] = [
       { path: 'improvements-summary.md', title: 'Improvements Summary' },
     ],
   },
-];
+]
 
 /**
  * Strip VitePress-specific syntax from markdown content:
@@ -120,11 +120,11 @@ const pages: { section: string; files: { path: string; title: string }[] }[] = [
  */
 function cleanMarkdown(content: string): string {
   // Remove YAML frontmatter
-  content = content.replace(/^---\n[\s\S]*?\n---\n?/, '');
+  content = content.replace(/^---\n[\s\S]*?\n---\n?/, '')
 
   // Remove Vue/VitePress components (self-closing and block)
-  content = content.replace(/<Badge[^>]*\/>/g, '');
-  content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
+  content = content.replace(/<Badge[^>]*\/>/g, '')
+  content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/g, '')
 
   // Convert VitePress containers to plain text
   // ::: tip Title  →  **Title**
@@ -132,81 +132,81 @@ function cleanMarkdown(content: string): string {
   content = content.replace(
     /^:::\s*(tip|warning|danger|info|details)\s*(.*)?$/gm,
     (_match, type, title) => {
-      if (title?.trim()) return `**${title.trim()}**`;
-      return `**${type.charAt(0).toUpperCase() + type.slice(1)}**`;
+      if (title?.trim()) return `**${title.trim()}**`
+      return `**${type.charAt(0).toUpperCase() + type.slice(1)}**`
     }
-  );
-  content = content.replace(/^:::$/gm, '');
+  )
+  content = content.replace(/^:::$/gm, '')
 
   // Clean up excessive blank lines (3+ → 2)
-  content = content.replace(/\n{3,}/g, '\n\n');
+  content = content.replace(/\n{3,}/g, '\n\n')
 
-  return content.trim();
+  return content.trim()
 }
 
 function main() {
   // Ensure output directory exists
   if (!existsSync(OUTPUT_DIR)) {
-    mkdirSync(OUTPUT_DIR, { recursive: true });
+    mkdirSync(OUTPUT_DIR, { recursive: true })
   }
 
-  const parts: string[] = [];
-  let fileCount = 0;
-  let skippedCount = 0;
+  const parts: string[] = []
+  let fileCount = 0
+  let skippedCount = 0
 
   // Header
-  parts.push('# CS2Inspect Documentation (Full)');
-  parts.push('');
+  parts.push('# CS2Inspect Documentation (Full)')
+  parts.push('')
   parts.push(
     '> This file contains the complete CS2Inspect documentation concatenated into a single file for LLM consumption.'
-  );
+  )
   parts.push(
     '> Generated automatically during the docs build process. See llms.txt for a structured index.'
-  );
-  parts.push('');
+  )
+  parts.push('')
 
   for (const section of pages) {
-    parts.push(`---`);
-    parts.push('');
-    parts.push(`# ${section.section}`);
-    parts.push('');
+    parts.push(`---`)
+    parts.push('')
+    parts.push(`# ${section.section}`)
+    parts.push('')
 
     for (const file of section.files) {
-      const filePath = join(DOCS_DIR, file.path);
+      const filePath = join(DOCS_DIR, file.path)
 
       if (!existsSync(filePath)) {
-        skippedCount++;
-        continue;
+        skippedCount++
+        continue
       }
 
-      const raw = readFileSync(filePath, 'utf-8');
-      const cleaned = cleanMarkdown(raw);
+      const raw = readFileSync(filePath, 'utf-8')
+      const cleaned = cleanMarkdown(raw)
 
       if (!cleaned) {
-        skippedCount++;
-        continue;
+        skippedCount++
+        continue
       }
 
-      parts.push(`## ${file.title}`);
-      parts.push(`<!-- source: ${file.path} -->`);
-      parts.push('');
-      parts.push(cleaned);
-      parts.push('');
+      parts.push(`## ${file.title}`)
+      parts.push(`<!-- source: ${file.path} -->`)
+      parts.push('')
+      parts.push(cleaned)
+      parts.push('')
 
-      fileCount++;
+      fileCount++
     }
   }
 
-  const output = parts.join('\n');
-  writeFileSync(OUTPUT_FILE, output, 'utf-8');
+  const output = parts.join('\n')
+  writeFileSync(OUTPUT_FILE, output, 'utf-8')
 
-  const sizeKB = (Buffer.byteLength(output, 'utf-8') / 1024).toFixed(1);
-  const lines = output.split('\n').length;
+  const sizeKB = (Buffer.byteLength(output, 'utf-8') / 1024).toFixed(1)
+  const lines = output.split('\n').length
 
-  console.log(`llms-full.txt generated:`);
-  console.log(`  Files: ${fileCount} included, ${skippedCount} skipped`);
-  console.log(`  Size:  ${sizeKB} KB (${lines} lines)`);
-  console.log(`  Path:  ${OUTPUT_FILE}`);
+  console.log(`llms-full.txt generated:`)
+  console.log(`  Files: ${fileCount} included, ${skippedCount} skipped`)
+  console.log(`  Size:  ${sizeKB} KB (${lines} lines)`)
+  console.log(`  Path:  ${OUTPUT_FILE}`)
 }
 
-main();
+main()

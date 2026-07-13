@@ -51,18 +51,18 @@ graph LR
 
 Both the web app and plugin operate on these tables:
 
-| Table | Description |
-|-------|-------------|
+| Table                | Description                                                                           |
+| -------------------- | ------------------------------------------------------------------------------------- |
 | `wp_player_loadouts` | Loadout metadata, selected item defindexes (knife, glove, agent, music, pin per team) |
-| `wp_player_knifes` | Knife customizations (paint, seed, wear, StatTrak, nametag) |
-| `wp_player_gloves` | Glove customizations (paint, seed, wear) |
-| `wp_player_rifles` | Rifle skins (paint, seed, wear, StatTrak, nametag, stickers, keychain) |
-| `wp_player_pistols` | Pistol skins (same schema as rifles) |
-| `wp_player_smgs` | SMG skins (same schema as rifles) |
-| `wp_player_heavys` | Heavy weapon skins (same schema as rifles) |
-| `wp_player_agents` | Agent selections (defindex, agent name per team) |
-| `wp_player_music` | Music kit selections |
-| `wp_player_pins` | Pin selections |
+| `wp_player_knifes`   | Knife customizations (paint, seed, wear, StatTrak, nametag)                           |
+| `wp_player_gloves`   | Glove customizations (paint, seed, wear)                                              |
+| `wp_player_rifles`   | Rifle skins (paint, seed, wear, StatTrak, nametag, stickers, keychain)                |
+| `wp_player_pistols`  | Pistol skins (same schema as rifles)                                                  |
+| `wp_player_smgs`     | SMG skins (same schema as rifles)                                                     |
+| `wp_player_heavys`   | Heavy weapon skins (same schema as rifles)                                            |
+| `wp_player_agents`   | Agent selections (defindex, agent name per team)                                      |
+| `wp_player_music`    | Music kit selections                                                                  |
+| `wp_player_pins`     | Pin selections                                                                        |
 
 ---
 
@@ -70,11 +70,11 @@ Both the web app and plugin operate on these tables:
 
 Every item type (knife, glove, agent, pin, music kit) supports three selection modes:
 
-| Mode | DB Value | Behavior |
-|------|----------|----------|
-| **Player Inventory** | `NULL` | Preserves the player's real Steam inventory items. The plugin does not modify these items. |
-| **Default (Vanilla)** | `0` | Forces vanilla CS2 items (basic knife, default gloves, default agent, no pin, no music kit). |
-| **Custom** | Positive number | Applies the custom item configured in the database. |
+| Mode                  | DB Value        | Behavior                                                                                     |
+| --------------------- | --------------- | -------------------------------------------------------------------------------------------- |
+| **Player Inventory**  | `NULL`          | Preserves the player's real Steam inventory items. The plugin does not modify these items.   |
+| **Default (Vanilla)** | `0`             | Forces vanilla CS2 items (basic knife, default gloves, default agent, no pin, no music kit). |
+| **Custom**            | Positive number | Applies the custom item configured in the database.                                          |
 
 ::: tip Default for New Players
 `NULL` (Player Inventory) is the default for new players. When a player joins for the first time, they see their real Steam inventory items until they configure something on the web app or via in-game commands.
@@ -206,15 +206,15 @@ sequenceDiagram
 
 ### Key Events
 
-| Event | Action |
-|-------|--------|
+| Event                 | Action                                                            |
+| --------------------- | ----------------------------------------------------------------- |
 | `OnClientFullConnect` | Load player data from database (loadouts, items, selection modes) |
-| `OnPlayerSpawn` | Apply all loadout items (gloves, agent, music, pin, weapons) |
-| `OnGiveNamedItemPost` | Apply skin to weapon as it's given to the player |
-| `OnPlayerTeam` | Reapply team-specific items (knife, glove, agent) |
-| `OnRoundMvp` | Apply custom music kit for MVP |
-| `OnPlayerDeath` | Increment StatTrak kill counter |
-| `OnPlayerDisconnect` | Clean up all player caches |
+| `OnPlayerSpawn`       | Apply all loadout items (gloves, agent, music, pin, weapons)      |
+| `OnGiveNamedItemPost` | Apply skin to weapon as it's given to the player                  |
+| `OnPlayerTeam`        | Reapply team-specific items (knife, glove, agent)                 |
+| `OnRoundMvp`          | Apply custom music kit for MVP                                    |
+| `OnPlayerDeath`       | Increment StatTrak kill counter                                   |
+| `OnPlayerDisconnect`  | Clean up all player caches                                        |
 
 ---
 

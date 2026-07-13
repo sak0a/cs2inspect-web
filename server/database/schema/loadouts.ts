@@ -1,6 +1,16 @@
-import { mysqlTable, int, varchar, tinyint, smallint, timestamp, index } from 'drizzle-orm/mysql-core';
+import {
+  mysqlTable,
+  int,
+  varchar,
+  tinyint,
+  smallint,
+  timestamp,
+  index,
+} from 'drizzle-orm/mysql-core'
 
-export const loadouts = mysqlTable('wp_player_loadouts', {
+export const loadouts = mysqlTable(
+  'wp_player_loadouts',
+  {
     id: int('id').primaryKey().autoincrement(),
     steamid: varchar('steamid', { length: 64 }).notNull(),
     name: varchar('name', { length: 25 }).notNull(),
@@ -17,6 +27,6 @@ export const loadouts = mysqlTable('wp_player_loadouts', {
     is_default: tinyint('is_default').default(0),
     created_at: timestamp('created_at').defaultNow().notNull(),
     updated_at: timestamp('updated_at').defaultNow().onUpdateNow().notNull(),
-}, (table) => ([
-    index('idx_steamid').on(table.steamid),
-]));
+  },
+  (table) => [index('idx_steamid').on(table.steamid)]
+)

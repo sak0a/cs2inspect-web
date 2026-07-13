@@ -1,0 +1,39 @@
+{
+  "inspectItem": {
+    "title": "CS2 Inspectie-tool",
+    "description": "Maak, pas aan en genereer inspectielinks voor CS2-items zonder ze op te slaan in je loadout.",
+    "controlsSection": "Itemcontroles",
+    "createNewItem": "Nieuw item maken",
+    "createNewItemDesc": "Begin met een standaarditem en pas het aan naar wens.",
+    "importSection": "Item importeren",
+    "importDesc": "Importeer een bestaand item vanuit een CS2-inspectielink.",
+    "instructions": "Hoe deze tool te gebruiken:",
+    "instructionStep1": "Maak een nieuw item of plak een CS2-inspectielink om er een te importeren",
+    "instructionStep2": "Pas het item aan met dezelfde tools als je loadout",
+    "instructionStep3": "Genereer een nieuwe inspectielink om je aangepaste item te delen",
+    "importButton": "Importeren vanuit inspectielink",
+    "importSuccess": "Item succesvol geïmporteerd",
+    "importFailed": "Fout bij importeren item",
+    "itemCreated": "Item succesvol gemaakt",
+    "createFailed": "Fout bij maken item",
+    "customizationSaved": "Itemaanpassing opgeslagen",
+    "linkCopied": "Inspectielink gekopieerd naar klembord",
+    "generateLinkFailed": "Fout bij genereren inspectielink",
+    "noItemImported": "Nog geen item geïmporteerd",
+    "useImportButton": "Gebruik de knoppen hierboven om te beginnen",
+    "noImageAvailable": "Geen afbeelding beschikbaar"
+  },
+  "common": {
+    "weapon": "Wapen",
+    "knife": "Mes",
+    "glove": "Handschoen",
+    "paintIndex": "Verfindex",
+    "pattern": "Patroon",
+    "wear": "Slijtage",
+    "statTrak": "StatTrak",
+    "disabled": "Uitgeschakeld",
+    "customize": "Aanpassen",
+    "generateLink": "Link genereren",
+    "clear": "Wissen"
+  }
+}

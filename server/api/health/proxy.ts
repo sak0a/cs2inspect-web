@@ -7,4 +7,3 @@ export default defineEventHandler(async (): Promise<HealthCheckResult> => {
   const result = await checkImageProxy()
   return result
 })
-

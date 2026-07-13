@@ -89,18 +89,21 @@ See: [Deployment Guide](deployment.md) for detailed instructions.
 ### Authentication Security
 
 **Steam OpenID**:
+
 - Official Steam authentication system
 - No password storage required
 - Secure token exchange
 - Session management with JWT
 
 **JWT Sessions**:
+
 - HTTP-only cookies
 - CSRF protection
 - Short expiration times
 - Secure token signing
 
 **Best Practices**:
+
 ```typescript
 // Server-side JWT configuration
 const JWT_CONFIG = {
@@ -108,24 +111,27 @@ const JWT_CONFIG = {
   algorithm: 'HS256',
   httpOnly: true,
   secure: true, // HTTPS only
-  sameSite: 'lax'
+  sameSite: 'lax',
 }
 ```
 
 ### API Security
 
 **Rate Limiting**:
+
 - Prevents abuse
 - Per-IP and per-user limits
 - Configurable thresholds
 
 **Input Validation**:
+
 - All inputs sanitized
 - Type checking with TypeScript
 - SQL injection prevention
 - XSS protection
 
 **CORS Configuration**:
+
 ```typescript
 // Allowed origins only
 cors: {
@@ -137,17 +143,20 @@ cors: {
 ### Database Security
 
 **Connection Security**:
+
 - TLS/SSL encrypted connections
 - Credential management via environment variables
 - Connection pooling with limits
 
 **Query Safety**:
+
 - Prepared statements
 - Parameterized queries
 - ORM-style query builders
 - No raw SQL from user input
 
 **Access Control**:
+
 - Least privilege principle
 - User-specific data isolation
 - Foreign key constraints
@@ -160,12 +169,14 @@ For a complete list of all environment variables, their descriptions, and setup 
 :::
 
 **Security Best Practices**:
+
 - Never commit to repository
 - Use `.env` files (gitignored)
 - Production secrets in platform config
 - Rotate credentials regularly
 
 **Key Variables** (see [Setup Guide](../setup.md#4-environment-configuration) for complete list):
+
 ```env
 # Database
 DATABASE_HOST=127.0.0.1
@@ -192,22 +203,25 @@ NODE_ENV=production
 ### Frontend Performance
 
 **Code Splitting**:
+
 - Automatic route-based splitting
 - Dynamic component imports
 - Vendor bundle separation
 
 **Asset Optimization**:
+
 - Minified JavaScript and CSS
 - Gzip/Brotli compression
 - Tree-shaking unused code
 - Image optimization (optional CDN can be added in front)
 
 **Lazy Loading**:
+
 ```vue
 <script setup>
 // Lazy load heavy components
-const VisualCustomizer = defineAsyncComponent(() => 
-  import('~/components/VisualCustomizerModal.vue')
+const VisualCustomizer = defineAsyncComponent(
+  () => import('~/components/VisualCustomizerModal.vue')
 )
 </script>
 ```
@@ -215,18 +229,21 @@ const VisualCustomizer = defineAsyncComponent(() =>
 ### Backend Performance
 
 **Database Indexing**:
+
 - Primary keys on all tables
 - Foreign key indexes
 - Composite indexes for common queries
 - Covering indexes for frequent lookups
 
 **Query Optimization**:
+
 - Avoid N+1 queries
 - Use JOIN when appropriate
 - Limit result sets
 - Cache frequent queries
 
 **Connection Pooling**:
+
 ```typescript
 const pool = mysql.createPool({
   host: DB_HOST,
@@ -234,19 +251,21 @@ const pool = mysql.createPool({
   password: DB_PASSWORD,
   database: DB_NAME,
   connectionLimit: 10,
-  queueLimit: 0
+  queueLimit: 0,
 })
 ```
 
 ### Caching Strategy
 
 **Client-Side**:
+
 - Pinia store for state
 - LocalStorage for preferences
 - SessionStorage for temporary data
 - Service Worker for offline support
 
 **Server-Side**:
+
 - API response caching
 - Static asset caching (via reverse proxy or optional CDN)
 - Database query result caching
@@ -254,6 +273,7 @@ const pool = mysql.createPool({
 ### API Response Times
 
 **Target Metrics**:
+
 - API endpoints: < 200ms
 - Database queries: < 100ms
 - Page load time: < 2s
@@ -266,12 +286,14 @@ const pool = mysql.createPool({
 ### Horizontal Scaling
 
 **Application Tier**:
+
 - Stateless Docker containers
 - Load balancer distribution (via Coolify or external reverse proxy)
 - Scale by running additional container replicas
 - Multi-region deployment possible with container orchestration
 
 **Database Tier**:
+
 - Read replicas for queries
 - Write master for updates
 - Connection pooling
@@ -280,6 +302,7 @@ const pool = mysql.createPool({
 ### Vertical Scaling
 
 **Server Resources**:
+
 - CPU: 2+ cores recommended
 - RAM: 2GB+ for application
 - Disk: SSD for database
@@ -288,6 +311,7 @@ const pool = mysql.createPool({
 ### Performance Monitoring
 
 **Metrics to Track**:
+
 - Response times
 - Error rates
 - Database query performance
@@ -295,6 +319,7 @@ const pool = mysql.createPool({
 - CPU utilization
 
 **Tools**:
+
 - Built-in health check system
 - Application Performance Monitoring (APM)
 - Database query logs
@@ -309,6 +334,7 @@ const pool = mysql.createPool({
 **Endpoint**: `/api/health`
 
 **Checks**:
+
 - Database connectivity
 - Steam API availability
 - Disk space
@@ -322,12 +348,14 @@ See: [Health Checks Guide](HEALTH_CHECKS.md)
 ### Application Logging
 
 **Log Levels**:
+
 - ERROR: Critical failures
 - WARN: Important warnings
 - INFO: General information
 - DEBUG: Development debugging
 
 **Logged Events**:
+
 - Authentication attempts
 - API errors
 - Database connection issues
@@ -337,11 +365,13 @@ See: [Health Checks Guide](HEALTH_CHECKS.md)
 ### Error Tracking
 
 **Client-Side**:
+
 - Console error logging
 - API error responses
 - User-friendly error messages
 
 **Server-Side**:
+
 - Structured error logging
 - Stack trace capture
 - Error notification system
@@ -354,12 +384,14 @@ See: [Health Checks Guide](HEALTH_CHECKS.md)
 ### Database Backups
 
 **Automated Backups**:
+
 - Daily full backups
 - Point-in-time recovery
 - Offsite backup storage
 - Backup retention policy
 
 **Manual Backups**:
+
 ```bash
 # Export database
 mysqldump -u user -p database > backup.sql
@@ -371,6 +403,7 @@ mysql -u user -p database < backup.sql
 ### Disaster Recovery
 
 **Recovery Procedures**:
+
 1. Identify failure point
 2. Restore from latest backup
 3. Replay transaction logs
@@ -378,6 +411,7 @@ mysql -u user -p database < backup.sql
 5. Resume normal operations
 
 **RTO/RPO Targets**:
+
 - Recovery Time Objective (RTO): < 4 hours
 - Recovery Point Objective (RPO): < 1 hour
 

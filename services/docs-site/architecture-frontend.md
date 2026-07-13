@@ -79,16 +79,19 @@ components/
 **Framework**: `nuxt-i18n-micro`
 
 **Supported Languages**:
+
 - English (EN) - Default
 - German (DE)
 - Russian (RU)
 
 **Translation Files**: `locales/` directory
+
 - `en.json` - English translations
 - `de.json` - German translations
 - `ru.json` - Russian translations
 
 **Usage**:
+
 ```vue
 <template>
   <div>{{ $t('nav.weapons') }}</div>
@@ -112,6 +115,7 @@ components/
 ### Theme Customization
 
 **Dark Theme**: Default and forced mode
+
 - Background: `#121212`, `#1a1a1a`, `#242424`
 - Accent: `#FACC15` (yellow/gold)
 - Hover: `#F59E0B`, `#CA8A04`
@@ -125,6 +129,7 @@ See: [Theme Customization Guide](theme-customization.md)
 **Library**: Naive UI
 
 **Key Components Used**:
+
 - `n-modal` - Modal dialogs
 - `n-select` - Dropdowns and selects
 - `n-input` - Text inputs
@@ -139,6 +144,7 @@ See: [Theme Customization Guide](theme-customization.md)
 **Technology**: HTML5 Canvas API
 
 **Features**:
+
 - Drag-and-drop sticker placement
 - Rotation and scaling controls
 - Real-time preview
@@ -151,6 +157,7 @@ See: [Theme Customization Guide](theme-customization.md)
 **Framework**: Nuxt 4 file-based routing
 
 **Routes**:
+
 - `/` - Main dashboard
 - `/weapons/:type` - Weapon customization (dynamic)
 - `/knifes` - Knife customization
@@ -165,6 +172,7 @@ See: [Theme Customization Guide](theme-customization.md)
 ### Code Splitting
 
 Nuxt automatically splits code by:
+
 - Page-level chunks
 - Component lazy loading
 - Dynamic imports

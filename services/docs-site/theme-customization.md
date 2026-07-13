@@ -3,13 +3,16 @@
 This document explains how colors and theming are structured in the app and how to customize or reset them.
 
 ## Overview
+
 The app’s look-and-feel is controlled in two layers:
+
 - CSS variables for app-wide accents (e.g., selection rings, tab indicators)
 - Naive UI theme overrides for component-level colors (e.g., primary buttons)
 
 Additionally, we apply a consistent dark modal theme to specific modals via Naive UI theme overrides.
 
 ## Key files
+
 - App accent variables: `assets/css/theme-variables.css`
 - Naive UI overrides: `components/ThemeProvider.vue`
 - Modal dark theme overrides: `server/utils/themeCustomization.ts`
@@ -17,23 +20,25 @@ Additionally, we apply a consistent dark modal theme to specific modals via Naiv
 ---
 
 ## 1) App accent variables (rings, indicators)
+
 File: `assets/css/theme-variables.css`
 
 These control the primary accent used by selection rings and tab indicators:
 
 ```css
 /* UI element colors */
---tab-indicator: #FACC15;  /* active tab underline/indicator */
---selection-ring: #FACC15; /* cards’ selected ring color */
+--tab-indicator: #facc15; /* active tab underline/indicator */
+--selection-ring: #facc15; /* cards’ selected ring color */
 ```
 
 - Change these to any hex to update the accent globally.
 - All ring usages now reference `var(--selection-ring)`, so updating the variable will update rings across the app.
 
 Reset to previous default (teal):
+
 ```css
---tab-indicator: #80E6C4;
---selection-ring: #80E6C4;
+--tab-indicator: #80e6c4;
+--selection-ring: #80e6c4;
 ```
 
 Optional: Add more variables (e.g., `--accent-secondary`) if you want to drive gradients or hover glows from centralized tokens.
@@ -41,6 +46,7 @@ Optional: Add more variables (e.g., `--accent-secondary`) if you want to drive g
 ---
 
 ## 2) Naive UI primary color (buttons, primary states)
+
 File: `components/ThemeProvider.vue`
 
 We override Naive UI’s primary palette:
@@ -58,27 +64,31 @@ common: {
 - Tweak these shades to your brand palette.
 
 Reset to Naive UI defaults:
+
 - Remove the four `common.*` lines above. Naive’s dark theme defaults will take over.
 
 Reset to previous accent (teal family):
+
 - Replace the four values with your teal shades.
 
 ---
 
 ## 3) Dark modal theme (uniform look across modals)
+
 File: `server/utils/themeCustomization.ts`
 
 We export `skinModalThemeOverrides` and pass it to modals:
 
 ```ts
 export const skinModalThemeOverrides = {
-  peers: { Card: { borderRadius: '20px', colorModal: '#101010' } }
+  peers: { Card: { borderRadius: '20px', colorModal: '#101010' } },
 }
 ```
 
 Usage in components:
+
 ```vue
-<NModal :theme-overrides="skinModalThemeOverrides" .../>
+<NModal :theme-overrides="skinModalThemeOverrides" ... />
 ```
 
 This ensures all targeted modals share the same darker appearance and rounded corners.
@@ -86,7 +96,9 @@ This ensures all targeted modals share the same darker appearance and rounded co
 ---
 
 ## 4) Where the accent is used (already converted)
+
 These components’ selected states now use `var(--selection-ring)`:
+
 - Weapon skins: `components/WeaponSkinModal.vue`
 - Knife skins: `components/KnifeSkinModal.vue`
 - Glove skins: `components/GloveSkinModal.vue`
@@ -98,6 +110,7 @@ These components’ selected states now use `var(--selection-ring)`:
 - Visual customizer canvas selection overlays: `components/VisualCustomizerModal.vue`
 
 If you add new selected states, prefer:
+
 ```html
 <div class="ring-2 ring-[var(--selection-ring)]">...</div>
 ```
@@ -105,12 +118,13 @@ If you add new selected states, prefer:
 ---
 
 ## 5) Canvas and programmatic usage of the accent
+
 Some drawing logic (e.g., selection outlines on canvas) should read the CSS variable at runtime:
 
 ```ts
-const accent = getComputedStyle(document.documentElement)
-  .getPropertyValue('--selection-ring')
-  .trim() || '#FACC15'
+const accent =
+  getComputedStyle(document.documentElement).getPropertyValue('--selection-ring').trim() ||
+  '#FACC15'
 ctx.strokeStyle = accent
 ctx.fillStyle = accent
 ```
@@ -120,6 +134,7 @@ This keeps programmatic drawings in sync with your CSS variable.
 ---
 
 ## 6) Runtime switching (optional)
+
 You can switch the accent dynamically (e.g., from a settings page) without editing files:
 
 ```js
@@ -128,6 +143,7 @@ document.documentElement.style.setProperty('--tab-indicator', '#FACC15')
 ```
 
 Persist user choice:
+
 ```js
 // On change
 localStorage.setItem('accent', '#FACC15')
@@ -142,6 +158,7 @@ if (saved) {
 ---
 
 ## 7) How to reset
+
 Choose one of the following based on what you want to undo:
 
 - Reset accent variables (rings/indicators) back to teal:
@@ -156,6 +173,7 @@ Choose one of the following based on what you want to undo:
 ---
 
 ## 8) Tips and best practices
+
 - Prefer CSS variables over hard-coded hex values for anything “accent-like”.
 - For Tailwind rings/borders, use arbitrary values referencing variables: `ring-[var(--selection-ring)]`, `border-[var(--selection-ring)]`.
 - Keep brand shades together: define additional variables (e.g., `--accent`, `--accent-hover`, `--accent-pressed`) if you need more control outside of Naive UI.
@@ -164,5 +182,5 @@ Choose one of the following based on what you want to undo:
 ---
 
 ## Related docs
-- Sticker slot authoring: `docs/StickerSlots.md`
 
+- Sticker slot authoring: `docs/StickerSlots.md`

@@ -31,6 +31,7 @@ Reference assets in documentation:
 ## Contributing
 
 When adding assets:
+
 1. Optimize the image
 2. Place in appropriate subdirectory
 3. Reference in relevant documentation

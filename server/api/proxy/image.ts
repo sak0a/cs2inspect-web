@@ -40,14 +40,14 @@ export default defineEventHandler(async (event) => {
   if (!url || typeof url !== 'string') {
     return new Response(JSON.stringify({ success: false, error: 'Missing url parameter' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     })
   }
 
   if (!isAllowedUrl(url)) {
     return new Response(JSON.stringify({ success: false, error: 'URL not allowed' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' }
+      headers: { 'Content-Type': 'application/json' },
     })
   }
 
@@ -56,14 +56,17 @@ export default defineEventHandler(async (event) => {
     const upstream = await fetch(url, {
       method: 'GET',
       // No credentials or cookies
-      redirect: 'follow'
+      redirect: 'follow',
     })
 
     if (!upstream.ok) {
-      return new Response(JSON.stringify({ success: false, error: `Upstream error ${upstream.status}` }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' }
-      })
+      return new Response(
+        JSON.stringify({ success: false, error: `Upstream error ${upstream.status}` }),
+        {
+          status: 502,
+          headers: { 'Content-Type': 'application/json' },
+        }
+      )
     }
 
     // Read as arrayBuffer to construct a Response we control
@@ -76,7 +79,7 @@ export default defineEventHandler(async (event) => {
     const headers: Record<string, string> = {
       'Content-Type': contentType,
       'Cache-Control': 'public, max-age=86400, immutable',
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': '*',
     }
 
     const etag = upstream.headers.get('etag')
@@ -88,10 +91,12 @@ export default defineEventHandler(async (event) => {
     return new Response(body, { status: 200, headers })
   } catch {
     // Network or other failure
-    return new Response(JSON.stringify({ success: false, error: 'Failed to fetch upstream image' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    })
+    return new Response(
+      JSON.stringify({ success: false, error: 'Failed to fetch upstream image' }),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
+    )
   }
 })
-

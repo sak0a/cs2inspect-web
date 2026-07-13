@@ -1,0 +1,16 @@
+{
+  "title": "Pins",
+  "description": "Selecteer en pas je pins aan",
+  "defaultPin": "Standaard pin",
+  "selectPin": "Selecteer pin",
+  "searchPlaceholder": "Zoek pins...",
+  "noResults": "Geen pins gevonden die overeenkomen met je zoekopdracht",
+  "pinUpdated": "Pin bijgewerkt",
+  "resetToDefault": "Resetten naar standaard pin",
+  "failedToUpdate": "Fout bij bijwerken pin",
+  "failedToLoad": "Fout bij laden pins",
+  "pins": {
+    "noResultsSearch": "Geen pins gevonden voor \"{query}\"",
+    "noPinsAvailable": "Geen pins beschikbaar"
+  }
+}

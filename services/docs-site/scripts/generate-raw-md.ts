@@ -11,13 +11,13 @@
  * Run: bun run scripts/generate-raw-md.ts
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs';
-import { join, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
 
-const DOCS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..');
-const DIST_DIR = join(DOCS_DIR, '.vitepress', 'dist');
-const RAW_DIR = join(DIST_DIR, 'raw');
+const DOCS_DIR = join(dirname(fileURLToPath(import.meta.url)), '..')
+const DIST_DIR = join(DOCS_DIR, '.vitepress', 'dist')
+const RAW_DIR = join(DIST_DIR, 'raw')
 
 // Same page list as generate-llms-txt.ts (matching .vitepress/config.ts sidebar)
 const files = [
@@ -68,47 +68,47 @@ const files = [
   'GLASSMORPHISM.md',
   'recommendations.md',
   'improvements-summary.md',
-];
+]
 
 function cleanMarkdown(content: string): string {
-  content = content.replace(/^---\n[\s\S]*?\n---\n?/, '');
-  content = content.replace(/<Badge[^>]*\/>/g, '');
-  content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/g, '');
+  content = content.replace(/^---\n[\s\S]*?\n---\n?/, '')
+  content = content.replace(/<Badge[^>]*\/>/g, '')
+  content = content.replace(/<script[^>]*>[\s\S]*?<\/script>/g, '')
   content = content.replace(
     /^:::\s*(tip|warning|danger|info|details)\s*(.*)?$/gm,
     (_match, type, title) => {
-      if (title?.trim()) return `**${title.trim()}**`;
-      return `**${type.charAt(0).toUpperCase() + type.slice(1)}**`;
+      if (title?.trim()) return `**${title.trim()}**`
+      return `**${type.charAt(0).toUpperCase() + type.slice(1)}**`
     }
-  );
-  content = content.replace(/^:::$/gm, '');
-  content = content.replace(/\n{3,}/g, '\n\n');
-  return content.trim();
+  )
+  content = content.replace(/^:::$/gm, '')
+  content = content.replace(/\n{3,}/g, '\n\n')
+  return content.trim()
 }
 
 function main() {
   if (!existsSync(DIST_DIR)) {
-    console.error('Error: .vitepress/dist/ does not exist. Run `vitepress build` first.');
-    process.exit(1);
+    console.error('Error: .vitepress/dist/ does not exist. Run `vitepress build` first.')
+    process.exit(1)
   }
 
-  let count = 0;
+  let count = 0
 
   for (const file of files) {
-    const srcPath = join(DOCS_DIR, file);
-    if (!existsSync(srcPath)) continue;
+    const srcPath = join(DOCS_DIR, file)
+    if (!existsSync(srcPath)) continue
 
-    const raw = readFileSync(srcPath, 'utf-8');
-    const cleaned = cleanMarkdown(raw);
-    if (!cleaned) continue;
+    const raw = readFileSync(srcPath, 'utf-8')
+    const cleaned = cleanMarkdown(raw)
+    if (!cleaned) continue
 
-    const outPath = join(RAW_DIR, file);
-    mkdirSync(dirname(outPath), { recursive: true });
-    writeFileSync(outPath, cleaned, 'utf-8');
-    count++;
+    const outPath = join(RAW_DIR, file)
+    mkdirSync(dirname(outPath), { recursive: true })
+    writeFileSync(outPath, cleaned, 'utf-8')
+    count++
   }
 
-  console.log(`raw/*.md generated: ${count} files → ${RAW_DIR}`);
+  console.log(`raw/*.md generated: ${count} files → ${RAW_DIR}`)
 }
 
-main();
+main()

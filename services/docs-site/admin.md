@@ -2,101 +2,67 @@
 
 ## Overview
 
-The admin panel provides site administrators with a dashboard for managing users, viewing analytics, configuring application settings, and auditing admin actions. It is accessible at `/admin` and requires an entry in the `admin_users` database table.
+The admin panel provides dashboards and controls for moderation, settings, plugin config management, and audit logging. It is accessible at `/admin` and requires an entry in `admin_users`.
 
 ### Roles
 
-| Role | Capabilities |
-|------|-------------|
-| `admin` | View dashboard stats, manage users (ban/unban), view activity log |
-| `superadmin` | All admin capabilities + manage other admins, edit app settings |
+| Role         | Capabilities                                                                            |
+| ------------ | --------------------------------------------------------------------------------------- |
+| `admin`      | View stats, manage users (ban/unban/delete), view activity logs, view plugin settings   |
+| `superadmin` | All admin capabilities + manage admins + edit app settings + edit/reset plugin settings |
 
 ---
 
-## Authentication Flow
+## Authentication & Middleware
 
-Admin access is enforced by three numbered server middlewares that run in order:
+Admin access is enforced by ordered middleware:
 
-1. **`01.steam-auth.ts`** — Handles Steam OpenID authentication
-2. **`02.auth.ts`** — Validates JWT tokens, sets `event.context.auth` with the user's `steamId`
-3. **`03.admin-auth.ts`** — Intercepts `/api/admin/*` routes, checks the `admin_users` table for the authenticated Steam ID, and sets `event.context.admin`
+1. `01.steam-auth.ts` - Steam OpenID flow
+2. `02.auth.ts` - JWT validation (`event.context.auth`)
+3. `03.admin-auth.ts` - `/api/admin/*` authorization (`event.context.admin`)
+4. `04.maintenance.ts` - Blocks non-admin traffic during maintenance mode (admins bypass)
 
-The admin context interface:
+Error responses:
 
-```typescript
-interface AdminContext {
-    steamId: string;
-    role: 'admin' | 'superadmin';
-    permissions: string[];
-}
-```
-
-**Error responses:**
-- `401 Unauthorized` — User is not authenticated (no JWT or missing Steam ID)
-- `403 Forbidden` — User is authenticated but not in the `admin_users` table
+- `401 Unauthorized`: Missing/invalid auth
+- `403 Forbidden`: Authenticated, but not admin/superadmin for the action
 
 ---
 
 ## Database Tables
 
-Defined in `server/database/schema/admin.ts` using Drizzle ORM.
+Defined in `server/database/schema/`.
 
 ### `admin_users`
 
-Stores designated administrators.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INT PK | Auto-increment |
-| `steamid` | VARCHAR(64) | Steam ID (unique) |
-| `role` | VARCHAR(20) | `'admin'` or `'superadmin'` |
-| `permissions` | JSON | Array of permission strings |
-| `created_by` | VARCHAR(64) | Steam ID of the admin who added this entry |
-| `created_at` | TIMESTAMP | Creation time |
-| `updated_at` | TIMESTAMP | Last update (auto-updates) |
+Designated administrators.
 
 ### `banned_users`
 
-Tracks user bans. Users with active bans are prevented from accessing the application.
-
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INT PK | Auto-increment |
-| `steamid` | VARCHAR(64) | Banned user's Steam ID (unique) |
-| `reason` | TEXT | Ban reason |
-| `banned_by` | VARCHAR(64) | Admin who issued the ban |
-| `banned_at` | TIMESTAMP | Ban time |
-| `expires_at` | TIMESTAMP | Expiration (null = permanent) |
-| `active` | TINYINT | 1 = active, 0 = lifted |
+Active and historical user bans.
 
 ### `app_settings`
 
-Application configuration key-value store.
+Application-wide settings and feature flags.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INT PK | Auto-increment |
-| `key` | VARCHAR(64) | Setting key (unique) |
-| `value` | TEXT | Setting value |
-| `type` | VARCHAR(20) | `'string'`, `'boolean'`, `'number'`, or `'json'` |
-| `description` | TEXT | Human-readable description |
-| `updated_by` | VARCHAR(64) | Last editor's Steam ID |
-| `updated_at` | TIMESTAMP | Last update (auto-updates) |
+### `plugin_settings`
+
+Plugin configuration overrides editable from `/admin/plugin`.
+
+- Categories: `general`, `features`, `permissions`, `commands`, `sync`, `logging`
+- Types: `string`, `boolean`, `number`, `json`
+- Reload behavior: `immediate` or `restart`
 
 ### `admin_activity_log`
 
 Audit trail for admin actions.
 
-| Column | Type | Description |
-|--------|------|-------------|
-| `id` | INT PK | Auto-increment |
-| `admin_steamid` | VARCHAR(64) | Admin who performed the action |
-| `action` | VARCHAR(64) | Action type (see below) |
-| `target_steamid` | VARCHAR(64) | Affected user (if applicable) |
-| `details` | JSON | Additional action details |
-| `created_at` | TIMESTAMP | Action time |
+Logged actions include:
 
-**Logged actions:** `ban_user`, `unban_user`, `delete_user_data`, `update_setting`, `add_admin`, `remove_admin`
+- `ban_user`, `unban_user`, `delete_user_data`
+- `update_setting`
+- `update_plugin_setting`, `reset_plugin_settings`
+- `add_admin`, `remove_admin`
 
 ---
 
@@ -104,185 +70,64 @@ Audit trail for admin actions.
 
 ### Dashboard (`/admin`)
 
-Overview page with:
-- Stats cards (total users, active users, loadouts, items, banned users)
-- Activity line chart with time range selection (7d / 30d / 90d)
-- Top users leaderboard
-- Item distribution pie chart
+Overview stats and charts.
 
 ### User Management (`/admin/users`)
 
-Paginated user table with:
-- Search by Steam ID
-- Ban/unban quick actions
-- Filter for banned users only
-- Click through to user detail page
+Searchable, paginated user management with ban/unban actions.
 
 ### User Detail (`/admin/users/[steamId]`)
 
-Individual user view with:
-- User info card (Steam ID, activity dates, ban status)
-- Ban/unban/delete actions
-- Loadout table showing all user loadouts with item counts
+Per-user moderation and loadout overview.
 
-### Settings (`/admin/settings`) <Badge type="tip" text="Superadmin" />
+### App Settings (`/admin/settings`) <Badge type="tip" text="Superadmin" />
 
-Application settings editor:
-- Type-aware inline editing (string, boolean, number, JSON)
-- Last updated timestamp and editor info
+Manage app settings and feature flags (e.g. maintenance mode, share codes, tutorial toggles, loadout limits).
+
+### Plugin Settings (`/admin/plugin`) <Badge type="tip" text="Superadmin" />
+
+Manage plugin config values stored in `plugin_settings`.
+
+- Category tabs (general/features/permissions/commands/sync/logging)
+- Type-aware editor (`string`, `number`, `boolean`, `json`)
+- Live/restart badge from `reload_behavior`
+- Reset all settings to seeded defaults
 
 ### Activity Log (`/admin/activity`)
 
-Admin action audit log:
-- Paginated list of all admin actions
-- Filter by action type
-- Shows admin, action, target, timestamp
+Audit log with action filters and pagination.
 
 ### Admin Management (`/admin/admins`) <Badge type="tip" text="Superadmin" />
 
-Manage admin users:
-- List current admins with roles
-- Add new admins (requires Steam ID and role selection)
-- Remove admin privileges
+Add/remove admin users and manage roles.
 
 ---
 
-## Components
+## Public Settings Endpoint
 
-All admin components are in `components/admin/`.
+`GET /api/public/settings` exposes a safe subset of app settings for client-side feature awareness.
 
-### Layout & Display
+Examples include:
 
-| Component | Purpose |
-|-----------|---------|
-| `AdminLayout.vue` | Main layout with responsive sidebar navigation. Shows admin management link for superadmins only. |
-| `AdminStatsCard.vue` | Dashboard stat card with icon, value, and optional trend indicator (up/down). |
-| `AdminUserCard.vue` | Detailed user info card with ban/unban/delete action buttons and date formatting. |
-
-### Tables
-
-| Component | Purpose |
-|-----------|---------|
-| `AdminUserTable.vue` | Paginated user list with search, ban/unban actions. Debounced search (300ms). |
-| `AdminLoadoutTable.vue` | User's loadouts with rename, delete, share, clear, and import actions. |
-
-### Charts
-
-| Component | Purpose |
-|-----------|---------|
-| `AdminActivityChart.vue` | Line chart (Chart.js) showing activity over time with selectable time ranges. |
-| `AdminHeatmapChart.vue` | GitHub-style calendar heatmap for daily activity patterns. |
-| `AdminLeaderboardChart.vue` | Bar chart showing top users by activity/loadouts. |
-| `AdminPieChart.vue` | Doughnut chart showing item distribution by category with custom legend. |
-
-### Modals
-
-| Component | Purpose |
-|-----------|---------|
-| `AdminAddModal.vue` | Add new admin user. Validates Steam ID format (17-digit). Role selection (admin/superadmin). |
-| `AdminBanModal.vue` | Ban a user. Requires reason (min 5 chars), optional duration in hours. |
-| `AdminDeleteModal.vue` | Delete user data. Safety confirmation: requires typing the exact Steam ID. |
-
-### Settings
-
-| Component | Purpose |
-|-----------|---------|
-| `AdminSettingItem.vue` | Inline setting editor. Type-aware: toggle for boolean, number input for number, textarea for JSON. |
+- `MAINTENANCE_MODE`
+- `FEATURE_INSPECT_URLS`, `FEATURE_STICKERS`, `FEATURE_KEYCHAINS`, `FEATURE_TUTORIALS`, `FEATURE_SHARE_CODES`
+- `MAX_LOADOUTS_PER_USER`, `MAX_LOADOUT_NAME_LENGTH`
 
 ---
 
-## Composables
+## Initial Superadmin Setup
 
-### `useAdminAuth`
-
-**Location:** `composables/useAdminAuth.ts`
-
-Admin authentication and authorization with role-based access control.
-
-```typescript
-const {
-  isAdmin,        // ComputedRef<boolean>
-  isSuperAdmin,   // ComputedRef<boolean>
-  adminRole,      // ComputedRef<'admin' | 'superadmin' | null>
-  isChecking,     // ComputedRef<boolean>
-  checkAdminStatus,   // () => Promise<void>
-  requireAdmin,       // () => throws if not admin
-  requireSuperAdmin,  // () => throws if not superadmin
-  hasPermission,      // (permission: string) => boolean
-} = useAdminAuth()
-```
-
-Route guards for navigation:
-- `adminNavigationGuard()` — Redirects non-admins
-- `superAdminNavigationGuard()` — Redirects non-superadmins
-
-### `useAdminStats`
-
-**Location:** `composables/useAdminStats.ts`
-
-Statistics fetching with caching and auto-refresh.
-
-```typescript
-const {
-  overviewStats,    // ComputedRef<AdminOverviewStats | null>
-  activityData,     // ComputedRef<AdminActivityData | null>
-  topUsers,         // ComputedRef<AdminTopUser[]>
-  timeRange,        // Ref<'7d' | '30d' | '90d'>
-  isLoading,        // ComputedRef<boolean>
-  error,            // ComputedRef<string | null>
-  fetchStats,       // (forceRefresh?) => Promise<void>
-  fetchActivity,    // (range?, force?) => Promise<void>
-  fetchTopUsers,    // (limit?) => Promise<void>
-  refreshAll,       // (force?) => Promise<void>
-  setTimeRange,     // (range) => Promise<void>
-} = useAdminStats({
-  fetchOnMount: true,          // default: true
-  autoRefreshInterval: 0,      // ms, 0 = disabled
-  defaultTimeRange: '30d',     // '7d' | '30d' | '90d'
-})
-```
-
-Utility exports: `formatNumber()`, `calculatePercentChange()`, `formatPercent()`, `getTimeRangeLabel()`, `getDaysFromRange()`
-
----
-
-## Store
-
-The admin store (`stores/adminStore.ts`) provides centralized state management for all admin data. See the [Pinia Stores Reference](./reference-stores.md#adminstore) for full documentation.
-
----
-
-## Validation Schemas
-
-All admin API requests are validated with Zod schemas defined in `server/utils/validation/adminSchemas.ts`:
-
-| Schema | Purpose |
-|--------|---------|
-| `adminBanUserSchema` | Ban request: `reason` (1-500 chars, required), `duration` (optional positive int, hours) |
-| `adminUserSearchSchema` | User search: `search` (string), `page` (default 1), `limit` (1-100, default 20), `bannedOnly` (bool) |
-| `adminUpdateSettingSchema` | Setting update: `key` (1-64 chars), `value` (string, number, or boolean) |
-| `adminAddAdminSchema` | Add admin: `steamId` (1-64 chars), `role` ('admin' or 'superadmin') |
-| `adminActivityLogQuerySchema` | Activity log query: `page` (default 1), `limit` (1-100, default 50), `action` (optional string) |
-| `adminActivityRangeSchema` | Activity range: `range` ('7d', '30d', '90d', default '7d') |
-| `adminTopUsersSchema` | Top users: `limit` (1-100, default 10) |
-
----
-
-## Initial Setup
-
-To add the first admin user, insert a record directly into the database:
+Insert first admin manually:
 
 ```sql
 INSERT INTO admin_users (steamid, role, created_by)
 VALUES ('76561198012345678', 'superadmin', '76561198012345678');
 ```
 
-Replace the Steam ID with your own 17-digit Steam ID. After this, you can manage additional admins through the admin panel UI.
-
 ---
 
 ## Related Documentation
 
-- [Admin API Reference](./api/admin.md) — API endpoint documentation
-- [Pinia Stores Reference](./reference-stores.md#adminstore) — Admin store details
-- [TypeScript Types Reference](./reference-types.md) — Admin type definitions
+- [Admin API](./api/admin.md)
+- [Environment Variables](./reference-env.md)
+- [Backend Architecture](./architecture-backend.md)

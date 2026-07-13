@@ -9,8 +9,17 @@
  */
 
 import { createError, readBody } from 'h3'
+import { getAuthenticatedSteamId } from '~/server/utils/helpers'
 import { db } from '~/server/database/client'
-import { itemHistory, pistols, rifles, smgs, heavys, knives, gloves } from '~/server/database/schema'
+import {
+  itemHistory,
+  pistols,
+  rifles,
+  smgs,
+  heavys,
+  knives,
+  gloves,
+} from '~/server/database/schema'
 import { eq, and } from 'drizzle-orm'
 import { Logger } from '~/server/utils/logger'
 import { toLoadoutId } from '~/types/core/common'
@@ -28,25 +37,19 @@ const weaponTableMap = {
   pistols,
   rifles,
   smgs,
-  heavys
+  heavys,
 } as const
 
 export default defineEventHandler(async (event) => {
   try {
+    const steamId = getAuthenticatedSteamId(event)
     const body = await readBody<RestoreRequestBody>(event)
 
     // Validate required fields
     if (!body.historyId || body.historyId <= 0) {
       throw createError({
         statusCode: 400,
-        message: 'Valid historyId is required'
-      })
-    }
-
-    if (!body.steamId) {
-      throw createError({
-        statusCode: 400,
-        message: 'steamId is required'
+        message: 'Valid historyId is required',
       })
     }
 
@@ -60,17 +63,17 @@ export default defineEventHandler(async (event) => {
     if (historyRecords.length === 0) {
       throw createError({
         statusCode: 404,
-        message: 'History record not found'
+        message: 'History record not found',
       })
     }
 
     const record = historyRecords[0]!
 
-    // Verify ownership
-    if (record.steamid !== body.steamId) {
+    // Verify ownership against authenticated user
+    if (record.steamid !== steamId) {
       throw createError({
         statusCode: 403,
-        message: 'You do not have permission to restore this item'
+        message: 'You do not have permission to restore this item',
       })
     }
 
@@ -82,7 +85,7 @@ export default defineEventHandler(async (event) => {
       } catch {
         throw createError({
           statusCode: 500,
-          message: 'Invalid configuration format in history record'
+          message: 'Invalid configuration format in history record',
         })
       }
     } else {
@@ -96,7 +99,7 @@ export default defineEventHandler(async (event) => {
       if (!category || !(category in weaponTableMap)) {
         throw createError({
           statusCode: 400,
-          message: 'Invalid weapon category'
+          message: 'Invalid weapon category',
         })
       }
 
@@ -151,7 +154,7 @@ export default defineEventHandler(async (event) => {
           y: toNumber(s.y, 0),
           wear: toNumber(s.wear, 0),
           scale: toNumber(s.scale, 1),
-          rotation: toNumber(s.rotation, 0)
+          rotation: toNumber(s.rotation, 0),
         } as StickerJSON
       }
 
@@ -183,7 +186,7 @@ export default defineEventHandler(async (event) => {
           x: toNumber(k.x, 0),
           y: toNumber(k.y, 0),
           z: toNumber(k.z, 0),
-          seed: toInt(k.seed, 0)
+          seed: toInt(k.seed, 0),
         }
         // Preserve wrapped_sticker_id for Sticker Slabs
         const wrappedId = toInt(k.wrapped_sticker_id, 0)
@@ -198,7 +201,8 @@ export default defineEventHandler(async (event) => {
         return result
       }
 
-      await db.update(table)
+      await db
+        .update(table)
         .set({
           active: config.active ? 1 : 0,
           paintindex: config.paintindex,
@@ -212,18 +216,21 @@ export default defineEventHandler(async (event) => {
           sticker_2: getSticker(config.stickers?.[2]),
           sticker_3: getSticker(config.stickers?.[3]),
           sticker_4: getSticker(config.stickers?.[4]),
-          keychain: getKeychain(config.keychain)
+          keychain: getKeychain(config.keychain),
         })
-        .where(and(
-          eq(table.steamid, record.steamid),
-          eq(table.loadoutid, loadoutIdNum),
-          eq(table.defindex, record.defindex),
-          eq(table.team, record.team)
-        ))
+        .where(
+          and(
+            eq(table.steamid, record.steamid),
+            eq(table.loadoutid, loadoutIdNum),
+            eq(table.defindex, record.defindex),
+            eq(table.team, record.team)
+          )
+        )
 
       Logger.success(`Restored weapon to version ${body.historyId}`)
     } else if (record.item_type === 'knife') {
-      await db.update(knives)
+      await db
+        .update(knives)
         .set({
           active: config.active ? 1 : 0,
           paintindex: config.paintindex,
@@ -231,30 +238,35 @@ export default defineEventHandler(async (event) => {
           paintwear: config.paintwear,
           stattrak_enabled: config.stattrak_enabled ? 1 : 0,
           stattrak_count: config.stattrak_count || 0,
-          nametag: config.nametag || null
+          nametag: config.nametag || null,
         })
-        .where(and(
-          eq(knives.steamid, record.steamid),
-          eq(knives.loadoutid, loadoutIdNum),
-          eq(knives.defindex, record.defindex),
-          eq(knives.team, record.team)
-        ))
+        .where(
+          and(
+            eq(knives.steamid, record.steamid),
+            eq(knives.loadoutid, loadoutIdNum),
+            eq(knives.defindex, record.defindex),
+            eq(knives.team, record.team)
+          )
+        )
 
       Logger.success(`Restored knife to version ${body.historyId}`)
     } else if (record.item_type === 'glove') {
-      await db.update(gloves)
+      await db
+        .update(gloves)
         .set({
           active: config.active ? 1 : 0,
           paintindex: config.paintindex,
           paintseed: config.paintseed,
-          paintwear: config.paintwear
+          paintwear: config.paintwear,
         })
-        .where(and(
-          eq(gloves.steamid, record.steamid),
-          eq(gloves.loadoutid, loadoutIdNum),
-          eq(gloves.defindex, record.defindex),
-          eq(gloves.team, record.team)
-        ))
+        .where(
+          and(
+            eq(gloves.steamid, record.steamid),
+            eq(gloves.loadoutid, loadoutIdNum),
+            eq(gloves.defindex, record.defindex),
+            eq(gloves.team, record.team)
+          )
+        )
 
       Logger.success(`Restored glove to version ${body.historyId}`)
     }
@@ -272,23 +284,25 @@ export default defineEventHandler(async (event) => {
       change_type: 'reset',
       change_description: `Restored to ${record.version_id}`,
       version_id: versionId,
-      is_snapshot: 0
+      is_snapshot: 0,
     })
 
     return {
       success: true,
       message: 'Item restored successfully',
-      restoredConfiguration: config
+      restoredConfiguration: config,
     }
   } catch (error) {
     if (error instanceof Error && 'statusCode' in error) {
       throw error
     }
 
-    Logger.error(`Failed to restore item: ${error instanceof Error ? error.message : String(error)}`)
+    Logger.error(
+      `Failed to restore item: ${error instanceof Error ? error.message : String(error)}`
+    )
     throw createError({
       statusCode: 500,
-      message: 'Failed to restore item'
+      message: 'Failed to restore item',
     })
   }
 })

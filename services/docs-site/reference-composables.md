@@ -45,7 +45,7 @@ const {
   hasItem,
   analyzeInspectLink,
   generateInspectLink,
-  clearItem
+  clearItem,
 } = useInspectItem()
 
 // Analyze an inspect URL
@@ -59,12 +59,15 @@ const url = await generateInspectLink(steamId)
 ### Reactive State
 
 #### `inspectedItem`
+
 ```typescript
 Ref<IEnhancedItem | null>
 ```
+
 The currently inspected item with enhanced metadata.
 
 **Properties**:
+
 - `weapon_defindex: number` - Item definition index
 - `defaultName: string` - Default item name
 - `paintIndex: number` - Paint pattern index
@@ -80,20 +83,25 @@ The currently inspected item with enhanced metadata.
 - `team: number | null` - Team assignment
 
 #### `itemType`
+
 ```typescript
 Ref<ItemType | null>
 ```
+
 Type of the inspected item.
 
 **Values**: `'weapon'` | `'knife'` | `'glove'` | `'agent'` | `'musickit'` | `'pin'`
 
 #### `customization`
+
 ```typescript
 Ref<ItemConfiguration | null>
 ```
+
 Current item customization configuration.
 
 **Base Properties**:
+
 - `active: boolean` - Whether customization is active
 - `team: number` - Team assignment (1=T, 2=CT)
 - `defindex: number` - Item definition index
@@ -103,6 +111,7 @@ Current item customization configuration.
 - `wear: number` - Wear value (0.0-1.0)
 
 **Weapon-specific** (extends base):
+
 - `statTrak: boolean` - StatTrak enabled
 - `statTrakCount: number` - Kill count
 - `nameTag: string` - Custom name tag
@@ -110,6 +119,7 @@ Current item customization configuration.
 - `keychain: object | null` - Keychain data
 
 **Knife-specific** (extends base):
+
 - `statTrak: boolean`
 - `statTrakCount: number`
 - `nameTag: string`
@@ -117,24 +127,31 @@ Current item customization configuration.
 **Glove-specific** (base only, no additional properties)
 
 #### `isLoading`
+
 ```typescript
 Ref<boolean>
 ```
+
 Loading state for async operations.
 
 #### `error`
+
 ```typescript
 Ref<string | null>
 ```
+
 Error message from last operation.
 
 #### `asyncState`
+
 ```typescript
 ComputedRef<AsyncResult>
 ```
+
 Comprehensive async state object.
 
 **Properties**:
+
 - `state: LoadingState` - Current state ('idle', 'loading', 'success', 'error')
 - `data: IEnhancedItem | null` - Data result
 - `error: object | undefined` - Error details
@@ -145,28 +162,34 @@ Comprehensive async state object.
 ### Computed Properties
 
 #### `hasItem`
+
 ```typescript
 ComputedRef<boolean>
 ```
+
 Whether a valid item is currently loaded.
 
 ### Methods
 
 #### `analyzeInspectLink(inspectUrl, steamId)`
+
 Analyze a CS2 inspect link and extract item data.
 
 **Parameters**:
+
 - `inspectUrl: string` - CS2 inspect URL
 - `steamId: string` - User's Steam ID
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Sets `inspectedItem`, `itemType`, `customization`
 - Saves to localStorage
 - Sets loading and error states
 
 **Example**:
+
 ```typescript
 await analyzeInspectLink(
   'steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20...',
@@ -175,20 +198,24 @@ await analyzeInspectLink(
 ```
 
 #### `generateInspectLink(steamId)`
+
 Generate an inspect URL from current item customization.
 
 **Parameters**:
+
 - `steamId: string` - User's Steam ID
 
 **Returns**: `Promise<string | null>` - Generated inspect URL or null on error
 
 **Example**:
+
 ```typescript
 const url = await generateInspectLink('76561198012345678')
 console.log(url) // 'steam://rungame/...'
 ```
 
 #### `saveToStorage()`
+
 Save current item and customization to localStorage.
 
 **Returns**: `void`
@@ -196,6 +223,7 @@ Save current item and customization to localStorage.
 **Side Effects**: Updates localStorage with current state
 
 #### `loadFromStorage()`
+
 Load item and customization from localStorage.
 
 **Returns**: `void`
@@ -203,49 +231,59 @@ Load item and customization from localStorage.
 **Side Effects**: Restores state from localStorage
 
 #### `clearItem()`
+
 Clear current item and reset all state.
 
 **Returns**: `void`
 
 **Side Effects**:
+
 - Resets all reactive state
 - Clears localStorage
 - Resets error state
 
 #### `updateCustomization(newCustomization)`
+
 Update item customization and save to storage.
 
 **Parameters**:
+
 - `newCustomization: ItemConfiguration` - New customization object
 
 **Returns**: `void`
 
 **Example**:
+
 ```typescript
 updateCustomization({
   ...customization.value,
   wear: 0.25,
-  statTrak: true
+  statTrak: true,
 })
 ```
 
 #### `updateItem(newItem)`
+
 Update inspected item and save to storage.
 
 **Parameters**:
+
 - `newItem: IEnhancedItem` - New item object
 
 **Returns**: `void`
 
 #### `isItemType(type)`
+
 Check if current item is of specific type.
 
 **Parameters**:
+
 - `type: ItemType` - Type to check against
 
 **Returns**: `boolean`
 
 **Example**:
+
 ```typescript
 if (isItemType('weapon')) {
   // Handle weapon-specific logic
@@ -255,6 +293,7 @@ if (isItemType('weapon')) {
 ### Error Handling
 
 The composable handles errors gracefully:
+
 - Network failures
 - Invalid inspect URLs
 - API errors
@@ -289,18 +328,11 @@ import { useItemModal } from '~/composables/useItemModal'
 
 ```vue
 <script setup>
-const {
-  state,
-  apiState,
-  filteredSkins,
-  paginatedSkins,
-  totalPages,
-  fetchSkins,
-  clearState
-} = useItemModal({
-  itemType: 'weapon',
-  pageSize: 10
-})
+const { state, apiState, filteredSkins, paginatedSkins, totalPages, fetchSkins, clearState } =
+  useItemModal({
+    itemType: 'weapon',
+    pageSize: 10,
+  })
 
 // Fetch skins for a weapon
 await fetchSkins('AK-47')
@@ -312,18 +344,20 @@ await fetchSkins('AK-47')
 ```typescript
 interface UseItemModalOptions {
   itemType: 'weapon' | 'knife' | 'glove'
-  pageSize?: number  // Default: 10
+  pageSize?: number // Default: 10
 }
 ```
 
 ### Reactive State
 
 #### `state`
+
 ```typescript
 Ref<ItemModalState>
 ```
 
 **Properties**:
+
 - `isLoadingSkins: boolean` - Skins loading state
 - `isImporting: boolean` - Import in progress
 - `isLoadingInspect: boolean` - Inspect loading state
@@ -337,52 +371,65 @@ Ref<ItemModalState>
 - `showDuplicateConfirm: boolean` - Duplicate confirmation visibility
 
 #### `apiState`
+
 ```typescript
 Ref<ItemModalApiState>
 ```
 
 **Properties**:
+
 - `skins: APIWeaponSkin[]` - Available skins
 - `showDetails: boolean` - Details panel visibility
 
 #### `PAGE_SIZE`
+
 ```typescript
 Ref<number>
 ```
+
 Number of items per page.
 
 ### Computed Properties
 
 #### `filteredSkins`
+
 ```typescript
 ComputedRef<APIWeaponSkin[]>
 ```
+
 Skins filtered by search query.
 
 #### `paginatedSkins`
+
 ```typescript
 ComputedRef<APIWeaponSkin[]>
 ```
+
 Current page of filtered skins.
 
 #### `totalPages`
+
 ```typescript
 ComputedRef<number>
 ```
+
 Total number of pages based on filtered results.
 
 ### Methods
 
 #### `fetchSkins(itemName, onError?)`
+
 Fetch available skins for the given item.
 
 **Parameters**:
+
 - `itemName: string` - Item name (e.g., 'AK-47')
 - `onError?: (error: string) => void` - Optional error callback
 
 **Returns**: `Promise<void>`
 
 **Example**:
+
 ```typescript
 await fetchSkins('M4A4', (error) => {
   console.error('Failed to load skins:', error)
@@ -390,6 +437,7 @@ await fetchSkins('M4A4', (error) => {
 ```
 
 #### `adjustCurrentPage()`
+
 Adjust current page if it exceeds available pages.
 
 **Returns**: `void`
@@ -397,15 +445,18 @@ Adjust current page if it exceeds available pages.
 **Side Effects**: May update `state.currentPage`
 
 #### `resetSearchState()`
+
 Reset search query and pagination to defaults.
 
 **Returns**: `void`
 
 **Side Effects**:
+
 - Sets `searchQuery` to empty string
 - Sets `currentPage` to 1
 
 #### `clearState()`
+
 Clear all modal state (useful when closing modal).
 
 **Returns**: `void`
@@ -427,15 +478,18 @@ The composable automatically watches `searchQuery` and adjusts pagination when s
 ### Functions
 
 #### `useOtherTeamSkin<T>(selectedItem, skins)`
+
 Checks if the selected weapon/knife has a skin configured for the other team.
 
 **Parameters**:
+
 - `selectedItem: Ref<T | null> | ComputedRef<T | null>` - Currently selected item
 - `skins: Ref<Array<T>> | ComputedRef<Array<T>>` - Array of all skins
 
 **Returns**: `ComputedRef<boolean>`
 
 **Example**:
+
 ```typescript
 const hasOtherTeamSkin = useOtherTeamSkin(selectedWeapon, allWeapons)
 
@@ -446,28 +500,34 @@ const hasOtherTeamSkin = useOtherTeamSkin(selectedWeapon, allWeapons)
 ```
 
 #### `oppositeTeam(current)`
+
 Get the opposite team number.
 
 **Parameters**:
+
 - `current: number` - Current team (1=T, 2=CT)
 
 **Returns**: `number` - Opposite team
 
 **Example**:
+
 ```typescript
 oppositeTeam(1) // Returns 2 (CT)
 oppositeTeam(2) // Returns 1 (T)
 ```
 
 #### `useGroupedWeapons<T>(skins)`
+
 Groups weapons by their default name for organized display.
 
 **Parameters**:
+
 - `skins: Ref<Array<T>> | ComputedRef<Array<T>>` - Array of weapons
 
 **Returns**: `ComputedRef<Record<string, GroupedWeapon>>`
 
 **Return Type**:
+
 ```typescript
 {
   [weaponName: string]: {
@@ -479,6 +539,7 @@ Groups weapons by their default name for organized display.
 ```
 
 **Example**:
+
 ```typescript
 const groupedWeapons = useGroupedWeapons(weaponsList)
 
@@ -516,17 +577,27 @@ import { useFilterSort } from '~/composables/useFilterSort'
 ```vue
 <script setup>
 const {
-  sortBy, sortDir, rarityFilterIds, effectFilterIds,
-  availableRarities, availableEffects,
-  filteredItems, sortedItems, paginatedItems, totalPages,
-  toggleSortDir, toggleRarityFilter, toggleEffectFilter, resetFilters
+  sortBy,
+  sortDir,
+  rarityFilterIds,
+  effectFilterIds,
+  availableRarities,
+  availableEffects,
+  filteredItems,
+  sortedItems,
+  paginatedItems,
+  totalPages,
+  toggleSortDir,
+  toggleRarityFilter,
+  toggleEffectFilter,
+  resetFilters,
 } = useFilterSort({
   items: allStickers,
   searchQuery: searchRef,
   currentPage: pageRef,
   pageSize: 20,
   sortKeys: ['name', 'rarity'],
-  hasEffects: false
+  hasEffects: false,
 })
 </script>
 ```
@@ -535,33 +606,33 @@ const {
 
 ```typescript
 interface UseFilterSortOptions<T> {
-  items: Ref<T[]> | ComputedRef<T[]>              // All items
-  searchQuery: Ref<string> | ComputedRef<string>   // Search query
-  currentPage: Ref<number> | WritableComputedRef<number>  // Current page (mutated on filter changes)
-  pageSize: number                                  // Items per page
-  sortKeys: string[]                                // Available sort keys (e.g., 'name', 'rarity')
-  hasEffects?: boolean                              // Enable effect filtering
+  items: Ref<T[]> | ComputedRef<T[]> // All items
+  searchQuery: Ref<string> | ComputedRef<string> // Search query
+  currentPage: Ref<number> | WritableComputedRef<number> // Current page (mutated on filter changes)
+  pageSize: number // Items per page
+  sortKeys: string[] // Available sort keys (e.g., 'name', 'rarity')
+  hasEffects?: boolean // Enable effect filtering
 }
 ```
 
 ### Returns
 
-| Value | Type | Description |
-|-------|------|-------------|
-| `sortBy` | `Ref<string>` | Current sort key |
-| `sortDir` | `Ref<'asc' \| 'desc'>` | Sort direction |
-| `rarityFilterIds` | `Ref<Set<string>>` | Active rarity filters |
-| `effectFilterIds` | `Ref<Set<string>>` | Active effect filters |
-| `availableRarities` | `ComputedRef` | Rarities present in items |
-| `availableEffects` | `ComputedRef` | Effects present in items |
-| `filteredItems` | `ComputedRef<T[]>` | Items after search + rarity/effect filters |
-| `sortedItems` | `ComputedRef<T[]>` | Filtered items after sorting |
-| `paginatedItems` | `ComputedRef<T[]>` | Current page slice |
-| `totalPages` | `ComputedRef<number>` | Total page count |
-| `toggleSortDir()` | Method | Toggle asc/desc |
-| `toggleRarityFilter(id)` | Method | Toggle a rarity filter on/off |
-| `toggleEffectFilter(id)` | Method | Toggle an effect filter on/off |
-| `resetFilters()` | Method | Clear all filters |
+| Value                    | Type                   | Description                                |
+| ------------------------ | ---------------------- | ------------------------------------------ |
+| `sortBy`                 | `Ref<string>`          | Current sort key                           |
+| `sortDir`                | `Ref<'asc' \| 'desc'>` | Sort direction                             |
+| `rarityFilterIds`        | `Ref<Set<string>>`     | Active rarity filters                      |
+| `effectFilterIds`        | `Ref<Set<string>>`     | Active effect filters                      |
+| `availableRarities`      | `ComputedRef`          | Rarities present in items                  |
+| `availableEffects`       | `ComputedRef`          | Effects present in items                   |
+| `filteredItems`          | `ComputedRef<T[]>`     | Items after search + rarity/effect filters |
+| `sortedItems`            | `ComputedRef<T[]>`     | Filtered items after sorting               |
+| `paginatedItems`         | `ComputedRef<T[]>`     | Current page slice                         |
+| `totalPages`             | `ComputedRef<number>`  | Total page count                           |
+| `toggleSortDir()`        | Method                 | Toggle asc/desc                            |
+| `toggleRarityFilter(id)` | Method                 | Toggle a rarity filter on/off              |
+| `toggleEffectFilter(id)` | Method                 | Toggle an effect filter on/off             |
+| `resetFilters()`         | Method                 | Clear all filters                          |
 
 ---
 
@@ -590,24 +661,24 @@ const {
   toggleCollapsed,
   toggleMode,
   onMouseEnter,
-  onMouseLeave
+  onMouseLeave,
 } = useSidebarMode()
 </script>
 ```
 
 ### Returns
 
-| Value | Type | Description |
-|-------|------|-------------|
-| `sidebarCollapsed` | `Ref<boolean>` | Whether sidebar is collapsed |
-| `sidebarMode` | `Ref<'left' \| 'top'>` | Sidebar layout mode |
-| `hoverExpanded` | `Ref<boolean>` | Temporarily expanded on hover |
-| `isReady` | `Ref<boolean>` | Initial render complete (suppresses transitions) |
-| `isEffectivelyExpanded` | `ComputedRef<boolean>` | True if not collapsed OR hover-expanded |
-| `toggleCollapsed()` | Method | Toggle collapse state |
-| `toggleMode()` | Method | Toggle between left/top mode |
-| `onMouseEnter()` | Method | Expand on hover (when collapsed) |
-| `onMouseLeave()` | Method | Collapse after hover ends |
+| Value                   | Type                   | Description                                      |
+| ----------------------- | ---------------------- | ------------------------------------------------ |
+| `sidebarCollapsed`      | `Ref<boolean>`         | Whether sidebar is collapsed                     |
+| `sidebarMode`           | `Ref<'left' \| 'top'>` | Sidebar layout mode                              |
+| `hoverExpanded`         | `Ref<boolean>`         | Temporarily expanded on hover                    |
+| `isReady`               | `Ref<boolean>`         | Initial render complete (suppresses transitions) |
+| `isEffectivelyExpanded` | `ComputedRef<boolean>` | True if not collapsed OR hover-expanded          |
+| `toggleCollapsed()`     | Method                 | Toggle collapse state                            |
+| `toggleMode()`          | Method                 | Toggle between left/top mode                     |
+| `onMouseEnter()`        | Method                 | Expand on hover (when collapsed)                 |
+| `onMouseLeave()`        | Method                 | Collapse after hover ends                        |
 
 State is persisted to cookies for SSR compatibility. Migrates from legacy localStorage automatically.
 
@@ -643,10 +714,10 @@ const { teamLabel, teamBadgeClasses } = useTeamBadge(teamRef)
 
 ### Returns
 
-| Value | Type | Description |
-|-------|------|-------------|
-| `teamLabel` | `ComputedRef<string \| null>` | Localized team name (i18n), or null |
-| `teamBadgeClasses` | `ComputedRef<string>` | Tailwind CSS classes (orange for T, blue for CT) |
+| Value              | Type                          | Description                                      |
+| ------------------ | ----------------------------- | ------------------------------------------------ |
+| `teamLabel`        | `ComputedRef<string \| null>` | Localized team name (i18n), or null              |
+| `teamBadgeClasses` | `ComputedRef<string>`         | Tailwind CSS classes (orange for T, blue for CT) |
 
 ---
 
@@ -679,7 +750,9 @@ triggerSave(weaponConfig)
 // Or use the watch wrapper
 useWatchAutoSave(
   () => weaponConfig.value,
-  async (data) => { await api.post('/api/items/weapons/save', data) }
+  async (data) => {
+    await api.post('/api/items/weapons/save', data)
+  }
 )
 </script>
 ```
@@ -688,10 +761,10 @@ useWatchAutoSave(
 
 ```typescript
 interface AutoSaveOptions {
-  debounceMs?: number        // Default: 1500
-  retryAttempts?: number     // Default: 3
-  retryDelayMs?: number      // Default: 1000
-  savedDisplayMs?: number    // How long to show "saved" status (default: 2000)
+  debounceMs?: number // Default: 1500
+  retryAttempts?: number // Default: 3
+  retryDelayMs?: number // Default: 1000
+  savedDisplayMs?: number // How long to show "saved" status (default: 2000)
   onSaveStart?: () => void
   onSaveSuccess?: () => void
   onSaveError?: (error: Error) => void
@@ -700,20 +773,20 @@ interface AutoSaveOptions {
 
 ### Returns
 
-| Value | Type | Description |
-|-------|------|-------------|
-| `status` | `Ref<'idle' \| 'saving' \| 'saved' \| 'error'>` | Current save status |
-| `isDirty` | `Ref<boolean>` | Unsaved changes exist |
-| `isSaving` | `ComputedRef<boolean>` | Currently saving |
-| `hasPending` | `ComputedRef<boolean>` | Pending save operation |
-| `errorMessage` | `Ref<string \| null>` | Last error message |
-| `triggerSave(data)` | Method | Debounced save |
-| `saveNow(data)` | Method | Immediate save (returns Promise) |
-| `flushPending()` | Method | Execute pending save immediately |
-| `cancelPending()` | Method | Cancel pending operation |
-| `retry()` | Method | Retry failed save |
-| `markAsSaved()` | Method | Mark as saved (external save) |
-| `resetStatus()` | Method | Reset to idle |
+| Value               | Type                                            | Description                      |
+| ------------------- | ----------------------------------------------- | -------------------------------- |
+| `status`            | `Ref<'idle' \| 'saving' \| 'saved' \| 'error'>` | Current save status              |
+| `isDirty`           | `Ref<boolean>`                                  | Unsaved changes exist            |
+| `isSaving`          | `ComputedRef<boolean>`                          | Currently saving                 |
+| `hasPending`        | `ComputedRef<boolean>`                          | Pending save operation           |
+| `errorMessage`      | `Ref<string \| null>`                           | Last error message               |
+| `triggerSave(data)` | Method                                          | Debounced save                   |
+| `saveNow(data)`     | Method                                          | Immediate save (returns Promise) |
+| `flushPending()`    | Method                                          | Execute pending save immediately |
+| `cancelPending()`   | Method                                          | Cancel pending operation         |
+| `retry()`           | Method                                          | Retry failed save                |
+| `markAsSaved()`     | Method                                          | Mark as saved (external save)    |
+| `resetStatus()`     | Method                                          | Reset to idle                    |
 
 ---
 
@@ -732,22 +805,23 @@ import { useChangeTracker } from '~/composables/useChangeTracker'
 ### Usage
 
 ```typescript
-const { detectChanges, getPrimaryChangeType, getCombinedDescription, configToSnapshot } = useChangeTracker()
+const { detectChanges, getPrimaryChangeType, getCombinedDescription, configToSnapshot } =
+  useChangeTracker()
 
 const changes = detectChanges(oldConfig, newConfig)
-const type = getPrimaryChangeType(changes)        // e.g., 'paint_changed'
-const desc = getCombinedDescription(changes)       // e.g., 'Asiimov -> Dragon Lore'
-const snapshot = configToSnapshot(currentConfig)   // For history storage
+const type = getPrimaryChangeType(changes) // e.g., 'paint_changed'
+const desc = getCombinedDescription(changes) // e.g., 'Asiimov -> Dragon Lore'
+const snapshot = configToSnapshot(currentConfig) // For history storage
 ```
 
 ### Returns
 
-| Method | Parameters | Returns | Description |
-|--------|-----------|---------|-------------|
-| `detectChanges` | `(old, new)` | `DetectedChange[]` | Detect all changes between two configurations |
-| `getPrimaryChangeType` | `(changes)` | `ChangeType` | Get the primary change type (or `multiple_changes`) |
-| `getCombinedDescription` | `(changes)` | `string` | Human-readable change summary |
-| `configToSnapshot` | `(config)` | `ItemHistorySnapshot` | Convert config to snapshot format for storage |
+| Method                   | Parameters   | Returns               | Description                                         |
+| ------------------------ | ------------ | --------------------- | --------------------------------------------------- |
+| `detectChanges`          | `(old, new)` | `DetectedChange[]`    | Detect all changes between two configurations       |
+| `getPrimaryChangeType`   | `(changes)`  | `ChangeType`          | Get the primary change type (or `multiple_changes`) |
+| `getCombinedDescription` | `(changes)`  | `string`              | Human-readable change summary                       |
+| `configToSnapshot`       | `(config)`   | `ItemHistorySnapshot` | Convert config to snapshot format for storage       |
 
 ### Change Types
 
@@ -766,14 +840,26 @@ Functions are also exported standalone for server-side use.
 ### Import
 
 ```typescript
-import { useAdminAuth, adminNavigationGuard, superAdminNavigationGuard } from '~/composables/useAdminAuth'
+import {
+  useAdminAuth,
+  adminNavigationGuard,
+  superAdminNavigationGuard,
+} from '~/composables/useAdminAuth'
 ```
 
 ### Usage
 
 ```vue
 <script setup>
-const { isAdmin, isSuperAdmin, adminRole, isChecking, checkAdminStatus, requireAdmin, hasPermission } = useAdminAuth()
+const {
+  isAdmin,
+  isSuperAdmin,
+  adminRole,
+  isChecking,
+  checkAdminStatus,
+  requireAdmin,
+  hasPermission,
+} = useAdminAuth()
 
 await checkAdminStatus()
 
@@ -785,28 +871,28 @@ if (isSuperAdmin.value) {
 
 ### Returns
 
-| Value | Type | Description |
-|-------|------|-------------|
-| `isAdmin` | `ComputedRef<boolean>` | User is an admin |
-| `isSuperAdmin` | `ComputedRef<boolean>` | User is a superadmin |
-| `adminRole` | `ComputedRef<'admin' \| 'superadmin' \| null>` | Current role |
-| `isChecking` | `ComputedRef<boolean>` | Status check in progress |
-| `checkAdminStatus()` | Method | Verify admin status from server |
-| `requireAdmin()` | Method | Throws if not admin |
-| `requireSuperAdmin()` | Method | Throws if not superadmin |
-| `hasPermission(perm)` | Method | Check specific permission string |
+| Value                 | Type                                           | Description                      |
+| --------------------- | ---------------------------------------------- | -------------------------------- |
+| `isAdmin`             | `ComputedRef<boolean>`                         | User is an admin                 |
+| `isSuperAdmin`        | `ComputedRef<boolean>`                         | User is a superadmin             |
+| `adminRole`           | `ComputedRef<'admin' \| 'superadmin' \| null>` | Current role                     |
+| `isChecking`          | `ComputedRef<boolean>`                         | Status check in progress         |
+| `checkAdminStatus()`  | Method                                         | Verify admin status from server  |
+| `requireAdmin()`      | Method                                         | Throws if not admin              |
+| `requireSuperAdmin()` | Method                                         | Throws if not superadmin         |
+| `hasPermission(perm)` | Method                                         | Check specific permission string |
 
 ### Route Guards
 
 ```typescript
 // Use in page middleware
 definePageMeta({
-  middleware: [adminNavigationGuard]
+  middleware: [adminNavigationGuard],
 })
 
 // Or for superadmin-only pages
 definePageMeta({
-  middleware: [superAdminNavigationGuard]
+  middleware: [superAdminNavigationGuard],
 })
 ```
 
@@ -829,12 +915,20 @@ import { useAdminStats, formatNumber, getTimeRangeLabel } from '~/composables/us
 ```vue
 <script setup>
 const {
-  overviewStats, activityData, topUsers,
-  timeRange, isLoading, error,
-  fetchStats, fetchActivity, fetchTopUsers, refreshAll, setTimeRange
+  overviewStats,
+  activityData,
+  topUsers,
+  timeRange,
+  isLoading,
+  error,
+  fetchStats,
+  fetchActivity,
+  fetchTopUsers,
+  refreshAll,
+  setTimeRange,
 } = useAdminStats({
   fetchOnMount: true,
-  defaultTimeRange: '30d'
+  defaultTimeRange: '30d',
 })
 </script>
 ```
@@ -843,29 +937,29 @@ const {
 
 ```typescript
 interface UseAdminStatsOptions {
-  fetchOnMount?: boolean          // Fetch on composable creation (default: true)
-  autoRefreshInterval?: number    // ms, 0 = disabled (default: 0)
-  defaultTimeRange?: '7d' | '30d' | '90d'  // Default: '30d'
+  fetchOnMount?: boolean // Fetch on composable creation (default: true)
+  autoRefreshInterval?: number // ms, 0 = disabled (default: 0)
+  defaultTimeRange?: '7d' | '30d' | '90d' // Default: '30d'
 }
 ```
 
 ### Returns
 
-| Value | Type | Description |
-|-------|------|-------------|
-| `overviewStats` | `ComputedRef<AdminOverviewStats \| null>` | Dashboard metrics |
-| `activityData` | `ComputedRef<AdminActivityData \| null>` | Chart data |
-| `topUsers` | `ComputedRef<AdminTopUser[]>` | Leaderboard data |
-| `timeRange` | `Ref<'7d' \| '30d' \| '90d'>` | Current time range |
-| `isLoadingStats` | `ComputedRef<boolean>` | Stats loading |
-| `isLoadingActivity` | `ComputedRef<boolean>` | Activity loading |
-| `isLoading` | `ComputedRef<boolean>` | Any loading |
-| `error` | `ComputedRef<string \| null>` | Error message |
-| `fetchStats(force?)` | Method | Fetch overview stats |
-| `fetchActivity(range?, force?)` | Method | Fetch activity data |
-| `fetchTopUsers(limit?)` | Method | Fetch top users |
-| `refreshAll(force?)` | Method | Refresh all data in parallel |
-| `setTimeRange(range)` | Method | Change range and re-fetch |
+| Value                           | Type                                      | Description                  |
+| ------------------------------- | ----------------------------------------- | ---------------------------- |
+| `overviewStats`                 | `ComputedRef<AdminOverviewStats \| null>` | Dashboard metrics            |
+| `activityData`                  | `ComputedRef<AdminActivityData \| null>`  | Chart data                   |
+| `topUsers`                      | `ComputedRef<AdminTopUser[]>`             | Leaderboard data             |
+| `timeRange`                     | `Ref<'7d' \| '30d' \| '90d'>`             | Current time range           |
+| `isLoadingStats`                | `ComputedRef<boolean>`                    | Stats loading                |
+| `isLoadingActivity`             | `ComputedRef<boolean>`                    | Activity loading             |
+| `isLoading`                     | `ComputedRef<boolean>`                    | Any loading                  |
+| `error`                         | `ComputedRef<string \| null>`             | Error message                |
+| `fetchStats(force?)`            | Method                                    | Fetch overview stats         |
+| `fetchActivity(range?, force?)` | Method                                    | Fetch activity data          |
+| `fetchTopUsers(limit?)`         | Method                                    | Fetch top users              |
+| `refreshAll(force?)`            | Method                                    | Refresh all data in parallel |
+| `setTimeRange(range)`           | Method                                    | Change range and re-fetch    |
 
 ### Utility Exports
 
@@ -952,7 +1046,7 @@ enum LoadingState {
   Idle = 'idle',
   Loading = 'loading',
   Success = 'success',
-  Error = 'error'
+  Error = 'error',
 }
 ```
 
@@ -991,7 +1085,7 @@ const {
   next,
   previous,
   isCompleted,
-  resetAll
+  resetAll,
 } = useTutorial()
 
 // Start a tutorial
@@ -1006,26 +1100,26 @@ if (isCompleted('navigate-app')) {
 
 ### Return Values
 
-| Property             | Type                                | Description                                       |
-| -------------------- | ----------------------------------- | ------------------------------------------------- |
-| `isActive`           | `ComputedRef<boolean>`              | Whether a tutorial is currently running            |
-| `activeTutorialId`   | `ComputedRef<string \| null>`       | ID of the active tutorial                          |
-| `currentStep`        | `ComputedRef<TutorialStep \| null>` | The current step definition                        |
-| `currentStepIndex`   | `ComputedRef<number>`               | Zero-based index of the current step               |
-| `totalSteps`         | `ComputedRef<number>`               | Total number of steps in the active tutorial       |
-| `progressLabel`      | `ComputedRef<string>`               | Formatted progress string (e.g. `"3 / 10"`)       |
-| `isLastStep`         | `ComputedRef<boolean>`              | Whether the current step is the last one           |
+| Property           | Type                                | Description                                  |
+| ------------------ | ----------------------------------- | -------------------------------------------- |
+| `isActive`         | `ComputedRef<boolean>`              | Whether a tutorial is currently running      |
+| `activeTutorialId` | `ComputedRef<string \| null>`       | ID of the active tutorial                    |
+| `currentStep`      | `ComputedRef<TutorialStep \| null>` | The current step definition                  |
+| `currentStepIndex` | `ComputedRef<number>`               | Zero-based index of the current step         |
+| `totalSteps`       | `ComputedRef<number>`               | Total number of steps in the active tutorial |
+| `progressLabel`    | `ComputedRef<string>`               | Formatted progress string (e.g. `"3 / 10"`)  |
+| `isLastStep`       | `ComputedRef<boolean>`              | Whether the current step is the last one     |
 
 ### Methods
 
-| Method                  | Parameters            | Description                                                    |
-| ----------------------- | --------------------- | -------------------------------------------------------------- |
-| `start(tutorialId)`     | `tutorialId: string`  | Start a tutorial by ID. Navigates to the tutorial's start route |
-| `stop()`                | none                  | Stop the active tutorial without marking it complete            |
-| `next()`                | none                  | Advance to the next step (completes tutorial if on last step)   |
-| `previous()`            | none                  | Go back to the previous step                                   |
-| `isCompleted(id)`       | `tutorialId: string`  | Check if a tutorial has been completed                          |
-| `resetAll()`            | none                  | Clear all completion records from localStorage                  |
+| Method              | Parameters           | Description                                                     |
+| ------------------- | -------------------- | --------------------------------------------------------------- |
+| `start(tutorialId)` | `tutorialId: string` | Start a tutorial by ID. Navigates to the tutorial's start route |
+| `stop()`            | none                 | Stop the active tutorial without marking it complete            |
+| `next()`            | none                 | Advance to the next step (completes tutorial if on last step)   |
+| `previous()`        | none                 | Go back to the previous step                                    |
+| `isCompleted(id)`   | `tutorialId: string` | Check if a tutorial has been completed                          |
+| `resetAll()`        | none                 | Clear all completion records from localStorage                  |
 
 ### Persistence
 

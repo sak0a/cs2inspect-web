@@ -16,20 +16,23 @@ RUN apk add --no-cache curl ca-certificates unzip bash \
  && apk del unzip bash
 
 # Install dependencies via Bun (respects bun.lock)
+# --ignore-scripts prevents postinstall (nuxt prepare) from running without source files
 COPY package.json bun.lock ./
-RUN bun install --frozen-lockfile
+RUN bun install --frozen-lockfile --ignore-scripts
 
 # Copy source and build
 # JWT_TOKEN is required by Nuxt prerender — dummy value is safe, only used at build time
 COPY . .
-RUN JWT_TOKEN=build-placeholder bun run build
+# nuxt prepare must run AFTER source files are copied so .nuxt/tsconfig.json
+# has correct path mappings for the app/ directory structure
+RUN bun run nuxt prepare && JWT_TOKEN=build-placeholder bun run build
 
 # 2) Runtime stage (Bun)
 FROM oven/bun:1-alpine AS runner
 WORKDIR /app
 
-# Install curl for health checks
-RUN apk add --no-cache curl
+# Install curl for health checks + ca-certificates for TLS to external services
+RUN apk add --no-cache curl ca-certificates
 
 # Copy runtime dependencies and manifests for externalized packages (e.g., vue)
 COPY --from=build /app/node_modules ./node_modules

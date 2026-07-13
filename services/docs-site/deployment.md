@@ -17,6 +17,7 @@ This guide covers deploying the CS2Inspect application to production environment
 Vercel provides seamless Nuxt 4 deployment with automatic builds, serverless functions, and edge caching.
 
 #### Prerequisites
+
 - Vercel account
 - External MariaDB database (e.g., PlanetScale, AWS RDS, DigitalOcean)
 - GitHub repository connected to Vercel
@@ -30,32 +31,33 @@ Vercel provides seamless Nuxt 4 deployment with automatic builds, serverless fun
    - Select the repository: `sak0a/cs2inspect-web`
 
 2. **Configure Build Settings**:
+
    ```
    Framework Preset: Nuxt.js
    Build Command: bun run build
    Output Directory: .output/public
    Install Command: bun install
-   
+
    Note: npm is also supported if Bun is not available
    ```
 
 3. **Set Environment Variables**:
-   
+
    ::: tip Complete Environment Variables
    For a complete list of all environment variables and their descriptions, see the [Setup Guide - Environment Configuration](../setup.md#4-environment-configuration).
    :::
-   
+
    In Vercel project settings → Environment Variables, add the required variables:
-   
+
    ```
    # Server Configuration
    PORT=3210
    HOST=0.0.0.0
-   
+
    # JWT Configuration
    JWT_TOKEN=<your-secure-random-key-32-chars>
    JWT_EXPIRY=7d
-   
+
    # Database Configuration
    DATABASE_HOST=<your-db-host>
    DATABASE_PORT=3306
@@ -63,14 +65,14 @@ Vercel provides seamless Nuxt 4 deployment with automatic builds, serverless fun
    DATABASE_PASSWORD=<your-db-password>
    DATABASE_NAME=csinspect
    DATABASE_CONNECTION_LIMIT=10
-   
+
    # Steam API
    STEAM_API_KEY=<your-steam-api-key>
-   
+
    # Optional: Steam Bot Account
    STEAM_USERNAME=<bot-username>
    STEAM_PASSWORD=<bot-password>
-   
+
    # Logging
    LOG_API_REQUESTS=true
    ```
@@ -118,6 +120,7 @@ Create `vercel.json` in the project root:
 Deploy using Docker containers for full control and portability.
 
 #### Prerequisites
+
 - Docker and Docker Compose installed
 - Server with Docker support (VPS, dedicated server)
 - Domain name pointed to server IP
@@ -125,23 +128,25 @@ Deploy using Docker containers for full control and portability.
 #### Setup Steps
 
 1. **Build Docker Image**:
+
    ```bash
    docker build -t cs2inspect-web .
    ```
 
 2. **Docker Compose Setup**:
-   
+
    Create `docker-compose.coolify.yml`:
+
    ```yaml
    version: '3.8'
-   
+
    services:
      app:
        image: cs2inspect-web
        container_name: cs2inspect-app
        restart: unless-stopped
        ports:
-         - "3210:3210"
+         - '3210:3210'
        environment:
          - PORT=3210
          - HOST=0.0.0.0
@@ -157,14 +162,14 @@ Deploy using Docker containers for full control and portability.
        depends_on:
          - db
        healthcheck:
-         test: ["CMD", "curl", "-f", "http://localhost:3210/api/health/ready"]
+         test: ['CMD', 'curl', '-f', 'http://localhost:3210/api/health/ready']
          interval: 30s
          timeout: 5s
          retries: 3
          start_period: 30s
        networks:
          - cs2inspect-network
-   
+
      db:
        image: mariadb:11
        container_name: cs2inspect-db
@@ -178,17 +183,17 @@ Deploy using Docker containers for full control and portability.
          - db-data:/var/lib/mysql
          - ./db_structure.sql:/docker-entrypoint-initdb.d/init.sql
        ports:
-         - "3306:3306"
+         - '3306:3306'
        networks:
          - cs2inspect-network
-   
+
      nginx:
        image: nginx:alpine
        container_name: cs2inspect-nginx
        restart: unless-stopped
        ports:
-         - "80:80"
-         - "443:443"
+         - '80:80'
+         - '443:443'
        volumes:
          - ./nginx.conf:/etc/nginx/nginx.conf
          - ./ssl:/etc/nginx/ssl
@@ -196,43 +201,44 @@ Deploy using Docker containers for full control and portability.
          - app
        networks:
          - cs2inspect-network
-   
+
    volumes:
      db-data:
-   
+
    networks:
      cs2inspect-network:
        driver: bridge
    ```
 
 3. **Nginx Configuration**:
-   
+
    Create `nginx.conf`:
+
    ```nginx
    events {
      worker_connections 1024;
    }
-   
+
    http {
      upstream app {
        server app:3210;
      }
-   
+
      server {
        listen 80;
        server_name your-domain.com;
-       
+
        # Redirect HTTP to HTTPS
        return 301 https://$server_name$request_uri;
      }
-   
+
      server {
        listen 443 ssl http2;
        server_name your-domain.com;
-       
+
        ssl_certificate /etc/nginx/ssl/cert.pem;
        ssl_certificate_key /etc/nginx/ssl/key.pem;
-       
+
        location / {
          proxy_pass http://app;
          proxy_http_version 1.1;
@@ -249,26 +255,28 @@ Deploy using Docker containers for full control and portability.
    ```
 
 4. **Deploy**:
+
    ```bash
    # Create .env file with secrets
    cp .env.example .env
    # Edit .env with production values
-   
+
    # Start services
    docker-compose -f docker-compose.coolify.yml up -d
-   
+
    # View logs
    docker-compose -f docker-compose.coolify.yml logs -f
    ```
 
 5. **SSL Certificate** (Let's Encrypt):
+
    ```bash
    # Install certbot
    sudo apt-get install certbot
-   
+
    # Generate certificate
    sudo certbot certonly --standalone -d your-domain.com
-   
+
    # Copy certificates
    sudo cp /etc/letsencrypt/live/your-domain.com/fullchain.pem ./ssl/cert.pem
    sudo cp /etc/letsencrypt/live/your-domain.com/privkey.pem ./ssl/key.pem
@@ -281,6 +289,7 @@ Deploy using Docker containers for full control and portability.
 Deploy directly to a VPS using Node.js and PM2 process manager.
 
 #### Prerequisites
+
 - VPS with Node.js 20+ installed
 - PM2 installed globally: `npm install -g pm2` (or `bun install -g pm2`)
 - Nginx for reverse proxy
@@ -293,6 +302,7 @@ For detailed installation and setup instructions, see the [Setup Guide](../setup
 :::
 
 1. **Clone Repository**:
+
    ```bash
    cd /var/www
    git clone https://github.com/sak0a/cs2inspect-web.git
@@ -300,30 +310,31 @@ For detailed installation and setup instructions, see the [Setup Guide](../setup
    ```
 
 2. **Install Dependencies**:
-   
+
    See [Setup Guide - Install Dependencies](../setup.md#2-install-dependencies) for details.
-   
+
    ```bash
    # Using Bun (recommended)
    bun install
-   
+
    # Or using npm
    npm install
    ```
 
 3. **Build Application**:
+
    ```bash
    # Using Bun
    bun run build
-   
+
    # Or using npm
    npm run build
    ```
 
 4. **Configure Environment**:
-   
+
    See [Setup Guide - Environment Configuration](../setup.md#4-environment-configuration) for complete environment variable documentation.
-   
+
    ```bash
    cp .env.example .env
    nano .env
@@ -331,48 +342,53 @@ For detailed installation and setup instructions, see the [Setup Guide](../setup
    ```
 
 5. **PM2 Configuration**:
-   
+
    Create `ecosystem.config.js`:
+
    ```javascript
    module.exports = {
-     apps: [{
-       name: 'cs2inspect',
-       script: './.output/server/index.mjs',
-       instances: 'max',
-       exec_mode: 'cluster',
-       env: {
-         NODE_ENV: 'production',
-         PORT: 3210,
-         HOST: '127.0.0.1'
+     apps: [
+       {
+         name: 'cs2inspect',
+         script: './.output/server/index.mjs',
+         instances: 'max',
+         exec_mode: 'cluster',
+         env: {
+           NODE_ENV: 'production',
+           PORT: 3210,
+           HOST: '127.0.0.1',
+         },
+         error_file: './logs/error.log',
+         out_file: './logs/out.log',
+         log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
+         merge_logs: true,
+         max_memory_restart: '1G',
        },
-       error_file: './logs/error.log',
-       out_file: './logs/out.log',
-       log_date_format: 'YYYY-MM-DD HH:mm:ss Z',
-       merge_logs: true,
-       max_memory_restart: '1G'
-     }]
+     ],
    }
    ```
 
 6. **Start with PM2**:
+
    ```bash
    # Start application
    pm2 start ecosystem.config.js
-   
+
    # Save PM2 configuration
    pm2 save
-   
+
    # Setup startup script
    pm2 startup
    # Run the command it outputs
    ```
 
 7. **Nginx Configuration**:
+
    ```nginx
    server {
      listen 80;
      server_name your-domain.com;
-     
+
      location / {
        proxy_pass http://127.0.0.1:3210;
        proxy_http_version 1.1;
@@ -400,6 +416,7 @@ CS2Inspect is built with **Nuxt 4**, which can be deployed to many different pla
 **[Nuxt 4 Deployment Documentation](https://nuxt.com/docs/getting-started/deployment)**
 
 The Nuxt docs provide comprehensive guides for deploying to platforms including:
+
 - **Cloudflare Pages**
 - **Netlify**
 - **AWS (Amplify, Lambda, EC2)**
@@ -426,6 +443,7 @@ Use a managed database service for reliability and automatic backups:
 - **Google Cloud SQL**: Highly available MySQL
 
 **Setup Example (PlanetScale)**:
+
 1. Create account at planetscale.com
 2. Create new database
 3. Create branch (e.g., `production`)
@@ -513,6 +531,7 @@ echo "✅ Deployment complete!"
 ```
 
 Make it executable:
+
 ```bash
 chmod +x scripts/deploy.sh
 ```
@@ -522,6 +541,7 @@ chmod +x scripts/deploy.sh
 ## Environment-Specific Configuration
 
 ### Development
+
 ```env
 NODE_ENV=development
 PORT=3210
@@ -530,6 +550,7 @@ LOG_API_REQUESTS=true
 ```
 
 ### Staging
+
 ```env
 NODE_ENV=staging
 PORT=3210
@@ -538,6 +559,7 @@ LOG_API_REQUESTS=true
 ```
 
 ### Production
+
 ```env
 NODE_ENV=production
 PORT=3210
@@ -554,12 +576,14 @@ LOG_API_REQUESTS=false
 The application includes a comprehensive health monitoring system:
 
 **Health Check Endpoints**:
+
 - `/api/health/live` - Liveness probe (process running)
 - `/api/health/ready` - Readiness probe (dependencies healthy)
 - `/api/health/details` - Detailed component health
 - `/api/health/history` - Historical health data
 
 **Status Dashboard**:
+
 - Visual status page at `/status`
 - Real-time component health monitoring
 - Historical charts with Chart.js
@@ -568,18 +592,21 @@ The application includes a comprehensive health monitoring system:
 
 **Docker Health Checks**:
 The Dockerfile includes a built-in HEALTHCHECK:
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD curl -fsS http://localhost:3210/api/health/ready || exit 1
 ```
 
 **Health Check Configuration**:
+
 - Automatic health sampling every 60 seconds
 - Data stored in `health_check_history` table
 - Configurable via `health_check_config` table
 - Monitors: Database, Environment, Steam API, Disk, Memory
 
 **Using Health Checks**:
+
 1. **Kubernetes**: Configure liveness and readiness probes
 2. **Docker Compose**: Built-in healthcheck in service definition
 3. **Load Balancers**: Point health checks to `/api/health/ready`
@@ -590,6 +617,7 @@ See [HEALTH_CHECKS.md](../HEALTH_CHECKS.md) for complete documentation.
 ### Application Monitoring
 
 1. **PM2 Monitoring**:
+
    ```bash
    pm2 monit
    pm2 logs cs2inspect
@@ -641,6 +669,7 @@ echo "Backup completed: $BACKUP_FILE"
 ```
 
 **Setup Cron Job**:
+
 ```bash
 # Edit crontab
 crontab -e
@@ -711,6 +740,7 @@ tar -czf cs2inspect_files_$(date +%Y%m%d).tar.gz \
 ### Quick Rollback
 
 1. **PM2 Rollback**:
+
    ```bash
    # Revert to previous build
    git checkout <previous-commit-hash>
@@ -720,6 +750,7 @@ tar -czf cs2inspect_files_$(date +%Y%m%d).tar.gz \
    ```
 
 2. **Docker Rollback**:
+
    ```bash
    # Use previous image
    docker pull cs2inspect-web:previous-tag
@@ -746,7 +777,7 @@ export default defineEventHandler(() => {
   return {
     status: 'ok',
     timestamp: new Date().toISOString(),
-    version: '1.0.0'
+    version: '1.0.0',
   }
 })
 ```

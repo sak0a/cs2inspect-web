@@ -322,7 +322,7 @@ server {
     # SSL certificates (we'll add these in next step)
     ssl_certificate /etc/letsencrypt/live/yourdomain.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/yourdomain.com/privkey.pem;
-    
+
     # SSL configuration (Mozilla Intermediate)
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384;
@@ -418,7 +418,7 @@ HEALTH_CHECK=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3210/api/
 if [ "$HEALTH_CHECK" != "200" ]; then
     echo "Health check failed! Restarting application..."
     pm2 restart cs2inspect
-    
+
     # Send alert (optional - configure with your email)
     # echo "CS2Inspect health check failed at $(date)" | mail -s "CS2Inspect Alert" your@email.com
 fi
@@ -480,7 +480,7 @@ Optimized Docker Compose setup for production.
 Create `docker-compose.coolify.yml`:
 
 ```yaml
-version: "3.9"
+version: '3.9'
 
 services:
   database:
@@ -498,7 +498,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -532,14 +532,14 @@ services:
       - STEAM_SERVICE_URL=${STEAM_SERVICE_URL}
       - LOG_API_REQUESTS=${LOG_API_REQUESTS}
     ports:
-      - "${PORT:-3210}:${PORT:-3210}"
+      - '${PORT:-3210}:${PORT:-3210}'
     depends_on:
       database:
         condition: service_healthy
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3210}/api/health/ready"]
+      test: ['CMD', 'sh', '-c', 'curl -fsS http://localhost:${PORT:-3210}/api/health/ready']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -564,11 +564,11 @@ services:
       - API_KEYS=${STEAM_SERVICE_API_KEYS}
       - CORS_ORIGINS=${STEAM_SERVICE_CORS_ORIGINS}
     ports:
-      - "${STEAM_SERVICE_PORT:-3211}:${STEAM_SERVICE_PORT:-3211}"
+      - '${STEAM_SERVICE_PORT:-3211}:${STEAM_SERVICE_PORT:-3211}'
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "sh", "-c", "curl -fsS http://localhost:${PORT:-3211}/api/health/ready"]
+      test: ['CMD', 'sh', '-c', 'curl -fsS http://localhost:${PORT:-3211}/api/health/ready']
       interval: 30s
       timeout: 5s
       retries: 3
@@ -579,8 +579,8 @@ services:
     container_name: cs2inspect-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - '80:80'
+      - '443:443'
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
@@ -635,16 +635,16 @@ docker compose -f docker-compose.coolify.yml ps
 mysql -u root -p
 
 -- Create database with proper charset
-CREATE DATABASE csinspect 
-  CHARACTER SET utf8mb4 
+CREATE DATABASE csinspect
+  CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 
 -- Create user with secure password
-CREATE USER 'csinspect'@'localhost' 
+CREATE USER 'csinspect'@'localhost'
   IDENTIFIED BY 'your_secure_password_here';
 
 -- Grant privileges
-GRANT ALL PRIVILEGES ON csinspect.* 
+GRANT ALL PRIVILEGES ON csinspect.*
   TO 'csinspect'@'localhost';
 
 FLUSH PRIVILEGES;
@@ -903,9 +903,9 @@ http {
     gzip_vary on;
     gzip_proxied any;
     gzip_comp_level 6;
-    gzip_types text/plain text/css text/xml text/javascript 
-               application/json application/javascript application/xml+rss 
-               application/rss+xml font/truetype font/opentype 
+    gzip_types text/plain text/css text/xml text/javascript
+               application/json application/javascript application/xml+rss
+               application/rss+xml font/truetype font/opentype
                application/vnd.ms-fontobject image/svg+xml;
 
     # Logging

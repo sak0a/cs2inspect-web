@@ -26,6 +26,7 @@ Retrieve weapons of a specific type for the authenticated user's active loadout.
 | `loadoutId` | number | No | Specific loadout ID |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -70,6 +71,7 @@ Retrieve weapons of a specific type for the authenticated user's active loadout.
 Save or update a weapon customization.
 
 **Request Body**:
+
 ```json
 {
   "steamId": "76561198012345678",
@@ -97,6 +99,7 @@ Save or update a weapon customization.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -122,6 +125,7 @@ Retrieve knives for the authenticated user's active loadout.
 | `team` | number | No | Filter by team (2 for T, 3 for CT) |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -153,6 +157,7 @@ Retrieve knives for the authenticated user's active loadout.
 Save or update a knife customization.
 
 **Request Body**:
+
 ```json
 {
   "steamId": "76561198012345678",
@@ -169,6 +174,7 @@ Save or update a knife customization.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -194,6 +200,7 @@ Retrieve gloves for the authenticated user's active loadout.
 | `team` | number | No | Filter by team (2 for T, 3 for CT) |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -222,6 +229,7 @@ Retrieve gloves for the authenticated user's active loadout.
 Save or update glove customization.
 
 **Request Body**:
+
 ```json
 {
   "steamId": "76561198012345678",
@@ -235,6 +243,7 @@ Save or update glove customization.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -259,6 +268,7 @@ Retrieve pins for the authenticated user's active loadout.
 | `steamId` | string | Yes | User's Steam ID |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -282,6 +292,7 @@ Retrieve pins for the authenticated user's active loadout.
 Add or update pins in the user's collection.
 
 **Request Body**:
+
 ```json
 {
   "steamId": "76561198012345678",
@@ -291,6 +302,7 @@ Add or update pins in the user's collection.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -302,19 +314,19 @@ Add or update pins in the user's collection.
 
 ## Team Values
 
-| Team | Value | Description |
-|------|-------|-------------|
-| Terrorist | 2 | T-side weapons |
-| Counter-Terrorist | 3 | CT-side weapons |
+| Team              | Value | Description     |
+| ----------------- | ----- | --------------- |
+| Terrorist         | 2     | T-side weapons  |
+| Counter-Terrorist | 3     | CT-side weapons |
 
 ## Wear Ranges
 
-| Condition | Float Range |
-|-----------|-------------|
-| Factory New | 0.00 - 0.07 |
-| Minimal Wear | 0.07 - 0.15 |
-| Field-Tested | 0.15 - 0.38 |
-| Well-Worn | 0.38 - 0.45 |
+| Condition      | Float Range |
+| -------------- | ----------- |
+| Factory New    | 0.00 - 0.07 |
+| Minimal Wear   | 0.07 - 0.15 |
+| Field-Tested   | 0.15 - 0.38 |
+| Well-Worn      | 0.38 - 0.45 |
 | Battle-Scarred | 0.45 - 1.00 |
 
 ::: tip Pattern/Seed

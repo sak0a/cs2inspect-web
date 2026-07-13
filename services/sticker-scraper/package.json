@@ -1,15 +1,15 @@
 {
-    "name": "sticker-scraper",
-    "version": "1.0.0",
-    "description": "Scrapes sticker images from cs2inspects.com with configurable wear values, image scaling, and optimization",
-    "main": "index.js",
-    "scripts": {
-        "start": "bun run index.js"
-    },
-    "dependencies": {
-        "axios": "^1.6.2",
-        "sharp": "^0.33.2"
-    },
-    "author": "",
-    "license": "ISC"
+  "name": "sticker-scraper",
+  "version": "1.0.0",
+  "description": "Scrapes sticker images from cs2inspects.com with configurable wear values, image scaling, and optimization",
+  "main": "index.js",
+  "scripts": {
+    "start": "bun run index.js"
+  },
+  "dependencies": {
+    "axios": "^1.18.1",
+    "sharp": "^0.35.3"
+  },
+  "author": "",
+  "license": "ISC"
 }

@@ -54,6 +54,7 @@ bun start
 ### Testing
 
 **Unit Tests (No Steam Account Required):**
+
 ```bash
 # Run all unit tests
 bun test
@@ -63,6 +64,7 @@ bun test:unit
 ```
 
 **Integration Tests (Requires Steam Account):**
+
 ```bash
 # Set up test environment
 export STEAM_USERNAME=your_test_account
@@ -78,6 +80,7 @@ bun test:all
 ```
 
 **Test Files:**
+
 - `src/routes/inspect.test.ts` - Inspect endpoint tests (no Steam account)
 - `src/routes/inspect.integration.test.ts` - Integration tests (requires Steam account)
 - `src/services/steamClient.test.ts` - Steam client service tests
@@ -138,4 +141,3 @@ git subtree push --prefix=services/steam-service origin steam-service-only
 ```
 
 Always ensure your changes are committed to the `master` branch before pushing to the deployment branch.
-

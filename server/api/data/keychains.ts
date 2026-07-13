@@ -1,4 +1,4 @@
-import { getKeychainDataAsync } from '~/server/utils/csgoAPI';
-import { createDataApiHandler } from '~/server/utils/data/dataFilters';
+import { getKeychainDataAsync } from '~/server/utils/csgoAPI'
+import { createDataApiHandler } from '~/server/utils/data/dataFilters'
 
-export default createDataApiHandler(getKeychainDataAsync);
+export default createDataApiHandler(getKeychainDataAsync)

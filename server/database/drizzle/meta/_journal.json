@@ -36,6 +36,20 @@
       "when": 1770095318925,
       "tag": "0004_bitter_penance",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1772158258806,
+      "tag": "0005_ambiguous_black_widow",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1772161336187,
+      "tag": "0006_premium_onslaught",
+      "breakpoints": true
     }
   ]
 }

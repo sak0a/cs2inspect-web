@@ -78,27 +78,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_agents_unique": {
           "name": "uq_wp_player_agents_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "defindex"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "defindex"],
           "isUnique": true
         }
       },
@@ -107,12 +97,8 @@
           "name": "wp_player_agents_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_agents",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -120,9 +106,7 @@
       "compositePrimaryKeys": {
         "wp_player_agents_id": {
           "name": "wp_player_agents_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -216,27 +200,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_gloves_unique": {
           "name": "uq_wp_player_gloves_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "defindex"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "defindex"],
           "isUnique": true
         }
       },
@@ -245,12 +219,8 @@
           "name": "wp_player_gloves_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_gloves",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -258,9 +228,7 @@
       "compositePrimaryKeys": {
         "wp_player_gloves_id": {
           "name": "wp_player_gloves_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -328,17 +296,13 @@
       "compositePrimaryKeys": {
         "health_check_config_id": {
           "name": "health_check_config_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "health_check_config_check_name_unique": {
           "name": "health_check_config_check_name_unique",
-          "columns": [
-            "check_name"
-          ]
+          "columns": ["check_name"]
         }
       },
       "checkConstraint": {}
@@ -400,17 +364,12 @@
       "indexes": {
         "idx_check_name_time": {
           "name": "idx_check_name_time",
-          "columns": [
-            "check_name",
-            "checked_at"
-          ],
+          "columns": ["check_name", "checked_at"],
           "isUnique": false
         },
         "idx_checked_at": {
           "name": "idx_checked_at",
-          "columns": [
-            "checked_at"
-          ],
+          "columns": ["checked_at"],
           "isUnique": false
         }
       },
@@ -418,9 +377,7 @@
       "compositePrimaryKeys": {
         "health_check_history_id": {
           "name": "health_check_history_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -585,27 +542,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_heavys_unique": {
           "name": "uq_wp_player_heavys_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "defindex"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "defindex"],
           "isUnique": true
         }
       },
@@ -614,12 +561,8 @@
           "name": "wp_player_heavys_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_heavys",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -627,9 +570,7 @@
       "compositePrimaryKeys": {
         "wp_player_heavys_id": {
           "name": "wp_player_heavys_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -728,28 +669,17 @@
       "indexes": {
         "idx_item_history_item": {
           "name": "idx_item_history_item",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "item_type",
-            "defindex",
-            "team"
-          ],
+          "columns": ["steamid", "loadoutid", "item_type", "defindex", "team"],
           "isUnique": false
         },
         "idx_item_history_loadout": {
           "name": "idx_item_history_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "idx_item_history_created": {
           "name": "idx_item_history_created",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -758,12 +688,8 @@
           "name": "wp_item_history_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_item_history",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -771,9 +697,7 @@
       "compositePrimaryKeys": {
         "wp_item_history_id": {
           "name": "wp_item_history_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -890,27 +814,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_knifes_unique": {
           "name": "uq_wp_player_knifes_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "defindex"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "defindex"],
           "isUnique": true
         }
       },
@@ -919,12 +833,8 @@
           "name": "wp_player_knifes_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_knifes",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -932,9 +842,7 @@
       "compositePrimaryKeys": {
         "wp_player_knifes_id": {
           "name": "wp_player_knifes_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1064,9 +972,7 @@
       "indexes": {
         "idx_steamid": {
           "name": "idx_steamid",
-          "columns": [
-            "steamid"
-          ],
+          "columns": ["steamid"],
           "isUnique": false
         }
       },
@@ -1074,17 +980,13 @@
       "compositePrimaryKeys": {
         "wp_player_loadouts_id": {
           "name": "wp_player_loadouts_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "wp_player_loadouts_share_code_unique": {
           "name": "wp_player_loadouts_share_code_unique",
-          "columns": [
-            "share_code"
-          ]
+          "columns": ["share_code"]
         }
       },
       "checkConstraint": {}
@@ -1118,9 +1020,7 @@
       "indexes": {
         "idx_filename": {
           "name": "idx_filename",
-          "columns": [
-            "filename"
-          ],
+          "columns": ["filename"],
           "isUnique": false
         }
       },
@@ -1128,17 +1028,13 @@
       "compositePrimaryKeys": {
         "_migrations_id": {
           "name": "_migrations_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {
         "_migrations_filename_unique": {
           "name": "_migrations_filename_unique",
-          "columns": [
-            "filename"
-          ]
+          "columns": ["filename"]
         }
       },
       "checkConstraint": {}
@@ -1210,27 +1106,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_music_unique": {
           "name": "uq_wp_player_music_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "musicid"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "musicid"],
           "isUnique": true
         }
       },
@@ -1239,12 +1125,8 @@
           "name": "wp_player_music_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_music",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1252,9 +1134,7 @@
       "compositePrimaryKeys": {
         "wp_player_music_id": {
           "name": "wp_player_music_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1312,17 +1192,12 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         }
       },
@@ -1331,12 +1206,8 @@
           "name": "wp_player_pins_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_pins",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1344,9 +1215,7 @@
       "compositePrimaryKeys": {
         "wp_player_pins_id": {
           "name": "wp_player_pins_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1511,27 +1380,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_pistols_unique": {
           "name": "uq_wp_player_pistols_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "defindex"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "defindex"],
           "isUnique": true
         }
       },
@@ -1540,12 +1399,8 @@
           "name": "wp_player_pistols_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_pistols",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1553,9 +1408,7 @@
       "compositePrimaryKeys": {
         "wp_player_pistols_id": {
           "name": "wp_player_pistols_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1720,27 +1573,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_rifles_unique": {
           "name": "uq_wp_player_rifles_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "defindex"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "defindex"],
           "isUnique": true
         }
       },
@@ -1749,12 +1592,8 @@
           "name": "wp_player_rifles_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_rifles",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1762,9 +1601,7 @@
       "compositePrimaryKeys": {
         "wp_player_rifles_id": {
           "name": "wp_player_rifles_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},
@@ -1929,27 +1766,17 @@
       "indexes": {
         "idx_steamid_loadout": {
           "name": "idx_steamid_loadout",
-          "columns": [
-            "steamid",
-            "loadoutid"
-          ],
+          "columns": ["steamid", "loadoutid"],
           "isUnique": false
         },
         "loadoutid": {
           "name": "loadoutid",
-          "columns": [
-            "loadoutid"
-          ],
+          "columns": ["loadoutid"],
           "isUnique": false
         },
         "uq_wp_player_smgs_unique": {
           "name": "uq_wp_player_smgs_unique",
-          "columns": [
-            "steamid",
-            "loadoutid",
-            "team",
-            "defindex"
-          ],
+          "columns": ["steamid", "loadoutid", "team", "defindex"],
           "isUnique": true
         }
       },
@@ -1958,12 +1785,8 @@
           "name": "wp_player_smgs_loadoutid_wp_player_loadouts_id_fk",
           "tableFrom": "wp_player_smgs",
           "tableTo": "wp_player_loadouts",
-          "columnsFrom": [
-            "loadoutid"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["loadoutid"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1971,9 +1794,7 @@
       "compositePrimaryKeys": {
         "wp_player_smgs_id": {
           "name": "wp_player_smgs_id",
-          "columns": [
-            "id"
-          ]
+          "columns": ["id"]
         }
       },
       "uniqueConstraints": {},

@@ -49,12 +49,15 @@ await loadoutStore.createLoadout(steamId, 'My Loadout')
 ## State
 
 ### `loadouts`
+
 ```typescript
 DBLoadout[]
 ```
+
 Array of all user loadouts.
 
 **DBLoadout Structure**:
+
 ```typescript
 interface DBLoadout {
   id: number
@@ -75,27 +78,35 @@ interface DBLoadout {
 ```
 
 ### `currentSkins`
+
 ```typescript
 IEnhancedItem[] | IEnhancedKnife[] | IEnhancedWeapon[]
 ```
+
 Currently loaded items for the selected loadout (weapons, knives, gloves, etc.).
 
 ### `selectedLoadoutId`
+
 ```typescript
 LoadoutId | null
 ```
+
 ID of the currently selected loadout (branded type for type safety).
 
 ### `isLoading`
+
 ```typescript
 boolean
 ```
+
 Loading state for async operations.
 
 ### `error`
+
 ```typescript
 string | null
 ```
+
 Error message from last operation.
 
 ---
@@ -103,12 +114,15 @@ Error message from last operation.
 ## Getters
 
 ### `selectedLoadout`
+
 ```typescript
 ComputedRef<DBLoadout | undefined>
 ```
+
 Returns the currently selected loadout object.
 
 **Example**:
+
 ```vue
 <script setup>
 const loadoutStore = useLoadoutStore()
@@ -123,12 +137,15 @@ watchEffect(() => {
 ```
 
 ### `hasLoadouts`
+
 ```typescript
 ComputedRef<boolean>
 ```
+
 Whether the user has any loadouts.
 
 **Example**:
+
 ```vue
 <template>
   <div v-if="!loadoutStore.hasLoadouts">
@@ -138,9 +155,11 @@ Whether the user has any loadouts.
 ```
 
 ### `loadoutSkins`
+
 ```typescript
 ComputedRef<IEnhancedItem[]>
 ```
+
 Alias for `currentSkins` state.
 
 ---
@@ -150,19 +169,23 @@ Alias for `currentSkins` state.
 ### Loadout Management
 
 #### `fetchLoadouts(steamId)`
+
 Fetch all loadouts for a user.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID (branded type)
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Updates `loadouts` state
 - Auto-selects active/first loadout if none selected
 - Validates selected loadout still exists
 
 **Example**:
+
 ```typescript
 import { toSteamId } from '~/types/core/branded'
 
@@ -171,38 +194,46 @@ await loadoutStore.fetchLoadouts(steamId)
 ```
 
 **Features**:
+
 - Prevents duplicate concurrent requests using `fetchPromises` map
 - Handles both old and new API response formats
 - Auto-selects active loadout or falls back to first loadout
 - Validates selected loadout after fetch
 
 #### `createLoadout(steamId, name)`
+
 Create a new loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 - `name: string` - Loadout name
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Creates new loadout in database
 - Activates the newly created loadout
 - Refreshes loadouts list
 
 **Validation**:
+
 - Name required
 - Name must be unique per user (enforced by API)
 
 **Example**:
+
 ```typescript
 await loadoutStore.createLoadout(steamId, 'Competitive Setup')
 ```
 
 #### `updateLoadout(id, steamId, newName)`
+
 Update a loadout's name.
 
 **Parameters**:
+
 - `id: LoadoutId` - Loadout ID to update
 - `steamId: SteamId` - User's Steam ID
 - `newName: string` - New loadout name
@@ -210,111 +241,135 @@ Update a loadout's name.
 **Returns**: `Promise<void>`
 
 **Validation**:
+
 - Name length: 1-20 characters
 - Throws error if validation fails
 
 **Example**:
+
 ```typescript
 const loadoutId = toLoadoutId(1)
 await loadoutStore.updateLoadout(loadoutId, steamId, 'Casual Setup')
 ```
 
 #### `deleteLoadout(steamId, id)`
+
 Delete a loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 - `id: LoadoutId` - Loadout ID to delete
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Deletes loadout from database
 - Refreshes loadouts list
 - Auto-selects another loadout if deleted was selected
 
 **Restrictions**:
+
 - Cannot delete if it's the only loadout (enforced by API)
 
 **Example**:
+
 ```typescript
 await loadoutStore.deleteLoadout(steamId, loadoutId)
 ```
 
 #### `selectLoadout(id)`
+
 Select a loadout (client-side only, doesn't persist).
 
 **Parameters**:
+
 - `id: LoadoutId` - Loadout ID to select
 
 **Returns**: `void`
 
 **Example**:
+
 ```typescript
 loadoutStore.selectLoadout(toLoadoutId(2))
 ```
 
 #### `activateLoadout(id, steamId)`
+
 Activate a loadout (persists to database, sets as active).
 
 **Parameters**:
+
 - `id: LoadoutId` - Loadout ID to activate
 - `steamId: SteamId` - User's Steam ID
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Sets loadout as active in database
 - Deactivates all other loadouts
 - Updates local state
 - Selects the loadout
 
 **Example**:
+
 ```typescript
 await loadoutStore.activateLoadout(loadoutId, steamId)
 ```
 
 #### `duplicateLoadout(steamId, loadoutId)`
+
 Duplicate an existing loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 - `loadoutId: LoadoutId` - Loadout ID to duplicate
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Creates copy of loadout with all items
 - Refreshes loadouts list
 
 **Example**:
+
 ```typescript
 await loadoutStore.duplicateLoadout(steamId, loadoutId)
 ```
 
 #### `setLoadoutAsDefault(steamId, loadoutId)`
+
 Set a loadout as default (used by CS2 plugin).
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 - `loadoutId: LoadoutId` - Loadout ID to set as default
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Sets `is_default = 1` for this loadout
 - Unsets default flag for all other loadouts
 - Refreshes loadouts list
 
 **Example**:
+
 ```typescript
 await loadoutStore.setLoadoutAsDefault(steamId, loadoutId)
 ```
 
 #### `clearLoadout(steamId, loadoutId, categories?)`
+
 Clear items from a loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 - `loadoutId: LoadoutId` - Loadout ID to clear
 - `categories?: string[]` - Optional categories to clear (default: all)
@@ -324,10 +379,12 @@ Clear items from a loadout.
 **Categories**: `['weapons', 'knives', 'gloves', 'agents', 'music', 'pins']`
 
 **Side Effects**:
+
 - Clears specified categories from loadout
 - Updates `currentSkins` if selected loadout
 
 **Example**:
+
 ```typescript
 // Clear all items
 await loadoutStore.clearLoadout(steamId, loadoutId)
@@ -339,15 +396,18 @@ await loadoutStore.clearLoadout(steamId, loadoutId, ['weapons', 'knives'])
 ### Sharing & Import
 
 #### `shareLoadout(steamId, loadoutId)`
+
 Generate a share code for a loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 - `loadoutId: LoadoutId` - Loadout ID to share
 
 **Returns**: `Promise<string>` - Share code
 
 **Example**:
+
 ```typescript
 const shareCode = await loadoutStore.shareLoadout(steamId, loadoutId)
 console.log(`Share code: ${shareCode}`)
@@ -355,20 +415,24 @@ console.log(`Share code: ${shareCode}`)
 ```
 
 #### `importLoadout(steamId, shareCode)`
+
 Import a loadout from a share code.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 - `shareCode: string` - Share code from another user
 
 **Returns**: `Promise<void>`
 
 **Side Effects**:
+
 - Creates new loadout from share code
 - Refreshes loadouts list
 - Auto-selects the imported loadout
 
 **Example**:
+
 ```typescript
 await loadoutStore.importLoadout(steamId, 'ABC123XYZ')
 ```
@@ -376,9 +440,11 @@ await loadoutStore.importLoadout(steamId, 'ABC123XYZ')
 ### Item Fetching
 
 #### `fetchLoadoutWeaponSkins(type, steamId)`
+
 Fetch weapons for current loadout.
 
 **Parameters**:
+
 - `type: string` - Weapon category (`'rifles'`, `'pistols'`, `'smgs'`, `'heavys'`)
 - `steamId: SteamId` - User's Steam ID
 
@@ -387,43 +453,53 @@ Fetch weapons for current loadout.
 **Side Effects**: Updates `currentSkins` with weapons
 
 **Example**:
+
 ```typescript
 await loadoutStore.fetchLoadoutWeaponSkins('rifles', steamId)
 ```
 
 #### `fetchLoadoutKnives(steamId)`
+
 Fetch knives for current loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 
 **Returns**: `Promise<void>`
 
 **Example**:
+
 ```typescript
 await loadoutStore.fetchLoadoutKnives(steamId)
 ```
 
 #### `fetchLoadoutGloves(steamId)`
+
 Fetch gloves for current loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 
 **Returns**: `Promise<void>`
 
 #### `fetchLoadoutMusicKits(steamId)`
+
 Fetch music kits for current loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 
 **Returns**: `Promise<void>`
 
 #### `fetchLoadoutPins(steamId)`
+
 Fetch pins for current loadout.
 
 **Parameters**:
+
 - `steamId: SteamId` - User's Steam ID
 
 **Returns**: `Promise<void>`
@@ -493,17 +569,11 @@ const switchLoadout = async (loadoutId: LoadoutId) => {
 
 ```vue
 <template>
-  <div v-if="loadoutStore.isLoading">
-    Loading loadouts...
-  </div>
+  <div v-if="loadoutStore.isLoading">Loading loadouts...</div>
 
-  <div v-else-if="loadoutStore.error">
-    Error: {{ loadoutStore.error }}
-  </div>
+  <div v-else-if="loadoutStore.error">Error: {{ loadoutStore.error }}</div>
 
-  <div v-else-if="!loadoutStore.hasLoadouts">
-    No loadouts yet. Create one to get started!
-  </div>
+  <div v-else-if="!loadoutStore.hasLoadouts">No loadouts yet. Create one to get started!</div>
 
   <div v-else>
     <div v-for="loadout in loadoutStore.loadouts" :key="loadout.id">
@@ -604,6 +674,7 @@ const resetLoadout = async (steamId: SteamId, loadoutId: LoadoutId) => {
 The store handles both legacy and new API response formats:
 
 ### Legacy Format
+
 ```json
 {
   "loadouts": [...],
@@ -612,6 +683,7 @@ The store handles both legacy and new API response formats:
 ```
 
 ### New Format
+
 ```json
 {
   "data": {
@@ -638,8 +710,8 @@ The store uses branded types for enhanced type safety:
 import { toSteamId, toLoadoutId } from '~/types/core/branded'
 
 // These prevent accidental mixing of IDs
-const steamId = toSteamId('76561198012345678')  // SteamId brand
-const loadoutId = toLoadoutId(1)                // LoadoutId brand
+const steamId = toSteamId('76561198012345678') // SteamId brand
+const loadoutId = toLoadoutId(1) // LoadoutId brand
 
 // TypeScript will catch errors:
 // loadoutStore.fetchLoadouts(loadoutId)  // ❌ Error: LoadoutId is not SteamId
@@ -657,9 +729,9 @@ The store prevents duplicate concurrent fetches:
 ```typescript
 // Multiple calls will share the same promise
 await Promise.all([
-  loadoutStore.fetchLoadouts(steamId),  // Fetches
-  loadoutStore.fetchLoadouts(steamId),  // Waits for first
-  loadoutStore.fetchLoadouts(steamId)   // Waits for first
+  loadoutStore.fetchLoadouts(steamId), // Fetches
+  loadoutStore.fetchLoadouts(steamId), // Waits for first
+  loadoutStore.fetchLoadouts(steamId), // Waits for first
 ])
 ```
 
@@ -758,9 +830,7 @@ await loadoutStore.deleteLoadout(steamId, loadoutId)
 
 ```typescript
 // Good: Reactive
-const activeLoadoutName = computed(() =>
-  loadoutStore.selectedLoadout?.name ?? 'No loadout'
-)
+const activeLoadoutName = computed(() => loadoutStore.selectedLoadout?.name ?? 'No loadout')
 
 // Bad: Not reactive
 const activeLoadoutName = loadoutStore.selectedLoadout?.name
@@ -949,33 +1019,43 @@ interface AdminState {
 ### Getters
 
 #### `isSuperAdmin`
+
 ```typescript
 ComputedRef<boolean>
 ```
+
 Whether the current admin has superadmin role.
 
 #### `isStatsCacheStale`
+
 ```typescript
 ComputedRef<boolean>
 ```
+
 Whether overview stats cache is older than 5 minutes.
 
 #### `isUsersCacheStale`
+
 ```typescript
 ComputedRef<boolean>
 ```
+
 Whether users data cache is older than 5 minutes.
 
 #### `isSettingsCacheStale`
+
 ```typescript
 ComputedRef<boolean>
 ```
+
 Whether settings cache is older than 5 minutes.
 
 #### `totalItems`
+
 ```typescript
 ComputedRef<number>
 ```
+
 Sum of all item categories from overview stats.
 
 ---
@@ -985,14 +1065,17 @@ Sum of all item categories from overview stats.
 #### Authentication
 
 ##### `checkAdminStatus()`
+
 Verify current user's admin status and fetch role/permissions.
 
 **Returns**: `Promise<boolean>` - Whether the user is an admin.
 
 ##### `fetchCurrentAdminInfo(forceRefresh?)`
+
 Fetch current admin's detailed role and permissions.
 
 **Parameters**:
+
 - `forceRefresh?: boolean` - Bypass cache
 
 **Returns**: `Promise<void>`
@@ -1000,26 +1083,32 @@ Fetch current admin's detailed role and permissions.
 #### Statistics
 
 ##### `fetchOverviewStats(forceRefresh?)`
+
 Fetch dashboard overview statistics (total users, active users, loadouts, items, banned count).
 
 **Parameters**:
+
 - `forceRefresh?: boolean` - Bypass cache
 
 **Returns**: `Promise<void>`
 
 ##### `fetchActivityData(range, force?)`
+
 Fetch activity chart data for a time range.
 
 **Parameters**:
+
 - `range: '7d' | '30d' | '90d'` - Time range
 - `force?: boolean` - Bypass cache
 
 **Returns**: `Promise<void>`
 
 ##### `fetchTopUsers(limit?)`
+
 Fetch top users for leaderboard display.
 
 **Parameters**:
+
 - `limit?: number` - Max users (default: 10)
 
 **Returns**: `Promise<void>`
@@ -1027,25 +1116,31 @@ Fetch top users for leaderboard display.
 #### User Management
 
 ##### `fetchUsers(params)`
+
 Fetch paginated user list with optional search.
 
 **Parameters**:
+
 - `params: { search?, page?, limit?, force? }`
 
 **Returns**: `Promise<void>`
 
 ##### `fetchUserDetails(steamId)`
+
 Fetch detailed information for a single user.
 
 **Parameters**:
+
 - `steamId: string`
 
 **Returns**: `Promise<AdminUserDetails | null>`
 
 ##### `banUser(steamId, reason, durationHours?, options?)`
+
 Ban a user. Logs action in activity log.
 
 **Parameters**:
+
 - `steamId: string`
 - `reason: string`
 - `durationHours?: number` - Omit for permanent ban
@@ -1054,18 +1149,22 @@ Ban a user. Logs action in activity log.
 **Returns**: `Promise<void>`
 
 ##### `unbanUser(steamId, options?)`
+
 Unban a user. Logs action in activity log.
 
 **Parameters**:
+
 - `steamId: string`
 - `options?: { refreshUsers?: boolean }`
 
 **Returns**: `Promise<void>`
 
 ##### `deleteUserData(steamId)`
+
 Delete all data for a user. Logs action in activity log.
 
 **Parameters**:
+
 - `steamId: string`
 
 **Returns**: `Promise<void>`
@@ -1073,14 +1172,17 @@ Delete all data for a user. Logs action in activity log.
 #### Settings (Superadmin)
 
 ##### `fetchSettings(forceRefresh?)`
+
 Fetch all application settings.
 
 **Returns**: `Promise<void>`
 
 ##### `updateSetting(key, value)`
+
 Update a single application setting. Logs action in activity log.
 
 **Parameters**:
+
 - `key: string`
 - `value: string | number | boolean`
 
@@ -1089,9 +1191,11 @@ Update a single application setting. Logs action in activity log.
 #### Activity Log
 
 ##### `fetchActivityLog(params)`
+
 Fetch paginated admin activity audit log.
 
 **Parameters**:
+
 - `params: { page?, limit?, action?, force? }`
 
 **Returns**: `Promise<void>`
@@ -1099,23 +1203,28 @@ Fetch paginated admin activity audit log.
 #### Admin Management (Superadmin)
 
 ##### `fetchAdminUsers(forceRefresh?)`
+
 Fetch all admin users.
 
 **Returns**: `Promise<void>`
 
 ##### `addAdmin(steamId, role)`
+
 Grant admin privileges to a user. Logs action.
 
 **Parameters**:
+
 - `steamId: string`
 - `role: 'admin' | 'superadmin'`
 
 **Returns**: `Promise<void>`
 
 ##### `removeAdmin(steamId)`
+
 Revoke admin privileges. Logs action.
 
 **Parameters**:
+
 - `steamId: string`
 
 **Returns**: `Promise<void>`
@@ -1123,9 +1232,11 @@ Revoke admin privileges. Logs action.
 #### Utilities
 
 ##### `clearCache()`
+
 Clear all cached data (keeps auth state).
 
 ##### `reset()`
+
 Reset store to initial state (clears everything including auth).
 
 ---
@@ -1169,12 +1280,12 @@ import { useTutorialStore } from '~/stores/tutorialStore'
 
 ```typescript
 interface TutorialState {
-  activeTutorialId: string | null    // ID of the running tutorial
-  currentStepIndex: number           // zero-based step index
-  isActive: boolean                  // whether a tutorial is running
-  completedTutorials: string[]       // IDs of completed tutorials
-  targetRect: DOMRect | null         // bounding rect of the current target element
-  pendingAction: TutorialAction      // signal for components to open/close modals
+  activeTutorialId: string | null // ID of the running tutorial
+  currentStepIndex: number // zero-based step index
+  isActive: boolean // whether a tutorial is running
+  completedTutorials: string[] // IDs of completed tutorials
+  targetRect: DOMRect | null // bounding rect of the current target element
+  pendingAction: TutorialAction // signal for components to open/close modals
 }
 
 type TutorialAction =
@@ -1187,29 +1298,29 @@ type TutorialAction =
 
 ### Getters
 
-| Getter | Return Type | Description |
-| --- | --- | --- |
-| `activeTutorial` | `TutorialDefinition \| null` | The full tutorial definition for the active tutorial |
-| `currentStep` | `TutorialStep \| null` | The current step object |
-| `totalSteps` | `number` | Total steps in the active tutorial |
-| `progressLabel` | `string` | Formatted string like `"3 / 10"` |
-| `isLastStep` | `boolean` | Whether the current step is the final one |
-| `isTutorialCompleted` | `(id: string) => boolean` | Check if a specific tutorial was completed |
+| Getter                | Return Type                  | Description                                          |
+| --------------------- | ---------------------------- | ---------------------------------------------------- |
+| `activeTutorial`      | `TutorialDefinition \| null` | The full tutorial definition for the active tutorial |
+| `currentStep`         | `TutorialStep \| null`       | The current step object                              |
+| `totalSteps`          | `number`                     | Total steps in the active tutorial                   |
+| `progressLabel`       | `string`                     | Formatted string like `"3 / 10"`                     |
+| `isLastStep`          | `boolean`                    | Whether the current step is the final one            |
+| `isTutorialCompleted` | `(id: string) => boolean`    | Check if a specific tutorial was completed           |
 
 ### Actions
 
-| Action | Parameters | Description |
-| --- | --- | --- |
-| `startTutorial` | `tutorialId: string` | Start a tutorial, navigate to its start route |
-| `nextStep` | none | Advance forward (runs `afterStep` hook, completes on last step) |
-| `previousStep` | none | Go back one step (runs `afterStep` hook) |
-| `stopTutorial` | none | Stop the tutorial, reset state, clear highlights |
-| `completeTutorial` | `tutorialId: string` | Mark a tutorial as completed and persist |
-| `updateTargetRect` | `rect: DOMRect \| null` | Update the stored target element rect |
-| `requestAction` | `action: TutorialAction` | Signal a component to perform an action (e.g. open modal) |
-| `clearAction` | none | Clear the pending action after it's been handled |
-| `loadPersistedState` | none | Load completed tutorials from localStorage |
-| `persistState` | none | Save completed tutorials to localStorage |
+| Action               | Parameters               | Description                                                     |
+| -------------------- | ------------------------ | --------------------------------------------------------------- |
+| `startTutorial`      | `tutorialId: string`     | Start a tutorial, navigate to its start route                   |
+| `nextStep`           | none                     | Advance forward (runs `afterStep` hook, completes on last step) |
+| `previousStep`       | none                     | Go back one step (runs `afterStep` hook)                        |
+| `stopTutorial`       | none                     | Stop the tutorial, reset state, clear highlights                |
+| `completeTutorial`   | `tutorialId: string`     | Mark a tutorial as completed and persist                        |
+| `updateTargetRect`   | `rect: DOMRect \| null`  | Update the stored target element rect                           |
+| `requestAction`      | `action: TutorialAction` | Signal a component to perform an action (e.g. open modal)       |
+| `clearAction`        | none                     | Clear the pending action after it's been handled                |
+| `loadPersistedState` | none                     | Load completed tutorials from localStorage                      |
+| `persistState`       | none                     | Save completed tutorials to localStorage                        |
 
 ### pendingAction Pattern
 
@@ -1223,12 +1334,15 @@ beforeStep: () => {
 }
 
 // In the target component — a watcher responds
-watch(() => tutorialStore.pendingAction, (action) => {
-  if (action === 'open-weapon-modal') {
-    tutorialStore.clearAction()
-    // Open the modal
+watch(
+  () => tutorialStore.pendingAction,
+  (action) => {
+    if (action === 'open-weapon-modal') {
+      tutorialStore.clearAction()
+      // Open the modal
+    }
   }
-})
+)
 ```
 
 ### Persistence

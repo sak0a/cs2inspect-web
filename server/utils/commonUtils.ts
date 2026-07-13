@@ -1,4 +1,4 @@
-import { DEFINDEX_RANGES, STICKER_CONFIG, KEYCHAIN_CONFIG } from './constants';
+import { DEFINDEX_RANGES, STICKER_CONFIG, KEYCHAIN_CONFIG } from './constants'
 
 // ============================================================================
 // ITEM TYPE DETECTION UTILITIES
@@ -10,19 +10,21 @@ import { DEFINDEX_RANGES, STICKER_CONFIG, KEYCHAIN_CONFIG } from './constants';
  * @returns Item type ('weapon', 'knife', or 'glove')
  */
 export function detectItemType(defindex: number): 'weapon' | 'knife' | 'glove' {
-    // Check if it's a knife
-    if ((defindex >= DEFINDEX_RANGES.KNIVES.MIN && defindex <= DEFINDEX_RANGES.KNIVES.MAX) ||
-        DEFINDEX_RANGES.KNIVES.ADDITIONAL.includes(defindex)) {
-        return 'knife';
-    }
+  // Check if it's a knife
+  if (
+    (defindex >= DEFINDEX_RANGES.KNIVES.MIN && defindex <= DEFINDEX_RANGES.KNIVES.MAX) ||
+    DEFINDEX_RANGES.KNIVES.ADDITIONAL.includes(defindex)
+  ) {
+    return 'knife'
+  }
 
-    // Check if it's a glove
-    if (defindex >= DEFINDEX_RANGES.GLOVES.MIN && defindex <= DEFINDEX_RANGES.GLOVES.MAX) {
-        return 'glove';
-    }
+  // Check if it's a glove
+  if (defindex >= DEFINDEX_RANGES.GLOVES.MIN && defindex <= DEFINDEX_RANGES.GLOVES.MAX) {
+    return 'glove'
+  }
 
-    // Default to weapon
-    return 'weapon';
+  // Default to weapon
+  return 'weapon'
 }
 
 /**
@@ -31,8 +33,7 @@ export function detectItemType(defindex: number): 'weapon' | 'knife' | 'glove' {
  * @returns True if valid weapon defindex
  */
 export function isValidWeaponDefindex(defindex: number): boolean {
-    return defindex >= DEFINDEX_RANGES.WEAPONS.MIN &&
-        defindex <= DEFINDEX_RANGES.WEAPONS.MAX;
+  return defindex >= DEFINDEX_RANGES.WEAPONS.MIN && defindex <= DEFINDEX_RANGES.WEAPONS.MAX
 }
 
 /**
@@ -41,8 +42,10 @@ export function isValidWeaponDefindex(defindex: number): boolean {
  * @returns True if valid knife defindex
  */
 export function isValidKnifeDefindex(defindex: number): boolean {
-    return (defindex >= DEFINDEX_RANGES.KNIVES.MIN && defindex <= DEFINDEX_RANGES.KNIVES.MAX) ||
-        DEFINDEX_RANGES.KNIVES.ADDITIONAL.includes(defindex);
+  return (
+    (defindex >= DEFINDEX_RANGES.KNIVES.MIN && defindex <= DEFINDEX_RANGES.KNIVES.MAX) ||
+    DEFINDEX_RANGES.KNIVES.ADDITIONAL.includes(defindex)
+  )
 }
 
 /**
@@ -51,8 +54,7 @@ export function isValidKnifeDefindex(defindex: number): boolean {
  * @returns True if valid glove defindex
  */
 export function isValidGloveDefindex(defindex: number): boolean {
-    return defindex >= DEFINDEX_RANGES.GLOVES.MIN &&
-        defindex <= DEFINDEX_RANGES.GLOVES.MAX;
+  return defindex >= DEFINDEX_RANGES.GLOVES.MIN && defindex <= DEFINDEX_RANGES.GLOVES.MAX
 }
 
 // ============================================================================
@@ -66,16 +68,16 @@ export function isValidGloveDefindex(defindex: number): boolean {
  * @returns Parsed number or default value
  */
 export function safeParseNumber(value: unknown, defaultValue: number = 0): number {
-    if (typeof value === 'number' && !isNaN(value)) {
-        return value;
-    }
+  if (typeof value === 'number' && !isNaN(value)) {
+    return value
+  }
 
-    if (typeof value === 'string') {
-        const parsed = parseFloat(value);
-        return isNaN(parsed) ? defaultValue : parsed;
-    }
+  if (typeof value === 'string') {
+    const parsed = parseFloat(value)
+    return isNaN(parsed) ? defaultValue : parsed
+  }
 
-    return defaultValue;
+  return defaultValue
 }
 
 /**
@@ -85,16 +87,16 @@ export function safeParseNumber(value: unknown, defaultValue: number = 0): numbe
  * @returns Parsed integer or default value
  */
 export function safeParseInt(value: unknown, defaultValue: number = 0): number {
-    if (typeof value === 'number' && !isNaN(value)) {
-        return Math.floor(value);
-    }
+  if (typeof value === 'number' && !isNaN(value)) {
+    return Math.floor(value)
+  }
 
-    if (typeof value === 'string') {
-        const parsed = parseInt(value, 10);
-        return isNaN(parsed) ? defaultValue : parsed;
-    }
+  if (typeof value === 'string') {
+    const parsed = parseInt(value, 10)
+    return isNaN(parsed) ? defaultValue : parsed
+  }
 
-    return defaultValue;
+  return defaultValue
 }
 
 /**
@@ -105,22 +107,10 @@ export function safeParseInt(value: unknown, defaultValue: number = 0): number {
  * @returns Clamped value
  */
 export function clamp(value: number, min: number, max: number): number {
-    return Math.min(Math.max(value, min), max);
+  return Math.min(Math.max(value, min), max)
 }
 
-/**
- * Converts a hex color to RGBA format
- * @param hex Hex color string (e.g., '#FF0000')
- * @param alpha Alpha value (0-1)
- * @returns RGBA color string
- */
-export function hexToRgba(hex: string, alpha: string | number = '1'): string {
-    const cleanHex = hex.replace('#', '');
-    const r = parseInt(cleanHex.substr(0, 2), 16);
-    const g = parseInt(cleanHex.substr(2, 2), 16);
-    const b = parseInt(cleanHex.substr(4, 2), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
+// hexToRgba moved to shared/utils/hexToRgba.ts — auto-imported in both app and server
 
 // ============================================================================
 // STICKER AND KEYCHAIN UTILITIES
@@ -131,7 +121,7 @@ export function hexToRgba(hex: string, alpha: string | number = '1'): string {
  * @returns Empty sticker string in database format
  */
 export function createEmptySticker(): string {
-    return STICKER_CONFIG.EMPTY_STICKER;
+  return STICKER_CONFIG.EMPTY_STICKER
 }
 
 /**
@@ -139,7 +129,7 @@ export function createEmptySticker(): string {
  * @returns Empty keychain string in database format
  */
 export function createEmptyKeychain(): string {
-    return KEYCHAIN_CONFIG.EMPTY_KEYCHAIN;
+  return KEYCHAIN_CONFIG.EMPTY_KEYCHAIN
 }
 
 /**
@@ -148,7 +138,7 @@ export function createEmptyKeychain(): string {
  * @returns True if valid slot index
  */
 export function isValidStickerSlot(slot: number): boolean {
-    return slot >= 0 && slot < STICKER_CONFIG.MAX_SLOTS;
+  return slot >= 0 && slot < STICKER_CONFIG.MAX_SLOTS
 }
 
 /**
@@ -157,20 +147,20 @@ export function isValidStickerSlot(slot: number): boolean {
  * @returns Parsed sticker data object or null if empty
  */
 export function parseStickerString(stickerString: string) {
-    if (!stickerString || stickerString === STICKER_CONFIG.EMPTY_STICKER) {
-        return null;
-    }
+  if (!stickerString || stickerString === STICKER_CONFIG.EMPTY_STICKER) {
+    return null
+  }
 
-    const [id, x, y, wear, scale, rotation] = stickerString.split(';');
+  const [id, x, y, wear, scale, rotation] = stickerString.split(';')
 
-    return {
-        id: safeParseInt(id),
-        x: safeParseNumber(x),
-        y: safeParseNumber(y),
-        wear: safeParseNumber(wear),
-        scale: safeParseNumber(scale, 1),
-        rotation: safeParseInt(rotation)
-    };
+  return {
+    id: safeParseInt(id),
+    x: safeParseNumber(x),
+    y: safeParseNumber(y),
+    wear: safeParseNumber(wear),
+    scale: safeParseNumber(scale, 1),
+    rotation: safeParseInt(rotation),
+  }
 }
 
 /**
@@ -179,19 +169,19 @@ export function parseStickerString(stickerString: string) {
  * @returns Parsed keychain data object or null if empty
  */
 export function parseKeychainString(keychainString: string) {
-    if (!keychainString || keychainString === KEYCHAIN_CONFIG.EMPTY_KEYCHAIN) {
-        return null;
-    }
+  if (!keychainString || keychainString === KEYCHAIN_CONFIG.EMPTY_KEYCHAIN) {
+    return null
+  }
 
-    const [id, x, y, z, seed] = keychainString.split(';');
+  const [id, x, y, z, seed] = keychainString.split(';')
 
-    return {
-        id: safeParseInt(id),
-        x: safeParseNumber(x),
-        y: safeParseNumber(y),
-        z: safeParseNumber(z),
-        seed: safeParseInt(seed)
-    };
+  return {
+    id: safeParseInt(id),
+    x: safeParseNumber(x),
+    y: safeParseNumber(y),
+    z: safeParseNumber(z),
+    seed: safeParseInt(seed),
+  }
 }
 
 // ============================================================================
@@ -204,7 +194,7 @@ export function parseKeychainString(keychainString: string) {
  * @returns True if string is empty or whitespace
  */
 export function isEmpty(str: string | null | undefined): boolean {
-    return !str || str.trim().length === 0;
+  return !str || str.trim().length === 0
 }
 
 /**
@@ -215,10 +205,10 @@ export function isEmpty(str: string | null | undefined): boolean {
  * @returns Truncated string
  */
 export function truncateString(str: string, maxLength: number, suffix: string = '...'): string {
-    if (str.length <= maxLength) {
-        return str;
-    }
-    return str.substring(0, maxLength - suffix.length) + suffix;
+  if (str.length <= maxLength) {
+    return str
+  }
+  return str.substring(0, maxLength - suffix.length) + suffix
 }
 
 /**
@@ -227,8 +217,8 @@ export function truncateString(str: string, maxLength: number, suffix: string = 
  * @returns Capitalized string
  */
 export function capitalize(str: string): string {
-    if (!str) return str;
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  if (!str) return str
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase()
 }
 
 /**
@@ -237,10 +227,10 @@ export function capitalize(str: string): string {
  * @returns Kebab-case string
  */
 export function toKebabCase(str: string): string {
-    return str
-        .replace(/([a-z])([A-Z])/g, '$1-$2')
-        .replace(/[\s_]+/g, '-')
-        .toLowerCase();
+  return str
+    .replace(/([a-z])([A-Z])/g, '$1-$2')
+    .replace(/[\s_]+/g, '-')
+    .toLowerCase()
 }
 
 /**
@@ -249,9 +239,9 @@ export function toKebabCase(str: string): string {
  * @returns CamelCase string
  */
 export function toCamelCase(str: string): string {
-    return str
-        .replace(/[-_\s]+(.)?/g, (_, char) => char ? char.toUpperCase() : '')
-        .replace(/^[A-Z]/, char => char.toLowerCase());
+  return str
+    .replace(/[-_\s]+(.)?/g, (_, char) => (char ? char.toUpperCase() : ''))
+    .replace(/^[A-Z]/, (char) => char.toLowerCase())
 }
 
 // ============================================================================
@@ -265,15 +255,15 @@ export function toCamelCase(str: string): string {
  * @returns Array with duplicates removed
  */
 export function uniqueBy<T>(array: T[], keyFn: (item: T) => string | number | symbol): T[] {
-    const seen = new Set();
-    return array.filter(item => {
-        const key = keyFn(item);
-        if (seen.has(key)) {
-            return false;
-        }
-        seen.add(key);
-        return true;
-    });
+  const seen = new Set()
+  return array.filter((item) => {
+    const key = keyFn(item)
+    if (seen.has(key)) {
+      return false
+    }
+    seen.add(key)
+    return true
+  })
 }
 
 /**
@@ -283,14 +273,17 @@ export function uniqueBy<T>(array: T[], keyFn: (item: T) => string | number | sy
  * @returns Object with grouped items
  */
 export function groupBy<T>(array: T[], keyFn: (item: T) => string): Record<string, T[]> {
-    return array.reduce((groups, item) => {
-        const key = keyFn(item);
-        if (!groups[key]) {
-            groups[key] = [];
-        }
-        groups[key].push(item);
-        return groups;
-    }, {} as Record<string, T[]>);
+  return array.reduce(
+    (groups, item) => {
+      const key = keyFn(item)
+      if (!groups[key]) {
+        groups[key] = []
+      }
+      groups[key].push(item)
+      return groups
+    },
+    {} as Record<string, T[]>
+  )
 }
 
 /**
@@ -300,13 +293,13 @@ export function groupBy<T>(array: T[], keyFn: (item: T) => string): Record<strin
  * @returns New object with only picked properties
  */
 export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pick<T, K> {
-    const result = {} as Pick<T, K>;
-    keys.forEach(key => {
-        if (key in obj) {
-            result[key] = obj[key];
-        }
-    });
-    return result;
+  const result = {} as Pick<T, K>
+  keys.forEach((key) => {
+    if (key in obj) {
+      result[key] = obj[key]
+    }
+  })
+  return result
 }
 
 /**
@@ -316,12 +309,12 @@ export function pick<T extends object, K extends keyof T>(obj: T, keys: K[]): Pi
  * @returns New object without omitted properties
  */
 export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
-    const result = { ...obj };
-    keys.forEach(key => {
-        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-        delete result[key];
-    });
-    return result;
+  const result = { ...obj }
+  keys.forEach((key) => {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete result[key]
+  })
+  return result
 }
 
 // ============================================================================
@@ -336,17 +329,17 @@ export function omit<T, K extends keyof T>(obj: T, keys: K[]): Omit<T, K> {
  * @returns True if strings are similar enough
  */
 export function fuzzySearch(searchTerm: string, target: string, threshold: number = 0.6): boolean {
-    if (!searchTerm || !target) return false;
+  if (!searchTerm || !target) return false
 
-    const search = searchTerm.toLowerCase();
-    const text = target.toLowerCase();
+  const search = searchTerm.toLowerCase()
+  const text = target.toLowerCase()
 
-    // Exact match
-    if (text.includes(search)) return true;
+  // Exact match
+  if (text.includes(search)) return true
 
-    // Calculate similarity using Levenshtein distance
-    const similarity = calculateSimilarity(search, text);
-    return similarity >= threshold;
+  // Calculate similarity using Levenshtein distance
+  const similarity = calculateSimilarity(search, text)
+  return similarity >= threshold
 }
 
 /**
@@ -356,13 +349,13 @@ export function fuzzySearch(searchTerm: string, target: string, threshold: numbe
  * @returns Similarity score (0-1)
  */
 function calculateSimilarity(str1: string, str2: string): number {
-    const longer = str1.length > str2.length ? str1 : str2;
-    const shorter = str1.length > str2.length ? str2 : str1;
+  const longer = str1.length > str2.length ? str1 : str2
+  const shorter = str1.length > str2.length ? str2 : str1
 
-    if (longer.length === 0) return 1.0;
+  if (longer.length === 0) return 1.0
 
-    const distance = levenshteinDistance(longer, shorter);
-    return (longer.length - distance) / longer.length;
+  const distance = levenshteinDistance(longer, shorter)
+  return (longer.length - distance) / longer.length
 }
 
 /**
@@ -372,23 +365,25 @@ function calculateSimilarity(str1: string, str2: string): number {
  * @returns Edit distance
  */
 function levenshteinDistance(str1: string, str2: string): number {
-    const matrix: number[][] = Array(str2.length + 1).fill(null).map(() => Array(str1.length + 1).fill(0));
+  const matrix: number[][] = Array(str2.length + 1)
+    .fill(null)
+    .map(() => Array(str1.length + 1).fill(0))
 
-    for (let i = 0; i <= str1.length; i++) matrix[0]![i] = i;
-    for (let j = 0; j <= str2.length; j++) matrix[j]![0] = j;
+  for (let i = 0; i <= str1.length; i++) matrix[0]![i] = i
+  for (let j = 0; j <= str2.length; j++) matrix[j]![0] = j
 
-    for (let j = 1; j <= str2.length; j++) {
-        for (let i = 1; i <= str1.length; i++) {
-            const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1;
-            matrix[j]![i] = Math.min(
-                matrix[j]![i - 1]! + 1,     // deletion
-                matrix[j - 1]![i]! + 1,     // insertion
-                matrix[j - 1]![i - 1]! + indicator // substitution
-            );
-        }
+  for (let j = 1; j <= str2.length; j++) {
+    for (let i = 1; i <= str1.length; i++) {
+      const indicator = str1[i - 1] === str2[j - 1] ? 0 : 1
+      matrix[j]![i] = Math.min(
+        matrix[j]![i - 1]! + 1, // deletion
+        matrix[j - 1]![i]! + 1, // insertion
+        matrix[j - 1]![i - 1]! + indicator // substitution
+      )
     }
+  }
 
-    return matrix[str2.length]![str1.length]!;
+  return matrix[str2.length]![str1.length]!
 }
 
 /**
@@ -399,41 +394,41 @@ function levenshteinDistance(str1: string, str2: string): number {
  * @returns Filtered array
  */
 export function multiFilter<T>(
-    items: T[],
-    filters: Record<string, unknown>,
-    options: {
-        fuzzySearch?: boolean;
-        fuzzyThreshold?: number;
-        caseSensitive?: boolean;
-    } = {}
+  items: T[],
+  filters: Record<string, unknown>,
+  options: {
+    fuzzySearch?: boolean
+    fuzzyThreshold?: number
+    caseSensitive?: boolean
+  } = {}
 ): T[] {
-    const { fuzzySearch: useFuzzy = false, fuzzyThreshold = 0.6, caseSensitive = false } = options;
+  const { fuzzySearch: useFuzzy = false, fuzzyThreshold = 0.6, caseSensitive = false } = options
 
-    return items.filter(item => {
-        return Object.entries(filters).every(([key, value]) => {
-            if (value === null || value === undefined || value === '') {
-                return true; // Skip empty filters
-            }
+  return items.filter((item) => {
+    return Object.entries(filters).every(([key, value]) => {
+      if (value === null || value === undefined || value === '') {
+        return true // Skip empty filters
+      }
 
-            const itemValue = getNestedValue(item, key);
-            if (itemValue === null || itemValue === undefined) {
-                return false;
-            }
+      const itemValue = getNestedValue(item, key)
+      if (itemValue === null || itemValue === undefined) {
+        return false
+      }
 
-            const itemStr = String(itemValue);
-            const filterStr = String(value);
+      const itemStr = String(itemValue)
+      const filterStr = String(value)
 
-            if (useFuzzy && typeof value === 'string') {
-                return fuzzySearch(filterStr, itemStr, fuzzyThreshold);
-            }
+      if (useFuzzy && typeof value === 'string') {
+        return fuzzySearch(filterStr, itemStr, fuzzyThreshold)
+      }
 
-            if (caseSensitive) {
-                return itemStr.includes(filterStr);
-            }
+      if (caseSensitive) {
+        return itemStr.includes(filterStr)
+      }
 
-            return itemStr.toLowerCase().includes(filterStr.toLowerCase());
-        });
-    });
+      return itemStr.toLowerCase().includes(filterStr.toLowerCase())
+    })
+  })
 }
 
 /**
@@ -443,10 +438,15 @@ export function multiFilter<T>(
  * @returns Nested value or undefined
  */
 export function getNestedValue(obj: unknown, path: string): unknown {
-    return path.split('.').reduce((current: Record<string, unknown> | undefined, key) =>
-        (current as Record<string, unknown> | undefined)?.[key] as Record<string, unknown> | undefined,
-        obj as Record<string, unknown>
-    );
+  return path
+    .split('.')
+    .reduce(
+      (current: Record<string, unknown> | undefined, key) =>
+        (current as Record<string, unknown> | undefined)?.[key] as
+          | Record<string, unknown>
+          | undefined,
+      obj as Record<string, unknown>
+    )
 }
 
 /**
@@ -456,15 +456,18 @@ export function getNestedValue(obj: unknown, path: string): unknown {
  * @param value Value to set
  */
 export function setNestedValue(obj: Record<string, unknown>, path: string, value: unknown): void {
-    const keys = path.split('.');
-    const lastKey = keys.pop()!;
-    const target = keys.reduce((current: Record<string, unknown>, key: string): Record<string, unknown> => {
-        if (!(key in current)) {
-            current[key] = {};
-        }
-        return current[key] as Record<string, unknown>;
-    }, obj);
-    target[lastKey] = value;
+  const keys = path.split('.')
+  const lastKey = keys.pop()!
+  const target = keys.reduce(
+    (current: Record<string, unknown>, key: string): Record<string, unknown> => {
+      if (!(key in current)) {
+        current[key] = {}
+      }
+      return current[key] as Record<string, unknown>
+    },
+    obj
+  )
+  target[lastKey] = value
 }
 
 // ============================================================================
@@ -478,39 +481,39 @@ export function setNestedValue(obj: Record<string, unknown>, path: string, value
  * @returns Sorted array
  */
 export function multiSort<T>(
-    items: T[],
-    sortBy: Array<{
-        key: string;
-        direction?: 'asc' | 'desc';
-        type?: 'string' | 'number' | 'date';
-    }>
+  items: T[],
+  sortBy: Array<{
+    key: string
+    direction?: 'asc' | 'desc'
+    type?: 'string' | 'number' | 'date'
+  }>
 ): T[] {
-    return [...items].sort((a, b) => {
-        for (const criteria of sortBy) {
-            const { key, direction = 'asc', type = 'string' } = criteria;
+  return [...items].sort((a, b) => {
+    for (const criteria of sortBy) {
+      const { key, direction = 'asc', type = 'string' } = criteria
 
-            const aValue = getNestedValue(a, key);
-            const bValue = getNestedValue(b, key);
+      const aValue = getNestedValue(a, key)
+      const bValue = getNestedValue(b, key)
 
-            let comparison = 0;
+      let comparison = 0
 
-            if (type === 'number') {
-                comparison = (Number(aValue) || 0) - (Number(bValue) || 0);
-            } else if (type === 'date') {
-                const aDate = new Date((aValue as string | number | Date) || 0);
-                const bDate = new Date((bValue as string | number | Date) || 0);
-                comparison = aDate.getTime() - bDate.getTime();
-            } else {
-                const aStr = String(aValue || '').toLowerCase();
-                const bStr = String(bValue || '').toLowerCase();
-                comparison = aStr.localeCompare(bStr);
-            }
+      if (type === 'number') {
+        comparison = (Number(aValue) || 0) - (Number(bValue) || 0)
+      } else if (type === 'date') {
+        const aDate = new Date((aValue as string | number | Date) || 0)
+        const bDate = new Date((bValue as string | number | Date) || 0)
+        comparison = aDate.getTime() - bDate.getTime()
+      } else {
+        const aStr = String(aValue || '').toLowerCase()
+        const bStr = String(bValue || '').toLowerCase()
+        comparison = aStr.localeCompare(bStr)
+      }
 
-            if (comparison !== 0) {
-                return direction === 'desc' ? -comparison : comparison;
-            }
-        }
+      if (comparison !== 0) {
+        return direction === 'desc' ? -comparison : comparison
+      }
+    }
 
-        return 0;
-    });
+    return 0
+  })
 }

@@ -16,6 +16,7 @@ Process a CS2 inspect link and extract item data.
 | `action` | string | Yes | Must be `analyze` |
 
 **Request Body**:
+
 ```json
 {
   "url": "steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20S76561198012345678A123456789D123456789"
@@ -101,6 +102,7 @@ Generate a custom inspect URL for any item configuration.
 | `action` | string | Yes | Must be `create-url` |
 
 **Request Body**:
+
 ```json
 {
   "itemType": "weapon",
@@ -128,6 +130,7 @@ Generate a custom inspect URL for any item configuration.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -152,6 +155,7 @@ Decode masked hex data from an inspect URL.
 | `action` | string | Yes | Must be `decode-hex` |
 
 **Request Body**:
+
 ```json
 {
   "hex": "00B0040000..."
@@ -159,6 +163,7 @@ Decode masked hex data from an inspect URL.
 ```
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -175,13 +180,13 @@ Decode masked hex data from an inspect URL.
 
 ## Item Types
 
-| Type | Description | Supports Stickers | Supports StatTrak |
-|------|-------------|-------------------|-------------------|
-| `weapon` | Regular weapons | ✅ | ✅ |
-| `knife` | Knife skins | ❌ | ✅ |
-| `glove` | Glove skins | ❌ | ❌ |
-| `agent` | Agent models | ❌ | ❌ |
-| `music-kit` | Music kits | ❌ | ✅ |
+| Type        | Description     | Supports Stickers | Supports StatTrak |
+| ----------- | --------------- | ----------------- | ----------------- |
+| `weapon`    | Regular weapons | ✅                | ✅                |
+| `knife`     | Knife skins     | ❌                | ✅                |
+| `glove`     | Glove skins     | ❌                | ❌                |
+| `agent`     | Agent models    | ❌                | ❌                |
+| `music-kit` | Music kits      | ❌                | ✅                |
 
 ---
 
@@ -215,16 +220,17 @@ steam://rungame/730/.../+csgo_econ_action_preview%20S76561198012345678A123456789
 
 ## Error Responses
 
-| Code | HTTP Status | Description |
-|------|-------------|-------------|
-| `INVALID_URL` | 400 | Invalid inspect URL format |
-| `GC_TIMEOUT` | 504 | Steam Game Coordinator timeout |
-| `STEAM_ERROR` | 502 | Steam API unavailable |
-| `INVALID_ITEM_TYPE` | 400 | Unknown item type specified |
+| Code                | HTTP Status | Description                    |
+| ------------------- | ----------- | ------------------------------ |
+| `INVALID_URL`       | 400         | Invalid inspect URL format     |
+| `GC_TIMEOUT`        | 504         | Steam Game Coordinator timeout |
+| `STEAM_ERROR`       | 502         | Steam API unavailable          |
+| `INVALID_ITEM_TYPE` | 400         | Unknown item type specified    |
 
 ### Error Examples
 
 **Invalid URL**:
+
 ```json
 {
   "success": false,
@@ -234,6 +240,7 @@ steam://rungame/730/.../+csgo_econ_action_preview%20S76561198012345678A123456789
 ```
 
 **Steam GC Timeout**:
+
 ```json
 {
   "success": false,
@@ -246,11 +253,11 @@ steam://rungame/730/.../+csgo_econ_action_preview%20S76561198012345678A123456789
 
 ## Rate Limiting
 
-| Endpoint | Limit | Notes |
-|----------|-------|-------|
-| Masked URL decode | No limit | Processed locally |
+| Endpoint             | Limit      | Notes             |
+| -------------------- | ---------- | ----------------- |
+| Masked URL decode    | No limit   | Processed locally |
 | Unmasked URL inspect | 1 req/1.5s | Per Steam account |
-| Create URL | No limit | Processed locally |
+| Create URL           | No limit   | Processed locally |
 
 ::: warning Steam Rate Limits
 Inspecting unmasked URLs (real inventory items) is rate-limited by Steam's Game Coordinator. Excessive requests may result in temporary bans.

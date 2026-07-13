@@ -9,5 +9,5 @@ export default {
   Layout,
   enhanceApp({ app }) {
     app.component('ConfigGenerator', ConfigGenerator)
-  }
+  },
 }

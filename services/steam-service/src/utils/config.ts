@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
+import dotenv from 'dotenv'
 
-dotenv.config();
+dotenv.config()
 
 export const config = {
   server: {
@@ -23,11 +23,13 @@ export const config = {
   },
   api: {
     get keys() {
-      return (process.env.API_KEYS || '').split(',').filter(Boolean);
+      return (process.env.API_KEYS || '').split(',').filter(Boolean)
     },
   },
   cors: {
-    origins: (process.env.CORS_ORIGINS || 'http://localhost:3210,http://localhost:3211').split(',').filter(Boolean),
+    origins: (process.env.CORS_ORIGINS || 'http://localhost:3210,http://localhost:3211')
+      .split(',')
+      .filter(Boolean),
   },
   rateLimit: {
     max: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
@@ -37,4 +39,4 @@ export const config = {
     level: process.env.LOG_LEVEL || 'info',
     apiRequests: process.env.LOG_API_REQUESTS === 'true',
   },
-} as const;
+} as const

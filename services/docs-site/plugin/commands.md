@@ -44,12 +44,12 @@ Requires `@css/root` permission. Non-admins will see an error message.
 ::: info Requires `Additional.KnifeEnabled = true`
 :::
 
-| Command | Description |
-|---------|-------------|
-| `!knife` | Refresh knife from active loadout |
-| `!knife <type>` | Apply specific knife type (e.g., `!knife karambit`) |
+| Command            | Description                                                |
+| ------------------ | ---------------------------------------------------------- |
+| `!knife`           | Refresh knife from active loadout                          |
+| `!knife <type>`    | Apply specific knife type (e.g., `!knife karambit`)        |
 | `!knife inventory` | Use player's Steam inventory knife (Player Inventory mode) |
-| `!knife default` | Force vanilla CS2 knife (Default mode) |
+| `!knife default`   | Force vanilla CS2 knife (Default mode)                     |
 
 ### Per-Knife Shortcuts
 
@@ -100,12 +100,12 @@ Individual shortcuts can be disabled via the `Additional.DisabledKnifeCommands` 
 ::: info Requires `Additional.GloveEnabled = true`
 :::
 
-| Command | Description |
-|---------|-------------|
-| `!glove` / `!gloves` | Refresh gloves from active loadout |
-| `!glove <type>` | Apply specific glove type (e.g., `!glove sport`) |
-| `!glove inventory` | Use player's Steam inventory gloves |
-| `!glove default` | Force vanilla CS2 gloves |
+| Command              | Description                                      |
+| -------------------- | ------------------------------------------------ |
+| `!glove` / `!gloves` | Refresh gloves from active loadout               |
+| `!glove <type>`      | Apply specific glove type (e.g., `!glove sport`) |
+| `!glove inventory`   | Use player's Steam inventory gloves              |
+| `!glove default`     | Force vanilla CS2 gloves                         |
 
 ### Per-Glove Shortcuts
 
@@ -139,12 +139,12 @@ If a paint name isn't found in the glove category but exists for another weapon 
 ::: info Requires `Additional.AgentEnabled = true`
 :::
 
-| Command | Description |
-|---------|-------------|
-| `!agent` | Refresh agent from active loadout |
-| `!agent <type>` | Apply specific agent type |
-| `!agent inventory` | Use player's Steam inventory agent |
-| `!agent default` | Force default agent for current team |
+| Command            | Description                          |
+| ------------------ | ------------------------------------ |
+| `!agent`           | Refresh agent from active loadout    |
+| `!agent <type>`    | Apply specific agent type            |
+| `!agent inventory` | Use player's Steam inventory agent   |
+| `!agent default`   | Force default agent for current team |
 
 ---
 
@@ -153,11 +153,11 @@ If a paint name isn't found in the glove category but exists for another weapon 
 ::: info Requires `Additional.MusicEnabled = true`
 :::
 
-| Command | Description |
-|---------|-------------|
-| `!music` | Refresh music kit from active loadout |
-| `!music <kit>` | Apply specific music kit |
-| `!music default` | Reset to Steam inventory music kit |
+| Command          | Description                           |
+| ---------------- | ------------------------------------- |
+| `!music`         | Refresh music kit from active loadout |
+| `!music <kit>`   | Apply specific music kit              |
+| `!music default` | Reset to Steam inventory music kit    |
 
 ---
 
@@ -166,23 +166,23 @@ If a paint name isn't found in the glove category but exists for another weapon 
 ::: info Requires `Additional.PinsEnabled = true`
 :::
 
-| Command | Description |
-|---------|-------------|
-| `!pin` | Refresh pin from active loadout |
-| `!pin <id>` | Apply specific pin |
+| Command          | Description                      |
+| ---------------- | -------------------------------- |
+| `!pin`           | Refresh pin from active loadout  |
+| `!pin <id>`      | Apply specific pin               |
 | `!pin inventory` | Use player's Steam inventory pin |
-| `!pin default` | Force no pin |
+| `!pin default`   | Force no pin                     |
 
 ---
 
 ## Loadout Commands
 
-| Command | Description |
-|---------|-------------|
-| `!loadout <name>` / `!switch <name>` | Switch to a named loadout |
-| `!loadouts` | List all loadouts with creation dates (highlights active) |
-| `!loadout_info` | Show summary of active loadout items |
-| `!loadout_info <filter>` | Filter by: `weapon`, `knife`, `glove`/`gloves`, `agent`/`agents`, `all` |
+| Command                              | Description                                                             |
+| ------------------------------------ | ----------------------------------------------------------------------- |
+| `!loadout <name>` / `!switch <name>` | Switch to a named loadout                                               |
+| `!loadouts`                          | List all loadouts with creation dates (highlights active)               |
+| `!loadout_info`                      | Show summary of active loadout items                                    |
+| `!loadout_info <filter>`             | Filter by: `weapon`, `knife`, `glove`/`gloves`, `agent`/`agents`, `all` |
 
 ### Typical Workflow
 
@@ -224,16 +224,16 @@ Where `<weapon>` can be a name (`ak47`, `awp`, `deagle`) or a numeric defindex (
 
 Tokens can appear in **any order** after the weapon:
 
-| Token | Meaning | Example |
-|-------|---------|---------|
-| `w<float>` | Wear value (0.0-1.0) | `w0.03`, `w.15` |
-| `p<int>` | Paint index | `p661`, `p415` |
-| `s<int>` | Pattern seed | `s422`, `s661` |
-| `t<int>` | StatTrak count (`t0`/`t-1` to disable) | `t1337` |
-| `n"text"` | Custom nametag | `n"The Beast"` |
-| `"text"` | Nametag shorthand (no `n` prefix) | `"My AK"` |
-| Single float | Wear shorthand | `0.03`, `.15` |
-| Paint name | Paint by name lookup | `printstream`, `dragon` |
+| Token        | Meaning                                | Example                 |
+| ------------ | -------------------------------------- | ----------------------- |
+| `w<float>`   | Wear value (0.0-1.0)                   | `w0.03`, `w.15`         |
+| `p<int>`     | Paint index                            | `p661`, `p415`          |
+| `s<int>`     | Pattern seed                           | `s422`, `s661`          |
+| `t<int>`     | StatTrak count (`t0`/`t-1` to disable) | `t1337`                 |
+| `n"text"`    | Custom nametag                         | `n"The Beast"`          |
+| `"text"`     | Nametag shorthand (no `n` prefix)      | `"My AK"`               |
+| Single float | Wear shorthand                         | `0.03`, `.15`           |
+| Paint name   | Paint by name lookup                   | `printstream`, `dragon` |
 
 ### Stickers
 
@@ -267,9 +267,9 @@ Stickers are applied to slots 0-4. Multiple formats supported:
 
 Special keychain types use additional property prefixes:
 
-| Prefix | Meaning | Example |
-|--------|---------|---------|
-| `i<id>` | Wrapped sticker ID (Sticker Slab) | `1234i5020` |
+| Prefix  | Meaning                            | Example     |
+| ------- | ---------------------------------- | ----------- |
+| `i<id>` | Wrapped sticker ID (Sticker Slab)  | `1234i5020` |
 | `h<id>` | Highlight Reel ID (Souvenir charm) | `1234h9012` |
 
 ```bash
@@ -281,10 +281,10 @@ Special keychain types use additional property prefixes:
 
 ### Reset Behavior
 
-| Token | Effect |
-|-------|--------|
+| Token               | Effect                                                                                            |
+| ------------------- | ------------------------------------------------------------------------------------------------- |
 | `default` / `--inv` | Restore from baseline inventory cache (captured on connect). Falls back to marking item inactive. |
-| `reset` / `--reset` | Clear all customization (paint, wear, StatTrak, stickers, keychain, name). |
+| `reset` / `--reset` | Clear all customization (paint, wear, StatTrak, stickers, keychain, name).                        |
 
 ### Preview Mode
 
@@ -309,8 +309,8 @@ When `WeaponCommands.Enabled` is `true` in config, shortcuts like `!awp`, `!ak47
 
 ## Utility Commands
 
-| Command | Description |
-|---------|-------------|
+| Command              | Description                                             |
+| -------------------- | ------------------------------------------------------- |
 | `!kill` / `!suicide` | Immediately kill your player (useful for testing skins) |
 
 ---
@@ -319,14 +319,14 @@ When `WeaponCommands.Enabled` is `true` in config, shortcuts like `!awp`, `!ak47
 
 These console commands require `@css/root` permission and control the logging subsystem:
 
-| Command | Description |
-|---------|-------------|
-| `css_cs2inspect_loglevel <level>` | Set global log level (`Debug`, `Info`, `Warning`, `Error`, `Success`) |
-| `css_cs2inspect_loglevel_category <cat> <level>` | Override log level for a specific category |
-| `css_cs2inspect_logstats` | Print logging statistics |
-| `css_cs2inspect_logcategories` | List all categories with their current levels |
-| `css_cs2inspect_logreload` | Reload logging config without server restart |
-| `css_cs2inspect_logtest` | Run logging validation tests |
+| Command                                          | Description                                                           |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| `css_cs2inspect_loglevel <level>`                | Set global log level (`Debug`, `Info`, `Warning`, `Error`, `Success`) |
+| `css_cs2inspect_loglevel_category <cat> <level>` | Override log level for a specific category                            |
+| `css_cs2inspect_logstats`                        | Print logging statistics                                              |
+| `css_cs2inspect_logcategories`                   | List all categories with their current levels                         |
+| `css_cs2inspect_logreload`                       | Reload logging config without server restart                          |
+| `css_cs2inspect_logtest`                         | Run logging validation tests                                          |
 
 **Log categories**: `Database`, `Commands`, `Weapons`, `Handlers`, `Events`, `Performance`, `Security`, `Configuration`, `Menu`, `Network`, `ErrorHandling`
 

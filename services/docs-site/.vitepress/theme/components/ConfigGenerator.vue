@@ -10,7 +10,7 @@ const steps = [
   { title: 'Permissions', icon: '3' },
   { title: 'Weapons', icon: '4' },
   { title: 'Logging', icon: '5' },
-  { title: 'Review', icon: '6' }
+  { title: 'Review', icon: '6' },
 ]
 
 // --- Reactive config state ---
@@ -20,7 +20,7 @@ const db = ref({
   port: 3306,
   user: '',
   password: '',
-  name: ''
+  name: '',
 })
 
 const features = ref({
@@ -33,7 +33,7 @@ const features = ref({
   SkinEnabled: true,
   PinsEnabled: true,
   ShowSkinImage: true,
-  HideChatCommandMessages: true
+  HideChatCommandMessages: true,
 })
 
 const featureDescriptions: Record<string, string> = {
@@ -45,8 +45,8 @@ const featureDescriptions: Record<string, string> = {
   AgentEnabled: 'Enable custom agent models (!agent)',
   SkinEnabled: 'Enable weapon skin application (loadouts and !g)',
   PinsEnabled: 'Enable pins (!pin)',
-  ShowSkinImage: 'Show a preview image for the player\'s current weapon skin',
-  HideChatCommandMessages: 'Hide command messages (e.g. !g ...) from public chat'
+  ShowSkinImage: "Show a preview image for the player's current weapon skin",
+  HideChatCommandMessages: 'Hide command messages (e.g. !g ...) from public chat',
 }
 
 const permissions = ref({
@@ -56,7 +56,7 @@ const permissions = ref({
   Weapons: '',
   Music: '',
   Pins: '',
-  Agents: ''
+  Agents: '',
 })
 
 const weaponCommands = ref({
@@ -66,14 +66,14 @@ const weaponCommands = ref({
     { key: 'awp', command: 'awp', giveWeapon: true, enabled: true },
     { key: 'ak47', command: 'ak47', giveWeapon: false, enabled: true },
     { key: 'm4a4', command: 'm4a4', giveWeapon: false, enabled: true },
-    { key: 'm4a1s', command: 'm4a1s', giveWeapon: false, enabled: true }
-  ] as Array<{ key: string; command: string; giveWeapon: boolean; enabled: boolean }>
+    { key: 'm4a1s', command: 'm4a1s', giveWeapon: false, enabled: true },
+  ] as Array<{ key: string; command: string; giveWeapon: boolean; enabled: boolean }>,
 })
 
 const logging = ref({
   globalLevel: 'Info',
   fileLoggingEnabled: true,
-  logDirectory: 'logs/CS2Inspect'
+  logDirectory: 'logs/CS2Inspect',
 })
 
 const logLevels = ['Debug', 'Info', 'Warning', 'Error']
@@ -107,7 +107,7 @@ const generatedConfig = computed(() => {
         weaponsObj[w.key.trim()] = {
           Enabled: w.enabled,
           Command: w.command.trim() || w.key.trim(),
-          GiveWeapon: w.giveWeapon
+          GiveWeapon: w.giveWeapon,
         }
       }
     }
@@ -131,8 +131,8 @@ const generatedConfig = computed(() => {
         Weapons: permissions.value.Weapons,
         Music: permissions.value.Music,
         Pins: permissions.value.Pins,
-        Agents: permissions.value.Agents
-      }
+        Agents: permissions.value.Agents,
+      },
     },
     MenuType: 'selectable',
     Logging: {
@@ -151,7 +151,7 @@ const generatedConfig = computed(() => {
         Configuration: 'Info',
         Menu: 'Info',
         Network: 'Info',
-        ErrorHandling: 'Error'
+        ErrorHandling: 'Error',
       },
       FileLogging: {
         Enabled: logging.value.fileLoggingEnabled,
@@ -161,28 +161,28 @@ const generatedConfig = computed(() => {
         FileNamePattern: 'cs2inspect-{date:yyyy-MM-dd}.log',
         IncludeColors: false,
         MinimumLogLevel: 'Debug',
-        AutoFlush: true
+        AutoFlush: true,
       },
       Performance: {
         AsyncLogging: true,
         BufferSize: 1000,
         FlushInterval: 5000,
         IncludeStackTrace: false,
-        MaxMessageLength: 2000
+        MaxMessageLength: 2000,
       },
       Formatting: {
         TimestampFormat: 'HH:mm:ss.fff',
         PadLogLevels: true,
         CompactFormat: false,
         IncludeThreadId: false,
-        CustomFormat: null
-      }
+        CustomFormat: null,
+      },
     },
     WeaponCommands: {
       Enabled: weaponCommands.value.enabled,
       ReplaceWeaponOnGive: weaponCommands.value.replaceOnGive,
-      Weapons: weaponsObj
-    }
+      Weapons: weaponsObj,
+    },
   }
 
   return JSON.stringify(config, null, 2)
@@ -214,7 +214,9 @@ async function copyConfig() {
   try {
     await navigator.clipboard.writeText(generatedConfig.value)
     copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
   } catch {
     // Fallback
     const textarea = document.createElement('textarea')
@@ -224,7 +226,9 @@ async function copyConfig() {
     document.execCommand('copy')
     document.body.removeChild(textarea)
     copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
   }
 }
 </script>
@@ -250,12 +254,12 @@ async function copyConfig() {
 
     <!-- Step content -->
     <div class="step-content">
-
       <!-- Step 0: Database -->
       <div v-if="currentStep === 0" class="step-panel">
         <h3>Database Connection</h3>
         <p class="step-desc">
-          Enter the MariaDB/MySQL credentials. These must point to the <strong>same database</strong> used by your CS2Inspect web application.
+          Enter the MariaDB/MySQL credentials. These must point to the
+          <strong>same database</strong> used by your CS2Inspect web application.
         </p>
         <div class="form-grid">
           <div class="form-group">
@@ -279,13 +283,18 @@ async function copyConfig() {
             <input v-model="db.name" type="text" placeholder="cs2inspect" />
           </div>
         </div>
-        <p v-if="!canProceed" class="validation-msg">Username and Database Name are required to continue.</p>
+        <p v-if="!canProceed" class="validation-msg">
+          Username and Database Name are required to continue.
+        </p>
       </div>
 
       <!-- Step 1: Features -->
       <div v-if="currentStep === 1" class="step-panel">
         <h3>Feature Toggles</h3>
-        <p class="step-desc">Enable or disable plugin features. Disabled features bypass their handlers and database lookups entirely.</p>
+        <p class="step-desc">
+          Enable or disable plugin features. Disabled features bypass their handlers and database
+          lookups entirely.
+        </p>
         <div class="toggle-list">
           <div v-for="(value, key) in features" :key="key" class="toggle-row">
             <label class="toggle-switch">
@@ -304,21 +313,36 @@ async function copyConfig() {
       <div v-if="currentStep === 2" class="step-panel">
         <h3>Permissions</h3>
         <p class="step-desc">
-          Optionally restrict commands using CounterStrikeSharp admin flags. Leave empty for no restriction.
-          Common flags: <code>@css/root</code>, <code>@css/vip</code>, <code>@css/ban</code>.
+          Optionally restrict commands using CounterStrikeSharp admin flags. Leave empty for no
+          restriction. Common flags: <code>@css/root</code>, <code>@css/vip</code>,
+          <code>@css/ban</code>.
         </p>
         <div class="form-grid">
           <div class="form-group form-group-full">
             <label>Global Permission (applies to ALL commands)</label>
-            <input v-model="permissions.global" type="text" placeholder="Leave empty for no restriction" />
+            <input
+              v-model="permissions.global"
+              type="text"
+              placeholder="Leave empty for no restriction"
+            />
           </div>
         </div>
         <h4>Per-Category Permissions</h4>
-        <p class="step-desc-small">These are checked <strong>in addition</strong> to the global permission.</p>
+        <p class="step-desc-small">
+          These are checked <strong>in addition</strong> to the global permission.
+        </p>
         <div class="form-grid perm-grid">
-          <div v-for="cat in ['Knives', 'Gloves', 'Weapons', 'Music', 'Pins', 'Agents']" :key="cat" class="form-group">
+          <div
+            v-for="cat in ['Knives', 'Gloves', 'Weapons', 'Music', 'Pins', 'Agents']"
+            :key="cat"
+            class="form-group"
+          >
             <label>{{ cat }}</label>
-            <input v-model="permissions[cat as keyof typeof permissions]" type="text" placeholder="Empty = no restriction" />
+            <input
+              v-model="permissions[cat as keyof typeof permissions]"
+              type="text"
+              placeholder="Empty = no restriction"
+            />
           </div>
         </div>
       </div>
@@ -327,9 +351,10 @@ async function copyConfig() {
       <div v-if="currentStep === 3" class="step-panel">
         <h3>Weapon Shortcuts</h3>
         <p class="step-desc">
-          Enable per-weapon shortcut commands (e.g., <code>!awp</code> instead of <code>!g awp</code>).
+          Enable per-weapon shortcut commands (e.g., <code>!awp</code> instead of
+          <code>!g awp</code>).
         </p>
-        <div class="toggle-row" style="margin-bottom: 1rem;">
+        <div class="toggle-row" style="margin-bottom: 1rem">
           <label class="toggle-switch">
             <input type="checkbox" v-model="weaponCommands.enabled" />
             <span class="toggle-slider" />
@@ -340,14 +365,16 @@ async function copyConfig() {
         </div>
 
         <template v-if="weaponCommands.enabled">
-          <div class="toggle-row" style="margin-bottom: 1rem;">
+          <div class="toggle-row" style="margin-bottom: 1rem">
             <label class="toggle-switch">
               <input type="checkbox" v-model="weaponCommands.replaceOnGive" />
               <span class="toggle-slider" />
             </label>
             <div class="toggle-info">
               <span class="toggle-name">Replace Weapon On Give</span>
-              <span class="toggle-desc">When GiveWeapon is enabled, replace the player's existing weapon</span>
+              <span class="toggle-desc"
+                >When GiveWeapon is enabled, replace the player's existing weapon</span
+              >
             </div>
           </div>
 
@@ -385,12 +412,17 @@ async function copyConfig() {
       <!-- Step 4: Logging -->
       <div v-if="currentStep === 4" class="step-panel">
         <h3>Logging</h3>
-        <p class="step-desc">Configure the plugin's logging behavior. Advanced settings (per-category levels, formatting) use sensible defaults and can be tuned later.</p>
+        <p class="step-desc">
+          Configure the plugin's logging behavior. Advanced settings (per-category levels,
+          formatting) use sensible defaults and can be tuned later.
+        </p>
         <div class="form-grid">
           <div class="form-group">
             <label>Global Log Level</label>
             <select v-model="logging.globalLevel">
-              <option v-for="level in logLevels" :key="level" :value="level">{{ level }}</option>
+              <option v-for="level in logLevels" :key="level" :value="level">
+                {{ level }}
+              </option>
             </select>
           </div>
           <div class="form-group">
@@ -398,7 +430,7 @@ async function copyConfig() {
             <input v-model="logging.logDirectory" type="text" placeholder="logs/CS2Inspect" />
           </div>
         </div>
-        <div class="toggle-row" style="margin-top: 1rem;">
+        <div class="toggle-row" style="margin-top: 1rem">
           <label class="toggle-switch">
             <input type="checkbox" v-model="logging.fileLoggingEnabled" />
             <span class="toggle-slider" />
@@ -414,7 +446,8 @@ async function copyConfig() {
       <div v-if="currentStep === 5" class="step-panel">
         <h3>Your Configuration</h3>
         <p class="step-desc">
-          Copy this JSON and save it as <code>configs/plugins/CS2Inspect/CS2Inspect.json</code> on your game server.
+          Copy this JSON and save it as
+          <code>configs/plugins/CS2Inspect/CS2Inspect.json</code> on your game server.
         </p>
         <div class="output-wrapper">
           <div class="output-toolbar">
@@ -425,7 +458,7 @@ async function copyConfig() {
           </div>
           <pre class="output-code"><code>{{ generatedConfig }}</code></pre>
         </div>
-        <p class="step-desc-small" style="margin-top: 1rem;">
+        <p class="step-desc-small" style="margin-top: 1rem">
           For detailed documentation on each setting, see the
           <a href="./configuration.html">Configuration Reference</a>.
         </p>
@@ -446,11 +479,7 @@ async function copyConfig() {
       >
         Next &rarr;
       </button>
-      <button
-        v-else
-        class="btn-nav btn-next btn-copy-final"
-        @click="copyConfig"
-      >
+      <button v-else class="btn-nav btn-next btn-copy-final" @click="copyConfig">
         {{ copied ? '&#10003; Copied!' : 'Copy Config' }}
       </button>
     </div>

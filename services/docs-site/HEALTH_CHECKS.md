@@ -11,6 +11,7 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 **Purpose:** Indicates if the application process is running.
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -19,6 +20,7 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 ```
 
 **Status Codes:**
+
 - `200 OK` - Process is alive
 
 **Usage:** Container orchestrators use this to determine if the container should be restarted.
@@ -30,6 +32,7 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 **Purpose:** Indicates if the application is ready to serve traffic.
 
 **Response (Healthy):**
+
 ```json
 {
   "status": "ok",
@@ -51,6 +54,7 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 ```
 
 **Response (Unhealthy):**
+
 ```json
 {
   "status": "fail",
@@ -67,10 +71,12 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 ```
 
 **Status Codes:**
+
 - `200 OK` - All critical dependencies are healthy
 - `503 Service Unavailable` - One or more critical dependencies are unhealthy
 
 **Critical Checks:**
+
 - Database connectivity
 - Environment configuration
 
@@ -83,6 +89,7 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 **Purpose:** Provides detailed health information for all system components.
 
 **Response:**
+
 ```json
 {
   "status": "ok",
@@ -144,9 +151,11 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 ```
 
 **Status Codes:**
+
 - `200 OK` - Always returns 200, check individual component statuses
 
 **Health Checks:**
+
 - **Database:** Connection health, latency, connection pool status
 - **Steam API:** API key configuration, credentials presence
 - **Steam Client:** CS2 inspect client connection status, queue health
@@ -159,17 +168,20 @@ The CS2 Inspect Web application includes a comprehensive health check system tha
 **Purpose:** Provides historical health check data for visualization.
 
 **Query Parameters:**
+
 - `check_name` (optional) - Filter by specific check name
 - `start_time` (optional) - Start of time range (ISO 8601 format), defaults to 24 hours ago
 - `end_time` (optional) - End of time range (ISO 8601 format)
 - `limit` (optional) - Maximum number of data points, defaults to 100
 
 **Example Request:**
+
 ```
 GET /api/health/history?check_name=database&start_time=2024-10-20T00:00:00Z&limit=200
 ```
 
 **Response:**
+
 ```json
 [
   {
@@ -191,6 +203,7 @@ GET /api/health/history?check_name=database&start_time=2024-10-20T00:00:00Z&limi
 ```
 
 **Status Codes:**
+
 - `200 OK` - Returns historical data (may be empty array)
 
 ---
@@ -228,12 +241,12 @@ Health checks return one of three status values:
 
 Default thresholds for degraded/failed status:
 
-| Service | Degraded | Failed |
-|---------|----------|--------|
-| Database | > 50ms | > 200ms |
-| Steam API | > 300ms | > 1000ms |
-| Steam Client | > 500ms | > 2000ms |
-| Environment | > 10ms | > 50ms |
+| Service      | Degraded | Failed   |
+| ------------ | -------- | -------- |
+| Database     | > 50ms   | > 200ms  |
+| Steam API    | > 300ms  | > 1000ms |
+| Steam Client | > 500ms  | > 2000ms |
+| Environment  | > 10ms   | > 50ms   |
 
 ---
 
@@ -267,7 +280,9 @@ Container orchestrators (Docker, Kubernetes, etc.) use this to automatically res
 The health check system uses two database tables:
 
 ### `health_check_history`
+
 Stores historical health check results:
+
 - `id` - Primary key
 - `check_name` - Name of the health check
 - `status` - Health status (ok/degraded/fail)
@@ -277,7 +292,9 @@ Stores historical health check results:
 - `checked_at` - Timestamp of the check
 
 ### `health_check_config`
+
 Stores configuration for health checks:
+
 - `id` - Primary key
 - `check_name` - Name of the health check
 - `enabled` - Whether the check is enabled
@@ -293,19 +310,23 @@ For complete database setup instructions including Docker, local MariaDB install
 **Migrations run automatically on server startup via Drizzle ORM!**
 
 When you start the server, Drizzle ORM will automatically:
+
 1. Check the current schema state
 2. Apply any pending migrations from `server/database/drizzle/`
 3. Create or update all required tables
 
 **For new installations:**
+
 - Just start the server - Drizzle ORM migrations will run automatically
 - The system will create all required tables
 
 **For existing installations:**
+
 - Start the server - only new migrations will be applied
 - Drizzle ORM tracks migration state and skips already-applied changes
 
 **Manual migration (if needed for troubleshooting):**
+
 ```bash
 # Generate a new migration after schema changes
 npx drizzle-kit generate
@@ -338,6 +359,7 @@ See the [Setup Guide - Database Management](../setup.md#database-management) for
 ### Alert Thresholds
 
 Recommended alert conditions:
+
 - `/api/health/ready` returns 503 for more than 2 consecutive checks
 - Any service shows `fail` status for more than 5 minutes
 - Database latency exceeds 200ms for more than 3 consecutive minutes
@@ -351,7 +373,8 @@ Recommended alert conditions:
 
 **Symptom:** Container marked unhealthy immediately after start
 
-**Solution:** 
+**Solution:**
+
 - Increase `start_period` in Dockerfile HEALTHCHECK
 - Verify database connectivity
 - Check environment variables are properly set
@@ -361,14 +384,16 @@ Recommended alert conditions:
 **Symptom:** Database shows `fail` status
 
 **Common Causes:**
+
 - Database server is down or unreachable
 - Invalid database credentials
 - Connection pool exhausted
 - Network issues
 
 **Solutions:**
+
 - Verify database server is running
-- Check DATABASE_* environment variables
+- Check DATABASE\_\* environment variables
 - Review connection pool settings
 - Check network connectivity
 
@@ -377,12 +402,14 @@ Recommended alert conditions:
 **Symptom:** Steam client shows `fail` status when credentials are configured
 
 **Common Causes:**
+
 - Invalid Steam credentials
 - Steam servers are down
 - Rate limiting
 - Network issues
 
 **Solutions:**
+
 - Verify STEAM_USERNAME and STEAM_PASSWORD
 - Check Steam server status
 - Ensure Steam account is not logged in elsewhere
@@ -393,11 +420,13 @@ Recommended alert conditions:
 **Symptom:** Status page shows no historical data
 
 **Common Causes:**
+
 - Database tables not initialized
 - Sampler not running
 - Insufficient permissions
 
 **Solutions:**
+
 - Restart the server to trigger Drizzle ORM migrations (tables are created automatically on startup)
 - Check server logs for sampler errors
 - Verify database user has INSERT permissions on health_check_history table
@@ -409,6 +438,7 @@ Recommended alert conditions:
 The health check system uses these environment variables:
 
 **Required:**
+
 - `DATABASE_HOST` - Database server hostname
 - `DATABASE_USER` - Database username
 - `DATABASE_PASSWORD` - Database password
@@ -416,6 +446,7 @@ The health check system uses these environment variables:
 - `JWT_TOKEN` - JWT secret token
 
 **Optional:**
+
 - `DATABASE_PORT` - Database port (default: 3306)
 - `DATABASE_CONNECTION_LIMIT` - Max connections (default: 5)
 - `STEAM_API_KEY` - Steam API key

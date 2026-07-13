@@ -1,43 +1,50 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import Components from 'unplugin-vue-components/vite'
-import { defineNuxtConfig } from "nuxt/config";
+import { defineNuxtConfig } from 'nuxt/config'
+import { fileURLToPath } from 'node:url'
+import { existsSync, readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 
 export default defineNuxtConfig({
-  $development: undefined, $env: undefined, $meta: undefined, $production: undefined, $test: undefined,
+  alias: {
+    '~/server': fileURLToPath(new URL('./server', import.meta.url)),
+  },
+  $development: undefined,
+  $env: undefined,
+  $meta: undefined,
+  $production: undefined,
+  $test: undefined,
   ssr: true,
   imports: {
-    dirs: ['stores', 'composables', 'utils', 'server/utils', 'middleware'],
+    dirs: ['stores', 'composables', 'utils', 'middleware'],
     presets: [
       {
         from: 'naive-ui',
-        imports: [
-          'useMessage',
-          'useNotification',
-          'useDialog',
-          'useTheme',
-          'useLoading'
-        ],
-      }
+        imports: ['useMessage', 'useNotification', 'useDialog', 'useTheme', 'useLoading'],
+      },
     ],
   },
+  components: [{ path: '~/components', pathPrefix: false }],
   typescript: {
     typeCheck: false,
   },
   experimental: {
     typedPages: true,
+    buildCache: true,
+    asyncContext: true,
   },
   nitro: {
     experimental: {
-      wasm: true
+      wasm: true,
     },
     esbuild: {
       options: {
-        target: 'esnext'
-      }
+        target: 'esnext',
+      },
     },
     minify: true,
-    node: true
+    node: true,
   },
   devServer: {
     port: Number(process.env.PORT) || 3210,
@@ -47,16 +54,16 @@ export default defineNuxtConfig({
     enabled: true,
   },
   build: {
-    transpile: ['vueuc']
+    transpile: ['vueuc'],
   },
   app: {
     pageTransition: {
       name: 'page',
-      mode: 'out-in'
+      mode: 'out-in',
     },
     layoutTransition: {
       name: 'layout',
-      mode: 'out-in'
+      mode: 'out-in',
     },
     head: {
       titleTemplate: '%s | CS2 Inspect',
@@ -64,17 +71,23 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.' },
+        {
+          name: 'description',
+          content:
+            'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
+        },
         { name: 'theme-color', content: '#000000' },
         { property: 'og:title', content: 'CS2 Inspect' },
-        { property: 'og:description', content: 'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.' },
+        {
+          property: 'og:description',
+          content:
+            'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
+        },
         { property: 'og:type', content: 'website' },
         // { property: 'og:image', content: '/og-image.png' }, // TODO: Add OG Image
       ],
-      link: [
-        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
-      ]
-    }
+      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+    },
   },
   css: [
     '~/assets/css/tailwind.css',
@@ -85,15 +98,15 @@ export default defineNuxtConfig({
   ],
   router: {
     options: {
-      hashMode: false // Ensure this is set to false for proper URL handling
-    }
+      hashMode: false, // Ensure this is set to false for proper URL handling
+    },
   },
   vite: {
     optimizeDeps: {
-      exclude: ['oxc-parser']
+      exclude: ['oxc-parser'],
     },
     ssr: {
-      noExternal: ['naive-ui']
+      noExternal: ['naive-ui'],
     },
     css: {
       preprocessorOptions: {
@@ -106,25 +119,60 @@ export default defineNuxtConfig({
       watch: {
         usePolling: false,
         interval: 1000,
-        ignored: [
-          '**/public/img/charms/**',
-          '**/public/img/weapons/**',
-          '**/storage/stickers/**',
-        ]
-      }
+        ignored: ['**/public/img/charms/**', '**/public/img/weapons/**', '**/storage/stickers/**'],
+      },
     },
     plugins: [
+      // Fix Vite resolving node_modules .vue files without project root prefix
+      {
+        name: 'fix-node-modules-path',
+        enforce: 'pre' as const,
+        load(id: string) {
+          if (id.startsWith('/node_modules/') && id.endsWith('.vue') && !existsSync(id)) {
+            const resolved = resolve(process.cwd(), id.slice(1))
+            if (existsSync(resolved)) {
+              return readFileSync(resolved, 'utf-8')
+            }
+          }
+        },
+      },
       Components({
-        resolvers: [NaiveUiResolver()]
-      }) as unknown as { name: string }
-    ]
+        resolvers: [NaiveUiResolver()],
+      }) as unknown as { name: string },
+    ],
   },
   tailwindcss: {
-    cssPath: ['~/assets/css/tailwind.css', { injectPosition: "first" }],
+    cssPath: ['~/assets/css/tailwind.css', { injectPosition: 'first' }],
     exposeConfig: {
-      level: 2
+      level: 2,
     },
-    config: {},
+    config: {
+      theme: {
+        extend: {
+          colors: {
+            background: 'var(--bg-primary)',
+            foreground: 'var(--text-primary)',
+            muted: {
+              DEFAULT: 'var(--bg-secondary)',
+              foreground: 'var(--text-tertiary)',
+            },
+            accent: {
+              DEFAULT: 'var(--bg-hover)',
+              foreground: 'var(--text-primary)',
+            },
+            border: 'var(--border-color)',
+            input: 'var(--border-light)',
+            primary: {
+              DEFAULT: 'var(--primary-color)',
+              foreground: 'var(--text-inverted)',
+            },
+          },
+          borderColor: {
+            DEFAULT: 'var(--border-color)',
+          },
+        },
+      },
+    },
     viewer: false,
   },
   modules: [
@@ -148,7 +196,7 @@ export default defineNuxtConfig({
         process.env['NODE_ENV'] !== 'production' &&
         (process.env.NUXT_PUBLIC_DEV_AUTH_ENABLED === 'true' ||
           process.env.DEV_AUTH_ENABLED === 'true'),
-    }
+    },
   },
   // PWA config ready to enable — uncomment @vite-pwa/nuxt module above and this block
   // pwa: {
@@ -170,20 +218,34 @@ export default defineNuxtConfig({
       { code: 'nl', iso: 'nl-NL', displayName: 'Nederlands' },
     ],
     defaultLocale: 'en',
-    translationDir: 'locales',
+    translationDir: 'app/locales',
     meta: true,
     localeCookie: 'i18n_locale',
-    strategy: 'no_prefix'
+    strategy: 'no_prefix',
   },
   hooks: {
-    'close': async () => {
-      if (process.argv.includes('typecheck') || process.argv.includes('lint') || process.argv.includes('analyze')) return
+    close: async () => {
+      if (
+        process.argv.includes('typecheck') ||
+        process.argv.includes('lint') ||
+        process.argv.includes('analyze') ||
+        process.argv.includes('vitest') ||
+        process.env.VITEST
+      )
+        return
       setTimeout(() => {
-        console.log("Closing...")
+        console.log('Closing...')
         process.exit(0)
       }, 1000)
-    }
+    },
   },
-  
-  compatibilityDate: '2024-10-12'
+
+  routeRules: {
+    '/admin/**': { ssr: false },
+    '/auth/**': { ssr: false },
+    '/dev': { ssr: false },
+    '/api/data/**': { swr: 300 },
+  },
+
+  compatibilityDate: '2025-04-01',
 })

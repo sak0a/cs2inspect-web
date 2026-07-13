@@ -5,6 +5,7 @@ Welcome to CS2Inspect! This guide will help you get started with using the appli
 ## What You Need
 
 To use CS2Inspect, you need:
+
 - A **Steam account** (for login)
 - A **web browser** (Chrome, Firefox, Edge, or Safari)
 - An **internet connection**
@@ -68,10 +69,11 @@ To customize a weapon:
 5. **Save** your changes
 
 ::: tip Quick Tips
+
 - Use the search bar to find skins quickly
 - Click the preview to see your weapon in detail
 - Changes are saved automatically
-:::
+  :::
 
 ### Knives
 
@@ -238,6 +240,7 @@ You can import item configurations from CS2 inspect links:
 ### Browser Recommendations
 
 For the best experience, we recommend:
+
 - **Chrome** or **Edge** (best compatibility)
 - **Firefox** (good compatibility)
 - **Safari** (works well on Mac/iOS)
@@ -252,6 +255,7 @@ For the best experience, we recommend:
 ### Organizing Loadouts
 
 Create loadouts for different scenarios:
+
 - **"Competitive"** - Your serious, try-hard skins
 - **"Casual"** - Fun, colorful skins
 - **"Budget"** - Lower-tier skins
@@ -263,6 +267,7 @@ Create loadouts for different scenarios:
 ### What Information is Stored
 
 CS2Inspect stores:
+
 - Your Steam ID (public information)
 - Your loadout configurations
 - Your login session
@@ -270,6 +275,7 @@ CS2Inspect stores:
 ### What is NOT Stored
 
 CS2Inspect does NOT store:
+
 - Your Steam password
 - Your actual CS2 inventory
 - Any payment information
@@ -278,6 +284,7 @@ CS2Inspect does NOT store:
 ### Logging Out
 
 When you're done:
+
 1. Click your **username** or **profile icon**
 2. Click **"Logout"**
 3. You'll be logged out and returned to the login page
@@ -301,4 +308,4 @@ If you need help:
 
 ---
 
-*Enjoy customizing your CS2 loadouts!*
+_Enjoy customizing your CS2 loadouts!_

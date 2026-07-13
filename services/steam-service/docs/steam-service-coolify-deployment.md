@@ -5,6 +5,7 @@ This guide explains how to deploy the Steam Service alongside your existing Nuxt
 ## Overview
 
 The Steam Service is a standalone Node.js service that provides shared Steam account access. This guide covers:
+
 - Setting up the service in Coolify
 - Network configuration
 - Environment variables
@@ -85,11 +86,13 @@ STEAM_QUEUE_TIMEOUT=30000
 #### Step 5: Configure Domain/Subdomain (Optional but Recommended)
 
 **Option A: Subdomain**
+
 1. Add a subdomain: `steam-api.yourdomain.com`
 2. Point it to the Steam Service application
 3. Enable SSL/TLS in Coolify
 
 **Option B: Port Access**
+
 - Access via: `your-server-ip:3000`
 - Less secure, but simpler setup
 
@@ -136,12 +139,11 @@ The main Nuxt app can reach the Steam Service via:
 #### Important: Don’t use `127.0.0.1` between containers
 
 Inside a Docker container, `127.0.0.1` refers to **that same container**, not another container.
-So from your Nuxt container, `http://127.0.0.1:3655` will *never* reach the steam-service container.
+So from your Nuxt container, `http://127.0.0.1:3655` will _never_ reach the steam-service container.
 
 #### Recommended (private, internal): Network alias + internal port
 
 1. In Coolify → **Steam Service** → **Network Aliases**, set something stable like:
-
    - `steam-service`
 
 2. Ensure the Steam Service listens on a known **internal port** (its `PORT` env).
@@ -207,6 +209,7 @@ curl http://your-server-ip:3000/api/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "ok",
@@ -243,11 +246,13 @@ curl -X POST https://steam-api.yourdomain.com/api/inspect/create-url \
 ### Service Won't Start
 
 **Check Logs in Coolify:**
+
 1. Go to your Steam Service application
 2. Click **Logs**
 3. Look for initialization errors
 
 **Common Issues:**
+
 - Missing `STEAM_USERNAME` or `STEAM_PASSWORD`
 - Invalid `API_KEYS` format
 - Port 3000 already in use
@@ -309,6 +314,7 @@ Coolify can monitor the service health:
 ### Logs
 
 Monitor logs in Coolify:
+
 - Application logs show all requests
 - Error logs show failures
 - Steam client logs show connection status
@@ -316,11 +322,13 @@ Monitor logs in Coolify:
 ### Metrics
 
 Check service status:
+
 ```bash
 curl https://steam-api.yourdomain.com/api/status
 ```
 
 Returns:
+
 - Steam client status
 - Queue statistics
 - Server uptime
@@ -338,6 +346,7 @@ If you need multiple Steam Service instances:
 ### Vertical Scaling
 
 Increase resources in Coolify:
+
 - More CPU for faster processing
 - More memory for larger queues
 - Adjust `STEAM_MAX_QUEUE_SIZE` if needed
@@ -353,6 +362,7 @@ Increase resources in Coolify:
 ### Configuration Backup
 
 Keep a backup of:
+
 - `docker-compose.yml` (if using)
 - Environment variable list
 - Domain/DNS configuration
@@ -386,12 +396,14 @@ Once confirmed working, you can remove Steam credentials from the main app (they
 ### Required Environment Variables
 
 **Steam Service:**
+
 - `STEAM_USERNAME`
 - `STEAM_PASSWORD`
 - `STEAM_API_KEY`
 - `API_KEYS`
 
 **Main App:**
+
 - `STEAM_SERVICE_URL`
 - `STEAM_SERVICE_API_KEY`
 
@@ -411,5 +423,6 @@ If you encounter issues:
 5. Review this documentation
 
 For additional help, refer to:
+
 - [Steam Service Setup Guide](./steam-service-setup.md)
 - [Steam Service Implementation Plan](./steam-service-implementation-plan.md)

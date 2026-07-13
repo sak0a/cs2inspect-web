@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken'
 import { createError, defineEventHandler, parseCookies } from 'h3'
 import { eq, and } from 'drizzle-orm'
-import { PROTECTED_API_PATHS } from '~/server/utils/constants'
+import { PUBLIC_API_PATHS } from '~/server/utils/constants'
 import { bannedUsers } from '~/server/database/schema'
 import { useDatabase } from '~/server/utils/database'
 import { isDevAuthEnabled } from '~/server/utils/devAuth'
@@ -15,20 +15,22 @@ if (!JWT_SECRET) {
 export default defineEventHandler(async (event) => {
   const path = event.node.req.url
 
-  // Dev login is public when dev auth is enabled
   if (path?.startsWith('/api/auth/dev/') && isDevAuthEnabled()) {
     return
   }
 
-  // Skip auth check for non-protected routes
-  if (!path || !PROTECTED_API_PATHS.some((route) => path.startsWith(route))) {
+  // Deny-by-default: skip auth only for explicitly public routes and non-API paths
+  if (
+    !path ||
+    !path.startsWith('/api/') ||
+    PUBLIC_API_PATHS.some((route) => path.startsWith(route))
+  ) {
     return
   }
 
   const isAdminRoute = path.startsWith('/api/admin/')
   if (isAdminRoute) {
-    Logger.header('ADMIN ROUTE AUTHENTICATION')
-    Logger.info(`Path: ${path}`, 'auth')
+    Logger.debug(`Admin auth check path=${path}`, 'auth')
   }
 
   const cookies: Record<string, string> = parseCookies(event)
@@ -36,8 +38,7 @@ export default defineEventHandler(async (event) => {
 
   if (!token) {
     if (isAdminRoute) {
-      Logger.error('FAILED - No auth_token cookie found', 'auth')
-      Logger.info('User needs to log in first', 'auth')
+      Logger.warn('Auth deny reason=no_token', 'auth')
     }
     throw createError({
       statusCode: 401,
@@ -53,8 +54,10 @@ export default defineEventHandler(async (event) => {
     decoded = jwt.verify(token, JWT_SECRET) as { steamId?: string; type?: string }
   } catch (error) {
     if (isAdminRoute) {
-      Logger.error('FAILED - JWT verification error', 'auth')
-      Logger.error(`Error: ${error instanceof Error ? error.message : error}`, 'auth')
+      Logger.warn(
+        `Auth deny reason=invalid_token error=${error instanceof Error ? error.message : error}`,
+        'auth'
+      )
     }
     throw createError({
       statusCode: 401,
@@ -76,7 +79,7 @@ export default defineEventHandler(async (event) => {
   event.context.auth = decoded
 
   if (isAdminRoute) {
-    Logger.success(`JWT valid - Steam ID: ${decoded.steamId}`, 'auth')
+    Logger.debug(`JWT valid steamId=${decoded.steamId}`, 'auth')
   }
 
   if (decoded.steamId) {
@@ -101,7 +104,10 @@ export default defineEventHandler(async (event) => {
         throw error
       }
 
-      console.error('[Auth] Ban check failed:', error)
+      Logger.error(
+        `Ban check failed error=${error instanceof Error ? error.message : String(error)}`,
+        'auth'
+      )
       throw createError({
         statusCode: 503,
         statusMessage: 'Service Unavailable',

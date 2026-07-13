@@ -21,6 +21,7 @@ Retrieve all available weapon skins.
 | `search` | string | Search skin names |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -58,6 +59,7 @@ Retrieve all available agents.
 | `team` | string | Filter by team (`t` or `ct`) |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -92,6 +94,7 @@ Retrieve all available stickers.
 | `team` | string | Filter by team |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -120,6 +123,7 @@ Retrieve all available stickers.
 Retrieve all available keychains.
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -145,6 +149,7 @@ Retrieve all available keychains.
 Retrieve all available music kits.
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -172,6 +177,7 @@ Retrieve all available music kits.
 Retrieve all available pins and collectibles.
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -203,6 +209,7 @@ Retrieve weapons of a specific type.
 | `:type` | string | Weapon type: `pistols`, `rifles`, `smgs`, `heavy`, `shotguns` |
 
 **Response**:
+
 ```json
 {
   "success": true,
@@ -237,15 +244,17 @@ Retrieve all pins and collectibles.
 
 ::: tip Performance
 Data endpoints are cached for optimal performance. Cache duration:
+
 - Skins: 1 hour
 - Stickers: 1 hour
 - Agents: 24 hours
 - Music Kits: 24 hours
-:::
+  :::
 
 ## Data Sources
 
 Item data is sourced from:
+
 1. CS2 game files
 2. Steam Community Market
 3. Community-maintained databases

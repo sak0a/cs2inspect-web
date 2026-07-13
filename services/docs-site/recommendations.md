@@ -15,7 +15,8 @@ This document outlines all recommendations for improving the CS2Inspect project,
 **Solution**: Commented out incompatible configuration options until `@nuxtjs/seo` module is properly enabled  
 **Files Changed**: `nuxt.config.ts`
 
-**Impact**: 
+**Impact**:
+
 - ✅ `npm run typecheck` now passes without errors
 - ✅ CI/CD pipelines will no longer fail on type checking
 
@@ -24,6 +25,7 @@ This document outlines all recommendations for improving the CS2Inspect project,
 **Created**: `docs/SELF_HOSTING.md` - 700+ lines of detailed documentation
 
 **Includes**:
+
 - Quick start with Docker (5 minutes to deploy)
 - VPS deployment guide (Ubuntu/Debian)
 - Bare metal deployment instructions
@@ -37,6 +39,7 @@ This document outlines all recommendations for improving the CS2Inspect project,
 - Security checklist
 
 **Impact**:
+
 - 🚀 Users can now self-host in under 15 minutes
 - 📖 Complete production-ready deployment guide
 - 🔒 Security best practices included
@@ -44,11 +47,13 @@ This document outlines all recommendations for improving the CS2Inspect project,
 ### 3. Automated Installation Scripts
 
 **Created**:
+
 - `scripts/install.sh` - One-click installation for Linux/macOS
 - `scripts/setup-wizard.sh` - Interactive configuration wizard
 - `scripts/validate-env.sh` - Environment validation
 
 **Features**:
+
 - Automatic dependency installation
 - Database setup assistance
 - Security validation
@@ -57,6 +62,7 @@ This document outlines all recommendations for improving the CS2Inspect project,
 - Error handling and recovery
 
 **Usage**:
+
 ```bash
 # Quick install
 ./scripts/install.sh
@@ -69,6 +75,7 @@ This document outlines all recommendations for improving the CS2Inspect project,
 ```
 
 **Impact**:
+
 - ⚡ Installation time reduced from 30+ minutes to 5 minutes
 - 🎯 Eliminates common setup errors
 - 👥 Makes project accessible to non-technical users
@@ -78,6 +85,7 @@ This document outlines all recommendations for improving the CS2Inspect project,
 **Created**: `Makefile` with 40+ convenient commands
 
 **Command Categories**:
+
 - **Installation**: `install`, `setup`, `validate-env`
 - **Development**: `dev`, `build`, `preview`, `start`
 - **Testing**: `test`, `lint`, `typecheck`, `check`
@@ -88,6 +96,7 @@ This document outlines all recommendations for improving the CS2Inspect project,
 - **Maintenance**: `clean`, `update`, `audit`
 
 **Usage**:
+
 ```bash
 make help          # Show all commands
 make install       # Install dependencies
@@ -97,6 +106,7 @@ make check         # Run all quality checks
 ```
 
 **Impact**:
+
 - 💻 Consistent commands across different environments
 - 📝 Self-documenting with `make help`
 - 🏃 Faster development workflow
@@ -104,6 +114,7 @@ make check         # Run all quality checks
 ### 5. Improved Docker Security
 
 **Changes**:
+
 - Updated base image from `node:20-slim` to `node:20-alpine`
 - Updated runtime from `oven/bun:1` to `oven/bun:1-alpine`
 - Reduced image size by ~200MB
@@ -111,6 +122,7 @@ make check         # Run all quality checks
 - Smaller attack surface
 
 **Impact**:
+
 - 🔒 Improved security posture
 - 📦 Smaller Docker images
 - ⚡ Faster build and deploy times
@@ -118,9 +130,11 @@ make check         # Run all quality checks
 ### 6. Docker Compose
 
 **Active**:
+
 - `docker-compose.coolify.yml` - Production deployment (Coolify Service Stack)
 
 **Features**:
+
 - Multi-service orchestration
 - Health checks for all services
 - Resource limits and reservations
@@ -129,6 +143,7 @@ make check         # Run all quality checks
 - Automatic restarts
 
 **Impact**:
+
 - 🛡️ Production-ready by default
 - 🔄 Single consolidated deployment file
 - 📊 Better resource management
@@ -138,12 +153,14 @@ make check         # Run all quality checks
 **Updated**: `README.md`
 
 **Additions**:
+
 - Multiple installation methods
 - Makefile command reference
 - Shell script documentation
 - Quick start options
 
 **Impact**:
+
 - 📚 Clearer getting started experience
 - 🎓 Multiple paths for different skill levels
 
@@ -158,6 +175,7 @@ make check         # Run all quality checks
 **Why**: Ensures consistent code style across contributors
 
 **Implementation**:
+
 ```bash
 npm install -D prettier eslint-config-prettier
 ```
@@ -165,6 +183,7 @@ npm install -D prettier eslint-config-prettier
 **Files to create**:
 
 `.prettierrc`:
+
 ```json
 {
   "semi": true,
@@ -177,6 +196,7 @@ npm install -D prettier eslint-config-prettier
 ```
 
 Add to `package.json`:
+
 ```json
 {
   "scripts": {
@@ -191,12 +211,14 @@ Add to `package.json`:
 **Why**: Catch issues before they reach the repository
 
 **Implementation**:
+
 ```bash
 npm install -D husky lint-staged
 npx husky init
 ```
 
 `.husky/pre-commit`:
+
 ```bash
 #!/bin/sh
 npm run lint
@@ -209,6 +231,7 @@ npm run test
 **Why**: Automated testing and deployment
 
 **File**: `.github/workflows/ci.yml`
+
 ```yaml
 name: CI
 
@@ -234,8 +257,9 @@ jobs:
 **Why**: Catch configuration errors early
 
 **File**: `server/utils/env-schema.ts`
+
 ```typescript
-import { z } from 'zod';
+import { z } from 'zod'
 
 export const envSchema = z.object({
   PORT: z.string().transform(Number).pipe(z.number().min(1).max(65535)),
@@ -245,14 +269,14 @@ export const envSchema = z.object({
   DATABASE_NAME: z.string().min(1),
   JWT_TOKEN: z.string().min(32),
   STEAM_API_KEY: z.string().length(32),
-});
+})
 
 export function validateEnv() {
   try {
-    return envSchema.parse(process.env);
+    return envSchema.parse(process.env)
   } catch (error) {
-    console.error('Environment validation failed:', error);
-    process.exit(1);
+    console.error('Environment validation failed:', error)
+    process.exit(1)
   }
 }
 ```
@@ -264,6 +288,7 @@ export function validateEnv() {
 **Why**: Visual monitoring without external tools
 
 **Implementation**:
+
 - Already have `/status` page
 - Add real-time WebSocket updates
 - Add historical charts
@@ -274,34 +299,35 @@ export function validateEnv() {
 **Why**: Protect API from abuse
 
 **File**: `server/middleware/rate-limit.ts`
-```typescript
-import { defineEventHandler } from 'h3';
 
-const requests = new Map();
-const WINDOW_MS = 60000; // 1 minute
-const MAX_REQUESTS = 100;
+```typescript
+import { defineEventHandler } from 'h3'
+
+const requests = new Map()
+const WINDOW_MS = 60000 // 1 minute
+const MAX_REQUESTS = 100
 
 export default defineEventHandler((event) => {
-  const ip = event.node.req.socket.remoteAddress;
-  const now = Date.now();
-  
+  const ip = event.node.req.socket.remoteAddress
+  const now = Date.now()
+
   if (!requests.has(ip)) {
-    requests.set(ip, []);
+    requests.set(ip, [])
   }
-  
-  const userRequests = requests.get(ip);
-  const recentRequests = userRequests.filter(time => now - time < WINDOW_MS);
-  
+
+  const userRequests = requests.get(ip)
+  const recentRequests = userRequests.filter((time) => now - time < WINDOW_MS)
+
   if (recentRequests.length >= MAX_REQUESTS) {
     throw createError({
       statusCode: 429,
-      message: 'Too many requests'
-    });
+      message: 'Too many requests',
+    })
   }
-  
-  recentRequests.push(now);
-  requests.set(ip, recentRequests);
-});
+
+  recentRequests.push(now)
+  requests.set(ip, recentRequests)
+})
 ```
 
 #### 7. API Documentation with OpenAPI/Swagger
@@ -309,15 +335,15 @@ export default defineEventHandler((event) => {
 **Why**: Better API discoverability
 
 **Implementation**:
+
 ```bash
 npm install @scalar/nuxt
 ```
 
 Add to `nuxt.config.ts`:
+
 ```typescript
-modules: [
-  '@scalar/nuxt'
-]
+modules: ['@scalar/nuxt']
 ```
 
 #### 8. Database Migrations System
@@ -328,6 +354,7 @@ modules: [
 **Recommended**: Use `drizzle-kit generate` + `drizzle-kit migrate` for production
 
 Update `package.json`:
+
 ```json
 {
   "scripts": {
@@ -343,6 +370,7 @@ Update `package.json`:
 #### 9. Performance Monitoring
 
 **Options**:
+
 - Sentry for error tracking
 - New Relic for APM
 - Prometheus + Grafana for metrics
@@ -358,6 +386,7 @@ Update `package.json`:
 #### 12. E2E Testing with Playwright
 
 **Implementation**:
+
 ```bash
 npm install -D @playwright/test
 ```
@@ -365,6 +394,7 @@ npm install -D @playwright/test
 #### 13. Database Backup Automation
 
 **Add**: Automated backup script with rotation
+
 - Already included in `docs/SELF_HOSTING.md`
 - Could add to Docker Compose as a service
 
@@ -406,6 +436,7 @@ npm install -D @playwright/test
    - Tests connections before proceeding
 
 2. **One-Command Deploy**
+
    ```bash
    curl -fsSL https://cs2inspect.com/install.sh | bash
    ```
@@ -475,6 +506,7 @@ npm install -D @playwright/test
 ### Current State
 
 **Strengths**:
+
 - ✅ TypeScript throughout
 - ✅ ESLint configured
 - ✅ Testing framework setup
@@ -482,6 +514,7 @@ npm install -D @playwright/test
 - ✅ Type safety
 
 **Areas for Improvement**:
+
 - ⚠️ Test coverage could be higher
 - ⚠️ No code formatting enforcement (Prettier)
 - ⚠️ No pre-commit hooks

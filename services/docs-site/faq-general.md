@@ -18,12 +18,13 @@ Yes, the application is open source and free to use. You need a Steam account to
 ## Do I need CS2 to use this application?
 
 You don't need CS2 installed to configure loadouts on the web application. However:
+
 - To **apply loadouts in-game**, you need to join a CS2 server with the **CS2Inspect Plugin** installed
 - To **import items from inspect URLs**, the backend needs access to Steam's Game Coordinator, which requires a Steam account configured in the server
 
 ## Do I need the CS2Inspect Plugin?
 
-**Yes, the CS2Inspect Plugin is required for in-game application of loadouts.** 
+**Yes, the CS2Inspect Plugin is required for in-game application of loadouts.**
 
 - **Without the plugin**: You can configure loadouts on the web, but they won't be applied when you join a server
 - **With the plugin**: Your loadouts are automatically applied when you join a server with the plugin installed
@@ -47,6 +48,7 @@ Click the "Login with Steam" button and authenticate through Steam's OpenID syst
 ### Why is Steam login required?
 
 Steam login is required to:
+
 - Identify and save your unique loadout configurations
 - Access your Steam profile information
 - Ensure data security and ownership
@@ -66,6 +68,7 @@ Yes. The application uses Steam's official OpenID authentication system. Your St
 ### What data does CS2Inspect store?
 
 CS2Inspect stores:
+
 - Your Steam ID (public information)
 - Your loadout configurations
 - Your item customizations
@@ -74,6 +77,7 @@ CS2Inspect stores:
 ### What data is NOT stored?
 
 CS2Inspect does NOT store:
+
 - Your Steam password
 - Your actual inventory items
 - Your personal contact information
@@ -86,6 +90,7 @@ No, your loadouts are private to your account. Only you can view and edit your c
 ### Is my data secure?
 
 Yes. The application uses:
+
 - HTTPS encryption for all communications
 - Secure session management
 - Database encryption at rest
@@ -102,6 +107,7 @@ Your loadout data is stored indefinitely unless you delete it. You can delete in
 ### What CS2 items can I customize?
 
 You can customize:
+
 - All weapon skins
 - Knives (both T and CT side)
 - Gloves (both T and CT side)
@@ -112,6 +118,7 @@ You can customize:
 ### Can I import items from the Steam Market?
 
 Yes! You can import item configurations from inspect URLs found on:
+
 - Steam Community Market
 - CS2 in-game inspect links
 - Player inventories

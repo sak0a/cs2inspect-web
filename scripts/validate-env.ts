@@ -47,7 +47,10 @@ function parseEnvFile(path: string): Record<string, string> {
     let value = trimmed.slice(eqIndex + 1).trim()
 
     // Strip surrounding quotes
-    if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+    if (
+      (value.startsWith('"') && value.endsWith('"')) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
       value = value.slice(1, -1)
     }
 
@@ -75,7 +78,7 @@ function checkEnvFile(): boolean {
         'Or use the setup wizard:',
         chalk.cyan('  bun run cli setup'),
       ].join('\n'),
-      'How to fix',
+      'How to fix'
     )
     return false
   }
@@ -162,7 +165,9 @@ function validateDatabase(env: Record<string, string>): void {
   if (env.DATABASE_CONNECTION_LIMIT) {
     const limit = Number(env.DATABASE_CONNECTION_LIMIT)
     if (isNaN(limit) || limit < 1) {
-      logWarning(`DATABASE_CONNECTION_LIMIT should be a positive number (got: ${env.DATABASE_CONNECTION_LIMIT})`)
+      logWarning(
+        `DATABASE_CONNECTION_LIMIT should be a positive number (got: ${env.DATABASE_CONNECTION_LIMIT})`
+      )
     } else {
       logSuccess(`DATABASE_CONNECTION_LIMIT = ${limit}`)
     }
@@ -177,11 +182,13 @@ function validateDatabase(env: Record<string, string>): void {
       try {
         execSync(
           `mysql -h"${env.DATABASE_HOST}" -P"${env.DATABASE_PORT}" -u"${env.DATABASE_USER}" -p"${env.DATABASE_PASSWORD}" -e "USE ${env.DATABASE_NAME}" 2>&1`,
-          { stdio: 'pipe', timeout: 10000 },
+          { stdio: 'pipe', timeout: 10000 }
         )
         logSuccess('Database connection successful')
       } catch {
-        logError('Database connection failed — check credentials and ensure the database server is running')
+        logError(
+          'Database connection failed — check credentials and ensure the database server is running'
+        )
       }
     } catch {
       logWarning('MySQL client not installed — skipping connection test')
@@ -206,7 +213,9 @@ function validateSteam(env: Record<string, string>): void {
     logSuccess('Steam bot account is configured')
     logWarning('Steam bot credentials are deprecated — consider using Steam Service instead')
   } else if (env.STEAM_USERNAME || env.STEAM_PASSWORD) {
-    logWarning('Steam bot account partially configured (need both STEAM_USERNAME and STEAM_PASSWORD)')
+    logWarning(
+      'Steam bot account partially configured (need both STEAM_USERNAME and STEAM_PASSWORD)'
+    )
   }
 
   // Steam service (recommended)

@@ -3,24 +3,25 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid({
   title: 'CS2Inspect Documentation',
-  description: 'Comprehensive documentation for CS2Inspect - Counter-Strike 2 weapon inspection and loadout management',
+  description:
+    'Comprehensive documentation for CS2Inspect - Counter-Strike 2 weapon inspection and loadout management',
   base: '/cs2inspect-web/',
   appearance: false,
-  
+
   head: [
     ['link', { rel: 'icon', href: '/cs2inspect-web/favicon.ico' }],
-    ['meta', { name: 'theme-color', content: '#FACC15' }]
+    ['meta', { name: 'theme-color', content: '#FACC15' }],
   ],
 
   themeConfig: {
     logo: '/logo.svg',
-    
+
     nav: [
       { text: 'Home', link: '/' },
       { text: 'User Guide', link: '/user-guide' },
       { text: 'Deploy', link: '/self-hosting' },
       { text: 'Plugin', link: '/plugin/' },
-      { text: 'API', link: '/api/' }
+      { text: 'API', link: '/api/' },
     ],
 
     sidebar: {
@@ -31,23 +32,23 @@ export default withMermaid({
             { text: 'Overview', link: '/' },
             { text: 'User Guide', link: '/user-guide' },
             { text: 'How It Works', link: '/how-it-works' },
-            { text: 'FAQ', link: '/faq' }
-          ]
+            { text: 'FAQ', link: '/faq' },
+          ],
         },
         {
           text: 'Server Setup',
           items: [
             { text: 'Self-Hosting Guide', link: '/self-hosting' },
             { text: 'Deployment Options', link: '/deployment' },
-            { text: 'Coolify Deployment', link: '/coolify' }
-          ]
+            { text: 'Coolify Deployment', link: '/coolify' },
+          ],
         },
         {
           text: 'Features',
           items: [
             { text: 'Version History', link: '/version-history' },
-            { text: 'Admin Panel', link: '/admin' }
-          ]
+            { text: 'Admin Panel', link: '/admin' },
+          ],
         },
         {
           text: 'Development',
@@ -59,15 +60,15 @@ export default withMermaid({
             { text: 'Deployment Architecture', link: '/architecture-deployment' },
             { text: 'Components', link: '/components' },
             { text: 'GitHub Actions CI/CD', link: '/github-actions' },
-            { text: 'Contributing Guide', link: '/contributing' }
-          ]
+            { text: 'Contributing Guide', link: '/contributing' },
+          ],
         },
         {
           text: 'Services',
           items: [
             { text: 'Steam Service', link: '/services-steam' },
-            { text: 'Asset Scrapers', link: '/services-scrapers' }
-          ]
+            { text: 'Asset Scrapers', link: '/services-scrapers' },
+          ],
         },
         {
           text: 'Reference',
@@ -76,8 +77,8 @@ export default withMermaid({
             { text: 'Pinia Stores', link: '/reference-stores' },
             { text: 'TypeScript Types', link: '/reference-types' },
             { text: 'Environment Variables', link: '/reference-env' },
-            { text: 'Health Checks', link: '/HEALTH_CHECKS' }
-          ]
+            { text: 'Health Checks', link: '/HEALTH_CHECKS' },
+          ],
         },
         {
           text: 'Additional Resources',
@@ -86,9 +87,9 @@ export default withMermaid({
             { text: 'Sticker Slots', link: '/StickerSlots' },
             { text: 'Glassmorphism', link: '/GLASSMORPHISM' },
             { text: 'Recommendations', link: '/recommendations' },
-            { text: 'Improvements Summary', link: '/improvements-summary' }
-          ]
-        }
+            { text: 'Improvements Summary', link: '/improvements-summary' },
+          ],
+        },
       ],
       '/plugin/': [
         {
@@ -97,17 +98,17 @@ export default withMermaid({
             { text: 'Overview', link: '/plugin/' },
             { text: 'Commands', link: '/plugin/commands' },
             { text: 'Configuration', link: '/plugin/configuration' },
-            { text: 'Config Generator', link: '/plugin/config-generator' }
-          ]
+            { text: 'Config Generator', link: '/plugin/config-generator' },
+          ],
         },
         {
           text: 'Web Application',
           items: [
             { text: 'User Guide', link: '/user-guide' },
             { text: 'Self-Hosting Guide', link: '/self-hosting' },
-            { text: 'How It Works', link: '/how-it-works' }
-          ]
-        }
+            { text: 'How It Works', link: '/how-it-works' },
+          ],
+        },
       ],
       '/api/': [
         {
@@ -121,8 +122,8 @@ export default withMermaid({
             { text: 'Items', link: '/api/items' },
             { text: 'Inspect System', link: '/api/inspect' },
             { text: 'Admin API', link: '/api/admin' },
-            { text: 'Error Handling', link: '/api/errors' }
-          ]
+            { text: 'Error Handling', link: '/api/errors' },
+          ],
         },
         {
           text: 'Auto-Generated',
@@ -139,37 +140,35 @@ export default withMermaid({
             { text: 'Gloves', link: '/api/api-gloves' },
             { text: 'Pins', link: '/api/api-pins' },
             { text: 'Data', link: '/api/api-data' },
-            { text: 'Proxy', link: '/api/api-proxy' }
-          ]
-        }
-      ]
+            { text: 'Proxy', link: '/api/api-proxy' },
+          ],
+        },
+      ],
     },
 
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/sak0a/cs2inspect-web' }
-    ],
+    socialLinks: [{ icon: 'github', link: 'https://github.com/sak0a/cs2inspect-web' }],
 
     search: {
-      provider: 'local'
+      provider: 'local',
     },
 
     footer: {
       message: 'Built with ❤️ by the CS2Inspect community',
-      copyright: 'Copyright © 2026 CS2Inspect'
+      copyright: 'Copyright © 2026 CS2Inspect',
     },
 
     editLink: {
       pattern: 'https://github.com/sak0a/cs2inspect-web/edit/master/services/docs-site/:path',
-      text: 'Edit this page on GitHub'
+      text: 'Edit this page on GitHub',
     },
 
     lastUpdated: {
       text: 'Last updated',
       formatOptions: {
         dateStyle: 'short',
-        timeStyle: 'medium'
-      }
-    }
+        timeStyle: 'medium',
+      },
+    },
   },
 
   // Ignore dead links from migrated docs (can be fixed later)
@@ -182,18 +181,18 @@ export default withMermaid({
     /\.\.\/setup$/,
     /\.\/README$/,
     // Localhost links
-    /^http:\/\/localhost/
+    /^http:\/\/localhost/,
   ],
 
   markdown: {
     theme: {
       light: 'github-light',
-      dark: 'github-dark'
+      dark: 'github-dark',
     },
-    lineNumbers: true
+    lineNumbers: true,
   },
 
   mermaid: {
-    theme: 'dark'
-  }
+    theme: 'dark',
+  },
 })

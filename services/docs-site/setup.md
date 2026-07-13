@@ -20,16 +20,18 @@ Before setting up the CS2Inspect development environment, ensure you have the fo
 ### Required Software
 
 - **Node.js**: Version 20.x or higher <Badge type="warning" text="Required" />
+
   ```bash
   node --version  # Should be v20.0.0 or higher
   ```
 
 - **Bun**: Version 1.x or higher (recommended package manager) <Badge type="tip" text="Recommended" />
+
   ```bash
   bun --version
   # Install from https://bun.sh
   ```
-  
+
   ::: tip Package Manager
   This project uses **Bun** as the primary package manager for faster installs and better performance. npm is also supported but Bun is recommended.
   :::
@@ -65,17 +67,20 @@ cd cs2inspect-web
 ### 2. Install Dependencies
 
 **Using Bun (Recommended)**:
+
 ```bash
 bun install
 ```
 
 **Using npm (Alternative)**:
+
 ```bash
 npm install
 ```
 
 ::: details What gets installed?
 This will install all required packages including:
+
 - Nuxt 4 framework
 - Vue 3 and TypeScript
 - Naive UI components
@@ -83,7 +88,7 @@ This will install all required packages including:
 - Database drivers
 - Testing frameworks
 - And more...
-:::
+  :::
 
 ### 3. Database Setup
 
@@ -103,27 +108,30 @@ docker run -d --name cs2inspect-db \
 #### Option B: Using Local MariaDB/MySQL
 
 1. **Install MariaDB**:
+
    ```bash
    # Ubuntu/Debian
    sudo apt-get install mariadb-server
-   
+
    # macOS
    brew install mariadb
-   
+
    # Windows
    # Download from https://mariadb.org/download/
    ```
 
 2. **Start MariaDB**:
+
    ```bash
    sudo systemctl start mariadb
    ```
 
 3. **Create Database**:
+
    ```bash
    mysql -u root -p
    ```
-   
+
    ```sql
    CREATE DATABASE csinspect CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
    CREATE USER 'csinspect'@'localhost' IDENTIFIED BY 'your_password';
@@ -155,12 +163,14 @@ The CS2Inspect web application requires the **CS2Inspect Plugin** to be installe
 #### Plugin Installation Steps
 
 1. **Clone the Plugin Repository**:
+
    ```bash
    git clone https://github.com/sak0a/CS2Inspect-Plugin.git
    cd CS2Inspect-Plugin
    ```
 
 2. **Build the Plugin**:
+
    ```bash
    dotnet build -c Release
    ```
@@ -173,8 +183,9 @@ The CS2Inspect web application requires the **CS2Inspect Plugin** to be installe
    - Copy configuration files to the plugin directory
 
 4. **Configure Plugin Database Connection**:
-   
+
    The plugin must use the **same database** as the web application. Update the plugin's `config.json`:
+
    ```json
    {
      "DatabaseHost": "localhost",
@@ -200,6 +211,7 @@ For detailed plugin installation, configuration, and usage instructions, see the
 ### 5. Environment Configuration
 
 1. **Copy the example environment file**:
+
    ```bash
    cp .env.example .env
    ```
@@ -214,12 +226,12 @@ For detailed plugin installation, configuration, and usage instructions, see the
    ########## Server Configuration ##########
    PORT=3210
    HOST=127.0.0.1
-   
+
    ########## JWT API Configuration ##########
    # Generate a random secret key
    JWT_TOKEN=your_random_secret_key_here_min_32_characters
    JWT_EXPIRY=7d
-   
+
    ########## Database Configuration ##########
    DATABASE_HOST=127.0.0.1
    DATABASE_PORT=3306
@@ -227,26 +239,27 @@ For detailed plugin installation, configuration, and usage instructions, see the
    DATABASE_PASSWORD=your_database_password
    DATABASE_NAME=csinspect
    DATABASE_CONNECTION_LIMIT=5
-   
+
    ########## Steam API Configuration ##########
    # Get your Steam API key: https://steamcommunity.com/dev/apikey
    STEAM_API_KEY=your_steam_api_key_here
-   
+
    ########## Steam Account Configuration (Optional) ##########
    # Required for unmasked inspect URLs
    # Use a separate Steam account (Steam Guard not currently supported)
    STEAM_USERNAME=your_steam_username
    STEAM_PASSWORD=your_steam_password
-   
+
    ########## Logging (Optional) ##########
    LOG_API_REQUESTS=true
    ```
 
 3. **Generate a secure JWT token**:
+
    ```bash
    # Using Node.js
    node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
-   
+
    # Or using OpenSSL
    openssl rand -hex 32
    ```
@@ -275,13 +288,14 @@ The web application and plugin work together through a **shared database**:
 
 ::: warning Database Configuration
 **Both components must use the same database** (same host, port, name, user, and password). The database schema is created automatically by the web application migrations. The plugin reads from these tables:
+
 - `wp_player_loadouts` - Loadout configurations
 - `wp_player_rifles`, `wp_player_pistols`, `wp_player_smgs`, `wp_player_heavys` - Weapon configurations
 - `wp_player_knifes` - Knife configurations
 - `wp_player_gloves` - Glove configurations
 - `wp_player_agents` - Agent selections
 - `wp_player_pins` - Pin collections
-:::
+  :::
 
 ---
 
@@ -292,21 +306,25 @@ The web application and plugin work together through a **shared database**:
 Start the development server with hot-reload:
 
 **Using Bun (Recommended)**:
+
 ```bash
 bun run dev
 ```
 
 **Using npm (Alternative)**:
+
 ```bash
 npm run dev
 ```
 
 The application will be available at:
+
 - **Local**: http://localhost:3210
 - **Network**: http://YOUR_IP:3210
 - **Health Status**: http://localhost:3210/status
 
 **First Startup**:
+
 - Database migrations run automatically
 - Health check sampling starts automatically
 - Check console for migration progress
@@ -348,11 +366,13 @@ Optional admin test (requires MariaDB): `E2E_WITH_DB=true bun run test:e2e`
 Build the application for production:
 
 **Using Bun**:
+
 ```bash
 bun run build
 ```
 
 **Using npm**:
+
 ```bash
 npm run build
 ```
@@ -419,11 +439,13 @@ During development, `bun run db:push` is the fastest way to sync your schema to 
 :::
 
 **Backup database**:
+
 ```bash
 mysqldump -u csinspect -p csinspect > backup_$(date +%Y%m%d).sql
 ```
 
 **Restore database**:
+
 ```bash
 mysql -u csinspect -p csinspect < backup_20240101.sql
 ```
@@ -454,11 +476,13 @@ View migration files in `server/database/drizzle/` directory.
 ### Run All Tests
 
 **Using Bun**:
+
 ```bash
 bun test
 ```
 
 **Using npm**:
+
 ```bash
 npm test
 ```
@@ -495,11 +519,13 @@ tests/
 ### Run Linter
 
 **Using Bun**:
+
 ```bash
 bun run lint
 ```
 
 **Using npm**:
+
 ```bash
 npm run lint
 ```
@@ -515,6 +541,7 @@ npm run lint -- --fix
 ### ESLint Configuration
 
 The project uses ESLint with:
+
 - Nuxt recommended rules
 - TypeScript support
 - Vue 3 rules
@@ -556,6 +583,7 @@ When creating a new component:
 5. Write unit tests if applicable
 
 **Example**:
+
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue'
@@ -566,7 +594,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  active: false
+  active: false,
 })
 
 const emit = defineEmits<{
@@ -593,6 +621,7 @@ When creating a new API endpoint:
 6. Write integration tests
 
 **Example**:
+
 ```typescript
 // server/api/myendpoint.ts
 import { defineEventHandler, readBody } from 'h3'
@@ -600,17 +629,17 @@ import { defineEventHandler, readBody } from 'h3'
 export default defineEventHandler(async (event) => {
   try {
     const body = await readBody(event)
-    
+
     // Your logic here
-    
+
     return {
       success: true,
-      data: result
+      data: result,
     }
   } catch (error) {
     return {
       success: false,
-      error: error.message
+      error: error.message,
     }
   }
 })
@@ -627,6 +656,7 @@ export default defineEventHandler(async (event) => {
 **Error**: `ECONNREFUSED 127.0.0.1:3306`
 
 **Solution**:
+
 ```bash
 # Check if MariaDB is running
 sudo systemctl status mariadb
@@ -643,6 +673,7 @@ docker start cs2inspect-db
 **Error**: `Steam API key invalid`
 
 **Solution**:
+
 - Verify your Steam API key at https://steamcommunity.com/dev/apikey
 - Ensure `STEAM_API_KEY` in `.env` is correct
 - Check that your IP is not blocked by Steam
@@ -652,6 +683,7 @@ docker start cs2inspect-db
 **Error**: `Port 3210 is already in use`
 
 **Solution**:
+
 ```bash
 # Find process using port 3210
 lsof -i :3210
@@ -668,6 +700,7 @@ PORT=3212 npm run dev
 **Error**: `Cannot find module 'xyz'`
 
 **Solution**:
+
 ```bash
 # Clear cache and reinstall
 rm -rf node_modules package-lock.json
@@ -679,6 +712,7 @@ npm install
 **Error**: `Type 'X' is not assignable to type 'Y'`
 
 **Solution**:
+
 ```bash
 # Regenerate type definitions
 npm run postinstall
@@ -691,6 +725,7 @@ npm run postinstall
 **Error**: `Steam client disconnected` or `GC timeout`
 
 **Solution**:
+
 - Check that `STEAM_USERNAME` and `STEAM_PASSWORD` are correct
 - Ensure Steam Guard is disabled on the account (not currently supported)
 - Wait a few minutes and retry (Steam may be rate limiting)
@@ -701,6 +736,7 @@ npm run postinstall
 **Error**: `Invalid inspect URL format`
 
 **Solution**:
+
 - Verify the URL format (see [API documentation](api/))
 - For unmasked URLs, ensure Steam account is configured
 - Check that the item still exists (not deleted from inventory)

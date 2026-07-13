@@ -4,7 +4,5 @@
   "compilerOptions": {
     "types": ["bun"]
   },
-  "exclude": [
-    "services/steam-service/**"
-  ]
+  "exclude": ["services/steam-service/**"]
 }
