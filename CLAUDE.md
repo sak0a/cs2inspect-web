@@ -26,6 +26,7 @@ CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players t
 
 ## Agent Gotchas
 
+- **Dev mock auth**: AI agents cannot use Steam OpenID in a browser. Enable `DEV_AUTH_ENABLED=true` in `.env`, then `POST /api/auth/dev/login` or `bun run cli dev:login`. See **`AGENTS.md`** for the full workflow, default SteamIDs, and curl examples.
 - Do NOT use `structuredClone()` on Vue reactive objects — it throws `DataCloneError` on Proxy objects. Use `JSON.parse(JSON.stringify())` instead.
 - Do NOT reference `docker-compose.yml`, `docker-compose.dev.yml`, or `docker-compose.prod.yml` — they don't exist. Only `docker-compose.coolify.yml` exists.
 - Do NOT reference `auto-deploy.yml` or `deploy-app.yml` workflows — they don't exist. Actual workflows: `ci.yml`, `docker.yml`, `release.yml`, `deploy-docs.yml`.

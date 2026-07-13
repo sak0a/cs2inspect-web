@@ -16,6 +16,7 @@ cp .env.example .env
 
 - [Server Configuration](#server-configuration)
 - [JWT Authentication](#jwt-authentication)
+- [Dev Mock Authentication](#dev-mock-authentication)
 - [Database Configuration](#database-configuration)
 - [Steam API Configuration](#steam-api-configuration)
 - [Steam Service Client](#steam-service-client)
@@ -147,6 +148,110 @@ JWT_EXPIRY=30d
 - Development: `1h` or `24h`
 - Production: `7d` or `14d`
 - Consider security vs user convenience
+
+---
+
+## Dev Mock Authentication
+
+::: danger Never enable in production
+`DEV_AUTH_ENABLED` must only be `true` in local development. `validate-env` fails if it is set with `NODE_ENV=production`.
+:::
+
+Mock Steam login for local development and AI agents. Bypasses Steam OpenID while issuing the same JWT session cookie (`auth_token`).
+
+### `DEV_AUTH_ENABLED`
+
+**Type**: `boolean` (string `"true"` / `"false"`)
+**Required**: No
+**Default**: `false`
+
+Master switch. Also requires `NODE_ENV !== production`.
+
+```env
+DEV_AUTH_ENABLED=true
+```
+
+### `DEV_MOCK_STEAMID`
+
+**Type**: `string`
+**Required**: No
+**Default**: `76561198000000001`
+
+SteamID64 for the default dev user.
+
+### `DEV_MOCK_PERSONANAME`
+
+**Type**: `string`
+**Required**: No
+**Default**: `Dev User`
+
+Display name for the dev user.
+
+### `DEV_MOCK_AVATAR`
+
+**Type**: `url`
+**Required**: No
+
+Avatar URL for mock Steam API responses.
+
+### `DEV_AUTH_USERNAME` / `DEV_AUTH_PASSWORD`
+
+**Type**: `string`
+**Required**: No
+
+Optional credential gate for `POST /api/auth/dev/login`. When unset, dev login is open (still gated by `DEV_AUTH_ENABLED`).
+
+```env
+DEV_AUTH_USERNAME=dev
+DEV_AUTH_PASSWORD=devpassword
+```
+
+### `DEV_MOCK_ADMIN_STEAMID`
+
+**Type**: `string`
+**Required**: No
+**Default**: `76561198000000002`
+
+SteamID64 for the dev admin. Logged-in admin is inserted into `admin_users`.
+
+### `DEV_MOCK_ADMIN_PERSONANAME`
+
+**Type**: `string`
+**Required**: No
+**Default**: `Dev Admin`
+
+### `DEV_MOCK_ADMIN_ROLE`
+
+**Type**: `admin` | `superadmin`
+**Required**: No
+**Default**: `superadmin`
+
+Role written to `admin_users` when seeding or logging in as admin.
+
+### `DEV_MOCK_ADMIN_USERNAME` / `DEV_MOCK_ADMIN_PASSWORD`
+
+**Type**: `string`
+**Required**: No
+
+Separate credentials for admin dev login. Falls back to `DEV_AUTH_USERNAME` / `DEV_AUTH_PASSWORD` when unset.
+
+```env
+DEV_MOCK_ADMIN_USERNAME=admin
+DEV_MOCK_ADMIN_PASSWORD=adminpassword
+```
+
+### Agent quick start
+
+```bash
+bun run cli dev:seed
+bun run cli dev:login
+
+curl -c /tmp/cs2-cookies.txt -X POST http://127.0.0.1:3210/api/auth/dev/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"dev","password":"devpassword"}'
+```
+
+See `AGENTS.md` in the repository root for the full agent workflow.
 
 ---
 
@@ -648,6 +753,13 @@ PROXY_HEALTH_BASE_URL=http://127.0.0.1:3210
 ########## Advanced ##########
 NODE_ENV=development
 NUXT_TELEMETRY_DISABLED=true
+
+########## Dev Auth (AI agents / local only) ##########
+DEV_AUTH_ENABLED=true
+DEV_AUTH_USERNAME=dev
+DEV_AUTH_PASSWORD=devpassword
+DEV_MOCK_ADMIN_USERNAME=admin
+DEV_MOCK_ADMIN_PASSWORD=adminpassword
 ```
 
 ---

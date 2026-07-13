@@ -312,6 +312,26 @@ The application will be available at:
 - Check console for migration progress
 - Monitor startup health at `/api/health/details`
 
+### Dev mock authentication (AI agents)
+
+For automated agents or local testing without a Steam account, enable dev mock auth in `.env`:
+
+```env
+DEV_AUTH_ENABLED=true
+DEV_AUTH_USERNAME=dev
+DEV_AUTH_PASSWORD=devpassword
+```
+
+Then log in programmatically:
+
+```bash
+bun run cli dev:login
+```
+
+Or use the buttons on http://localhost:3210/dev when the dev server is running.
+
+See **`AGENTS.md`** (repository root) and [Authentication — Dev Mock](/api/authentication#dev-mock-authentication) for curl examples, default SteamIDs, and admin login.
+
 ### Production Build
 
 Build the application for production:
