@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LucideSearch, LucideX } from '@lucide/vue'
 import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { APIMusicKit } from '~/server/types'
@@ -13,7 +14,7 @@ const searchQuery = ref<string>('')
 const musicKitRefs = ref<Array<{ select: () => void }>>([])
 
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 const { t: _t } = useI18n()
 
 // Initialize music kits with an empty array to prevent undefined errors
@@ -68,6 +69,12 @@ const musicKitOptions = computed(() => {
     })),
   ]
 })
+
+// Display label for the current selection (reka Select won't show a preselected
+// option's label until the menu is opened, so derive it from the options list).
+const selectedMusicKitLabel = computed(
+  () => musicKitOptions.value.find((o) => o.value === selectedMusicKit.value)?.label
+)
 
 const handleMusicKitTypeChange = async (musicKitId: number) => {
   if (!loadoutStore.selectedLoadoutId || !loadoutStore.selectedLoadout || !user.value?.steamId) {
@@ -244,12 +251,12 @@ watch(
             class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4 flex flex-col"
             style="height: 300px"
           >
-            <NSkeleton height="128px" />
-            <div class="mt-2 flex flex-col flex-grow">
-              <NSkeleton text class="mt-1" style="height: 40px" />
-              <NSkeleton text :repeat="2" class="mt-1" style="height: 64px" />
+            <Skeleton class="h-32 w-full" />
+            <div class="mt-2 flex flex-col grow">
+              <Skeleton class="mt-1 h-10 w-full" />
+              <Skeleton v-for="n in 2" :key="n" class="mt-1 h-8 w-full" />
               <div class="mt-auto">
-                <NSkeleton height="4px" />
+                <Skeleton class="h-1 w-full" />
               </div>
             </div>
           </div>
@@ -260,13 +267,20 @@ watch(
           <div class="flex gap-x-10 justify-start mb-6">
             <div class="flex items-center justify-end space-x-2">
               <span class="font-bold whitespace-nowrap"> Music Kit </span>
-              <NSelect
-                v-model:value="selectedMusicKit"
-                :options="musicKitOptions"
-                placeholder="Select music kit"
-                class="w-72"
-                @update:value="handleMusicKitTypeChange($event)"
-              />
+              <Select
+                :model-value="selectedMusicKit"
+                @update:model-value="(v) => handleMusicKitTypeChange(Number(v))"
+              >
+                <SelectTrigger class="w-72">
+                  <span v-if="selectedMusicKitLabel">{{ selectedMusicKitLabel }}</span>
+                  <span v-else class="text-muted-foreground">Select music kit</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="opt in musicKitOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
@@ -279,11 +293,26 @@ watch(
           <div v-else>
             <!-- Search Bar -->
             <div class="mb-6">
-              <NInput v-model:value="searchQuery" placeholder="Search music kits..." clearable>
-                <template #prefix>
-                  <div class="i-carbon-search text-lg" />
-                </template>
-              </NInput>
+              <div class="relative">
+                <LucideSearch
+                  :size="18"
+                  class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                />
+                <Input
+                  v-model="searchQuery"
+                  placeholder="Search music kits..."
+                  class="pl-10 pr-9"
+                />
+                <button
+                  v-if="searchQuery"
+                  type="button"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
+                  aria-label="Clear search"
+                  @click="searchQuery = ''"
+                >
+                  <LucideX :size="16" />
+                </button>
+              </div>
             </div>
 
             <!-- Music Kits Vertical Grid -->
@@ -320,11 +349,6 @@ watch(
 </template>
 
 <style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-
 /* Vertical grid layout for music kits */
 .music-kit-grid {
   display: grid;
@@ -332,20 +356,6 @@ watch(
   gap: 1rem;
   width: 100%;
   margin-bottom: 2rem;
-}
-
-/* Fade-in animation */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(15px) scale(0.98);
-    filter: blur(2px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
-  }
 }
 
 .fade-in-item {

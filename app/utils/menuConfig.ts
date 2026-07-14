@@ -1,69 +1,77 @@
 import { LucideMusic as Music, LucidePin as Pin, LucideHome as Home } from '@lucide/vue'
-import { NIcon } from 'naive-ui'
-import { h, type Component } from 'vue'
+import type { Component, VNode } from 'vue'
 
-export function renderIcon(icon: Component, size?: number) {
-  return () => h(NIcon, { component: icon, size })
+/**
+ * Option shape consumed by the custom horizontal nav
+ * (app/components/navigation/MainNav.vue). `key` doubles as the route path.
+ * Icons are either Lucide components or the pre-built inline-SVG vnodes from
+ * `menuIcons` (trusted static assets — see app/utils/menuIcons.ts). The nav
+ * controls the rendered icon size, so no per-option size is needed.
+ */
+export interface NavMenuOption {
+  labelKey: string
+  key: string
+  icon: Component | VNode
 }
 
-export const homeMenuOptions = [
+export const homeMenuOptions: NavMenuOption[] = [
   {
     labelKey: 'extras.home',
     key: '/',
-    icon: renderIcon(Home),
+    icon: Home,
   },
 ]
 
-export const weaponMenuOptions = [
+export const weaponMenuOptions: NavMenuOption[] = [
   {
     labelKey: 'weapons.rifles',
     key: '/weapons/rifles',
-    icon: renderIcon(menuIcons.rifles),
+    icon: menuIcons.rifles,
   },
   {
     labelKey: 'weapons.smgs',
     key: '/weapons/smgs',
-    icon: renderIcon(menuIcons.smgs),
+    icon: menuIcons.smgs,
   },
   {
     labelKey: 'weapons.pistols',
     key: '/weapons/pistols',
-    icon: renderIcon(menuIcons.pistols),
+    icon: menuIcons.pistols,
   },
   {
     labelKey: 'weapons.heavys',
     key: '/weapons/heavys',
-    icon: renderIcon(menuIcons.heavys),
+    icon: menuIcons.heavys,
   },
 ]
 
-export const equipmentMenuOptions = [
+export const equipmentMenuOptions: NavMenuOption[] = [
   {
     labelKey: 'melee.knives',
     key: '/knives',
-    icon: renderIcon(menuIcons.knives),
+    icon: menuIcons.knives,
   },
   {
     labelKey: 'melee.gloves',
     key: '/gloves',
-    icon: renderIcon(menuIcons.gloves),
+    icon: menuIcons.gloves,
   },
 ]
 
-export const extrasMenuOptions = [
+export const extrasMenuOptions: NavMenuOption[] = [
   {
     labelKey: 'extras.pins',
     key: '/pins',
-    icon: renderIcon(Pin, 24),
+    icon: Pin,
   },
   {
     labelKey: 'extras.agents',
     key: '/agents',
-    icon: renderIcon(menuIcons.agents),
+    icon: menuIcons.agents,
   },
   {
     labelKey: 'extras.music',
     key: '/music-kits',
-    icon: renderIcon(Music, 24),
+    icon: Music,
   },
 ]

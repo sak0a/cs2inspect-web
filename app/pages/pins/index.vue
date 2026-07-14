@@ -13,7 +13,7 @@ const searchQuery = ref<string>('')
 const pinRefs = ref<Array<{ select: () => void }>>([])
 
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 
 // Initialize collectibles with an empty array to prevent undefined errors
@@ -57,6 +57,12 @@ const pinOptions = computed(() => {
     })),
   ]
 })
+
+// Display label for the current selection (reka Select won't show a preselected
+// option's label until the menu is opened, so derive it from the options list).
+const selectedPinLabel = computed(
+  () => pinOptions.value.find((o) => o.value === selectedPin.value)?.label
+)
 
 const handlePinTypeChange = async (pinId: number) => {
   if (!loadoutStore.selectedLoadoutId || !loadoutStore.selectedLoadout || !user.value?.steamId) {
@@ -212,12 +218,12 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
               class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4 flex flex-col"
               style="height: 300px"
             >
-              <NSkeleton height="128px" />
-              <div class="mt-2 flex flex-col flex-grow">
-                <NSkeleton text class="mt-1" style="height: 40px" />
-                <NSkeleton text :repeat="2" class="mt-1" style="height: 64px" />
+              <Skeleton class="h-32 w-full" />
+              <div class="mt-2 flex flex-col grow">
+                <Skeleton class="mt-1 h-10 w-full" />
+                <Skeleton v-for="n in 2" :key="n" class="mt-1 h-8 w-full" />
                 <div class="mt-auto">
-                  <NSkeleton height="4px" />
+                  <Skeleton class="h-1 w-full" />
                 </div>
               </div>
             </div>
@@ -229,24 +235,31 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
           <div class="flex gap-x-10 justify-start mb-6">
             <div class="flex items-center justify-end space-x-2">
               <span class="font-bold whitespace-nowrap"> Pin </span>
-              <NSelect
-                v-model:value="selectedPin"
-                :options="pinOptions"
-                placeholder="Select pin"
-                class="w-72"
-                @update:value="handlePinTypeChange($event)"
-              />
+              <Select
+                :model-value="selectedPin"
+                @update:model-value="(v) => handlePinTypeChange(Number(v))"
+              >
+                <SelectTrigger class="w-72">
+                  <span v-if="selectedPinLabel">{{ selectedPinLabel }}</span>
+                  <span v-else class="text-muted-foreground">Select pin</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="opt in pinOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           <!-- Search and Filter -->
           <div class="mb-6">
             <div class="flex items-center space-x-4">
-              <NInput
-                v-model:value="searchQuery"
+              <Input
+                v-model="searchQuery"
                 type="text"
                 placeholder="Search pins..."
-                class="w-full max-w-md"
+                class="w-full max-w-md bg-[#2a2a2a] dark:bg-[#2a2a2a] border-[#3a3a3a]"
               />
             </div>
           </div>
@@ -289,11 +302,6 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
 </template>
 
 <style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-
 .pin-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -313,12 +321,6 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
 .fade-in-item.visible {
   opacity: 1;
   transform: translateY(0);
-}
-
-/* Ensure the search input has proper styling */
-.n-input {
-  background: #2a2a2a;
-  border-color: #3a3a3a;
 }
 
 /* Responsive adjustments */

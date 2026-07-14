@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
-
 interface Props {
   visible: boolean
   loading: boolean
@@ -26,17 +24,19 @@ const handleConfirm = () => {
 </script>
 
 <template>
-  <NModal
-    :show="visible"
-    style="width: 700px"
-    :bordered="false"
-    :auto-focus="false"
+  <AppModal
+    :visible="visible"
+    size="md"
     :title="String(t('modals.duplicateItem.header', { itemType: _props.itemType }))"
     :mask-closable="!_props.loading"
     :closable="!_props.loading"
-    preset="card"
+    @update:visible="
+      (show: boolean) => {
+        if (!show) handleClose()
+      }
+    "
   >
-    <NSpace vertical>
+    <div class="flex flex-col gap-2">
       <div class="py-2">
         <p v-if="_props.otherTeamHasSkin" class="text-warning mb-4">
           {{
@@ -54,9 +54,9 @@ const handleConfirm = () => {
         </p>
       </div>
       <div class="flex justify-end gap-3">
-        <SButton
+        <Button
           :disabled="_props.loading"
-          :color="buttonColor.error"
+          intent="error"
           variant="elevated"
           rounded="full"
           size="md"
@@ -65,10 +65,10 @@ const handleConfirm = () => {
           @click="handleClose"
         >
           {{ t('modals.duplicateItem.cancel') }}
-        </SButton>
-        <SButton
+        </Button>
+        <Button
           :loading="_props.loading"
-          :color="buttonColor.success"
+          intent="success"
           variant="elevated"
           rounded="full"
           size="md"
@@ -77,8 +77,8 @@ const handleConfirm = () => {
           @click="handleConfirm"
         >
           {{ t('modals.duplicateItem.confirm') }}
-        </SButton>
+        </Button>
       </div>
-    </NSpace>
-  </NModal>
+    </div>
+  </AppModal>
 </template>

@@ -80,7 +80,7 @@ function handleGoHome() {
     <div class="error-container">
       <!-- Icon -->
       <div class="error-icon">
-        <NIcon :component="ShieldAlertIcon" :size="32" />
+        <ShieldAlertIcon :size="32" />
       </div>
 
       <!-- Title & message -->
@@ -125,12 +125,12 @@ function handleGoHome() {
       <!-- Actions -->
       <div class="error-actions">
         <button v-if="!isLoggedIn" class="btn btn-primary" @click="handleLogin">
-          <NIcon :component="LogInIcon" :size="16" />
+          <LogInIcon :size="16" />
           Sign in with Steam
         </button>
 
         <button v-if="isLoggedIn" class="btn btn-secondary" @click="handleRetry">
-          <NIcon :component="RefreshIcon" :size="16" />
+          <RefreshIcon :size="16" />
           Try Again
         </button>
 
@@ -139,12 +139,12 @@ function handleGoHome() {
           class="btn btn-ghost"
           @click="router.push('/admin')"
         >
-          <NIcon :component="ArrowLeftIcon" :size="16" />
+          <ArrowLeftIcon :size="16" />
           Back to Dashboard
         </button>
 
         <button class="btn btn-ghost" @click="handleGoHome">
-          <NIcon :component="HomeIcon" :size="16" />
+          <HomeIcon :size="16" />
           Go Home
         </button>
       </div>
@@ -177,7 +177,7 @@ function handleGoHome() {
   mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
   -webkit-mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
 
-// Glass card (matches .n-modal > .n-card)
+// Glass card (matches the app's glass modal card)
 .error-container
   width: 100%
   max-width: 400px

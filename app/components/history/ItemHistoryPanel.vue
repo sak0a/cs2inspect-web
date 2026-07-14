@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 /**
  * ItemHistoryPanel - Shows version history for an item
  *
@@ -27,7 +26,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const message = useMessage()
+const message = useToast()
 
 const state = ref({
   records: [] as ItemHistoryRecord[],
@@ -244,127 +243,154 @@ watch(
 </script>
 
 <template>
-  <NDrawer
-    :show="visible"
-    :width="360"
-    placement="right"
-    class="history-drawer"
-    :on-update:show="(val: boolean) => emit('update:visible', val)"
-  >
-    <NDrawerContent :title="String(t('history.title'))" closable class="history-drawer-content">
-      <div class="history-panel">
-        <!-- Loading State -->
-        <div
-          v-if="state.isLoading && state.records.length === 0"
-          class="flex justify-center items-center py-8"
-        >
-          <NSpin size="large" />
-        </div>
+  <Sheet :open="visible" @update:open="(val: boolean) => emit('update:visible', val)">
+    <SheetContent
+      side="right"
+      class="history-drawer-content w-[360px] max-w-[90vw] gap-0 border-l-0 p-0 text-white sm:max-w-[360px]"
+      :style="{
+        background: 'rgba(16, 16, 16, 0.5)',
+        backdropFilter: 'blur(20px) saturate(150%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+        borderLeft: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '-8px 0 32px rgba(0, 0, 0, 0.5), -2px 0 8px rgba(0, 0, 0, 0.3)',
+      }"
+    >
+      <!-- Glass header -->
+      <SheetHeader
+        class="shrink-0 gap-0 border-b border-white/8 px-5 py-4"
+        :style="{
+          background: 'rgba(16, 16, 16, 0.5)',
+          backdropFilter: 'blur(20px) saturate(150%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+          boxShadow: '0 2px 12px rgba(0, 0, 0, 0.4)',
+        }"
+      >
+        <SheetTitle class="font-semibold tracking-[0.01em] text-white/95">
+          {{ t('history.title') }}
+        </SheetTitle>
+      </SheetHeader>
 
-        <!-- Empty State -->
-        <NEmpty
-          v-else-if="state.records.length === 0"
-          :description="String(t('history.empty'))"
-          class="py-8"
-        />
+      <!-- Scrollable body -->
+      <div class="history-scroll flex-1 overflow-y-auto p-0.5">
+        <div class="history-panel">
+          <!-- Loading State -->
+          <div
+            v-if="state.isLoading && state.records.length === 0"
+            class="flex justify-center items-center py-8"
+          >
+            <Spinner class="size-8 text-primary" />
+          </div>
 
-        <!-- History Timeline -->
-        <div v-else class="space-y-2">
-          <div v-for="record in state.records" :key="record.id" class="history-item group">
-            <div class="flex items-start gap-3">
-              <!-- Icon -->
-              <div
-                class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"
-              >
-                <span class="text-sm scale-125">{{ getChangeIcon(record.change_type) }}</span>
-              </div>
+          <!-- Empty State -->
+          <Empty v-else-if="state.records.length === 0" class="py-8">
+            <EmptyDescription>{{ t('history.empty') }}</EmptyDescription>
+          </Empty>
 
-              <!-- Content -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center justify-between gap-2">
-                  <!-- Version ID with full description tooltip -->
-                  <NTooltip v-if="record.change_description" trigger="hover" placement="top">
-                    <template #trigger>
-                      <span class="version-id cursor-help">
+          <!-- History Timeline -->
+          <TooltipProvider v-else :delay-duration="100">
+            <div class="space-y-2">
+              <div v-for="record in state.records" :key="record.id" class="history-item group">
+                <div class="flex items-start gap-3">
+                  <!-- Icon -->
+                  <div
+                    class="shrink-0 w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"
+                  >
+                    <span class="text-sm scale-125">{{ getChangeIcon(record.change_type) }}</span>
+                  </div>
+
+                  <!-- Content -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between gap-2">
+                      <!-- Version ID with full description tooltip -->
+                      <Tooltip v-if="record.change_description">
+                        <TooltipTrigger as-child>
+                          <span class="version-id cursor-help">
+                            {{ record.version_id || formatChangeType(record.change_type) }}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent
+                          side="top"
+                          class="max-w-xs border border-white/10 bg-[rgba(16,16,16,0.95)] text-white [&_svg]:fill-[rgba(16,16,16,0.95)]"
+                        >
+                          <div class="font-medium text-sm mb-1">
+                            {{ formatChangeType(record.change_type) }}
+                          </div>
+                          <div class="text-xs text-gray-300">
+                            {{ record.change_description }}
+                          </div>
+                        </TooltipContent>
+                      </Tooltip>
+                      <span v-else class="version-id">
                         {{ record.version_id || formatChangeType(record.change_type) }}
                       </span>
-                    </template>
-                    <div class="max-w-xs">
-                      <div class="font-medium text-sm mb-1">
-                        {{ formatChangeType(record.change_type) }}
+                      <span class="text-xs text-gray-500 shrink-0">
+                        {{ formatDate(record.created_at) }}
+                      </span>
+                    </div>
+
+                    <!-- Changes list (up to 3) -->
+                    <div v-if="record.change_description" class="mt-1.5 space-y-0.5">
+                      <div
+                        v-for="(change, idx) in getDisplayChanges(record.change_description)"
+                        :key="idx"
+                        class="change-item"
+                      >
+                        {{ change }}
                       </div>
-                      <div class="text-xs text-gray-300">
-                        {{ record.change_description }}
+                      <div v-if="hasMoreChanges(record.change_description)" class="change-more">
+                        +{{ record.change_description.split(', ').length - 3 }} more
                       </div>
                     </div>
-                  </NTooltip>
-                  <span v-else class="version-id">
-                    {{ record.version_id || formatChangeType(record.change_type) }}
-                  </span>
-                  <span class="text-xs text-gray-500 flex-shrink-0">
-                    {{ formatDate(record.created_at) }}
-                  </span>
-                </div>
 
-                <!-- Changes list (up to 3) -->
-                <div v-if="record.change_description" class="mt-1.5 space-y-0.5">
-                  <div
-                    v-for="(change, idx) in getDisplayChanges(record.change_description)"
-                    :key="idx"
-                    class="change-item"
+                    <!-- Snapshot Badge -->
+                    <span
+                      v-if="record.is_snapshot"
+                      class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-medium bg-amber-500/15 text-amber-400 border border-amber-500/20 mt-1"
+                    >
+                      {{ t('history.snapshot') }}
+                    </span>
+                  </div>
+
+                  <!-- Restore Button -->
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    class="rounded-full bg-gray-300"
+                    @click="handleRestoreClick(record)"
                   >
-                    {{ change }}
-                  </div>
-                  <div v-if="hasMoreChanges(record.change_description)" class="change-more">
-                    +{{ record.change_description.split(', ').length - 3 }} more
-                  </div>
+                    {{ t('history.restore') }}
+                  </Button>
                 </div>
-
-                <!-- Snapshot Badge -->
-                <span
-                  v-if="record.is_snapshot"
-                  class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/15 text-amber-400 border border-amber-500/20 mt-1"
-                >
-                  {{ t('history.snapshot') }}
-                </span>
               </div>
 
-              <!-- Restore Button -->
-              <SButton
-                size="xs"
-                variant="ghost"
-                class="rounded-full bg-gray-300"
-                @click="handleRestoreClick(record)"
-              >
-                {{ t('history.restore') }}
-              </SButton>
+              <!-- Load More -->
+              <div v-if="state.pagination.hasNext" class="pt-4">
+                <Button
+                  variant="filled"
+                  block
+                  rounded="md"
+                  :loading="state.isLoading"
+                  @click="loadMore"
+                >
+                  {{ t('history.loadMore') }}
+                </Button>
+              </div>
             </div>
-          </div>
-
-          <!-- Load More -->
-          <div v-if="state.pagination.hasNext" class="pt-4">
-            <SButton variant="filled" block :loading="state.isLoading" @click="loadMore">
-              {{ t('history.loadMore') }}
-            </SButton>
-          </div>
+          </TooltipProvider>
         </div>
       </div>
 
       <!-- Restore Confirmation Modal -->
-      <NModal
-        v-model:show="state.showRestoreConfirm"
-        preset="card"
-        style="width: 420px"
+      <AppModal
+        v-model:visible="state.showRestoreConfirm"
         :title="String(t('history.restoreConfirmTitle'))"
-        :bordered="false"
-        :auto-focus="false"
-        :mask-closable="!state.isRestoring"
-        :closable="!state.isRestoring"
+        max-width="420px"
+        :loading="state.isRestoring"
       >
         <p class="text-gray-300">{{ t('history.restoreConfirmMessage') }}</p>
         <div
           v-if="state.selectedRecord"
-          class="mt-4 p-4 rounded-xl bg-black/40 border border-amber-500/20 backdrop-blur-sm"
+          class="mt-4 p-4 rounded-xl bg-black/40 border border-amber-500/20 backdrop-blur-xs"
         >
           <div class="flex items-center gap-2 mb-2">
             <span class="font-mono text-amber-400 font-medium text-sm">{{
@@ -382,34 +408,40 @@ watch(
           </p>
         </div>
         <div class="flex justify-end mt-5 gap-3">
-          <SButton
+          <Button
             variant="light"
+            rounded="md"
             :disabled="state.isRestoring"
             @click="state.showRestoreConfirm = false"
           >
             {{ t('common.cancel') }}
-          </SButton>
-          <SButton
-            :color="buttonColor.primary"
+          </Button>
+          <Button
+            intent="primary"
             variant="filled"
+            rounded="md"
             :loading="state.isRestoring"
             @click="handleRestore"
           >
             {{ t('history.restore') }}
-          </SButton>
+          </Button>
         </div>
-      </NModal>
-    </NDrawerContent>
-  </NDrawer>
+      </AppModal>
+    </SheetContent>
+  </Sheet>
 </template>
 
 <style scoped lang="scss">
+/* @apply lines converted to plain CSS for Tailwind v4 (SFC @apply needs
+   @reference and wasn't processed reliably in scss blocks) */
 .history-panel {
-  @apply px-1;
+  padding-left: 0.25rem; /* px-1 */
+  padding-right: 0.25rem;
 }
 
 .history-item {
-  @apply p-3 rounded-xl transition-all duration-200;
+  padding: 0.75rem; /* p-3 */
+  border-radius: 0.75rem; /* rounded-xl */
   backdrop-filter: blur(12px) saturate(100%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -430,7 +462,16 @@ watch(
 }
 
 .version-id {
-  @apply text-sm font-mono font-medium text-amber-400 truncate;
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace; /* font-mono */
+  font-weight: 500; /* font-medium */
+  color: #fbbf24; /* text-amber-400 */
+  overflow: hidden; /* truncate */
+  text-overflow: ellipsis;
+  white-space: nowrap;
   letter-spacing: 0.02em;
   text-shadow:
     0 1px 3px rgba(0, 0, 0, 0.4),
@@ -438,85 +479,48 @@ watch(
 }
 
 .version-id:hover {
-  @apply text-amber-300;
+  color: #fcd34d; /* text-amber-300 */
   text-shadow:
     0 1px 3px rgba(0, 0, 0, 0.4),
     0 0 12px rgba(245, 158, 11, 0.25);
 }
 
 .change-item {
-  @apply text-xs text-gray-400 pl-0.5;
+  font-size: 0.75rem; /* text-xs */
+  color: #9ca3af; /* text-gray-400 */
+  padding-left: 0.125rem; /* pl-0.5 */
   line-height: 1.4;
 }
 
 .change-item::before {
   content: '•';
-  @apply text-amber-500/50 mr-1;
+  color: rgba(245, 158, 11, 0.5); /* text-amber-500/50 */
+  margin-right: 0.25rem; /* mr-1 */
 }
 
 .change-more {
-  @apply text-xs text-amber-500/60 italic pl-0.5;
-}
-</style>
-
-<style lang="scss">
-/* Global styles for the drawer - needs to be unscoped to affect n-drawer components */
-/* Override ALL Naive UI drawer elements with transparent/dark glassmorphism */
-
-/* Root drawer container */
-.history-drawer,
-.history-drawer .n-drawer {
-  background: transparent !important;
-  --n-body-color: transparent !important;
-  --n-color: rgba(16, 16, 16, 0.7) !important;
+  font-size: 0.75rem; /* text-xs */
+  line-height: 1rem;
+  color: rgba(245, 158, 11, 0.6); /* text-amber-500/60 */
+  font-style: italic; /* italic */
+  padding-left: 0.125rem; /* pl-0.5 */
 }
 
-/* Main content wrapper - this is where we apply the glassmorphism */
-.history-drawer .n-drawer-content-wrapper {
-  background: rgba(16, 16, 16, 0.5) !important;
-  backdrop-filter: blur(20px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-  border-left: 1px solid rgba(255, 255, 255, 0.08) !important;
-
-  box-shadow:
-    -8px 0 32px rgba(0, 0, 0, 0.5),
-    -2px 0 8px rgba(0, 0, 0, 0.3) !important;
+/* Scrollable body — port of the old .n-scrollbar rail/thumb glass styling */
+.history-scroll::-webkit-scrollbar {
+  width: 8px;
 }
 
-/* All inner wrappers need to be transparent */
-.history-drawer .n-drawer-body-content-wrapper,
-.history-drawer-content,
-.history-drawer-content .n-drawer-body,
-.history-drawer-content .n-scrollbar,
-.history-drawer-content .n-scrollbar-container,
-.history-drawer-content .n-scrollbar-content {
-  padding: 2px !important;
-  background: transparent !important;
-  background-color: transparent !important;
+.history-scroll::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
 }
 
-/* Header styling */
-.history-drawer-content .n-drawer-header {
-  background: rgba(16, 16, 16, 0.5) !important;
-  backdrop-filter: blur(20px) saturate(150%) !important;
-  -webkit-backdrop-filter: blur(20px) saturate(150%) !important;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+.history-scroll::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.2);
+  border-radius: 4px;
 }
 
-.history-drawer-content .n-drawer-header__main {
-  color: rgba(255, 255, 255, 0.95) !important;
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-/* Scrollbar styling */
-.history-drawer .n-scrollbar-rail {
-  background: rgba(255, 255, 255, 0.02) !important;
-}
-
-.history-drawer .n-scrollbar-rail .n-scrollbar {
-  background: rgba(245, 158, 11, 0.2) !important;
-  border-radius: 4px !important;
+.history-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.35);
 }
 </style>

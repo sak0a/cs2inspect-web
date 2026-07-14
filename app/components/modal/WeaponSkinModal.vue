@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import { Search, ChevronLeft, ChevronRight, Inbox } from '@lucide/vue'
 import type {
   WeaponModalProps,
   WeaponConfiguration,
@@ -14,7 +14,6 @@ import type {
 } from '~/types'
 import { toSteamId } from '~/types'
 import type { APISticker } from '~/server/types'
-import { digitOnlyInputProps } from '~/utils/inputProps'
 import { useItemModal } from '~/composables/useItemModal'
 import { steamAuth } from '~/services/steamAuth'
 import { useLoadoutStore } from '~/stores/loadoutStore'
@@ -49,7 +48,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const message = useMessage()
+const message = useToast()
 
 const modalTitle = computed(() => {
   // Show visual customizer title when in inline mode
@@ -842,10 +841,11 @@ const handleModalKeydown = (e: KeyboardEvent) => {
   if (e.defaultPrevented) return
   if (e.ctrlKey || e.metaKey || e.altKey) return
 
-  // If any sub-modals are open, don't intercept Enter here.
+  // If any sub-modals/panels are open, don't intercept keys here.
   if (
     weaponState.value.showStickerModal ||
     weaponState.value.showKeychainModal ||
+    weaponState.value.showHistoryPanel ||
     state.value.showImportModal ||
     state.value.showDuplicateConfirm ||
     state.value.showResetConfirm ||
@@ -890,6 +890,21 @@ const handleModalKeydown = (e: KeyboardEvent) => {
     state.value.showDuplicateConfirm = true
   }
 }
+
+// Keyboard shortcuts are window-level while the modal is open (the dialog
+// focus-traps, so events always originate inside it; sub-modal/input guards
+// above keep the old behavior).
+watch(
+  () => props.visible,
+  (isVisible) => {
+    if (!import.meta.client) return
+    if (isVisible) {
+      window.addEventListener('keydown', handleModalKeydown)
+    } else {
+      window.removeEventListener('keydown', handleModalKeydown)
+    }
+  }
+)
 
 const handleSave = () => {
   if (!selectedSkin.value) return
@@ -1049,25 +1064,27 @@ watch(
   }
 )
 
-// Cleanup video manager on unmount
+// Cleanup video manager and keyboard listener on unmount
 onUnmounted(() => {
   if (previewVideoManager.value) {
     previewVideoManager.value.destroy()
+  }
+  if (import.meta.client) {
+    window.removeEventListener('keydown', handleModalKeydown)
   }
 })
 </script>
 
 <template>
-  <NModal
-    :show="visible"
-    style="max-width: 1800px; width: 95vw"
-    preset="card"
-    :bordered="false"
+  <AppModal
+    :visible="visible"
     size="huge"
-    :auto-focus="false"
-    header-extra-style="flex-shrink: 0"
-    class="duration-500 ease-in-out transition-all"
-    @update:show="handleClose"
+    max-width="1800px"
+    @update:visible="
+      (show: boolean) => {
+        if (!show) handleClose()
+      }
+    "
   >
     <template #header>
       <div class="flex items-center gap-3">
@@ -1079,7 +1096,7 @@ onUnmounted(() => {
         >
           {{ teamLabel }}
         </span>
-        <!-- Auto-save status indicator (fixed position like NaiveUI messages) -->
+        <!-- Auto-save status indicator (fixed position like toast messages) -->
         <SaveStatusIndicator
           data-tutorial="auto-save"
           :status="autoSave.status.value"
@@ -1092,14 +1109,14 @@ onUnmounted(() => {
     <template #header-extra>
       <div v-if="!weaponState.inlineVisualCustomizerActive" class="flex items-center shrink-0">
         <!-- Reset Weapon Configuration -->
-        <SButton
+        <Button
           :loading="state.isResetting"
           variant="elevated"
           rounded="full"
-          :color="buttonColor.error"
+          intent="error"
           :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           tinted
           data-tutorial="reset-button"
           @click="state.showResetConfirm = true"
@@ -1115,7 +1132,7 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-refresh"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-refresh size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -1123,16 +1140,16 @@ onUnmounted(() => {
             </svg>
           </template>
           {{ t('modals.weaponSkin.buttons.reset') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- History Button -->
-        <SButton
+        <Button
           variant="elevated"
           rounded="full"
           :disabled="!selectedSkin"
           :aria-label="String(t('history.title'))"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           data-tutorial="history-button"
           @click="weaponState.showHistoryPanel = true"
         >
@@ -1147,6 +1164,7 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              class="size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M12 8l0 4l2 2" />
@@ -1154,17 +1172,17 @@ onUnmounted(() => {
             </svg>
           </template>
           {{ t('history.title') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- Import Weapon by Inspect Link -->
-        <SButton
+        <Button
           :loading="state.isImporting"
           variant="elevated"
           rounded="full"
           :disabled="!selectedSkin"
           :aria-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           data-tutorial="import-button"
           @click="state.showImportModal = true"
         >
@@ -1179,7 +1197,7 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -1191,17 +1209,17 @@ onUnmounted(() => {
             </svg>
           </template>
           {{ t('modals.weaponSkin.buttons.importFromLink') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- Generate Weapon Inspect Link by Data -->
-        <SButton
+        <Button
           :loading="state.isLoadingInspect"
           variant="elevated"
           rounded="full"
           :disabled="!selectedSkin || customization.paintindex === 0"
           :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           data-tutorial="save-button"
           @click="handleCreateInspectLink"
         >
@@ -1216,7 +1234,7 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -1228,22 +1246,27 @@ onUnmounted(() => {
             </svg>
           </template>
           {{ t('modals.weaponSkin.buttons.generateLink') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- Weapon Search -->
-        <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
-          class="pl-1 max-w-72"
-          data-tutorial="skin-search"
-        />
+        <div class="relative ml-1 w-72 max-w-72" data-tutorial="skin-search">
+          <Search
+            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+          />
+          <Input
+            v-model="state.searchQuery"
+            :placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
+            class="w-full pl-9"
+          />
+        </div>
       </div>
       <div v-else class="flex items-center shrink-0">
         <!-- Exit Visual Mode Button -->
-        <SButton
+        <Button
           variant="light"
-          :color="buttonColor.warning"
+          intent="warning"
+          rounded="md"
           @click="handleExitInlineVisualCustomizer"
         >
           <template #icon-left>
@@ -1257,7 +1280,7 @@ onUnmounted(() => {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-x"
+              class="icon icon-tabler icons-tabler-outline icon-tabler-x size-6"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M18 6l-12 12" />
@@ -1265,12 +1288,12 @@ onUnmounted(() => {
             </svg>
           </template>
           {{ t('modals.weaponSkin.visualCustomizer.exit') }}
-        </SButton>
+        </Button>
       </div>
     </template>
 
-    <div @keydown="handleModalKeydown">
-      <NSpace vertical size="large" class="-mt-2">
+    <div>
+      <div class="flex flex-col gap-3 -mt-2">
         <Transition name="fade" mode="out-in">
           <div v-if="weaponState.inlineVisualCustomizerActive" key="inline">
             <!-- Visual Customizer Inline Mode -->
@@ -1296,7 +1319,7 @@ onUnmounted(() => {
           </div>
           <div v-else key="normal">
             <!-- Selected Skin Preview -->
-            <div v-if="selectedSkin" class="bg-[var(--bg-secondary)] p-6 rounded-lg bg-opacity-50">
+            <div v-if="selectedSkin" class="bg-[var(--bg-secondary)] p-6 rounded-lg">
               <div class="grid grid-cols-2 gap-6">
                 <!-- Left side - Video/Image Preview -->
                 <div>
@@ -1373,24 +1396,36 @@ onUnmounted(() => {
                   <!-- StatTrak and Name Tag -->
                   <div class="grid grid-cols-2 gap-4 w-full">
                     <div class="flex items-center space-x-4">
-                      <NSwitch v-model:value="customization.stattrak_enabled" />
+                      <Switch v-model="customization.stattrak_enabled" />
                       <span>{{ t('modals.weaponSkin.labels.stattrak') }}</span>
-                      <NInputNumber
-                        v-model:value="customization.stattrak_count"
+                      <NumberField
+                        v-model="customization.stattrak_count"
                         :disabled="!customization.stattrak_enabled"
                         :min="0"
                         :max="99999"
+                        :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
                         class="w-28"
-                        :input-props="digitOnlyInputProps"
-                      />
+                      >
+                        <NumberFieldContent>
+                          <NumberFieldDecrement class="p-2" />
+                          <NumberFieldInput />
+                          <NumberFieldIncrement class="p-2" />
+                        </NumberFieldContent>
+                      </NumberField>
                     </div>
-                    <NInput
-                      v-model:value="customization.nametag"
-                      :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
-                      class="pl-1"
-                      maxlength="20"
-                      show-count
-                    />
+                    <div class="relative">
+                      <Input
+                        v-model="customization.nametag"
+                        :placeholder="t('modals.weaponSkin.inputs.nameTagPlaceholder') as string"
+                        maxlength="20"
+                        class="pr-14"
+                      />
+                      <span
+                        class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                      >
+                        {{ (customization.nametag || '').length }}/20
+                      </span>
+                    </div>
                   </div>
 
                   <!-- Wear Slider -->
@@ -1414,70 +1449,72 @@ onUnmounted(() => {
                         <span class="text-sm font-medium">{{
                           t('modals.weaponSkin.labels.paintIndex')
                         }}</span>
-                        <NSwitch v-model:value="customization.paintIndexOverride" size="small" />
+                        <Switch v-model="customization.paintIndexOverride" />
                       </div>
-                      <NInputNumber
-                        v-model:value="customization.paintindex"
+                      <NumberField
+                        v-model="customization.paintindex"
                         :min="0"
                         :max="9999"
                         :disabled="!customization.paintIndexOverride"
-                        :input-props="digitOnlyInputProps"
+                        :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
                         class="w-28"
-                      />
+                      >
+                        <NumberFieldContent>
+                          <NumberFieldDecrement class="p-2" />
+                          <NumberFieldInput />
+                          <NumberFieldIncrement class="p-2" />
+                        </NumberFieldContent>
+                      </NumberField>
                     </div>
 
                     <div class="flex flex-col gap-1">
                       <span class="text-sm font-medium">{{
                         t('modals.weaponSkin.labels.pattern')
                       }}</span>
-                      <NInputNumber
-                        v-model:value="customization.paintseed"
+                      <NumberField
+                        v-model="customization.paintseed"
                         :min="0"
                         :max="1000"
-                        :input-props="digitOnlyInputProps"
+                        :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
                         class="w-28"
-                      />
+                      >
+                        <NumberFieldContent>
+                          <NumberFieldDecrement class="p-2" />
+                          <NumberFieldInput />
+                          <NumberFieldIncrement class="p-2" />
+                        </NumberFieldContent>
+                      </NumberField>
                     </div>
 
                     <!-- Active/Inactive Toggle & Duplicate -->
                     <div class="flex items-center gap-4 flex-1" data-tutorial="active-switch">
-                      <NSwitch v-model:value="customization.active" size="medium">
-                        <template #checked>
-                          {{ t('modals.weaponSkin.labels.itemActive') }}
-                        </template>
-                        <template #unchecked>
-                          {{ t('modals.weaponSkin.labels.itemInactive') }}
-                        </template>
-                      </NSwitch>
+                      <div class="flex items-center gap-2">
+                        <Switch v-model="customization.active" />
+                        <span
+                          class="text-sm font-medium"
+                          :class="customization.active ? 'text-primary' : 'text-gray-400'"
+                        >
+                          {{
+                            customization.active
+                              ? t('modals.weaponSkin.labels.itemActive')
+                              : t('modals.weaponSkin.labels.itemInactive')
+                          }}
+                        </span>
+                      </div>
 
                       <!-- Duplicate Weapon -->
-                      <SButton
+                      <Button
                         v-if="selectedSkin?.availableTeams === 'both'"
                         :disabled="!selectedSkin"
                         variant="light"
                         size="sm"
+                        rounded="md"
                         @click="state.showDuplicateConfirm = true"
                       >
                         {{ t('modals.weaponSkin.buttons.duplicate') }}
-                      </SButton>
+                      </Button>
                     </div>
                   </div>
-
-                  <!-- Stickers & Keychain Toggle and Duplicate Weapon Buttons -->
-                  <!--<div class="flex flex-row w-max items-center justify-center gap-4">
-              <SButton
-                  text
-                  class="text-gray-400 hover:text-gray-200"
-                  @click="state.showDetails = !state.showDetails"
-                  icon-placement="right"
-              >
-                <template #icon-left>
-                  <ChevronUpIcon v-if="state.showDetails" :size="16" />
-                  <ChevronDownIcon v-else :size="16" />
-                </template>
-                {{ state.showDetails ? 'Hide' : 'Show' }} Stickers & Keychain
-              </SButton>
-            </div>-->
                 </div>
               </div>
 
@@ -1501,7 +1538,7 @@ onUnmounted(() => {
                     <div
                       v-for="(sticker, index) in customization.stickers"
                       :key="index"
-                      class="sticker-slot group flex items-center justify-center bg-[var(--card-bg)] p-2 rounded cursor-move transition-all relative hover:bg-[var(--bg-hover)] hover:shadow-md active:scale-[0.98]"
+                      class="sticker-slot group flex items-center justify-center bg-[var(--card-bg)] p-2 rounded-sm cursor-move transition-all relative hover:bg-[var(--bg-hover)] hover:shadow-md active:scale-[0.98]"
                       :class="{
                         'inactive-item': !sticker,
                         'active-item': sticker,
@@ -1517,7 +1554,7 @@ onUnmounted(() => {
                       <button
                         v-if="sticker"
                         type="button"
-                        class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
                         :title="t('modals.weaponSkin.stickers.remove') as string"
                         :aria-label="`${t('modals.weaponSkin.stickers.remove')} #${index + 1}`"
                         draggable="false"
@@ -1550,7 +1587,7 @@ onUnmounted(() => {
                           "
                         />
                         <div
-                          class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                          class="absolute inset-0 bg-white/10 rounded-lg backdrop-blur-xs opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
                         >
                           <span class="text-white text-xs">{{
                             t('modals.weaponSkin.stickers.reposition')
@@ -1577,7 +1614,7 @@ onUnmounted(() => {
                     {{ t('modals.weaponSkin.keychain.title') }}
                   </h4>
                   <div
-                    class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
+                    class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded-sm cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
                     :class="{
                       'inactive-item': !customization.keychain,
                       'active-item': customization.keychain,
@@ -1587,7 +1624,7 @@ onUnmounted(() => {
                     <button
                       v-if="customization.keychain"
                       type="button"
-                      class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
                       :title="String(t('modals.weaponSkin.keychain.remove'))"
                       :aria-label="String(t('modals.weaponSkin.keychain.remove'))"
                       draggable="false"
@@ -1647,35 +1684,48 @@ onUnmounted(() => {
             >
               <div class="flex items-center gap-2">
                 <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.sort.label') }}</span>
-                <NSelect
-                  v-model:value="sortBy"
-                  size="small"
-                  class="w-44"
-                  :options="skinSortOptions"
-                />
-                <SButton
+                <Select
+                  :model-value="sortBy"
+                  @update:model-value="(v) => (sortBy = String(v ?? sortBy))"
+                >
+                  <SelectTrigger size="sm" class="w-44">
+                    <SelectValue>
+                      {{ skinSortOptions.find((o) => o.value === sortBy)?.label }}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem
+                      v-for="option in skinSortOptions"
+                      :key="option.value"
+                      :value="option.value"
+                    >
+                      {{ option.label }}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+                <Button
                   size="xs"
                   icon-only
                   variant="light"
+                  rounded="md"
                   :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
                   @click="toggleSortDir"
                 >
                   {{ sortDir === 'asc' ? '↑' : '↓' }}
-                </SButton>
+                </Button>
               </div>
 
               <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
                 <span class="text-sm text-gray-300">{{
                   t('modals.weaponSkin.filters.rarity')
                 }}</span>
-                <SButton
+                <Button
                   v-for="rarity in availableRarities"
                   :key="rarity.id"
                   size="xs"
                   variant="light"
-                  :color="
-                    rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default
-                  "
+                  rounded="md"
+                  :intent="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
                   :style="
                     rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined
                   "
@@ -1687,7 +1737,7 @@ onUnmounted(() => {
                     <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
                     {{ rarity.name }}
                   </span>
-                </SButton>
+                </Button>
               </div>
             </div>
 
@@ -1698,11 +1748,11 @@ onUnmounted(() => {
                 :key="i"
                 class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
               >
-                <NSkeleton height="128px" />
+                <Skeleton class="h-32 w-full" />
                 <div class="mt-3">
-                  <NSkeleton text :repeat="1" />
+                  <Skeleton class="h-4 w-full" />
                   <div class="mt-2">
-                    <NSkeleton height="4px" />
+                    <Skeleton class="h-1 w-full" />
                   </div>
                 </div>
               </div>
@@ -1713,7 +1763,7 @@ onUnmounted(() => {
               class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
               data-tutorial="skin-grid"
             >
-              <NCard
+              <div
                 v-for="skin in paginatedSkins"
                 :key="skin.id"
                 :style="{
@@ -1726,7 +1776,7 @@ onUnmounted(() => {
                     ')',
                 }"
                 :class="[
-                  'hover:shadow-lg cursor-pointer transition-all rounded-xl',
+                  'hover:shadow-lg cursor-pointer transition-all rounded-xl border border-[#313030] bg-[#242424] px-6 pt-5 pb-5',
                   customization.paintindex === Number(skin.paint_index)
                     ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
                     : '',
@@ -1748,7 +1798,7 @@ onUnmounted(() => {
                     />
                   </div>
                 </div>
-              </NCard>
+              </div>
             </div>
 
             <!-- No Results -->
@@ -1756,7 +1806,16 @@ onUnmounted(() => {
               v-if="!state.isLoadingSkins && sortedSkins.length === 0"
               class="flex justify-center items-center h-64"
             >
-              <NEmpty :description="String(t('modals.weaponSkin.noSearchResults'))" />
+              <Empty>
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <Inbox />
+                  </EmptyMedia>
+                  <EmptyDescription>{{
+                    String(t('modals.weaponSkin.noSearchResults'))
+                  }}</EmptyDescription>
+                </EmptyHeader>
+              </Empty>
             </div>
 
             <!-- Pagination -->
@@ -1765,15 +1824,36 @@ onUnmounted(() => {
               class="flex justify-center mt-4"
               data-tutorial="skin-pagination"
             >
-              <NPagination
+              <Pagination
                 v-model:page="state.currentPage"
-                :page-count="totalPages"
-                :page-slot="5"
-              />
+                :total="totalPages"
+                :items-per-page="1"
+                :sibling-count="1"
+                show-edges
+              >
+                <PaginationContent v-slot="{ items }">
+                  <PaginationPrevious>
+                    <ChevronLeft class="size-4" />
+                  </PaginationPrevious>
+                  <template v-for="(item, index) in items" :key="index">
+                    <PaginationItem
+                      v-if="item.type === 'page'"
+                      :value="item.value"
+                      :is-active="item.value === state.currentPage"
+                    >
+                      {{ item.value }}
+                    </PaginationItem>
+                    <PaginationEllipsis v-else />
+                  </template>
+                  <PaginationNext>
+                    <ChevronRight class="size-4" />
+                  </PaginationNext>
+                </PaginationContent>
+              </Pagination>
             </div>
           </div>
         </Transition>
-      </NSpace>
+      </div>
 
       <!-- Sticker Modal -->
       <LazyStickerModal
@@ -1828,17 +1908,17 @@ onUnmounted(() => {
         @restore="handleHistoryRestore"
       />
     </div>
-  </NModal>
+  </AppModal>
 </template>
 <style scoped lang="scss">
-@reference "tailwindcss";
-
+/* @apply converted to plain CSS for Tailwind v4 (SFC @apply wasn't
+   processed reliably in scss blocks) */
 .active-item {
-  @apply border-2 border-solid border-[var(--selection-ring)];
+  border: 2px solid var(--selection-ring);
 }
 
 .inactive-item {
-  @apply border-2 border-dashed border-gray-600;
+  border: 2px dashed #4b5563; /* border-gray-600 */
 }
 
 .sticker-slot {

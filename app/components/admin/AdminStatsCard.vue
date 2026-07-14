@@ -74,50 +74,51 @@ const displayValue = computed(() => {
 </script>
 
 <template>
-  <NCard :bordered="false" class="admin-stats-card">
+  <div class="admin-stats-card">
     <!-- Loading State -->
     <template v-if="loading">
       <div class="stats-loading">
-        <NSkeleton :width="120" :height="16" :sharp="false" />
-        <NSkeleton :width="80" :height="32" :sharp="false" class="mt-3" />
-        <NSkeleton :width="100" :height="14" :sharp="false" class="mt-2" />
+        <Skeleton class="h-4 w-[120px] bg-white/10" />
+        <Skeleton class="h-8 w-20 bg-white/10 mt-3" />
+        <Skeleton class="h-[14px] w-[100px] bg-white/10 mt-2" />
       </div>
     </template>
 
     <!-- Content -->
     <template v-else>
-      <NSpace vertical :size="12">
+      <div class="flex flex-col gap-3">
         <!-- Header with Icon and Title -->
-        <NSpace align="center" justify="space-between">
+        <div class="flex items-center justify-between gap-3">
           <span class="stats-title">{{ title }}</span>
           <div class="stats-icon-wrapper">
-            <NIcon :component="iconComponent" :size="20" />
+            <component :is="iconComponent" :size="20" />
           </div>
-        </NSpace>
+        </div>
 
         <!-- Value -->
         <div class="stats-value">{{ displayValue }}</div>
 
         <!-- Trend Indicator -->
         <div v-if="trend" class="stats-trend" :class="trendClass">
-          <NIcon :component="trendIcon" :size="14" />
+          <component :is="trendIcon" :size="14" />
           <span class="trend-value">{{ Math.abs(trend.value) }}%</span>
           <span class="trend-label">{{ trend.label }}</span>
         </div>
-      </NSpace>
+      </div>
     </template>
-  </NCard>
+  </div>
 </template>
 
 <style scoped lang="sass">
 .admin-stats-card
   backdrop-filter: var(--admin-glass-blur) saturate(160%)
   -webkit-backdrop-filter: var(--admin-glass-blur) saturate(160%)
-  background: var(--admin-glass-bg) !important
+  background: var(--admin-glass-bg)
   border: 1px solid var(--admin-glass-border)
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), var(--admin-glass-inset)
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
-  border-radius: 16px !important
+  border-radius: 16px
+  padding: 20px 24px
 
   &:hover
     transform: translateY(-2px)

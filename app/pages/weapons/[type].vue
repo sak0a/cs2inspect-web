@@ -17,7 +17,7 @@ const skins = ref<IEnhancedWeapon[]>([])
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 
 const showSkinModal = ref<boolean>(false)
 const selectedWeapon = ref<IEnhancedWeapon | null>(null)
@@ -404,11 +404,11 @@ watch(
             :key="i"
             class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
           >
-            <NSkeleton height="128px" />
+            <Skeleton class="h-32 w-full" />
             <div class="mt-3">
-              <NSkeleton text :repeat="1" />
+              <Skeleton class="h-4 w-full" />
               <div class="mt-2">
-                <NSkeleton height="4px" />
+                <Skeleton class="h-1 w-full" />
               </div>
             </div>
           </div>

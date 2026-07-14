@@ -131,9 +131,9 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
 <template>
   <div data-tutorial="weapon-card">
     <!-- State 1: Not configured — no DB entry for this weapon/team -->
-    <NCard
+    <div
       v-if="!hasCurrentTeamSkin"
-      class="hover:shadow-lg cursor-pointer rounded-xl weapon-card weapon-card--unconfigured"
+      class="px-6 py-5 hover:shadow-lg cursor-pointer rounded-xl weapon-card weapon-card--unconfigured"
       tabindex="0"
       role="button"
       :aria-label="`${weaponData.defaultName} — not configured, click to configure`"
@@ -155,10 +155,10 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
           <div class="h-1 mt-2 bg-[var(--border-subtle)]" />
         </div>
       </div>
-    </NCard>
+    </div>
 
     <!-- State 2 & 3: DB entry exists — vanilla skin or custom skin, active or inactive -->
-    <NCard
+    <div
       v-for="weapon in filteredWeapons"
       :key="weapon.paintindex"
       :style="{
@@ -167,7 +167,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
           ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
           : '#242424',
       }"
-      class="hover:shadow-lg cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
+      class="border px-6 py-5 hover:shadow-lg cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
       :class="{ 'weapon-card--inactive': !weapon.databaseInfo?.active }"
       tabindex="0"
       role="button"
@@ -190,14 +190,8 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
             @click.stop
             @keydown.stop
           >
-            <SDropdown
-              trigger="click"
-              placement="bottom-end"
-              size="sm"
-              variant="glass"
-              @select="(key: string) => handleQuickAction(key, weapon)"
-            >
-              <template #trigger>
+            <DropdownMenu>
+              <DropdownMenuTrigger as-child>
                 <button
                   class="dropdown-trigger"
                   tabindex="0"
@@ -205,30 +199,32 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
                 >
                   <LucideEllipsisVertical :size="16" />
                 </button>
-              </template>
-              <SDropdownItem
-                item-key="generate"
-                label="Generate Inspect Link"
-                :icon="LucideLink"
-                :disabled="weapon.databaseInfo?.paintindex === 0"
-              />
-              <SDropdownItem
-                item-key="toggle"
-                :label="weapon.databaseInfo?.active ? 'Deactivate' : 'Activate'"
-                :icon="weapon.databaseInfo?.active ? LucideEyeOff : LucideEye"
-              />
-              <SDropdownItem
-                item-key="reset"
-                label="Reset"
-                :icon="LucideRotateCcw"
-                danger
-              />
-              <SDropdownItem
-                item-key="import"
-                label="Import From Link"
-                :icon="LucideImport"
-              />
-            </SDropdown>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                class="bg-background/80 backdrop-blur-xl border-border/50 shadow-2xl"
+              >
+                <DropdownMenuItem
+                  :disabled="weapon.databaseInfo?.paintindex === 0"
+                  @select="handleQuickAction('generate', weapon)"
+                >
+                  <LucideLink :size="16" />
+                  Generate Inspect Link
+                </DropdownMenuItem>
+                <DropdownMenuItem @select="handleQuickAction('toggle', weapon)">
+                  <component :is="weapon.databaseInfo?.active ? LucideEyeOff : LucideEye" :size="16" />
+                  {{ weapon.databaseInfo?.active ? 'Deactivate' : 'Activate' }}
+                </DropdownMenuItem>
+                <DropdownMenuItem variant="destructive" @select="handleQuickAction('reset', weapon)">
+                  <LucideRotateCcw :size="16" />
+                  Reset
+                </DropdownMenuItem>
+                <DropdownMenuItem @select="handleQuickAction('import', weapon)">
+                  <LucideImport :size="16" />
+                  Import From Link
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           <!-- Vanilla badge — keep, but only show when active -->
@@ -251,7 +247,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
           />
         </div>
       </div>
-    </NCard>
+    </div>
   </div>
 </template>
 

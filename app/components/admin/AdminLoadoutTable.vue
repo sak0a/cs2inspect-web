@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { h } from 'vue'
-import { buttonColor } from '~/lib/buttonColors'
 import { LucideCopy as DuplicateIcon, LucideDownload as ImportIcon } from '@lucide/vue'
-import { NTag, type DataTableColumns } from 'naive-ui'
-import AdminLoadoutActions from '~/components/admin/AdminLoadoutActions.vue'
 import type { DBLoadout } from '~/types'
 import { api } from '~/utils/api'
 
@@ -12,7 +8,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
-const message = useMessage()
+const message = useToast()
 
 // State
 const loadouts = ref<DBLoadout[]>([])
@@ -91,8 +87,9 @@ function formatDate(dateStr: string | null): string {
   }).format(date)
 }
 
-// Commented out — replaced by AdminLoadoutActions component with SDropdown
-// function getDropdownOptions(row: DBLoadout) { ... }
+function isDefaultLoadout(row: DBLoadout): boolean {
+  return row.is_default === 1 || row.is_default === true
+}
 
 // Handle dropdown action selection
 async function handleAction(key: string, row: DBLoadout) {
@@ -241,65 +238,77 @@ function copyToClipboard() {
   message.success('Copied to clipboard')
 }
 
-// Table columns
-const columns: DataTableColumns<DBLoadout> = [
-  {
-    title: 'Name',
-    key: 'name',
-    render(row) {
-      return h('span', { class: 'font-medium text-white' }, row.name)
-    },
-  },
-  {
-    title: 'Status',
-    key: 'status',
-    width: 160,
-    render(row) {
-      const tags = []
-      if (row.active) {
-        tags.push(
-          h(NTag, { type: 'success', size: 'small', round: true }, { default: () => 'Active' })
-        )
-      }
-      if (row.is_default === 1 || row.is_default === true) {
-        tags.push(
-          h(NTag, { type: 'warning', size: 'small', round: true }, { default: () => 'Default' })
-        )
-      }
-      return tags.length > 0
-        ? h('div', { class: 'flex gap-1' }, tags)
-        : h('span', { class: 'text-gray-500 text-sm' }, '-')
-    },
-  },
-  {
-    title: 'Created',
-    key: 'created_at',
-    width: 180,
-    render(row) {
-      return h('span', { class: 'text-sm text-gray-400' }, formatDate(row.created_at as string))
-    },
-  },
-  {
-    title: 'Updated',
-    key: 'updated_at',
-    width: 180,
-    render(row) {
-      return h('span', { class: 'text-sm text-gray-400' }, formatDate(row.updated_at as string))
-    },
-  },
-  {
-    title: '',
-    key: 'actions',
-    width: 60,
-    align: 'center',
-    render(row) {
-      return h(AdminLoadoutActions, {
-        row,
-        onAction: (key: string) => handleAction(key, row),
-      })
-    },
-  },
-]
+function toggleClearCategory(category: string, checked: boolean) {
+  if (checked) {
+    if (!formInputs.value.clearCategories.includes(category)) {
+      formInputs.value.clearCategories.push(category)
+    }
+  } else {
+    formInputs.value.clearCategories = formInputs.value.clearCategories.filter(
+      (c) => c !== category
+    )
+  }
+}
+
+// Replacement for the old modal after-leave reset hooks: reset the form value
+// once the close transition has finished (guarded against quick re-opens).
+function resetAfterClose(isOpen: () => boolean, reset: () => void) {
+  setTimeout(() => {
+    if (!isOpen()) reset()
+  }, 250)
+}
+
+watch(
+  () => showModal.value.rename,
+  (open) => {
+    if (!open)
+      resetAfterClose(
+        () => showModal.value.rename,
+        () => {
+          formInputs.value.renameName = ''
+        }
+      )
+  }
+)
+
+watch(
+  () => showModal.value.delete,
+  (open) => {
+    if (!open)
+      resetAfterClose(
+        () => showModal.value.delete,
+        () => {
+          formInputs.value.deleteConfirm = ''
+        }
+      )
+  }
+)
+
+watch(
+  () => showModal.value.clear,
+  (open) => {
+    if (!open)
+      resetAfterClose(
+        () => showModal.value.clear,
+        () => {
+          formInputs.value.clearConfirm = ''
+        }
+      )
+  }
+)
+
+watch(
+  () => showModal.value.import,
+  (open) => {
+    if (!open)
+      resetAfterClose(
+        () => showModal.value.import,
+        () => {
+          formInputs.value.importCode = ''
+        }
+      )
+  }
+)
 </script>
 
 <template>
@@ -307,24 +316,71 @@ const columns: DataTableColumns<DBLoadout> = [
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white">Manage Loadouts</h3>
-      <SButton variant="light" size="sm" @click="showModal.import = true">
+      <Button variant="light" size="sm" rounded="md" @click="showModal.import = true">
         <template #icon-left>
           <ImportIcon />
         </template>
         Import
-      </SButton>
+      </Button>
     </div>
 
     <!-- Table -->
     <div class="admin-loadout-table">
-      <NDataTable
-        :columns="columns"
-        :data="loadouts"
-        :loading="isLoading"
-        :bordered="false"
-        :single-line="false"
-        class="rounded-lg overflow-hidden"
-      />
+      <Table :class="{ 'opacity-60 pointer-events-none': isLoading }">
+        <TableHeader>
+          <TableRow class="border-white/6 bg-white/2 hover:bg-transparent">
+            <TableHead class="px-3 font-semibold text-white/55">Name</TableHead>
+            <TableHead class="w-[160px] px-3 font-semibold text-white/55">Status</TableHead>
+            <TableHead class="w-[180px] px-3 font-semibold text-white/55">Created</TableHead>
+            <TableHead class="w-[180px] px-3 font-semibold text-white/55">Updated</TableHead>
+            <TableHead class="w-[60px] px-3 text-center font-semibold text-white/55" />
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow
+            v-for="row in loadouts"
+            :key="row.id"
+            class="border-white/4 hover:bg-[rgba(200,180,130,0.06)]"
+          >
+            <TableCell class="px-3 py-3">
+              <span class="font-medium text-white">{{ row.name }}</span>
+            </TableCell>
+            <TableCell class="px-3 py-3">
+              <div v-if="row.active || isDefaultLoadout(row)" class="flex gap-1">
+                <Badge
+                  v-if="row.active"
+                  variant="outline"
+                  class="border-emerald-500/30 bg-emerald-500/15 text-emerald-400"
+                >
+                  Active
+                </Badge>
+                <Badge
+                  v-if="isDefaultLoadout(row)"
+                  variant="outline"
+                  class="border-amber-500/30 bg-amber-500/15 text-amber-400"
+                >
+                  Default
+                </Badge>
+              </div>
+              <span v-else class="text-gray-500 text-sm">-</span>
+            </TableCell>
+            <TableCell class="px-3 py-3">
+              <span class="text-sm text-gray-400">{{ formatDate(row.created_at) }}</span>
+            </TableCell>
+            <TableCell class="px-3 py-3">
+              <span class="text-sm text-gray-400">{{ formatDate(row.updated_at) }}</span>
+            </TableCell>
+            <TableCell class="px-3 py-3 text-center">
+              <div class="flex justify-center">
+                <AdminLoadoutActions :row="row" @action="(key) => handleAction(key, row)" />
+              </div>
+            </TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+      <div v-if="isLoading && loadouts.length === 0" class="flex items-center justify-center py-6">
+        <Spinner class="size-6 text-primary" />
+      </div>
     </div>
 
     <!-- Empty state -->
@@ -334,46 +390,32 @@ const columns: DataTableColumns<DBLoadout> = [
   </div>
 
   <!-- Rename Modal -->
-  <NModal
-    v-model:show="showModal.rename"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
-    title="Rename Loadout"
-    @after-leave="formInputs.renameName = ''"
-  >
-    <NInput
-      v-model:value="formInputs.renameName"
+  <AppModal v-model:visible="showModal.rename" title="Rename Loadout" max-width="500px">
+    <Input
+      :model-value="formInputs.renameName"
       placeholder="New loadout name"
       :maxlength="25"
-      show-count
+      @update:model-value="(val) => (formInputs.renameName = String(val))"
     />
+    <div class="mt-1 text-right text-xs text-gray-500">{{ formInputs.renameName.length }}/25</div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton variant="light" @click="showModal.rename = false"> Cancel </SButton>
-        <SButton
-          :color="buttonColor.success"
+        <Button variant="light" rounded="md" @click="showModal.rename = false"> Cancel </Button>
+        <Button
+          intent="success"
           variant="light"
+          rounded="md"
           :disabled="formInputs.renameName.length === 0 || formInputs.renameName.length > 25"
           @click="handleRenameConfirm"
         >
           Rename
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 
   <!-- Delete Modal -->
-  <NModal
-    v-model:show="showModal.delete"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
-    title="Delete Loadout"
-    @after-leave="formInputs.deleteConfirm = ''"
-  >
+  <AppModal v-model:visible="showModal.delete" title="Delete Loadout" max-width="500px">
     <div class="space-y-3">
       <p>
         Are you sure you want to delete this loadout? This will remove the loadout and all its
@@ -384,63 +426,67 @@ const columns: DataTableColumns<DBLoadout> = [
         <p class="mb-2 text-sm text-gray-400">
           Type <span class="font-mono text-white">{{ selectedLoadout?.name }}</span> to confirm:
         </p>
-        <NInput
-          v-model:value="formInputs.deleteConfirm"
+        <Input
+          :model-value="formInputs.deleteConfirm"
           placeholder="Type loadout name to confirm"
+          @update:model-value="(val) => (formInputs.deleteConfirm = String(val))"
         />
       </div>
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton variant="light" @click="showModal.delete = false"> Cancel </SButton>
-        <SButton
-          :color="buttonColor.error"
+        <Button variant="light" rounded="md" @click="showModal.delete = false"> Cancel </Button>
+        <Button
+          intent="error"
           variant="light"
+          rounded="md"
           :disabled="formInputs.deleteConfirm !== selectedLoadout?.name"
           @click="handleDeleteConfirm"
         >
           Delete
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 
   <!-- Clear Modal -->
-  <NModal
-    v-model:show="showModal.clear"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
-    title="Clear Loadout Items"
-    @after-leave="formInputs.clearConfirm = ''"
-  >
+  <AppModal v-model:visible="showModal.clear" title="Clear Loadout Items" max-width="500px">
     <div class="space-y-4">
       <p>Select the item categories to clear from this loadout.</p>
 
-      <NCheckboxGroup v-model:value="formInputs.clearCategories">
-        <NSpace item-style="display: flex;">
-          <NCheckbox v-for="cat in availableCategories" :key="cat" :value="cat" :label="cat" />
-        </NSpace>
-      </NCheckboxGroup>
+      <div class="flex flex-wrap gap-x-4 gap-y-2">
+        <label
+          v-for="cat in availableCategories"
+          :key="cat"
+          class="flex cursor-pointer select-none items-center gap-2 text-sm"
+        >
+          <Checkbox
+            :model-value="formInputs.clearCategories.includes(cat)"
+            @update:model-value="(checked) => toggleClearCategory(cat, checked === true)"
+          />
+          {{ cat }}
+        </label>
+      </div>
 
       <p class="font-bold text-red-400">This action cannot be undone.</p>
       <div>
         <p class="mb-2 text-sm text-gray-400">
           Type <span class="font-mono text-white">{{ selectedLoadout?.name }}</span> to confirm:
         </p>
-        <NInput
-          v-model:value="formInputs.clearConfirm"
+        <Input
+          :model-value="formInputs.clearConfirm"
           placeholder="Type loadout name to confirm"
+          @update:model-value="(val) => (formInputs.clearConfirm = String(val))"
         />
       </div>
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton variant="light" @click="showModal.clear = false"> Cancel </SButton>
-        <SButton
-          :color="buttonColor.error"
+        <Button variant="light" rounded="md" @click="showModal.clear = false"> Cancel </Button>
+        <Button
+          intent="error"
           variant="light"
+          rounded="md"
           :disabled="
             formInputs.clearConfirm !== selectedLoadout?.name ||
             formInputs.clearCategories.length === 0
@@ -448,61 +494,51 @@ const columns: DataTableColumns<DBLoadout> = [
           @click="handleClearConfirm"
         >
           Clear Items
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 
   <!-- Share Modal -->
-  <NModal
-    v-model:show="showModal.share"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 400px"
-    title="Share Code"
-  >
+  <AppModal v-model:visible="showModal.share" title="Share Code" max-width="400px">
     <div class="space-y-3">
       <p class="text-sm text-gray-400">Share this code to let others import this loadout.</p>
-      <NInputGroup>
-        <NInput v-model:value="formInputs.shareCode" readonly />
-        <SButton :color="buttonColor.primary" variant="outlined" icon-only @click="copyToClipboard">
+      <div class="flex items-center gap-2">
+        <Input :model-value="formInputs.shareCode" readonly class="flex-1" />
+        <Button intent="primary" variant="outlined" icon-only rounded="md" @click="copyToClipboard">
           <template #icon-left>
             <DuplicateIcon />
           </template>
-        </SButton>
-      </NInputGroup>
+        </Button>
+      </div>
     </div>
-  </NModal>
+  </AppModal>
 
   <!-- Import Modal -->
-  <NModal
-    v-model:show="showModal.import"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
-    title="Import Loadout"
-    @after-leave="formInputs.importCode = ''"
-  >
+  <AppModal v-model:visible="showModal.import" title="Import Loadout" max-width="500px">
     <div class="space-y-3">
       <p class="text-sm text-gray-400">Enter a share code to import a loadout for this user.</p>
-      <NInput v-model:value="formInputs.importCode" placeholder="e.g. LO-ABCDEFGHIJ" />
+      <Input
+        :model-value="formInputs.importCode"
+        placeholder="e.g. LO-ABCDEFGHIJ"
+        @update:model-value="(val) => (formInputs.importCode = String(val))"
+      />
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton variant="light" @click="showModal.import = false"> Cancel </SButton>
-        <SButton
-          :color="buttonColor.success"
+        <Button variant="light" rounded="md" @click="showModal.import = false"> Cancel </Button>
+        <Button
+          intent="success"
           variant="light"
+          rounded="md"
           :disabled="formInputs.importCode.length < 13"
           @click="handleImportConfirm"
         >
           Import
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 </template>
 
 <style scoped lang="sass">
@@ -518,34 +554,10 @@ const columns: DataTableColumns<DBLoadout> = [
   &:hover
     border-color: var(--admin-glass-border-hover)
 
+// Table surface (port of the old data-table deep overrides)
 .admin-loadout-table
-  :deep(.n-data-table)
-    --n-td-color: transparent
-    --n-td-color-hover: rgba(200, 180, 130, 0.06)
-    --n-td-color-striped: transparent
-    --n-th-color: rgba(255, 255, 255, 0.02)
-    --n-th-color-hover: rgba(200, 180, 130, 0.04)
-    --n-merged-td-color: transparent
-    --n-merged-td-color-hover: rgba(200, 180, 130, 0.06)
-    background: transparent !important
-    border: 1px solid rgba(255, 255, 255, 0.05)
-    border-radius: 12px
-    overflow: hidden
-
-    .n-data-table-wrapper
-      background: transparent
-
-    .n-data-table-table
-      background: transparent
-
-    .n-data-table-th
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06)
-      color: rgba(255, 255, 255, 0.55)
-      font-weight: 600
-
-    .n-data-table-td
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04)
-
-    .n-data-table-tr
-      transition: background 0.2s ease
+  background: transparent
+  border: 1px solid rgba(255, 255, 255, 0.05)
+  border-radius: 12px
+  overflow: hidden
 </style>

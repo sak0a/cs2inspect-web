@@ -12,7 +12,7 @@ const ctAgentType = ref<number | null>(null)
 const agents = ref<APIAgent[]>([])
 
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 const { teamSide } = useTeamToggle()
 
@@ -124,6 +124,19 @@ const handleTAgentDropdownChange = (value: number) => {
   handleAgentTypeChange('t', value)
   // Ensure all agent cards remain visible after dropdown selection
   nextTick(() => ensureCardsVisible())
+}
+
+// Display label for the current selection (reka Select won't show a preselected
+// option's label until the menu is opened, so derive it from the options list).
+const currentAgentLabel = computed(
+  () => currentAgentOptions.value.find((o) => o.value === currentAgentType.value)?.label
+)
+
+const onAgentTypeChange = (val: unknown) => {
+  const defindex = Number(val)
+  currentAgentType.value = defindex
+  if (teamSide.value === 't') handleTAgentDropdownChange(defindex)
+  else handleCtAgentDropdownChange(defindex)
 }
 
 const handleAgentSelect = (agent: APIAgent) => {
@@ -295,7 +308,7 @@ watch(
       <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
         <!-- Loading State -->
         <div v-if="isLoading" class="text-center py-12">
-          <NSpin size="large" />
+          <Spinner class="size-10 text-primary mx-auto" />
           <p class="mt-4 text-gray-400">Loading agents...</p>
         </div>
 
@@ -310,18 +323,21 @@ watch(
             <h2 class="text-xl font-bold mb-4 text-center pt-0.5 w-[200px]">
               {{ teamSide === 'ct' ? t('teams.counterTerrorists') : t('teams.terrorists') }}
             </h2>
-            <NSelect
-              v-model:value="currentAgentType"
-              :options="currentAgentOptions"
-              placeholder="Select agent"
-              class="w-72"
-              @update:value="
-                (val: number) =>
-                  teamSide === 't'
-                    ? handleTAgentDropdownChange(val)
-                    : handleCtAgentDropdownChange(val)
-              "
-            />
+            <Select :model-value="currentAgentType" @update:model-value="onAgentTypeChange">
+              <SelectTrigger class="w-72">
+                <span v-if="currentAgentLabel">{{ currentAgentLabel }}</span>
+                <span v-else class="text-muted-foreground">Select agent</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem
+                  v-for="opt in currentAgentOptions"
+                  :key="opt.value"
+                  :value="opt.value"
+                >
+                  {{ opt.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div
             ref="ctScrollContainer"
@@ -346,11 +362,6 @@ watch(
 </template>
 
 <style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-
 .horizontal-scroll {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;

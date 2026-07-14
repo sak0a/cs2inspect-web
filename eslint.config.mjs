@@ -5,7 +5,7 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 export default withNuxt(
   // Ignore patterns - must come first
   {
-    ignores: ['site/**', '**/site/**', 'services/**', 'app/components/sui/**'],
+    ignores: ['site/**', '**/site/**', 'services/**'],
   },
   // Nuxt ESLint config with custom rules
   {
@@ -13,6 +13,13 @@ export default withNuxt(
     rules: {
       'no-console': 'off', // allow console.log in TypeScript files
       'no-useless-assignment': 'off', // ESLint 10: too noisy for try/catch init patterns
+    },
+  },
+  // Generated shadcn-vue components follow upstream codegen style
+  {
+    files: ['app/components/ui/**'],
+    rules: {
+      'vue/require-default-prop': 'off',
     },
   },
   // Disable ESLint rules that conflict with Prettier

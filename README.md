@@ -40,8 +40,8 @@ A full-stack web application for Counter-Strike 2 players to customize and manag
 | Category             | Technology                               |
 | -------------------- | ---------------------------------------- |
 | Framework            | Nuxt 4 (Vue 3 + TypeScript)              |
-| UI Library           | Naive UI                                 |
-| Styling              | Tailwind CSS + SASS                      |
+| UI Library           | shadcn-vue (reka-ui)                     |
+| Styling              | Tailwind CSS v4 + SASS                   |
 | State Management     | Pinia                                    |
 | Database             | MariaDB (Drizzle ORM)                    |
 | Authentication       | Steam OpenID + JWT                       |

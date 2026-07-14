@@ -7,7 +7,7 @@
   Props:
   - status: Current save status ('idle' | 'saving' | 'saved' | 'error')
   - showRetry: Show retry button on error
-  - fixed: Position fixed at top-center (like NaiveUI messages)
+  - fixed: Position fixed at top-center (like toast messages)
 -->
 <template>
   <Teleport to="body" :disabled="!fixed">

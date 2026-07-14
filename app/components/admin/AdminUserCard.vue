@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideBan as BanIcon,
   LucideShieldCheck as UnbanIcon,
@@ -62,15 +61,11 @@ function formatRelativeTime(isoDate: string): string {
 </script>
 
 <template>
-  <NCard
-    :bordered="false"
-    class="admin-user-card"
-    :class="{ 'admin-user-card--banned': user.isBanned }"
-  >
-    <NSpace vertical :size="16">
+  <div class="admin-user-card" :class="{ 'admin-user-card--banned': user.isBanned }">
+    <div class="flex flex-col gap-4">
       <!-- Header: Steam ID, Status, and Actions -->
       <div class="flex items-center justify-between flex-wrap gap-3">
-        <NSpace align="center" :size="12">
+        <div class="flex items-center gap-3">
           <img
             v-if="user.avatarFull"
             :src="user.avatarFull"
@@ -80,88 +75,99 @@ function formatRelativeTime(isoDate: string): string {
           <div v-else class="user-avatar">
             {{ user.steamId.slice(-2).toUpperCase() }}
           </div>
-          <NSpace vertical :size="2">
+          <div class="flex flex-col gap-0.5 items-start">
             <span v-if="user.personaName" class="user-persona-name">{{ user.personaName }}</span>
             <span class="user-steam-id font-mono">{{ user.steamId }}</span>
-            <NTag :type="user.isBanned ? 'error' : 'success'" size="small" round>
+            <Badge
+              variant="outline"
+              :class="
+                user.isBanned
+                  ? 'border-red-500/30 bg-red-500/15 text-red-400'
+                  : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400'
+              "
+            >
               {{ user.isBanned ? 'Banned' : 'Active' }}
-            </NTag>
-          </NSpace>
-        </NSpace>
+            </Badge>
+          </div>
+        </div>
 
         <!-- Action Buttons -->
-        <NSpace :size="8">
-          <SButton
+        <div class="flex items-center gap-2">
+          <Button
             v-if="user.isBanned"
-            :color="buttonColor.success"
+            intent="success"
             variant="light"
             size="sm"
+            rounded="md"
             @click="emit('unban', user)"
           >
             <template #icon-left>
               <UnbanIcon />
             </template>
             Unban
-          </SButton>
+          </Button>
 
-          <SButton
+          <Button
             v-else
-            :color="buttonColor.warning"
+            intent="warning"
             variant="light"
             size="sm"
+            rounded="md"
             @click="emit('ban', user)"
           >
             <template #icon-left>
               <BanIcon />
             </template>
             Ban
-          </SButton>
+          </Button>
 
-          <SButton
-            :color="buttonColor.error"
+          <Button
+            intent="error"
             variant="light"
             size="sm"
+            rounded="md"
             @click="emit('delete', user)"
           >
             <template #icon-left>
               <DeleteIcon />
             </template>
             Delete
-          </SButton>
-        </NSpace>
+          </Button>
+        </div>
       </div>
 
       <!-- Ban Info (if banned) -->
       <div v-if="user.isBanned && user.banInfo" class="ban-info">
-        <NSpace align="center" :size="8">
-          <NIcon :component="AlertIcon" :size="16" color="#ef4444" />
+        <div class="flex items-center gap-2">
+          <AlertIcon :size="16" class="shrink-0 text-red-500" />
           <span class="text-sm">
             Banned {{ formatRelativeTime(user.banInfo.bannedAt) }}
             <template v-if="user.banInfo.reason"> - {{ user.banInfo.reason }} </template>
           </span>
-        </NSpace>
+        </div>
         <span v-if="user.banInfo.expiresAt" class="text-xs opacity-60">
           Expires: {{ formatDate(user.banInfo.expiresAt) }}
         </span>
         <span v-else class="text-xs opacity-60"> Permanent ban </span>
       </div>
-    </NSpace>
-  </NCard>
+    </div>
+  </div>
 </template>
 
 <style scoped lang="sass">
 .admin-user-card
   backdrop-filter: var(--admin-glass-blur) saturate(160%)
   -webkit-backdrop-filter: var(--admin-glass-blur) saturate(160%)
-  background: var(--admin-glass-bg) !important
+  background: var(--admin-glass-bg)
   border: 1px solid var(--admin-glass-border)
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2), var(--admin-glass-inset)
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1)
-  border-radius: 16px !important
+  border-radius: 16px
+  padding: 20px 24px
 
   &--banned
     border-left: 4px solid #ef4444
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(255, 255, 255, 0.02)) !important
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(255, 255, 255, 0.02))
 
 .user-avatar-img
   width: 44px

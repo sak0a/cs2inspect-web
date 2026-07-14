@@ -6,7 +6,7 @@ CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players t
 
 ## Tech Stack
 
-- **Frontend**: Nuxt 4, Vue 3, Naive UI, Tailwind CSS, Pinia
+- **Frontend**: Nuxt 4, Vue 3, shadcn-vue (reka-ui), Tailwind CSS v4, Pinia
 - **Backend**: Nitro (H3), MariaDB, Drizzle ORM
 - **Auth**: Steam OpenID + JWT
 
@@ -40,5 +40,3 @@ CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players t
 These are known failures — don't chase them:
 
 - 18 test failures in `services/steam-service/src/services/queue.test.ts`
-- 1 lint error: `@typescript-eslint/no-explicit-any` in `nuxt.config.ts:118`
-- 1 typecheck error in `scripts/project-cli.ts:536`

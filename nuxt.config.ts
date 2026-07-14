@@ -1,10 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import Components from 'unplugin-vue-components/vite'
 import { defineNuxtConfig } from 'nuxt/config'
 import { fileURLToPath } from 'node:url'
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   alias: {
@@ -18,12 +15,6 @@ export default defineNuxtConfig({
   ssr: true,
   imports: {
     dirs: ['stores', 'composables', 'utils', 'middleware'],
-    presets: [
-      {
-        from: 'naive-ui',
-        imports: ['useMessage', 'useNotification', 'useDialog', 'useTheme', 'useLoading'],
-      },
-    ],
   },
   components: [{ path: '~/components', pathPrefix: false }],
   typescript: {
@@ -53,9 +44,6 @@ export default defineNuxtConfig({
   devtools: {
     enabled: true,
   },
-  build: {
-    transpile: ['vueuc'],
-  },
   app: {
     pageTransition: {
       name: 'page',
@@ -66,6 +54,7 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
     head: {
+      htmlAttrs: { class: 'dark' },
       titleTemplate: '%s | CS2 Inspect',
       title: 'CS2 Inspect',
       meta: [
@@ -105,9 +94,6 @@ export default defineNuxtConfig({
     optimizeDeps: {
       exclude: ['oxc-parser'],
     },
-    ssr: {
-      noExternal: ['naive-ui'],
-    },
     css: {
       preprocessorOptions: {
         sass: {
@@ -122,64 +108,16 @@ export default defineNuxtConfig({
         ignored: ['**/public/img/charms/**', '**/public/img/weapons/**', '**/storage/stickers/**'],
       },
     },
-    plugins: [
-      // Fix Vite resolving node_modules .vue files without project root prefix
-      {
-        name: 'fix-node-modules-path',
-        enforce: 'pre' as const,
-        load(id: string) {
-          if (id.startsWith('/node_modules/') && id.endsWith('.vue') && !existsSync(id)) {
-            const resolved = resolve(process.cwd(), id.slice(1))
-            if (existsSync(resolved)) {
-              return readFileSync(resolved, 'utf-8')
-            }
-          }
-        },
-      },
-      Components({
-        resolvers: [NaiveUiResolver()],
-      }) as unknown as { name: string },
-    ],
+    plugins: [tailwindcss() as unknown as { name: string }],
   },
-  tailwindcss: {
-    cssPath: ['~/assets/css/tailwind.css', { injectPosition: 'first' }],
-    exposeConfig: {
-      level: 2,
-    },
-    config: {
-      theme: {
-        extend: {
-          colors: {
-            background: 'var(--bg-primary)',
-            foreground: 'var(--text-primary)',
-            muted: {
-              DEFAULT: 'var(--bg-secondary)',
-              foreground: 'var(--text-tertiary)',
-            },
-            accent: {
-              DEFAULT: 'var(--bg-hover)',
-              foreground: 'var(--text-primary)',
-            },
-            border: 'var(--border-color)',
-            input: 'var(--border-light)',
-            primary: {
-              DEFAULT: 'var(--primary-color)',
-              foreground: 'var(--text-inverted)',
-            },
-          },
-          borderColor: {
-            DEFAULT: 'var(--border-color)',
-          },
-        },
-      },
-    },
-    viewer: false,
+  shadcn: {
+    prefix: '',
+    componentDir: '@/components/ui',
   },
   modules: [
-    '@nuxtjs/tailwindcss',
     '@nuxt/test-utils/module',
     'nuxt-lucide-icons',
-    'nuxtjs-naive-ui',
+    'shadcn-nuxt',
     '@nuxt/eslint',
     '@pinia/nuxt',
     'nuxt-i18n-micro',

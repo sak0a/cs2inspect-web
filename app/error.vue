@@ -190,7 +190,7 @@ function handleGoHome() {
   mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
   -webkit-mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
 
-// Glass card (matches .n-modal > .n-card)
+// Glass card (matches the AppModal glass card)
 .error-container
   width: 100%
   max-width: 440px

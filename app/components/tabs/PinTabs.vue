@@ -24,7 +24,7 @@ const handleSelect = () => {
 </script>
 
 <template>
-  <NCard
+  <div
     :style="{
       borderColor: collectible.rarity?.color || '#313030',
       background: collectible.rarity?.color
@@ -32,10 +32,10 @@ const handleSelect = () => {
         : '#242424',
     }"
     :class="[
-      'cursor-pointer rounded-xl bg-[var(--card-bg)] pin-card',
+      'h-[300px] w-full flex flex-col px-6 py-5 transition-[transform,box-shadow] duration-300 cursor-pointer rounded-xl bg-[var(--card-bg)] pin-card',
       isSelected
         ? 'selected-pin ring-2 ring-[var(--selection-ring)] border-0 visible'
-        : 'hover:shadow-lg hover:scale-100 hover:z-10',
+        : 'border hover:shadow-lg hover:scale-100 hover:z-10',
     ]"
     @click="handleSelect"
   >
@@ -46,7 +46,7 @@ const handleSelect = () => {
         class="w-full h-32 object-contain mb-2"
         loading="lazy"
       />
-      <div class="w-full flex-grow flex flex-col">
+      <div class="w-full grow flex flex-col">
         <div>
           <p class="text-sm text-white line-clamp-2 h-10 pin-name">
             {{ collectible.name }}
@@ -62,22 +62,10 @@ const handleSelect = () => {
         <div class="h-1 mt-auto" :style="{ background: collectible.rarity?.color || '#313030' }" />
       </div>
     </div>
-  </NCard>
+  </div>
 </template>
 
 <style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-  height: 300px;
-  width: 100%; /* Full width to fit in grid cell */
-  display: flex;
-  flex-direction: column;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
 .pin-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;

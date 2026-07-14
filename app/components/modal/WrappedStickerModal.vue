@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import { Search, ChevronLeft, ChevronRight } from '@lucide/vue'
 import type { APISticker } from '~/server/types'
 
 interface Props {
@@ -14,7 +14,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const message = useMessage()
+const message = useToast()
 
 const state = ref({
   searchQuery: '',
@@ -117,15 +117,14 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="visible"
-    style="max-width: 1200px; width: 95vw"
-    preset="card"
-    :bordered="false"
+  <AppModal
+    :visible="visible"
     size="huge"
-    :auto-focus="false"
-    :theme-overrides="weaponAttachmentModalThemeOverrides"
-    @update:show="handleClose"
+    @update:visible="
+      (show: boolean) => {
+        if (!show) handleClose()
+      }
+    "
   >
     <template #header>
       <div class="flex items-center gap-3">
@@ -134,39 +133,64 @@ watch(
     </template>
     <template #header-extra>
       <div class="flex items-center gap-2">
-        <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="t('modals.sticker.searchPlaceholder') as string"
-          class="w-64"
-        />
+        <div class="relative w-64">
+          <Search
+            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+          />
+          <Input
+            v-model="state.searchQuery"
+            :placeholder="t('modals.sticker.searchPlaceholder') as string"
+            class="w-full pl-9"
+          />
+        </div>
       </div>
     </template>
 
-    <NSpace vertical size="large" class="-mt-2">
+    <div class="flex flex-col gap-3 -mt-2">
       <!-- Sticker list controls (Sort + Filters) -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
-          <NSelect v-model:value="sortBy" size="small" class="w-44" :options="stickerSortOptions" />
-          <SButton
+          <Select
+            :model-value="sortBy"
+            @update:model-value="(v) => (sortBy = String(v ?? sortBy))"
+          >
+            <SelectTrigger size="sm" class="w-44">
+              <SelectValue>
+                {{ stickerSortOptions.find((o) => o.value === sortBy)?.label }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="option in stickerSortOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
             size="xs"
             icon-only
             variant="light"
+            rounded="md"
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
             {{ sortDir === 'asc' ? '↑' : '↓' }}
-          </SButton>
+          </Button>
         </div>
 
         <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
-          <SButton
+          <Button
             v-for="rarity in availableRarities"
             :key="rarity.id"
             size="xs"
             variant="light"
-            :color="rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default"
+            rounded="md"
+            :intent="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
             :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
@@ -176,24 +200,25 @@ watch(
               <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
               {{ rarity.name }}
             </span>
-          </SButton>
+          </Button>
         </div>
       </div>
 
       <div v-if="availableEffects.length > 0" class="flex flex-wrap items-center gap-2 -mt-2">
         <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.effect') }}</span>
-        <SButton
+        <Button
           v-for="effect in availableEffects"
           :key="effect.id"
           size="xs"
           variant="light"
-          :color="effectFilterIds.includes(effect.id) ? buttonColor.primary : buttonColor.default"
+          rounded="md"
+          :intent="effectFilterIds.includes(effect.id) ? 'primary' : 'default'"
           :aria-label="`Filter by ${effect.label} effect`"
           :aria-pressed="effectFilterIds.includes(effect.id)"
           @click="toggleEffectFilter(effect.id)"
         >
           {{ effect.label }}
-        </SButton>
+        </Button>
       </div>
 
       <!-- Stickers Grid -->
@@ -201,10 +226,10 @@ watch(
         v-if="!state.isLoading"
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
       >
-        <NCard
+        <div
           v-for="item in paginatedItems"
           :key="item.id"
-          class="cursor-pointer transition-all hover:shadow-lg h-full hover:opacity-80"
+          class="cursor-pointer transition-all hover:shadow-lg h-full hover:opacity-80 rounded-sm border border-[#313030] bg-[#242424] px-6 pt-5 pb-5"
           :style="{
             border: `1px solid ${item.rarity?.color || '#313030'}`,
             background: `linear-gradient(135deg, #101010, ${hexToRgba(
@@ -226,7 +251,7 @@ watch(
             </p>
             <div class="h-1 w-full mt-2" :style="{ background: item.rarity?.color || '#313030' }" />
           </div>
-        </NCard>
+        </div>
       </div>
 
       <!-- Skeleton Loading State -->
@@ -239,11 +264,11 @@ watch(
           :key="i"
           class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
-          <NSkeleton height="96px" />
+          <Skeleton class="h-24 w-full" />
           <div class="mt-3">
-            <NSkeleton text :repeat="1" />
+            <Skeleton class="h-4 w-full" />
             <div class="mt-2">
-              <NSkeleton height="4px" />
+              <Skeleton class="h-1 w-full" />
             </div>
           </div>
         </div>
@@ -259,20 +284,33 @@ watch(
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="flex justify-center">
-        <NPagination v-model:page="state.currentPage" :page-count="totalPages" :page-slot="7" />
+        <Pagination
+          v-model:page="state.currentPage"
+          :total="totalPages"
+          :items-per-page="1"
+          :sibling-count="2"
+          show-edges
+        >
+          <PaginationContent v-slot="{ items }">
+            <PaginationPrevious>
+              <ChevronLeft class="size-4" />
+            </PaginationPrevious>
+            <template v-for="(item, index) in items" :key="index">
+              <PaginationItem
+                v-if="item.type === 'page'"
+                :value="item.value"
+                :is-active="item.value === state.currentPage"
+              >
+                {{ item.value }}
+              </PaginationItem>
+              <PaginationEllipsis v-else />
+            </template>
+            <PaginationNext>
+              <ChevronRight class="size-4" />
+            </PaginationNext>
+          </PaginationContent>
+        </Pagination>
       </div>
-    </NSpace>
-  </NModal>
+    </div>
+  </AppModal>
 </template>
-
-<style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-
-/* Ensure no selection ring appears by default */
-.n-card:not(:hover) {
-  --n-border-color: #313030 !important;
-}
-</style>

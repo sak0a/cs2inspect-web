@@ -150,11 +150,11 @@ const handleRefresh = async () => {
         <h2 class="text-xl font-semibold text-white">Overview</h2>
         <p class="text-sm text-white/50 mt-1">Monitor your application statistics</p>
       </div>
-      <SButton variant="ghost" icon-only rounded="full" :loading="isLoading" @click="handleRefresh">
+      <Button variant="ghost" icon-only rounded="full" :loading="isLoading" @click="handleRefresh">
         <template #icon-left>
           <RefreshIcon :size="16" />
         </template>
-      </SButton>
+      </Button>
     </div>
 
     <!-- Stats Cards Grid -->
@@ -212,7 +212,7 @@ const handleRefresh = async () => {
           :class="`quick-action-card--${action.color}`"
         >
           <div class="quick-action-icon">
-            <NIcon :component="action.icon" :size="24" />
+            <component :is="action.icon" :size="24" />
           </div>
           <div class="quick-action-content">
             <h4 class="quick-action-title">{{ action.title }}</h4>

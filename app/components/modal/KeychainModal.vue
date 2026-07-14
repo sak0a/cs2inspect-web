@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import { Search, ChevronLeft, ChevronRight } from '@lucide/vue'
 import type { APIKeychain, IEnhancedWeaponKeychain, APISticker } from '~/server/types'
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
 import WrappedStickerModal from './WrappedStickerModal.vue'
-import { digitOnlyInputProps } from '~/utils/inputProps'
 
 interface Props {
   visible: boolean
@@ -28,7 +27,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const message = useMessage()
+const message = useToast()
 
 const state = ref({
   searchQuery: '',
@@ -292,15 +291,14 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="visible"
-    style="max-width: 1200px; width: 95vw"
-    preset="card"
-    :bordered="false"
+  <AppModal
+    :visible="visible"
     size="huge"
-    :auto-focus="false"
-    :theme-overrides="weaponAttachmentModalThemeOverrides"
-    @update:show="handleClose"
+    @update:visible="
+      (show: boolean) => {
+        if (!show) handleClose()
+      }
+    "
   >
     <template #header>
       <div class="flex items-center gap-3">
@@ -322,13 +320,13 @@ watch(
     </template>
     <template #header-extra>
       <div class="flex items-center gap-2">
-        <SButton
+        <Button
           variant="elevated"
           rounded="full"
-          :color="buttonColor.error"
+          intent="error"
           tinted
           :disabled="!currentKeychain && !state.selectedItem"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="handleResetConfig"
         >
           <template #icon-left>
@@ -342,6 +340,7 @@ watch(
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              class="size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -349,22 +348,24 @@ watch(
             </svg>
           </template>
           {{ t('modals.weaponSkin.buttons.reset') }}
-        </SButton>
-        <NDivider vertical />
-        <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="t('modals.keychain.searchPlaceholder') as string"
-          class="w-64"
-        />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <div class="relative w-64">
+          <Search
+            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+          />
+          <Input
+            v-model="state.searchQuery"
+            :placeholder="t('modals.keychain.searchPlaceholder') as string"
+            class="w-full pl-9"
+          />
+        </div>
       </div>
     </template>
 
-    <NSpace vertical size="large" class="-mt-2">
+    <div class="flex flex-col gap-3 -mt-2">
       <!-- Selected Keychain Preview -->
-      <div
-        v-if="state.selectedItem"
-        class="bg-[var(--bg-secondary)] p-4 md:p-6 rounded-lg bg-opacity-50"
-      >
+      <div v-if="state.selectedItem" class="bg-[var(--bg-secondary)] p-4 md:p-6 rounded-lg">
         <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
           <!-- Left side - Image -->
           <div class="flex flex-col items-center justify-center">
@@ -390,71 +391,98 @@ watch(
                 <h4 class="text-xs font-medium mb-1 text-gray-400">
                   X {{ t('modals.keychain.labels.position') }}
                 </h4>
-                <NInputNumber
-                  v-model:value="state.customization.x"
+                <NumberField
+                  v-model="state.customization.x"
                   :min="-100"
                   :max="100"
                   :step="0.01"
-                  size="small"
+                  :step-snapping="false"
+                  :format-options="{ useGrouping: false, maximumFractionDigits: 6 }"
                   class="w-full"
-                  :input-props="digitOnlyInputProps"
-                />
+                >
+                  <NumberFieldContent>
+                    <NumberFieldDecrement class="p-2" />
+                    <NumberFieldInput class="h-8" />
+                    <NumberFieldIncrement class="p-2" />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
               <div>
                 <h4 class="text-xs font-medium mb-1 text-gray-400">
                   Y {{ t('modals.keychain.labels.position') }}
                 </h4>
-                <NInputNumber
-                  v-model:value="state.customization.y"
+                <NumberField
+                  v-model="state.customization.y"
                   :min="-100"
                   :max="100"
                   :step="0.01"
-                  size="small"
+                  :step-snapping="false"
+                  :format-options="{ useGrouping: false, maximumFractionDigits: 6 }"
                   class="w-full"
-                  :input-props="digitOnlyInputProps"
-                />
+                >
+                  <NumberFieldContent>
+                    <NumberFieldDecrement class="p-2" />
+                    <NumberFieldInput class="h-8" />
+                    <NumberFieldIncrement class="p-2" />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
               <div>
                 <h4 class="text-xs font-medium mb-1 text-gray-400">
                   Z {{ t('modals.keychain.labels.position') }}
                 </h4>
-                <NInputNumber
-                  v-model:value="state.customization.z"
+                <NumberField
+                  v-model="state.customization.z"
                   :min="-100"
                   :max="100"
                   :step="0.01"
-                  size="small"
+                  :step-snapping="false"
+                  :format-options="{ useGrouping: false, maximumFractionDigits: 6 }"
                   class="w-full"
-                  :input-props="digitOnlyInputProps"
-                />
+                >
+                  <NumberFieldContent>
+                    <NumberFieldDecrement class="p-2" />
+                    <NumberFieldInput class="h-8" />
+                    <NumberFieldIncrement class="p-2" />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
               <div v-if="!isStickerSlab && !isHighlightReel">
                 <h4 class="text-xs font-medium mb-1 text-gray-400">
                   {{ t('modals.keychain.labels.seed') }}
                 </h4>
-                <NInputNumber
-                  v-model:value="state.customization.seed"
+                <NumberField
+                  v-model="state.customization.seed"
                   :min="0"
                   :max="100000"
                   :step="1"
                   :disabled="isSeedDisabled"
-                  size="small"
+                  :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
                   class="w-full"
-                  :input-props="digitOnlyInputProps"
-                />
+                >
+                  <NumberFieldContent>
+                    <NumberFieldDecrement class="p-2" />
+                    <NumberFieldInput class="h-8" />
+                    <NumberFieldIncrement class="p-2" />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
 
               <!-- Highlight Reel ID Input -->
               <div v-if="isHighlightReel">
                 <h4 class="text-xs font-medium mb-1 text-gray-400">Highlight ID</h4>
-                <NInputNumber
-                  v-model:value="state.customization.highlight_reel_id"
+                <NumberField
+                  v-model="state.customization.highlight_reel_id"
                   :min="0"
-                  size="small"
+                  :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
                   class="w-full"
-                  :input-props="digitOnlyInputProps"
-                  placeholder="Enter Highlight ID"
-                />
+                >
+                  <NumberFieldContent>
+                    <NumberFieldDecrement class="p-2" />
+                    <NumberFieldInput class="h-8" placeholder="Enter Highlight ID" />
+                    <NumberFieldIncrement class="p-2" />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
 
               <!-- Sticker Slab Controls -->
@@ -466,7 +494,7 @@ watch(
 
                 <div
                   v-if="state.selectedWrappedSticker || state.customization.wrapped_sticker_id"
-                  class="flex items-center gap-3 bg-[var(--bg-dark)] p-2 rounded border border-[var(--border-subtle)]"
+                  class="flex items-center gap-3 bg-[var(--bg-dark)] p-2 rounded-sm border border-[var(--border-subtle)]"
                 >
                   <!-- If we have the object, show image. If only ID (legacy/edit), just show ID/placeholder -->
                   <!-- Tiny preview removed as per request -->
@@ -479,24 +507,26 @@ watch(
                       }}
                     </div>
                   </div>
-                  <SButton
+                  <Button
                     size="xs"
-                    :color="buttonColor.error"
+                    intent="error"
                     variant="outlined"
+                    rounded="md"
                     @click="clearWrappedSticker"
-                    >×</SButton
+                    >×</Button
                   >
                 </div>
 
-                <SButton
+                <Button
                   v-else
                   block
                   variant="dashed"
                   size="sm"
+                  rounded="md"
                   @click="state.wrappedStickerModalVisible = true"
                 >
                   + Select Sticker to Wrap
-                </SButton>
+                </Button>
               </div>
             </div>
 
@@ -509,8 +539,8 @@ watch(
               </h3>
 
               <div class="flex gap-3 w-full lg:w-auto justify-end">
-                <SButton
-                  :color="buttonColor.primary"
+                <Button
+                  intent="primary"
                   variant="elevated"
                   rounded="full"
                   tinted
@@ -522,10 +552,10 @@ watch(
                       ? t('modals.keychain.buttons.update')
                       : t('modals.keychain.buttons.create')
                   }}
-                </SButton>
-                <SButton
+                </Button>
+                <Button
                   v-if="currentKeychain"
-                  :color="buttonColor.error"
+                  intent="error"
                   variant="elevated"
                   rounded="full"
                   tinted
@@ -533,7 +563,7 @@ watch(
                   @click="handleRemove"
                 >
                   {{ t('modals.keychain.delete') }}
-                </SButton>
+                </Button>
               </div>
             </div>
           </div>
@@ -544,31 +574,46 @@ watch(
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
-          <NSelect
-            v-model:value="sortBy"
-            size="small"
-            class="w-44"
-            :options="keychainSortOptions"
-          />
-          <SButton
+          <Select
+            :model-value="sortBy"
+            @update:model-value="(v) => (sortBy = String(v ?? sortBy))"
+          >
+            <SelectTrigger size="sm" class="w-44">
+              <SelectValue>
+                {{ keychainSortOptions.find((o) => o.value === sortBy)?.label }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="option in keychainSortOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
             size="xs"
             icon-only
             variant="light"
+            rounded="md"
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
             {{ sortDir === 'asc' ? '↑' : '↓' }}
-          </SButton>
+          </Button>
         </div>
 
         <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
-          <SButton
+          <Button
             v-for="rarity in availableRarities"
             :key="rarity.id"
             size="xs"
             variant="light"
-            :color="rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default"
+            rounded="md"
+            :intent="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
             :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
@@ -578,7 +623,7 @@ watch(
               <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
               {{ rarity.name }}
             </span>
-          </SButton>
+          </Button>
         </div>
       </div>
 
@@ -587,11 +632,11 @@ watch(
         v-if="!state.isLoading"
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
       >
-        <NCard
+        <div
           v-for="item in paginatedItems"
           :key="item.id"
           :class="[
-            'cursor-pointer transition-all hover:shadow-lg h-full',
+            'cursor-pointer transition-all hover:shadow-lg h-full rounded-sm border border-[#313030] bg-[#242424] px-6 pt-5 pb-5',
             state.selectedItem?.id === item.id.replace('keychain-', '')
               ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
               : '',
@@ -617,7 +662,7 @@ watch(
             </p>
             <div class="h-1 w-full mt-2" :style="{ background: item.rarity?.color || '#313030' }" />
           </div>
-        </NCard>
+        </div>
       </div>
 
       <!-- Skeleton Loading State -->
@@ -630,11 +675,11 @@ watch(
           :key="i"
           class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
-          <NSkeleton height="96px" />
+          <Skeleton class="h-24 w-full" />
           <div class="mt-3">
-            <NSkeleton text :repeat="1" />
+            <Skeleton class="h-4 w-full" />
             <div class="mt-2">
-              <NSkeleton height="4px" />
+              <Skeleton class="h-1 w-full" />
             </div>
           </div>
         </div>
@@ -650,20 +695,38 @@ watch(
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="flex justify-center">
-        <NPagination v-model:page="state.currentPage" :page-count="totalPages" :page-slot="7" />
+        <Pagination
+          v-model:page="state.currentPage"
+          :total="totalPages"
+          :items-per-page="1"
+          :sibling-count="2"
+          show-edges
+        >
+          <PaginationContent v-slot="{ items }">
+            <PaginationPrevious>
+              <ChevronLeft class="size-4" />
+            </PaginationPrevious>
+            <template v-for="(item, index) in items" :key="index">
+              <PaginationItem
+                v-if="item.type === 'page'"
+                :value="item.value"
+                :is-active="item.value === state.currentPage"
+              >
+                {{ item.value }}
+              </PaginationItem>
+              <PaginationEllipsis v-else />
+            </template>
+            <PaginationNext>
+              <ChevronRight class="size-4" />
+            </PaginationNext>
+          </PaginationContent>
+        </Pagination>
       </div>
-    </NSpace>
-  </NModal>
+    </div>
+  </AppModal>
 
   <WrappedStickerModal
     v-model:visible="state.wrappedStickerModalVisible"
     @select="handleSelectWrappedSticker"
   />
 </template>
-
-<style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-</style>

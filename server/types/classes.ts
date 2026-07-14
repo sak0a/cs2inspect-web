@@ -5,7 +5,6 @@
  * Updated to use JSON format for database storage instead of semicolon-delimited strings.
  */
 
-import { parseInt } from 'lodash-es'
 import type { IEnhancedWeaponSticker, IEnhancedWeaponKeychain } from './items'
 import type { APISticker, APIKeychain, ItemRarity } from './api'
 import type { StickerJSON, KeychainJSON } from './jsonSchemas'
@@ -38,7 +37,7 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
   }
 
   constructor(data: IEnhancedWeaponSticker) {
-    this.id = typeof data.id === 'string' ? parseInt(data.id) : data.id
+    this.id = typeof data.id === 'string' ? Number.parseInt(data.id) : data.id
     this.slot = data.slot
     this.position = data.position ?? data.slot
     this.x = data.x
@@ -127,14 +126,14 @@ export class EnhancedWeaponSticker implements IEnhancedWeaponSticker {
     const stickerInfo = stickerData.find((s: APISticker) => s.id === 'sticker-' + stickerId)
 
     return new EnhancedWeaponSticker({
-      id: parseInt(stickerId),
+      id: Number.parseInt(stickerId),
       slot: slot,
       position: slot,
       x: parseFloat(x),
       y: parseFloat(y),
       wear: parseFloat(wear),
       scale: parseFloat(scale),
-      rotation: parseInt(rotation),
+      rotation: Number.parseInt(rotation),
       api: {
         name: stickerInfo?.name ?? '',
         image: stickerInfo?.image ?? '',
@@ -198,7 +197,7 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
   api?: { name: string; image: string; rarity?: ItemRarity }
 
   constructor(data: IEnhancedWeaponKeychain) {
-    this.id = typeof data.id === 'string' ? parseInt(data.id) : data.id
+    this.id = typeof data.id === 'string' ? Number.parseInt(data.id) : data.id
     this.x = data.x
     this.y = data.y
     this.z = data.z
@@ -272,17 +271,17 @@ export class EnhancedWeaponKeychain implements IEnhancedWeaponKeychain {
     const seed = parts[4] ?? '0'
 
     // Optional extended fields
-    const wrapped_sticker_id = parts.length > 5 && parts[5] !== '' ? parseInt(parts[5]!) : null
-    const highlight_reel_id = parts.length > 6 && parts[6] !== '' ? parseInt(parts[6]!) : null
+    const wrapped_sticker_id = parts.length > 5 && parts[5] !== '' ? Number.parseInt(parts[5]!) : null
+    const highlight_reel_id = parts.length > 6 && parts[6] !== '' ? Number.parseInt(parts[6]!) : null
 
     const keychainInfo = keychainData.find((k: APIKeychain) => k.id === 'keychain-' + keychainId)
 
     return new EnhancedWeaponKeychain({
-      id: parseInt(keychainId),
+      id: Number.parseInt(keychainId),
       x: parseFloat(x),
       y: parseFloat(y),
       z: parseFloat(z),
-      seed: parseInt(seed),
+      seed: Number.parseInt(seed),
       wrapped_sticker_id,
       highlight_reel_id,
       api: {

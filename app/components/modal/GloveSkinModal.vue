@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import { Search, ChevronLeft, ChevronRight, Inbox } from '@lucide/vue'
 import type {
   GloveModalProps,
   GloveConfiguration,
@@ -9,7 +9,6 @@ import type {
   IEnhancedItem,
 } from '~/types'
 import { useItemModal } from '~/composables/useItemModal'
-import { digitOnlyInputProps } from '~/utils/inputProps'
 import { useAutoSave } from '~/composables/useAutoSave'
 import { useLoadoutStore } from '~/stores/loadoutStore'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
@@ -41,7 +40,7 @@ const emit = defineEmits<{
   (e: 'error', error: string): void
 }>()
 
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 const loadoutStore = useLoadoutStore()
 
@@ -453,15 +452,14 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="visible"
-    style="max-width: 1200px; width: 95vw"
-    preset="card"
-    :bordered="false"
+  <AppModal
+    :visible="visible"
     size="huge"
-    :auto-focus="false"
-    header-extra-style="flex-shrink: 0"
-    @update:show="handleClose"
+    @update:visible="
+      (show: boolean) => {
+        if (!show) handleClose()
+      }
+    "
   >
     <template #header>
       <div class="flex items-center gap-3">
@@ -470,7 +468,7 @@ watch(
             ? String(t('modals.gloveSkin.title', { weaponName: weapon?.defaultName }))
             : String(t('modals.gloveSkin.defaultTitle'))
         }}</span>
-        <!-- Auto-save status indicator (fixed position like NaiveUI messages) -->
+        <!-- Auto-save status indicator (fixed position like toast messages) -->
         <SaveStatusIndicator
           :status="autoSave.status.value"
           :show-retry="autoSave.status.value === 'error'"
@@ -482,13 +480,13 @@ watch(
     <template #header-extra>
       <div class="flex items-center shrink-0">
         <!-- Reset Button -->
-        <SButton
+        <Button
           variant="elevated"
           rounded="full"
-          :color="buttonColor.error"
+          intent="error"
           tinted
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="state.showResetConfirm = true"
         >
           <template #icon-left>
@@ -502,6 +500,7 @@ watch(
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              class="size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
@@ -509,16 +508,16 @@ watch(
             </svg>
           </template>
           {{ t('modals.gloveSkin.buttons.reset') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- Import Glove by Inspect Link -->
-        <SButton
+        <Button
           :loading="state.isImporting"
           variant="elevated"
           rounded="full"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="state.showImportModal = true"
         >
           <template #icon-left>
@@ -532,6 +531,7 @@ watch(
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              class="size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -543,16 +543,16 @@ watch(
             </svg>
           </template>
           {{ t('modals.gloveSkin.buttons.importFromLink') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- Generate Glove Inspect Link -->
-        <SButton
+        <Button
           :loading="state.isLoadingInspect"
           variant="elevated"
           rounded="full"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="handleCreateInspectLink"
         >
           <template #icon-left>
@@ -566,6 +566,7 @@ watch(
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              class="size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
@@ -577,15 +578,15 @@ watch(
             </svg>
           </template>
           {{ t('modals.gloveSkin.buttons.generateLink') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- History Button -->
-        <SButton
+        <Button
           variant="elevated"
           rounded="full"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
+          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="showHistoryPanel = true"
         >
           <template #icon-left>
@@ -599,6 +600,7 @@ watch(
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              class="size-5"
             >
               <path stroke="none" d="M0 0h24v24H0z" fill="none" />
               <path d="M12 8l0 4l2 2" />
@@ -606,21 +608,26 @@ watch(
             </svg>
           </template>
           {{ t('history.title') }}
-        </SButton>
-        <NDivider vertical />
+        </Button>
+        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
 
         <!-- Glove Search -->
-        <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="String(t('modals.gloveSkin.inputs.searchPlaceholder'))"
-          class="pl-1 max-w-64"
-        />
+        <div class="relative ml-1 w-64 max-w-64">
+          <Search
+            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
+          />
+          <Input
+            v-model="state.searchQuery"
+            :placeholder="String(t('modals.gloveSkin.inputs.searchPlaceholder'))"
+            class="w-full pl-9"
+          />
+        </div>
       </div>
     </template>
 
-    <NSpace vertical size="large" class="-mt-2">
+    <div class="flex flex-col gap-3 -mt-2">
       <!-- Selected Skin Preview -->
-      <div v-if="inheritedWeapon" class="bg-[var(--bg-secondary)] p-4 rounded-lg bg-opacity-50">
+      <div v-if="inheritedWeapon" class="bg-[var(--bg-secondary)] p-4 rounded-lg">
         <div class="grid grid-cols-2 gap-6">
           <!-- Left side - Image -->
           <div class="relative">
@@ -630,7 +637,7 @@ watch(
               class="w-full h-64 object-contain"
             />
             <h3
-              class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1 bg-gradient-to-t from-black/60 to-transparent"
+              class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1 bg-linear-to-t from-black/60 to-transparent"
             >
               {{ selectedSkin?.name }}
             </h3>
@@ -646,31 +653,43 @@ watch(
                     {{ t('modals.gloveSkin.labels.paintIndex') }}
                   </h4>
                   <div class="flex items-center space-x-2">
-                    <NSwitch v-model:value="customization.paintIndexOverride" />
+                    <Switch v-model="customization.paintIndexOverride" />
                     <span class="text-sm">{{
                       t('modals.gloveSkin.labels.paintIndexOverride')
                     }}</span>
                   </div>
                 </div>
-                <NInputNumber
-                  v-model:value="customization.paintindex"
+                <NumberField
+                  v-model="customization.paintindex"
                   :min="0"
                   :max="10100"
                   :disabled="!customization.paintIndexOverride"
-                  :input-props="digitOnlyInputProps"
-                />
+                  :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
+                >
+                  <NumberFieldContent>
+                    <NumberFieldDecrement />
+                    <NumberFieldInput />
+                    <NumberFieldIncrement />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
 
               <div class="space-y-2">
                 <h4 class="font-bold">
                   {{ t('modals.gloveSkin.labels.pattern') }}
                 </h4>
-                <NInputNumber
-                  v-model:value="customization.paintseed"
+                <NumberField
+                  v-model="customization.paintseed"
                   :min="0"
                   :max="10100"
-                  :input-props="digitOnlyInputProps"
-                />
+                  :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
+                >
+                  <NumberFieldContent>
+                    <NumberFieldDecrement />
+                    <NumberFieldInput />
+                    <NumberFieldIncrement />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
             </div>
 
@@ -688,22 +707,28 @@ watch(
 
             <!-- Duplicate & Active Switch -->
             <div class="flex items-center justify-between w-full">
-              <SButton
+              <Button
                 :disabled="!selectedSkin"
                 variant="light"
+                rounded="md"
                 @click="state.showDuplicateConfirm = true"
               >
                 {{ t('modals.gloveSkin.buttons.duplicate') }}
-              </SButton>
+              </Button>
 
-              <NSwitch v-model:value="customization.active" size="large">
-                <template #checked>
-                  {{ t('modals.gloveSkin.labels.itemActive') }}
-                </template>
-                <template #unchecked>
-                  {{ t('modals.gloveSkin.labels.itemInactive') }}
-                </template>
-              </NSwitch>
+              <div class="flex items-center gap-2">
+                <Switch v-model="customization.active" />
+                <span
+                  class="text-sm font-medium"
+                  :class="customization.active ? 'text-primary' : 'text-gray-400'"
+                >
+                  {{
+                    customization.active
+                      ? t('modals.gloveSkin.labels.itemActive')
+                      : t('modals.gloveSkin.labels.itemInactive')
+                  }}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -714,7 +739,7 @@ watch(
         v-if="!state.isLoadingSkins"
         class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
       >
-        <NCard
+        <div
           v-for="skin in paginatedSkins"
           :key="skin.id"
           :style="{
@@ -725,7 +750,7 @@ watch(
             )})`,
           }"
           :class="[
-            'hover:shadow-lg cursor-pointer transition-all rounded-xl',
+            'hover:shadow-lg cursor-pointer transition-all rounded-xl border border-[#313030] bg-[#242424] px-6 pt-5 pb-5',
             customization.paintindex === Number(skin.paint_index)
               ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
               : '',
@@ -746,7 +771,7 @@ watch(
               <div class="h-1 mt-2" :style="{ background: skin.rarity?.color || '#313030' }" />
             </div>
           </div>
-        </NCard>
+        </div>
       </div>
 
       <!-- Skeleton Loading State -->
@@ -759,11 +784,11 @@ watch(
           :key="i"
           class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
         >
-          <NSkeleton height="128px" />
+          <Skeleton class="h-32 w-full" />
           <div class="mt-3">
-            <NSkeleton text :repeat="1" />
+            <Skeleton class="h-4 w-full" />
             <div class="mt-2">
-              <NSkeleton height="4px" />
+              <Skeleton class="h-1 w-full" />
             </div>
           </div>
         </div>
@@ -774,14 +799,48 @@ watch(
         v-if="!state.isLoadingSkins && filteredSkins.length === 0"
         class="flex justify-center items-center h-64"
       >
-        <NEmpty :description="String(t('modals.gloveSkin.noSearchResults'))" />
+        <Empty>
+          <EmptyHeader>
+            <EmptyMedia variant="icon">
+              <Inbox />
+            </EmptyMedia>
+            <EmptyDescription>{{
+              String(t('modals.gloveSkin.noSearchResults'))
+            }}</EmptyDescription>
+          </EmptyHeader>
+        </Empty>
       </div>
 
       <!-- Pagination -->
       <div v-if="totalPages > 1" class="flex justify-center mt-4">
-        <NPagination v-model:page="state.currentPage" :page-count="totalPages" :page-slot="5" />
+        <Pagination
+          v-model:page="state.currentPage"
+          :total="totalPages"
+          :items-per-page="1"
+          :sibling-count="1"
+          show-edges
+        >
+          <PaginationContent v-slot="{ items }">
+            <PaginationPrevious>
+              <ChevronLeft class="size-4" />
+            </PaginationPrevious>
+            <template v-for="(item, index) in items" :key="index">
+              <PaginationItem
+                v-if="item.type === 'page'"
+                :value="item.value"
+                :is-active="item.value === state.currentPage"
+              >
+                {{ item.value }}
+              </PaginationItem>
+              <PaginationEllipsis v-else />
+            </template>
+            <PaginationNext>
+              <ChevronRight class="size-4" />
+            </PaginationNext>
+          </PaginationContent>
+        </Pagination>
       </div>
-    </NSpace>
+    </div>
 
     <!-- Import via InspectURL Modal -->
     <InspectURLModal
@@ -791,7 +850,7 @@ watch(
     />
 
     <!-- Duplicate Modal -->
-    <DuplicateItemConfirmModal
+    <DuplicateItemModal
       v-model:visible="state.showDuplicateConfirm"
       :loading="state.isDuplicating"
       :other-team-has-skin="otherTeamHasSkin"
@@ -816,12 +875,5 @@ watch(
       :loadout-id="loadoutStore.selectedLoadoutId || 0"
       @restore="handleHistoryRestore"
     />
-  </NModal>
+  </AppModal>
 </template>
-
-<style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-</style>

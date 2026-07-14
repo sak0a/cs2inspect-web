@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 
 const user = ref<SteamUser | null>(null)
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 
 // Computed translations to avoid type issues in template
@@ -180,24 +179,24 @@ onMounted(() => {
               </label>
               <div class="flex flex-col sm:flex-row gap-4">
                 <div class="flex-1 relative group">
-                  <NInput
-                    v-model:value="inspectUrl"
+                  <Input
+                    v-model="inspectUrl"
                     type="text"
-                    size="large"
                     :placeholder="trans.placeholder.value"
-                    class="main-input"
+                    class="h-12 rounded-xl bg-black/20 dark:bg-black/20 border-white/5 px-4 text-base transition-all placeholder:text-white/20 hover:bg-black/30 hover:border-blue-500/30 focus-visible:bg-black/40 focus-visible:border-blue-500 focus-visible:ring-0 focus-visible:shadow-[0_0_0_4px_rgba(59,130,246,0.1)]"
                     data-tutorial="inspect-input"
                   />
                   <div
                     class="absolute inset-0 rounded-xl border border-blue-500/0 group-focus-within:border-blue-500/50 transition-all pointer-events-none"
                   />
                 </div>
-                <SButton
-                  :color="buttonColor.primary"
+                <Button
                   variant="filled"
+                  intent="primary"
                   size="lg"
+                  rounded="md"
                   :loading="isLoading"
-                  class="decode-button px-8 font-bold"
+                  class="decode-button px-8 font-bold text-white"
                   data-tutorial="decode-button"
                   @click="handleDecode"
                 >
@@ -220,7 +219,7 @@ onMounted(() => {
                     </svg>
                   </template>
                   {{ trans.importButton.value }}
-                </SButton>
+                </Button>
               </div>
             </div>
 
@@ -247,10 +246,11 @@ onMounted(() => {
                   {{ trans.decodedJsonLabel.value }}
                 </label>
                 <div class="flex gap-2">
-                  <SButton
+                  <Button
                     variant="ghost"
                     size="xs"
-                    :color="buttonColor.info"
+                    intent="info"
+                    rounded="md"
                     class="hover:bg-blue-500/10 transition-colors"
                     @click="handleCopyJson"
                   >
@@ -271,19 +271,17 @@ onMounted(() => {
                       </svg>
                     </template>
                     {{ trans.copy.value }}
-                  </SButton>
+                  </Button>
                 </div>
               </div>
               <div
-                class="relative group rounded-2xl overflow-hidden shadow-inner bg-black/20 border border-white/5"
+                class="relative group rounded-2xl overflow-hidden inset-shadow-sm bg-black/20 border border-white/5"
                 data-tutorial="inspect-editor"
               >
-                <NInput
-                  v-model:value="decodedJson"
-                  type="textarea"
-                  :autosize="{ minRows: 12, maxRows: 24 }"
+                <Textarea
+                  v-model="decodedJson"
                   placeholder='{ "defindex": 7, "paintindex": 0, ... }'
-                  class="json-editor"
+                  class="json-editor w-full min-h-[318px] max-h-[586px] overflow-y-auto resize-none border-0 rounded-xl bg-transparent dark:bg-transparent p-6 font-mono text-[#e2e8f0] leading-[1.6] shadow-none focus-visible:ring-0 focus-visible:border-0 placeholder:text-white/20"
                 />
                 <div
                   class="absolute bottom-4 right-4 pointer-events-none opacity-20 text-xs font-mono text-gray-500"
@@ -299,13 +297,14 @@ onMounted(() => {
                 <div class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse" />
                 {{ trans.apiStatus.value }}
               </div>
-              <SButton
-                :color="buttonColor.info"
+              <Button
                 variant="filled"
+                intent="info"
                 size="lg"
+                rounded="md"
                 :loading="isGenerating"
                 :disabled="!decodedJson"
-                class="generate-button px-10 shadow-lg shadow-blue-500/20"
+                class="generate-button px-10 shadow-lg shadow-blue-500/20 text-white"
                 data-tutorial="generate-button"
                 @click="handleGenerate"
               >
@@ -327,7 +326,7 @@ onMounted(() => {
                   </svg>
                 </template>
                 {{ trans.generateButton.value }}
-              </SButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -417,49 +416,10 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-.main-input {
-  :deep(.n-input) {
-    background-color: rgba(0, 0, 0, 0.2) !important;
-    border-radius: 12px !important;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    .n-input-wrapper {
-      border-radius: 12px !important;
-    }
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.3) !important;
-      border-color: rgba(59, 130, 246, 0.3);
-    }
-
-    &.n-input--focus {
-      background-color: rgba(0, 0, 0, 0.4) !important;
-      border-color: #3b82f6 !important;
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    }
-  }
-}
-
 .json-editor {
-  :deep(.n-input) {
-    background-color: transparent !important;
-    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
-    color: #e2e8f0;
-    transition: all 0.3s ease;
-    border-radius: 12px !important;
-
-    .n-input-wrapper {
-      border-radius: 12px !important;
-    }
-
-    .n-input__textarea-el {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-      padding: 1.5rem;
-      line-height: 1.6;
-    }
-  }
+  font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
 }
 
 .decode-button,
@@ -492,9 +452,5 @@ onMounted(() => {
   &:hover {
     box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
   }
-}
-
-:deep(.n-input__placeholder) {
-  color: rgba(255, 255, 255, 0.2) !important;
 }
 </style>

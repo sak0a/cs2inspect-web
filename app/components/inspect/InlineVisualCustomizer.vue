@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import CompactNumberInput from './CompactNumberInput.vue'
 import type { VisualCustomizerProps, CanvasElement, CanvasState } from '~/types/canvas'
 import type { StickerConfiguration, KeychainConfiguration } from '~/types'
 import {
@@ -42,7 +42,7 @@ const props = defineProps<VisualCustomizerProps>()
 const emit = defineEmits<InlineVisualCustomizerEvents>()
 
 const { t } = useI18n()
-const message = useMessage()
+const message = useToast()
 const isDevelopment = import.meta.env.DEV
 
 // Canvas refs
@@ -1478,12 +1478,12 @@ defineExpose({
       <!-- Debug Toggle (Dev only) -->
       <div v-if="isDevelopment" class="absolute top-2 right-2 z-50 flex flex-col gap-2 items-end">
         <!-- Fullscreen Toggle -->
-        <SButton
+        <Button
           size="xs"
           variant="light"
           icon-only
           rounded="full"
-          :color="isFullscreen ? buttonColor.primary : buttonColor.default"
+          :intent="isFullscreen ? 'primary' : 'default'"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Fullscreen"
           @click="
@@ -1501,14 +1501,14 @@ defineExpose({
               />
             </svg>
           </template>
-        </SButton>
+        </Button>
 
-        <SButton
+        <Button
           size="xs"
           variant="light"
           icon-only
           rounded="full"
-          :color="showCoordinateOverlay ? buttonColor.primary : buttonColor.default"
+          :intent="showCoordinateOverlay ? 'primary' : 'default'"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Debug Overlay"
           @click="showCoordinateOverlay = !showCoordinateOverlay"
@@ -1521,15 +1521,15 @@ defineExpose({
               />
             </svg>
           </template>
-        </SButton>
+        </Button>
 
         <!-- Calibration Toggle -->
-        <SButton
+        <Button
           size="xs"
           variant="light"
           icon-only
           rounded="full"
-          :color="calibration.active ? buttonColor.warning : buttonColor.default"
+          :intent="calibration.active ? 'warning' : 'default'"
           class="opacity-50 hover:opacity-100 transition-opacity"
           title="Toggle Calibration UI"
           @click="calibration.active = !calibration.active"
@@ -1542,7 +1542,7 @@ defineExpose({
               />
             </svg>
           </template>
-        </SButton>
+        </Button>
 
         <!-- Calibration Panel -->
         <div
@@ -1557,55 +1557,25 @@ defineExpose({
           <div class="grid grid-cols-2 gap-2 mb-2">
             <div>
               <span class="text-gray-500 block mb-1">Scale X</span>
-              <NInputNumber
-                v-model:value="calibration.scaleX"
-                size="tiny"
-                :step="0.001"
-                :precision="4"
-                :show-button="false"
-              />
+              <CompactNumberInput v-model="calibration.scaleX" :step="0.001" :precision="4" />
             </div>
             <div>
               <span class="text-gray-500 block mb-1">Scale Y</span>
-              <NInputNumber
-                v-model:value="calibration.scaleY"
-                size="tiny"
-                :step="0.001"
-                :precision="4"
-                :show-button="false"
-              />
+              <CompactNumberInput v-model="calibration.scaleY" :step="0.001" :precision="4" />
             </div>
             <div>
               <span class="text-gray-500 block mb-1">Offset X</span>
-              <NInputNumber
-                v-model:value="calibration.offsetX"
-                size="tiny"
-                :step="1"
-                :precision="0"
-                :show-button="false"
-              />
+              <CompactNumberInput v-model="calibration.offsetX" :step="1" :precision="0" />
             </div>
             <div>
               <span class="text-gray-500 block mb-1">Offset Y</span>
-              <NInputNumber
-                v-model:value="calibration.offsetY"
-                size="tiny"
-                :step="1"
-                :precision="0"
-                :show-button="false"
-              />
+              <CompactNumberInput v-model="calibration.offsetY" :step="1" :precision="0" />
             </div>
           </div>
 
-          <SButton
-            size="xs"
-            block
-            variant="light"
-            :color="buttonColor.info"
-            @click="copyCalibrationConfig"
-          >
+          <Button size="xs" block variant="light" rounded="md" intent="info" @click="copyCalibrationConfig">
             Copy Config
-          </SButton>
+          </Button>
         </div>
       </div>
 
@@ -1619,7 +1589,7 @@ defineExpose({
       <div class="flex-none flex items-center p-1 max-w-[70%]">
         <div
           v-if="selectedElement"
-          class="flex flex-col gap-1.5 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl p-2 shadow-sm"
+          class="flex flex-col gap-1.5 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl p-2 shadow-xs"
           @mousedown.stop
         >
           <!-- Row 1: Transform & Actions -->
@@ -1630,32 +1600,30 @@ defineExpose({
 
             <!-- Scale -->
             <div class="flex items-center gap-1 border-r border-white/10 pr-2">
-              <SButton
+              <Button
                 size="xs"
                 variant="light"
                 icon-only
                 rounded="full"
                 @click="handleUpdateScale(-0.1)"
-                >-</SButton
+                >-</Button
               >
-              <NInputNumber
-                :value="selectedElement.scale"
+              <CompactNumberInput
+                :model-value="selectedElement.scale"
                 :min="0.1"
                 :max="3"
                 :step="0.1"
                 :precision="1"
-                size="tiny"
                 class="w-14"
-                :show-button="false"
-                @update:value="handleSetScale"
+                @update:model-value="handleSetScale"
               />
-              <SButton
+              <Button
                 size="xs"
                 variant="light"
                 icon-only
                 rounded="full"
                 @click="handleUpdateScale(0.1)"
-                >+</SButton
+                >+</Button
               >
             </div>
 
@@ -1664,32 +1632,30 @@ defineExpose({
               >Rotation</span
             >
             <div class="flex items-center gap-1 border-r border-white/10 pr-2">
-              <SButton
+              <Button
                 size="xs"
                 variant="light"
                 icon-only
                 rounded="full"
                 @click="handleUpdateRotation(-15)"
-                >↺</SButton
+                >↺</Button
               >
-              <NInputNumber
-                :value="selectedElement.rotation"
+              <CompactNumberInput
+                :model-value="selectedElement.rotation"
                 :min="0"
                 :max="360"
                 :step="1"
                 :precision="0"
-                size="tiny"
                 class="w-14"
-                :show-button="false"
-                @update:value="handleSetRotation"
+                @update:model-value="handleSetRotation"
               />
-              <SButton
+              <Button
                 size="xs"
                 variant="light"
                 icon-only
                 rounded="full"
                 @click="handleUpdateRotation(15)"
-                >↻</SButton
+                >↻</Button
               >
             </div>
 
@@ -1700,19 +1666,19 @@ defineExpose({
             >
               <span class="text-[9px] text-gray-400">WEAR</span>
               <div class="w-16 px-1">
-                <NSlider
-                  :value="selectedElement.wear || 0"
+                <Slider
+                  :model-value="[selectedElement.wear || 0]"
                   :step="0.05"
                   :min="0"
                   :max="1"
-                  @update:value="handleUpdateStickerWear"
+                  @update:model-value="(v) => handleUpdateStickerWear(v?.[0] ?? 0)"
                 />
               </div>
             </div>
 
             <!-- Remove -->
-            <SButton
-              :color="buttonColor.error"
+            <Button
+              intent="error"
               size="xs"
               variant="light"
               icon-only
@@ -1727,7 +1693,7 @@ defineExpose({
                   />
                 </svg>
               </template>
-            </SButton>
+            </Button>
           </div>
 
           <!-- Row 2: Position -->
@@ -1739,81 +1705,69 @@ defineExpose({
             <!-- Sticker Position -->
             <div v-if="selectedElement.type === 'sticker'" class="flex items-center gap-2">
               <!-- Units -->
-              <NSelect
-                v-model:value="offsetUnits"
-                size="tiny"
-                :options="[
-                  { label: 'PX', value: 'px' },
-                  { label: 'EXT', value: 'ext' },
-                ]"
-                class="w-14"
-              />
+              <Select
+                :model-value="offsetUnits"
+                @update:model-value="(v) => (offsetUnits = v as 'px' | 'ext')"
+              >
+                <SelectTrigger
+                  size="sm"
+                  class="h-6 w-14 gap-1 rounded-full border-white/10 bg-white/[0.06] px-2 py-0 text-xs text-white"
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="px">PX</SelectItem>
+                  <SelectItem value="ext">EXT</SelectItem>
+                </SelectContent>
+              </Select>
 
               <div class="flex items-center gap-1">
                 <template v-if="offsetUnits === 'px'">
                   <span class="text-[9px] text-gray-400">X</span>
-                  <NInputNumber
-                    size="tiny"
-                    :value="getElementOffsetCanvasPx(selectedElement).x"
+                  <CompactNumberInput
+                    :model-value="getElementOffsetCanvasPx(selectedElement).x"
                     class="w-12"
-                    :show-button="false"
                     placeholder="0"
-                    @update:value="(v) => updateSelectedElementOffset('x', v)"
+                    @update:model-value="(v) => updateSelectedElementOffset('x', v)"
                   />
                   <span class="text-[9px] text-gray-400 ml-1">Y</span>
-                  <NInputNumber
-                    size="tiny"
-                    :value="getElementOffsetCanvasPx(selectedElement).y"
+                  <CompactNumberInput
+                    :model-value="getElementOffsetCanvasPx(selectedElement).y"
                     class="w-12"
-                    :show-button="false"
                     placeholder="0"
-                    @update:value="(v) => updateSelectedElementOffset('y', v)"
+                    @update:model-value="(v) => updateSelectedElementOffset('y', v)"
                   />
                 </template>
                 <template v-else>
                   <span class="text-[9px] text-gray-400">X</span>
-                  <NInputNumber
-                    size="tiny"
-                    :value="getElementOffsetExternalNorm(selectedElement).x"
+                  <CompactNumberInput
+                    :model-value="getElementOffsetExternalNorm(selectedElement).x"
                     :precision="4"
                     class="w-14"
-                    :show-button="false"
-                    @update:value="(v) => updateSelectedElementOffsetExternal('x', v)"
+                    @update:model-value="(v) => updateSelectedElementOffsetExternal('x', v)"
                   />
                   <span class="text-[9px] text-gray-400 ml-1">Y</span>
-                  <NInputNumber
-                    size="tiny"
-                    :value="getElementOffsetExternalNorm(selectedElement).y"
+                  <CompactNumberInput
+                    :model-value="getElementOffsetExternalNorm(selectedElement).y"
                     :precision="4"
                     class="w-14"
-                    :show-button="false"
-                    @update:value="(v) => updateSelectedElementOffsetExternal('y', v)"
+                    @update:model-value="(v) => updateSelectedElementOffsetExternal('y', v)"
                   />
 
                   <div class="flex items-center gap-1 border-l border-white/10 pl-2 ml-1">
                     <span class="text-[9px] text-gray-500">REF</span>
-                    <NInputNumber
-                      v-model:value="extXRef"
-                      size="tiny"
-                      class="w-10"
-                      :show-button="false"
-                    />
-                    <NInputNumber
-                      v-model:value="extYRef"
-                      size="tiny"
-                      class="w-10"
-                      :show-button="false"
-                    />
+                    <CompactNumberInput v-model="extXRef" class="w-10" />
+                    <CompactNumberInput v-model="extYRef" class="w-10" />
                   </div>
                 </template>
 
-                <SButton
+                <Button
                   v-if="isDevelopment"
                   size="xs"
                   variant="light"
                   icon-only
                   rounded="full"
-                  :color="buttonColor.info"
+                  intent="info"
                   class="ml-1"
                   title="Copy Position Object"
                   @click="copySelectedElementPosition"
@@ -1831,56 +1785,50 @@ defineExpose({
                       />
                     </svg>
                   </template>
-                </SButton>
+                </Button>
               </div>
             </div>
 
             <!-- Keychain Position -->
             <div v-if="selectedElement.type === 'keychain'" class="flex items-center gap-2">
               <span class="text-[9px] text-gray-400">X</span>
-              <NInputNumber
-                size="tiny"
-                :value="getKeychainRelativePos('x')"
+              <CompactNumberInput
+                :model-value="getKeychainRelativePos('x')"
                 :step="0.01"
                 :min="-2"
                 :max="2"
                 :precision="4"
                 class="w-14"
-                :show-button="false"
-                @update:value="(v) => updateKeychainRelativePos('x', v || 0)"
+                @update:model-value="(v) => updateKeychainRelativePos('x', v || 0)"
               />
               <span class="text-[9px] text-gray-400 ml-1">Y</span>
-              <NInputNumber
-                size="tiny"
-                :value="getKeychainRelativePos('y')"
+              <CompactNumberInput
+                :model-value="getKeychainRelativePos('y')"
                 :step="0.01"
                 :min="-2"
                 :max="2"
                 :precision="4"
                 class="w-14"
-                :show-button="false"
-                @update:value="(v) => updateKeychainRelativePos('y', v || 0)"
+                @update:model-value="(v) => updateKeychainRelativePos('y', v || 0)"
               />
               <span class="text-[9px] text-gray-400 ml-1">Z</span>
-              <NInputNumber
-                size="tiny"
-                :value="selectedElement.z || 0"
+              <CompactNumberInput
+                :model-value="selectedElement.z || 0"
                 :step="0.01"
                 :min="-2"
                 :max="2"
                 :precision="2"
                 class="w-12"
-                :show-button="false"
-                @update:value="(v) => updateElementZ(v || 0)"
+                @update:model-value="(v) => updateElementZ(v || 0)"
               />
 
-              <SButton
+              <Button
                 v-if="isDevelopment"
                 size="xs"
                 variant="light"
                 icon-only
                 rounded="full"
-                :color="buttonColor.info"
+                intent="info"
                 class="ml-1"
                 title="Copy Position Object"
                 @click="copySelectedElementPosition"
@@ -1898,7 +1846,7 @@ defineExpose({
                     />
                   </svg>
                 </template>
-              </SButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -1923,13 +1871,6 @@ defineExpose({
           @update:model-value="handleWearUpdate"
         />
       </div>
-
-      <!-- Right: Save Button -->
-      <!--<div class="flex-none">
-        <SButton type="success" variant="light" class="w-28" @click="handleSave">
-          {{ t('modals.weaponSkin.buttons.save') }}
-        </SButton>
-      </div>-->
     </div>
   </div>
 </template>

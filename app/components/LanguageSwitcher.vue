@@ -12,6 +12,12 @@ const options = computed(() =>
 // Current locale
 const currentLocale = computed(() => getLocale())
 
+// Label shown in the closed trigger (rendered explicitly so it is correct on
+// first paint, before the select content has ever been mounted)
+const currentLabel = computed(
+  () => options.value.find((opt) => opt.value === currentLocale.value)?.label || currentLocale.value
+)
+
 // Function to get flag emoji based on locale code
 const getFlag = (code: string) => {
   switch (code) {
@@ -58,38 +64,34 @@ const handleSelect = (key: string) => {
     }
   }
 }
+
+// Reka Select emits AcceptableValue — narrow to the string locale codes we render
+function onUpdateLocale(value: unknown) {
+  if (typeof value === 'string' && value) {
+    handleSelect(value)
+  }
+}
 </script>
 
 <template>
-  <div class="language-switcher">
-    <NSelect
-      v-model:value="currentLocale"
-      :options="options"
-      size="medium"
-      class="language-select"
-      @update:value="handleSelect"
-    />
+  <div class="flex items-center">
+    <Select :model-value="currentLocale" @update:model-value="onUpdateLocale">
+      <!-- Compact pill trigger (former naive select: 200px radius, #121212 bg, borderless) -->
+      <SelectTrigger
+        class="language-select h-[34px]! w-[140px] rounded-full border-transparent bg-[#121212] pl-4 pr-3 text-sm shadow-none dark:bg-[#121212] dark:hover:bg-[#121212]"
+      >
+        <SelectValue>{{ currentLabel }}</SelectValue>
+      </SelectTrigger>
+      <SelectContent class="rounded-xl bg-[#121212]">
+        <SelectItem
+          v-for="opt in options"
+          :key="opt.value"
+          :value="opt.value"
+          class="cursor-pointer rounded-lg focus:bg-white/6"
+        >
+          {{ opt.label }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
   </div>
 </template>
-
-<style scoped>
-.language-switcher {
-  display: flex;
-  align-items: center;
-}
-
-.language-select {
-  width: 140px;
-}
-
-:deep(.n-base-selection-label) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-:deep(.n-base-selection-placeholder) {
-  display: flex;
-  align-items: center;
-}
-</style>

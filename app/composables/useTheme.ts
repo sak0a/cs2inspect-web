@@ -1,89 +1,36 @@
-// @saka-ui/registry v0.1.0 — composable:useTheme
-// Source: saka-ui@0.1.0
-// Do not remove this header if you want `saka-ui diff` to work.
-import { ref, watch, onMounted, onBeforeUnmount } from 'vue'
+// Theme composable — the app is officially dark-only.
+//
+// The former saka-ui light/dark/system implementation (cookie persistence,
+// prefers-color-scheme listener, class toggling) has been removed with the
+// UI-library migration. The exported API surface is kept so remaining consumers
+// compile unchanged, but the theme is now always 'dark' and `toggleTheme` /
+// `setTheme` are no-ops. `<html class="dark">` is set statically via
+// nuxt.config `app.head.htmlAttrs`.
+import { ref } from 'vue'
 
 export type Theme = 'light' | 'dark' | 'system'
 
-const THEME_KEY = 'saka-ui-theme'
+// Dark-only: shared, immutable-by-convention theme state
+const globalTheme = ref<Theme>('dark')
 
-// Cookie helpers
-function getCookie(name: string): string | null {
-  const v = document.cookie.match('(^|;) ?' + name + '=([^;]*)(;|$)')
-  return v ? (v[2] ?? null) : null
-}
-
-function setCookie(name: string, value: string, days: number = 365) {
-  const d = new Date()
-  d.setTime(d.getTime() + 24 * 60 * 60 * 1000 * days)
-  document.cookie = name + '=' + value + ';path=/;SameSite=Strict;expires=' + d.toUTCString()
-}
-
-// Standalone function to apply theme (can be used outside component context)
-export function applyTheme(t: Theme) {
+// Standalone function to apply theme (kept for API compatibility).
+// Always ensures the `.dark` class is present.
+export function applyTheme(_t?: Theme) {
   if (typeof window === 'undefined') return
-
-  const root = document.documentElement
-  let isDark = false
-
-  if (t === 'system') {
-    isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-  } else {
-    isDark = t === 'dark'
-  }
-
-  if (isDark) {
-    root.classList.add('dark')
-  } else {
-    root.classList.remove('dark')
-  }
+  document.documentElement.classList.add('dark')
 }
-
-// Global state to share theme across composable usages
-const globalTheme = ref<Theme>((getCookie(THEME_KEY) as Theme) || 'system')
-
-// Watch for changes deeply to ensure consistency
-watch(globalTheme, (newTheme) => {
-  setCookie(THEME_KEY, newTheme)
-  applyTheme(newTheme)
-})
 
 export function useTheme() {
-  const toggleTheme = () => {
-    if (globalTheme.value === 'light') globalTheme.value = 'dark'
-    else if (globalTheme.value === 'dark') globalTheme.value = 'system'
-    else globalTheme.value = 'light'
-  }
-
-  onMounted(() => {
-    // Ensure theme is applied on mount (safeguard)
-    applyTheme(globalTheme.value)
-
-    // Listen for system theme changes
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    const handler = () => {
-      if (globalTheme.value === 'system') {
-        applyTheme('system')
-      }
-    }
-
-    mediaQuery.addEventListener('change', handler)
-
-    onBeforeUnmount(() => {
-      mediaQuery.removeEventListener('change', handler)
-    })
-  })
-
   return {
     theme: globalTheme,
-    toggleTheme,
-    setTheme: (t: Theme) => {
-      globalTheme.value = t
-    },
+    /** No-op — the app no longer supports switching away from dark */
+    toggleTheme: () => {},
+    /** No-op — the app no longer supports switching away from dark */
+    setTheme: (_t: Theme) => {},
   }
 }
 
-// Initialize theme immediately
+// Initialize theme immediately (kept for API compatibility)
 export function initTheme() {
   if (typeof window !== 'undefined') {
     applyTheme(globalTheme.value)

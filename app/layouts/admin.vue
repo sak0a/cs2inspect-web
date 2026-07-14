@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { h } from 'vue'
 import {
   LucideLayoutDashboard as DashboardIcon,
   LucideUsers as UsersIcon,
@@ -10,7 +9,6 @@ import {
   LucidePlug as PlugIcon,
   LucideHome as HomeIcon,
 } from '@lucide/vue'
-import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 import { useAdminStore } from '~/stores/adminStore'
 
@@ -47,14 +45,6 @@ const navigationItems = computed(() => {
   return items
 })
 
-const menuOptions = computed(() =>
-  navigationItems.value.map((item) => ({
-    label: item.label,
-    key: item.path,
-    icon: () => h(NIcon, { size: 18 }, { default: () => h(item.icon) }),
-  }))
-)
-
 const selectedKey = ref('/admin')
 
 const resolveActivePath = (path: string) => {
@@ -73,12 +63,6 @@ watch(
   },
   { immediate: true }
 )
-
-function handleMenuSelect(key: string) {
-  if (key && key !== route.path) {
-    navigateTo(key)
-  }
-}
 
 const adminRoleLabel = computed(() => (adminStore.isSuperAdmin ? 'Super Admin' : 'Admin'))
 
@@ -101,7 +85,7 @@ onMounted(() => {
       <div class="admin-topbar-left">
         <div class="admin-brand">
           <div class="admin-brand-icon">
-            <NIcon :component="ShieldIcon" :size="22" />
+            <ShieldIcon :size="22" />
           </div>
           <div class="admin-brand-text">
             <span class="admin-brand-title">Admin Panel</span>
@@ -126,13 +110,21 @@ onMounted(() => {
       </div>
 
       <div class="admin-topbar-center">
-        <NMenu
-          mode="horizontal"
-          :options="menuOptions"
-          :value="selectedKey"
-          class="admin-topbar-menu"
-          @update:value="handleMenuSelect"
-        />
+        <nav class="admin-topbar-menu" aria-label="Admin navigation">
+          <NuxtLink
+            v-for="item in navigationItems"
+            :key="item.key"
+            :to="item.path"
+            class="admin-nav-item"
+            :class="{ 'admin-nav-item--selected': selectedKey === item.path }"
+            :aria-current="selectedKey === item.path ? 'page' : undefined"
+          >
+            <span class="admin-nav-icon">
+              <component :is="item.icon" :size="18" />
+            </span>
+            <span class="admin-nav-label">{{ item.label }}</span>
+          </NuxtLink>
+        </nav>
       </div>
 
       <div class="admin-topbar-right">
@@ -144,16 +136,18 @@ onMounted(() => {
           :show-admin-link="false"
           @logout="handleLogout"
         />
-        <NTooltip placement="bottom">
-          <template #trigger>
-            <SButton variant="ghost" icon-only rounded="full" size="sm" tag="a" href="/">
-              <template #icon-left>
-                <HomeIcon :size="18" />
-              </template>
-            </SButton>
-          </template>
-          Back to Site
-        </NTooltip>
+        <TooltipProvider :delay-duration="300">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <Button variant="ghost" icon-only rounded="full" size="sm" as="a" href="/">
+                <template #icon-left>
+                  <HomeIcon :size="18" />
+                </template>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="bottom">Back to Site</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     </header>
 
@@ -294,47 +288,56 @@ onMounted(() => {
   @media (max-width: 900px)
     justify-content: flex-start
 
-// Admin menu style (match main top bar feel)
+// Admin menu style (match main top bar feel) — custom nav, icon-only items
+// that expand their label with a slide-in animation when selected
 .admin-topbar-menu
+  display: flex
+  align-items: center
   flex-shrink: 0
-  width: auto !important
 
-  &.n-menu--horizontal
-    width: auto !important
+.admin-nav-item
+  display: flex
+  align-items: center
+  justify-content: center
+  height: 40px
+  padding: 0 8px
+  border-radius: 20px
+  color: rgba(255, 255, 255, 0.82)
+  font-size: 14px
+  text-decoration: none
+  white-space: nowrap
+  flex-shrink: 0
+  cursor: pointer
+  transition: color 0.3s ease
 
-  .n-menu-item
-    flex-shrink: 0
+  &:hover
+    color: var(--admin-accent)
 
-  .n-menu-item-content-header
-    display: block !important
-    white-space: nowrap !important
-    overflow: hidden !important
-    max-width: 0 !important
-    opacity: 0 !important
-    transition: max-width 0.3s ease, opacity 0.2s ease, margin 0.3s ease !important
-    margin-left: 0 !important
+  &:focus-visible
+    outline: 2px solid var(--admin-accent)
+    outline-offset: 2px
 
-  .n-menu-item-content--selected .n-menu-item-content-header
-    max-width: 160px !important
-    opacity: 1 !important
-    margin-left: 8px !important
+.admin-nav-icon
+  display: flex
+  align-items: center
+  justify-content: center
 
-  .n-menu-item-content:not(.n-menu-item-content--selected) .n-menu-item-content__icon
-    margin-right: 0 !important
+.admin-nav-label
+  display: block
+  white-space: nowrap
+  overflow: hidden
+  max-width: 0
+  opacity: 0
+  margin-left: 0
+  transition: max-width 0.3s ease, opacity 0.2s ease, margin 0.3s ease
 
-  .n-menu-item-content__icon
-    display: flex !important
-    align-items: center !important
-    justify-content: center !important
+.admin-nav-item--selected
+  color: var(--admin-accent)
 
-  .n-menu-item-content__arrow
-    display: none !important
-
-  .n-menu-item-content
-    display: flex !important
-    align-items: center !important
-    justify-content: center !important
-    padding: 0 8px !important
+  .admin-nav-label
+    max-width: 160px
+    opacity: 1
+    margin-left: 8px
 
 // Main Content
 .admin-content
