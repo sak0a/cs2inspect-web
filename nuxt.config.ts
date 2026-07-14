@@ -65,7 +65,7 @@ export default defineNuxtConfig({
           content:
             'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
         },
-        { name: 'theme-color', content: '#000000' },
+        { name: 'theme-color', content: '#070708' },
         { property: 'og:title', content: 'CS2 Inspect' },
         {
           property: 'og:description',
@@ -75,10 +75,28 @@ export default defineNuxtConfig({
         { property: 'og:type', content: 'website' },
         // { property: 'og:image', content: '/og-image.png' }, // TODO: Add OG Image
       ],
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        // Above-the-fold latin subsets (variable files: 500-700 display, 400-600 mono)
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          crossorigin: '',
+          href: '/fonts/space-grotesk-500-700-latin.woff2',
+        },
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          crossorigin: '',
+          href: '/fonts/jetbrains-mono-400-600-latin.woff2',
+        },
+      ],
     },
   },
   css: [
+    '~/assets/css/fonts.css',
     '~/assets/css/tailwind.css',
     '~/assets/css/transitions.sass',
     '~/assets/css/theme-variables.css',
@@ -134,6 +152,9 @@ export default defineNuxtConfig({
         process.env['NODE_ENV'] !== 'production' &&
         (process.env.NUXT_PUBLIC_DEV_AUTH_ENABLED === 'true' ||
           process.env.DEV_AUTH_ENABLED === 'true'),
+      // Kill-switch for JS-driven motion (GSAP), consumed by useReducedMotion().
+      // Override at runtime with NUXT_PUBLIC_DISABLE_MOTION=true (E2E stability).
+      disableMotion: process.env.NUXT_PUBLIC_DISABLE_MOTION === 'true',
     },
   },
   // PWA config ready to enable — uncomment @vite-pwa/nuxt module above and this block

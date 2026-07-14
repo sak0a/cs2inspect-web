@@ -12,6 +12,7 @@ import {
 } from '@lucide/vue'
 import type { NuxtError } from '#app'
 import { Button } from '@/components/ui/button'
+import AppBackground from '@/components/app/AppBackground.vue'
 
 interface ErrorConfig {
   icon: typeof LucideAlertTriangle
@@ -101,7 +102,7 @@ function handleGoHome() {
 
 <template>
   <div class="error-page">
-    <div class="error-bg" />
+    <AppBackground />
 
     <div class="error-container">
       <!-- Icon -->
@@ -167,45 +168,29 @@ function handleGoHome() {
 </template>
 
 <style scoped lang="sass">
-// Full-page blurred backdrop with dot grid
+// Full-page layout over the shared AppBackground layer
 .error-page
   min-height: 100vh
   display: flex
   align-items: center
   justify-content: center
   padding: 24px
-  background: rgba(0, 0, 0, 0.6)
-  backdrop-filter: blur(8px) saturate(120%)
-  -webkit-backdrop-filter: blur(8px) saturate(120%)
   position: relative
   overflow: hidden
 
-.error-bg
-  position: absolute
-  inset: 0
-  z-index: 0
-  background: #000000
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.5px, transparent 1.5px)
-  background-size: 40px 40px
-  background-position: 0 0
-  mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
-  -webkit-mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
-
-// Glass card (matches the AppModal glass card)
+// Onyx panel surface (tokens; full error-page redesign lands in Phase 2)
 .error-container
   width: 100%
   max-width: 440px
   position: relative
   z-index: 1
-  backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
-  -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
-  background: var(--glass-bg-primary, rgba(16, 16, 16, 0.70))
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1))
-  border-radius: 18px
+  background: var(--surface, #0e0e10)
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.07))
+  border-radius: var(--radius-modal, 20px)
   padding: 40px 36px
   text-align: center
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.9), 0 16px 32px rgba(0, 0, 0, 0.7), 0 8px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-  animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)
+  box-shadow: var(--shadow-modal, 0 32px 80px -16px rgba(0, 0, 0, 0.85))
+  animation: cardIn var(--dur-slow, 400ms) var(--ease-out, cubic-bezier(0.16, 1, 0.3, 1))
 
 @keyframes cardIn
   from

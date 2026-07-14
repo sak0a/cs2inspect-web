@@ -4,44 +4,83 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
- * shadcn semantic tokens — this app is dark-only, so the dark values live
- * directly on :root (the `.dark` class is still set on <html> for ecosystem
- * compatibility). Values are the app's existing palette:
- * see app/assets/css/theme-variables.css for the legacy var names.
+ * Onyx token layer — single source of truth (see
+ * docs/superpowers/specs/2026-07-15-onyx-redesign-design.md, section 2).
+ *
+ * This app is dark-only: the dark values live directly on :root (the `.dark`
+ * class stays on <html> for ecosystem compatibility, so `dark:` variants are
+ * always active). Legacy var names are re-aliased in theme-variables.css.
+ *
+ * IMPORTANT: tokens consumed through Tailwind alpha modifiers (bg-input/30,
+ * ring-ring/40, ...) must stay SOLID hex colors — rgba values break the alpha
+ * math. Hairline borders (--border, --border-strong) are the rgba exception
+ * and are only ever used at full strength.
  */
 :root {
-  --background: #121212; /* old --bg-primary */
-  --foreground: #ffffff; /* old --text-primary */
-  --card: #242424; /* old --card-bg */
-  --card-foreground: #ffffff;
-  --popover: #242424; /* old --dropdown-bg */
-  --popover-foreground: #ffffff;
-  --primary: #facc15; /* old --primary-color */
-  --primary-foreground: #000000; /* old --text-inverted */
-  --secondary: #1a1a1a; /* old --bg-secondary */
-  --secondary-foreground: #ffffff;
-  --muted: #1a1a1a; /* old --bg-secondary */
-  --muted-foreground: #a3a3a3; /* old --text-tertiary */
-  --accent: #2a2a2a; /* old --bg-hover */
-  --accent-foreground: #ffffff;
+  --background: #070708; /* page ground */
+  --foreground: #f2f2f4; /* primary text */
+  --card: #0e0e10; /* primary surface */
+  --card-foreground: #f2f2f4;
+  --popover: #141417; /* elevated surface */
+  --popover-foreground: #f2f2f4;
+  --primary: #facc15; /* brand accent (unchanged) */
+  --primary-foreground: #0a0a00;
+  --secondary: #141417;
+  --secondary-foreground: #f2f2f4;
+  --muted: #141417;
+  --muted-foreground: #a2a2aa; /* secondary text */
+  --accent: #1a1a1e; /* hover surface */
+  --accent-foreground: #f2f2f4;
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #333333; /* old --border-color */
-  --input: #444444; /* old --border-light */
+  --border: rgba(255, 255, 255, 0.07); /* hairline */
+  --input: #26262a; /* SOLID — consumed with alpha modifiers */
   --ring: #facc15;
+
+  /* Extra Onyx semantic tokens */
+  --surface: #0e0e10; /* = --card */
+  --surface-2: #141417; /* = --popover */
+  --border-strong: rgba(255, 255, 255, 0.13); /* interactive hairline */
+  --text-tertiary: #67676f; /* tertiary text / mono micro-labels */
+  --primary-hover: #fde047; /* luminance shift, never hue shift */
+  --primary-pressed: #eab308;
+  --team-ct: #5d8cff; /* team semantics — only non-yellow hues */
+  --team-t: #ff8a3d;
+
+  /* Charts — constrained to the Onyx palette (yellow, team hues, neutrals) */
   --chart-1: #facc15;
-  --chart-2: #10b981;
-  --chart-3: #3b82f6;
-  --chart-4: #f59e0b;
+  --chart-2: #5d8cff;
+  --chart-3: #ff8a3d;
+  --chart-4: #a2a2aa;
   --chart-5: #ef4444;
+
+  /* Radius */
   --radius: 0.625rem;
-  --sidebar: #1a1a1a;
-  --sidebar-foreground: #ffffff;
+  --radius-ctl: 9px; /* buttons, inputs, selects */
+  --radius-card: 14px; /* cards, panels */
+  --radius-modal: 20px; /* dialog shells */
+
+  /* Shadows */
+  --shadow-card: 0 18px 40px -12px rgba(0, 0, 0, 0.7);
+  --shadow-modal:
+    0 32px 80px -16px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* Motion tokens (note: --ease-out intentionally overrides Tailwind's
+   * default ease-out curve — all transitions share these) */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.3, 0, 0, 1);
+  --dur-fast: 150ms;
+  --dur-base: 250ms;
+  --dur-slow: 400ms;
+
+  /* Sidebar */
+  --sidebar: #0e0e10;
+  --sidebar-foreground: #f2f2f4;
   --sidebar-primary: #facc15;
-  --sidebar-primary-foreground: #000000;
-  --sidebar-accent: #2a2a2a;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #333333;
+  --sidebar-primary-foreground: #0a0a00;
+  --sidebar-accent: #1a1a1e;
+  --sidebar-accent-foreground: #f2f2f4;
+  --sidebar-border: rgba(255, 255, 255, 0.07);
   --sidebar-ring: #facc15;
 }
 
@@ -65,6 +104,14 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border-strong: var(--border-strong);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-pressed: var(--primary-pressed);
+  --color-team-ct: var(--team-ct);
+  --color-team-t: var(--team-t);
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);
   --color-chart-3: var(--chart-3);
@@ -82,26 +129,89 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  /* Onyx radii — literal values here (self-referencing var() would be
+   * circular); also defined on :root for rounded-[var(--radius-ctl)] usage */
+  --radius-ctl: 9px;
+  --radius-card: 14px;
+  --radius-modal: 20px;
+  --shadow-card: 0 18px 40px -12px rgba(0, 0, 0, 0.7);
+  --shadow-modal:
+    0 32px 80px -16px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  /* Typography — body stays system sans (--font-sans untouched) */
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
 
 @layer base {
-  /* Restore Tailwind v3 behavior: default border color was var(--border-color) */
+  /* Restore Tailwind v3 behavior: default border color is the hairline token */
   *,
   ::after,
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: var(--color-border);
+    border-color: var(--border);
   }
 
   body {
-    background-color: var(--color-background);
-    color: var(--color-foreground);
+    background-color: var(--background);
+    color: var(--foreground);
   }
 
   /* Tailwind v4 preflight uses `cursor: default` for buttons — restore pointer */
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;
+  }
+
+  /* Text selection — brand accent at 25% over dark, keep light foreground */
+  ::selection {
+    background-color: rgba(250, 204, 21, 0.25);
+    color: var(--foreground);
+  }
+
+  /* Thin dark scrollbars everywhere */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.22);
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
+  }
+}
+
+/*
+ * Global reduced-motion: collapse all animation/transition to 1ms (not 0 so
+ * transitionend/animationend still fire). Elements (and subtrees) explicitly
+ * opted in via [data-allow-motion] are exempt — GSAP's matchMedia handles
+ * JS-driven motion separately.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *:where(:not([data-allow-motion]):not([data-allow-motion] *)),
+  *:where(:not([data-allow-motion]):not([data-allow-motion] *))::before,
+  *:where(:not([data-allow-motion]):not([data-allow-motion] *))::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
   }
 }

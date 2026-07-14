@@ -1,11 +1,22 @@
-/* Theme CSS Variables */
+/*
+ * Legacy theme variables — re-aliased to the Onyx token layer.
+ *
+ * Every var NAME is preserved (~300 scoped-style usages across 30+ files);
+ * VALUES now point at / match the tokens in tailwind.css. These are burned
+ * down opportunistically — new code should use the shadcn/Onyx tokens
+ * (--background, --card, --surface-2, --border, ...) directly.
+ *
+ * Safe to alias with nested var(): no consumer wraps these in rgba(var(...))
+ * or sass color functions (verified 2026-07-15; the only rgba(var()) pattern
+ * in the app uses --admin-accent-rgb, defined locally in admin components).
+ */
 
 :root {
   /* Base colors */
   --color-black: #000000;
   --color-white: #ffffff;
 
-  /* Gray scale */
+  /* Gray scale (unchanged ramp) */
   --color-gray-50: #fafafa;
   --color-gray-100: #f5f5f5;
   --color-gray-200: #e5e5e5;
@@ -19,64 +30,66 @@
   --color-gray-950: #0a0a0a;
 
   /* Background colors */
-  --bg-primary: #121212;
-  --bg-dark: #101010;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #242424;
-  --bg-hover: #2a2a2a;
-  --bg-quaternary: #2c2c2c;
+  --bg-primary: var(--background); /* #070708 */
+  --bg-dark: #050506;
+  --bg-secondary: #101012;
+  --bg-tertiary: var(--card); /* #0e0e10 */
+  --bg-hover: #1a1a1e;
+  --bg-quaternary: #1a1a1e;
 
   /* Component backgrounds */
-  --card-bg: #242424;
-  --modal-bg: #121212;
-  --dropdown-bg: #242424;
-  --tab-bg: #1a1a1a;
-  --tab-active-bg: #2c2c2c;
+  --card-bg: var(--card); /* #0e0e10 */
+  --modal-bg: #0e0e10;
+  --dropdown-bg: var(--popover); /* #141417 */
+  --tab-bg: #141417;
+  --tab-active-bg: #1a1a1e;
 
   /* Text colors */
-  --text-primary: #ffffff;
-  --text-secondary: #d4d4d4;
-  --text-tertiary: #a3a3a3;
-  --text-inverted: #000000;
+  --text-primary: #f2f2f4;
+  --text-secondary: #a2a2aa;
+  --text-tertiary: #67676f;
+  --text-inverted: #0a0a00;
 
-  /* Border colors */
-  --border-color: #333333;
-  --border-subtle: #313030;
-  --border-light: #444444;
+  /* Border colors (hairlines — rgba is intentional here) */
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-light: rgba(255, 255, 255, 0.13);
 
   /* UI element colors */
   --tab-indicator: #facc15;
   --selection-ring: #facc15;
   --hover-overlay: rgba(255, 255, 255, 0.05);
-  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.6);
 
-  /* Primary colors */
+  /* Primary colors (hover/pressed are luminance shifts, never amber) */
   --primary-color: #facc15;
-  --primary-color-hover: #f59e0b;
-  --primary-color-pressed: #ca8a04;
+  --primary-color-hover: #fde047;
+  --primary-color-pressed: #eab308;
 
-  /* Glassmorphism variables */
-  --glass-bg-primary: rgba(16, 16, 16, 0.7);
-  --glass-bg-secondary: rgba(36, 36, 36, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-border-light: rgba(255, 255, 255, 0.08);
+  /* Glassmorphism variables — retired as primary surface language;
+   * retuned darker/near-opaque, blur values unchanged */
+  --glass-bg-primary: rgba(12, 12, 14, 0.88);
+  --glass-bg-secondary: rgba(20, 20, 23, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-light: rgba(255, 255, 255, 0.06);
   --glass-blur-strong: blur(12px);
   --glass-blur-medium: blur(10px);
   --glass-blur-light: blur(6px);
   --glass-saturation: saturate(180%);
 
-  /* Admin glassmorphism (more transparent, stronger blur) */
-  --admin-glass-bg: rgba(255, 255, 255, 0.025);
-  --admin-glass-bg-hover: rgba(255, 255, 255, 0.045);
+  /* Admin glassmorphism — hairlines aligned to Onyx border tokens,
+   * blur values unchanged */
+  --admin-glass-bg: rgba(255, 255, 255, 0.03);
+  --admin-glass-bg-hover: rgba(255, 255, 255, 0.05);
   --admin-glass-border: rgba(255, 255, 255, 0.07);
-  --admin-glass-border-hover: rgba(255, 255, 255, 0.12);
+  --admin-glass-border-hover: rgba(255, 255, 255, 0.13);
   --admin-glass-blur: blur(20px);
   --admin-glass-blur-strong: blur(28px);
   --admin-glass-blur-light: blur(14px);
   --admin-glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
-  /* Skin card backgrounds */
-  --skin-card-bg: #242424;
-  --skin-card-gradient-start: #1a1a1a;
-  --skin-card-gradient-end: #2c2c2c;
+  /* Skin card backgrounds — flat Onyx surface (gradients collapsed) */
+  --skin-card-bg: #0e0e10;
+  --skin-card-gradient-start: #0e0e10;
+  --skin-card-gradient-end: #0e0e10;
 }

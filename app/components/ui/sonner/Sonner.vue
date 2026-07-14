@@ -15,7 +15,7 @@ const props = defineProps<ToasterProps>()
       '--normal-bg': 'var(--popover)',
       '--normal-text': 'var(--popover-foreground)',
       '--normal-border': 'var(--border)',
-      '--border-radius': 'var(--radius)',
+      '--border-radius': 'var(--radius-card)',
     }"
     v-bind="props"
   >
@@ -41,3 +41,41 @@ const props = defineProps<ToasterProps>()
     </template>
   </Sonner>
 </template>
+
+<style>
+/*
+ * Palette-consistent rich colors for typed toasts (Onyx). vue-sonner's
+ * stylesheet is vendor code — override its CSS variables here instead of
+ * editing it. Covers both the default path (--normal-*) and the
+ * richColors path (--success-* / --error-* / --warning-*).
+ * Backgrounds are ~12% tints mixed into the solid popover surface (kept
+ * solid on purpose), borders are hairline color tints, text tints pass
+ * AA on the dark surface.
+ */
+[data-sonner-toast][data-type='success'] {
+  --normal-bg: color-mix(in srgb, #22c55e 12%, var(--popover));
+  --normal-border: rgba(34, 197, 94, 0.3);
+  --normal-text: #86efac;
+  --success-bg: color-mix(in srgb, #22c55e 12%, var(--popover));
+  --success-border: rgba(34, 197, 94, 0.3);
+  --success-text: #86efac;
+}
+
+[data-sonner-toast][data-type='error'] {
+  --normal-bg: color-mix(in srgb, #ef4444 12%, var(--popover));
+  --normal-border: rgba(239, 68, 68, 0.3);
+  --normal-text: #ff7a7a;
+  --error-bg: color-mix(in srgb, #ef4444 12%, var(--popover));
+  --error-border: rgba(239, 68, 68, 0.3);
+  --error-text: #ff7a7a;
+}
+
+[data-sonner-toast][data-type='warning'] {
+  --normal-bg: color-mix(in srgb, #f59e0b 12%, var(--popover));
+  --normal-border: rgba(245, 158, 11, 0.3);
+  --normal-text: #fcd34d;
+  --warning-bg: color-mix(in srgb, #f59e0b 12%, var(--popover));
+  --warning-border: rgba(245, 158, 11, 0.3);
+  --warning-text: #fcd34d;
+}
+</style>
