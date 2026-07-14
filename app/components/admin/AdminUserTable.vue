@@ -110,39 +110,27 @@ const totalPages = computed(() => Math.ceil(props.total / props.pageSize))
             </TableCell>
             <TableCell class="px-3 py-3 text-center">
               <div class="flex gap-2 justify-center">
-                <Button
-                  size="sm"
-                  variant="light"
-                  intent="info"
-                  rounded="md"
-                  @click="emit('view', row.steamId)"
-                >
+                <Button size="sm" variant="secondary" @click="emit('view', row.steamId)">
                   View
                 </Button>
                 <Button
                   v-if="row.isBanned"
                   size="sm"
-                  variant="light"
-                  intent="success"
-                  rounded="md"
+                  variant="default"
                   @click="emit('unban', row.steamId)"
                 >
                   Unban
                 </Button>
-                <Button
-                  v-else
-                  size="sm"
-                  variant="light"
-                  intent="error"
-                  rounded="md"
-                  @click="emit('ban', row.steamId)"
-                >
+                <Button v-else size="sm" variant="destructive" @click="emit('ban', row.steamId)">
                   Ban
                 </Button>
               </div>
             </TableCell>
           </TableRow>
-          <TableRow v-if="!loading && users.length === 0" class="border-white/4 hover:bg-transparent">
+          <TableRow
+            v-if="!loading && users.length === 0"
+            class="border-white/4 hover:bg-transparent"
+          >
             <TableCell :colspan="6" class="px-3 py-8 text-center text-gray-500">
               No users found
             </TableCell>

@@ -30,40 +30,37 @@ const handleSelect = (key: string) => {
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button variant="ghost" size="sm" icon-only rounded="full">
+      <Button variant="ghost" size="icon-sm">
         <template #icon-left>
           <MenuIcon />
         </template>
       </Button>
     </DropdownMenuTrigger>
 
-    <DropdownMenuContent
-      align="end"
-      class="min-w-[180px] rounded-xl border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl"
-    >
-      <DropdownMenuItem class="rounded-lg" @select="handleSelect('rename')">
+    <DropdownMenuContent align="end" class="min-w-[180px]">
+      <DropdownMenuItem @select="handleSelect('rename')">
         <RenameIcon />
         Rename
       </DropdownMenuItem>
-      <DropdownMenuItem class="rounded-lg" @select="handleSelect('duplicate')">
+      <DropdownMenuItem @select="handleSelect('duplicate')">
         <DuplicateIcon />
         Duplicate
       </DropdownMenuItem>
-      <DropdownMenuItem class="rounded-lg" @select="handleSelect('share')">
+      <DropdownMenuItem @select="handleSelect('share')">
         <ShareIcon />
         Share Code
       </DropdownMenuItem>
-      <DropdownMenuItem class="rounded-lg" :disabled="isDefault" @select="handleSelect('default')">
-        <DefaultIcon class="text-amber-500" />
+      <DropdownMenuItem :disabled="isDefault" @select="handleSelect('default')">
+        <DefaultIcon />
         {{ isDefault ? 'Default' : 'Set Default' }}
       </DropdownMenuItem>
       <DropdownMenuSeparator />
-      <DropdownMenuItem class="rounded-lg" @select="handleSelect('clear')">
-        <ClearIcon class="text-red-500" />
+      <DropdownMenuItem variant="destructive" @select="handleSelect('clear')">
+        <ClearIcon />
         Clear Items
       </DropdownMenuItem>
-      <DropdownMenuItem class="rounded-lg" @select="handleSelect('delete')">
-        <DeleteIcon class="text-red-500" />
+      <DropdownMenuItem variant="destructive" @select="handleSelect('delete')">
+        <DeleteIcon />
         Delete
       </DropdownMenuItem>
     </DropdownMenuContent>

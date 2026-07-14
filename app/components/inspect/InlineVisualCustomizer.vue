@@ -940,11 +940,7 @@ const drawCoordinateOverlay = () => {
     10,
     overlayH - 40
   )
-  ctx.value.fillText(
-    'Coordinate Overlay Active - Hover to see positions',
-    10,
-    overlayH - 20
-  )
+  ctx.value.fillText('Coordinate Overlay Active - Hover to see positions', 10, overlayH - 20)
 
   ctx.value.restore()
 }
@@ -1479,12 +1475,8 @@ defineExpose({
       <div v-if="isDevelopment" class="absolute top-2 right-2 z-50 flex flex-col gap-2 items-end">
         <!-- Fullscreen Toggle -->
         <Button
-          size="xs"
-          variant="light"
-          icon-only
-          rounded="full"
-          :intent="isFullscreen ? 'primary' : 'default'"
-          class="opacity-50 hover:opacity-100 transition-opacity"
+          size="icon-xs"
+          :variant="isFullscreen ? 'default' : 'secondary'"
           title="Toggle Fullscreen"
           @click="
             () => {
@@ -1504,12 +1496,8 @@ defineExpose({
         </Button>
 
         <Button
-          size="xs"
-          variant="light"
-          icon-only
-          rounded="full"
-          :intent="showCoordinateOverlay ? 'primary' : 'default'"
-          class="opacity-50 hover:opacity-100 transition-opacity"
+          size="icon-xs"
+          :variant="showCoordinateOverlay ? 'default' : 'secondary'"
           title="Toggle Debug Overlay"
           @click="showCoordinateOverlay = !showCoordinateOverlay"
         >
@@ -1525,12 +1513,8 @@ defineExpose({
 
         <!-- Calibration Toggle -->
         <Button
-          size="xs"
-          variant="light"
-          icon-only
-          rounded="full"
-          :intent="calibration.active ? 'warning' : 'default'"
-          class="opacity-50 hover:opacity-100 transition-opacity"
+          size="icon-xs"
+          :variant="calibration.active ? 'default' : 'secondary'"
           title="Toggle Calibration UI"
           @click="calibration.active = !calibration.active"
         >
@@ -1573,7 +1557,7 @@ defineExpose({
             </div>
           </div>
 
-          <Button size="xs" block variant="light" rounded="md" intent="info" @click="copyCalibrationConfig">
+          <Button size="xs" class="w-full" variant="secondary" @click="copyCalibrationConfig">
             Copy Config
           </Button>
         </div>
@@ -1600,14 +1584,7 @@ defineExpose({
 
             <!-- Scale -->
             <div class="flex items-center gap-1 border-r border-white/10 pr-2">
-              <Button
-                size="xs"
-                variant="light"
-                icon-only
-                rounded="full"
-                @click="handleUpdateScale(-0.1)"
-                >-</Button
-              >
+              <Button size="icon-xs" variant="secondary" @click="handleUpdateScale(-0.1)">-</Button>
               <CompactNumberInput
                 :model-value="selectedElement.scale"
                 :min="0.1"
@@ -1617,14 +1594,7 @@ defineExpose({
                 class="w-14"
                 @update:model-value="handleSetScale"
               />
-              <Button
-                size="xs"
-                variant="light"
-                icon-only
-                rounded="full"
-                @click="handleUpdateScale(0.1)"
-                >+</Button
-              >
+              <Button size="icon-xs" variant="secondary" @click="handleUpdateScale(0.1)">+</Button>
             </div>
 
             <!-- Rotation -->
@@ -1632,12 +1602,7 @@ defineExpose({
               >Rotation</span
             >
             <div class="flex items-center gap-1 border-r border-white/10 pr-2">
-              <Button
-                size="xs"
-                variant="light"
-                icon-only
-                rounded="full"
-                @click="handleUpdateRotation(-15)"
+              <Button size="icon-xs" variant="secondary" @click="handleUpdateRotation(-15)"
                 >↺</Button
               >
               <CompactNumberInput
@@ -1649,12 +1614,7 @@ defineExpose({
                 class="w-14"
                 @update:model-value="handleSetRotation"
               />
-              <Button
-                size="xs"
-                variant="light"
-                icon-only
-                rounded="full"
-                @click="handleUpdateRotation(15)"
+              <Button size="icon-xs" variant="secondary" @click="handleUpdateRotation(15)"
                 >↻</Button
               >
             </div>
@@ -1677,14 +1637,7 @@ defineExpose({
             </div>
 
             <!-- Remove -->
-            <Button
-              intent="error"
-              size="xs"
-              variant="light"
-              icon-only
-              rounded="full"
-              @click="handleRemoveSelected"
-            >
+            <Button size="icon-xs" variant="destructive" @click="handleRemoveSelected">
               <template #icon-left>
                 <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24">
                   <path
@@ -1763,11 +1716,8 @@ defineExpose({
 
                 <Button
                   v-if="isDevelopment"
-                  size="xs"
-                  variant="light"
-                  icon-only
-                  rounded="full"
-                  intent="info"
+                  size="icon-xs"
+                  variant="secondary"
                   class="ml-1"
                   title="Copy Position Object"
                   @click="copySelectedElementPosition"
@@ -1824,11 +1774,8 @@ defineExpose({
 
               <Button
                 v-if="isDevelopment"
-                size="xs"
-                variant="light"
-                icon-only
-                rounded="full"
-                intent="info"
+                size="icon-xs"
+                variant="secondary"
                 class="ml-1"
                 title="Copy Position Object"
                 @click="copySelectedElementPosition"

@@ -151,10 +151,7 @@ watch(
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
-          <Select
-            :model-value="sortBy"
-            @update:model-value="(v) => (sortBy = String(v ?? sortBy))"
-          >
+          <Select :model-value="sortBy" @update:model-value="(v) => (sortBy = String(v ?? sortBy))">
             <SelectTrigger size="sm" class="w-44">
               <SelectValue>
                 {{ stickerSortOptions.find((o) => o.value === sortBy)?.label }}
@@ -171,10 +168,8 @@ watch(
             </SelectContent>
           </Select>
           <Button
-            size="xs"
-            icon-only
-            variant="light"
-            rounded="md"
+            size="icon-xs"
+            variant="secondary"
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
@@ -188,10 +183,7 @@ watch(
             v-for="rarity in availableRarities"
             :key="rarity.id"
             size="xs"
-            variant="light"
-            rounded="md"
-            :intent="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
-            :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :variant="rarityFilterIds.includes(rarity.id) ? 'default' : 'secondary'"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
@@ -210,9 +202,7 @@ watch(
           v-for="effect in availableEffects"
           :key="effect.id"
           size="xs"
-          variant="light"
-          rounded="md"
-          :intent="effectFilterIds.includes(effect.id) ? 'primary' : 'default'"
+          :variant="effectFilterIds.includes(effect.id) ? 'default' : 'secondary'"
           :aria-label="`Filter by ${effect.label} effect`"
           :aria-pressed="effectFilterIds.includes(effect.id)"
           @click="toggleEffectFilter(effect.id)"

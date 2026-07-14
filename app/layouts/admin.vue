@@ -131,7 +131,7 @@ onMounted(() => {
         <SettingsDropdown
           trigger="hover"
           variant="icon"
-          size="md"
+          size="default"
           :show-tutorials="false"
           :show-admin-link="false"
           @logout="handleLogout"
@@ -139,7 +139,7 @@ onMounted(() => {
         <TooltipProvider :delay-duration="300">
           <Tooltip>
             <TooltipTrigger as-child>
-              <Button variant="ghost" icon-only rounded="full" size="sm" as="a" href="/">
+              <Button variant="ghost" size="icon-sm" as="a" href="/">
                 <template #icon-left>
                   <HomeIcon :size="18" />
                 </template>

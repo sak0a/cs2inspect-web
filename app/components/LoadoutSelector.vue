@@ -306,11 +306,10 @@ onMounted(async () => {
     <DropdownMenu v-if="loadoutStore.hasLoadouts">
       <DropdownMenuTrigger as-child>
         <Button
-          rounded="full"
-          variant="elevated"
-          size="md"
+          variant="outline"
+          size="default"
           data-tutorial="loadout-selector"
-          class="min-w-[140px] h-10 pl-4 pr-3 justify-between"
+          class="min-w-[140px] justify-between"
         >
           {{
             loadoutStore.selectedLoadout
@@ -322,19 +321,10 @@ onMounted(async () => {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="start"
-        class="min-w-[180px] rounded-xl border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl"
-      >
+      <DropdownMenuContent align="start" class="min-w-[180px]">
         <DropdownMenuItem
           v-for="loadout in loadoutStore.loadouts"
           :key="loadout.id"
-          :class="[
-            'cursor-pointer rounded-lg',
-            toLoadoutId(loadout.id) === loadoutStore.selectedLoadoutId
-              ? 'border! border-primary! text-primary!'
-              : '',
-          ]"
           @select="loadoutStore.selectedLoadoutId = toLoadoutId(loadout.id)"
         >
           <span class="min-w-0 flex-1 truncate">
@@ -352,9 +342,8 @@ onMounted(async () => {
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <Button
-          icon-only
-          rounded="full"
-          variant="elevated"
+          variant="outline"
+          size="icon"
           data-tutorial="loadout-create"
           :aria-label="t('loadout.manage') as string"
         >
@@ -364,51 +353,32 @@ onMounted(async () => {
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent
-        align="start"
-        class="min-w-[180px] rounded-xl border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl"
-      >
-        <DropdownMenuItem class="cursor-pointer rounded-lg" @select="handleDropdownSelect('create')">
-          <NewIcon class="size-4 text-[#22c55e]" />
+      <DropdownMenuContent align="start" class="min-w-[180px]">
+        <DropdownMenuItem @select="handleDropdownSelect('create')">
+          <NewIcon class="size-4" />
           <span>{{ String(t('loadout.create')) }}</span>
         </DropdownMenuItem>
-        <DropdownMenuItem class="cursor-pointer rounded-lg" @select="handleDropdownSelect('import')">
-          <ImportIcon class="size-4 text-[#3b82f6]" />
+        <DropdownMenuItem @select="handleDropdownSelect('import')">
+          <ImportIcon class="size-4" />
           <span>{{ String(t('loadout.import')) }}</span>
         </DropdownMenuItem>
 
         <template v-if="hasSelection">
-          <DropdownMenuSeparator class="bg-gray-500/20" />
-          <DropdownMenuItem
-            class="cursor-pointer rounded-lg"
-            @select="handleDropdownSelect('rename')"
-          >
+          <DropdownMenuSeparator />
+          <DropdownMenuItem @select="handleDropdownSelect('rename')">
             <RenameIcon class="size-4" />
             <span>{{ String(t('loadout.actions.rename')) }}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            class="cursor-pointer rounded-lg"
-            @select="handleDropdownSelect('duplicate')"
-          >
+          <DropdownMenuItem @select="handleDropdownSelect('duplicate')">
             <DuplicateIcon class="size-4" />
             <span>{{ String(t('loadout.actions.duplicate')) }}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            class="cursor-pointer rounded-lg"
-            @select="handleDropdownSelect('share')"
-          >
+          <DropdownMenuItem @select="handleDropdownSelect('share')">
             <ShareIcon class="size-4" />
             <span>{{ String(t('loadout.actions.share')) }}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            class="cursor-pointer rounded-lg"
-            :disabled="isSelectedDefault"
-            @select="handleDropdownSelect('default')"
-          >
-            <component
-              :is="isSelectedDefault ? DefaultIconFilled : DefaultIcon"
-              class="size-4 text-[#f59e0b]"
-            />
+          <DropdownMenuItem :disabled="isSelectedDefault" @select="handleDropdownSelect('default')">
+            <component :is="isSelectedDefault ? DefaultIconFilled : DefaultIcon" class="size-4" />
             <span>
               {{
                 String(
@@ -419,19 +389,13 @@ onMounted(async () => {
               }}
             </span>
           </DropdownMenuItem>
-          <DropdownMenuSeparator class="bg-gray-500/20" />
-          <DropdownMenuItem
-            class="cursor-pointer rounded-lg"
-            @select="handleDropdownSelect('clear')"
-          >
-            <ClearIcon class="size-4 text-[#ef4444]" />
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" @select="handleDropdownSelect('clear')">
+            <ClearIcon class="size-4" />
             <span>{{ String(t('loadout.actions.clear')) }}</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            class="cursor-pointer rounded-lg"
-            @select="handleDropdownSelect('delete')"
-          >
-            <DeleteIcon class="size-4 text-[#ef4444]" />
+          <DropdownMenuItem variant="destructive" @select="handleDropdownSelect('delete')">
+            <DeleteIcon class="size-4" />
             <span>{{ String(t('loadout.actions.delete')) }}</span>
           </DropdownMenuItem>
         </template>
@@ -457,12 +421,8 @@ onMounted(async () => {
     <template #footer>
       <div class="flex justify-end gap-3">
         <Button
-          intent="error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="outline"
+          size="default"
           @click="
             () => {
               showModal.create = false
@@ -473,12 +433,8 @@ onMounted(async () => {
           {{ t('modals.loadout.create.cancel') }}
         </Button>
         <Button
-          intent="success"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="default"
+          size="default"
           :disabled="formInputs.newName === '' || formInputs.newName.length > 20"
           @click="handleLoadoutAction('create')"
         >
@@ -509,12 +465,8 @@ onMounted(async () => {
     <template #footer>
       <div class="flex justify-end gap-3">
         <Button
-          intent="error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="outline"
+          size="default"
           @click="
             () => {
               showModal.rename = false
@@ -525,12 +477,8 @@ onMounted(async () => {
           {{ t('modals.loadout.rename.cancel') }}
         </Button>
         <Button
-          intent="success"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="default"
+          size="default"
           :disabled="formInputs.renameName === '' || formInputs.renameName.length > 20"
           @click="handleLoadoutAction('rename')"
         >
@@ -572,12 +520,8 @@ onMounted(async () => {
     <template #footer>
       <div class="flex justify-end gap-3">
         <Button
-          intent="error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="outline"
+          size="default"
           @click="
             () => {
               showModal.delete = false
@@ -588,12 +532,8 @@ onMounted(async () => {
           {{ t('modals.loadout.delete.cancel') }}
         </Button>
         <Button
-          intent="error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="destructive"
+          size="default"
           :disabled="formInputs.deleteConfirm !== loadoutStore.selectedLoadout?.name"
           @click="handleLoadoutAction('delete')"
         >
@@ -651,22 +591,12 @@ onMounted(async () => {
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <Button
-          variant="elevated"
-          rounded="full"
-          size="md"
-          class="px-5 py-1.5"
-          @click="showModal.clear = false"
-        >
+        <Button variant="outline" size="default" @click="showModal.clear = false">
           {{ t('modals.loadout.clear.cancel') }}
         </Button>
         <Button
-          intent="error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="destructive"
+          size="default"
           :disabled="
             formInputs.clearConfirm !== loadoutStore.selectedLoadout?.name ||
             formInputs.clearCategories.length === 0
@@ -696,43 +626,20 @@ onMounted(async () => {
         <p>{{ t('modals.loadout.share.description') }}</p>
         <div class="flex items-center gap-2">
           <Input v-model="formInputs.shareCode" readonly class="min-w-0 flex-1 rounded-full" />
-          <Button
-            intent="primary"
-            variant="elevated"
-            tinted
-            rounded="full"
-            class="shrink-0"
-            @click="copyToClipboard"
-          >
+          <Button variant="outline" class="shrink-0" @click="copyToClipboard">
             <template #icon-left>
               <DuplicateIcon :size="16" />
             </template>
           </Button>
         </div>
         <div class="flex gap-2 justify-center">
-          <Button
-            intent="warning"
-            variant="elevated"
-            rounded="full"
-            size="md"
-            tinted
-            class="px-5 py-1.5"
-            @click="handleGenerateShareCode"
-          >
+          <Button variant="outline" size="default" @click="handleGenerateShareCode">
             <template #icon-left>
               <RefreshIcon :size="16" />
             </template>
             {{ t('modals.loadout.share.regenerateButton') }}
           </Button>
-          <Button
-            intent="error"
-            variant="elevated"
-            rounded="full"
-            size="md"
-            tinted
-            class="px-5 py-1.5"
-            @click="handleDeleteShareCode"
-          >
+          <Button variant="destructive" size="default" @click="handleDeleteShareCode">
             <template #icon-left>
               <DeleteIcon :size="16" />
             </template>
@@ -744,15 +651,7 @@ onMounted(async () => {
       <!-- State: No share code -->
       <template v-else>
         <p>{{ t('modals.loadout.share.noCode') }}</p>
-        <Button
-          intent="primary"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
-          @click="handleGenerateShareCode"
-        >
+        <Button variant="outline" size="default" @click="handleGenerateShareCode">
           <template #icon-left>
             <ShareIcon :size="16" />
           </template>
@@ -780,22 +679,12 @@ onMounted(async () => {
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <Button
-          variant="elevated"
-          rounded="full"
-          size="md"
-          class="px-5 py-1.5"
-          @click="showModal.import = false"
-        >
+        <Button variant="outline" size="default" @click="showModal.import = false">
           {{ t('modals.loadout.import.cancel') }}
         </Button>
         <Button
-          intent="success"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+          variant="default"
+          size="default"
           :disabled="formInputs.importCode.length < 13"
           @click="handleLoadoutAction('import')"
         >

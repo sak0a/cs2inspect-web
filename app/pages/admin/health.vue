@@ -194,7 +194,7 @@ function tryFormatJson(str: string): string {
           <span class="toggle-label">Auto-refresh</span>
           <Switch :model-value="autoRefreshEnabled" @update:model-value="toggleAutoRefresh" />
         </div>
-        <Button variant="ghost" icon-only rounded="full" :loading="isLoading" @click="refreshAll">
+        <Button variant="ghost" size="icon" :loading="isLoading" @click="refreshAll">
           <template #icon-left>
             <RefreshIcon :size="16" />
           </template>
@@ -211,9 +211,7 @@ function tryFormatJson(str: string): string {
     <div class="status-banner" :class="statusBannerClass">
       <div class="status-banner-left">
         <span class="status-banner-icon">
-          {{
-            overallStatus === 'ok' ? '✓' : overallStatus === 'degraded' ? '⚠' : '✗'
-          }}
+          {{ overallStatus === 'ok' ? '✓' : overallStatus === 'degraded' ? '⚠' : '✗' }}
         </span>
         <span class="status-banner-text">{{ statusSummary }}</span>
       </div>
@@ -286,9 +284,7 @@ function tryFormatJson(str: string): string {
           @keydown.enter="sendFetchTest"
         />
         <Button
-          variant="filled"
-          intent="primary"
-          rounded="md"
+          variant="default"
           size="sm"
           :loading="fetchTestLoading"
           :disabled="!fetchTestUrl.trim()"
@@ -305,7 +301,7 @@ function tryFormatJson(str: string): string {
       <div class="fetch-headers">
         <div class="fetch-section-label">
           <span>Headers</span>
-          <Button variant="ghost" size="xs" rounded="md" @click="addHeader">
+          <Button variant="ghost" size="xs" @click="addHeader">
             <template #icon-left>
               <PlusIcon :size="12" />
             </template>
@@ -325,7 +321,7 @@ function tryFormatJson(str: string): string {
             class="h-7 flex-1 px-2 text-xs"
             @update:model-value="(v) => (header.value = String(v))"
           />
-          <Button variant="ghost" icon-only rounded="full" size="xs" @click="removeHeader(index)">
+          <Button variant="ghost" size="icon-xs" @click="removeHeader(index)">
             <template #icon-left>
               <RemoveIcon :size="12" />
             </template>
@@ -445,10 +441,7 @@ function tryFormatJson(str: string): string {
       </div>
 
       <div class="relative" :class="{ 'min-h-[120px]': isLoadingHistory }">
-        <div
-          v-if="isLoadingHistory"
-          class="absolute inset-0 z-10 flex items-center justify-center"
-        >
+        <div v-if="isLoadingHistory" class="absolute inset-0 z-10 flex items-center justify-center">
           <Spinner class="size-8 text-primary" />
         </div>
         <div :class="{ 'pointer-events-none opacity-50': isLoadingHistory }">

@@ -51,9 +51,9 @@
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
           <span class="status-text">{{ t('autoSave.failed') }}</span>
-          <button v-if="showRetry" class="retry-button" @click="$emit('retry')">
+          <Button v-if="showRetry" variant="link" size="xs" @click="$emit('retry')">
             {{ t('autoSave.retry') }}
-          </button>
+          </Button>
         </template>
       </div>
     </Transition>
@@ -62,6 +62,7 @@
 
 <script setup lang="ts">
 import type { SaveStatus } from '~/composables/useAutoSave'
+import { Button } from '@/components/ui/button'
 
 interface Props {
   status: SaveStatus
@@ -168,24 +169,6 @@ const statusClass = computed(() => {
 
 .status-text {
   white-space: nowrap;
-}
-
-.retry-button {
-  margin-left: 4px;
-  padding: 2px 8px;
-  border: 1px solid rgba(252, 165, 165, 0.4);
-  border-radius: 12px;
-  background: rgba(239, 68, 68, 0.2);
-  color: rgb(252, 165, 165);
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.retry-button:hover {
-  background: rgba(239, 68, 68, 0.3);
-  border-color: rgba(252, 165, 165, 0.6);
 }
 
 /* Transition animations - inline mode */

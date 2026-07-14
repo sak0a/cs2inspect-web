@@ -11,6 +11,7 @@ import {
   LucideHome,
 } from '@lucide/vue'
 import type { NuxtError } from '#app'
+import { Button } from '@/components/ui/button'
 
 interface ErrorConfig {
   icon: typeof LucideAlertTriangle
@@ -152,14 +153,14 @@ function handleGoHome() {
 
       <!-- Actions -->
       <div class="error-actions">
-        <button class="btn btn-secondary" @click="handleGoBack">
+        <Button variant="secondary" class="flex-1" @click="handleGoBack">
           <LucideArrowLeft :size="16" />
           Go Back
-        </button>
-        <button class="btn btn-primary" @click="handleGoHome">
+        </Button>
+        <Button class="flex-1" @click="handleGoHome">
           <LucideHome :size="16" />
           Go Home
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -304,44 +305,6 @@ function handleGoHome() {
   @media (max-width: 400px)
     flex-direction: column
 
-.btn
-  display: flex
-  flex: 1
-  align-items: center
-  justify-content: center
-  gap: 8px
-  padding: 11px 20px
-  border: none
-  border-radius: 10px
-  font-size: 13px
-  font-weight: 600
-  cursor: pointer
-  transition: all 0.2s ease
-  backdrop-filter: var(--glass-blur-light)
-  -webkit-backdrop-filter: var(--glass-blur-light)
-  font-family: inherit
-
-  &:active
-    transform: scale(0.98)
-
-.btn-primary
-  background: linear-gradient(180deg, rgba(250, 204, 21, 0.18), rgba(250, 204, 21, 0.06)), rgba(16, 16, 16, 0.55)
-  color: #FACC15
-  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.12)
-
-  &:hover
-    box-shadow: 0 6px 16px rgba(250, 204, 21, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.16)
-
-.btn-secondary
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)), rgba(16, 16, 16, 0.55)
-  color: rgba(255, 255, 255, 0.75)
-  border: 1px solid rgba(255, 255, 255, 0.14)
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-
-  &:hover
-    border-color: rgba(255, 255, 255, 0.18)
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12)
-
 @media (max-width: 480px)
   .error-container
     padding: 32px 24px
@@ -352,7 +315,4 @@ function handleGoHome() {
 @media (prefers-reduced-motion: reduce)
   .error-container
     animation: none
-
-  .btn
-    transition: none
 </style>

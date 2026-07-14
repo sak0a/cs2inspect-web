@@ -114,24 +114,10 @@ function handleReset() {
         </div>
       </div>
       <div class="flex gap-2">
-        <Button
-          variant="light"
-          intent="warning"
-          rounded="md"
-          :loading="isLoading"
-          @click="handleReset"
-        >
+        <Button variant="secondary" :loading="isLoading" @click="handleReset">
           Reset to Defaults
         </Button>
-        <Button
-          variant="light"
-          intent="primary"
-          rounded="md"
-          :loading="isLoading"
-          @click="handleRefresh"
-        >
-          Refresh
-        </Button>
+        <Button variant="secondary" :loading="isLoading" @click="handleRefresh"> Refresh </Button>
       </div>
     </div>
 

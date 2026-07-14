@@ -267,12 +267,8 @@ watch(
     <template #header-extra>
       <div class="flex items-center gap-2">
         <Button
-          variant="elevated"
-          rounded="full"
-          intent="error"
-          tinted
+          variant="destructive"
           :disabled="!currentSticker && !state.selectedItem"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="handleResetConfig"
         >
           <template #icon-left>
@@ -295,7 +291,10 @@ watch(
           </template>
           {{ t('modals.weaponSkin.buttons.reset') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
         <div class="relative w-64">
           <Search
             class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
@@ -460,14 +459,7 @@ watch(
 
               <!-- Action Buttons -->
               <div class="flex gap-3 w-full lg:w-auto justify-end">
-                <Button
-                  intent="primary"
-                  variant="elevated"
-                  rounded="full"
-                  tinted
-                  class="flex-1 lg:flex-none lg:w-32 px-5 py-1.5"
-                  @click="handleSave"
-                >
+                <Button variant="outline" class="flex-1 lg:flex-none lg:w-32" @click="handleSave">
                   {{
                     currentSticker
                       ? t('modals.sticker.buttons.update')
@@ -476,11 +468,8 @@ watch(
                 </Button>
                 <Button
                   v-if="currentSticker"
-                  intent="error"
-                  variant="elevated"
-                  rounded="full"
-                  tinted
-                  class="flex-1 lg:flex-none lg:w-32 px-5 py-1.5"
+                  variant="destructive"
+                  class="flex-1 lg:flex-none lg:w-32"
                   @click="handleRemove"
                 >
                   {{ t('modals.sticker.buttons.delete') }}
@@ -495,10 +484,7 @@ watch(
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
-          <Select
-            :model-value="sortBy"
-            @update:model-value="(v) => (sortBy = String(v ?? sortBy))"
-          >
+          <Select :model-value="sortBy" @update:model-value="(v) => (sortBy = String(v ?? sortBy))">
             <SelectTrigger size="sm" class="w-44">
               <SelectValue>
                 {{ stickerSortOptions.find((o) => o.value === sortBy)?.label }}
@@ -515,10 +501,8 @@ watch(
             </SelectContent>
           </Select>
           <Button
-            size="xs"
-            icon-only
-            variant="light"
-            rounded="md"
+            size="icon-xs"
+            variant="secondary"
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
@@ -532,10 +516,7 @@ watch(
             v-for="rarity in availableRarities"
             :key="rarity.id"
             size="xs"
-            variant="light"
-            rounded="md"
-            :intent="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
-            :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :variant="rarityFilterIds.includes(rarity.id) ? 'default' : 'secondary'"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
@@ -554,9 +535,7 @@ watch(
           v-for="effect in availableEffects"
           :key="effect.id"
           size="xs"
-          variant="light"
-          rounded="md"
-          :intent="effectFilterIds.includes(effect.id) ? 'primary' : 'default'"
+          :variant="effectFilterIds.includes(effect.id) ? 'default' : 'secondary'"
           :aria-label="`Filter by ${effect.label} effect`"
           :aria-pressed="effectFilterIds.includes(effect.id)"
           @click="toggleEffectFilter(effect.id)"

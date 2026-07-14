@@ -161,10 +161,8 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <Button variant="light" rounded="md" @click="handleClose"> Cancel </Button>
-      <Button variant="light" intent="error" rounded="md" @click="handleConfirm">
-        Ban User
-      </Button>
+      <Button variant="secondary" @click="handleClose"> Cancel </Button>
+      <Button variant="destructive" @click="handleConfirm"> Ban User </Button>
     </div>
   </AppModal>
 </template>

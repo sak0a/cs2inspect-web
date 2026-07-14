@@ -150,7 +150,7 @@ const handleRefresh = async () => {
         <h2 class="text-xl font-semibold text-white">Overview</h2>
         <p class="text-sm text-white/50 mt-1">Monitor your application statistics</p>
       </div>
-      <Button variant="ghost" icon-only rounded="full" :loading="isLoading" @click="handleRefresh">
+      <Button variant="ghost" size="icon" :loading="isLoading" @click="handleRefresh">
         <template #icon-left>
           <RefreshIcon :size="16" />
         </template>

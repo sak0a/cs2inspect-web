@@ -93,41 +93,21 @@ function formatRelativeTime(isoDate: string): string {
 
         <!-- Action Buttons -->
         <div class="flex items-center gap-2">
-          <Button
-            v-if="user.isBanned"
-            intent="success"
-            variant="light"
-            size="sm"
-            rounded="md"
-            @click="emit('unban', user)"
-          >
+          <Button v-if="user.isBanned" variant="default" size="sm" @click="emit('unban', user)">
             <template #icon-left>
               <UnbanIcon />
             </template>
             Unban
           </Button>
 
-          <Button
-            v-else
-            intent="warning"
-            variant="light"
-            size="sm"
-            rounded="md"
-            @click="emit('ban', user)"
-          >
+          <Button v-else variant="secondary" size="sm" @click="emit('ban', user)">
             <template #icon-left>
               <BanIcon />
             </template>
             Ban
           </Button>
 
-          <Button
-            intent="error"
-            variant="light"
-            size="sm"
-            rounded="md"
-            @click="emit('delete', user)"
-          >
+          <Button variant="destructive" size="sm" @click="emit('delete', user)">
             <template #icon-left>
               <DeleteIcon />
             </template>

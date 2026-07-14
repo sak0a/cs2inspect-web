@@ -128,9 +128,7 @@ function formatDate(dateStr: string) {
       <p class="text-gray-400">
         You do not have permission to access this page. Only superadmins can manage administrators.
       </p>
-      <Button variant="light" intent="primary" rounded="md" class="mt-6" as="a" href="/admin">
-        Back to Dashboard
-      </Button>
+      <Button variant="secondary" class="mt-6" as="a" href="/admin"> Back to Dashboard </Button>
     </div>
 
     <!-- Main Content (Superadmin only) -->
@@ -147,10 +145,8 @@ function formatDate(dateStr: string) {
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <Button variant="light" rounded="md" :loading="isLoading" @click="handleRefresh">
-            Refresh
-          </Button>
-          <Button variant="filled" intent="primary" rounded="md" @click="showAddModal = true">
+          <Button variant="secondary" :loading="isLoading" @click="handleRefresh"> Refresh </Button>
+          <Button variant="default" @click="showAddModal = true">
             <template #icon-left>
               <UserPlusIcon :size="16" />
             </template>
@@ -210,9 +206,7 @@ function formatDate(dateStr: string) {
             <!-- Actions -->
             <div class="flex items-center gap-2">
               <Button
-                variant="light"
-                intent="error"
-                rounded="md"
+                variant="destructive"
                 size="sm"
                 :loading="removingAdminId === admin.steamId"
                 :disabled="admin.role === 'superadmin'"
@@ -235,13 +229,7 @@ function formatDate(dateStr: string) {
         <p class="text-sm text-gray-500 mt-2">
           There are no administrators configured yet. Add your first admin to get started.
         </p>
-        <Button
-          variant="filled"
-          intent="primary"
-          rounded="md"
-          class="mt-4"
-          @click="showAddModal = true"
-        >
+        <Button variant="default" class="mt-4" @click="showAddModal = true">
           <template #icon-left>
             <UserPlusIcon :size="16" />
           </template>

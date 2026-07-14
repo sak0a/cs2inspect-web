@@ -54,28 +54,10 @@ const handleConfirm = () => {
         </p>
       </div>
       <div class="flex justify-end gap-3">
-        <Button
-          :disabled="_props.loading"
-          intent="error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
-          @click="handleClose"
-        >
+        <Button :disabled="_props.loading" variant="outline" size="default" @click="handleClose">
           {{ t('modals.duplicateItem.cancel') }}
         </Button>
-        <Button
-          :loading="_props.loading"
-          intent="success"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
-          @click="handleConfirm"
-        >
+        <Button :loading="_props.loading" variant="default" size="default" @click="handleConfirm">
           {{ t('modals.duplicateItem.confirm') }}
         </Button>
       </div>

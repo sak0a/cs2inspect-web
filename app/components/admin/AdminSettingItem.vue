@@ -128,9 +128,7 @@ const typeBadgeClass = computed(() => {
               <span class="text-sm text-gray-300 truncate block">{{ setting.value }}</span>
             </template>
           </div>
-          <Button size="sm" variant="light" intent="primary" rounded="md" @click="startEditing">
-            Edit
-          </Button>
+          <Button size="sm" variant="secondary" @click="startEditing"> Edit </Button>
         </template>
 
         <template v-else>
@@ -172,12 +170,8 @@ const typeBadgeClass = computed(() => {
             </template>
           </div>
           <div class="flex gap-2">
-            <Button size="sm" variant="light" intent="success" rounded="md" @click="handleSave">
-              Save
-            </Button>
-            <Button size="sm" variant="light" intent="error" rounded="md" @click="cancelEditing">
-              Cancel
-            </Button>
+            <Button size="sm" variant="default" @click="handleSave"> Save </Button>
+            <Button size="sm" variant="secondary" @click="cancelEditing"> Cancel </Button>
           </div>
         </template>
       </div>

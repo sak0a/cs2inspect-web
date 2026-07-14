@@ -77,13 +77,13 @@ function closeMobileSidebar() {
   <div class="admin-layout">
     <!-- Mobile Header -->
     <header class="admin-mobile-header">
-      <Button variant="ghost" icon-only rounded="full" size="lg" @click="toggleMobileSidebar">
+      <Button variant="ghost" size="icon-lg" @click="toggleMobileSidebar">
         <template #icon-left>
           <MenuIcon />
         </template>
       </Button>
       <h1 class="text-lg font-semibold">{{ title }}</h1>
-      <Button variant="ghost" icon-only rounded="full" size="lg" as="a" href="/">
+      <Button variant="ghost" size="icon-lg" as="a" href="/">
         <template #icon-left>
           <BackIcon />
         </template>
@@ -103,14 +103,7 @@ function closeMobileSidebar() {
           <ShieldIcon :size="24" class="shrink-0 text-(--primary-color)" />
           <span class="text-lg font-bold">Admin Panel</span>
         </div>
-        <Button
-          variant="ghost"
-          icon-only
-          rounded="full"
-          size="sm"
-          class="admin-sidebar-close"
-          @click="closeMobileSidebar"
-        >
+        <Button variant="ghost" size="icon-sm" class="lg:hidden" @click="closeMobileSidebar">
           <template #icon-left>
             <CloseIcon />
           </template>
@@ -234,10 +227,6 @@ function closeMobileSidebar() {
   justify-content: space-between
   padding: 24px 20px
   border-bottom: 1px solid var(--glass-border, rgba(255, 255, 255, 0.08))
-
-.admin-sidebar-close
-  @media (min-width: 1024px)
-    display: none
 
 .admin-sidebar-nav
   flex: 1

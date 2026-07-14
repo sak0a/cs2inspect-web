@@ -168,15 +168,7 @@ onMounted(() => {
             </SelectItem>
           </SelectContent>
         </Select>
-        <Button
-          variant="light"
-          intent="primary"
-          rounded="md"
-          :loading="isLoading"
-          @click="handleRefresh"
-        >
-          Refresh
-        </Button>
+        <Button variant="secondary" :loading="isLoading" @click="handleRefresh"> Refresh </Button>
       </div>
     </div>
 

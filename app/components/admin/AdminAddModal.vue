@@ -203,10 +203,8 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <Button variant="light" rounded="md" @click="handleClose"> Cancel </Button>
-      <Button variant="light" intent="primary" rounded="md" @click="handleConfirm">
-        Add Admin
-      </Button>
+      <Button variant="secondary" @click="handleClose"> Cancel </Button>
+      <Button variant="default" @click="handleConfirm"> Add Admin </Button>
     </div>
   </AppModal>
 </template>

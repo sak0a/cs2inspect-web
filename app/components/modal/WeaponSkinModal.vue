@@ -328,7 +328,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
     const config = await quickActions.importFromLink(
       props.weapon.weapon_defindex,
       customization.value.team,
-      inspectUrl,
+      inspectUrl
     )
 
     // Update local customization state (modal doesn't save directly)
@@ -336,7 +336,7 @@ const handleImportInspectLink = async (inspectUrl: string) => {
 
     // Update selected skin based on paint index
     const matchingSkin = apiState.value.skins.find(
-      (skin) => Number(skin.paint_index) === config.paintindex,
+      (skin) => Number(skin.paint_index) === config.paintindex
     )
 
     if (matchingSkin) {
@@ -562,9 +562,7 @@ const handleHistoryRestore = async (record: ItemHistoryRecord) => {
     if (config.keychain) {
       // Parse if keychain is stored as a JSON string (MariaDB/Drizzle may return JSON as string)
       let keychainData: KeychainJSON | string | null = config.keychain as
-        | KeychainJSON
-        | string
-        | null
+        KeychainJSON | string | null
       if (typeof keychainData === 'string') {
         try {
           keychainData = JSON.parse(keychainData)
@@ -1111,13 +1109,9 @@ onUnmounted(() => {
         <!-- Reset Weapon Configuration -->
         <Button
           :loading="state.isResetting"
-          variant="elevated"
-          rounded="full"
-          intent="error"
+          variant="destructive"
           :disabled="!selectedSkin || customization.paintindex == 0"
           :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
-          tinted
           data-tutorial="reset-button"
           @click="state.showResetConfirm = true"
         >
@@ -1141,15 +1135,16 @@ onUnmounted(() => {
           </template>
           {{ t('modals.weaponSkin.buttons.reset') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- History Button -->
         <Button
-          variant="elevated"
-          rounded="full"
+          variant="outline"
           :disabled="!selectedSkin"
           :aria-label="String(t('history.title'))"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           data-tutorial="history-button"
           @click="weaponState.showHistoryPanel = true"
         >
@@ -1173,16 +1168,17 @@ onUnmounted(() => {
           </template>
           {{ t('history.title') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Import Weapon by Inspect Link -->
         <Button
           :loading="state.isImporting"
-          variant="elevated"
-          rounded="full"
+          variant="outline"
           :disabled="!selectedSkin"
           :aria-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           data-tutorial="import-button"
           @click="state.showImportModal = true"
         >
@@ -1210,16 +1206,17 @@ onUnmounted(() => {
           </template>
           {{ t('modals.weaponSkin.buttons.importFromLink') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Generate Weapon Inspect Link by Data -->
         <Button
           :loading="state.isLoadingInspect"
-          variant="elevated"
-          rounded="full"
+          variant="outline"
           :disabled="!selectedSkin || customization.paintindex === 0"
           :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           data-tutorial="save-button"
           @click="handleCreateInspectLink"
         >
@@ -1247,7 +1244,10 @@ onUnmounted(() => {
           </template>
           {{ t('modals.weaponSkin.buttons.generateLink') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Weapon Search -->
         <div class="relative ml-1 w-72 max-w-72" data-tutorial="skin-search">
@@ -1263,12 +1263,7 @@ onUnmounted(() => {
       </div>
       <div v-else class="flex items-center shrink-0">
         <!-- Exit Visual Mode Button -->
-        <Button
-          variant="light"
-          intent="warning"
-          rounded="md"
-          @click="handleExitInlineVisualCustomizer"
-        >
+        <Button variant="secondary" @click="handleExitInlineVisualCustomizer">
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -1506,9 +1501,8 @@ onUnmounted(() => {
                       <Button
                         v-if="selectedSkin?.availableTeams === 'both'"
                         :disabled="!selectedSkin"
-                        variant="light"
+                        variant="secondary"
                         size="sm"
-                        rounded="md"
                         @click="state.showDuplicateConfirm = true"
                       >
                         {{ t('modals.weaponSkin.buttons.duplicate') }}
@@ -1704,10 +1698,8 @@ onUnmounted(() => {
                   </SelectContent>
                 </Select>
                 <Button
-                  size="xs"
-                  icon-only
-                  variant="light"
-                  rounded="md"
+                  size="icon-xs"
+                  variant="secondary"
                   :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
                   @click="toggleSortDir"
                 >
@@ -1723,12 +1715,7 @@ onUnmounted(() => {
                   v-for="rarity in availableRarities"
                   :key="rarity.id"
                   size="xs"
-                  variant="light"
-                  rounded="md"
-                  :intent="rarityFilterIds.includes(rarity.id) ? 'primary' : 'default'"
-                  :style="
-                    rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined
-                  "
+                  :variant="rarityFilterIds.includes(rarity.id) ? 'default' : 'secondary'"
                   :aria-label="`Filter by ${rarity.name} rarity`"
                   :aria-pressed="rarityFilterIds.includes(rarity.id)"
                   @click="toggleRarityFilter(rarity.id)"

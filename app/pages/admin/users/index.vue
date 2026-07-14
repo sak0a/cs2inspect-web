@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { LucideUsers as UsersIcon, LucideX as ClearIcon } from '@lucide/vue'
+import { Button } from '@/components/ui/button'
 
 definePageMeta({
   middleware: 'admin',
@@ -132,15 +133,17 @@ async function handleUnbanUser(steamId: string) {
             class="pl-9 pr-8"
             @update:model-value="(v) => handleSearch(String(v))"
           />
-          <button
+          <Button
             v-if="searchQuery"
             type="button"
-            class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-white/40 transition-colors hover:text-white/80"
+            variant="ghost"
+            size="icon-xs"
+            class="absolute right-2 top-1/2 -translate-y-1/2"
             aria-label="Clear search"
             @click="handleSearch('')"
           >
             <ClearIcon :size="14" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -155,16 +158,12 @@ async function handleUnbanUser(steamId: string) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem
-                v-for="option in sortOptions"
-                :key="option.value"
-                :value="option.value"
-              >
+              <SelectItem v-for="option in sortOptions" :key="option.value" :value="option.value">
                 {{ option.label }}
               </SelectItem>
             </SelectContent>
           </Select>
-          <Button size="sm" variant="light" rounded="md" @click="toggleSortDir">
+          <Button size="sm" variant="secondary" @click="toggleSortDir">
             {{ sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc' }}
           </Button>
         </div>
@@ -172,27 +171,21 @@ async function handleUnbanUser(steamId: string) {
           <span class="text-sm text-gray-400">Status</span>
           <Button
             size="sm"
-            :intent="statusFilter === 'all' ? 'primary' : 'default'"
-            variant="light"
-            rounded="md"
+            :variant="statusFilter === 'all' ? 'default' : 'secondary'"
             @click="statusFilter = 'all'"
           >
             All
           </Button>
           <Button
             size="sm"
-            :intent="statusFilter === 'active' ? 'primary' : 'default'"
-            variant="light"
-            rounded="md"
+            :variant="statusFilter === 'active' ? 'default' : 'secondary'"
             @click="statusFilter = 'active'"
           >
             Active
           </Button>
           <Button
             size="sm"
-            :intent="statusFilter === 'banned' ? 'primary' : 'default'"
-            variant="light"
-            rounded="md"
+            :variant="statusFilter === 'banned' ? 'default' : 'secondary'"
             @click="statusFilter = 'banned'"
           >
             Banned
@@ -216,7 +209,7 @@ async function handleUnbanUser(steamId: string) {
       <!-- Error State -->
       <div v-else-if="adminStore.error" class="py-6 text-center">
         <p class="text-red-400">{{ adminStore.error }}</p>
-        <Button class="mt-4" variant="light" rounded="md" @click="fetchUsers"> Try Again </Button>
+        <Button class="mt-4" variant="secondary" @click="fetchUsers"> Try Again </Button>
       </div>
 
       <!-- Empty State -->

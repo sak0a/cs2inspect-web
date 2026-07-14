@@ -114,9 +114,7 @@ async function handleLogin() {
 const route = useRoute()
 const config = useRuntimeConfig()
 const isDevPage = computed(
-  () =>
-    route.path === '/dev' &&
-    (import.meta.env.DEV || config.public.devAuthEnabled === true)
+  () => route.path === '/dev' && (import.meta.env.DEV || config.public.devAuthEnabled === true)
 )
 
 onMounted(async () => {
@@ -188,24 +186,24 @@ const currentLocaleDisplay = computed(() => {
           >
             <!-- Left side: User capsule + Team Toggle -->
             <div class="flex items-center gap-2 shrink-0 flex-1 min-w-fit">
-              <!-- User capsule: Avatar + Name + Settings -->
-              <div v-if="user" class="nav-user-capsule">
-                <a
-                  :href="user.profileUrl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  :aria-label="String(t('auth.openSteamProfile'))"
-                  class="nav-user-avatar"
-                >
-                  <img
-                    class="rounded-full"
-                    alt="Steam Avatar"
-                    :src="user.avatarFull"
-                    style="width: 36px; height: 36px"
-                  />
-                </a>
-                <span class="nav-user-name">{{ user.personaName }}</span>
-                <div data-tutorial="settings-dropdown" class="ml-2">
+              <!-- User profile + settings -->
+              <div v-if="user" class="flex shrink-0 items-center gap-1">
+                <Button as-child variant="outline" size="sm" class="max-w-[180px] pl-1.5">
+                  <a
+                    :href="user.profileUrl"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    :aria-label="String(t('auth.openSteamProfile'))"
+                  >
+                    <img
+                      class="size-6 rounded-full"
+                      alt="Steam Avatar"
+                      :src="user.avatarFull"
+                    />
+                    <span class="truncate">{{ user.personaName }}</span>
+                  </a>
+                </Button>
+                <div data-tutorial="settings-dropdown">
                   <SettingsDropdown
                     variant="icon"
                     size="sm"
@@ -268,13 +266,7 @@ const currentLocaleDisplay = computed(() => {
         </div>
 
         {{ t('auth.loginRequired') }}
-        <Button
-          variant="filled"
-          size="lg"
-          rounded="md"
-          class="mt-4 login-button px-10 py-6 bg-[#18181c]"
-          @click="handleLogin"
-        >
+        <Button variant="default" size="lg" class="mt-4" @click="handleLogin">
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -301,9 +293,7 @@ const currentLocaleDisplay = computed(() => {
             <span>{{ siteAnnouncement }}</span>
             <Button
               variant="ghost"
-              icon-only
-              rounded="full"
-              size="xs"
+              size="icon-xs"
               class="ml-2 shrink-0"
               @click="dismissAnnouncement"
             >
@@ -347,10 +337,10 @@ const currentLocaleDisplay = computed(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <Button variant="light" rounded="md" @click="showLogoutModal = false">
+          <Button variant="secondary" @click="showLogoutModal = false">
             {{ t('modals.logout.cancel') }}
           </Button>
-          <Button variant="light" intent="error" rounded="md" @click="handleLogout">
+          <Button variant="destructive" @click="handleLogout">
             {{ t('modals.logout.confirm') }}
           </Button>
         </div>
@@ -374,54 +364,6 @@ body
 
 #__nuxt
   height: 100%
-
-// User capsule in top nav bar
-.nav-user-capsule
-  display: flex
-  align-items: center
-  gap: 8px
-  padding: 3px 4px 3px 3px
-  border-radius: 9999px
-  height: 40px
-  position: relative
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04))
-  border: none !important
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 2px 4px rgba(0, 0, 0, 0.25)
-  flex-shrink: 0
-  transition: box-shadow 200ms ease-in-out
-
-  &::before
-    content: ''
-    position: absolute
-    inset: 0
-    border-radius: inherit
-    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03))
-    opacity: 0
-    transition: opacity 200ms ease-in-out
-    pointer-events: none
-
-  &:hover
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 3px 6px rgba(0, 0, 0, 0.3)
-
-    &::before
-      opacity: 1
-
-.nav-user-avatar
-  flex-shrink: 0
-  cursor: pointer
-  display: block
-  transition: transform 0.2s ease
-  &:hover
-    transform: scale(1.05)
-
-.nav-user-name
-  font-size: 14px
-  font-weight: 600
-  color: rgba(255, 255, 255, 0.9)
-  white-space: nowrap
-  overflow: hidden
-  text-overflow: ellipsis
-  max-width: 120px
 
 // Announcement banner
 .announcement-banner

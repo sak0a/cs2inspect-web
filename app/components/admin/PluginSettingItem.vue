@@ -160,14 +160,7 @@ const displayValue = computed(() => {
         </div>
 
         <!-- Edit button (when not editing) -->
-        <Button
-          v-if="!isEditing"
-          size="sm"
-          variant="light"
-          intent="primary"
-          rounded="md"
-          @click="startEditing"
-        >
+        <Button v-if="!isEditing" size="sm" variant="secondary" @click="startEditing">
           Edit
         </Button>
       </div>
@@ -189,8 +182,7 @@ const displayValue = computed(() => {
         <template v-else-if="setting.type === 'json'">
           <pre
             class="text-xs bg-gray-800/50 px-3 py-2 rounded-lg text-gray-300 overflow-x-auto max-h-32"
-            >{{ displayValue }}</pre
-          >
+            >{{ displayValue }}</pre>
         </template>
         <template v-else>
           <span class="text-sm text-gray-300">{{ setting.value }}</span>
@@ -244,12 +236,8 @@ const displayValue = computed(() => {
         </template>
 
         <div class="flex gap-2 mt-2">
-          <Button size="sm" variant="light" intent="success" rounded="md" @click="handleSave">
-            Save
-          </Button>
-          <Button size="sm" variant="light" intent="error" rounded="md" @click="cancelEditing">
-            Cancel
-          </Button>
+          <Button size="sm" variant="default" @click="handleSave"> Save </Button>
+          <Button size="sm" variant="secondary" @click="cancelEditing"> Cancel </Button>
         </div>
       </div>
     </div>

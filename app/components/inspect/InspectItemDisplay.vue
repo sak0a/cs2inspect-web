@@ -310,33 +310,15 @@ const handleGenerateLink = () => {
 
         <!-- Action Buttons -->
         <div class="mt-4 flex justify-between w-full">
-          <Button
-            intent="primary"
-            variant="filled"
-            rounded="md"
-            :disabled="isLoading"
-            @click="handleCustomize"
-          >
+          <Button variant="default" :disabled="isLoading" @click="handleCustomize">
             {{ t('common.customize') }}
           </Button>
 
-          <Button
-            intent="info"
-            variant="filled"
-            rounded="md"
-            :disabled="isLoading"
-            @click="handleGenerateLink"
-          >
+          <Button variant="default" :disabled="isLoading" @click="handleGenerateLink">
             {{ t('common.generateLink') }}
           </Button>
 
-          <Button
-            intent="error"
-            variant="filled"
-            rounded="md"
-            :disabled="isLoading"
-            @click="handleClear"
-          >
+          <Button variant="destructive" :disabled="isLoading" @click="handleClear">
             {{ t('common.clear') }}
           </Button>
         </div>

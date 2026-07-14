@@ -79,8 +79,4 @@
   --skin-card-bg: #242424;
   --skin-card-gradient-start: #1a1a1a;
   --skin-card-gradient-end: #2c2c2c;
-
-  /* Button design tokens (consumed by app/components/ui/button) */
-  --s-duration-normal: 200ms;
-  --s-opacity-disabled: 0.5;
 }

@@ -9,6 +9,7 @@ import {
   LucideRotateCcw,
   LucideImport,
 } from '@lucide/vue'
+import { Button } from '@/components/ui/button'
 
 interface Props {
   weaponData: {
@@ -23,7 +24,10 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'weaponClick', weapon: WeaponItemData): void
-  (e: 'quick-action', payload: { action: 'generate' | 'import' | 'toggle' | 'reset'; weapon: WeaponItemData }): void
+  (
+    e: 'quick-action',
+    payload: { action: 'generate' | 'import' | 'toggle' | 'reset'; weapon: WeaponItemData }
+  ): void
   (e: 'error', error: string): void
 }>()
 
@@ -185,25 +189,18 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
           />
 
           <!-- Three-dots dropdown — only for configured cards -->
-          <div
-            class="absolute -top-2 -right-2 z-10"
-            @click.stop
-            @keydown.stop
-          >
+          <div class="absolute -top-2 -right-2 z-10" @click.stop @keydown.stop>
             <DropdownMenu>
               <DropdownMenuTrigger as-child>
-                <button
-                  class="dropdown-trigger"
-                  tabindex="0"
+                <Button
+                  variant="outline"
+                  size="icon-sm"
                   :aria-label="`Actions for ${getWeaponLabel(weapon)}`"
                 >
                   <LucideEllipsisVertical :size="16" />
-                </button>
+                </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent
-                align="end"
-                class="bg-background/80 backdrop-blur-xl border-border/50 shadow-2xl"
-              >
+              <DropdownMenuContent align="end">
                 <DropdownMenuItem
                   :disabled="weapon.databaseInfo?.paintindex === 0"
                   @select="handleQuickAction('generate', weapon)"
@@ -212,10 +209,16 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
                   Generate Inspect Link
                 </DropdownMenuItem>
                 <DropdownMenuItem @select="handleQuickAction('toggle', weapon)">
-                  <component :is="weapon.databaseInfo?.active ? LucideEyeOff : LucideEye" :size="16" />
+                  <component
+                    :is="weapon.databaseInfo?.active ? LucideEyeOff : LucideEye"
+                    :size="16"
+                  />
                   {{ weapon.databaseInfo?.active ? 'Deactivate' : 'Activate' }}
                 </DropdownMenuItem>
-                <DropdownMenuItem variant="destructive" @select="handleQuickAction('reset', weapon)">
+                <DropdownMenuItem
+                  variant="destructive"
+                  @select="handleQuickAction('reset', weapon)"
+                >
                   <LucideRotateCcw :size="16" />
                   Reset
                 </DropdownMenuItem>
@@ -241,10 +244,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
           <p class="text-sm truncate text-white">
             {{ getWeaponLabel(weapon) }}
           </p>
-          <div
-            class="h-1 mt-2"
-            :style="{ background: weapon.rarity?.color || '#313030' }"
-          />
+          <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
         </div>
       </div>
     </div>
@@ -313,31 +313,6 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
   color: #b0c3d9;
   border: 1px solid rgba(176, 195, 217, 0.25);
   border-right: none;
-}
-
-.dropdown-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(0, 0, 0, 0.5);
-  color: var(--text-tertiary);
-  cursor: pointer;
-  transition: color 150ms ease, background 150ms ease;
-  border: none;
-  padding: 0;
-}
-
-.dropdown-trigger:hover {
-  color: #fff;
-  background: rgba(0, 0, 0, 0.7);
-}
-
-.dropdown-trigger:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {

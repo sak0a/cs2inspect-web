@@ -20,10 +20,10 @@ import { useConfirmState } from '@/composables/useConfirm'
 const state = useConfirmState()
 
 const typeConfig = {
-  warning: { icon: TriangleAlertIcon, iconClass: 'text-amber-500', intent: 'warning' },
-  error: { icon: OctagonXIcon, iconClass: 'text-destructive', intent: 'error' },
-  success: { icon: CircleCheckIcon, iconClass: 'text-emerald-500', intent: 'success' },
-  info: { icon: InfoIcon, iconClass: 'text-blue-500', intent: 'info' },
+  warning: { icon: TriangleAlertIcon, iconClass: 'text-amber-500', variant: 'default' },
+  error: { icon: OctagonXIcon, iconClass: 'text-destructive', variant: 'destructive' },
+  success: { icon: CircleCheckIcon, iconClass: 'text-emerald-500', variant: 'default' },
+  info: { icon: InfoIcon, iconClass: 'text-blue-500', variant: 'default' },
 } as const
 
 const current = computed(() => typeConfig[state.type])
@@ -94,20 +94,16 @@ function onEscapeKeyDown(event: KeyboardEvent) {
       <AlertDialogFooter>
         <Button
           v-if="state.options.negativeText"
-          variant="elevated"
+          variant="outline"
           :disabled="state.pending"
-          class="px-5 py-1.5"
           @click="onNegative"
         >
           {{ state.options.negativeText }}
         </Button>
         <Button
           v-if="state.options.positiveText"
-          variant="elevated"
-          tinted
-          :intent="current.intent"
+          :variant="current.variant"
           :loading="state.pending"
-          class="px-5 py-1.5"
           @click="onPositive"
         >
           {{ state.options.positiveText }}

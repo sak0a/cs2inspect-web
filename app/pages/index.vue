@@ -191,12 +191,9 @@ onMounted(() => {
                   />
                 </div>
                 <Button
-                  variant="filled"
-                  intent="primary"
+                  variant="default"
                   size="lg"
-                  rounded="md"
                   :loading="isLoading"
-                  class="decode-button px-8 font-bold text-white"
                   data-tutorial="decode-button"
                   @click="handleDecode"
                 >
@@ -246,14 +243,7 @@ onMounted(() => {
                   {{ trans.decodedJsonLabel.value }}
                 </label>
                 <div class="flex gap-2">
-                  <Button
-                    variant="ghost"
-                    size="xs"
-                    intent="info"
-                    rounded="md"
-                    class="hover:bg-blue-500/10 transition-colors"
-                    @click="handleCopyJson"
-                  >
+                  <Button variant="ghost" size="xs" @click="handleCopyJson">
                     <template #icon-left>
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -298,13 +288,10 @@ onMounted(() => {
                 {{ trans.apiStatus.value }}
               </div>
               <Button
-                variant="filled"
-                intent="info"
+                variant="default"
                 size="lg"
-                rounded="md"
                 :loading="isGenerating"
                 :disabled="!decodedJson"
-                class="generate-button px-10 shadow-lg shadow-blue-500/20 text-white"
                 data-tutorial="generate-button"
                 @click="handleGenerate"
               >
@@ -420,37 +407,5 @@ onMounted(() => {
   font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
   scrollbar-width: thin;
   scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-}
-
-.decode-button,
-.generate-button {
-  border-radius: 12px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-.decode-button {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-  }
-}
-
-.generate-button {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
-  }
 }
 </style>

@@ -37,29 +37,11 @@ const handleConfirm = () => {
   >
     <p>{{ t('modals.reset.question') }}</p>
     <div class="flex justify-end mt-4 gap-3">
-      <Button
-        variant="elevated"
-        rounded="full"
-        size="md"
-        intent="error"
-        :loading="loading"
-        class="px-5 py-1.5"
-        tinted
-        @click="handleClose"
-      >
+      <Button variant="outline" size="default" :loading="loading" @click="handleClose">
         {{ t('modals.reset.cancel') }}
       </Button>
 
-      <Button
-        variant="elevated"
-        rounded="full"
-        size="md"
-        intent="success"
-        :loading="loading"
-        class="px-5 py-1.5"
-        tinted
-        @click="handleConfirm"
-      >
+      <Button variant="destructive" size="default" :loading="loading" @click="handleConfirm">
         {{ t('modals.reset.confirm') }}
       </Button>
     </div>

@@ -508,12 +508,8 @@ watch(
       <div class="flex items-center shrink-0">
         <!-- Reset Button -->
         <Button
-          variant="elevated"
-          rounded="full"
-          intent="error"
-          tinted
+          variant="destructive"
           :disabled="!selectedSkin || customization.paintindex == 0"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="state.showResetConfirm = true"
         >
           <template #icon-left>
@@ -536,15 +532,16 @@ watch(
           </template>
           {{ t('modals.knifeSkin.buttons.reset') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Import Knife by Inspect Link -->
         <Button
           :loading="state.isImporting"
-          variant="elevated"
-          rounded="full"
+          variant="outline"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="state.showImportModal = true"
         >
           <template #icon-left>
@@ -571,15 +568,16 @@ watch(
           </template>
           {{ t('modals.knifeSkin.buttons.importFromLink') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Generate Knife Inspect Link -->
         <Button
           :loading="state.isLoadingInspect"
-          variant="elevated"
-          rounded="full"
+          variant="outline"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="handleCreateInspectLink"
         >
           <template #icon-left>
@@ -606,16 +604,13 @@ watch(
           </template>
           {{ t('modals.knifeSkin.buttons.generateLink') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- History Button -->
-        <Button
-          variant="elevated"
-          rounded="full"
-          :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
-          @click="showHistoryPanel = true"
-        >
+        <Button variant="outline" :disabled="!selectedSkin" @click="showHistoryPanel = true">
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -636,7 +631,10 @@ watch(
           </template>
           {{ t('history.title') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Knife Search -->
         <div class="relative ml-1 w-64 max-w-64">
@@ -758,8 +756,7 @@ watch(
               <div>
                 <Button
                   :disabled="!selectedSkin || customization.paintindex == 0"
-                  variant="light"
-                  rounded="md"
+                  variant="secondary"
                   class="w-full"
                   @click="state.showDuplicateConfirm = true"
                 >
@@ -855,9 +852,7 @@ watch(
             <EmptyMedia variant="icon">
               <Inbox />
             </EmptyMedia>
-            <EmptyDescription>{{
-              String(t('modals.knifeSkin.noSearchResults'))
-            }}</EmptyDescription>
+            <EmptyDescription>{{ String(t('modals.knifeSkin.noSearchResults')) }}</EmptyDescription>
           </EmptyHeader>
         </Empty>
       </div>

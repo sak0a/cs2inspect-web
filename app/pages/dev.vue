@@ -52,19 +52,11 @@ const value3 = ref(5)
             <code class="text-orange-300">DEV_AUTH_ENABLED=true</code> in .env.
           </p>
           <div class="flex gap-3">
-            <Button
-              variant="filled"
-              intent="primary"
-              rounded="md"
-              data-testid="dev-login-user"
-              @click="handleDevLogin('user')"
-            >
+            <Button variant="default" data-testid="dev-login-user" @click="handleDevLogin('user')">
               Login as Dev User
             </Button>
             <Button
-              variant="filled"
-              intent="warning"
-              rounded="md"
+              variant="default"
               data-testid="dev-login-admin"
               @click="handleDevLogin('admin')"
             >
@@ -151,7 +143,7 @@ const value3 = ref(5)
           <!-- Light background to showcase the glass effect -->
           <div class="glass-demo-bg rounded-xl p-12 flex flex-col items-center gap-8">
             <!-- Main example with sparkles icon (matching Figma) -->
-            <Button variant="glass" size="lg" rounded="md">
+            <Button variant="outline" size="lg">
               <template #icon-left>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -178,16 +170,16 @@ const value3 = ref(5)
 
             <!-- Size variants -->
             <div class="flex items-center gap-4">
-              <Button variant="glass" size="sm" rounded="md">Small</Button>
-              <Button variant="glass" size="md" rounded="md">Medium</Button>
-              <Button variant="glass" size="lg" rounded="md">Large</Button>
+              <Button variant="outline" size="sm">Small</Button>
+              <Button variant="outline" size="default">Medium</Button>
+              <Button variant="outline" size="lg">Large</Button>
             </div>
 
             <!-- States -->
             <div class="flex items-center gap-4">
-              <Button variant="glass" rounded="md">Normal</Button>
-              <Button variant="glass" rounded="md" :loading="true">Loading</Button>
-              <Button variant="glass" rounded="md" :disabled="true">Disabled</Button>
+              <Button variant="outline">Normal</Button>
+              <Button variant="outline" :loading="true">Loading</Button>
+              <Button variant="outline" :disabled="true">Disabled</Button>
             </div>
           </div>
         </div>

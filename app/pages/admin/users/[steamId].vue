@@ -127,7 +127,7 @@ function formatDate(isoDate: string): string {
   <div class="space-y-6">
     <!-- Back Button -->
     <div>
-      <Button variant="ghost" rounded="md" @click="handleBack">
+      <Button variant="ghost" @click="handleBack">
         <template #icon-left>
           <BackIcon :size="16" />
         </template>
@@ -143,7 +143,7 @@ function formatDate(isoDate: string): string {
     <!-- Error State -->
     <div v-else-if="error" class="glass-card p-6 text-center">
       <p class="text-red-400 mb-4">{{ error }}</p>
-      <Button variant="light" rounded="md" @click="fetchUserDetails"> Try Again </Button>
+      <Button variant="secondary" @click="fetchUserDetails"> Try Again </Button>
     </div>
 
     <!-- User Content -->

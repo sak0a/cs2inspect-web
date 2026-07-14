@@ -76,19 +76,11 @@ function onUpdateLocale(value: unknown) {
 <template>
   <div class="flex items-center">
     <Select :model-value="currentLocale" @update:model-value="onUpdateLocale">
-      <!-- Compact pill trigger (former naive select: 200px radius, #121212 bg, borderless) -->
-      <SelectTrigger
-        class="language-select h-[34px]! w-[140px] rounded-full border-transparent bg-[#121212] pl-4 pr-3 text-sm shadow-none dark:bg-[#121212] dark:hover:bg-[#121212]"
-      >
+      <SelectTrigger class="w-[140px]">
         <SelectValue>{{ currentLabel }}</SelectValue>
       </SelectTrigger>
-      <SelectContent class="rounded-xl bg-[#121212]">
-        <SelectItem
-          v-for="opt in options"
-          :key="opt.value"
-          :value="opt.value"
-          class="cursor-pointer rounded-lg focus:bg-white/6"
-        >
+      <SelectContent>
+        <SelectItem v-for="opt in options" :key="opt.value" :value="opt.value">
           {{ opt.label }}
         </SelectItem>
       </SelectContent>

@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import {
-  LucideRefreshCw as RefreshIcon,
-  LucideChevronRight as ChevronRightIcon,
-} from '@lucide/vue'
+import { LucideRefreshCw as RefreshIcon, LucideChevronRight as ChevronRightIcon } from '@lucide/vue'
 import type { HealthCheck } from '~/composables/useAdminHealth'
 
 interface Props {
@@ -125,14 +122,7 @@ function formatValue(value: unknown): string {
         <span v-if="check.latency_ms !== undefined" class="latency-badge">
           {{ check.latency_ms }}ms
         </span>
-        <Button
-          variant="ghost"
-          icon-only
-          rounded="full"
-          size="sm"
-          :loading="loading"
-          @click="emit('recheck')"
-        >
+        <Button variant="ghost" size="icon-sm" :loading="loading" @click="emit('recheck')">
           <template #icon-left>
             <RefreshIcon :size="14" />
           </template>

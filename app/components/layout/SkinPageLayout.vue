@@ -38,7 +38,7 @@ const loadoutStore = useLoadoutStore()
     <!-- No Steam Login State -->
     <div v-else-if="!user" class="text-center py-12">
       <p class="text-gray-400 mb-4">{{ t('auth.loginRequired') }}</p>
-      <Button intent="primary" variant="filled" rounded="md" @click="steamAuth.login()">
+      <Button variant="default" @click="steamAuth.login()">
         {{ t('auth.login') }}
       </Button>
     </div>
@@ -49,9 +49,7 @@ const loadoutStore = useLoadoutStore()
         Please select or create a loadout to view {{ title.toLowerCase() }}
       </p>
       <Button
-        intent="primary"
-        variant="filled"
-        rounded="md"
+        variant="default"
         @click="loadoutStore.createLoadout(toSteamId(user.steamId), 'Default Loadout')"
       >
         {{ t('loadout.createDefault') }}

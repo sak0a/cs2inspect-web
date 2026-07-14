@@ -352,12 +352,7 @@ watch(
                   </div>
 
                   <!-- Restore Button -->
-                  <Button
-                    size="xs"
-                    variant="ghost"
-                    class="rounded-full bg-gray-300"
-                    @click="handleRestoreClick(record)"
-                  >
+                  <Button size="xs" variant="ghost" @click="handleRestoreClick(record)">
                     {{ t('history.restore') }}
                   </Button>
                 </div>
@@ -366,9 +361,8 @@ watch(
               <!-- Load More -->
               <div v-if="state.pagination.hasNext" class="pt-4">
                 <Button
-                  variant="filled"
-                  block
-                  rounded="md"
+                  variant="default"
+                  class="w-full"
                   :loading="state.isLoading"
                   @click="loadMore"
                 >
@@ -409,20 +403,13 @@ watch(
         </div>
         <div class="flex justify-end mt-5 gap-3">
           <Button
-            variant="light"
-            rounded="md"
+            variant="secondary"
             :disabled="state.isRestoring"
             @click="state.showRestoreConfirm = false"
           >
             {{ t('common.cancel') }}
           </Button>
-          <Button
-            intent="primary"
-            variant="filled"
-            rounded="md"
-            :loading="state.isRestoring"
-            @click="handleRestore"
-          >
+          <Button variant="default" :loading="state.isRestoring" @click="handleRestore">
             {{ t('history.restore') }}
           </Button>
         </div>

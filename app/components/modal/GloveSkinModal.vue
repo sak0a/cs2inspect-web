@@ -481,12 +481,8 @@ watch(
       <div class="flex items-center shrink-0">
         <!-- Reset Button -->
         <Button
-          variant="elevated"
-          rounded="full"
-          intent="error"
-          tinted
+          variant="destructive"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="state.showResetConfirm = true"
         >
           <template #icon-left>
@@ -509,15 +505,16 @@ watch(
           </template>
           {{ t('modals.gloveSkin.buttons.reset') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Import Glove by Inspect Link -->
         <Button
           :loading="state.isImporting"
-          variant="elevated"
-          rounded="full"
+          variant="outline"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="state.showImportModal = true"
         >
           <template #icon-left>
@@ -544,15 +541,16 @@ watch(
           </template>
           {{ t('modals.gloveSkin.buttons.importFromLink') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Generate Glove Inspect Link -->
         <Button
           :loading="state.isLoadingInspect"
-          variant="elevated"
-          rounded="full"
+          variant="outline"
           :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
           @click="handleCreateInspectLink"
         >
           <template #icon-left>
@@ -579,16 +577,13 @@ watch(
           </template>
           {{ t('modals.gloveSkin.buttons.generateLink') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- History Button -->
-        <Button
-          variant="elevated"
-          rounded="full"
-          :disabled="!selectedSkin"
-          class="whitespace-nowrap px-5 py-1.5 overflow-visible!"
-          @click="showHistoryPanel = true"
-        >
+        <Button variant="outline" :disabled="!selectedSkin" @click="showHistoryPanel = true">
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -609,7 +604,10 @@ watch(
           </template>
           {{ t('history.title') }}
         </Button>
-        <Separator orientation="vertical" class="mx-2 bg-white/10 data-[orientation=vertical]:h-4" />
+        <Separator
+          orientation="vertical"
+          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
+        />
 
         <!-- Glove Search -->
         <div class="relative ml-1 w-64 max-w-64">
@@ -709,8 +707,7 @@ watch(
             <div class="flex items-center justify-between w-full">
               <Button
                 :disabled="!selectedSkin"
-                variant="light"
-                rounded="md"
+                variant="secondary"
                 @click="state.showDuplicateConfirm = true"
               >
                 {{ t('modals.gloveSkin.buttons.duplicate') }}
@@ -804,9 +801,7 @@ watch(
             <EmptyMedia variant="icon">
               <Inbox />
             </EmptyMedia>
-            <EmptyDescription>{{
-              String(t('modals.gloveSkin.noSearchResults'))
-            }}</EmptyDescription>
+            <EmptyDescription>{{ String(t('modals.gloveSkin.noSearchResults')) }}</EmptyDescription>
           </EmptyHeader>
         </Empty>
       </div>

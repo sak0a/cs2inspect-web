@@ -10,7 +10,7 @@ import { getAllTutorials } from '~/utils/tutorialDefinitions'
 
 type ButtonVariant = 'icon' | 'full'
 
-type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+type ButtonSize = 'xs' | 'sm' | 'default' | 'lg'
 
 // Former sui dropdown types, kept locally so existing call sites still type-check
 type DropdownTrigger = 'click' | 'hover' | 'context' | 'manual'
@@ -56,7 +56,9 @@ const emit = defineEmits<{
 }>()
 
 // Map the legacy placement prop onto reka side/align
-const menuSide = computed(() => props.placement.split('-')[0] as 'top' | 'bottom' | 'left' | 'right')
+const menuSide = computed(
+  () => props.placement.split('-')[0] as 'top' | 'bottom' | 'left' | 'right'
+)
 const menuAlign = computed(() => {
   const suffix = props.placement.split('-')[1]
   return suffix === 'start' ? 'start' : suffix === 'end' ? 'end' : 'center'
@@ -120,6 +122,18 @@ const getTutorialLabel = (tutorial: { id: string; nameKey: string }) => {
 }
 
 const buttonLabel = computed(() => `${getFlag(getLocale())} ${currentLocaleDisplay.value}`)
+const triggerSize = computed(() => {
+  if (props.variant !== 'icon') return props.size
+
+  return (
+    {
+      xs: 'icon-xs',
+      sm: 'icon-sm',
+      default: 'icon',
+      lg: 'icon-lg',
+    } as const
+  )[props.size]
+})
 
 function handleLanguageSelect(key: string) {
   const langCookie = useCookie('i18n_locale', {
@@ -161,14 +175,7 @@ function handleSelectKeepOpen(event: Event, key: string) {
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button
-        v-if="variant === 'icon'"
-        variant="ghost"
-        icon-only
-        rounded="full"
-        :size="size"
-        :aria-label="ariaLabel"
-      >
+      <Button v-if="variant === 'icon'" variant="ghost" :size="triggerSize" :aria-label="ariaLabel">
         <template #icon-left>
           <SettingsIcon :size="18" />
         </template>
@@ -177,9 +184,8 @@ function handleSelectKeepOpen(event: Event, key: string) {
       <Button
         v-else
         variant="ghost"
-        rounded="md"
         class="w-full justify-start"
-        :size="size"
+        :size="triggerSize"
         :aria-label="ariaLabel"
       >
         <template #icon-left>
@@ -189,26 +195,19 @@ function handleSelectKeepOpen(event: Event, key: string) {
       </Button>
     </DropdownMenuTrigger>
 
-    <DropdownMenuContent
-      :side="menuSide"
-      :align="menuAlign"
-      class="min-w-[180px] rounded-xl border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl"
-    >
+    <DropdownMenuContent :side="menuSide" :align="menuAlign" class="min-w-[180px]">
       <!-- Language submenu -->
       <DropdownMenuSub>
-        <DropdownMenuSubTrigger class="cursor-pointer rounded-lg">
+        <DropdownMenuSubTrigger>
           <LanguagesIcon class="size-3.5" />
           <span class="min-w-0 flex-1 truncate">
             {{ String(t('navigation.language') || 'Language') }}
           </span>
         </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent
-          class="min-w-[180px] rounded-xl border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl"
-        >
+        <DropdownMenuSubContent class="min-w-[180px]">
           <DropdownMenuItem
             v-for="loc in getLocales()"
             :key="`lang:${loc.code}`"
-            class="cursor-pointer rounded-lg"
             @select="(e: Event) => handleSelectKeepOpen(e, `lang:${loc.code}`)"
           >
             {{ `${getFlag(loc.code)} ${loc.displayName || loc.code}` }}
@@ -218,19 +217,16 @@ function handleSelectKeepOpen(event: Event, key: string) {
 
       <!-- Tutorials submenu -->
       <DropdownMenuSub v-if="showTutorials && tutorialsEnabled && filteredTutorials.length > 0">
-        <DropdownMenuSubTrigger class="cursor-pointer rounded-lg">
+        <DropdownMenuSubTrigger>
           <TutorialIcon class="size-3.5" />
           <span class="min-w-0 flex-1 truncate">
             {{ String(t('tutorial.menuTitle') || 'Tutorials') }}
           </span>
         </DropdownMenuSubTrigger>
-        <DropdownMenuSubContent
-          class="min-w-[180px] rounded-xl border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl"
-        >
+        <DropdownMenuSubContent class="min-w-[180px]">
           <DropdownMenuItem
             v-for="tutorial in filteredTutorials"
             :key="`tutorial:${tutorial.id}`"
-            class="cursor-pointer rounded-lg"
             :disabled="tutorialStore.isActive"
             @select="(e: Event) => handleSelectKeepOpen(e, `tutorial:${tutorial.id}`)"
           >
@@ -240,23 +236,15 @@ function handleSelectKeepOpen(event: Event, key: string) {
       </DropdownMenuSub>
 
       <!-- Admin Panel -->
-      <DropdownMenuItem
-        v-if="showAdminLink && adminStore.isAdmin"
-        class="cursor-pointer rounded-lg"
-        @select="handleSelect('admin')"
-      >
+      <DropdownMenuItem v-if="showAdminLink && adminStore.isAdmin" @select="handleSelect('admin')">
         <AdminIcon class="size-4" />
         <span>{{ String(t('admin.panelTitle') || 'Admin Panel') }}</span>
       </DropdownMenuItem>
 
       <!-- Logout -->
       <template v-if="showLogout">
-        <DropdownMenuSeparator class="bg-gray-500/20" />
-        <DropdownMenuItem
-          variant="destructive"
-          class="cursor-pointer rounded-lg"
-          @select="handleSelect('logout')"
-        >
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" @select="handleSelect('logout')">
           <LogOutIcon class="size-4" />
           <span>{{ String(t('auth.logoutButton') || 'Logout') }}</span>
         </DropdownMenuItem>

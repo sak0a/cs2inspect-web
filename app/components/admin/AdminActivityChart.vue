@@ -3,19 +3,15 @@
     <div class="flex justify-between items-center gap-4 mb-4">
       <h3 class="text-lg font-semibold text-white">Activity Over Time</h3>
       <div class="flex gap-2">
-        <button
+        <Button
           v-for="range in timeRanges"
           :key="range.value"
-          class="px-3 py-1 rounded-md text-sm transition-colors"
-          :class="
-            selectedRange === range.value
-              ? 'bg-primary-500 text-white'
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-          "
+          size="xs"
+          :variant="selectedRange === range.value ? 'default' : 'secondary'"
           @click="selectRange(range.value)"
         >
           {{ range.label }}
-        </button>
+        </Button>
       </div>
     </div>
 
@@ -50,6 +46,7 @@ import {
   type ChartOptions as ChartJSOptions,
 } from 'chart.js'
 import { Line } from 'vue-chartjs'
+import { Button } from '@/components/ui/button'
 
 // Register Chart.js components
 ChartJS.register(

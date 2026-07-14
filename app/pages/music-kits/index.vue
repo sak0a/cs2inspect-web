@@ -4,6 +4,7 @@ import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { APIMusicKit } from '~/server/types'
 import { toSteamId } from '~/types/core/branded'
+import { Button } from '@/components/ui/button'
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)
@@ -303,15 +304,17 @@ watch(
                   placeholder="Search music kits..."
                   class="pl-10 pr-9"
                 />
-                <button
+                <Button
                   v-if="searchQuery"
                   type="button"
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-white transition-colors"
+                  variant="ghost"
+                  size="icon-xs"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2"
                   aria-label="Clear search"
                   @click="searchQuery = ''"
                 >
                   <LucideX :size="16" />
-                </button>
+                </Button>
               </div>
             </div>
 

@@ -7,6 +7,7 @@ import {
   LucideArrowLeft as ArrowLeftIcon,
 } from '@lucide/vue'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
+import { Button } from '@/components/ui/button'
 
 definePageMeta({
   layout: 'blank',
@@ -124,29 +125,30 @@ function handleGoHome() {
 
       <!-- Actions -->
       <div class="error-actions">
-        <button v-if="!isLoggedIn" class="btn btn-primary" @click="handleLogin">
+        <Button v-if="!isLoggedIn" class="w-full" @click="handleLogin">
           <LogInIcon :size="16" />
           Sign in with Steam
-        </button>
+        </Button>
 
-        <button v-if="isLoggedIn" class="btn btn-secondary" @click="handleRetry">
+        <Button v-if="isLoggedIn" variant="secondary" class="w-full" @click="handleRetry">
           <RefreshIcon :size="16" />
           Try Again
-        </button>
+        </Button>
 
-        <button
+        <Button
           v-if="isLoggedIn && errorType === 'superadmin_required'"
-          class="btn btn-ghost"
+          variant="ghost"
+          class="w-full"
           @click="router.push('/admin')"
         >
           <ArrowLeftIcon :size="16" />
           Back to Dashboard
-        </button>
+        </Button>
 
-        <button class="btn btn-ghost" @click="handleGoHome">
+        <Button variant="ghost" class="w-full" @click="handleGoHome">
           <HomeIcon :size="16" />
           Go Home
-        </button>
+        </Button>
       </div>
     </div>
   </div>
@@ -308,51 +310,4 @@ function handleGoHome() {
   display: flex
   flex-direction: column
   gap: 8px
-
-.btn
-  display: flex
-  align-items: center
-  justify-content: center
-  gap: 8px
-  width: 100%
-  padding: 10px 16px
-  border: none
-  border-radius: 10px
-  font-size: 13px
-  font-weight: 600
-  cursor: pointer
-  transition: all 0.2s ease
-  backdrop-filter: var(--glass-blur-light)
-  -webkit-backdrop-filter: var(--glass-blur-light)
-
-  &:active
-    transform: scale(0.98)
-
-.btn-primary
-  background: linear-gradient(180deg, rgba(250, 204, 21, 0.95), rgba(250, 204, 21, 0.85))
-  color: #0a0a0a
-  border: 1px solid rgba(250, 204, 21, 0.3)
-  box-shadow: 0 4px 8px rgba(250, 204, 21, 0.2), 0 2px 4px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.2)
-
-  &:hover
-    background: linear-gradient(180deg, rgba(253, 224, 71, 0.95), rgba(250, 204, 21, 0.9))
-    box-shadow: 0 6px 12px rgba(250, 204, 21, 0.25), 0 3px 6px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.25)
-
-.btn-secondary
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)), rgba(16, 16, 16, 0.55)
-  color: rgba(255, 255, 255, 0.85)
-  border: 1px solid rgba(255, 255, 255, 0.14)
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-
-  &:hover
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.05)), rgba(16, 16, 16, 0.55)
-    border-color: rgba(255, 255, 255, 0.18)
-
-.btn-ghost
-  background: transparent
-  color: rgba(255, 255, 255, 0.5)
-
-  &:hover
-    color: rgba(255, 255, 255, 0.75)
-    background: rgba(255, 255, 255, 0.04)
 </style>

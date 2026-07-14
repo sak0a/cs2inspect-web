@@ -115,15 +115,7 @@ async function handleRefresh() {
           <p class="text-sm text-gray-400">Manage application configuration and preferences</p>
         </div>
       </div>
-      <Button
-        variant="light"
-        intent="primary"
-        rounded="md"
-        :loading="isLoading"
-        @click="handleRefresh"
-      >
-        Refresh
-      </Button>
+      <Button variant="secondary" :loading="isLoading" @click="handleRefresh"> Refresh </Button>
     </div>
 
     <!-- Loading State -->

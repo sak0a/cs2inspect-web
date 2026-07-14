@@ -316,7 +316,7 @@ watch(
     <!-- Header -->
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-lg font-semibold text-white">Manage Loadouts</h3>
-      <Button variant="light" size="sm" rounded="md" @click="showModal.import = true">
+      <Button variant="secondary" size="sm" @click="showModal.import = true">
         <template #icon-left>
           <ImportIcon />
         </template>
@@ -400,11 +400,9 @@ watch(
     <div class="mt-1 text-right text-xs text-gray-500">{{ formInputs.renameName.length }}/25</div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <Button variant="light" rounded="md" @click="showModal.rename = false"> Cancel </Button>
+        <Button variant="secondary" @click="showModal.rename = false"> Cancel </Button>
         <Button
-          intent="success"
-          variant="light"
-          rounded="md"
+          variant="default"
           :disabled="formInputs.renameName.length === 0 || formInputs.renameName.length > 25"
           @click="handleRenameConfirm"
         >
@@ -435,11 +433,9 @@ watch(
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <Button variant="light" rounded="md" @click="showModal.delete = false"> Cancel </Button>
+        <Button variant="secondary" @click="showModal.delete = false"> Cancel </Button>
         <Button
-          intent="error"
-          variant="light"
-          rounded="md"
+          variant="destructive"
           :disabled="formInputs.deleteConfirm !== selectedLoadout?.name"
           @click="handleDeleteConfirm"
         >
@@ -482,11 +478,9 @@ watch(
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <Button variant="light" rounded="md" @click="showModal.clear = false"> Cancel </Button>
+        <Button variant="secondary" @click="showModal.clear = false"> Cancel </Button>
         <Button
-          intent="error"
-          variant="light"
-          rounded="md"
+          variant="destructive"
           :disabled="
             formInputs.clearConfirm !== selectedLoadout?.name ||
             formInputs.clearCategories.length === 0
@@ -505,7 +499,7 @@ watch(
       <p class="text-sm text-gray-400">Share this code to let others import this loadout.</p>
       <div class="flex items-center gap-2">
         <Input :model-value="formInputs.shareCode" readonly class="flex-1" />
-        <Button intent="primary" variant="outlined" icon-only rounded="md" @click="copyToClipboard">
+        <Button variant="outline" size="icon" @click="copyToClipboard">
           <template #icon-left>
             <DuplicateIcon />
           </template>
@@ -526,11 +520,9 @@ watch(
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <Button variant="light" rounded="md" @click="showModal.import = false"> Cancel </Button>
+        <Button variant="secondary" @click="showModal.import = false"> Cancel </Button>
         <Button
-          intent="success"
-          variant="light"
-          rounded="md"
+          variant="default"
           :disabled="formInputs.importCode.length < 13"
           @click="handleImportConfirm"
         >

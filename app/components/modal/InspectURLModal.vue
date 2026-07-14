@@ -58,15 +58,9 @@ const handleClose = () => {
         <div class="grid grid-cols-2 gap-4">
           <Tooltip>
             <TooltipTrigger as-child>
-              <Button
-                intent="info"
-                size="md"
-                variant="elevated"
-                rounded="full"
-                class="px-5 py-1.5"
-                tinted
-                >{{ t('modals.inspectUrl.maskedLinks') }}</Button
-              >
+              <Button size="default" variant="outline">{{
+                t('modals.inspectUrl.maskedLinks')
+              }}</Button>
             </TooltipTrigger>
             <TooltipContent
               class="max-w-xl border border-[var(--border-subtle)] bg-popover px-4 py-3 text-sm text-popover-foreground [&>svg]:bg-popover [&>svg]:fill-popover"
@@ -87,15 +81,9 @@ const handleClose = () => {
           </Tooltip>
           <Tooltip>
             <TooltipTrigger as-child>
-              <Button
-                intent="info"
-                size="md"
-                variant="elevated"
-                rounded="full"
-                class="px-5 py-1.5"
-                tinted
-                >{{ t('modals.inspectUrl.unmaskedLinks') }}</Button
-              >
+              <Button size="default" variant="outline">{{
+                t('modals.inspectUrl.unmaskedLinks')
+              }}</Button>
             </TooltipTrigger>
             <TooltipContent
               class="max-w-xl border border-[var(--border-subtle)] bg-popover px-4 py-3 text-sm text-popover-foreground [&>svg]:bg-popover [&>svg]:fill-popover"
@@ -128,27 +116,14 @@ const handleClose = () => {
       </div>
 
       <div class="flex justify-end gap-3">
-        <Button
-          variant="elevated"
-          rounded="full"
-          size="md"
-          intent="error"
-          :disabled="_props.loading"
-          class="px-5 py-1.5"
-          tinted
-          @click="handleClose"
-        >
+        <Button variant="outline" size="default" :disabled="_props.loading" @click="handleClose">
           {{ t('modals.inspectUrl.cancel') }}
         </Button>
         <Button
           :disabled="inspectUrl.length <= 15"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          intent="success"
+          variant="default"
+          size="default"
           :loading="_props.loading"
-          class="px-5 py-1.5"
-          tinted
           @click="handleSubmit"
         >
           {{ t('modals.inspectUrl.confirm') }}
