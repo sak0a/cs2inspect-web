@@ -630,7 +630,7 @@ watch(
               class="w-full h-64 object-contain"
             />
             <h3
-              class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1 bg-gradient-to-t from-black/60 to-transparent"
+              class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1 bg-linear-to-t from-black/60 to-transparent"
             >
               {{ selectedSkin?.name }}
             </h3>

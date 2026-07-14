@@ -202,7 +202,7 @@ const handleGenerateLink = () => {
           />
           <div
             v-else
-            class="flex flex-col items-center justify-center h-full w-full bg-gray-800/30 rounded"
+            class="flex flex-col items-center justify-center h-full w-full bg-gray-800/30 rounded-sm"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +269,7 @@ const handleGenerateLink = () => {
                 <div
                   v-for="(sticker, index) in filteredStickers"
                   :key="index"
-                  class="w-10 h-10 rounded bg-gray-800/30 flex items-center justify-center overflow-hidden"
+                  class="w-10 h-10 rounded-sm bg-gray-800/30 flex items-center justify-center overflow-hidden"
                   :title="sticker.api?.name || 'Sticker'"
                 >
                   <img
@@ -288,7 +288,7 @@ const handleGenerateLink = () => {
               <p class="text-sm text-gray-400 mb-1">{{ t('common.keychain') }}:</p>
               <div class="flex items-center">
                 <div
-                  class="w-10 h-10 rounded bg-gray-800/30 flex items-center justify-center overflow-hidden mr-2"
+                  class="w-10 h-10 rounded-sm bg-gray-800/30 flex items-center justify-center overflow-hidden mr-2"
                 >
                   <img
                     v-if="(customization as WeaponConfiguration)?.keychain?.api?.image"

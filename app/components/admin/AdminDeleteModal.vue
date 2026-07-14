@@ -74,7 +74,7 @@ watch(
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="text-red-400 flex-shrink-0 mt-0.5"
+            class="text-red-400 shrink-0 mt-0.5"
           >
             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
             <path d="M12 9v4" />
@@ -114,7 +114,7 @@ watch(
           :status="confirmInput && !isConfirmed ? 'error' : undefined"
         />
         <div class="flex items-center gap-2 mt-2">
-          <code class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400">{{ steamId }}</code>
+          <code class="text-xs bg-gray-800 px-2 py-1 rounded-sm text-gray-400">{{ steamId }}</code>
           <span v-if="isConfirmed" class="text-green-400 text-sm flex items-center gap-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"

@@ -8,7 +8,7 @@
           <div
             v-for="level in colorLevels"
             :key="level"
-            class="w-3 h-3 rounded-sm"
+            class="w-3 h-3 rounded-xs"
             :style="{ backgroundColor: getColorForLevel(level) }"
           />
         </div>
@@ -58,7 +58,7 @@
               <div
                 v-for="(day, dayIndex) in week"
                 :key="dayIndex"
-                class="heatmap-cell w-3 h-3 rounded-sm cursor-pointer transition-transform hover:scale-125"
+                class="heatmap-cell w-3 h-3 rounded-xs cursor-pointer transition-transform hover:scale-125"
                 :style="{
                   backgroundColor: day ? getCellColor(day.value) : 'transparent',
                 }"

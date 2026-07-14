@@ -68,7 +68,7 @@ const columns: DataTableColumns<AdminActivityLogEntry> = [
       return h(
         'span',
         {
-          class: `px-2 py-1 rounded text-xs font-medium border ${colorClass}`,
+          class: `px-2 py-1 rounded-sm text-xs font-medium border ${colorClass}`,
         },
         actionLabel
       )
@@ -104,7 +104,7 @@ const columns: DataTableColumns<AdminActivityLogEntry> = [
       return h(
         'code',
         {
-          class: 'text-xs bg-gray-800 px-2 py-1 rounded text-gray-300 block truncate max-w-xs',
+          class: 'text-xs bg-gray-800 px-2 py-1 rounded-sm text-gray-300 block truncate max-w-xs',
         },
         detailsText
       )

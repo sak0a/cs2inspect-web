@@ -45,7 +45,7 @@ const columns: DataTableColumns<AdminUserSummary> = [
       const avatar = row.avatarFull
         ? h('img', {
             src: row.avatarFull,
-            class: 'w-8 h-8 rounded-lg object-cover flex-shrink-0',
+            class: 'w-8 h-8 rounded-lg object-cover shrink-0',
             alt: row.personaName || row.steamId,
             loading: 'lazy',
           })
@@ -53,7 +53,7 @@ const columns: DataTableColumns<AdminUserSummary> = [
             'div',
             {
               class:
-                'w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 text-xs font-bold opacity-50',
+                'w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0 text-xs font-bold opacity-50',
             },
             row.steamId.slice(-2).toUpperCase()
           )

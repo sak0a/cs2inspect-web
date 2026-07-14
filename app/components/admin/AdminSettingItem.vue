@@ -106,7 +106,7 @@ const typeBadgeClass = computed(() => {
           <div class="flex-1 min-w-0">
             <template v-if="setting.type === 'boolean'">
               <span
-                class="px-2 py-1 rounded text-sm"
+                class="px-2 py-1 rounded-sm text-sm"
                 :class="
                   setting.value === 'true'
                     ? 'bg-green-500/20 text-green-400'
@@ -117,7 +117,7 @@ const typeBadgeClass = computed(() => {
               </span>
             </template>
             <template v-else-if="setting.type === 'json'">
-              <code class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-300 block truncate">
+              <code class="text-xs bg-gray-800 px-2 py-1 rounded-sm text-gray-300 block truncate">
                 {{ setting.value }}
               </code>
             </template>

@@ -1619,7 +1619,7 @@ defineExpose({
       <div class="flex-none flex items-center p-1 max-w-[70%]">
         <div
           v-if="selectedElement"
-          class="flex flex-col gap-1.5 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl p-2 shadow-sm"
+          class="flex flex-col gap-1.5 bg-black/40 backdrop-blur-md border border-white/5 rounded-xl p-2 shadow-xs"
           @mousedown.stop
         >
           <!-- Row 1: Transform & Actions -->

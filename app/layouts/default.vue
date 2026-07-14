@@ -195,7 +195,7 @@ const currentLocaleDisplay = computed(() => {
         :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
       >
         <!-- Left side: User capsule + Team Toggle -->
-        <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0">
+        <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0">
           <!-- User capsule: Avatar + Name + Settings -->
           <div v-if="user" class="nav-user-capsule">
             <a
@@ -229,7 +229,7 @@ const currentLocaleDisplay = computed(() => {
         </div>
 
         <!-- Center: All navigation menus -->
-        <div class="flex items-center gap-1 flex-shrink-0">
+        <div class="flex items-center gap-1 shrink-0">
           <!-- Home menu -->
           <NMenu
             mode="horizontal"
@@ -272,7 +272,7 @@ const currentLocaleDisplay = computed(() => {
         </div>
 
         <!-- Right side: Loadout -->
-        <div class="flex items-center gap-2 flex-shrink-0 flex-1 min-w-0 justify-end ml-6">
+        <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0 justify-end ml-6">
           <div v-if="user" data-tutorial="loadout-area">
             <LoadoutSelector />
           </div>
@@ -339,7 +339,7 @@ const currentLocaleDisplay = computed(() => {
               icon-only
               rounded="full"
               size="xs"
-              class="ml-2 flex-shrink-0"
+              class="ml-2 shrink-0"
               @click="dismissAnnouncement"
             >
               <template #icon-left>

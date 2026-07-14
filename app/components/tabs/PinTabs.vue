@@ -46,7 +46,7 @@ const handleSelect = () => {
         class="w-full h-32 object-contain mb-2"
         loading="lazy"
       />
-      <div class="w-full flex-grow flex flex-col">
+      <div class="w-full grow flex flex-col">
         <div>
           <p class="text-sm text-white line-clamp-2 h-10 pin-name">
             {{ collectible.name }}

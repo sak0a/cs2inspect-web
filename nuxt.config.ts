@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   alias: {
@@ -66,6 +67,7 @@ export default defineNuxtConfig({
       mode: 'out-in',
     },
     head: {
+      htmlAttrs: { class: 'dark' },
       titleTemplate: '%s | CS2 Inspect',
       title: 'CS2 Inspect',
       meta: [
@@ -139,47 +141,18 @@ export default defineNuxtConfig({
       Components({
         resolvers: [NaiveUiResolver()],
       }) as unknown as { name: string },
+      tailwindcss() as unknown as { name: string },
     ],
   },
-  tailwindcss: {
-    cssPath: ['~/assets/css/tailwind.css', { injectPosition: 'first' }],
-    exposeConfig: {
-      level: 2,
-    },
-    config: {
-      theme: {
-        extend: {
-          colors: {
-            background: 'var(--bg-primary)',
-            foreground: 'var(--text-primary)',
-            muted: {
-              DEFAULT: 'var(--bg-secondary)',
-              foreground: 'var(--text-tertiary)',
-            },
-            accent: {
-              DEFAULT: 'var(--bg-hover)',
-              foreground: 'var(--text-primary)',
-            },
-            border: 'var(--border-color)',
-            input: 'var(--border-light)',
-            primary: {
-              DEFAULT: 'var(--primary-color)',
-              foreground: 'var(--text-inverted)',
-            },
-          },
-          borderColor: {
-            DEFAULT: 'var(--border-color)',
-          },
-        },
-      },
-    },
-    viewer: false,
+  shadcn: {
+    prefix: '',
+    componentDir: '@/components/ui',
   },
   modules: [
-    '@nuxtjs/tailwindcss',
     '@nuxt/test-utils/module',
     'nuxt-lucide-icons',
     'nuxtjs-naive-ui',
+    'shadcn-nuxt',
     '@nuxt/eslint',
     '@pinia/nuxt',
     'nuxt-i18n-micro',

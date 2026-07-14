@@ -274,7 +274,7 @@ watch(
             <div class="flex items-start gap-3">
               <!-- Icon -->
               <div
-                class="flex-shrink-0 w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"
+                class="shrink-0 w-8 h-8 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center"
               >
                 <span class="text-sm scale-125">{{ getChangeIcon(record.change_type) }}</span>
               </div>
@@ -301,7 +301,7 @@ watch(
                   <span v-else class="version-id">
                     {{ record.version_id || formatChangeType(record.change_type) }}
                   </span>
-                  <span class="text-xs text-gray-500 flex-shrink-0">
+                  <span class="text-xs text-gray-500 shrink-0">
                     {{ formatDate(record.created_at) }}
                   </span>
                 </div>
@@ -323,7 +323,7 @@ watch(
                 <!-- Snapshot Badge -->
                 <span
                   v-if="record.is_snapshot"
-                  class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-500/15 text-amber-400 border border-amber-500/20 mt-1"
+                  class="inline-flex items-center px-1.5 py-0.5 rounded-sm text-[10px] font-medium bg-amber-500/15 text-amber-400 border border-amber-500/20 mt-1"
                 >
                   {{ t('history.snapshot') }}
                 </span>
@@ -364,7 +364,7 @@ watch(
         <p class="text-gray-300">{{ t('history.restoreConfirmMessage') }}</p>
         <div
           v-if="state.selectedRecord"
-          class="mt-4 p-4 rounded-xl bg-black/40 border border-amber-500/20 backdrop-blur-sm"
+          class="mt-4 p-4 rounded-xl bg-black/40 border border-amber-500/20 backdrop-blur-xs"
         >
           <div class="flex items-center gap-2 mb-2">
             <span class="font-mono text-amber-400 font-medium text-sm">{{
@@ -404,12 +404,16 @@ watch(
 </template>
 
 <style scoped lang="scss">
+/* @apply lines converted to plain CSS for Tailwind v4 (SFC @apply needs
+   @reference and wasn't processed reliably in scss blocks) */
 .history-panel {
-  @apply px-1;
+  padding-left: 0.25rem; /* px-1 */
+  padding-right: 0.25rem;
 }
 
 .history-item {
-  @apply p-3 rounded-xl transition-all duration-200;
+  padding: 0.75rem; /* p-3 */
+  border-radius: 0.75rem; /* rounded-xl */
   backdrop-filter: blur(12px) saturate(100%);
   -webkit-backdrop-filter: blur(12px) saturate(140%);
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -430,7 +434,16 @@ watch(
 }
 
 .version-id {
-  @apply text-sm font-mono font-medium text-amber-400 truncate;
+  font-size: 0.875rem; /* text-sm */
+  line-height: 1.25rem;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
+    monospace; /* font-mono */
+  font-weight: 500; /* font-medium */
+  color: #fbbf24; /* text-amber-400 */
+  overflow: hidden; /* truncate */
+  text-overflow: ellipsis;
+  white-space: nowrap;
   letter-spacing: 0.02em;
   text-shadow:
     0 1px 3px rgba(0, 0, 0, 0.4),
@@ -438,24 +451,31 @@ watch(
 }
 
 .version-id:hover {
-  @apply text-amber-300;
+  color: #fcd34d; /* text-amber-300 */
   text-shadow:
     0 1px 3px rgba(0, 0, 0, 0.4),
     0 0 12px rgba(245, 158, 11, 0.25);
 }
 
 .change-item {
-  @apply text-xs text-gray-400 pl-0.5;
+  font-size: 0.75rem; /* text-xs */
+  color: #9ca3af; /* text-gray-400 */
+  padding-left: 0.125rem; /* pl-0.5 */
   line-height: 1.4;
 }
 
 .change-item::before {
   content: '•';
-  @apply text-amber-500/50 mr-1;
+  color: rgba(245, 158, 11, 0.5); /* text-amber-500/50 */
+  margin-right: 0.25rem; /* mr-1 */
 }
 
 .change-more {
-  @apply text-xs text-amber-500/60 italic pl-0.5;
+  font-size: 0.75rem; /* text-xs */
+  line-height: 1rem;
+  color: rgba(245, 158, 11, 0.6); /* text-amber-500/60 */
+  font-style: italic; /* italic */
+  padding-left: 0.125rem; /* pl-0.5 */
 }
 </style>
 

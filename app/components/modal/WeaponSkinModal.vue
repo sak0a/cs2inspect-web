@@ -1501,7 +1501,7 @@ onUnmounted(() => {
                     <div
                       v-for="(sticker, index) in customization.stickers"
                       :key="index"
-                      class="sticker-slot group flex items-center justify-center bg-[var(--card-bg)] p-2 rounded cursor-move transition-all relative hover:bg-[var(--bg-hover)] hover:shadow-md active:scale-[0.98]"
+                      class="sticker-slot group flex items-center justify-center bg-[var(--card-bg)] p-2 rounded-sm cursor-move transition-all relative hover:bg-[var(--bg-hover)] hover:shadow-md active:scale-[0.98]"
                       :class="{
                         'inactive-item': !sticker,
                         'active-item': sticker,
@@ -1517,7 +1517,7 @@ onUnmounted(() => {
                       <button
                         v-if="sticker"
                         type="button"
-                        class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+                        class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
                         :title="t('modals.weaponSkin.stickers.remove') as string"
                         :aria-label="`${t('modals.weaponSkin.stickers.remove')} #${index + 1}`"
                         draggable="false"
@@ -1550,7 +1550,7 @@ onUnmounted(() => {
                           "
                         />
                         <div
-                          class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                          class="absolute inset-0 bg-white rounded-lg bg-opacity-10 backdrop-blur-xs opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
                         >
                           <span class="text-white text-xs">{{
                             t('modals.weaponSkin.stickers.reposition')
@@ -1577,7 +1577,7 @@ onUnmounted(() => {
                     {{ t('modals.weaponSkin.keychain.title') }}
                   </h4>
                   <div
-                    class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
+                    class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded-sm cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
                     :class="{
                       'inactive-item': !customization.keychain,
                       'active-item': customization.keychain,
@@ -1587,7 +1587,7 @@ onUnmounted(() => {
                     <button
                       v-if="customization.keychain"
                       type="button"
-                      class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-400"
+                      class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
                       :title="String(t('modals.weaponSkin.keychain.remove'))"
                       :aria-label="String(t('modals.weaponSkin.keychain.remove'))"
                       draggable="false"
@@ -1831,14 +1831,14 @@ onUnmounted(() => {
   </NModal>
 </template>
 <style scoped lang="scss">
-@reference "tailwindcss";
-
+/* @apply converted to plain CSS for Tailwind v4 (SFC @apply wasn't
+   processed reliably in scss blocks) */
 .active-item {
-  @apply border-2 border-solid border-[var(--selection-ring)];
+  border: 2px solid var(--selection-ring);
 }
 
 .inactive-item {
-  @apply border-2 border-dashed border-gray-600;
+  border: 2px dashed #4b5563; /* border-gray-600 */
 }
 
 .sticker-slot {

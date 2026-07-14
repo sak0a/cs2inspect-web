@@ -6,10 +6,19 @@
       <NuxtPage />
     </NuxtLayout>
 
+    <!-- Global toast + confirm hosts (shadcn/vue-sonner) -->
+    <ClientOnly>
+      <Toaster position="top-center" theme="dark" rich-colors />
+    </ClientOnly>
+    <ConfirmDialogHost />
+
     <!-- <SpeedInsights /> -->
   </ThemeProvider>
 </template>
 <script setup lang="ts">
+import { Toaster } from '@/components/ui/sonner'
+import ConfirmDialogHost from '@/components/app/ConfirmDialogHost.vue'
+
 const backgroundStyle = {
   background: '#000000',
   backgroundImage: `

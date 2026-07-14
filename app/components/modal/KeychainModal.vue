@@ -466,7 +466,7 @@ watch(
 
                 <div
                   v-if="state.selectedWrappedSticker || state.customization.wrapped_sticker_id"
-                  class="flex items-center gap-3 bg-[var(--bg-dark)] p-2 rounded border border-[var(--border-subtle)]"
+                  class="flex items-center gap-3 bg-[var(--bg-dark)] p-2 rounded-sm border border-[var(--border-subtle)]"
                 >
                   <!-- If we have the object, show image. If only ID (legacy/edit), just show ID/placeholder -->
                   <!-- Tiny preview removed as per request -->

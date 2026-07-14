@@ -199,7 +199,7 @@ function formatDate(dateStr: string) {
                 <span
                   v-for="permission in admin.permissions"
                   :key="permission"
-                  class="px-2 py-0.5 bg-gray-700/50 text-gray-400 text-xs rounded"
+                  class="px-2 py-0.5 bg-gray-700/50 text-gray-400 text-xs rounded-sm"
                 >
                   {{ permission }}
                 </span>

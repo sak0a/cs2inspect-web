@@ -245,7 +245,7 @@ watch(
             style="height: 300px"
           >
             <NSkeleton height="128px" />
-            <div class="mt-2 flex flex-col flex-grow">
+            <div class="mt-2 flex flex-col grow">
               <NSkeleton text class="mt-1" style="height: 40px" />
               <NSkeleton text :repeat="2" class="mt-1" style="height: 64px" />
               <div class="mt-auto">

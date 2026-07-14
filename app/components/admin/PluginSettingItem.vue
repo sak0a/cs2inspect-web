@@ -172,7 +172,7 @@ const displayValue = computed(() => {
       <div v-if="!isEditing" class="value-display">
         <template v-if="setting.type === 'boolean'">
           <span
-            class="px-2 py-1 rounded text-sm"
+            class="px-2 py-1 rounded-sm text-sm"
             :class="
               setting.value === 'true'
                 ? 'bg-green-500/20 text-green-400'
