@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import { LucideCircleAlert } from '@lucide/vue'
 import type { SteamUser } from '~/services/steamAuth'
 import { toSteamId } from '~/types/core/branded'
 import { steamAuth } from '~/services/steamAuth'
@@ -25,19 +25,22 @@ const loadoutStore = useLoadoutStore()
 <template>
   <div class="max-w-7xl mx-auto">
     <!-- Error State -->
-    <NAlert v-if="error" type="error" :title="error" class="mb-6 z-10" />
+    <Alert v-if="error" variant="destructive" class="mb-6 z-10">
+      <LucideCircleAlert />
+      <AlertTitle>{{ error }}</AlertTitle>
+    </Alert>
 
     <!-- Loading State -->
     <div v-else-if="isLoading" class="flex justify-center items-center h-64">
-      <NSpin size="large" />
+      <Spinner class="size-10 text-primary" />
     </div>
 
     <!-- No Steam Login State -->
     <div v-else-if="!user" class="text-center py-12">
       <p class="text-gray-400 mb-4">{{ t('auth.loginRequired') }}</p>
-      <SButton :color="buttonColor.primary" variant="filled" @click="steamAuth.login()">
+      <Button intent="primary" variant="filled" rounded="md" @click="steamAuth.login()">
         {{ t('auth.login') }}
-      </SButton>
+      </Button>
     </div>
 
     <!-- No Loadout Selected State -->
@@ -45,13 +48,14 @@ const loadoutStore = useLoadoutStore()
       <p class="text-gray-400 mb-4">
         Please select or create a loadout to view {{ title.toLowerCase() }}
       </p>
-      <SButton
-        :color="buttonColor.primary"
+      <Button
+        intent="primary"
         variant="filled"
+        rounded="md"
         @click="loadoutStore.createLoadout(toSteamId(user.steamId), 'Default Loadout')"
       >
         {{ t('loadout.createDefault') }}
-      </SButton>
+      </Button>
     </div>
 
     <!-- Main Content -->

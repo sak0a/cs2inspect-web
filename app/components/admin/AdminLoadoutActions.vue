@@ -28,27 +28,44 @@ const handleSelect = (key: string) => {
 </script>
 
 <template>
-  <SDropdown trigger="click" variant="glass" @select="handleSelect">
-    <template #trigger>
-      <SButton variant="ghost" size="sm" icon-only rounded="full">
+  <DropdownMenu>
+    <DropdownMenuTrigger as-child>
+      <Button variant="ghost" size="sm" icon-only rounded="full">
         <template #icon-left>
           <MenuIcon />
         </template>
-      </SButton>
-    </template>
+      </Button>
+    </DropdownMenuTrigger>
 
-    <SDropdownItem item-key="rename" label="Rename" :icon="RenameIcon" />
-    <SDropdownItem item-key="duplicate" label="Duplicate" :icon="DuplicateIcon" />
-    <SDropdownItem item-key="share" label="Share Code" :icon="ShareIcon" />
-    <SDropdownItem
-      item-key="default"
-      :label="isDefault ? 'Default' : 'Set Default'"
-      :icon="DefaultIcon"
-      :disabled="isDefault"
-      icon-color="#f59e0b"
-    />
-    <SDropdownDivider />
-    <SDropdownItem item-key="clear" label="Clear Items" :icon="ClearIcon" icon-color="#ef4444" />
-    <SDropdownItem item-key="delete" label="Delete" :icon="DeleteIcon" icon-color="#ef4444" />
-  </SDropdown>
+    <DropdownMenuContent
+      align="end"
+      class="min-w-[180px] rounded-xl border-border/50 bg-background/80 shadow-2xl backdrop-blur-xl"
+    >
+      <DropdownMenuItem class="rounded-lg" @select="handleSelect('rename')">
+        <RenameIcon />
+        Rename
+      </DropdownMenuItem>
+      <DropdownMenuItem class="rounded-lg" @select="handleSelect('duplicate')">
+        <DuplicateIcon />
+        Duplicate
+      </DropdownMenuItem>
+      <DropdownMenuItem class="rounded-lg" @select="handleSelect('share')">
+        <ShareIcon />
+        Share Code
+      </DropdownMenuItem>
+      <DropdownMenuItem class="rounded-lg" :disabled="isDefault" @select="handleSelect('default')">
+        <DefaultIcon class="text-amber-500" />
+        {{ isDefault ? 'Default' : 'Set Default' }}
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+      <DropdownMenuItem class="rounded-lg" @select="handleSelect('clear')">
+        <ClearIcon class="text-red-500" />
+        Clear Items
+      </DropdownMenuItem>
+      <DropdownMenuItem class="rounded-lg" @select="handleSelect('delete')">
+        <DeleteIcon class="text-red-500" />
+        Delete
+      </DropdownMenuItem>
+    </DropdownMenuContent>
+  </DropdownMenu>
 </template>

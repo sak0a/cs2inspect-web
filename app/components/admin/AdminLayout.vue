@@ -77,17 +77,17 @@ function closeMobileSidebar() {
   <div class="admin-layout">
     <!-- Mobile Header -->
     <header class="admin-mobile-header">
-      <SButton variant="ghost" icon-only rounded="full" size="lg" @click="toggleMobileSidebar">
+      <Button variant="ghost" icon-only rounded="full" size="lg" @click="toggleMobileSidebar">
         <template #icon-left>
           <MenuIcon />
         </template>
-      </SButton>
+      </Button>
       <h1 class="text-lg font-semibold">{{ title }}</h1>
-      <SButton variant="ghost" icon-only rounded="full" size="lg" tag="a" href="/">
+      <Button variant="ghost" icon-only rounded="full" size="lg" as="a" href="/">
         <template #icon-left>
           <BackIcon />
         </template>
-      </SButton>
+      </Button>
     </header>
 
     <!-- Mobile Sidebar Overlay -->
@@ -99,11 +99,11 @@ function closeMobileSidebar() {
     <aside class="admin-sidebar" :class="{ 'admin-sidebar--open': isMobileSidebarOpen }">
       <!-- Sidebar Header -->
       <div class="admin-sidebar-header">
-        <NSpace align="center" :size="12">
-          <NIcon :component="ShieldIcon" :size="24" color="var(--primary-color)" />
+        <div class="flex items-center gap-3">
+          <ShieldIcon :size="24" class="shrink-0 text-(--primary-color)" />
           <span class="text-lg font-bold">Admin Panel</span>
-        </NSpace>
-        <SButton
+        </div>
+        <Button
           variant="ghost"
           icon-only
           rounded="full"
@@ -114,7 +114,7 @@ function closeMobileSidebar() {
           <template #icon-left>
             <CloseIcon />
           </template>
-        </SButton>
+        </Button>
       </div>
 
       <!-- Navigation -->
@@ -127,7 +127,7 @@ function closeMobileSidebar() {
           :class="{ 'admin-nav-item--active': isActiveRoute(item.path) }"
           @click="closeMobileSidebar"
         >
-          <NIcon :component="item.icon" :size="20" />
+          <component :is="item.icon" :size="20" class="shrink-0" />
           <span>{{ item.label }}</span>
         </NuxtLink>
       </nav>
@@ -135,7 +135,7 @@ function closeMobileSidebar() {
       <!-- Back to Site -->
       <div class="admin-sidebar-footer">
         <NuxtLink to="/" class="admin-nav-item admin-nav-item--secondary">
-          <NIcon :component="BackIcon" :size="20" />
+          <BackIcon :size="20" class="shrink-0" />
           <span>Back to Site</span>
         </NuxtLink>
       </div>

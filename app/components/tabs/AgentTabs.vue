@@ -25,7 +25,7 @@ const teamLabel = computed(() => {
 </script>
 
 <template>
-  <NCard
+  <div
     :style="{
       borderColor: agent.rarity?.color || '#313030',
       background: agent.rarity?.color
@@ -33,8 +33,8 @@ const teamLabel = computed(() => {
         : '#242424',
     }"
     :class="[
-      'hover:shadow-lg transition-all cursor-pointer rounded-xl mt-2 mx-2 bg-[var(--card-bg)] w-[300px] agent-card',
-      isSelected ? 'ring-2 ring-[var(--selection-ring)] border-0 visible' : '',
+      'px-6 py-5 hover:shadow-lg transition-all cursor-pointer rounded-xl mt-2 mx-2 bg-[var(--card-bg)] w-[300px] agent-card',
+      isSelected ? 'ring-2 ring-[var(--selection-ring)] border-0 visible' : 'border',
     ]"
     @click="handleSelect"
   >
@@ -51,15 +51,10 @@ const teamLabel = computed(() => {
         <div class="h-1 mt-2" :style="{ background: agent.rarity?.color || '#313030' }" />
       </div>
     </div>
-  </NCard>
+  </div>
 </template>
 
 <style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-
 .agent-name {
   display: -webkit-box;
   line-clamp: 2;

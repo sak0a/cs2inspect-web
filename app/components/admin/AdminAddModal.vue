@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import type { SelectOption } from 'naive-ui'
-import { buttonColor } from '~/lib/buttonColors'
-
 interface Props {
   show: boolean
 }
@@ -14,13 +11,18 @@ const emit = defineEmits<{
   (e: 'cancel'): void
 }>()
 
+interface RoleOption {
+  label: string
+  value: 'admin' | 'superadmin'
+}
+
 const steamId = ref('')
 const role = ref<'admin' | 'superadmin'>('admin')
 const errors = ref({
   steamId: '',
 })
 
-const roleOptions: SelectOption[] = [
+const roleOptions: RoleOption[] = [
   { label: 'Admin', value: 'admin' },
   { label: 'Super Admin', value: 'superadmin' },
 ]
@@ -82,21 +84,17 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="show"
-    preset="card"
-    style="width: 500px"
+  <AppModal
+    :visible="show"
     title="Add New Admin"
-    :bordered="false"
-    :auto-focus="false"
-    :mask-closable="true"
-    :closable="true"
-    @update:show="
+    max-width="500px"
+    @update:visible="
       (val) => {
         if (!val) handleClose()
       }
     "
   >
+    <div class="admin-modal-glass-marker hidden" aria-hidden="true" />
     <div class="space-y-4">
       <!-- Info Banner -->
       <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
@@ -132,10 +130,11 @@ watch(
         <label class="block text-sm font-medium text-gray-300 mb-2">
           Steam ID <span class="text-red-400">*</span>
         </label>
-        <NInput
-          v-model:value="steamId"
+        <Input
+          :model-value="steamId"
           placeholder="e.g., 76561198012345678"
-          :status="errors.steamId ? 'error' : undefined"
+          :aria-invalid="errors.steamId ? true : undefined"
+          @update:model-value="(val) => (steamId = String(val))"
         />
         <p v-if="errors.steamId" class="text-red-400 text-sm mt-1">{{ errors.steamId }}</p>
         <p v-else class="text-gray-500 text-xs mt-1">
@@ -148,7 +147,19 @@ watch(
         <label class="block text-sm font-medium text-gray-300 mb-2">
           Role <span class="text-red-400">*</span>
         </label>
-        <NSelect v-model:value="role" :options="roleOptions" placeholder="Select role" />
+        <Select
+          :model-value="role"
+          @update:model-value="(val) => (role = val as 'admin' | 'superadmin')"
+        >
+          <SelectTrigger class="w-full">
+            <SelectValue placeholder="Select role" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="opt in roleOptions" :key="opt.value" :value="opt.value">
+              {{ opt.label }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
         <div class="mt-2 space-y-2">
           <div class="text-xs text-gray-400">
             <span class="font-medium text-gray-300">Admin:</span>
@@ -192,18 +203,22 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <SButton variant="light" @click="handleClose"> Cancel </SButton>
-      <SButton variant="light" :color="buttonColor.primary" @click="handleConfirm">
+      <Button variant="light" rounded="md" @click="handleClose"> Cancel </Button>
+      <Button variant="light" intent="primary" rounded="md" @click="handleConfirm">
         Add Admin
-      </SButton>
+      </Button>
     </div>
-  </NModal>
+  </AppModal>
 </template>
 
-<style scoped lang="sass">
-:deep(.n-card)
-  background: rgba(12, 12, 12, 0.7) !important
-  border: 1px solid var(--admin-glass-border)
-  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
-  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
+<style lang="sass">
+// Darker admin glass card (port of the old .n-card deep override). The dialog
+// teleports to <body>, so this global rule targets the dialog content that
+// contains this modal's marker element; !important beats AppModal's inline
+// default glass recipe.
+[data-slot='dialog-content']:has(.admin-modal-glass-marker)
+  background-color: rgba(12, 12, 12, 0.7) !important
+  border: 1px solid var(--admin-glass-border) !important
+  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
+  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
 </style>

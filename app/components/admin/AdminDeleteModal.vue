@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
-
 interface Props {
   show: boolean
   steamId: string
@@ -45,21 +43,17 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="show"
-    preset="card"
-    style="width: 500px"
+  <AppModal
+    :visible="show"
     title="Delete User Data"
-    :bordered="false"
-    :auto-focus="false"
-    :mask-closable="true"
-    :closable="true"
-    @update:show="
+    max-width="500px"
+    @update:visible="
       (val) => {
         if (!val) handleClose()
       }
     "
   >
+    <div class="admin-modal-glass-marker hidden" aria-hidden="true" />
     <div class="space-y-4">
       <!-- Warning Banner -->
       <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
@@ -108,10 +102,11 @@ watch(
         <label class="block text-sm font-medium text-gray-300 mb-2">
           Type the Steam ID to confirm deletion:
         </label>
-        <NInput
-          v-model:value="confirmInput"
+        <Input
+          :model-value="confirmInput"
           placeholder="Enter Steam ID..."
-          :status="confirmInput && !isConfirmed ? 'error' : undefined"
+          :aria-invalid="confirmInput && !isConfirmed ? true : undefined"
+          @update:model-value="(val) => (confirmInput = String(val))"
         />
         <div class="flex items-center gap-2 mt-2">
           <code class="text-xs bg-gray-800 px-2 py-1 rounded-sm text-gray-400">{{ steamId }}</code>
@@ -141,23 +136,25 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <SButton variant="light" @click="handleClose"> Cancel </SButton>
-      <SButton
+      <Button variant="light" rounded="md" @click="handleClose"> Cancel </Button>
+      <Button
         variant="light"
-        :color="buttonColor.error"
+        intent="error"
+        rounded="md"
         :disabled="!isConfirmed"
         @click="handleConfirm"
       >
         Delete All Data
-      </SButton>
+      </Button>
     </div>
-  </NModal>
+  </AppModal>
 </template>
 
-<style scoped lang="sass">
-:deep(.n-card)
-  background: rgba(12, 12, 12, 0.7) !important
-  border: 1px solid var(--admin-glass-border)
-  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
-  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
+<style lang="sass">
+// Shared darker admin glass card (see AdminAddModal.vue).
+[data-slot='dialog-content']:has(.admin-modal-glass-marker)
+  background-color: rgba(12, 12, 12, 0.7) !important
+  border: 1px solid var(--admin-glass-border) !important
+  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
+  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
 </style>

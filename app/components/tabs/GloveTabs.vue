@@ -100,13 +100,13 @@ const handleSkinClick = (weapon: GloveItemData): void => {
 <template>
   <div v-if="isVisible">
     <!-- Default glove if no skin for current team -->
-    <NCard
+    <div
       v-if="!hasCurrentTeamSkin"
       :style="{
         borderColor: '#313030',
         background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
       }"
-      class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+      class="border px-6 py-5 hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
       @click="handleDefaultWeaponClick(teamNumber)"
     >
       <div class="flex flex-col items-center">
@@ -121,9 +121,9 @@ const handleSkinClick = (weapon: GloveItemData): void => {
           <div class="h-1 mt-2" :style="{ background: '#313030' }" />
         </div>
       </div>
-    </NCard>
+    </div>
     <!-- Skins for the current team -->
-    <NCard
+    <div
       v-for="weapon in filteredWeapons"
       :key="weapon.paintindex"
       :style="{
@@ -132,7 +132,7 @@ const handleSkinClick = (weapon: GloveItemData): void => {
           ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
           : '#242424',
       }"
-      class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+      class="border px-6 py-5 hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
       @click="handleSkinClick(weapon)"
     >
       <div class="flex flex-col items-center">
@@ -147,6 +147,6 @@ const handleSkinClick = (weapon: GloveItemData): void => {
           <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
         </div>
       </div>
-    </NCard>
+    </div>
   </div>
 </template>

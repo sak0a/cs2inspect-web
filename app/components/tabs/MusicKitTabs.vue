@@ -24,7 +24,7 @@ const handleSelect = () => {
 </script>
 
 <template>
-  <NCard
+  <div
     :style="{
       borderColor: musicKit.rarity?.color || '#313030',
       background: musicKit.rarity?.color
@@ -32,10 +32,10 @@ const handleSelect = () => {
         : '#242424',
     }"
     :class="[
-      'cursor-pointer rounded-xl bg-[var(--card-bg)] music-kit-card',
+      'h-[300px] w-full flex flex-col px-6 py-5 transition-[transform,box-shadow] duration-300 cursor-pointer rounded-xl bg-[var(--card-bg)] music-kit-card',
       isSelected
         ? 'selected-music-kit ring-2 ring-[var(--selection-ring)] border-0 visible'
-        : 'hover:shadow-lg hover:scale-100 hover:z-10',
+        : 'border hover:shadow-lg hover:scale-100 hover:z-10',
     ]"
     @click="handleSelect"
   >
@@ -61,22 +61,10 @@ const handleSelect = () => {
         <div class="h-1 mt-auto" :style="{ background: musicKit.rarity?.color || '#313030' }" />
       </div>
     </div>
-  </NCard>
+  </div>
 </template>
 
 <style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-  height: 300px;
-  width: 100%; /* Full width to fit in grid cell */
-  display: flex;
-  flex-direction: column;
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
 .music-kit-name {
   display: -webkit-box;
   -webkit-line-clamp: 2;

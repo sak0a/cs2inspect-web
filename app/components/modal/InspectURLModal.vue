@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
-
 interface Props {
   visible: boolean
   loading?: boolean
@@ -43,73 +41,84 @@ const handleClose = () => {
 </script>
 
 <template>
-  <NModal
-    :show="_props.visible"
-    style="width: 700px"
-    preset="card"
+  <AppModal
+    :visible="_props.visible"
+    size="md"
     :title="t('modals.inspectUrl.title') as string"
-    :bordered="false"
-    :auto-focus="false"
     :mask-closable="!_props.loading"
     :closable="!_props.loading"
-    @update:show="handleClose"
+    @update:visible="
+      (show: boolean) => {
+        if (!show) handleClose()
+      }
+    "
   >
-    <NSpace vertical>
-      <div class="grid grid-cols-2 gap-4">
-        <NTooltip>
-          <template #trigger>
-            <SButton
-              :color="buttonColor.info"
-              size="md"
-              variant="elevated"
-              rounded="full"
-              class="px-5 py-1.5"
-              tinted
-              >{{ t('modals.inspectUrl.maskedLinks') }}</SButton
+    <div class="flex flex-col gap-2">
+      <TooltipProvider :delay-duration="150">
+        <div class="grid grid-cols-2 gap-4">
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <Button
+                intent="info"
+                size="md"
+                variant="elevated"
+                rounded="full"
+                class="px-5 py-1.5"
+                tinted
+                >{{ t('modals.inspectUrl.maskedLinks') }}</Button
+              >
+            </TooltipTrigger>
+            <TooltipContent
+              class="max-w-xl border border-[var(--border-subtle)] bg-popover px-4 py-3 text-sm text-popover-foreground [&>svg]:bg-popover [&>svg]:fill-popover"
             >
-          </template>
-          <h3 class="font-bold text-center">
-            {{ t('modals.inspectUrl.maskedLinksDescription') }}
-          </h3>
-          <div>
-            {data}
-            {{ t('modals.inspectUrl.maskedLinksExample') }}
-            001809209209280138C0D9C0DF034001FCADACCE
-          </div>
-          <div>steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}</div>
-          <div>csgo_econ_action_preview {data}</div>
-          <div>+csgo_econ_action_preview {data}</div>
-          <div>{data}</div>
-        </NTooltip>
-        <NTooltip>
-          <template #trigger>
-            <SButton
-              :color="buttonColor.info"
-              size="md"
-              variant="elevated"
-              rounded="full"
-              class="px-5 py-1.5"
-              tinted
-              >{{ t('modals.inspectUrl.unmaskedLinks') }}</SButton
+              <h3 class="font-bold text-center">
+                {{ t('modals.inspectUrl.maskedLinksDescription') }}
+              </h3>
+              <div>
+                {data}
+                {{ t('modals.inspectUrl.maskedLinksExample') }}
+                001809209209280138C0D9C0DF034001FCADACCE
+              </div>
+              <div>steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}</div>
+              <div>csgo_econ_action_preview {data}</div>
+              <div>+csgo_econ_action_preview {data}</div>
+              <div>{data}</div>
+            </TooltipContent>
+          </Tooltip>
+          <Tooltip>
+            <TooltipTrigger as-child>
+              <Button
+                intent="info"
+                size="md"
+                variant="elevated"
+                rounded="full"
+                class="px-5 py-1.5"
+                tinted
+                >{{ t('modals.inspectUrl.unmaskedLinks') }}</Button
+              >
+            </TooltipTrigger>
+            <TooltipContent
+              class="max-w-xl border border-[var(--border-subtle)] bg-popover px-4 py-3 text-sm text-popover-foreground [&>svg]:bg-popover [&>svg]:fill-popover"
             >
-          </template>
-          <h3 class="font-bold text-center">
-            {{ t('modals.inspectUrl.unmaskedLinksDescription') }}
-          </h3>
-          <div>
-            {data}
-            {{ t('modals.inspectUrl.unmaskedLinksExample') }} M123456789A123456D123456 -
-            S123456789A123456D123456
-          </div>
-          <div>steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}</div>
-          <div>csgo_econ_action_preview {data}</div>
-          <div>+csgo_econ_action_preview {data}</div>
-          <div>{data}</div>
-        </NTooltip>
-      </div>
+              <h3 class="font-bold text-center">
+                {{ t('modals.inspectUrl.unmaskedLinksDescription') }}
+              </h3>
+              <div>
+                {data}
+                {{ t('modals.inspectUrl.unmaskedLinksExample') }} M123456789A123456D123456 -
+                S123456789A123456D123456
+              </div>
+              <div>steam://rungame/730/76561202255233023/+csgo_econ_action_preview%20{data}</div>
+              <div>csgo_econ_action_preview {data}</div>
+              <div>+csgo_econ_action_preview {data}</div>
+              <div>{data}</div>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+      </TooltipProvider>
       <div>
-        <NInput
-          v-model:value="inspectUrl"
+        <Input
+          v-model="inspectUrl"
           :disabled="_props.loading"
           type="text"
           :placeholder="t('modals.inspectUrl.inputPlaceholder') as string"
@@ -119,32 +128,32 @@ const handleClose = () => {
       </div>
 
       <div class="flex justify-end gap-3">
-        <SButton
+        <Button
           variant="elevated"
           rounded="full"
           size="md"
-          :color="buttonColor.error"
+          intent="error"
           :disabled="_props.loading"
           class="px-5 py-1.5"
           tinted
           @click="handleClose"
         >
           {{ t('modals.inspectUrl.cancel') }}
-        </SButton>
-        <SButton
+        </Button>
+        <Button
           :disabled="inspectUrl.length <= 15"
           variant="elevated"
           rounded="full"
           size="md"
-          :color="buttonColor.success"
+          intent="success"
           :loading="_props.loading"
           class="px-5 py-1.5"
           tinted
           @click="handleSubmit"
         >
           {{ t('modals.inspectUrl.confirm') }}
-        </SButton>
+        </Button>
       </div>
-    </NSpace>
-  </NModal>
+    </div>
+  </AppModal>
 </template>

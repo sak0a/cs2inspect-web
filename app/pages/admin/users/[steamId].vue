@@ -127,23 +127,23 @@ function formatDate(isoDate: string): string {
   <div class="space-y-6">
     <!-- Back Button -->
     <div>
-      <SButton variant="ghost" @click="handleBack">
+      <Button variant="ghost" rounded="md" @click="handleBack">
         <template #icon-left>
           <BackIcon :size="16" />
         </template>
         Back to Users
-      </SButton>
+      </Button>
     </div>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="flex items-center justify-center py-12">
-      <NSpin size="large" />
+      <Spinner class="size-9 text-primary" />
     </div>
 
     <!-- Error State -->
     <div v-else-if="error" class="glass-card p-6 text-center">
       <p class="text-red-400 mb-4">{{ error }}</p>
-      <SButton variant="light" @click="fetchUserDetails"> Try Again </SButton>
+      <Button variant="light" rounded="md" @click="fetchUserDetails"> Try Again </Button>
     </div>
 
     <!-- User Content -->
@@ -160,7 +160,7 @@ function formatDate(isoDate: string): string {
       <div class="glass-card p-6">
         <div class="flex items-center gap-3 mb-4">
           <div class="w-10 h-10 rounded-lg flex items-center justify-center admin-accent-chip">
-            <NIcon :component="LoadoutIcon" :size="20" color="var(--admin-accent)" />
+            <LoadoutIcon :size="20" color="var(--admin-accent)" />
           </div>
           <div>
             <h3 class="text-lg font-semibold text-white">Loadouts & Items</h3>
@@ -218,7 +218,7 @@ function formatDate(isoDate: string): string {
 
         <!-- Empty State -->
         <div v-else class="py-8 text-center">
-          <NIcon :component="LoadoutIcon" :size="40" class="opacity-20 mb-3" />
+          <LoadoutIcon :size="40" class="opacity-20 mb-3 inline-block" />
           <p class="text-gray-500">This user has no loadouts.</p>
         </div>
       </div>

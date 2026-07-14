@@ -1,10 +1,7 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import { LucideX as XIcon, LucideConstruction as ConstructionIcon } from '@lucide/vue'
-import { NIcon } from 'naive-ui'
 import { steamAuth, type SteamUser } from '@/services/steamAuth'
 
-const selectedKey = ref<string>('')
 const showLogoutModal = ref(false)
 const user = ref<SteamUser | null>(null)
 
@@ -45,34 +42,34 @@ function dismissAnnouncement() {
 const loggedInHint = useCookie('steam_logged_in')
 const isLoggedIn = computed(() => !!user.value || !!loggedInHint.value)
 
-const message = useMessage()
+const message = useToast()
 const { t, getLocale, getLocales } = useI18n()
 
 const translatedHomeMenuOptions = computed(() =>
   homeMenuOptions.map((item) => ({
     ...item,
-    label: t(item.labelKey),
+    label: String(t(item.labelKey) ?? item.labelKey),
   }))
 )
 
 const translatedWeaponMenuOptions = computed(() =>
   weaponMenuOptions.map((item) => ({
     ...item,
-    label: t(item.labelKey),
+    label: String(t(item.labelKey) ?? item.labelKey),
   }))
 )
 
 const translatedEquipmentMenuOptions = computed(() =>
   equipmentMenuOptions.map((item) => ({
     ...item,
-    label: t(item.labelKey),
+    label: String(t(item.labelKey) ?? item.labelKey),
   }))
 )
 
 const translatedExtrasMenuOptions = computed(() =>
   extrasMenuOptions.map((item) => ({
     ...item,
-    label: t(item.labelKey),
+    label: String(t(item.labelKey) ?? item.labelKey),
   }))
 )
 
@@ -97,11 +94,6 @@ const validateAuth = async () => {
     console.log(error)
     return false
   }
-}
-
-function handleSelect(key: string) {
-  selectedKey.value = key
-  navigateTo(key)
 }
 
 function handleLogout() {
@@ -131,9 +123,6 @@ onMounted(async () => {
   // Fetch public app settings
   fetchSettings()
 
-  if (!selectedKey.value) {
-    selectedKey.value = window.location.pathname
-  }
   try {
     user.value = steamAuth.getSavedUser()
     if (user.value) {
@@ -187,107 +176,82 @@ const currentLocaleDisplay = computed(() => {
 })
 </script>
 <template>
-  <SLayout>
-    <SLayoutSider v-if="isLoggedIn" data-tutorial="sidebar-nav">
-      <nav
-        class="flex items-center w-full px-3 gap-2 py-1.5 min-h-[56px]"
-        role="navigation"
-        :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
-      >
-        <!-- Left side: User capsule + Team Toggle -->
-        <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0">
-          <!-- User capsule: Avatar + Name + Settings -->
-          <div v-if="user" class="nav-user-capsule">
-            <a
-              :href="user.profileUrl"
-              target="_blank"
-              rel="noopener noreferrer"
-              :aria-label="String(t('auth.openSteamProfile'))"
-              class="nav-user-avatar"
-            >
-              <img
-                class="rounded-full"
-                alt="Steam Avatar"
-                :src="user.avatarFull"
-                style="width: 36px; height: 36px"
-              />
-            </a>
-            <span class="nav-user-name">{{ user.personaName }}</span>
-            <div data-tutorial="settings-dropdown" class="ml-2">
-              <SettingsDropdown
-                trigger="hover"
-                variant="icon"
-                size="sm"
-                :aria-label="t('navigation.settings') || 'Settings'"
-                @logout="showLogoutModal = true"
-              />
+  <div class="relative flex h-screen flex-col overflow-auto bg-transparent">
+    <!-- Top nav bar (former SLayoutSider glass strip) -->
+    <div v-if="isLoggedIn" class="sticky top-0 z-40 w-full shrink-0" data-tutorial="sidebar-nav">
+      <aside class="bg-black/15 text-white backdrop-blur-md">
+        <div class="flex w-full flex-row items-center overflow-x-auto overflow-y-hidden">
+          <nav
+            class="flex items-center w-full px-3 gap-2 py-1.5 min-h-[56px]"
+            role="navigation"
+            :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
+          >
+            <!-- Left side: User capsule + Team Toggle -->
+            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0">
+              <!-- User capsule: Avatar + Name + Settings -->
+              <div v-if="user" class="nav-user-capsule">
+                <a
+                  :href="user.profileUrl"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  :aria-label="String(t('auth.openSteamProfile'))"
+                  class="nav-user-avatar"
+                >
+                  <img
+                    class="rounded-full"
+                    alt="Steam Avatar"
+                    :src="user.avatarFull"
+                    style="width: 36px; height: 36px"
+                  />
+                </a>
+                <span class="nav-user-name">{{ user.personaName }}</span>
+                <div data-tutorial="settings-dropdown" class="ml-2">
+                  <SettingsDropdown
+                    variant="icon"
+                    size="sm"
+                    :aria-label="t('navigation.settings') || 'Settings'"
+                    @logout="showLogoutModal = true"
+                  />
+                </div>
+              </div>
+
+              <!-- Global Team Toggle -->
+              <TeamToggle />
             </div>
-          </div>
 
-          <!-- Global Team Toggle -->
-          <TeamToggle />
+            <!-- Center: All navigation menus -->
+            <div class="flex items-center gap-1 shrink-0">
+              <!-- Home menu -->
+              <MainNav :items="translatedHomeMenuOptions" :icon-size="24" />
+
+              <!-- Weapons menu -->
+              <MainNav :items="translatedWeaponMenuOptions" :icon-size="36" />
+
+              <!-- Equipment menu -->
+              <MainNav :items="translatedEquipmentMenuOptions" :icon-size="36" />
+
+              <!-- Extras menu -->
+              <MainNav :items="translatedExtrasMenuOptions" :icon-size="24" />
+            </div>
+
+            <!-- Right side: Loadout -->
+            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0 justify-end ml-6">
+              <div v-if="user" data-tutorial="loadout-area">
+                <LoadoutSelector />
+              </div>
+            </div>
+          </nav>
         </div>
+      </aside>
+    </div>
 
-        <!-- Center: All navigation menus -->
-        <div class="flex items-center gap-1 shrink-0">
-          <!-- Home menu -->
-          <NMenu
-            mode="horizontal"
-            :icon-size="24"
-            :options="translatedHomeMenuOptions"
-            :value="selectedKey"
-            class="text-[14px] top-bar-menu"
-            @update:value="handleSelect"
-          />
-
-          <!-- Weapons menu -->
-          <NMenu
-            mode="horizontal"
-            :icon-size="36"
-            :options="translatedWeaponMenuOptions"
-            :value="selectedKey"
-            class="text-[14px] top-bar-menu"
-            @update:value="handleSelect"
-          />
-
-          <!-- Equipment menu -->
-          <NMenu
-            mode="horizontal"
-            :icon-size="36"
-            :options="translatedEquipmentMenuOptions"
-            :value="selectedKey"
-            class="text-[14px] top-bar-menu"
-            @update:value="handleSelect"
-          />
-
-          <!-- Extras menu -->
-          <NMenu
-            mode="horizontal"
-            :icon-size="24"
-            :options="translatedExtrasMenuOptions"
-            :value="selectedKey"
-            class="text-[14px] top-bar-menu"
-            @update:value="handleSelect"
-          />
-        </div>
-
-        <!-- Right side: Loadout -->
-        <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0 justify-end ml-6">
-          <div v-if="user" data-tutorial="loadout-area">
-            <LoadoutSelector />
-          </div>
-        </div>
-      </nav>
-    </SLayoutSider>
-    <SLayoutContent class="min-w-0 min-h-0 flex-1">
+    <main class="flex-1 min-w-0 min-h-0 overflow-visible bg-transparent">
       <!-- Maintenance Mode Overlay -->
       <div
         v-if="isMaintenanceMode"
         class="flex items-center justify-center flex-col h-full text-center px-4"
       >
-        <NIcon :size="64" color="#f59e0b" class="mb-4">
-          <ConstructionIcon />
-        </NIcon>
+        <ConstructionIcon :size="64" color="#f59e0b" class="mb-4" />
         <h1 class="text-2xl font-bold mb-2">Under Maintenance</h1>
         <p class="text-gray-400 text-lg">
           The site is currently undergoing maintenance. Please check back later.
@@ -304,10 +268,11 @@ const currentLocaleDisplay = computed(() => {
         </div>
 
         {{ t('auth.loginRequired') }}
-        <SButton
+        <Button
           variant="filled"
           size="lg"
-          class="mt-4 login-button px-10 py-6 bg-[#18181c] rounded-md"
+          rounded="md"
+          class="mt-4 login-button px-10 py-6 bg-[#18181c]"
           @click="handleLogin"
         >
           <template #icon-left>
@@ -324,7 +289,7 @@ const currentLocaleDisplay = computed(() => {
             </svg>
           </template>
           {{ t('auth.loginButton') }}
-        </SButton>
+        </Button>
 
         <!-- Copyright footer -->
         <div class="absolute bottom-4 text-gray-500 text-sm">&copy; saka 2025</div>
@@ -334,7 +299,7 @@ const currentLocaleDisplay = computed(() => {
           <!-- Site Announcement Banner -->
           <div v-if="showAnnouncement" class="announcement-banner">
             <span>{{ siteAnnouncement }}</span>
-            <SButton
+            <Button
               variant="ghost"
               icon-only
               rounded="full"
@@ -345,7 +310,7 @@ const currentLocaleDisplay = computed(() => {
               <template #icon-left>
                 <XIcon :size="14" />
               </template>
-            </SButton>
+            </Button>
           </div>
           <div class="flex flex-col min-h-full">
             <div class="flex-1">
@@ -367,16 +332,14 @@ const currentLocaleDisplay = computed(() => {
           </div>
         </div>
       </div>
-    </SLayoutContent>
+    </main>
 
     <!-- Logout Modal (shared across modes) -->
-    <NModal
-      :show="showLogoutModal"
-      preset="card"
-      :bordered="false"
+    <AppModal
+      v-model:visible="showLogoutModal"
       :closable="false"
       :mask-closable="false"
-      style="width: 400px"
+      max-width="400px"
       :title="String(t('modals.logout.title'))"
     >
       <div class="mb-3">
@@ -384,19 +347,19 @@ const currentLocaleDisplay = computed(() => {
       </div>
       <template #footer>
         <div class="flex justify-end gap-2">
-          <SButton variant="light" @click="showLogoutModal = false">
+          <Button variant="light" rounded="md" @click="showLogoutModal = false">
             {{ t('modals.logout.cancel') }}
-          </SButton>
-          <SButton variant="light" :color="buttonColor.error" @click="handleLogout">
+          </Button>
+          <Button variant="light" intent="error" rounded="md" @click="handleLogout">
             {{ t('modals.logout.confirm') }}
-          </SButton>
+          </Button>
         </div>
       </template>
-    </NModal>
+    </AppModal>
 
     <!-- Tutorial Overlay (rendered globally) -->
     <LazyTutorialOverlay />
-  </SLayout>
+  </div>
 </template>
 
 <style lang="sass">
@@ -411,31 +374,6 @@ body
 
 #__nuxt
   height: 100%
-
-.n-menu
-  flex-shrink: 0
-
-.menu-item
-  position: relative
-  display: flex
-  flex-direction: column
-  align-items: center
-
-
-.menu-label
-  position: absolute
-  bottom: -25px
-  font-size: 0.75rem
-  color: #a0aec0
-  opacity: 0
-  transform: translateY(-5px)
-  transition: opacity 0.2s ease, transform 0.2s ease
-  pointer-events: none
-  white-space: nowrap
-
-.group:hover .menu-label
-  opacity: 1
-  transform: translateY(0)
 
 // User capsule in top nav bar
 .nav-user-capsule
@@ -484,52 +422,6 @@ body
   overflow: hidden
   text-overflow: ellipsis
   max-width: 120px
-
-// Top bar menu: prevent NMenu from stretching full width
-.top-bar-menu
-  flex-shrink: 0
-  flex-grow: 0
-  width: auto !important
-
-  // NMenu horizontal renders with min-width / full-width by default — override
-  &.n-menu--horizontal
-    width: auto !important
-
-  .n-menu-item
-    flex-shrink: 0
-
-  // Animate label visibility on selection change
-  .n-menu-item-content-header
-    display: block !important
-    white-space: nowrap !important
-    overflow: hidden !important
-    max-width: 0 !important
-    opacity: 0 !important
-    transition: max-width 0.3s ease, opacity 0.2s ease, margin 0.3s ease !important
-    margin-left: 0 !important
-
-  .n-menu-item-content--selected .n-menu-item-content-header
-    max-width: 150px !important
-    opacity: 1 !important
-    margin-left: 8px !important
-
-  .n-menu-item-content:not(.n-menu-item-content--selected) .n-menu-item-content__icon
-    margin-right: 0 !important
-
-  .n-menu-item-content__icon
-    display: flex !important
-    align-items: center !important
-    justify-content: center !important
-
-  .n-menu-item-content__arrow
-    display: none !important
-
-  // Center menu item content vertically
-  .n-menu-item-content
-    display: flex !important
-    align-items: center !important
-    justify-content: center !important
-    padding: 0 8px !important
 
 // Announcement banner
 .announcement-banner

@@ -18,7 +18,7 @@ const selectedTeamGloves = ref({
 })
 
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 const { teamSide } = useTeamToggle()
 const otherTeamHasSkin = useOtherTeamSkin(selectedGlove, skins)
@@ -39,7 +39,7 @@ const gloveOptions = computed(() => {
     { label: 'Default', value: 0 },
     ...Object.entries(groupedGloves.value).map(([gloveName, gloveData]) => ({
       label: gloveName,
-      value: gloveData.weapons[0]?.weapon_defindex,
+      value: gloveData.weapons[0]?.weapon_defindex ?? -1,
     })),
   ]
 })
@@ -76,6 +76,18 @@ const handleGloveTypeChange = async (team: 't' | 'ct', gloveDefindex: number) =>
       console.error(error)
       message.error('Failed to update Glove Type')
     })
+}
+
+// Display label for the current selection (reka Select won't show a preselected
+// option's label until the menu is opened, so derive it from the options list).
+const currentGloveLabel = computed(
+  () => gloveOptions.value.find((o) => o.value === currentGloveType.value)?.label
+)
+
+const onGloveTypeChange = (val: unknown) => {
+  const defindex = Number(val)
+  currentGloveType.value = defindex
+  handleGloveTypeChange(teamSide.value, defindex)
 }
 
 const fetchLoadoutGloves = async () => {
@@ -296,11 +308,11 @@ watch(
             :key="i"
             class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
           >
-            <NSkeleton height="128px" />
+            <Skeleton class="h-32 w-full" />
             <div class="mt-3">
-              <NSkeleton text :repeat="1" />
+              <Skeleton class="h-4 w-full" />
               <div class="mt-2">
-                <NSkeleton height="4px" />
+                <Skeleton class="h-1 w-full" />
               </div>
             </div>
           </div>
@@ -312,13 +324,17 @@ watch(
             <span class="font-bold whitespace-nowrap text-neutral-200">
               {{ t('navigation.melee') }}
             </span>
-            <NSelect
-              v-model:value="currentGloveType"
-              :options="gloveOptions"
-              placeholder="Select glove type"
-              class="w-72"
-              @update:value="handleGloveTypeChange(teamSide, $event)"
-            />
+            <Select :model-value="currentGloveType" @update:model-value="onGloveTypeChange">
+              <SelectTrigger class="w-72">
+                <span v-if="currentGloveLabel">{{ currentGloveLabel }}</span>
+                <span v-else class="text-muted-foreground">Select glove type</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="opt in gloveOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <!-- Skins Grid -->
           <TransitionGroup
@@ -381,11 +397,6 @@ watch(
 .selected-slot:hover {
   border-color: #888;
   background-color: rgba(26, 26, 26, 0.5);
-}
-
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
 }
 
 .card-fade-enter-active {

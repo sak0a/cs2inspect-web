@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import type {
   ItemConfiguration,
   WeaponConfiguration,
@@ -182,13 +181,13 @@ const handleGenerateLink = () => {
 
 <template>
   <div class="inspect-item-display">
-    <NCard
+    <div
       v-if="item"
       :style="{
         borderColor: item.rarity?.color || '#313030',
         background: itemBackground,
       }"
-      class="item-card"
+      class="item-card rounded-lg p-5"
     >
       <div class="flex flex-col items-center">
         <!-- Item Image -->
@@ -311,38 +310,41 @@ const handleGenerateLink = () => {
 
         <!-- Action Buttons -->
         <div class="mt-4 flex justify-between w-full">
-          <SButton
-            :color="buttonColor.primary"
+          <Button
+            intent="primary"
             variant="filled"
+            rounded="md"
             :disabled="isLoading"
             @click="handleCustomize"
           >
             {{ t('common.customize') }}
-          </SButton>
+          </Button>
 
-          <SButton
-            :color="buttonColor.info"
+          <Button
+            intent="info"
             variant="filled"
+            rounded="md"
             :disabled="isLoading"
             @click="handleGenerateLink"
           >
             {{ t('common.generateLink') }}
-          </SButton>
+          </Button>
 
-          <SButton
-            :color="buttonColor.error"
+          <Button
+            intent="error"
             variant="filled"
+            rounded="md"
             :disabled="isLoading"
             @click="handleClear"
           >
             {{ t('common.clear') }}
-          </SButton>
+          </Button>
         </div>
       </div>
-    </NCard>
+    </div>
 
     <!-- Empty State -->
-    <NCard v-else class="empty-card">
+    <div v-else class="empty-card rounded-lg p-5">
       <div class="flex flex-col items-center justify-center py-8">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -365,7 +367,7 @@ const handleGenerateLink = () => {
         <p class="text-gray-300 text-lg">{{ t('inspectItem.noItemImported') }}</p>
         <p class="text-gray-400 text-sm mt-2">{{ t('inspectItem.useImportButton') }}</p>
       </div>
-    </NCard>
+    </div>
   </div>
 </template>
 
@@ -373,6 +375,7 @@ const handleGenerateLink = () => {
 .item-card {
   transition: all 0.3s ease;
   border-width: 2px;
+  border-style: solid;
 }
 
 .item-card:hover {

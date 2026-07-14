@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { AdminSetting } from '~/types'
-import { buttonColor } from '~/lib/buttonColors'
 
 interface Props {
   setting: AdminSetting
@@ -44,6 +43,10 @@ const handleSave = () => {
     value: editValue.value,
   })
   isEditing.value = false
+}
+
+const handleNumberUpdate = (val: number | undefined) => {
+  editValue.value = val == null || Number.isNaN(val) ? 0 : val
 }
 
 const formatDate = (dateStr: string | null) => {
@@ -125,46 +128,56 @@ const typeBadgeClass = computed(() => {
               <span class="text-sm text-gray-300 truncate block">{{ setting.value }}</span>
             </template>
           </div>
-          <SButton size="sm" variant="light" :color="buttonColor.primary" @click="startEditing">
+          <Button size="sm" variant="light" intent="primary" rounded="md" @click="startEditing">
             Edit
-          </SButton>
+          </Button>
         </template>
 
         <template v-else>
           <!-- Edit Mode -->
           <div class="flex-1 min-w-0">
             <template v-if="setting.type === 'boolean'">
-              <NSwitch
-                :value="editValue === true || editValue === 'true'"
-                @update:value="(val: boolean) => (editValue = val)"
+              <Switch
+                :model-value="editValue === true || editValue === 'true'"
+                @update:model-value="(val: boolean) => (editValue = val)"
               />
             </template>
             <template v-else-if="setting.type === 'number'">
-              <NInputNumber
-                :value="typeof editValue === 'number' ? editValue : Number(editValue) || 0"
+              <NumberField
+                :model-value="typeof editValue === 'number' ? editValue : Number(editValue) || 0"
                 class="w-full"
-                size="small"
-                @update:value="(val: number | null) => (editValue = val ?? 0)"
+                @update:model-value="handleNumberUpdate"
+              >
+                <NumberFieldContent>
+                  <NumberFieldDecrement />
+                  <NumberFieldInput class="h-8 text-sm" />
+                  <NumberFieldIncrement />
+                </NumberFieldContent>
+              </NumberField>
+            </template>
+            <template v-else-if="setting.type === 'json'">
+              <Textarea
+                :model-value="String(editValue)"
+                :rows="3"
+                class="w-full min-h-[78px] text-sm"
+                @update:model-value="(val) => (editValue = String(val))"
               />
             </template>
             <template v-else>
-              <NInput
-                :value="String(editValue)"
-                :type="setting.type === 'json' ? 'textarea' : 'text'"
-                :rows="setting.type === 'json' ? 3 : undefined"
-                class="w-full"
-                size="small"
-                @update:value="(val: string) => (editValue = val)"
+              <Input
+                :model-value="String(editValue)"
+                class="w-full h-8 text-sm"
+                @update:model-value="(val) => (editValue = String(val))"
               />
             </template>
           </div>
           <div class="flex gap-2">
-            <SButton size="sm" variant="light" :color="buttonColor.success" @click="handleSave">
+            <Button size="sm" variant="light" intent="success" rounded="md" @click="handleSave">
               Save
-            </SButton>
-            <SButton size="sm" variant="light" :color="buttonColor.error" @click="cancelEditing">
+            </Button>
+            <Button size="sm" variant="light" intent="error" rounded="md" @click="cancelEditing">
               Cancel
-            </SButton>
+            </Button>
           </div>
         </template>
       </div>

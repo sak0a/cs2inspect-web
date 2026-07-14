@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { PluginSetting } from '~/types'
-import { buttonColor } from '~/lib/buttonColors'
 
 interface Props {
   setting: PluginSetting
@@ -69,6 +68,10 @@ const handleSave = () => {
   }
 
   isEditing.value = false
+}
+
+const handleNumberUpdate = (val: number | undefined) => {
+  editValue.value = val == null || Number.isNaN(val) ? 0 : val
 }
 
 const formatDate = (dateStr: string | null) => {
@@ -157,15 +160,16 @@ const displayValue = computed(() => {
         </div>
 
         <!-- Edit button (when not editing) -->
-        <SButton
+        <Button
           v-if="!isEditing"
           size="sm"
           variant="light"
-          :color="buttonColor.primary"
+          intent="primary"
+          rounded="md"
           @click="startEditing"
         >
           Edit
-        </SButton>
+        </Button>
       </div>
 
       <!-- Value Display (when not editing) -->
@@ -196,30 +200,33 @@ const displayValue = computed(() => {
       <!-- Edit Mode -->
       <div v-else class="edit-area">
         <template v-if="setting.type === 'boolean'">
-          <NSwitch
-            :value="editValue === true || editValue === 'true'"
-            @update:value="(val: boolean) => (editValue = val)"
+          <Switch
+            :model-value="editValue === true || editValue === 'true'"
+            @update:model-value="(val: boolean) => (editValue = val)"
           />
         </template>
         <template v-else-if="setting.type === 'number'">
-          <NInputNumber
-            :value="typeof editValue === 'number' ? editValue : Number(editValue) || 0"
+          <NumberField
+            :model-value="typeof editValue === 'number' ? editValue : Number(editValue) || 0"
             class="w-full"
-            size="small"
-            @update:value="(val: number | null) => (editValue = val ?? 0)"
-          />
+            @update:model-value="handleNumberUpdate"
+          >
+            <NumberFieldContent>
+              <NumberFieldDecrement />
+              <NumberFieldInput class="h-8 text-sm" />
+              <NumberFieldIncrement />
+            </NumberFieldContent>
+          </NumberField>
         </template>
         <template v-else-if="setting.type === 'json'">
-          <NInput
-            :value="String(editValue)"
-            type="textarea"
+          <Textarea
+            :model-value="String(editValue)"
             :rows="8"
-            class="w-full font-mono"
-            size="small"
-            :status="jsonError ? 'error' : undefined"
-            @update:value="
-              (val: string) => {
-                editValue = val
+            class="w-full min-h-[146px] font-mono text-xs"
+            :aria-invalid="jsonError ? true : undefined"
+            @update:model-value="
+              (val) => {
+                editValue = String(val)
                 jsonError = null
               }
             "
@@ -229,21 +236,20 @@ const displayValue = computed(() => {
           </p>
         </template>
         <template v-else>
-          <NInput
-            :value="String(editValue)"
-            class="w-full"
-            size="small"
-            @update:value="(val: string) => (editValue = val)"
+          <Input
+            :model-value="String(editValue)"
+            class="w-full h-8 text-sm"
+            @update:model-value="(val) => (editValue = String(val))"
           />
         </template>
 
         <div class="flex gap-2 mt-2">
-          <SButton size="sm" variant="light" :color="buttonColor.success" @click="handleSave">
+          <Button size="sm" variant="light" intent="success" rounded="md" @click="handleSave">
             Save
-          </SButton>
-          <SButton size="sm" variant="light" :color="buttonColor.error" @click="cancelEditing">
+          </Button>
+          <Button size="sm" variant="light" intent="error" rounded="md" @click="cancelEditing">
             Cancel
-          </SButton>
+          </Button>
         </div>
       </div>
     </div>
@@ -273,8 +279,4 @@ pre
   font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace
   white-space: pre-wrap
   word-break: break-word
-
-:deep(.n-input--textarea .n-input__textarea-el)
-  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace !important
-  font-size: 12px !important
 </style>

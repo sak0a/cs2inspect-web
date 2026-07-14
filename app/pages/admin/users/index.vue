@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
-import { LucideUsers as UsersIcon } from '@lucide/vue'
+import { LucideUsers as UsersIcon, LucideX as ClearIcon } from '@lucide/vue'
 
 definePageMeta({
   middleware: 'admin',
@@ -102,7 +101,7 @@ async function handleUnbanUser(steamId: string) {
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div class="flex items-center gap-3">
           <div class="w-12 h-12 rounded-xl flex items-center justify-center admin-accent-chip">
-            <NIcon :component="UsersIcon" :size="24" color="var(--admin-accent)" />
+            <UsersIcon :size="24" color="var(--admin-accent)" />
           </div>
           <div>
             <h2 class="text-xl font-semibold text-white">Users</h2>
@@ -111,31 +110,37 @@ async function handleUnbanUser(steamId: string) {
         </div>
 
         <!-- Search Input -->
-        <div class="w-full md:w-80">
-          <NInput
-            v-model:value="searchQuery"
-            placeholder="Search by Steam ID or name..."
-            clearable
-            @update:value="handleSearch"
+        <div class="relative w-full md:w-80">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 opacity-50"
           >
-            <template #prefix>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="opacity-50"
-              >
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.3-4.3" />
-              </svg>
-            </template>
-          </NInput>
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.3-4.3" />
+          </svg>
+          <Input
+            :model-value="searchQuery"
+            placeholder="Search by Steam ID or name..."
+            class="pl-9 pr-8"
+            @update:model-value="(v) => handleSearch(String(v))"
+          />
+          <button
+            v-if="searchQuery"
+            type="button"
+            class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-white/40 transition-colors hover:text-white/80"
+            aria-label="Clear search"
+            @click="handleSearch('')"
+          >
+            <ClearIcon :size="14" />
+          </button>
         </div>
       </div>
     </div>
@@ -145,37 +150,53 @@ async function handleUnbanUser(steamId: string) {
       <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-400">Sort by</span>
-          <NSelect v-model:value="sortBy" size="small" class="w-40" :options="sortOptions" />
-          <SButton size="sm" variant="light" @click="toggleSortDir">
+          <Select :model-value="sortBy" @update:model-value="(v) => (sortBy = String(v))">
+            <SelectTrigger size="sm" class="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="option in sortOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button size="sm" variant="light" rounded="md" @click="toggleSortDir">
             {{ sortDir === 'asc' ? '\u2191 Asc' : '\u2193 Desc' }}
-          </SButton>
+          </Button>
         </div>
         <div class="flex items-center gap-2">
           <span class="text-sm text-gray-400">Status</span>
-          <SButton
+          <Button
             size="sm"
-            :color="statusFilter === 'all' ? buttonColor.primary : buttonColor.default"
+            :intent="statusFilter === 'all' ? 'primary' : 'default'"
             variant="light"
+            rounded="md"
             @click="statusFilter = 'all'"
           >
             All
-          </SButton>
-          <SButton
+          </Button>
+          <Button
             size="sm"
-            :color="statusFilter === 'active' ? buttonColor.primary : buttonColor.default"
+            :intent="statusFilter === 'active' ? 'primary' : 'default'"
             variant="light"
+            rounded="md"
             @click="statusFilter = 'active'"
           >
             Active
-          </SButton>
-          <SButton
+          </Button>
+          <Button
             size="sm"
-            :color="statusFilter === 'banned' ? buttonColor.primary : buttonColor.default"
+            :intent="statusFilter === 'banned' ? 'primary' : 'default'"
             variant="light"
+            rounded="md"
             @click="statusFilter = 'banned'"
           >
             Banned
-          </SButton>
+          </Button>
         </div>
       </div>
 
@@ -183,11 +204,11 @@ async function handleUnbanUser(steamId: string) {
       <div v-if="adminStore.isLoadingUsers">
         <div class="space-y-3">
           <div v-for="i in 6" :key="i" class="grid grid-cols-12 gap-3 items-center">
-            <NSkeleton text class="col-span-6 md:col-span-4" />
-            <NSkeleton text class="col-span-3 md:col-span-2" />
-            <NSkeleton text class="col-span-3 md:col-span-2" />
-            <NSkeleton text class="hidden md:block md:col-span-2" />
-            <NSkeleton text class="hidden md:block md:col-span-2" />
+            <Skeleton class="h-4 col-span-6 md:col-span-4" />
+            <Skeleton class="h-4 col-span-3 md:col-span-2" />
+            <Skeleton class="h-4 col-span-3 md:col-span-2" />
+            <Skeleton class="h-4 hidden md:block md:col-span-2" />
+            <Skeleton class="h-4 hidden md:block md:col-span-2" />
           </div>
         </div>
       </div>
@@ -195,12 +216,12 @@ async function handleUnbanUser(steamId: string) {
       <!-- Error State -->
       <div v-else-if="adminStore.error" class="py-6 text-center">
         <p class="text-red-400">{{ adminStore.error }}</p>
-        <SButton class="mt-4" variant="light" @click="fetchUsers"> Try Again </SButton>
+        <Button class="mt-4" variant="light" rounded="md" @click="fetchUsers"> Try Again </Button>
       </div>
 
       <!-- Empty State -->
       <div v-else-if="(adminStore.users?.length ?? 0) === 0" class="py-8 text-center">
-        <NIcon :component="UsersIcon" :size="48" class="opacity-30 mb-4" />
+        <UsersIcon :size="48" class="opacity-30 mb-4 inline-block" />
         <p class="text-gray-400">
           {{ searchQuery ? 'No users found matching your search.' : 'No users found.' }}
         </p>

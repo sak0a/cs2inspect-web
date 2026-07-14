@@ -18,7 +18,7 @@ const selectedTeamKnives = ref({
 })
 
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 const { teamSide } = useTeamToggle()
 const otherTeamHasSkin = useOtherTeamSkin(selectedKnife, skins)
@@ -75,6 +75,18 @@ const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: number) =>
       console.error(error)
       message.error('Failed to update Knife Type')
     })
+}
+
+// Display label for the current selection (reka Select won't show a preselected
+// option's label until the menu is opened, so derive it from the options list).
+const currentKnifeLabel = computed(
+  () => knifeOptions.value.find((o) => o.value === currentKnifeType.value)?.label
+)
+
+const onKnifeTypeChange = (val: unknown) => {
+  const defindex = Number(val)
+  currentKnifeType.value = defindex
+  handleKnifeTypeChange(teamSide.value, defindex)
 }
 
 const fetchLoadoutKnives = async () => {
@@ -337,11 +349,11 @@ watch(
             :key="i"
             class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
           >
-            <NSkeleton height="128px" />
+            <Skeleton class="h-32 w-full" />
             <div class="mt-3">
-              <NSkeleton text :repeat="1" />
+              <Skeleton class="h-4 w-full" />
               <div class="mt-2">
-                <NSkeleton height="4px" />
+                <Skeleton class="h-1 w-full" />
               </div>
             </div>
           </div>
@@ -353,13 +365,17 @@ watch(
             <span class="font-bold whitespace-nowrap text-white">
               {{ t('navigation.melee') }}
             </span>
-            <NSelect
-              v-model:value="currentKnifeType"
-              :options="knifeOptions"
-              placeholder="Select knife type"
-              class="w-72"
-              @update:value="handleKnifeTypeChange(teamSide, $event)"
-            />
+            <Select :model-value="currentKnifeType" @update:model-value="onKnifeTypeChange">
+              <SelectTrigger class="w-72">
+                <span v-if="currentKnifeLabel">{{ currentKnifeLabel }}</span>
+                <span v-else class="text-muted-foreground">Select knife type</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="opt in knifeOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <!-- Skins Grid -->
           <TransitionGroup
@@ -411,11 +427,6 @@ watch(
 .selected-slot:hover {
   border-color: #888;
   background-color: rgba(26, 26, 26, 0.5);
-}
-
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
 }
 
 .card-fade-enter-active {
