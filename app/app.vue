@@ -1,19 +1,17 @@
 <template>
-  <ThemeProvider>
-    <div class="absolute inset-0 z-0" :style="backgroundStyle" />
-    <!-- <Preloader /> -->
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+  <div class="absolute inset-0 z-0" :style="backgroundStyle" />
+  <!-- <Preloader /> -->
+  <NuxtLayout>
+    <NuxtPage />
+  </NuxtLayout>
 
-    <!-- Global toast + confirm hosts (shadcn/vue-sonner) -->
-    <ClientOnly>
-      <Toaster position="top-center" theme="dark" rich-colors />
-    </ClientOnly>
-    <ConfirmDialogHost />
+  <!-- Global toast + confirm hosts (shadcn/vue-sonner) -->
+  <ClientOnly>
+    <Toaster position="top-center" theme="dark" rich-colors />
+  </ClientOnly>
+  <ConfirmDialogHost />
 
-    <!-- <SpeedInsights /> -->
-  </ThemeProvider>
+  <!-- <SpeedInsights /> -->
 </template>
 <script setup lang="ts">
 import { Toaster } from '@/components/ui/sonner'

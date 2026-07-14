@@ -5,7 +5,7 @@ import eslintConfigPrettier from 'eslint-config-prettier'
 export default withNuxt(
   // Ignore patterns - must come first
   {
-    ignores: ['site/**', '**/site/**', 'services/**', 'app/components/sui/**'],
+    ignores: ['site/**', '**/site/**', 'services/**'],
   },
   // Nuxt ESLint config with custom rules
   {

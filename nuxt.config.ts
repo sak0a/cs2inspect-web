@@ -1,10 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import Components from 'unplugin-vue-components/vite'
 import { defineNuxtConfig } from 'nuxt/config'
 import { fileURLToPath } from 'node:url'
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
 import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
@@ -19,12 +15,6 @@ export default defineNuxtConfig({
   ssr: true,
   imports: {
     dirs: ['stores', 'composables', 'utils', 'middleware'],
-    presets: [
-      {
-        from: 'naive-ui',
-        imports: ['useMessage', 'useNotification', 'useDialog', 'useTheme', 'useLoading'],
-      },
-    ],
   },
   components: [{ path: '~/components', pathPrefix: false }],
   typescript: {
@@ -53,9 +43,6 @@ export default defineNuxtConfig({
   },
   devtools: {
     enabled: true,
-  },
-  build: {
-    transpile: ['vueuc'],
   },
   app: {
     pageTransition: {
@@ -107,9 +94,6 @@ export default defineNuxtConfig({
     optimizeDeps: {
       exclude: ['oxc-parser'],
     },
-    ssr: {
-      noExternal: ['naive-ui'],
-    },
     css: {
       preprocessorOptions: {
         sass: {
@@ -124,25 +108,7 @@ export default defineNuxtConfig({
         ignored: ['**/public/img/charms/**', '**/public/img/weapons/**', '**/storage/stickers/**'],
       },
     },
-    plugins: [
-      // Fix Vite resolving node_modules .vue files without project root prefix
-      {
-        name: 'fix-node-modules-path',
-        enforce: 'pre' as const,
-        load(id: string) {
-          if (id.startsWith('/node_modules/') && id.endsWith('.vue') && !existsSync(id)) {
-            const resolved = resolve(process.cwd(), id.slice(1))
-            if (existsSync(resolved)) {
-              return readFileSync(resolved, 'utf-8')
-            }
-          }
-        },
-      },
-      Components({
-        resolvers: [NaiveUiResolver()],
-      }) as unknown as { name: string },
-      tailwindcss() as unknown as { name: string },
-    ],
+    plugins: [tailwindcss() as unknown as { name: string }],
   },
   shadcn: {
     prefix: '',
@@ -151,7 +117,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/test-utils/module',
     'nuxt-lucide-icons',
-    'nuxtjs-naive-ui',
     'shadcn-nuxt',
     '@nuxt/eslint',
     '@pinia/nuxt',

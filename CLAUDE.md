@@ -6,7 +6,7 @@ CS2Inspect Web is a full-stack Nuxt 4 application for Counter-Strike 2 players t
 
 ## Tech Stack
 
-- **Frontend**: Nuxt 4, Vue 3, Naive UI, Tailwind CSS, Pinia
+- **Frontend**: Nuxt 4, Vue 3, shadcn-vue (reka-ui), Tailwind CSS v4, Pinia
 - **Backend**: Nitro (H3), MariaDB, Drizzle ORM
 - **Auth**: Steam OpenID + JWT
 
