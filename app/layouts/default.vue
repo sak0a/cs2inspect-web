@@ -182,12 +182,12 @@ const currentLocaleDisplay = computed(() => {
       <aside class="bg-black/15 text-white backdrop-blur-md">
         <div class="flex w-full flex-row items-center overflow-x-auto overflow-y-hidden">
           <nav
-            class="flex items-center w-full px-3 gap-2 py-1.5 min-h-[56px]"
+            class="flex items-center w-full min-w-max px-3 gap-2 py-1.5 min-h-[56px]"
             role="navigation"
             :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
           >
             <!-- Left side: User capsule + Team Toggle -->
-            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0">
+            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-fit">
               <!-- User capsule: Avatar + Name + Settings -->
               <div v-if="user" class="nav-user-capsule">
                 <a
@@ -235,7 +235,7 @@ const currentLocaleDisplay = computed(() => {
             </div>
 
             <!-- Right side: Loadout -->
-            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-0 justify-end ml-6">
+            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-fit justify-end ml-6">
               <div v-if="user" data-tutorial="loadout-area">
                 <LoadoutSelector />
               </div>

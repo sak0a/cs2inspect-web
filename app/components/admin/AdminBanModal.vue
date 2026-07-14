@@ -127,18 +127,18 @@ watch(
       <!-- Duration Input -->
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-2"> Duration (hours) </label>
-        <NumberField
-          :model-value="durationHours ?? undefined"
-          :min="1"
+        <!-- Plain number input instead of NumberField: reka restores the last value
+             when cleared, which would make "empty = permanent ban" unreachable -->
+        <Input
+          :model-value="durationHours ?? ''"
+          type="number"
+          min="1"
+          placeholder="Leave empty for permanent ban"
           class="w-full"
-          @update:model-value="handleDurationUpdate"
-        >
-          <NumberFieldContent>
-            <NumberFieldDecrement />
-            <NumberFieldInput placeholder="Leave empty for permanent ban" />
-            <NumberFieldIncrement />
-          </NumberFieldContent>
-        </NumberField>
+          @update:model-value="
+            (v) => handleDurationUpdate(v === '' || v == null ? undefined : Number(v))
+          "
+        />
         <p class="text-gray-500 text-xs mt-1">
           Leave empty for a permanent ban. Enter hours for a temporary ban.
         </p>
