@@ -1,4 +1,8 @@
 {
+  "itemCard": {
+    "notConfigured": "Nicht konfiguriert",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "WAFFEN",
     "melee": "NAHKAMPF",
@@ -33,6 +37,12 @@
     "selectSkin": "Skin für {weapon} auswählen"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Muster"
+      }
+    },
     "logout": {
       "title": "Abmeldung bestätigen",
       "question": "Bist du sicher, dass du dich abmelden möchtest?",
@@ -410,7 +420,15 @@
     "minimalWear": "Minimale Gebrauchsspuren",
     "fieldTested": "Gebraucht",
     "wellWorn": "Stark gebraucht",
-    "battleScarred": "Kampfspuren"
+    "battleScarred": "Kampfspuren",
+    "floatValue": "Float-Wert",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "auth": {
     "login": "Anmelden",

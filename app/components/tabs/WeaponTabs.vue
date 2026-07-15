@@ -55,6 +55,23 @@ const getWeaponLabel = (weapon: WeaponItemData): string => {
   return weapon.name
 }
 
+/** Split "Weapon | Skin" into ItemCard's name / muted subName pair. */
+const getDisplayName = (weapon: WeaponItemData): { name: string; sub?: string } => {
+  if (isVanillaSkin(weapon)) {
+    return { name: weapon.defaultName, sub: 'Vanilla' }
+  }
+  const full = weapon.name || weapon.defaultName
+  const idx = full.indexOf(' | ')
+  if (idx === -1) return { name: full }
+  return { name: full.slice(0, idx), sub: full.slice(idx + 3) }
+}
+
+/** Wear readout — only meaningful when a paint is applied (not vanilla). */
+const getFloatValue = (weapon: WeaponItemData): string | null => {
+  if (isVanillaSkin(weapon)) return null
+  return weapon.databaseInfo?.paintwear ?? null
+}
+
 const handleDefaultWeaponClick = (team: number): void => {
   try {
     if (!team || (team !== 1 && team !== 2)) {
@@ -135,194 +152,72 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
 <template>
   <div data-tutorial="weapon-card">
     <!-- State 1: Not configured — no DB entry for this weapon/team -->
-    <div
+    <ItemCard
       v-if="!hasCurrentTeamSkin"
-      class="px-6 py-5 hover:shadow-lg cursor-pointer rounded-xl weapon-card weapon-card--unconfigured"
-      tabindex="0"
-      role="button"
+      class="weapon-card"
+      :name="weaponData.defaultName"
+      :image-url="weaponData.weapons[0]?.defaultImage"
+      :image-alt="weaponData.defaultName"
+      state="unconfigured"
       :aria-label="`${weaponData.defaultName} — not configured, click to configure`"
       @click="handleDefaultWeaponClick(teamNumber)"
-      @keydown.enter.space.prevent="handleDefaultWeaponClick(teamNumber)"
-    >
-      <div class="flex flex-col items-center">
-        <img
-          :src="weaponData.weapons[0]?.defaultImage"
-          :alt="weaponData.defaultName"
-          class="w-full h-32 object-contain mb-2 opacity-40"
-          loading="lazy"
-        />
-        <div class="w-full">
-          <p class="text-sm text-[var(--text-tertiary)] truncate">
-            {{ weaponData.defaultName }}
-            <span class="text-xs opacity-60">(Not Configured)</span>
-          </p>
-          <div class="h-1 mt-2 bg-[var(--border-subtle)]" />
-        </div>
-      </div>
-    </div>
+    />
 
     <!-- State 2 & 3: DB entry exists — vanilla skin or custom skin, active or inactive -->
-    <div
+    <ItemCard
       v-for="weapon in filteredWeapons"
       :key="weapon.paintindex"
-      :style="{
-        borderColor: weapon.rarity?.color || '#313030',
-        background: weapon.rarity?.color
-          ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
-          : '#242424',
-      }"
-      class="border px-6 py-5 hover:shadow-lg cursor-pointer rounded-xl bg-[var(--card-bg)] weapon-card"
-      :class="{ 'weapon-card--inactive': !weapon.databaseInfo?.active }"
-      tabindex="0"
-      role="button"
+      class="weapon-card"
+      :name="getDisplayName(weapon).name"
+      :sub-name="getDisplayName(weapon).sub"
+      :image-url="weapon.image"
+      :image-alt="weapon.name"
+      :rarity-color="weapon.rarity?.color"
+      :rarity-label="weapon.rarity?.name"
+      :state="weapon.databaseInfo?.active ? 'normal' : 'inactive'"
+      :stat-trak="weapon.databaseInfo?.stattrak_enabled === true"
+      :float-value="getFloatValue(weapon)"
+      :badge-text="
+        isVanillaSkin(weapon) && weapon.databaseInfo?.active ? 'Vanilla' : undefined
+      "
       :aria-label="`${getWeaponLabel(weapon)}${!weapon.databaseInfo?.active ? ', inactive' : ''}`"
       @click="handleSkinClick(weapon)"
-      @keydown.enter.space.prevent="handleSkinClick(weapon)"
     >
-      <div class="flex flex-col items-center">
-        <div class="relative w-full">
-          <img
-            :src="weapon.image"
-            :alt="weapon.name"
-            class="w-full h-32 object-contain mb-2"
-            loading="lazy"
-          />
-
-          <!-- Three-dots dropdown — only for configured cards -->
-          <div class="absolute -top-2 -right-2 z-10" @click.stop @keydown.stop>
-            <DropdownMenu>
-              <DropdownMenuTrigger as-child>
-                <Button
-                  variant="outline"
-                  size="icon-sm"
-                  :aria-label="`Actions for ${getWeaponLabel(weapon)}`"
-                >
-                  <LucideEllipsisVertical :size="16" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem
-                  :disabled="weapon.databaseInfo?.paintindex === 0"
-                  @select="handleQuickAction('generate', weapon)"
-                >
-                  <LucideLink :size="16" />
-                  Generate Inspect Link
-                </DropdownMenuItem>
-                <DropdownMenuItem @select="handleQuickAction('toggle', weapon)">
-                  <component
-                    :is="weapon.databaseInfo?.active ? LucideEyeOff : LucideEye"
-                    :size="16"
-                  />
-                  {{ weapon.databaseInfo?.active ? 'Deactivate' : 'Activate' }}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  variant="destructive"
-                  @select="handleQuickAction('reset', weapon)"
-                >
-                  <LucideRotateCcw :size="16" />
-                  Reset
-                </DropdownMenuItem>
-                <DropdownMenuItem @select="handleQuickAction('import', weapon)">
-                  <LucideImport :size="16" />
-                  Import From Link
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <!-- Vanilla badge — keep, but only show when active -->
-          <span
-            v-if="isVanillaSkin(weapon) && weapon.databaseInfo?.active"
-            class="weapon-badge weapon-badge--vanilla"
-            aria-hidden="true"
-          >
-            Vanilla
-          </span>
-        </div>
-
-        <div class="w-full">
-          <p class="text-sm truncate text-white">
-            {{ getWeaponLabel(weapon) }}
-          </p>
-          <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
-        </div>
-      </div>
-    </div>
+      <!-- Three-dots quick-action dropdown — only for configured cards -->
+      <template #actions>
+        <DropdownMenu>
+          <DropdownMenuTrigger as-child>
+            <Button
+              variant="outline"
+              size="icon-sm"
+              :aria-label="`Actions for ${getWeaponLabel(weapon)}`"
+            >
+              <LucideEllipsisVertical :size="16" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              :disabled="weapon.databaseInfo?.paintindex === 0"
+              @select="handleQuickAction('generate', weapon)"
+            >
+              <LucideLink :size="16" />
+              Generate Inspect Link
+            </DropdownMenuItem>
+            <DropdownMenuItem @select="handleQuickAction('toggle', weapon)">
+              <component :is="weapon.databaseInfo?.active ? LucideEyeOff : LucideEye" :size="16" />
+              {{ weapon.databaseInfo?.active ? 'Deactivate' : 'Activate' }}
+            </DropdownMenuItem>
+            <DropdownMenuItem variant="destructive" @select="handleQuickAction('reset', weapon)">
+              <LucideRotateCcw :size="16" />
+              Reset
+            </DropdownMenuItem>
+            <DropdownMenuItem @select="handleQuickAction('import', weapon)">
+              <LucideImport :size="16" />
+              Import From Link
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </template>
+    </ItemCard>
   </div>
 </template>
-
-<style scoped>
-.weapon-card--unconfigured {
-  border: 1px dashed var(--border-subtle) !important;
-  background: var(--bg-dark) !important;
-  transition:
-    border-color 150ms ease,
-    box-shadow 150ms ease;
-}
-
-.weapon-card--unconfigured:hover {
-  border-color: var(--text-tertiary) !important;
-}
-
-.weapon-card {
-  transition:
-    box-shadow 150ms ease,
-    transform 150ms ease,
-    filter 150ms ease;
-}
-
-.weapon-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
-}
-
-.weapon-card:active {
-  transform: scale(0.98);
-}
-
-.weapon-card:focus-visible {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-/* Inactive: dashed border signals "configured but not active" */
-.weapon-card--inactive {
-  border-style: dashed !important;
-  opacity: 0.65;
-}
-
-.weapon-card--inactive:hover {
-  opacity: 0.9;
-}
-
-/* Vanilla badge */
-.weapon-badge {
-  position: absolute;
-  top: 6px;
-  right: 0;
-  padding: 2px 8px;
-  border-radius: 999px 0 0 999px;
-  font-size: 10px;
-  font-weight: 600;
-  line-height: 1.4;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.weapon-badge--vanilla {
-  background: rgba(176, 195, 217, 0.18);
-  color: #b0c3d9;
-  border: 1px solid rgba(176, 195, 217, 0.25);
-  border-right: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .weapon-card,
-  .weapon-card--unconfigured {
-    transition: none;
-  }
-
-  .weapon-card:active {
-    transform: none;
-  }
-}
-</style>

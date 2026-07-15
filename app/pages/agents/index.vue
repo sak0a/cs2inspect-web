@@ -329,11 +329,7 @@ watch(
                 <span v-else class="text-muted-foreground">Select agent</span>
               </SelectTrigger>
               <SelectContent>
-                <SelectItem
-                  v-for="opt in currentAgentOptions"
-                  :key="opt.value"
-                  :value="opt.value"
-                >
+                <SelectItem v-for="opt in currentAgentOptions" :key="opt.value" :value="opt.value">
                   {{ opt.label }}
                 </SelectItem>
               </SelectContent>
@@ -387,27 +383,24 @@ watch(
   background-color: #888;
 }
 
-/* Fade-in animation */
+/* Fade-in animation (opacity-only: the card owns its transform for hover lift) */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.98);
-    filter: blur(2px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
 .agent-card {
   opacity: 0;
-  will-change: opacity, transform, filter;
+  will-change: opacity;
 }
 
 .agent-card.visible {
-  animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  opacity: 1;
+  animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Ensure selected agents are always visible */

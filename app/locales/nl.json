@@ -1,4 +1,8 @@
 {
+  "itemCard": {
+    "notConfigured": "Niet geconfigureerd",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "WAPENS",
     "melee": "NAHGEVECHT",
@@ -36,7 +40,15 @@
     "minimalWear": "Minimale slijtage",
     "fieldTested": "Veldgetest",
     "wellWorn": "Goed versleten",
-    "battleScarred": "Gevechtssporen"
+    "battleScarred": "Gevechtssporen",
+    "floatValue": "Floatwaarde",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "skins": {
     "title": "Skins",
@@ -44,6 +56,12 @@
     "selectSkin": "Selecteer skin voor {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Patroon"
+      }
+    },
     "logout": {
       "title": "Afmelden bevestigen",
       "question": "Weet je zeker dat je wilt afmelden?",

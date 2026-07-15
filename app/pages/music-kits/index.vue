@@ -363,20 +363,12 @@ watch(
 
 .fade-in-item {
   opacity: 0;
-  will-change: opacity, transform, filter;
+  will-change: opacity;
   margin: 5px;
-  transition: all 0.5s ease;
 }
 
 .fade-in-item.visible {
-  animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-.fade-in-item:hover:not(.selected-music-kit) {
-  transform: scale(1.05);
-  z-index: 10;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  transition: all 0.3s ease;
+  animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .content-fade-in {
@@ -395,14 +387,13 @@ watch(
   visibility: visible !important;
 }
 
+/* Opacity-only: the card owns its transform for hover lift */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 </style>

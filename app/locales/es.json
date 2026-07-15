@@ -1,4 +1,8 @@
 {
+  "itemCard": {
+    "notConfigured": "Sin configurar",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "ARMAS",
     "melee": "CUERPO A CUERPO",
@@ -36,7 +40,15 @@
     "minimalWear": "Desgaste mínimo",
     "fieldTested": "Probado en campo",
     "wellWorn": "Bien desgastado",
-    "battleScarred": "Marcas de batalla"
+    "battleScarred": "Marcas de batalla",
+    "floatValue": "Valor de float",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "skins": {
     "title": "Skins",
@@ -44,6 +56,12 @@
     "selectSkin": "Seleccionar skin para {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Patrón"
+      }
+    },
     "logout": {
       "title": "Confirmar cierre de sesión",
       "question": "¿Estás seguro de que quieres cerrar sesión?",

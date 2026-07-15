@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, ChevronLeft, ChevronRight } from '@lucide/vue'
+import { ArrowUp, ArrowDown } from '@lucide/vue'
 import type { APIKeychain, IEnhancedWeaponKeychain, APISticker } from '~/server/types'
 import { generateFlatKeychainUrl } from '~/utils/canvasCoordinates'
 import WrappedStickerModal from './WrappedStickerModal.vue'
@@ -59,7 +59,6 @@ const {
   sortDir,
   rarityFilterIds,
   availableRarities,
-  sortedItems,
   paginatedItems,
   totalPages,
   toggleSortDir,
@@ -319,75 +318,52 @@ watch(
       </div>
     </template>
     <template #header-extra>
-      <div class="flex items-center gap-2">
-        <Button
-          variant="destructive"
-          :disabled="!currentKeychain && !state.selectedItem"
-          @click="handleResetConfig"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-            </svg>
-          </template>
-          {{ t('modals.weaponSkin.buttons.reset') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-        <div class="relative w-64">
-          <Search
-            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
-          />
-          <Input
-            v-model="state.searchQuery"
-            :placeholder="t('modals.keychain.searchPlaceholder') as string"
-            class="w-full pl-9"
-          />
-        </div>
-      </div>
+      <ModalToolbar
+        v-model:search="state.searchQuery"
+        :search-placeholder="t('modals.keychain.searchPlaceholder') as string"
+        show-reset
+        :reset-label="t('modals.weaponSkin.buttons.reset') as string"
+        :reset-disabled="!currentKeychain && !state.selectedItem"
+        @reset="handleResetConfig"
+      />
     </template>
 
     <div class="flex flex-col gap-3 -mt-2">
       <!-- Selected Keychain Preview -->
-      <div v-if="state.selectedItem" class="bg-[var(--bg-secondary)] p-4 md:p-6 rounded-lg">
-        <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
+      <div
+        v-if="state.selectedItem"
+        class="rounded-[var(--radius-card)] border border-border bg-card p-4 md:p-6"
+      >
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr]">
           <!-- Left side - Image -->
-          <div class="flex flex-col items-center justify-center">
-            <img
-              :src="
-                generateFlatKeychainUrl(
-                  state.selectedItem.name,
-                  state.customization.seed,
-                  state.selectedWrappedSticker?.rarity?.id,
-                  state.customization.wrapped_sticker_id || undefined
-                )
-              "
-              :alt="state.selectedItem.name"
-              class="scale-125 h-40 object-top object-cover"
-            />
-          </div>
+          <SelectedItemStage
+            :rarity-color="state.selectedItem.rarity?.color"
+            class="flex flex-col justify-center p-3"
+          >
+            <template #media>
+              <img
+                :src="
+                  generateFlatKeychainUrl(
+                    state.selectedItem.name,
+                    state.customization.seed,
+                    state.selectedWrappedSticker?.rarity?.id,
+                    state.customization.wrapped_sticker_id || undefined
+                  )
+                "
+                :alt="state.selectedItem.name"
+                class="scale-125 h-40 object-top object-cover"
+              />
+            </template>
+          </SelectedItemStage>
 
           <!-- Right side - Customization -->
           <div class="flex flex-col gap-4">
             <!-- Position Controls -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
               <div>
-                <h4 class="text-xs font-medium mb-1 text-gray-400">
+                <h4
+                  class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                >
                   X {{ t('modals.keychain.labels.position') }}
                 </h4>
                 <NumberField
@@ -407,7 +383,9 @@ watch(
                 </NumberField>
               </div>
               <div>
-                <h4 class="text-xs font-medium mb-1 text-gray-400">
+                <h4
+                  class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                >
                   Y {{ t('modals.keychain.labels.position') }}
                 </h4>
                 <NumberField
@@ -427,7 +405,9 @@ watch(
                 </NumberField>
               </div>
               <div>
-                <h4 class="text-xs font-medium mb-1 text-gray-400">
+                <h4
+                  class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                >
                   Z {{ t('modals.keychain.labels.position') }}
                 </h4>
                 <NumberField
@@ -447,7 +427,9 @@ watch(
                 </NumberField>
               </div>
               <div v-if="!isStickerSlab && !isHighlightReel">
-                <h4 class="text-xs font-medium mb-1 text-gray-400">
+                <h4
+                  class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                >
                   {{ t('modals.keychain.labels.seed') }}
                 </h4>
                 <NumberField
@@ -469,7 +451,11 @@ watch(
 
               <!-- Highlight Reel ID Input -->
               <div v-if="isHighlightReel">
-                <h4 class="text-xs font-medium mb-1 text-gray-400">Highlight ID</h4>
+                <h4
+                  class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                >
+                  Highlight ID
+                </h4>
                 <NumberField
                   v-model="state.customization.highlight_reel_id"
                   :min="0"
@@ -487,18 +473,22 @@ watch(
               <!-- Sticker Slab Controls -->
               <div
                 v-if="isStickerSlab"
-                class="col-span-2 sm:col-span-4 border-t border-[var(--border-subtle)] pt-3 mt-1"
+                class="col-span-2 mt-1 border-t border-border pt-3 sm:col-span-4"
               >
-                <h4 class="text-xs font-medium mb-2 text-gray-400">Wrapped Sticker</h4>
+                <h4
+                  class="mb-2 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                >
+                  Wrapped Sticker
+                </h4>
 
                 <div
                   v-if="state.selectedWrappedSticker || state.customization.wrapped_sticker_id"
-                  class="flex items-center gap-3 bg-[var(--bg-dark)] p-2 rounded-sm border border-[var(--border-subtle)]"
+                  class="flex items-center gap-3 rounded-[var(--radius-ctl)] border border-border bg-surface-2 p-2"
                 >
                   <!-- If we have the object, show image. If only ID (legacy/edit), just show ID/placeholder -->
                   <!-- Tiny preview removed as per request -->
                   <div class="flex-1 min-w-0">
-                    <div class="text-sm font-medium truncate text-gray-200">
+                    <div class="truncate text-sm font-medium text-foreground">
                       {{
                         state.selectedWrappedSticker
                           ? state.selectedWrappedSticker.name
@@ -523,14 +513,14 @@ watch(
 
             <!-- Bottom Section: Title and Buttons -->
             <div
-              class="border-t border-[var(--border-subtle)] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4"
+              class="flex flex-col items-center justify-between gap-4 border-t border-border pt-4 lg:flex-row"
             >
-              <h3 class="text-lg font-bold text-white">
+              <h3 class="font-display text-lg font-medium tracking-[-0.02em] text-foreground">
                 {{ state.selectedItem.name.replace(/^Charm \| /, '') }}
               </h3>
 
-              <div class="flex gap-3 w-full lg:w-auto justify-end">
-                <Button variant="outline" class="flex-1 lg:flex-none lg:w-40" @click="handleSave">
+              <div class="flex w-full justify-end gap-3 lg:w-auto">
+                <Button variant="outline" class="flex-1 lg:w-40 lg:flex-none" @click="handleSave">
                   {{
                     currentKeychain
                       ? t('modals.keychain.buttons.update')
@@ -540,7 +530,7 @@ watch(
                 <Button
                   v-if="currentKeychain"
                   variant="destructive"
-                  class="flex-1 lg:flex-none lg:w-40"
+                  class="flex-1 lg:w-40 lg:flex-none"
                   @click="handleRemove"
                 >
                   {{ t('modals.keychain.delete') }}
@@ -554,7 +544,9 @@ watch(
       <!-- Keychain list controls (Sort + Filters) -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
+          <span class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary">{{
+            t('modals.sticker.sort.label')
+          }}</span>
           <Select :model-value="sortBy" @update:model-value="(v) => (sortBy = String(v ?? sortBy))">
             <SelectTrigger size="sm" class="w-44">
               <SelectValue>
@@ -577,124 +569,49 @@ watch(
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
-            {{ sortDir === 'asc' ? '↑' : '↓' }}
+            <ArrowUp v-if="sortDir === 'asc'" class="size-3" />
+            <ArrowDown v-else class="size-3" />
           </Button>
         </div>
 
-        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
-          <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
+        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-1.5">
+          <span
+            class="mr-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+            >{{ t('modals.sticker.filters.rarity') }}</span
+          >
           <Button
             v-for="rarity in availableRarities"
             :key="rarity.id"
             size="xs"
             :variant="rarityFilterIds.includes(rarity.id) ? 'default' : 'secondary'"
+            class="rounded-full"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
           >
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
+            <span class="flex items-center gap-1.5">
+              <span class="size-2 rounded-full" :style="{ background: rarity.color }" />
               {{ rarity.name }}
             </span>
           </Button>
         </div>
       </div>
 
-      <!-- Keychains Grid -->
-      <div
-        v-if="!state.isLoading"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-      >
-        <div
-          v-for="item in paginatedItems"
-          :key="item.id"
-          :class="[
-            'cursor-pointer transition-all hover:shadow-lg h-full rounded-sm border border-[#313030] bg-[#242424] px-6 pt-5 pb-5',
-            state.selectedItem?.id === item.id.replace('keychain-', '')
-              ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
-              : '',
-          ]"
-          :style="{
-            borderColor: item.rarity?.color || '#313030',
-            background: `linear-gradient(135deg, #101010, ${hexToRgba(
-              item.rarity?.color || '#313030',
-              '0.15'
-            )})`,
-          }"
-          @click="handleSelect(item)"
-        >
-          <div class="flex flex-col items-center">
-            <img
-              :src="generateFlatKeychainUrl(item.name)"
-              :alt="item.name"
-              class="w-full h-24 object-contain mb-2"
-              loading="lazy"
-            />
-            <p class="text-sm text-center break-words">
-              {{ item.name.replace(/^Charm \| /, '') }}
-            </p>
-            <div class="h-1 w-full mt-2" :style="{ background: item.rarity?.color || '#313030' }" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Skeleton Loading State -->
-      <div
-        v-if="state.isLoading"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-      >
-        <div
-          v-for="i in PAGE_SIZE"
-          :key="i"
-          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
-        >
-          <Skeleton class="h-24 w-full" />
-          <div class="mt-3">
-            <Skeleton class="h-4 w-full" />
-            <div class="mt-2">
-              <Skeleton class="h-1 w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div
-        v-if="!state.isLoading && sortedItems.length === 0"
-        class="flex justify-center items-center h-64 text-gray-400"
-      >
-        {{ t('modals.keychain.noSearchResults') }}
-      </div>
-
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex justify-center">
-        <Pagination
-          v-model:page="state.currentPage"
-          :total="totalPages"
-          :items-per-page="1"
-          :sibling-count="2"
-          show-edges
-        >
-          <PaginationContent v-slot="{ items }">
-            <PaginationPrevious>
-              <ChevronLeft class="size-4" />
-            </PaginationPrevious>
-            <template v-for="(item, index) in items" :key="index">
-              <PaginationItem
-                v-if="item.type === 'page'"
-                :value="item.value"
-                :is-active="item.value === state.currentPage"
-              >
-                {{ item.value }}
-              </PaginationItem>
-              <PaginationEllipsis v-else />
-            </template>
-            <PaginationNext>
-              <ChevronRight class="size-4" />
-            </PaginationNext>
-          </PaginationContent>
-        </Pagination>
-      </div>
+      <!-- Keychains Grid (skeleton / empty / items + pagination) -->
+      <ItemBrowserGrid
+        v-model:current-page="state.currentPage"
+        :items="paginatedItems"
+        :loading="state.isLoading"
+        :total-pages="totalPages"
+        :selected-id="state.selectedItem?.id ?? null"
+        :skeleton-count="PAGE_SIZE"
+        :sibling-count="2"
+        image-height="sm"
+        :empty-text="t('modals.keychain.noSearchResults') as string"
+        :item-label="(item: APIKeychain) => item.name.replace(/^Charm \| /, '')"
+        :item-image="(item: APIKeychain) => generateFlatKeychainUrl(item.name)"
+        @select="handleSelect"
+      />
     </div>
   </AppModal>
 

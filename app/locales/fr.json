@@ -1,4 +1,8 @@
 {
+  "itemCard": {
+    "notConfigured": "Non configuré",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "ARMES",
     "melee": "MÊLÉE",
@@ -36,7 +40,15 @@
     "minimalWear": "Usure minimale",
     "fieldTested": "Testé sur le terrain",
     "wellWorn": "Bien usé",
-    "battleScarred": "Éraflures de combat"
+    "battleScarred": "Éraflures de combat",
+    "floatValue": "Valeur de float",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "skins": {
     "title": "Skins",
@@ -44,6 +56,12 @@
     "selectSkin": "Sélectionner un skin pour {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Motif"
+      }
+    },
     "logout": {
       "title": "Confirmer la déconnexion",
       "question": "Êtes-vous sûr de vouloir vous déconnecter ?",

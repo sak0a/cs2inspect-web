@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, ChevronLeft, ChevronRight, Inbox } from '@lucide/vue'
+import { ArrowDownWideNarrow, ArrowUpNarrowWide, WandSparkles, X } from '@lucide/vue'
 import type {
   WeaponModalProps,
   WeaponConfiguration,
@@ -160,6 +160,28 @@ const previewImageUrl = computed(() => {
     return generateDefaultFlatImageUrl(weaponName)
   }
   return selectedSkin.value?.image || ''
+})
+
+/**
+ * Onyx stage readouts (SelectedItemStage): float / pattern / wear-band tag.
+ * Only shown once a real skin is configured — a default weapon
+ * (paintindex 0/null) has no meaningful wear data, matching the old
+ * name-only overlay behavior.
+ */
+const stageFloatValue = computed(() =>
+  customization.value.paintindex ? customization.value.paintwear.toFixed(3) : undefined
+)
+const stagePatternSeed = computed(() =>
+  customization.value.paintindex ? customization.value.paintseed : undefined
+)
+const stageWearLabel = computed(() => {
+  if (!customization.value.paintindex) return undefined
+  const wear = customization.value.paintwear
+  if (wear < 0.07) return t('wears.factoryNew') as string
+  if (wear < 0.15) return t('wears.minimalWear') as string
+  if (wear < 0.38) return t('wears.fieldTested') as string
+  if (wear < 0.45) return t('wears.wellWorn') as string
+  return t('wears.battleScarred') as string
 })
 
 // Watch customization changes for auto-save
@@ -743,34 +765,39 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
 }
 // Deactivating this skin will remain it's configuration but will no longer be used on the server
 
+/**
+ * Sticker drag state — reactive refs drive the slot classes
+ * (replaces the old imperative classList mutation; swap logic unchanged).
+ */
+const draggedStickerIndex = ref<number | null>(null)
+const dragOverStickerIndex = ref<number | null>(null)
+
 const handleStickerDragStart = (e: DragEvent, fromIndex: number) => {
   if (!e.dataTransfer) return
   e.dataTransfer.effectAllowed = 'move'
   e.dataTransfer.setData('text/plain', fromIndex.toString())
 
-  // Add dragging class to source element
-  const el = e.target as HTMLElement
-  el.classList.add('dragging')
+  draggedStickerIndex.value = fromIndex
 }
-const handleStickerDragEnd = (e: DragEvent) => {
-  const el = e.target as HTMLElement
-  el.classList.remove('dragging')
+const handleStickerDragEnd = () => {
+  draggedStickerIndex.value = null
+  dragOverStickerIndex.value = null
 }
-const handleStickerDragOver = (e: DragEvent) => {
+const handleStickerDragOver = (e: DragEvent, index: number) => {
   e.preventDefault()
   e.stopPropagation()
 
-  const el = e.target as HTMLElement
-  el.classList.add('drag-over')
+  dragOverStickerIndex.value = index
 }
-const handleStickerDragLeave = (e: DragEvent) => {
-  const el = e.target as HTMLElement
-  el.classList.remove('drag-over')
+const handleStickerDragLeave = (e: DragEvent, index: number) => {
+  // Ignore leave events caused by moving over the slot's own children
+  const slot = e.currentTarget as HTMLElement | null
+  if (slot && e.relatedTarget instanceof Node && slot.contains(e.relatedTarget)) return
+  if (dragOverStickerIndex.value === index) dragOverStickerIndex.value = null
 }
 const handleStickerDrop = (e: DragEvent, toIndex: number) => {
   e.preventDefault()
-  const el = e.target as HTMLElement
-  el.classList.remove('drag-over')
+  dragOverStickerIndex.value = null
 
   const fromIndex = parseInt(e.dataTransfer?.getData('text/plain') || '-1')
   if (fromIndex === -1 || fromIndex === toIndex) return
@@ -1105,183 +1132,38 @@ onUnmounted(() => {
       </div>
     </template>
     <template #header-extra>
-      <div v-if="!weaponState.inlineVisualCustomizerActive" class="flex items-center shrink-0">
-        <!-- Reset Weapon Configuration -->
-        <Button
-          :loading="state.isResetting"
-          variant="destructive"
-          :disabled="!selectedSkin || customization.paintindex == 0"
-          :aria-label="String(t('modals.weaponSkin.buttons.reset'))"
-          data-tutorial="reset-button"
-          @click="state.showResetConfirm = true"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-refresh size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-            </svg>
-          </template>
-          {{ t('modals.weaponSkin.buttons.reset') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- History Button -->
-        <Button
-          variant="outline"
-          :disabled="!selectedSkin"
-          :aria-label="String(t('history.title'))"
-          data-tutorial="history-button"
-          @click="weaponState.showHistoryPanel = true"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M12 8l0 4l2 2" />
-              <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
-            </svg>
-          </template>
-          {{ t('history.title') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- Import Weapon by Inspect Link -->
-        <Button
-          :loading="state.isImporting"
-          variant="outline"
-          :disabled="!selectedSkin"
-          :aria-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
-          data-tutorial="import-button"
-          @click="state.showImportModal = true"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-              <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-              <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-              <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-              <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-              <path d="M16 16l-2.5 -2.5" />
-            </svg>
-          </template>
-          {{ t('modals.weaponSkin.buttons.importFromLink') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- Generate Weapon Inspect Link by Data -->
-        <Button
-          :loading="state.isLoadingInspect"
-          variant="outline"
-          :disabled="!selectedSkin || customization.paintindex === 0"
-          :aria-label="String(t('modals.weaponSkin.buttons.generateLink'))"
-          data-tutorial="save-button"
-          @click="handleCreateInspectLink"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-zoom-scan size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-              <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-              <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-              <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-              <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-              <path d="M16 16l-2.5 -2.5" />
-            </svg>
-          </template>
-          {{ t('modals.weaponSkin.buttons.generateLink') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- Weapon Search -->
-        <div class="relative ml-1 w-72 max-w-72" data-tutorial="skin-search">
-          <Search
-            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
-          />
-          <Input
-            v-model="state.searchQuery"
-            :placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
-            class="w-full pl-9"
-          />
-        </div>
-      </div>
+      <ModalToolbar
+        v-if="!weaponState.inlineVisualCustomizerActive"
+        v-model:search="state.searchQuery"
+        :search-placeholder="String(t('modals.weaponSkin.inputs.searchPlaceholder'))"
+        show-reset
+        show-history
+        show-import
+        show-generate
+        :reset-label="String(t('modals.weaponSkin.buttons.reset'))"
+        :history-label="String(t('history.title'))"
+        :import-label="String(t('modals.weaponSkin.buttons.importFromLink'))"
+        :generate-label="String(t('modals.weaponSkin.buttons.generateLink'))"
+        :reset-disabled="!selectedSkin || customization.paintindex == 0"
+        :history-disabled="!selectedSkin"
+        :import-disabled="!selectedSkin"
+        :generate-disabled="!selectedSkin || customization.paintindex === 0"
+        :reset-loading="state.isResetting"
+        :import-loading="state.isImporting"
+        :generate-loading="state.isLoadingInspect"
+        reset-tutorial-id="reset-button"
+        history-tutorial-id="history-button"
+        import-tutorial-id="import-button"
+        generate-tutorial-id="save-button"
+        search-tutorial-id="skin-search"
+        @reset="state.showResetConfirm = true"
+        @history="weaponState.showHistoryPanel = true"
+        @import="state.showImportModal = true"
+        @generate="handleCreateInspectLink"
+      />
       <div v-else class="flex items-center shrink-0">
         <!-- Exit Visual Mode Button -->
-        <Button variant="secondary" @click="handleExitInlineVisualCustomizer">
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="icon icon-tabler icons-tabler-outline icon-tabler-x size-6"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M18 6l-12 12" />
-              <path d="M6 6l12 12" />
-            </svg>
-          </template>
+        <Button variant="secondary" :icon-left="X" @click="handleExitInlineVisualCustomizer">
           {{ t('modals.weaponSkin.visualCustomizer.exit') }}
         </Button>
       </div>
@@ -1314,11 +1196,20 @@ onUnmounted(() => {
           </div>
           <div v-else key="normal">
             <!-- Selected Skin Preview -->
-            <div v-if="selectedSkin" class="bg-[var(--bg-secondary)] p-6 rounded-lg">
+            <div
+              v-if="selectedSkin"
+              class="rounded-[var(--radius-card)] border border-border bg-card p-4"
+            >
               <div class="grid grid-cols-2 gap-6">
-                <!-- Left side - Video/Image Preview -->
-                <div>
-                  <div class="relative">
+                <!-- Left side - preview stage (video canvas wiring stays modal-owned) -->
+                <SelectedItemStage
+                  :title="selectedSkin?.name"
+                  :float-value="stageFloatValue"
+                  :pattern-seed="stagePatternSeed"
+                  :wear-label="stageWearLabel"
+                  :rarity-color="selectedSkin?.rarity?.color"
+                >
+                  <template #media>
                     <!-- Hidden video element for frame extraction -->
                     <video
                       ref="previewVideo"
@@ -1341,6 +1232,8 @@ onUnmounted(() => {
                       :alt="selectedSkin?.name"
                       class="w-full h-64 object-contain"
                     />
+                  </template>
+                  <template #overlay>
                     <!-- Visual Customizer Overlay Button -->
                     <button
                       class="visual-customizer-overlay"
@@ -1356,35 +1249,10 @@ onUnmounted(() => {
                       "
                       @click.stop="weaponState.inlineVisualCustomizerActive = true"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="magic-wand-icon"
-                      >
-                        <!-- Magic Wand Icon (Tabler: wand) -->
-                        <path d="M6 21l15 -15l-3 -3l-15 15l3 3" />
-                        <path d="M15 6l3 3" />
-                        <path
-                          d="M9 3a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
-                        />
-                        <path
-                          d="M19 13a2 2 0 0 0 2 2a2 2 0 0 0 -2 2a2 2 0 0 0 -2 -2a2 2 0 0 0 2 -2"
-                        />
-                      </svg>
+                      <WandSparkles :size="20" class="magic-wand-icon" />
                     </button>
-                    <!-- Skin Name Overlay -->
-                    <h3 class="absolute bottom-0 left-0 right-0 text-lg font-bold px-2 py-1">
-                      {{ selectedSkin?.name }}
-                    </h3>
-                  </div>
-                </div>
+                  </template>
+                </SelectedItemStage>
 
                 <!-- Right side - Customization -->
                 <div class="space-y-4 flex flex-col items-center">
@@ -1416,7 +1284,7 @@ onUnmounted(() => {
                         class="pr-14"
                       />
                       <span
-                        class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                        class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 font-mono text-[10.5px] tabular-nums text-text-tertiary"
                       >
                         {{ (customization.nametag || '').length }}/20
                       </span>
@@ -1426,7 +1294,9 @@ onUnmounted(() => {
                   <!-- Wear Slider -->
                   <div class="w-full" data-tutorial="wear-slider">
                     <div class="flex items-start justify-between">
-                      <h4 class="font-bold">
+                      <h4
+                        class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                      >
                         {{ t('modals.weaponSkin.labels.wear') }}
                       </h4>
                     </div>
@@ -1487,7 +1357,7 @@ onUnmounted(() => {
                         <Switch v-model="customization.active" />
                         <span
                           class="text-sm font-medium"
-                          :class="customization.active ? 'text-primary' : 'text-gray-400'"
+                          :class="customization.active ? 'text-primary' : 'text-muted-foreground'"
                         >
                           {{
                             customization.active
@@ -1523,7 +1393,9 @@ onUnmounted(() => {
                   class="col-span-5 lg:col-span-5 md:col-span-3 mt-4"
                   data-tutorial="sticker-slots"
                 >
-                  <h4 class="font-bold mb-1">
+                  <h4
+                    class="mb-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >
                     {{ t('modals.weaponSkin.stickers.title') }}
                   </h4>
                   <div
@@ -1532,44 +1404,32 @@ onUnmounted(() => {
                     <div
                       v-for="(sticker, index) in customization.stickers"
                       :key="index"
-                      class="sticker-slot group flex items-center justify-center bg-[var(--card-bg)] p-2 rounded-sm cursor-move transition-all relative hover:bg-[var(--bg-hover)] hover:shadow-md active:scale-[0.98]"
+                      class="sticker-slot equip-slot group relative flex items-center justify-center p-2"
                       :class="{
-                        'inactive-item': !sticker,
-                        'active-item': sticker,
+                        'equip-slot--empty': !sticker,
+                        'equip-slot--filled': sticker,
+                        'sticker-slot--dragging': draggedStickerIndex === index,
+                        'sticker-slot--drag-over': dragOverStickerIndex === index,
                       }"
                       draggable="true"
                       @dragstart="handleStickerDragStart($event, index)"
                       @dragend="handleStickerDragEnd"
-                      @dragover="handleStickerDragOver"
-                      @dragleave="handleStickerDragLeave"
+                      @dragover="handleStickerDragOver($event, index)"
+                      @dragleave="handleStickerDragLeave($event, index)"
                       @drop="handleStickerDrop($event, index)"
                       @click.stop="handleAddSticker(index)"
                     >
                       <button
                         v-if="sticker"
                         type="button"
-                        class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
+                        class="absolute top-1 right-1 z-20 rounded-md border border-border-strong bg-black/40 p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
                         :title="t('modals.weaponSkin.stickers.remove') as string"
                         :aria-label="`${t('modals.weaponSkin.stickers.remove')} #${index + 1}`"
                         draggable="false"
                         @mousedown.stop.prevent
                         @click.stop.prevent="removeSticker(index)"
                       >
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          width="16"
-                          height="16"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                          stroke-width="2"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                        >
-                          <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                          <path d="M18 6l-12 12" />
-                          <path d="M6 6l12 12" />
-                        </svg>
+                        <X :size="16" />
                       </button>
                       <div v-if="sticker" class="h-24 relative group">
                         <img
@@ -1581,19 +1441,23 @@ onUnmounted(() => {
                           "
                         />
                         <div
-                          class="absolute inset-0 bg-white/10 rounded-lg backdrop-blur-xs opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
+                          class="absolute inset-0 bg-black/50 rounded-lg backdrop-blur-xs opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity"
                         >
-                          <span class="text-white text-xs">{{
-                            t('modals.weaponSkin.stickers.reposition')
-                          }}</span>
+                          <span
+                            class="font-mono text-[10px] uppercase tracking-[0.08em] text-foreground"
+                            >{{ t('modals.weaponSkin.stickers.reposition') }}</span
+                          >
                         </div>
                       </div>
                       <div v-else class="h-24 flex items-center justify-center">
-                        <span class="text-gray-400 text-sm">{{
-                          t('modals.weaponSkin.stickers.add')
-                        }}</span>
+                        <span
+                          class="px-1 text-center font-mono text-[10px] uppercase tracking-[0.08em] text-text-tertiary"
+                          >{{ t('modals.weaponSkin.stickers.add') }}</span
+                        >
                       </div>
-                      <div class="mt-1 absolute top-0 left-1 text-xs text-gray-400">
+                      <div
+                        class="pointer-events-none absolute top-1 left-1.5 font-mono text-[9px] uppercase tracking-[0.08em] text-text-tertiary"
+                      >
                         #{{ index + 1 }}
                       </div>
                     </div>
@@ -1604,42 +1468,30 @@ onUnmounted(() => {
                   class="col-span-1 lg:col-span-1 md:col-span-3 sm:col-span-2 mt-4"
                   data-tutorial="keychain-section"
                 >
-                  <h4 class="font-bold mb-1">
+                  <h4
+                    class="mb-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >
                     {{ t('modals.weaponSkin.keychain.title') }}
                   </h4>
                   <div
-                    class="relative group items-center flex justify-center bg-[var(--card-bg)] p-2 rounded-sm cursor-pointer hover:bg-[var(--bg-hover)] transition-all min-h-32 max-h-32"
+                    class="equip-slot group relative flex items-center justify-center p-2 min-h-32 max-h-32"
                     :class="{
-                      'inactive-item': !customization.keychain,
-                      'active-item': customization.keychain,
+                      'equip-slot--empty': !customization.keychain,
+                      'equip-slot--filled': customization.keychain,
                     }"
                     @click="handleAddKeychain"
                   >
                     <button
                       v-if="customization.keychain"
                       type="button"
-                      class="absolute top-1 right-1 z-20 rounded-md border border-white/10 bg-black/40 p-1 text-gray-200 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
+                      class="absolute top-1 right-1 z-20 rounded-md border border-border-strong bg-black/40 p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-500/20 hover:text-red-200 focus:opacity-100 focus:outline-hidden focus:ring-2 focus:ring-red-400"
                       :title="String(t('modals.weaponSkin.keychain.remove'))"
                       :aria-label="String(t('modals.weaponSkin.keychain.remove'))"
                       draggable="false"
                       @mousedown.stop.prevent
                       @click.stop.prevent="removeKeychain"
                     >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                        <path d="M18 6l-12 12" />
-                        <path d="M6 6l12 12" />
-                      </svg>
+                      <X :size="16" />
                     </button>
                     <div
                       v-if="customization.keychain"
@@ -1657,14 +1509,17 @@ onUnmounted(() => {
                         :alt="customization.keychain.api?.name ?? ''"
                         class="h-full w-full object-contain max-h-[85%]"
                       />
-                      <p class="text-xs text-center text-gray-400 mt-1 truncate w-full px-1">
+                      <p
+                        class="mt-1 w-full truncate px-1 text-center font-mono text-[10px] text-text-tertiary"
+                      >
                         {{ (customization.keychain.api?.name ?? '').replace('Charm | ', '') }}
                       </p>
                     </div>
                     <div v-else class="h-24 flex items-center justify-center">
-                      <span class="text-gray-400 text-sm">{{
-                        t('modals.weaponSkin.keychain.add')
-                      }}</span>
+                      <span
+                        class="px-1 text-center font-mono text-[10px] uppercase tracking-[0.08em] text-text-tertiary"
+                        >{{ t('modals.weaponSkin.keychain.add') }}</span
+                      >
                     </div>
                   </div>
                 </div>
@@ -1677,7 +1532,10 @@ onUnmounted(() => {
               data-tutorial="sort-filter"
             >
               <div class="flex items-center gap-2">
-                <span class="text-sm text-gray-300">{{ t('modals.weaponSkin.sort.label') }}</span>
+                <span
+                  class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >{{ t('modals.weaponSkin.sort.label') }}</span
+                >
                 <Select
                   :model-value="sortBy"
                   @update:model-value="(v) => (sortBy = String(v ?? sortBy))"
@@ -1703,141 +1561,48 @@ onUnmounted(() => {
                   :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
                   @click="toggleSortDir"
                 >
-                  {{ sortDir === 'asc' ? '↑' : '↓' }}
+                  <ArrowUpNarrowWide v-if="sortDir === 'asc'" class="size-3.5" />
+                  <ArrowDownWideNarrow v-else class="size-3.5" />
                 </Button>
               </div>
 
               <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
-                <span class="text-sm text-gray-300">{{
-                  t('modals.weaponSkin.filters.rarity')
-                }}</span>
-                <Button
+                <span
+                  class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >{{ t('modals.weaponSkin.filters.rarity') }}</span
+                >
+                <button
                   v-for="rarity in availableRarities"
                   :key="rarity.id"
-                  size="xs"
-                  :variant="rarityFilterIds.includes(rarity.id) ? 'default' : 'secondary'"
+                  type="button"
+                  class="rarity-chip"
+                  :class="{ 'rarity-chip--active': rarityFilterIds.includes(rarity.id) }"
+                  :style="{ '--rc': rarity.color }"
                   :aria-label="`Filter by ${rarity.name} rarity`"
                   :aria-pressed="rarityFilterIds.includes(rarity.id)"
                   @click="toggleRarityFilter(rarity.id)"
                 >
-                  <span class="flex items-center gap-2">
-                    <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
-                    {{ rarity.name }}
-                  </span>
-                </Button>
+                  <span class="rarity-chip__dot" aria-hidden="true" />
+                  {{ rarity.name }}
+                </button>
               </div>
             </div>
 
-            <!-- Skins Grid -->
-            <div v-if="state.isLoadingSkins" class="grid grid-cols-5 gap-4">
-              <div
-                v-for="i in PAGE_SIZE"
-                :key="i"
-                class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
-              >
-                <Skeleton class="h-32 w-full" />
-                <div class="mt-3">
-                  <Skeleton class="h-4 w-full" />
-                  <div class="mt-2">
-                    <Skeleton class="h-1 w-full" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div
-              v-else
-              class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
-              data-tutorial="skin-grid"
-            >
-              <div
-                v-for="skin in paginatedSkins"
-                :key="skin.id"
-                :style="{
-                  borderColor: skin.rarity?.color || '#313030',
-                  background:
-                    'linear-gradient(135deg, ' +
-                    '#101010' +
-                    ', ' +
-                    (hexToRgba(skin.rarity?.color, '0.15') || '#313030') +
-                    ')',
-                }"
-                :class="[
-                  'hover:shadow-lg cursor-pointer transition-all rounded-xl border border-[#313030] bg-[#242424] px-6 pt-5 pb-5',
-                  customization.paintindex === Number(skin.paint_index)
-                    ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
-                    : '',
-                ]"
-                @click="handleSkinSelect(skin)"
-              >
-                <div class="flex flex-col items-center">
-                  <img
-                    :src="skin.image"
-                    :alt="skin.name"
-                    class="w-full h-32 object-contain mb-2"
-                    loading="lazy"
-                  />
-                  <div class="w-full">
-                    <p class="text-sm text-white truncate">{{ skin.name }}</p>
-                    <div
-                      class="h-1 mt-2"
-                      :style="{ background: skin.rarity?.color || '#313030' }"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- No Results -->
-            <div
-              v-if="!state.isLoadingSkins && sortedSkins.length === 0"
-              class="flex justify-center items-center h-64"
-            >
-              <Empty>
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <Inbox />
-                  </EmptyMedia>
-                  <EmptyDescription>{{
-                    String(t('modals.weaponSkin.noSearchResults'))
-                  }}</EmptyDescription>
-                </EmptyHeader>
-              </Empty>
-            </div>
-
-            <!-- Pagination -->
-            <div
-              v-if="totalPages > 1"
-              class="flex justify-center mt-4"
-              data-tutorial="skin-pagination"
-            >
-              <Pagination
-                v-model:page="state.currentPage"
-                :total="totalPages"
-                :items-per-page="1"
-                :sibling-count="1"
-                show-edges
-              >
-                <PaginationContent v-slot="{ items }">
-                  <PaginationPrevious>
-                    <ChevronLeft class="size-4" />
-                  </PaginationPrevious>
-                  <template v-for="(item, index) in items" :key="index">
-                    <PaginationItem
-                      v-if="item.type === 'page'"
-                      :value="item.value"
-                      :is-active="item.value === state.currentPage"
-                    >
-                      {{ item.value }}
-                    </PaginationItem>
-                    <PaginationEllipsis v-else />
-                  </template>
-                  <PaginationNext>
-                    <ChevronRight class="size-4" />
-                  </PaginationNext>
-                </PaginationContent>
-              </Pagination>
-            </div>
+            <!-- Skins browser: skeleton grid / Onyx card grid / empty state / pagination -->
+            <ItemBrowserGrid
+              v-model:current-page="state.currentPage"
+              :items="paginatedSkins"
+              :is-selected="
+                (skin: APIWeaponSkin) => customization.paintindex === Number(skin.paint_index)
+              "
+              :loading="state.isLoadingSkins"
+              :total-pages="totalPages"
+              :skeleton-count="PAGE_SIZE"
+              :empty-text="String(t('modals.weaponSkin.noSearchResults'))"
+              grid-tutorial-id="skin-grid"
+              pagination-tutorial-id="skin-pagination"
+              @select="handleSkinSelect"
+            />
           </div>
         </Transition>
       </div>
@@ -1897,45 +1662,119 @@ onUnmounted(() => {
     </div>
   </AppModal>
 </template>
-<style scoped lang="scss">
-/* @apply converted to plain CSS for Tailwind v4 (SFC @apply wasn't
-   processed reliably in scss blocks) */
-.active-item {
-  border: 2px solid var(--selection-ring);
+<style scoped>
+/* Plain CSS (SFC @apply is unreliable in this setup) */
+
+/* ===== Onyx equip slots (sticker + keychain) ===== */
+.equip-slot {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-ctl);
+  background: var(--surface-2);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
 }
 
-.inactive-item {
-  border: 2px dashed #4b5563; /* border-gray-600 */
+.equip-slot:hover {
+  border-color: var(--border-strong);
+  background: color-mix(in srgb, white 4%, var(--surface-2));
 }
 
+.equip-slot:active {
+  transform: scale(0.98);
+}
+
+/* Empty slot: dashed hairline on transparent ground (unconfigured language) */
+.equip-slot--empty {
+  border-style: dashed;
+  border-color: var(--border-strong);
+  background: transparent;
+}
+
+.equip-slot--empty:hover {
+  border-color: var(--text-tertiary);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Sticker slots are draggable — reactive state drives the drag visuals */
 .sticker-slot {
   touch-action: none;
-  transition: all 0.15s ease-in-out;
-
-  &.dragging {
-    opacity: 0.5;
-    transform: scale(0.95);
-  }
-
-  &.drag-over {
-    background-color: #2a2a2a;
-    transform: scale(1.05);
-  }
-
-  &:empty {
-    cursor: default;
-  }
-
-  &:not(:empty) {
-    cursor: grab;
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
 }
 
-/* Visual Customizer Overlay Button */
+.sticker-slot.equip-slot--filled {
+  cursor: grab;
+}
+
+.sticker-slot.equip-slot--filled:active {
+  cursor: grabbing;
+}
+
+.sticker-slot--dragging {
+  opacity: 0.5;
+  transform: scale(0.95);
+}
+
+.sticker-slot--drag-over {
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  transform: scale(1.03);
+}
+
+/* ===== Onyx rarity filter chips ===== */
+.rarity-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted-foreground);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.4;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+
+.rarity-chip:hover {
+  border-color: color-mix(in srgb, var(--rc) 45%, transparent);
+  color: var(--foreground);
+}
+
+.rarity-chip:active {
+  transform: scale(0.97);
+}
+
+.rarity-chip:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.rarity-chip--active {
+  border-color: color-mix(in srgb, var(--primary) 55%, transparent);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.rarity-chip__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--rc);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--rc) 60%, transparent);
+}
+
+/* ===== Visual Customizer Overlay Button ===== */
 .visual-customizer-overlay {
   position: absolute;
   top: 8px;
@@ -1951,16 +1790,16 @@ onUnmounted(() => {
   border-radius: 8px;
   cursor: pointer;
   transition:
-    border-color 0.5s ease-in-out,
-    transform 0.5s ease-in-out,
-    box-shadow 0.5s ease-in-out;
+    border-color var(--dur-base) var(--ease-out),
+    transform var(--dur-base) var(--ease-out),
+    box-shadow var(--dur-base) var(--ease-out);
   z-index: 10;
   overflow: hidden;
 }
 
 .visual-customizer-overlay:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 2px var(--selection-ring);
+  box-shadow: 0 0 0 2px var(--primary);
 }
 
 .visual-customizer-overlay::before {
@@ -1970,9 +1809,9 @@ onUnmounted(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, var(--selection-ring), #f59e0b);
+  background: linear-gradient(135deg, var(--primary), #f59e0b);
   opacity: 0;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity var(--dur-base) var(--ease-out);
   z-index: -1;
 }
 
@@ -1997,11 +1836,11 @@ onUnmounted(() => {
 
 .visual-customizer-overlay .magic-wand-icon {
   color: rgba(255, 255, 255, 0.8);
-  transition: color 0.5s ease-in-out;
+  transition: color var(--dur-base) var(--ease-out);
 }
 
 .visual-customizer-overlay:hover:not(.disabled) .magic-wand-icon {
-  color: #ffffff;
+  color: #000000;
 }
 
 .fade-enter-active,
@@ -2012,5 +1851,20 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .equip-slot,
+  .rarity-chip,
+  .visual-customizer-overlay {
+    transition: none;
+  }
+
+  .equip-slot:active,
+  .sticker-slot--dragging,
+  .sticker-slot--drag-over,
+  .rarity-chip:active {
+    transform: none;
+  }
 }
 </style>

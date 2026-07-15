@@ -1,4 +1,8 @@
 {
+  "itemCard": {
+    "notConfigured": "Not Configured",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "WEAPONS",
     "melee": "MELEE",
@@ -36,7 +40,15 @@
     "minimalWear": "Minimal Wear",
     "fieldTested": "Field-Tested",
     "wellWorn": "Well-Worn",
-    "battleScarred": "Battle-Scarred"
+    "battleScarred": "Battle-Scarred",
+    "floatValue": "Float value",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "skins": {
     "title": "Skins",
@@ -44,6 +56,12 @@
     "selectSkin": "Select Skin for {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Pattern"
+      }
+    },
     "logout": {
       "title": "Confirm Logout",
       "question": "Are you sure you want to logout?",

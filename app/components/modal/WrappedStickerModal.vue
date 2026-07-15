@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, ChevronLeft, ChevronRight } from '@lucide/vue'
+import { ArrowUp, ArrowDown } from '@lucide/vue'
 import type { APISticker } from '~/server/types'
 
 interface Props {
@@ -38,7 +38,6 @@ const {
   effectFilterIds,
   availableRarities,
   availableEffects,
-  sortedItems,
   paginatedItems,
   totalPages,
   toggleSortDir,
@@ -132,25 +131,19 @@ watch(
       </div>
     </template>
     <template #header-extra>
-      <div class="flex items-center gap-2">
-        <div class="relative w-64">
-          <Search
-            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
-          />
-          <Input
-            v-model="state.searchQuery"
-            :placeholder="t('modals.sticker.searchPlaceholder') as string"
-            class="w-full pl-9"
-          />
-        </div>
-      </div>
+      <ModalToolbar
+        v-model:search="state.searchQuery"
+        :search-placeholder="t('modals.sticker.searchPlaceholder') as string"
+      />
     </template>
 
     <div class="flex flex-col gap-3 -mt-2">
       <!-- Sticker list controls (Sort + Filters) -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
+          <span class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary">{{
+            t('modals.sticker.sort.label')
+          }}</span>
           <Select :model-value="sortBy" @update:model-value="(v) => (sortBy = String(v ?? sortBy))">
             <SelectTrigger size="sm" class="w-44">
               <SelectValue>
@@ -173,36 +166,44 @@ watch(
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
-            {{ sortDir === 'asc' ? '↑' : '↓' }}
+            <ArrowUp v-if="sortDir === 'asc'" class="size-3" />
+            <ArrowDown v-else class="size-3" />
           </Button>
         </div>
 
-        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
-          <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
+        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-1.5">
+          <span
+            class="mr-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+            >{{ t('modals.sticker.filters.rarity') }}</span
+          >
           <Button
             v-for="rarity in availableRarities"
             :key="rarity.id"
             size="xs"
             :variant="rarityFilterIds.includes(rarity.id) ? 'default' : 'secondary'"
+            class="rounded-full"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
           >
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
+            <span class="flex items-center gap-1.5">
+              <span class="size-2 rounded-full" :style="{ background: rarity.color }" />
               {{ rarity.name }}
             </span>
           </Button>
         </div>
       </div>
 
-      <div v-if="availableEffects.length > 0" class="flex flex-wrap items-center gap-2 -mt-2">
-        <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.effect') }}</span>
+      <div v-if="availableEffects.length > 0" class="-mt-2 flex flex-wrap items-center gap-1.5">
+        <span class="mr-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary">{{
+          t('modals.sticker.filters.effect')
+        }}</span>
         <Button
           v-for="effect in availableEffects"
           :key="effect.id"
           size="xs"
           :variant="effectFilterIds.includes(effect.id) ? 'default' : 'secondary'"
+          class="rounded-full"
           :aria-label="`Filter by ${effect.label} effect`"
           :aria-pressed="effectFilterIds.includes(effect.id)"
           @click="toggleEffectFilter(effect.id)"
@@ -211,96 +212,20 @@ watch(
         </Button>
       </div>
 
-      <!-- Stickers Grid -->
-      <div
-        v-if="!state.isLoading"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-      >
-        <div
-          v-for="item in paginatedItems"
-          :key="item.id"
-          class="cursor-pointer transition-all hover:shadow-lg h-full hover:opacity-80 rounded-sm border border-[#313030] bg-[#242424] px-6 pt-5 pb-5"
-          :style="{
-            border: `1px solid ${item.rarity?.color || '#313030'}`,
-            background: `linear-gradient(135deg, #101010, ${hexToRgba(
-              item.rarity?.color || '#313030',
-              '0.15'
-            )})`,
-          }"
-          @click="handleSelect(item)"
-        >
-          <div class="flex flex-col items-center">
-            <img
-              :src="getStickerSlabImage(item.id)"
-              :alt="item.name"
-              class="w-full h-24 object-contain mb-2"
-              loading="lazy"
-            />
-            <p class="text-sm text-center break-words">
-              {{ item.name.replace('Sticker |', '') }}
-            </p>
-            <div class="h-1 w-full mt-2" :style="{ background: item.rarity?.color || '#313030' }" />
-          </div>
-        </div>
-      </div>
-
-      <!-- Skeleton Loading State -->
-      <div
-        v-if="state.isLoading"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-      >
-        <div
-          v-for="i in PAGE_SIZE"
-          :key="i"
-          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
-        >
-          <Skeleton class="h-24 w-full" />
-          <div class="mt-3">
-            <Skeleton class="h-4 w-full" />
-            <div class="mt-2">
-              <Skeleton class="h-1 w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div
-        v-if="!state.isLoading && sortedItems.length === 0"
-        class="flex justify-center items-center h-64 text-gray-400"
-      >
-        {{ t('modals.sticker.noSearchResults') }}
-      </div>
-
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex justify-center">
-        <Pagination
-          v-model:page="state.currentPage"
-          :total="totalPages"
-          :items-per-page="1"
-          :sibling-count="2"
-          show-edges
-        >
-          <PaginationContent v-slot="{ items }">
-            <PaginationPrevious>
-              <ChevronLeft class="size-4" />
-            </PaginationPrevious>
-            <template v-for="(item, index) in items" :key="index">
-              <PaginationItem
-                v-if="item.type === 'page'"
-                :value="item.value"
-                :is-active="item.value === state.currentPage"
-              >
-                {{ item.value }}
-              </PaginationItem>
-              <PaginationEllipsis v-else />
-            </template>
-            <PaginationNext>
-              <ChevronRight class="size-4" />
-            </PaginationNext>
-          </PaginationContent>
-        </Pagination>
-      </div>
+      <!-- Stickers Grid (skeleton / empty / items + pagination) -->
+      <ItemBrowserGrid
+        v-model:current-page="state.currentPage"
+        :items="paginatedItems"
+        :loading="state.isLoading"
+        :total-pages="totalPages"
+        :skeleton-count="PAGE_SIZE"
+        :sibling-count="2"
+        image-height="sm"
+        :empty-text="t('modals.sticker.noSearchResults') as string"
+        :item-label="(item: APISticker) => item.name.replace('Sticker |', '')"
+        :item-image="(item: APISticker) => getStickerSlabImage(item.id)"
+        @select="handleSelect"
+      />
     </div>
   </AppModal>
 </template>

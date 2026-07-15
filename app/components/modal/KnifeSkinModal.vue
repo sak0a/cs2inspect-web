@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Search, ChevronLeft, ChevronRight, Inbox } from '@lucide/vue'
 import type {
   KnifeModalProps,
   KnifeConfiguration,
@@ -400,6 +399,15 @@ const handleHistoryRestore = (record: ItemHistoryRecord) => {
   }
 }
 
+/**
+ * Grid helpers for ItemBrowserGrid (selection compares paintindex, not id;
+ * display names strip the "★ Weapon | " prefix — both stay in the parent).
+ */
+const isSkinSelected = (skin: APIWeaponSkin) =>
+  customization.value.paintindex === Number(skin.paint_index)
+
+const skinLabel = (skin: APIWeaponSkin) => skin.name.replace('★ ' + skin.weapon.name + ' | ', '')
+
 watch(
   () => customization.value.paintwear,
   (newWear) => {
@@ -505,387 +513,175 @@ watch(
       </div>
     </template>
     <template #header-extra>
-      <div class="flex items-center shrink-0">
-        <!-- Reset Button -->
-        <Button
-          variant="destructive"
-          :disabled="!selectedSkin || customization.paintindex == 0"
-          @click="state.showResetConfirm = true"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-            </svg>
-          </template>
-          {{ t('modals.knifeSkin.buttons.reset') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- Import Knife by Inspect Link -->
-        <Button
-          :loading="state.isImporting"
-          variant="outline"
-          :disabled="!selectedSkin"
-          @click="state.showImportModal = true"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-              <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-              <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-              <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-              <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-              <path d="M16 16l-2.5 -2.5" />
-            </svg>
-          </template>
-          {{ t('modals.knifeSkin.buttons.importFromLink') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- Generate Knife Inspect Link -->
-        <Button
-          :loading="state.isLoadingInspect"
-          variant="outline"
-          :disabled="!selectedSkin"
-          @click="handleCreateInspectLink"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M4 8v-2a2 2 0 0 1 2 -2h2" />
-              <path d="M4 16v2a2 2 0 0 0 2 2h2" />
-              <path d="M16 4h2a2 2 0 0 1 2 2v2" />
-              <path d="M16 20h2a2 2 0 0 0 2 -2v-2" />
-              <path d="M8 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
-              <path d="M16 16l-2.5 -2.5" />
-            </svg>
-          </template>
-          {{ t('modals.knifeSkin.buttons.generateLink') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- History Button -->
-        <Button variant="outline" :disabled="!selectedSkin" @click="showHistoryPanel = true">
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="size-5"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M12 8l0 4l2 2" />
-              <path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5" />
-            </svg>
-          </template>
-          {{ t('history.title') }}
-        </Button>
-        <Separator
-          orientation="vertical"
-          class="mx-2 bg-white/10 data-[orientation=vertical]:h-4"
-        />
-
-        <!-- Knife Search -->
-        <div class="relative ml-1 w-64 max-w-64">
-          <Search
-            class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-gray-400"
-          />
-          <Input
-            v-model="state.searchQuery"
-            :placeholder="String(t('modals.knifeSkin.inputs.searchPlaceholder'))"
-            class="w-full pl-9"
-          />
-        </div>
-      </div>
+      <ModalToolbar
+        v-model:search="state.searchQuery"
+        :search-placeholder="String(t('modals.knifeSkin.inputs.searchPlaceholder'))"
+        show-reset
+        show-history
+        show-import
+        show-generate
+        :reset-label="String(t('modals.knifeSkin.buttons.reset'))"
+        :history-label="String(t('history.title'))"
+        :import-label="String(t('modals.knifeSkin.buttons.importFromLink'))"
+        :generate-label="String(t('modals.knifeSkin.buttons.generateLink'))"
+        :reset-disabled="!selectedSkin || customization.paintindex == 0"
+        :history-disabled="!selectedSkin"
+        :import-disabled="!selectedSkin"
+        :generate-disabled="!selectedSkin"
+        :import-loading="state.isImporting"
+        :generate-loading="state.isLoadingInspect"
+        @reset="state.showResetConfirm = true"
+        @history="showHistoryPanel = true"
+        @import="state.showImportModal = true"
+        @generate="handleCreateInspectLink"
+      />
     </template>
 
     <div class="flex flex-col gap-3 -mt-2">
       <!-- Selected Skin Preview -->
-      <div v-if="inheritedWeapon" class="bg-[var(--bg-secondary)] p-6 rounded-lg">
-        <div class="grid grid-cols-2 gap-6">
-          <!-- Left side - Image -->
-          <div>
+      <div v-if="inheritedWeapon" class="grid grid-cols-2 gap-6">
+        <!-- Left side - Stage -->
+        <SelectedItemStage
+          :title="selectedSkin?.name ?? ''"
+          :float-value="customization.paintindex ? customization.paintwear.toFixed(3) : undefined"
+          :pattern-seed="customization.paintindex ? customization.paintseed : undefined"
+          :rarity-color="selectedSkin?.rarity?.color"
+        >
+          <template #media>
             <img
               :src="selectedSkin?.image"
               :alt="selectedSkin?.name"
-              class="w-full h-64 object-contain"
+              class="h-64 w-full object-contain px-4 pb-10 pt-4"
             />
-            <h3 class="text-lg font-bold mt-2">{{ selectedSkin?.name }}</h3>
-          </div>
+          </template>
+        </SelectedItemStage>
 
-          <!-- Right side - Customization -->
-          <div class="space-y-6 flex flex-col items-center">
-            <!-- StatTrak and Name Tag -->
-            <div class="grid grid-cols-2 gap-4 w-full">
-              <div class="flex items-center space-x-4">
-                <Switch v-model="customization.stattrak_enabled" />
-                <span>{{ t('modals.knifeSkin.labels.stattrak') }}</span>
-                <NumberField
-                  v-model="customization.stattrak_count"
-                  :disabled="!customization.stattrak_enabled"
-                  :min="0"
-                  :max="999999"
-                  :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
-                  class="w-28"
-                >
-                  <NumberFieldContent>
-                    <NumberFieldInput class="text-left px-3" />
-                  </NumberFieldContent>
-                </NumberField>
-              </div>
-              <Input
-                v-model="customization.nametag"
-                :placeholder="String(t('modals.knifeSkin.inputs.nameTagPlaceholder'))"
-              />
-            </div>
-
-            <!-- Paint Settings -->
-            <div class="grid grid-cols-2 gap-4 w-full">
-              <div class="space-y-2">
-                <div class="flex items-center justify-between">
-                  <h4 class="font-bold">
-                    {{ t('modals.knifeSkin.labels.paintIndex') }}
-                  </h4>
-                  <div class="flex items-center space-x-2">
-                    <Switch v-model="customization.paintIndexOverride" />
-                    <span class="text-sm">{{
-                      t('modals.knifeSkin.labels.paintIndexOverride')
-                    }}</span>
-                  </div>
-                </div>
-                <NumberField
-                  v-model="customization.paintindex"
-                  :min="0"
-                  :max="9999"
-                  :disabled="!customization.paintIndexOverride"
-                  :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
-                >
-                  <NumberFieldContent>
-                    <NumberFieldDecrement />
-                    <NumberFieldInput />
-                    <NumberFieldIncrement />
-                  </NumberFieldContent>
-                </NumberField>
-              </div>
-
-              <div class="space-y-2">
-                <h4 class="font-bold">
-                  {{ t('modals.knifeSkin.labels.pattern') }}
-                </h4>
-                <NumberField
-                  v-model="customization.paintseed"
-                  :min="0"
-                  :max="1000"
-                  :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
-                >
-                  <NumberFieldContent>
-                    <NumberFieldDecrement />
-                    <NumberFieldInput />
-                    <NumberFieldIncrement />
-                  </NumberFieldContent>
-                </NumberField>
-              </div>
-            </div>
-
-            <!-- Wear Slider -->
-            <div class="w-full">
-              <div class="flex items-start justify-between">
-                <h4 class="font-bold">{{ t('modals.knifeSkin.labels.wear') }}</h4>
-              </div>
-              <WearSlider
-                v-model="customization.paintwear"
-                :max="selectedSkin?.maxFloat ?? 1"
-                :min="selectedSkin?.minFloat ?? 0"
-              />
-            </div>
-
-            <!-- Duplicate & Active Switch -->
-            <div class="flex items-center justify-center w-full mt-0 gap-2">
-              <!-- Duplicate Knife -->
-              <div>
-                <Button
-                  :disabled="!selectedSkin || customization.paintindex == 0"
-                  variant="secondary"
-                  class="w-full"
-                  @click="state.showDuplicateConfirm = true"
-                >
-                  {{ t('modals.knifeSkin.buttons.duplicate') }}
-                </Button>
-              </div>
-
-              <div class="flex items-center justify-center gap-2 w-full h-full">
-                <Switch v-model="customization.active" />
-                <span
-                  class="text-sm font-medium"
-                  :class="customization.active ? 'text-primary' : 'text-gray-400'"
-                >
-                  {{
-                    customization.active
-                      ? t('modals.knifeSkin.labels.itemActive')
-                      : t('modals.knifeSkin.labels.itemInactive')
-                  }}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Skins Grid -->
-      <div
-        v-if="!state.isLoadingSkins"
-        class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
-      >
-        <div
-          v-for="skin in paginatedSkins"
-          :key="skin.id"
-          :style="{
-            borderColor: skin.rarity?.color || '#313030',
-            background: `linear-gradient(135deg, #101010, ${hexToRgba(
-              skin.rarity?.color || '#313030',
-              '0.15'
-            )})`,
-          }"
-          :class="[
-            'hover:shadow-lg cursor-pointer transition-all rounded-xl border border-[#313030] bg-[#242424] px-6 pt-5 pb-5',
-            customization.paintindex === Number(skin.paint_index)
-              ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
-              : '',
-          ]"
-          @click="handleSkinSelect(skin)"
-        >
-          <div class="flex flex-col items-center">
-            <img
-              :src="skin.image"
-              :alt="skin.name"
-              class="w-full h-32 object-contain mb-2"
-              loading="lazy"
-            />
-            <div class="w-full">
-              <p class="text-sm text-white truncate">
-                {{ skin.name.replace('★ ' + skin.weapon.name + ' | ', '') }}
-              </p>
-              <div class="h-1 mt-2" :style="{ background: skin.rarity?.color || '#313030' }" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Skeleton Loading State -->
-      <div
-        v-if="state.isLoadingSkins"
-        class="grid grid-cols-5 lg:grid-cols-5 md:grid-cols-3 sm:grid-cols-2 gap-4"
-      >
-        <div
-          v-for="i in 10"
-          :key="i"
-          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
-        >
-          <Skeleton class="h-32 w-full" />
-          <div class="mt-3">
-            <Skeleton class="h-4 w-full" />
-            <div class="mt-2">
-              <Skeleton class="h-1 w-full" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- No Results -->
-      <div
-        v-if="!state.isLoadingSkins && filteredSkins.length === 0"
-        class="flex justify-center items-center h-64"
-      >
-        <Empty>
-          <EmptyHeader>
-            <EmptyMedia variant="icon">
-              <Inbox />
-            </EmptyMedia>
-            <EmptyDescription>{{ String(t('modals.knifeSkin.noSearchResults')) }}</EmptyDescription>
-          </EmptyHeader>
-        </Empty>
-      </div>
-
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex justify-center mt-4">
-        <Pagination
-          v-model:page="state.currentPage"
-          :total="totalPages"
-          :items-per-page="1"
-          :sibling-count="1"
-          show-edges
-        >
-          <PaginationContent v-slot="{ items }">
-            <PaginationPrevious>
-              <ChevronLeft class="size-4" />
-            </PaginationPrevious>
-            <template v-for="(item, index) in items" :key="index">
-              <PaginationItem
-                v-if="item.type === 'page'"
-                :value="item.value"
-                :is-active="item.value === state.currentPage"
+        <!-- Right side - Customization -->
+        <div class="space-y-6 flex flex-col items-center justify-center">
+          <!-- StatTrak and Name Tag -->
+          <div class="grid grid-cols-2 gap-4 w-full">
+            <div class="flex items-center space-x-4">
+              <Switch v-model="customization.stattrak_enabled" />
+              <span>{{ t('modals.knifeSkin.labels.stattrak') }}</span>
+              <NumberField
+                v-model="customization.stattrak_count"
+                :disabled="!customization.stattrak_enabled"
+                :min="0"
+                :max="999999"
+                :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
+                class="w-28"
               >
-                {{ item.value }}
-              </PaginationItem>
-              <PaginationEllipsis v-else />
-            </template>
-            <PaginationNext>
-              <ChevronRight class="size-4" />
-            </PaginationNext>
-          </PaginationContent>
-        </Pagination>
+                <NumberFieldContent>
+                  <NumberFieldInput class="text-left px-3" />
+                </NumberFieldContent>
+              </NumberField>
+            </div>
+            <Input
+              v-model="customization.nametag"
+              :placeholder="String(t('modals.knifeSkin.inputs.nameTagPlaceholder'))"
+            />
+          </div>
+
+          <!-- Paint Settings -->
+          <div class="grid grid-cols-2 gap-4 w-full">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold">
+                  {{ t('modals.knifeSkin.labels.paintIndex') }}
+                </h4>
+                <div class="flex items-center space-x-2">
+                  <Switch v-model="customization.paintIndexOverride" />
+                  <span class="text-sm">{{ t('modals.knifeSkin.labels.paintIndexOverride') }}</span>
+                </div>
+              </div>
+              <NumberField
+                v-model="customization.paintindex"
+                :min="0"
+                :max="9999"
+                :disabled="!customization.paintIndexOverride"
+                :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
+              >
+                <NumberFieldContent>
+                  <NumberFieldDecrement />
+                  <NumberFieldInput />
+                  <NumberFieldIncrement />
+                </NumberFieldContent>
+              </NumberField>
+            </div>
+
+            <div class="space-y-2">
+              <h4 class="font-bold">
+                {{ t('modals.knifeSkin.labels.pattern') }}
+              </h4>
+              <NumberField
+                v-model="customization.paintseed"
+                :min="0"
+                :max="1000"
+                :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
+              >
+                <NumberFieldContent>
+                  <NumberFieldDecrement />
+                  <NumberFieldInput />
+                  <NumberFieldIncrement />
+                </NumberFieldContent>
+              </NumberField>
+            </div>
+          </div>
+
+          <!-- Wear Slider -->
+          <div class="w-full">
+            <div class="flex items-start justify-between">
+              <h4 class="font-bold">{{ t('modals.knifeSkin.labels.wear') }}</h4>
+            </div>
+            <WearSlider
+              v-model="customization.paintwear"
+              :max="selectedSkin?.maxFloat ?? 1"
+              :min="selectedSkin?.minFloat ?? 0"
+            />
+          </div>
+
+          <!-- Duplicate & Active Switch -->
+          <div class="flex items-center justify-center w-full mt-0 gap-2">
+            <!-- Duplicate Knife -->
+            <div>
+              <Button
+                :disabled="!selectedSkin || customization.paintindex == 0"
+                variant="secondary"
+                class="w-full"
+                @click="state.showDuplicateConfirm = true"
+              >
+                {{ t('modals.knifeSkin.buttons.duplicate') }}
+              </Button>
+            </div>
+
+            <div class="flex items-center justify-center gap-2 w-full h-full">
+              <Switch v-model="customization.active" />
+              <span
+                class="text-sm font-medium"
+                :class="customization.active ? 'text-primary' : 'text-gray-400'"
+              >
+                {{
+                  customization.active
+                    ? t('modals.knifeSkin.labels.itemActive')
+                    : t('modals.knifeSkin.labels.itemInactive')
+                }}
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <!-- Skins Grid (loading skeletons, empty state, and pagination included) -->
+      <ItemBrowserGrid
+        v-model:current-page="state.currentPage"
+        :items="paginatedSkins"
+        :loading="state.isLoadingSkins"
+        :total-pages="totalPages"
+        :is-selected="isSkinSelected"
+        :item-label="skinLabel"
+        :empty-text="String(t('modals.knifeSkin.noSearchResults'))"
+        @select="handleSkinSelect"
+      />
     </div>
 
     <!-- Import via InspectURL Modal -->

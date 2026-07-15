@@ -1,4 +1,8 @@
 {
+  "itemCard": {
+    "notConfigured": "Не настроено",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "ОРУЖИЕ",
     "melee": "БЛИЖНИЙ БОЙ",
@@ -33,6 +37,12 @@
     "selectSkin": "Выбрать скин для {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Флоат",
+        "pattern": "Паттерн"
+      }
+    },
     "logout": {
       "title": "Подтвердите выход",
       "question": "Вы уверены, что хотите выйти?",
@@ -410,7 +420,15 @@
     "minimalWear": "Немного поношенное",
     "fieldTested": "После полевых испытаний",
     "wellWorn": "Сильно поношенное",
-    "battleScarred": "Закалённое в боях"
+    "battleScarred": "Закалённое в боях",
+    "floatValue": "Значение Float",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "auth": {
     "login": "Войти",

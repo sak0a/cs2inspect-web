@@ -309,18 +309,24 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
   margin-top: 1rem;
 }
 
-/* Fade-in animation for pins */
+/* Fade-in animation for pins (opacity-only: the card owns its transform/transition) */
 .fade-in-item {
   opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease;
+  will-change: opacity;
 }
 
 .fade-in-item.visible {
   opacity: 1;
-  transform: translateY(0);
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Responsive adjustments */

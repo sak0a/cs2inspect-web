@@ -1,5 +1,7 @@
-<!-- WearSlider.vue -->
+<!-- WearSlider.vue — Onyx wear slider on reka-ui SliderRoot -->
 <script setup lang="ts">
+import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui'
+
 interface Props {
   min?: number
   max?: number
@@ -14,45 +16,54 @@ const modelValue = defineModel<number>({ default: 0.01 })
 
 const { t } = useI18n()
 
-const WEARS = {
-  0.0: t('wears.factoryNew') as string,
-  0.07: t('wears.minimalWear') as string,
-  0.15: t('wears.fieldTested') as string,
-  0.38: t('wears.wellWorn') as string,
-  0.45: t('wears.battleScarred') as string,
-}
+/** Wear band boundaries (CS2 exterior thresholds). */
+const BAND_TICKS = [0.07, 0.15, 0.38, 0.45] as const
 
-const progressBar = ref(null)
-const isDragging = ref(false)
+const bands = computed(() => [
+  { from: 0, mid: 0.035, short: t('wears.short.factoryNew'), label: t('wears.factoryNew') },
+  { from: 0.07, mid: 0.11, short: t('wears.short.minimalWear'), label: t('wears.minimalWear') },
+  { from: 0.15, mid: 0.265, short: t('wears.short.fieldTested'), label: t('wears.fieldTested') },
+  { from: 0.38, mid: 0.415, short: t('wears.short.wellWorn'), label: t('wears.wellWorn') },
+  {
+    from: 0.45,
+    mid: 0.725,
+    short: t('wears.short.battleScarred'),
+    label: t('wears.battleScarred'),
+  },
+])
+
 const localValue = ref(clampValue(modelValue.value))
-const isTooltipVisible = ref(false)
-const tooltipTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
+const isDragging = ref(false)
+const isHovering = ref(false)
+const isFocused = ref(false)
 
-// Format number to 3 decimal places for display
-const displayValue = computed(() => {
-  return localValue.value.toFixed(3)
+const showReadout = computed(() => isDragging.value || isHovering.value || isFocused.value)
+
+/** 3-decimal display for the numeric pill. */
+const displayValue = computed(() => localValue.value.toFixed(3))
+
+/** Full-precision readout for the drag tooltip (3 decimals minimum). */
+const preciseValue = computed(() => {
+  const v = localValue.value
+  const full = Number(v.toFixed(10)).toString()
+  const decimals = full.split('.')[1]?.length ?? 0
+  return decimals < 3 ? v.toFixed(3) : full
 })
 
-// Computed for handle position as percentage
-const handlePosition = computed(() => {
-  return localValue.value * 100
+const activeBandIndex = computed(() => {
+  const list = bands.value
+  for (let i = list.length - 1; i >= 0; i--) {
+    const band = list[i]
+    if (band && localValue.value >= band.from) return i
+  }
+  return 0
 })
 
-function showTooltip() {
-  if (tooltipTimeout.value) {
-    clearTimeout(tooltipTimeout.value)
-    tooltipTimeout.value = null
-  }
-  isTooltipVisible.value = true
-}
+const currentWearLabel = computed(() => bands.value[activeBandIndex.value]?.label ?? '')
 
-function startHideTooltip() {
-  if (!isDragging.value) {
-    tooltipTimeout.value = setTimeout(() => {
-      isTooltipVisible.value = false
-    }, 300)
-  }
-}
+const handlePosition = computed(() => localValue.value * 100)
+
+const hasRangeConstraint = computed(() => props.min > 0 || props.max < 1)
 
 function clampValue(val: number | string) {
   const numVal = Number(val)
@@ -60,12 +71,20 @@ function clampValue(val: number | string) {
   return Math.min(Math.max(numVal, props.min), props.max)
 }
 
+/** Live drag/keyboard updates from reka — clamp to the skin's valid range. */
+function handleSliderUpdate(values: number[] | undefined) {
+  const raw = values?.[0]
+  if (raw === undefined) return
+  const newValue = clampValue(Math.round(raw * 1000) / 1000)
+  localValue.value = newValue
+  modelValue.value = newValue
+}
+
 function handleCustomInput(event: Event) {
   const value = (event.target as HTMLInputElement).value
   // Allow only numbers, single decimal point, and minus sign
   if (!/^-?\d*\.?\d*$/.test(value)) {
     ;(event.target as HTMLInputElement).value = displayValue.value
-    return
   }
 }
 
@@ -78,40 +97,13 @@ function handleBlur(event: Event) {
   ;(event.target as HTMLInputElement).value = displayValue.value
 }
 
-function getCurrentWearLabel() {
-  const wearValues = Object.keys(WEARS).map(Number)
-  for (let i = wearValues.length - 1; i >= 0; i--) {
-    const wearValue = wearValues[i]
-    if (wearValue !== undefined && localValue.value >= wearValue) {
-      return WEARS[wearValue as keyof typeof WEARS]
-    }
-  }
-  return WEARS[0]
-}
-
-function startDragging(event: MouseEvent) {
-  isDragging.value = true
-  showTooltip()
-  event.preventDefault()
-}
-
 function stopDragging() {
   isDragging.value = false
-  startHideTooltip()
 }
 
-function onDrag(event: MouseEvent) {
-  if (!isDragging.value || !progressBar.value) return
-
-  const rect = (progressBar.value as HTMLElement).getBoundingClientRect()
-  const percentage = (event.clientX - rect.left) / rect.width
-
-  const newValue = Math.round(percentage * 1000) / 1000
-  if (newValue > props.max || newValue < props.min) return
-  localValue.value = clampValue(newValue)
-
-  // Sync to parent via defineModel
-  modelValue.value = newValue
+function startDragging() {
+  isDragging.value = true
+  window.addEventListener('pointerup', stopDragging, { once: true })
 }
 
 // Watch for external value changes
@@ -119,7 +111,7 @@ watch(
   modelValue,
   (newValue) => {
     if (newValue !== localValue.value) {
-      localValue.value = clampValue(newValue)
+      localValue.value = clampValue(newValue ?? props.min)
     }
   },
   { immediate: true }
@@ -130,262 +122,115 @@ watch([() => props.min, () => props.max], () => {
   localValue.value = clampValue(localValue.value)
 })
 
-onMounted(() => {
-  document.addEventListener('mousemove', onDrag)
-  document.addEventListener('mouseup', stopDragging)
-})
-
 onBeforeUnmount(() => {
-  document.removeEventListener('mousemove', onDrag)
-  document.removeEventListener('mouseup', stopDragging)
-  if (tooltipTimeout.value) {
-    clearTimeout(tooltipTimeout.value)
-  }
+  window.removeEventListener('pointerup', stopDragging)
 })
 </script>
+
 <template>
-  <div class="wear-control-container">
-    <!-- Custom Number Input -->
-    <div class="custom-number-input">
-      <input
-        type="text"
-        :value="displayValue"
-        @input="handleCustomInput"
-        @blur="handleBlur"
-        @keydown.enter="handleBlur"
-      />
-    </div>
+  <div class="flex w-full items-center gap-4">
+    <!-- Compact mono numeric pill -->
+    <input
+      type="text"
+      inputmode="decimal"
+      class="wear-input h-7 w-20 shrink-0 rounded-full border border-border bg-surface-2 text-center font-mono text-xs text-foreground tabular-nums transition-[border-color,box-shadow] duration-[var(--dur-fast)] ease-[var(--ease-out)] hover:border-border-strong focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 motion-reduce:transition-none"
+      :value="displayValue"
+      :aria-label="String(t('wears.floatValue'))"
+      @input="handleCustomInput"
+      @blur="handleBlur"
+      @keydown.enter="handleBlur"
+    />
 
-    <div class="progress-container">
-      <div
-        ref="progressBar"
-        class="progress-bar"
-        @mouseenter="showTooltip"
-        @mouseleave="startHideTooltip"
+    <!-- Track + labels -->
+    <div
+      class="relative min-w-0 flex-1"
+      @pointerenter="isHovering = true"
+      @pointerleave="isHovering = false"
+    >
+      <SliderRoot
+        :model-value="[localValue]"
+        :min="0"
+        :max="1"
+        :step="0.001"
+        class="relative flex h-5 w-full touch-none select-none items-center"
+        :aria-label="String(t('wears.floatValue'))"
+        @update:model-value="handleSliderUpdate"
+        @pointerdown="startDragging"
+        @focusin="isFocused = true"
+        @focusout="isFocused = false"
       >
-        <!-- Full gradient background -->
-        <div class="progress-background" />
-
-        <!-- Min-max range indicator -->
-        <div
-          class="valid-range"
-          :style="{
-            left: `${props.min * 100}%`,
-            width: `${(props.max - props.min) * 100}%`,
-          }"
-        />
-
-        <!-- Slider handle and tooltip -->
-        <div
-          class="slider-handle"
-          :style="{ left: `${handlePosition}%` }"
-          @mousedown="startDragging"
+        <SliderTrack
+          class="relative h-1.5 w-full grow overflow-hidden rounded-full border border-border bg-surface-2"
         >
-          <div class="tooltip" :class="{ visible: isTooltipVisible }">
-            {{ displayValue }} - {{ getCurrentWearLabel() }}
-          </div>
-        </div>
-
-        <!-- Wear labels -->
-        <div class="wear-labels">
+          <!-- Valid-range shading (skin min/max float constraint) -->
           <div
-            v-for="(label, value) in WEARS"
-            :key="value"
-            class="wear-label"
-            :style="{ left: `${Number(value) * 100}%` }"
-          >
-            <div class="wear-marker" />
-          </div>
+            v-if="hasRangeConstraint"
+            class="pointer-events-none absolute inset-y-0 bg-foreground/10"
+            :style="{
+              left: `${props.min * 100}%`,
+              width: `${(props.max - props.min) * 100}%`,
+            }"
+          />
+
+          <!-- Accent gradient fill from left to thumb -->
+          <SliderRange
+            class="absolute h-full rounded-full"
+            :style="{
+              background:
+                'linear-gradient(90deg, color-mix(in srgb, var(--primary) 30%, transparent), var(--primary))',
+            }"
+          />
+
+          <!-- Wear band tick marks -->
+          <div
+            v-for="tick in BAND_TICKS"
+            :key="tick"
+            class="pointer-events-none absolute inset-y-0 w-px bg-border-strong"
+            :style="{ left: `${tick * 100}%` }"
+          />
+        </SliderTrack>
+
+        <SliderThumb
+          class="block size-4 shrink-0 cursor-grab rounded-full border-2 border-background bg-foreground shadow-[0_2px_6px_rgba(0,0,0,0.45)] transition-shadow duration-[var(--dur-fast)] ease-[var(--ease-out)] hover:ring-4 hover:ring-primary/25 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-primary/40 active:cursor-grabbing motion-reduce:transition-none"
+        />
+      </SliderRoot>
+
+      <!-- Precise readout tooltip (value + wear name) -->
+      <div
+        class="pointer-events-none absolute -top-7 z-10 transition-opacity duration-[var(--dur-fast)] ease-[var(--ease-out)] motion-reduce:transition-none"
+        :class="showReadout ? 'opacity-100' : 'opacity-0'"
+        :style="{ left: `${handlePosition}%` }"
+        aria-hidden="true"
+      >
+        <div
+          class="-translate-x-1/2 whitespace-nowrap rounded-md border border-border bg-surface-2 px-2 py-0.5 font-mono text-[10.5px] text-foreground tabular-nums shadow-[var(--shadow-card)]"
+        >
+          {{ preciseValue }}
+          <span class="text-text-tertiary">· {{ currentWearLabel }}</span>
         </div>
+      </div>
+
+      <!-- Wear-band labels row -->
+      <div
+        class="pointer-events-none relative mt-1 h-3 font-mono text-[9px] uppercase tracking-[0.08em]"
+        aria-hidden="true"
+      >
+        <span
+          v-for="(band, i) in bands"
+          :key="band.from"
+          class="absolute top-0 -translate-x-1/2 transition-colors duration-[var(--dur-fast)] ease-[var(--ease-out)] motion-reduce:transition-none"
+          :class="i === activeBandIndex ? 'text-primary' : 'text-text-tertiary'"
+          :style="{ left: `${band.mid * 100}%` }"
+        >
+          {{ band.short }}
+        </span>
       </div>
     </div>
   </div>
 </template>
+
 <style scoped>
-.wear-control-container {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.progress-container {
-  flex: 1;
-  padding: 20px;
-}
-
-.progress-bar {
-  position: relative;
-  height: 10px;
-  border-radius: 9999px;
-  cursor: pointer;
-  overflow: visible;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.progress-background {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    to right,
-    #4caf50 0%,
-    /* Green - Factory New */ #4caf50 7%,
-    /* Green - Factory New End */ #8bc34a 7%,
-    /* Light Green - Minimal Wear Start */ #8bc34a 15%,
-    /* Light Green - Minimal Wear End */ #ffeb3b 15%,
-    /* Yellow - Field Tested Start */ #ffeb3b 38%,
-    /* Yellow - Field Tested End */ #ff9800 38%,
-    /* Orange - Well Worn Start */ #ff9800 45%,
-    /* Orange - Well Worn End */ #f44336 45% /* Red - Battle Scarred */
-  );
-  border-radius: 4px;
-}
-
-.valid-range {
-  position: absolute;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-  pointer-events: none;
-}
-
-.slider-handle {
-  position: absolute;
-  top: 50%;
-  width: 20px;
-  height: 20px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  border-radius: 50%;
-  transform: translate(-50%, -50%);
-  cursor: grab;
-  z-index: 2;
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  transition:
-    box-shadow 0.2s ease,
-    transform 0.1s ease,
-    border-color 0.2s ease;
-}
-
-.slider-handle:hover {
-  box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.45),
-    0 0 0 4px rgba(250, 204, 21, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5);
-}
-
-.slider-handle:active {
-  cursor: grabbing;
-}
-
-.tooltip {
-  position: absolute;
-  top: -38px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: rgba(18, 18, 18, 0.85);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 14px;
-  white-space: nowrap;
-  min-width: max-content;
-  opacity: 0;
-  visibility: hidden;
-
-  backdrop-filter: blur(8px) saturate(140%);
-  -webkit-backdrop-filter: blur(8px) saturate(140%);
-  box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.4),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  transition:
-    opacity 0.2s,
-    visibility 0.2s;
-}
-
-.tooltip.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-.tooltip:after {
-  content: '';
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-left: 6px solid transparent;
-  border-right: 6px solid transparent;
-  border-top: 6px solid rgba(18, 18, 18, 0.85);
-}
-
-.wear-labels {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-}
-
-.wear-label {
-  position: absolute;
-  transform: translateX(-50%);
-}
-
-.wear-marker {
-  width: 2px;
-  height: 16px;
-  position: absolute;
-  top: -4px;
-}
-
-.custom-number-input {
-  position: relative;
-}
-
-.custom-number-input input {
-  width: 80px;
-  caret-color: #80e6c4;
-  padding: 5px 8px;
-  border: 1px solid transparent;
-  border-radius: 20px;
-  font-size: 14px;
-  text-align: center;
-  background: rgba(49, 49, 49, 0.85);
-  color: white;
-  backdrop-filter: blur(6px) saturate(120%);
-  -webkit-backdrop-filter: blur(6px) saturate(120%);
-  box-shadow:
-    0 2px 6px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition: all 0.15s ease-in-out;
-}
-
-.custom-number-input input:hover {
-  border-color: var(--primary-color);
-  box-shadow:
-    0 4px 10px rgba(0, 0, 0, 0.3),
-    0 0 0 2px rgba(250, 204, 21, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.1);
-}
-
-.custom-number-input input:focus {
-  outline: none;
-  background: rgba(35, 46, 42, 0.95);
-  border-color: var(--primary-color);
-  box-shadow:
-    0 6px 14px rgba(0, 0, 0, 0.35),
-    0 0 0 3px rgba(250, 204, 21, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+.wear-input {
+  caret-color: var(--primary);
 }
 </style>
