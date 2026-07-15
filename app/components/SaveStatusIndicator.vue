@@ -88,32 +88,36 @@ const statusClass = computed(() => {
 </script>
 
 <style scoped>
+/* Onyx pill: near-opaque elevated surface, hairline border, mono micro-text */
 .save-status-indicator {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
-  border-radius: 16px;
-  font-size: 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 11px;
   font-weight: 500;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
+  letter-spacing: 0.02em;
+  transition:
+    color 0.2s var(--ease-out),
+    border-color 0.2s var(--ease-out);
 }
 
 .save-status-indicator--saving {
-  background: rgba(100, 100, 100, 0.3);
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--muted-foreground);
 }
 
 .save-status-indicator--saved {
-  background: rgba(34, 197, 94, 0.2);
-  color: rgb(134, 239, 172);
+  color: #34d399;
+  border-color: rgba(52, 211, 153, 0.3);
 }
 
 .save-status-indicator--error {
-  background: rgba(239, 68, 68, 0.2);
-  color: rgb(252, 165, 165);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.35);
 }
 
 .save-status-indicator--fixed {
@@ -122,10 +126,9 @@ const statusClass = computed(() => {
   left: 50%;
   transform: translateX(-50%);
   z-index: 9999;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  padding: 4px 24px;
-  font-size: 14px;
-  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  padding: 5px 20px;
+  font-size: 12px;
   gap: 8px;
 }
 
@@ -159,12 +162,9 @@ const statusClass = computed(() => {
   height: 14px;
 }
 
-.status-icon--success {
-  color: rgb(134, 239, 172);
-}
-
+.status-icon--success,
 .status-icon--error {
-  color: rgb(252, 165, 165);
+  color: currentColor;
 }
 
 .status-text {

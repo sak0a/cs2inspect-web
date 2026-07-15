@@ -1,6 +1,9 @@
 {
   "title": "Gloves",
   "selectGloveType": "Select glove type",
+  "typeLabel": "Glove type",
+  "emptyTitle": "No gloves to show",
+  "reload": "Reload",
   "noGloves": "No gloves available for this loadout",
   "defaultGloves": "Default Gloves"
 }

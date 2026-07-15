@@ -1,1 +1,7 @@
-{}
+{
+  "typeLabel": "Knife type",
+  "selectType": "Select knife type",
+  "emptyTitle": "No knives to show",
+  "emptyDescription": "This loadout has no knives yet.",
+  "reload": "Reload"
+}

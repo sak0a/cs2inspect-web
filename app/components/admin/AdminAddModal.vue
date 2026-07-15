@@ -88,13 +88,13 @@ watch(
     :visible="show"
     title="Add New Admin"
     max-width="500px"
+    variant="admin"
     @update:visible="
       (val) => {
         if (!val) handleClose()
       }
     "
   >
-    <div class="admin-modal-glass-marker hidden" aria-hidden="true" />
     <div class="space-y-4">
       <!-- Info Banner -->
       <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
@@ -208,15 +208,3 @@ watch(
     </div>
   </AppModal>
 </template>
-
-<style lang="sass">
-// Darker admin glass card (port of the old .n-card deep override). The dialog
-// teleports to <body>, so this global rule targets the dialog content that
-// contains this modal's marker element; !important beats AppModal's inline
-// default glass recipe.
-[data-slot='dialog-content']:has(.admin-modal-glass-marker)
-  background-color: rgba(12, 12, 12, 0.7) !important
-  border: 1px solid var(--admin-glass-border) !important
-  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
-  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
-</style>

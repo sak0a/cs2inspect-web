@@ -1,6 +1,9 @@
 {
   "title": "Guantes",
   "selectGloveType": "Seleccionar tipo de guante",
+  "typeLabel": "Tipo de guantes",
+  "emptyTitle": "No hay guantes para mostrar",
+  "reload": "Recargar",
   "noGloves": "No hay guantes disponibles para este loadout",
   "defaultGloves": "Guantes por defecto"
 }

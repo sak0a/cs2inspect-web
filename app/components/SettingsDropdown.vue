@@ -37,6 +37,7 @@ interface Props {
   showLogout?: boolean
   showTutorials?: boolean
   showAdminLink?: boolean
+  /** Defaults to the localized navigation.settings label */
   ariaLabel?: string
 }
 
@@ -48,7 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
   showLogout: true,
   showTutorials: true,
   showAdminLink: true,
-  ariaLabel: 'Settings',
+  ariaLabel: undefined,
 })
 
 const emit = defineEmits<{
@@ -65,6 +66,8 @@ const menuAlign = computed(() => {
 })
 
 const { t, getLocale, switchLocale, getLocales } = useI18n()
+
+const resolvedAriaLabel = computed(() => props.ariaLabel ?? String(t('navigation.settings')))
 const tutorialStore = useTutorialStore()
 const adminStore = useAdminStore()
 const { isFeatureEnabled, loaded: settingsLoaded } = useAppSettings()
@@ -175,7 +178,12 @@ function handleSelectKeepOpen(event: Event, key: string) {
 <template>
   <DropdownMenu>
     <DropdownMenuTrigger as-child>
-      <Button v-if="variant === 'icon'" variant="ghost" :size="triggerSize" :aria-label="ariaLabel">
+      <Button
+        v-if="variant === 'icon'"
+        variant="ghost"
+        :size="triggerSize"
+        :aria-label="resolvedAriaLabel"
+      >
         <template #icon-left>
           <SettingsIcon :size="18" />
         </template>
@@ -186,7 +194,7 @@ function handleSelectKeepOpen(event: Event, key: string) {
         variant="ghost"
         class="w-full justify-start"
         :size="triggerSize"
-        :aria-label="ariaLabel"
+        :aria-label="resolvedAriaLabel"
       >
         <template #icon-left>
           <SettingsIcon :size="18" />
@@ -201,7 +209,7 @@ function handleSelectKeepOpen(event: Event, key: string) {
         <DropdownMenuSubTrigger>
           <LanguagesIcon class="size-3.5" />
           <span class="min-w-0 flex-1 truncate">
-            {{ String(t('navigation.language') || 'Language') }}
+            {{ t('navigation.language') }}
           </span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent class="min-w-[180px]">
@@ -220,7 +228,7 @@ function handleSelectKeepOpen(event: Event, key: string) {
         <DropdownMenuSubTrigger>
           <TutorialIcon class="size-3.5" />
           <span class="min-w-0 flex-1 truncate">
-            {{ String(t('tutorial.menuTitle') || 'Tutorials') }}
+            {{ t('tutorial.menuTitle') }}
           </span>
         </DropdownMenuSubTrigger>
         <DropdownMenuSubContent class="min-w-[180px]">
@@ -238,7 +246,7 @@ function handleSelectKeepOpen(event: Event, key: string) {
       <!-- Admin Panel -->
       <DropdownMenuItem v-if="showAdminLink && adminStore.isAdmin" @select="handleSelect('admin')">
         <AdminIcon class="size-4" />
-        <span>{{ String(t('admin.panelTitle') || 'Admin Panel') }}</span>
+        <span>{{ t('admin.panelTitle') }}</span>
       </DropdownMenuItem>
 
       <!-- Logout -->
@@ -246,7 +254,7 @@ function handleSelectKeepOpen(event: Event, key: string) {
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" @select="handleSelect('logout')">
           <LogOutIcon class="size-4" />
-          <span>{{ String(t('auth.logoutButton') || 'Logout') }}</span>
+          <span>{{ t('auth.logoutButton') }}</span>
         </DropdownMenuItem>
       </template>
     </DropdownMenuContent>

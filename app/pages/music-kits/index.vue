@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LucideSearch, LucideX } from '@lucide/vue'
+import { LucideMusic, LucideSearch, LucideSearchX, LucideX } from '@lucide/vue'
 import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { APIMusicKit } from '~/server/types'
@@ -16,7 +16,7 @@ const musicKitRefs = ref<Array<{ select: () => void }>>([])
 
 const loadoutStore = useLoadoutStore()
 const message = useToast()
-const { t: _t } = useI18n()
+const { t } = useI18n()
 
 // Initialize music kits with an empty array to prevent undefined errors
 musicKits.value = []
@@ -237,72 +237,68 @@ watch(
   <div class="p-4">
     <div class="max-w-7xl mx-auto content-fade-in">
       <SkinPageLayout
-        title="Music Kits"
+        :title="t('extras.music') as string"
+        :show-team="false"
         :user="user"
         :error="error || ''"
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Music Kit Selection -->
       <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State -->
-        <div v-if="isLoading" class="music-kit-grid">
-          <div
-            v-for="i in 8"
-            :key="i"
-            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4 flex flex-col"
-            style="height: 300px"
-          >
-            <Skeleton class="h-32 w-full" />
-            <div class="mt-2 flex flex-col grow">
-              <Skeleton class="mt-1 h-10 w-full" />
-              <Skeleton v-for="n in 2" :key="n" class="mt-1 h-8 w-full" />
-              <div class="mt-auto">
-                <Skeleton class="h-1 w-full" />
-              </div>
-            </div>
-          </div>
+        <!-- Skeleton Loading State (stage height matches MusicKitTabs cards) -->
+        <div v-if="isLoading" class="music-kit-grid" aria-hidden="true">
+          <ItemCardSkeleton v-for="i in 8" :key="i" stage-class="h-32" />
         </div>
 
         <!-- Content when loaded -->
         <template v-else>
-          <div class="flex gap-x-10 justify-start mb-6">
-            <div class="flex items-center justify-end space-x-2">
-              <span class="font-bold whitespace-nowrap"> Music Kit </span>
-              <Select
-                :model-value="selectedMusicKit"
-                @update:model-value="(v) => handleMusicKitTypeChange(Number(v))"
-              >
-                <SelectTrigger class="w-72">
-                  <span v-if="selectedMusicKitLabel">{{ selectedMusicKitLabel }}</span>
-                  <span v-else class="text-muted-foreground">Select music kit</span>
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem v-for="opt in musicKitOptions" :key="opt.value" :value="opt.value">
-                    {{ opt.label }}
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div class="mb-6 flex flex-col gap-1.5">
+            <span
+              id="music-kit-select-label"
+              class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+            >
+              {{ t('extras.music') }}
+            </span>
+            <Select
+              :model-value="selectedMusicKit"
+              @update:model-value="(v) => handleMusicKitTypeChange(Number(v))"
+            >
+              <SelectTrigger class="w-full sm:w-72" aria-labelledby="music-kit-select-label">
+                <span v-if="selectedMusicKitLabel">{{ selectedMusicKitLabel }}</span>
+                <span v-else class="text-muted-foreground">{{ t('musicKits.selectKit') }}</span>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="opt in musicKitOptions" :key="opt.value" :value="opt.value">
+                  {{ opt.label }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <!-- No Music Kits State -->
-          <div v-if="!musicKits || musicKits.length === 0" class="text-center py-12">
-            <p class="text-gray-400">No music kits available</p>
-          </div>
+          <Empty v-if="!musicKits || musicKits.length === 0" class="py-10">
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <LucideMusic />
+              </EmptyMedia>
+              <EmptyTitle class="font-display tracking-[-0.02em]">
+                {{ t('musicKits.noKitsAvailable') }}
+              </EmptyTitle>
+            </EmptyHeader>
+          </Empty>
 
           <!-- Music Kits Content -->
           <div v-else>
             <!-- Search Bar -->
             <div class="mb-6">
-              <div class="relative">
+              <div class="relative w-full max-w-md">
                 <LucideSearch
-                  :size="18"
-                  class="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                  class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary"
                 />
                 <Input
                   v-model="searchQuery"
-                  placeholder="Search music kits..."
-                  class="pl-10 pr-9"
+                  :placeholder="t('musicKits.searchPlaceholder')"
+                  class="w-full pl-9 pr-9 font-mono text-[13px] placeholder:text-xs placeholder:tracking-[0.02em] placeholder:text-text-tertiary"
                 />
                 <Button
                   v-if="searchQuery"
@@ -310,7 +306,7 @@ watch(
                   variant="ghost"
                   size="icon-xs"
                   class="absolute right-2.5 top-1/2 -translate-y-1/2"
-                  aria-label="Clear search"
+                  :aria-label="t('common.clearSearch')"
                   @click="searchQuery = ''"
                 >
                   <LucideX :size="16" />
@@ -337,12 +333,16 @@ watch(
               </div>
 
               <!-- No results message -->
-              <p
-                v-if="searchQuery && filteredMusicKits.length === 0"
-                class="text-gray-400 py-4 text-center"
-              >
-                No music kits found matching your search
-              </p>
+              <Empty v-if="searchQuery && filteredMusicKits.length === 0" class="py-10">
+                <EmptyHeader>
+                  <EmptyMedia variant="icon">
+                    <LucideSearchX />
+                  </EmptyMedia>
+                  <EmptyTitle class="font-display tracking-[-0.02em]">
+                    {{ t('musicKits.noResultsSearch', { query: searchQuery }) }}
+                  </EmptyTitle>
+                </EmptyHeader>
+              </Empty>
             </div>
           </div>
         </template>

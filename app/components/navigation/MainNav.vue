@@ -1,26 +1,36 @@
 <script setup lang="ts">
 /**
- * MainNav — custom horizontal nav replacing the former `NMenu mode="horizontal"`
- * instances in layouts/default.vue.
+ * MainNav — Onyx horizontal nav group.
  *
- * Reproduces the old look 1:1, including the icon→label expand-on-select
- * animation that used to be implemented via `.top-bar-menu` overrides of
- * menu-library internals (max-width/opacity/margin transitions on the label,
- * 0→8px icon margin, color transitions with the same cubic-bezier).
+ * - lg+: persistent labels next to icons (reserved width, no
+ *   expand-on-active reflow).
+ * - below lg: icon-only items with a tooltip carrying the label.
+ * - Active item: quiet pill (bg-white/6 + text-foreground) plus a single
+ *   absolutely-positioned 2px accent underline. The underline is one element
+ *   per nav group whose x/width are computed from the active item and moved
+ *   with a CSS transition on the motion tokens for now — Phase 3 swaps the
+ *   transition for a GSAP morph tween on the same element
+ *   (`data-nav-indicator` / `indicatorEl`).
  *
  * Active state derives from the current route (option `key` = route path).
  */
 import type { Component, VNode } from 'vue'
+import type { WeaponSilhouetteName } from '~/components/navigation/WeaponSilhouette.vue'
 
 interface NavItem {
   key: string
   label: string
-  icon: Component | VNode
+  icon?: Component | VNode
+  silhouette?: WeaponSilhouetteName
 }
 
 interface Props {
   items: NavItem[]
-  /** Rendered icon square size in px (former NMenu `:icon-size`) */
+  /**
+   * Legacy prop kept for call-site compatibility (layouts pass 24/36).
+   * Onyx normalizes icon sizes internally: silhouettes render at 28px,
+   * Lucide glyphs at 18px, so this value is accepted but unused.
+   */
   iconSize?: number
 }
 
@@ -28,120 +38,174 @@ withDefaults(defineProps<Props>(), {
   iconSize: 24,
 })
 
+const SILHOUETTE_SIZE = 25
+const LUCIDE_SIZE = 17
+
 const route = useRoute()
 
 function isActive(key: string): boolean {
   return route.path === key
 }
+
+/* Tooltips only below lg (labels are visible at lg+) */
+const isLgUp = ref(false)
+let mediaQuery: MediaQueryList | null = null
+function onMediaChange(event: MediaQueryListEvent) {
+  isLgUp.value = event.matches
+}
+
+/* Active underline indicator — measured from the active item */
+const navEl = ref<HTMLElement | null>(null)
+const indicatorEl = ref<HTMLElement | null>(null)
+const indicator = reactive({ x: 0, width: 0, visible: false })
+const INDICATOR_INSET = 10
+let resizeObserver: ResizeObserver | null = null
+
+function updateIndicator() {
+  const activeItem = navEl.value?.querySelector<HTMLElement>('[aria-current="page"]')
+  if (!activeItem) {
+    indicator.visible = false
+    return
+  }
+  const width = Math.max(activeItem.offsetWidth - INDICATOR_INSET * 2, 12)
+  indicator.x = activeItem.offsetLeft + (activeItem.offsetWidth - width) / 2
+  indicator.width = width
+  indicator.visible = true
+}
+
+watch(
+  () => route.path,
+  () => {
+    nextTick(updateIndicator)
+  }
+)
+
+onMounted(() => {
+  // Labels render at xl+; below that we are icon-only and want tooltips.
+  mediaQuery = window.matchMedia('(min-width: 1280px)')
+  isLgUp.value = mediaQuery.matches
+  mediaQuery.addEventListener('change', onMediaChange)
+
+  updateIndicator()
+  // Re-measure when label widths shift (breakpoint changes, webfont load,
+  // locale switch) — any of those resizes the nav element itself.
+  if (navEl.value) {
+    resizeObserver = new ResizeObserver(() => updateIndicator())
+    resizeObserver.observe(navEl.value)
+  }
+})
+
+onBeforeUnmount(() => {
+  mediaQuery?.removeEventListener('change', onMediaChange)
+  resizeObserver?.disconnect()
+})
 </script>
 
 <template>
-  <div class="main-nav flex shrink-0 grow-0 items-center text-[14px]">
-    <NuxtLink
-      v-for="item in items"
-      :key="item.key"
-      :to="item.key"
-      class="main-nav-item"
-      :class="{ 'main-nav-item--selected': isActive(item.key) }"
-      :aria-current="isActive(item.key) ? 'page' : undefined"
-    >
-      <span class="main-nav-icon" :style="{ fontSize: `${iconSize}px` }">
-        <component :is="item.icon" />
-      </span>
-      <span class="main-nav-label">{{ item.label }}</span>
-    </NuxtLink>
-  </div>
+  <TooltipProvider :delay-duration="300">
+    <div ref="navEl" class="main-nav relative flex shrink-0 grow-0 items-center gap-0.5">
+      <Tooltip v-for="item in items" :key="item.key" :disabled="isLgUp">
+        <TooltipTrigger as-child>
+          <NuxtLink
+            :to="item.key"
+            class="main-nav-item"
+            :class="{ 'main-nav-item--active': isActive(item.key) }"
+            :aria-current="isActive(item.key) ? 'page' : undefined"
+            :aria-label="item.label"
+          >
+            <WeaponSilhouette
+              v-if="item.silhouette"
+              :name="item.silhouette"
+              :size="SILHOUETTE_SIZE"
+            />
+            <span v-else-if="item.icon" class="main-nav-lucide">
+              <component :is="item.icon" :size="LUCIDE_SIZE" />
+            </span>
+            <span class="main-nav-label hidden xl:inline">{{ item.label }}</span>
+          </NuxtLink>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">{{ item.label }}</TooltipContent>
+      </Tooltip>
+
+      <!-- Single per-group underline; Phase 3 GSAP morph target -->
+      <span
+        ref="indicatorEl"
+        data-nav-indicator
+        class="main-nav-indicator"
+        :style="{
+          transform: `translateX(${indicator.x}px)`,
+          width: `${indicator.width}px`,
+          opacity: indicator.visible ? 1 : 0,
+        }"
+        aria-hidden="true"
+      />
+    </div>
+  </TooltipProvider>
 </template>
 
 <style scoped>
-/* Item box — former .n-menu-item / .n-menu-item-content (flex-centered,
-   42px tall, 0 8px padding, transparent bottom border like naive's
-   horizontal menu items) */
 .main-nav-item {
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 6px;
   flex-shrink: 0;
-  height: 42px;
+  height: 36px;
   padding: 0 8px;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  color: rgba(255, 255, 255, 0.82);
+  border-radius: 9999px;
+  color: var(--muted-foreground);
   text-decoration: none;
   outline: none;
-  transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    color var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease-out);
 }
 
-/* Icon — former .n-menu-item-content__icon + naive .n-icon sizing:
-   1em box driven by font-size, nested svg scaled to 1em, fill inherits */
-.main-nav-icon {
+.main-nav-item:hover {
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.main-nav-item:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
+}
+
+.main-nav-item--active {
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.main-nav-lucide {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 1em;
-  height: 1em;
-  margin-right: 0;
-  color: rgba(255, 255, 255, 0.9);
-  fill: currentColor;
-  transition:
-    color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-    margin-right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.main-nav-icon :deep(div) {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.main-nav-icon :deep(svg) {
-  display: block;
-  width: 1em;
-  height: 1em;
-}
-
-/* Label — former .n-menu-item-content-header override: collapsed by
-   default, expands on selection (exact transition timings preserved) */
 .main-nav-label {
-  display: block;
-  max-width: 0;
-  margin-left: 0;
-  overflow: hidden;
+  font-size: 13.5px;
+  font-weight: 500;
+  line-height: 1;
   white-space: nowrap;
-  opacity: 0;
+}
+
+.main-nav-indicator {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  height: 2px;
+  border-radius: 1px;
+  background: var(--primary);
+  pointer-events: none;
   transition:
-    max-width 0.3s ease,
-    opacity 0.2s ease,
-    margin 0.3s ease;
+    transform var(--dur-base) var(--ease-out),
+    width var(--dur-base) var(--ease-out),
+    opacity var(--dur-fast) var(--ease-out);
 }
 
-/* Hover / keyboard focus on non-selected items —
-   naive itemTextColorHoverHorizontal = primaryColorHover (#f59e0b) */
-.main-nav-item:not(.main-nav-item--selected):hover,
-.main-nav-item:not(.main-nav-item--selected):focus-visible {
-  color: #f59e0b;
-}
-
-.main-nav-item:not(.main-nav-item--selected):hover .main-nav-icon,
-.main-nav-item:not(.main-nav-item--selected):focus-visible .main-nav-icon {
-  color: #f59e0b;
-}
-
-/* Selected — primary #facc15; icon regains naive's 8px margin,
-   label expands into view */
-.main-nav-item--selected {
-  color: #facc15;
-}
-
-.main-nav-item--selected .main-nav-icon {
-  margin-right: 8px;
-  color: #facc15;
-}
-
-.main-nav-item--selected .main-nav-label {
-  max-width: 150px;
-  margin-left: 8px;
-  opacity: 1;
+@media (prefers-reduced-motion: reduce) {
+  .main-nav-item,
+  .main-nav-indicator {
+    transition: none;
+  }
 }
 </style>

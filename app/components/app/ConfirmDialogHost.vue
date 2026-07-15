@@ -1,8 +1,9 @@
 <script setup lang="ts">
 /**
  * Renders the app-wide confirmation dialog driven by useConfirm().
- * Mounted once in app.vue. Styled with the "lighter glass" small-modal
- * recipe (ported from utils/themeCustomization.ts + glassmorphism.css).
+ * Mounted once in app.vue. Inherits the Onyx alert-dialog shell (near-opaque
+ * bg-card panel, hairline border, --radius-modal, --shadow-modal); only the
+ * type icon tints are local.
  */
 import { computed } from 'vue'
 import { CircleCheckIcon, InfoIcon, OctagonXIcon, TriangleAlertIcon } from '@lucide/vue'
@@ -27,21 +28,6 @@ const typeConfig = {
 } as const
 
 const current = computed(() => typeConfig[state.type])
-
-// Lighter glass recipe (weaponAttachmentModalThemeOverrides port)
-const contentStyle = {
-  backgroundColor: 'rgba(16, 16, 16, 0.9)',
-  border: '1px solid var(--glass-border-light)',
-  borderRadius: '20px',
-  boxShadow: [
-    '0 24px 48px rgba(0, 0, 0, 0.8)',
-    '0 12px 24px rgba(0, 0, 0, 0.6)',
-    '0 0 0 1px var(--glass-border-light)',
-    'inset 0 1px 0 var(--glass-border-light)',
-  ].join(', '),
-  backdropFilter: 'var(--glass-blur-medium) saturate(160%)',
-  WebkitBackdropFilter: 'var(--glass-blur-medium) saturate(160%)',
-}
 
 function onUpdateOpen(open: boolean) {
   if (!open && state.pending) return
@@ -78,8 +64,7 @@ function onEscapeKeyDown(event: KeyboardEvent) {
 <template>
   <AlertDialog :open="state.open" @update:open="onUpdateOpen">
     <AlertDialogContent
-      class="max-w-[420px] text-white sm:max-w-[420px]"
-      :style="contentStyle"
+      class="max-w-[420px] sm:max-w-[420px]"
       @escape-key-down="onEscapeKeyDown"
     >
       <AlertDialogHeader>

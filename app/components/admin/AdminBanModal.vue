@@ -75,13 +75,13 @@ watch(
     :visible="show"
     title="Ban User"
     max-width="500px"
+    variant="admin"
     @update:visible="
       (val) => {
         if (!val) handleClose()
       }
     "
   >
-    <div class="admin-modal-glass-marker hidden" aria-hidden="true" />
     <div class="space-y-4">
       <!-- User Info -->
       <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
@@ -166,13 +166,3 @@ watch(
     </div>
   </AppModal>
 </template>
-
-<style lang="sass">
-// Shared darker admin glass card (see AdminAddModal.vue) — duplicated rule is
-// identical and harmless; kept local so each modal stays self-contained.
-[data-slot='dialog-content']:has(.admin-modal-glass-marker)
-  background-color: rgba(12, 12, 12, 0.7) !important
-  border: 1px solid var(--admin-glass-border) !important
-  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
-  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%) !important
-</style>

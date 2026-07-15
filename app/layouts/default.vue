@@ -45,6 +45,8 @@ const isLoggedIn = computed(() => !!user.value || !!loggedInHint.value)
 const message = useToast()
 const { t, getLocale, getLocales } = useI18n()
 
+const currentYear = new Date().getFullYear()
+
 const translatedHomeMenuOptions = computed(() =>
   homeMenuOptions.map((item) => ({
     ...item,
@@ -147,7 +149,7 @@ onMounted(async () => {
   }
 })
 
-// Language dropdown for top bar (compact globe icon button)
+// Locale display for the footer strip
 const getFlag = (code: string) => {
   switch (code) {
     case 'en':
@@ -175,98 +177,122 @@ const currentLocaleDisplay = computed(() => {
 </script>
 <template>
   <div class="relative flex h-screen flex-col overflow-auto bg-transparent">
-    <!-- Top nav bar (former SLayoutSider glass strip) -->
+    <!-- Top nav strip -->
     <div v-if="isLoggedIn" class="sticky top-0 z-40 w-full shrink-0" data-tutorial="sidebar-nav">
-      <aside class="bg-black/15 text-white backdrop-blur-md">
-        <div class="flex w-full flex-row items-center overflow-x-auto overflow-y-hidden">
-          <nav
-            class="flex items-center w-full min-w-max px-3 gap-2 py-1.5 min-h-[56px]"
-            role="navigation"
-            :aria-label="String(t('navigation.mainNav')) || 'Main navigation'"
+      <header class="border-b border-border bg-background/80 text-foreground backdrop-blur-md">
+        <!-- Desktop strip (lg+): user capsule + settings + team | nav | loadout -->
+        <nav
+          class="hidden min-h-[60px] w-full items-center gap-3 px-4 py-2 lg:flex"
+          role="navigation"
+          :aria-label="String(t('navigation.mainNav'))"
+        >
+          <!-- Left: user capsule + settings + team toggle -->
+          <div class="flex min-w-0 flex-1 items-center gap-2">
+            <div v-if="user" class="flex min-w-0 shrink items-center gap-1">
+              <a
+                :href="user.profileUrl"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="flex min-w-0 max-w-[180px] items-center gap-2 rounded-full border border-border bg-[var(--surface-2)] py-1 pl-1 pr-3 text-[13px] font-medium text-foreground outline-none transition-colors duration-[var(--dur-fast)] ease-[var(--ease-out)] hover:border-border-strong focus-visible:ring-2 focus-visible:ring-ring/40"
+                :aria-label="String(t('auth.openSteamProfile'))"
+              >
+                <img
+                  class="size-6 shrink-0 rounded-full"
+                  alt="Steam Avatar"
+                  :src="user.avatarFull"
+                />
+                <span class="truncate">{{ user.personaName }}</span>
+              </a>
+              <div data-tutorial="settings-dropdown" class="shrink-0">
+                <SettingsDropdown variant="icon" size="sm" @logout="showLogoutModal = true" />
+              </div>
+            </div>
+
+            <!-- Global Team Toggle -->
+            <TeamToggle />
+          </div>
+
+          <!-- Center: nav clusters (min-w-0 + hidden-scrollbar overflow as a density safety valve) -->
+          <div class="flex min-w-0 shrink items-center gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <MainNav :items="translatedHomeMenuOptions" :icon-size="24" />
+            <MainNav :items="translatedWeaponMenuOptions" :icon-size="36" />
+            <MainNav :items="translatedEquipmentMenuOptions" :icon-size="36" />
+            <MainNav :items="translatedExtrasMenuOptions" :icon-size="24" />
+          </div>
+
+          <!-- Right: loadout -->
+          <div class="flex min-w-0 flex-1 items-center justify-end gap-2">
+            <div v-if="user" data-tutorial="loadout-area">
+              <LoadoutSelector />
+            </div>
+          </div>
+        </nav>
+
+        <!-- Mobile strip (below lg): hamburger + brand; loadout lives in the drawer footer -->
+        <div class="flex min-h-[60px] items-center gap-2 px-3 lg:hidden">
+          <MobileNav :user="user">
+            <template #footer>
+              <LoadoutSelector v-if="user" />
+            </template>
+          </MobileNav>
+          <NuxtLink
+            to="/"
+            class="rounded-[var(--radius-ctl)] font-display text-[15px] font-bold tracking-tight text-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring/40"
           >
-            <!-- Left side: User capsule + Team Toggle -->
-            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-fit">
-              <!-- User profile + settings -->
-              <div v-if="user" class="flex shrink-0 items-center gap-1">
-                <Button as-child variant="outline" size="sm" class="max-w-[180px] pl-1.5">
-                  <a
-                    :href="user.profileUrl"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    :aria-label="String(t('auth.openSteamProfile'))"
-                  >
-                    <img
-                      class="size-6 rounded-full"
-                      alt="Steam Avatar"
-                      :src="user.avatarFull"
-                    />
-                    <span class="truncate">{{ user.personaName }}</span>
-                  </a>
-                </Button>
-                <div data-tutorial="settings-dropdown">
-                  <SettingsDropdown
-                    variant="icon"
-                    size="sm"
-                    :aria-label="t('navigation.settings') || 'Settings'"
-                    @logout="showLogoutModal = true"
-                  />
-                </div>
-              </div>
-
-              <!-- Global Team Toggle -->
-              <TeamToggle />
-            </div>
-
-            <!-- Center: All navigation menus -->
-            <div class="flex items-center gap-1 shrink-0">
-              <!-- Home menu -->
-              <MainNav :items="translatedHomeMenuOptions" :icon-size="24" />
-
-              <!-- Weapons menu -->
-              <MainNav :items="translatedWeaponMenuOptions" :icon-size="36" />
-
-              <!-- Equipment menu -->
-              <MainNav :items="translatedEquipmentMenuOptions" :icon-size="36" />
-
-              <!-- Extras menu -->
-              <MainNav :items="translatedExtrasMenuOptions" :icon-size="24" />
-            </div>
-
-            <!-- Right side: Loadout -->
-            <div class="flex items-center gap-2 shrink-0 flex-1 min-w-fit justify-end ml-6">
-              <div v-if="user" data-tutorial="loadout-area">
-                <LoadoutSelector />
-              </div>
-            </div>
-          </nav>
+            CS<span class="text-primary">2</span>INSPECT
+          </NuxtLink>
         </div>
-      </aside>
+      </header>
     </div>
 
     <main class="flex-1 min-w-0 min-h-0 overflow-visible bg-transparent">
       <!-- Maintenance Mode Overlay -->
       <div
         v-if="isMaintenanceMode"
-        class="flex items-center justify-center flex-col h-full text-center px-4"
+        class="relative flex h-full flex-col items-center justify-center px-6 text-center"
       >
-        <ConstructionIcon :size="64" color="#f59e0b" class="mb-4" />
-        <h1 class="text-2xl font-bold mb-2">Under Maintenance</h1>
-        <p class="text-gray-400 text-lg">
-          The site is currently undergoing maintenance. Please check back later.
+        <div class="absolute top-4 right-4">
+          <LanguageSwitcher />
+        </div>
+
+        <ConstructionIcon :size="48" class="mb-6 text-amber-400" aria-hidden="true" />
+        <h1 class="font-display text-3xl font-bold tracking-tight text-foreground">
+          {{ t('maintenance.title') }}
+        </h1>
+        <p class="mt-3 max-w-md text-[15px] leading-relaxed text-muted-foreground">
+          {{ t('maintenance.description') }}
         </p>
+
+        <div class="absolute bottom-4 font-mono text-[11px] text-[var(--text-tertiary)]">
+          &copy; saka {{ currentYear }}
+        </div>
       </div>
 
+      <!-- Login hero (logged-out branch) -->
       <div
         v-else-if="!isLoggedIn && !isDevPage"
-        class="flex items-center justify-center flex-col text-xl h-full relative"
+        class="relative flex h-full flex-col items-center justify-center px-6 text-center"
       >
         <!-- Language Switcher in top-right corner for login screen -->
         <div class="absolute top-4 right-4">
           <LanguageSwitcher />
         </div>
 
-        {{ t('auth.loginRequired') }}
-        <Button variant="default" size="lg" class="mt-4" @click="handleLogin">
+        <h1
+          class="font-display text-[40px] font-bold leading-none tracking-[-0.02em] text-foreground sm:text-[52px]"
+        >
+          CS<span class="text-primary">2</span>INSPECT
+        </h1>
+        <p class="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">
+          {{ t('auth.heroTagline') }}
+        </p>
+
+        <Button
+          variant="default"
+          size="lg"
+          class="mt-8 shadow-[0_0_36px_-6px_rgba(250,204,21,0.4)]"
+          @click="handleLogin"
+        >
           <template #icon-left>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -283,18 +309,24 @@ const currentLocaleDisplay = computed(() => {
           {{ t('auth.loginButton') }}
         </Button>
 
-        <!-- Copyright footer -->
-        <div class="absolute bottom-4 text-gray-500 text-sm">&copy; saka 2025</div>
+        <!-- Copyright line -->
+        <div class="absolute bottom-4 font-mono text-[11px] text-[var(--text-tertiary)]">
+          &copy; saka {{ currentYear }}
+        </div>
       </div>
       <div v-else class="h-full flex flex-col">
         <div class="flex-1 relative" style="contain: layout style">
           <!-- Site Announcement Banner -->
-          <div v-if="showAnnouncement" class="announcement-banner">
+          <div
+            v-if="showAnnouncement"
+            class="relative z-[5] flex items-center justify-center gap-2 border-b border-amber-500/25 bg-amber-500/10 px-4 py-2 text-center font-mono text-xs text-amber-200"
+          >
             <span>{{ siteAnnouncement }}</span>
             <Button
               variant="ghost"
               size="icon-xs"
-              class="ml-2 shrink-0"
+              class="shrink-0 text-amber-200 hover:text-amber-100"
+              :aria-label="String(t('general.dismiss'))"
               @click="dismissAnnouncement"
             >
               <template #icon-left>
@@ -306,16 +338,17 @@ const currentLocaleDisplay = computed(() => {
             <div class="flex-1">
               <slot />
             </div>
-            <!-- Footer -->
-            <footer class="footer-accent">
-              <div class="footer-gradient" />
-              <div class="footer-content">
-                <span>&copy; saka {{ new Date().getFullYear() }}</span>
+            <!-- Footer: quiet hairline strip -->
+            <footer class="mt-auto border-t border-border">
+              <div
+                class="flex items-center justify-between gap-4 px-4 py-2.5 font-mono text-[11px] text-[var(--text-tertiary)]"
+              >
+                <span>&copy; saka {{ currentYear }}</span>
                 <div class="flex items-center gap-4">
                   <span class="flex items-center gap-1">
                     {{ getFlag(getLocale()) }} {{ currentLocaleDisplay }}
                   </span>
-                  <span class="footer-brand">CS2Inspect</span>
+                  <span class="uppercase tracking-[0.12em]">CS2INSPECT</span>
                 </div>
               </div>
             </footer>
@@ -354,7 +387,7 @@ const currentLocaleDisplay = computed(() => {
 
 <style lang="sass">
 html
-  background: black
+  background: #070708
   height: 100%
   overflow: hidden
 
@@ -364,17 +397,4 @@ body
 
 #__nuxt
   height: 100%
-
-// Announcement banner
-.announcement-banner
-  display: flex
-  align-items: center
-  justify-content: center
-  padding: 8px 16px
-  background: rgba(245, 158, 11, 0.15)
-  border-bottom: 1px solid rgba(245, 158, 11, 0.3)
-  color: #fbbf24
-  font-size: 14px
-  text-align: center
-  z-index: 5
 </style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { getLocale, switchLocale, getLocales } = useI18n()
+const { t, getLocale, switchLocale, getLocales } = useI18n()
 
 // Create dropdown options from locales
 const options = computed(() =>
@@ -76,7 +76,7 @@ function onUpdateLocale(value: unknown) {
 <template>
   <div class="flex items-center">
     <Select :model-value="currentLocale" @update:model-value="onUpdateLocale">
-      <SelectTrigger class="w-[140px]">
+      <SelectTrigger class="w-[150px]" :aria-label="String(t('navigation.language'))">
         <SelectValue>{{ currentLabel }}</SelectValue>
       </SelectTrigger>
       <SelectContent>

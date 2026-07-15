@@ -1,60 +1,134 @@
 <script setup lang="ts">
+/**
+ * TeamToggle — Onyx refined pill: a single rounded-full container on
+ * surface-2 with an animated thumb that translates between the two halves,
+ * tinted with the reserved team hues (CT #5d8cff / T #ff8a3d). Visible
+ * labels are the mono CT / T abbreviations; full team names stay on the
+ * buttons as aria-labels.
+ */
 const { teamSide, setTeam } = useTeamToggle()
 const { t } = useI18n()
 </script>
 
 <template>
-  <div class="flex items-center gap-0.5">
+  <div class="team-toggle" role="group" :aria-label="String(t('teams.selectTeam'))">
+    <span
+      class="team-toggle-thumb"
+      :class="teamSide === 'ct' ? 'team-toggle-thumb--ct' : 'team-toggle-thumb--t'"
+      aria-hidden="true"
+    />
     <button
-      class="team-toggle-btn rounded-l-full"
-      :class="teamSide === 'ct' ? 'team-toggle-ct-active' : 'team-toggle-inactive'"
+      type="button"
+      class="team-toggle-option"
+      :class="{ 'team-toggle-option--ct': teamSide === 'ct' }"
+      :aria-label="String(t('teams.counterTerrorists'))"
+      :aria-pressed="teamSide === 'ct'"
       @click="setTeam('ct')"
     >
-      {{ t('teams.counterTerrorists') }}
+      {{ t('teams.counterTerroristsShort') }}
     </button>
     <button
-      class="team-toggle-btn rounded-r-full"
-      :class="teamSide === 't' ? 'team-toggle-t-active' : 'team-toggle-inactive'"
+      type="button"
+      class="team-toggle-option"
+      :class="{ 'team-toggle-option--t': teamSide === 't' }"
+      :aria-label="String(t('teams.terrorists'))"
+      :aria-pressed="teamSide === 't'"
       @click="setTeam('t')"
     >
-      {{ t('teams.terrorists') }}
+      {{ t('teams.terroristsShort') }}
     </button>
   </div>
 </template>
 
 <style scoped>
-.team-toggle-btn {
-  padding: 6px 16px;
-  font-size: 13.5px;
-  font-weight: 600;
-  line-height: 1.4;
+.team-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 3px;
+  border-radius: 9999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+}
+
+.team-toggle-thumb {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 9999px;
   border: 1px solid transparent;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
+  transition:
+    transform var(--dur-base) var(--ease-out),
+    background-color var(--dur-base) var(--ease-out),
+    border-color var(--dur-base) var(--ease-out);
 }
 
-.team-toggle-ct-active {
-  border-color: rgb(59 130 246 / 0.3);
-  background: rgb(59 130 246 / 0.15);
-  color: rgb(147 197 253); /* text-blue-300 */
+.team-toggle-thumb--ct {
+  transform: translateX(0);
+  background: rgba(93, 140, 255, 0.16);
+  border-color: rgba(93, 140, 255, 0.3);
 }
 
-.team-toggle-t-active {
-  border-color: rgb(249 115 22 / 0.3);
-  background: rgb(249 115 22 / 0.15);
-  color: rgb(253 186 116); /* text-orange-300 */
+.team-toggle-thumb--t {
+  transform: translateX(100%);
+  background: rgba(255, 138, 61, 0.15);
+  border-color: rgba(255, 138, 61, 0.3);
 }
 
-.team-toggle-inactive {
-  border-color: rgb(255 255 255 / 0.08);
+.team-toggle-option {
+  position: relative;
+  z-index: 1;
+  width: 42px;
+  padding: 0;
+  border: none;
   background: transparent;
-  color: rgb(163 163 163); /* text-neutral-400 */
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 24px;
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  border-radius: 9999px;
+  outline: none;
+  transition: color var(--dur-fast) var(--ease-out);
 }
 
-.team-toggle-inactive:hover {
-  border-color: rgb(255 255 255 / 0.15);
-  background: rgb(255 255 255 / 0.05);
-  color: rgb(212 212 212);
+.team-toggle-option:hover {
+  color: var(--muted-foreground);
+}
+
+.team-toggle-option:focus-visible {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ring) 40%, transparent);
+}
+
+/* Active labels take a readable tint of the reserved team hues */
+.team-toggle-option--ct {
+  color: color-mix(in srgb, var(--team-ct) 55%, white);
+}
+
+.team-toggle-option--ct:hover {
+  color: color-mix(in srgb, var(--team-ct) 55%, white);
+}
+
+.team-toggle-option--t {
+  color: color-mix(in srgb, var(--team-t) 55%, white);
+}
+
+.team-toggle-option--t:hover {
+  color: color-mix(in srgb, var(--team-t) 55%, white);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .team-toggle-thumb,
+  .team-toggle-option {
+    transition: none;
+  }
 }
 </style>

@@ -100,7 +100,6 @@ export default defineNuxtConfig({
     '~/assets/css/tailwind.css',
     '~/assets/css/transitions.sass',
     '~/assets/css/theme-variables.css',
-    '~/assets/css/glassmorphism.css',
     '~/assets/css/tutorial.css',
   ],
   router: {

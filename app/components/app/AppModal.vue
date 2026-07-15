@@ -1,13 +1,12 @@
 <script setup lang="ts">
 /**
- * AppModal — replacement for `NModal preset="card"`.
+ * AppModal — the app-wide modal shell (Onyx surface).
  *
- * Wraps the shadcn Dialog with the app's glass-card styling, ported 1:1 from
- * ThemeProvider.vue myThemeOverrides (Modal.peers.Card) + glassmorphism.css
- * (.n-modal > .n-card): var(--glass-bg-primary) background, 24px radius,
- * var(--glass-border) border, layered depth shadows, strong blur/saturation.
+ * Wraps the shadcn Dialog with the Onyx panel recipe: near-opaque `bg-card`
+ * (#0e0e10), hairline border, `--radius-modal`, `--shadow-modal`. No panel
+ * blur — only the Dialog overlay keeps its backdrop blur. The `admin`
+ * variant renders a slightly darker panel (#0b0b0d) with a stronger shadow.
  */
-import type { CSSProperties } from 'vue'
 import { computed } from 'vue'
 import { X } from '@lucide/vue'
 import { Dialog, DialogContent, DialogTitle, DialogClose } from '@/components/ui/dialog'
@@ -28,6 +27,8 @@ interface Props {
   closable?: boolean
   /** While true, the modal cannot be closed (mask, ESC or X) */
   loading?: boolean
+  /** admin = slightly darker panel with a stronger shadow */
+  variant?: 'default' | 'admin'
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -38,6 +39,7 @@ const props = withDefaults(defineProps<Props>(), {
   maskClosable: true,
   closable: true,
   loading: false,
+  variant: 'default',
 })
 
 const emit = defineEmits<{
@@ -51,21 +53,21 @@ const sizeClasses: Record<NonNullable<Props['size']>, string> = {
   huge: 'w-[95vw] max-w-[1200px] sm:max-w-[1200px]',
 }
 
-// Glass card recipe (exact port of the naive Modal peers.Card overrides)
-const contentStyle = computed<CSSProperties>(() => ({
-  backgroundColor: 'var(--glass-bg-primary)',
-  border: '1px solid var(--glass-border)',
-  borderRadius: '24px',
-  boxShadow: [
-    '0 32px 64px rgba(0, 0, 0, 0.9)',
-    '0 16px 32px rgba(0, 0, 0, 0.7)',
-    '0 8px 16px rgba(0, 0, 0, 0.5)',
-    '0 0 0 1px var(--glass-border)',
-    'inset 0 1px 0 var(--glass-border)',
-  ].join(', '),
-  backdropFilter: 'var(--glass-blur-strong) var(--glass-saturation)',
-  WebkitBackdropFilter: 'var(--glass-blur-strong) var(--glass-saturation)',
+const variantClasses: Record<NonNullable<Props['variant']>, string> = {
+  default: 'bg-card',
+  admin: 'bg-[#0b0b0d]',
+}
+
+// Stronger drop for the darker admin panel; applied by overriding the
+// --shadow-modal token consumed by shadow-[var(--shadow-modal)] (twMerge
+// cannot reconcile two arbitrary shadow utilities).
+const ADMIN_SHADOW =
+  '0 40px 100px -16px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(255, 255, 255, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.05)'
+
+// maxWidth escape hatch must stay inline (arbitrary runtime value)
+const contentStyle = computed(() => ({
   ...(props.maxWidth ? { maxWidth: props.maxWidth } : {}),
+  ...(props.variant === 'admin' ? { '--shadow-modal': ADMIN_SHADOW } : {}),
 }))
 
 const canDismiss = computed(() => props.maskClosable && !props.loading)
@@ -90,7 +92,8 @@ function onEscapeKeyDown(event: KeyboardEvent) {
       :aria-describedby="undefined"
       :class="
         cn(
-          'flex max-h-[90vh] flex-col gap-0 overflow-hidden p-0 text-white',
+          'flex max-h-[90vh] flex-col gap-0 overflow-hidden rounded-[var(--radius-modal)] border p-0 text-foreground shadow-[var(--shadow-modal)]',
+          variantClasses[variant],
           sizeClasses[size]
         )
       "
@@ -102,14 +105,17 @@ function onEscapeKeyDown(event: KeyboardEvent) {
       <!-- Accessible title fallback when no visible title is rendered -->
       <DialogTitle v-if="!title" class="sr-only">Dialog</DialogTitle>
 
-      <!-- Header (ported from glassmorphism.css .n-card-header treatment) -->
+      <!-- Header -->
       <div
         v-if="title || $slots.header || $slots['header-extra'] || closable"
-        class="flex shrink-0 items-center gap-3 border-b border-white/8 bg-white/2 px-6 py-4 backdrop-blur-[10px]"
+        class="flex shrink-0 items-center gap-3 border-b border-border px-6 py-4"
       >
         <div class="min-w-0 flex-1">
           <slot name="header">
-            <DialogTitle v-if="title" class="truncate text-lg font-semibold text-white">
+            <DialogTitle
+              v-if="title"
+              class="truncate font-display text-lg font-semibold tracking-[-0.01em] text-foreground"
+            >
               {{ title }}
             </DialogTitle>
           </slot>
@@ -120,7 +126,7 @@ function onEscapeKeyDown(event: KeyboardEvent) {
         <DialogClose
           v-if="closable"
           :disabled="loading"
-          class="shrink-0 rounded-full p-1.5 text-white transition-colors hover:bg-[#333333] active:bg-[#444444] focus:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+          class="shrink-0 rounded-md p-1.5 text-muted-foreground transition-colors duration-[var(--dur-fast)] [transition-timing-function:var(--ease-out)] hover:bg-white/5 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 disabled:cursor-not-allowed disabled:opacity-50"
           :aria-label="'Close'"
         >
           <X class="size-5" />

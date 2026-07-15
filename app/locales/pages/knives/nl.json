@@ -1,1 +1,7 @@
-{}
+{
+  "typeLabel": "Mestype",
+  "selectType": "Selecteer mestype",
+  "emptyTitle": "Geen messen om weer te geven",
+  "emptyDescription": "Deze loadout bevat nog geen messen.",
+  "reload": "Opnieuw laden"
+}

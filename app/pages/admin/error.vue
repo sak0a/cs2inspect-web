@@ -172,28 +172,26 @@ function handleGoHome() {
   position: absolute
   inset: 0
   z-index: 0
-  background: #000000
+  background: var(--background)
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.5px, transparent 1.5px)
   background-size: 40px 40px
   background-position: 0 0
   mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
   -webkit-mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
 
-// Glass card (matches the app's glass modal card)
+// Onyx panel surface (near-opaque, hairline border, token radii/shadow)
 .error-container
   width: 100%
   max-width: 400px
   position: relative
   z-index: 1
-  backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
-  -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
-  background: var(--glass-bg-primary, rgba(16, 16, 16, 0.70))
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1))
-  border-radius: 18px
+  background: var(--card)
+  border: 1px solid var(--border)
+  border-radius: var(--radius-modal)
   padding: 32px
   text-align: center
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.9), 0 16px 32px rgba(0, 0, 0, 0.7), 0 8px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-  animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)
+  box-shadow: var(--shadow-modal)
+  animation: cardIn var(--dur-slow) var(--ease-out)
 
 @keyframes cardIn
   from
@@ -209,22 +207,24 @@ function handleGoHome() {
   display: flex
   align-items: center
   justify-content: center
-  background: rgba(239, 68, 68, 0.1)
-  border: 1px solid rgba(239, 68, 68, 0.15)
-  border-radius: 14px
+  background: color-mix(in srgb, var(--destructive) 10%, transparent)
+  border: 1px solid color-mix(in srgb, var(--destructive) 15%, transparent)
+  border-radius: var(--radius-card)
   margin: 0 auto 20px
-  color: #ef4444
+  color: var(--destructive)
 
 .error-title
+  font-family: var(--font-display, 'Space Grotesk', ui-sans-serif, system-ui, sans-serif)
   font-size: 20px
   font-weight: 700
-  color: rgba(255, 255, 255, 0.95)
+  letter-spacing: -0.02em
+  color: var(--foreground)
   margin: 0 0 8px
   line-height: 1.3
 
 .error-message
   font-size: 14px
-  color: rgba(255, 255, 255, 0.55)
+  color: var(--muted-foreground)
   margin: 0 0 20px
   line-height: 1.5
 
@@ -234,9 +234,9 @@ function handleGoHome() {
   align-items: center
   gap: 12px
   padding: 10px 14px
-  border-radius: 12px
-  background: rgba(255, 255, 255, 0.04)
-  border: 1px solid rgba(255, 255, 255, 0.08)
+  border-radius: var(--radius-card)
+  background: var(--surface-2)
+  border: 1px solid var(--border)
   margin-bottom: 16px
   text-align: left
 
@@ -256,38 +256,38 @@ function handleGoHome() {
 .user-card-name
   font-size: 13px
   font-weight: 600
-  color: rgba(255, 255, 255, 0.92)
+  color: var(--foreground)
   white-space: nowrap
   overflow: hidden
   text-overflow: ellipsis
 
 .user-card-steamid
-  font-family: 'JetBrains Mono', monospace
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace)
   font-size: 11px
-  color: rgba(255, 255, 255, 0.4)
+  color: var(--text-tertiary)
 
 .error-details
   font-size: 12px
-  color: rgba(255, 255, 255, 0.35)
+  color: var(--text-tertiary)
   margin: 0 0 24px
   line-height: 1.5
 
 // Debug
 .debug-panel
   text-align: left
-  font-family: 'JetBrains Mono', monospace
+  font-family: var(--font-mono, 'JetBrains Mono', ui-monospace, monospace)
   font-size: 11px
   background: rgba(0, 0, 0, 0.3)
-  border: 1px solid rgba(255, 255, 255, 0.06)
-  border-radius: 10px
+  border: 1px solid var(--border)
+  border-radius: var(--radius-ctl)
   padding: 10px 12px
   margin-bottom: 24px
 
 .debug-header
-  color: rgba(255, 255, 255, 0.3)
+  color: var(--text-tertiary)
   font-size: 10px
   text-transform: uppercase
-  letter-spacing: 0.5px
+  letter-spacing: 0.12em
   margin-bottom: 6px
 
 .debug-row
@@ -297,11 +297,11 @@ function handleGoHome() {
   padding: 3px 0
 
 .debug-key
-  color: rgba(255, 255, 255, 0.3)
+  color: var(--text-tertiary)
   flex-shrink: 0
 
 .debug-value
-  color: #60a5fa
+  color: var(--muted-foreground)
   word-break: break-all
   text-align: right
 
@@ -310,4 +310,8 @@ function handleGoHome() {
   display: flex
   flex-direction: column
   gap: 8px
+
+@media (prefers-reduced-motion: reduce)
+  .error-container
+    animation: none
 </style>

@@ -3,6 +3,7 @@ import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { IEnhancedGlove, GloveConfiguration, GloveItemData, UserProfile } from '~/types'
 import { toSteamId } from '~/types/core/branded'
+import gloveSilhouette from '~/assets/svg/gloves.svg'
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedGlove[]>([])
@@ -20,9 +21,19 @@ const selectedTeamGloves = ref({
 const loadoutStore = useLoadoutStore()
 const message = useToast()
 const { t } = useI18n()
-const { teamSide } = useTeamToggle()
+const { teamSide, teamNumber } = useTeamToggle()
 const otherTeamHasSkin = useOtherTeamSkin(selectedGlove, skins)
 const groupedGloves = useGroupedWeapons(skins)
+
+// Heading micro-label counts, derived from already-loaded grid data:
+// a glove counts as configured when it has a DB entry for the active team.
+const totalCount = computed(() => Object.keys(groupedGloves.value).length)
+const configuredCount = computed(
+  () =>
+    Object.values(groupedGloves.value).filter((data) =>
+      data.weapons.some((w) => w.databaseInfo?.team === teamNumber.value)
+    ).length
+)
 
 // Single glove type computed that reacts to global team toggle
 const currentGloveType = computed({
@@ -291,10 +302,12 @@ watch(
   <div class="p-4">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
-        title="Gloves"
+        :title="t('melee.gloves') as string"
         :user="user"
         :error="error || ''"
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
+        :configured-count="isLoading ? null : configuredCount"
+        :total-count="isLoading ? null : totalCount"
       />
       <!-- Glove Type Groups -->
       <div v-if="!error && user && loadoutStore.selectedLoadoutId">
@@ -303,31 +316,22 @@ watch(
           v-if="isLoading"
           class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
         >
-          <div
-            v-for="i in 8"
-            :key="i"
-            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
-          >
-            <Skeleton class="h-32 w-full" />
-            <div class="mt-3">
-              <Skeleton class="h-4 w-full" />
-              <div class="mt-2">
-                <Skeleton class="h-1 w-full" />
-              </div>
-            </div>
-          </div>
+          <ItemCardSkeleton v-for="i in 8" :key="i" />
         </div>
 
         <!-- Content when loaded -->
         <template v-else>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold whitespace-nowrap text-neutral-200">
-              {{ t('navigation.melee') }}
+          <div class="flex flex-col gap-1.5">
+            <span
+              id="glove-type-label"
+              class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+            >
+              {{ t('typeLabel') }}
             </span>
             <Select :model-value="currentGloveType" @update:model-value="onGloveTypeChange">
-              <SelectTrigger class="w-72">
+              <SelectTrigger class="w-72" aria-labelledby="glove-type-label">
                 <span v-if="currentGloveLabel">{{ currentGloveLabel }}</span>
-                <span v-else class="text-muted-foreground">Select glove type</span>
+                <span v-else class="text-muted-foreground">{{ t('selectGloveType') }}</span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem v-for="opt in gloveOptions" :key="opt.value" :value="opt.value">
@@ -358,9 +362,25 @@ watch(
             />
           </TransitionGroup>
           <!-- No Skins State -->
-          <div v-if="skins.length === 0" class="text-center py-12">
-            <p class="text-gray-400">No skins available for this loadout</p>
-          </div>
+          <Empty v-if="skins.length === 0" class="mt-4 py-12">
+            <EmptyHeader>
+              <EmptyMedia>
+                <WeaponSilhouette
+                  :src="gloveSilhouette"
+                  class="h-16 w-24 text-text-tertiary opacity-60"
+                />
+              </EmptyMedia>
+              <EmptyTitle class="font-display tracking-[-0.02em]">
+                {{ t('emptyTitle') }}
+              </EmptyTitle>
+              <EmptyDescription>{{ t('noGloves') }}</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button variant="outline" @click="fetchLoadoutGloves">
+                {{ t('reload') }}
+              </Button>
+            </EmptyContent>
+          </Empty>
         </template>
       </div>
 

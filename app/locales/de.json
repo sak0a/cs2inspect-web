@@ -1,4 +1,7 @@
 {
+  "itemPage": {
+    "configuredCount": "{configured} / {total} konfiguriert"
+  },
   "itemCard": {
     "notConfigured": "Nicht konfiguriert",
     "statTrak": "StatTrak™"
@@ -12,7 +15,8 @@
     "loadout": "Loadout",
     "theme": "Thema",
     "mainNav": "Hauptnavigation",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "openMenu": "Menü öffnen"
   },
   "weapons": {
     "rifles": "Gewehre",
@@ -30,6 +34,23 @@
     "music": "Musik-Kits",
     "inspects": "Inspect Link Decoder/Encoder",
     "home": "Startseite"
+  },
+  "agents": {
+    "selectAgent": "Agent auswählen",
+    "noAgentsAvailable": "Keine Agenten verfügbar",
+    "noAgentsForTeam": "Für dieses Team sind keine Agenten verfügbar"
+  },
+  "musicKits": {
+    "selectKit": "Musik-Kit auswählen",
+    "searchPlaceholder": "Musik-Kits suchen...",
+    "noKitsAvailable": "Keine Musik-Kits verfügbar",
+    "noResultsSearch": "Keine Musik-Kits gefunden für \"{query}\""
+  },
+  "pins": {
+    "selectPin": "Pin auswählen",
+    "searchPlaceholder": "Pins suchen...",
+    "noPinsAvailable": "Keine Pins verfügbar",
+    "noResultsSearch": "Keine Pins gefunden für \"{query}\""
   },
   "skins": {
     "title": "Skins",
@@ -55,13 +76,15 @@
         "title": "Neues Loadout erstellen",
         "confirm": "Erstellen",
         "cancel": "Abbrechen",
-        "formPlaceholder": "Gib einen Namen für dein neues Loadout ein"
+        "formPlaceholder": "Gib einen Namen für dein neues Loadout ein",
+        "successMessage": "Loadout erfolgreich erstellt"
       },
       "rename": {
         "title": "Loadout umbenennen",
         "confirm": "Umbenennen",
         "cancel": "Abbrechen",
-        "formPlaceholder": "Gib einen neuen Namen für dein Loadout ein"
+        "formPlaceholder": "Gib einen neuen Namen für dein Loadout ein",
+        "successMessage": "Loadout erfolgreich umbenannt"
       },
       "delete": {
         "title": "Loadout löschen",
@@ -70,7 +93,8 @@
         "question": "Bist du sicher, dass du dieses Loadout löschen möchtest?",
         "warning": "Alle Skins dieses Loadouts werden gelöscht und können nicht wiederhergestellt werden",
         "confirmText": "Gib '{name}' ein, um das Löschen zu bestätigen:",
-        "confirmPlaceholder": "Loadout-Namen zur Bestätigung eingeben"
+        "confirmPlaceholder": "Loadout-Namen zur Bestätigung eingeben",
+        "successMessage": "Loadout erfolgreich gelöscht"
       },
       "share": {
         "title": "Loadout teilen {name}",
@@ -395,6 +419,9 @@
     "manage": "Loadout verwalten",
     "select": "Wähle ein Loadout",
     "createDefault": "Standard-Loadout erstellen",
+    "defaultTag": "Standard",
+    "noLoadoutTitle": "Kein Loadout ausgewählt",
+    "noLoadoutHint": "Wähle ein Loadout aus oder erstelle eines, um deine Items anzupassen.",
     "confirmDelete": "Bist du sicher, dass du dieses Loadout löschen möchtest?",
     "confirmDeleteWarning": "Alle Skins dieses Loadouts werden gelöscht und können nicht wiederhergestellt werden",
     "nameRequired": "Bitte einen Loadout-Namen eingeben",
@@ -413,7 +440,10 @@
   },
   "teams": {
     "terrorists": "Terroristen",
-    "counterTerrorists": "Antiterror-Einheit"
+    "counterTerrorists": "Antiterror-Einheit",
+    "terroristsShort": "T",
+    "counterTerroristsShort": "CT",
+    "selectTeam": "Team auswählen"
   },
   "wears": {
     "factoryNew": "Fabrikneu",
@@ -435,14 +465,21 @@
     "loginButton": "Anmelden",
     "logoutButton": "Abmelden",
     "loginRequired": "Um auf diese Website zuzugreifen, melde dich bitte mit deinem Steam-Konto an.",
+    "loginRequiredTitle": "Anmeldung erforderlich",
     "automaticallyLoggedOut": "Du wurdest automatisch abgemeldet",
     "confirmLogout": "Bist du sicher, dass du dich abmelden möchtest?",
     "rejectAction": "Melde dich an, um diese Aktion auszuführen",
     "authenticating": "Authentifiziere...",
-    "openSteamProfile": "Steam-Profil öffnen"
+    "openSteamProfile": "Steam-Profil öffnen",
+    "heroTagline": "Gestalte dein CS2-Loadout und sieh Skins, Floats und Sticker in Echtzeit."
   },
   "general": {
-    "copiedToClipboard": "In die Zwischenablage kopiert"
+    "copiedToClipboard": "In die Zwischenablage kopiert",
+    "dismiss": "Ausblenden"
+  },
+  "maintenance": {
+    "title": "Wartungsarbeiten",
+    "description": "Die Seite wird derzeit gewartet. Bitte schau später wieder vorbei."
   },
   "autoSave": {
     "saving": "Speichert...",
@@ -495,6 +532,7 @@
     "selectAll": "Alles auswählen",
     "noResults": "Keine Ergebnisse gefunden",
     "pleaseSelectLoadout": "Bitte zuerst ein Loadout auswählen",
+    "clearSearch": "Suche löschen",
     "for": "für",
     "copy": "Kopieren"
   },
@@ -676,5 +714,45 @@
   },
   "admin": {
     "panelTitle": "Admin-Panel"
+  },
+  "errorPage": {
+    "notFound": {
+      "title": "Seite nicht gefunden",
+      "message": "Die gesuchte Seite existiert nicht oder wurde verschoben."
+    },
+    "forbidden": {
+      "title": "Zugriff verboten",
+      "message": "Du hast keine Berechtigung, auf diese Ressource zuzugreifen."
+    },
+    "unauthorized": {
+      "title": "Anmeldung erforderlich",
+      "message": "Bitte melde dich an, um auf diese Seite zuzugreifen."
+    },
+    "serverError": {
+      "title": "Interner Serverfehler",
+      "message": "Bei uns ist etwas schiefgelaufen. Bitte versuche es später erneut."
+    },
+    "timeout": {
+      "title": "Zeitüberschreitung der Anfrage",
+      "message": "Die Anfrage hat zu lange gedauert. Bitte versuche es erneut."
+    },
+    "unavailable": {
+      "title": "Dienst nicht verfügbar",
+      "message": "Der Dienst ist vorübergehend nicht verfügbar. Bitte versuche es gleich noch einmal."
+    },
+    "unexpected": {
+      "title": "Unerwarteter Fehler",
+      "message": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuche es erneut."
+    },
+    "goBack": "Zurück",
+    "goHome": "Zur Startseite",
+    "debug": {
+      "title": "Debug",
+      "status": "Status",
+      "statusText": "Statustext",
+      "message": "Meldung",
+      "stackTrace": "Stacktrace",
+      "none": "(keine)"
+    }
   }
 }

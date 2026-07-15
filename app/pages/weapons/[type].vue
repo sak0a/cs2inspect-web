@@ -3,6 +3,10 @@ import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { IEnhancedWeapon, WeaponConfiguration, WeaponItemData } from '~/types'
 import { toSteamId } from '~/types/core/common'
+import rifleSilhouette from '~/assets/svg/weapon_ak47.svg'
+import smgSilhouette from '~/assets/svg/weapon_p90.svg'
+import pistolSilhouette from '~/assets/svg/weapon_deagle.svg'
+import heavySilhouette from '~/assets/svg/weapon_m249.svg'
 
 definePageMeta({
   middleware: ['validate-weapon-url'],
@@ -11,6 +15,18 @@ definePageMeta({
 const { t } = useI18n()
 const route = useRoute()
 const WEAPON_TYPE = ((route.params as Record<string, string | string[]>).type as string) ?? 'rifles'
+
+// Localized H1 label — WEAPON_TYPE is constrained to rifles|smgs|pistols|heavys
+// by the validate-weapon-url middleware, matching the global weapons.* keys.
+const pageTitle = computed(() => t(`weapons.${WEAPON_TYPE}`) as string)
+
+const silhouettes: Record<string, string> = {
+  rifles: rifleSilhouette,
+  smgs: smgSilhouette,
+  pistols: pistolSilhouette,
+  heavys: heavySilhouette,
+}
+const emptySilhouette = silhouettes[WEAPON_TYPE] ?? rifleSilhouette
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedWeapon[]>([])
@@ -24,7 +40,7 @@ const selectedWeapon = ref<IEnhancedWeapon | null>(null)
 
 const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
 const groupedWeapons = useGroupedWeapons(skins)
-const { teamSide } = useTeamToggle()
+const { teamSide, teamNumber } = useTeamToggle()
 
 // Quick action state
 const quickActionTarget = ref<WeaponItemData | null>(null)
@@ -48,6 +64,16 @@ const visibleGroupedWeapons = computed(() => {
   }
   return result
 })
+
+// Heading micro-label counts, derived from already-loaded grid data:
+// a weapon counts as configured when it has a DB entry for the active team.
+const totalCount = computed(() => Object.keys(visibleGroupedWeapons.value).length)
+const configuredCount = computed(
+  () =>
+    Object.values(visibleGroupedWeapons.value).filter((data) =>
+      data.weapons.some((w) => w.databaseInfo?.team === teamNumber.value)
+    ).length
+)
 
 const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   selectedWeapon.value = weapon
@@ -388,10 +414,12 @@ watch(
   <div class="p-4">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
-        title="Rifles"
+        :title="pageTitle"
         :user="user"
         :error="error || loadoutStore.error || ''"
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
+        :configured-count="isLoading ? null : configuredCount"
+        :total-count="isLoading ? null : totalCount"
       />
       <div v-if="!error && user && loadoutStore.selectedLoadoutId">
         <!-- Skeleton Loading State -->
@@ -399,19 +427,7 @@ watch(
           v-if="isLoading"
           class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
         >
-          <div
-            v-for="i in 8"
-            :key="i"
-            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
-          >
-            <Skeleton class="h-32 w-full" />
-            <div class="mt-3">
-              <Skeleton class="h-4 w-full" />
-              <div class="mt-2">
-                <Skeleton class="h-1 w-full" />
-              </div>
-            </div>
-          </div>
+          <ItemCardSkeleton v-for="i in 8" :key="i" />
         </div>
 
         <!-- Content when loaded -->
@@ -432,9 +448,25 @@ watch(
             </div>
           </Transition>
           <!-- No Skins State -->
-          <div v-if="skins.length === 0" class="text-center py-12">
-            <p class="text-gray-400">No skins available for this loadout</p>
-          </div>
+          <Empty v-if="skins.length === 0" class="py-12">
+            <EmptyHeader>
+              <EmptyMedia>
+                <WeaponSilhouette
+                  :src="emptySilhouette"
+                  class="h-14 w-44 text-text-tertiary opacity-60"
+                />
+              </EmptyMedia>
+              <EmptyTitle class="font-display tracking-[-0.02em]">
+                {{ t('emptyTitle') }}
+              </EmptyTitle>
+              <EmptyDescription>{{ t('emptyDescription') }}</EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button variant="outline" @click="fetchLoadoutSkins">
+                {{ t('reload') }}
+              </Button>
+            </EmptyContent>
+          </Empty>
         </template>
       </div>
 

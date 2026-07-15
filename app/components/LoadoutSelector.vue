@@ -273,6 +273,10 @@ const handleGenerateShareCode = async () => {
 const hasSelection = computed(() => loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId)
 const isSelectedDefault = computed(() => !!loadoutStore.selectedLoadout?.is_default)
 
+// Loadout display label with a localized "(Default)" tag
+const loadoutLabel = (loadout: DBLoadout) =>
+  loadout.name + (loadout.is_default ? ` (${t('loadout.defaultTag')})` : '')
+
 // Filled star icon for "is default" state
 const DefaultIconFilled = markRaw(
   defineComponent({
@@ -306,18 +310,19 @@ onMounted(async () => {
     <DropdownMenu v-if="loadoutStore.hasLoadouts">
       <DropdownMenuTrigger as-child>
         <Button
-          variant="outline"
+          variant="ghost"
           size="default"
           data-tutorial="loadout-selector"
-          class="min-w-[140px] justify-between"
+          class="min-w-[140px] max-w-[240px] justify-between gap-2 border border-border hover:border-border-strong"
         >
-          {{
-            loadoutStore.selectedLoadout
-              ? loadoutStore.selectedLoadout.name +
-                (loadoutStore.selectedLoadout.is_default ? ' (Default)' : '')
-              : t('loadout.select')
-          }}
-          <ChevronDownIcon class="size-3" />
+          <span class="min-w-0 truncate font-mono text-xs">
+            {{
+              loadoutStore.selectedLoadout
+                ? loadoutLabel(loadoutStore.selectedLoadout)
+                : t('loadout.select')
+            }}
+          </span>
+          <ChevronDownIcon class="size-3 shrink-0 text-[var(--text-tertiary)]" />
         </Button>
       </DropdownMenuTrigger>
 
@@ -328,7 +333,7 @@ onMounted(async () => {
           @select="loadoutStore.selectedLoadoutId = toLoadoutId(loadout.id)"
         >
           <span class="min-w-0 flex-1 truncate">
-            {{ loadout.name + (loadout.is_default ? ' (Default)' : '') }}
+            {{ loadoutLabel(loadout) }}
           </span>
           <CheckIcon
             v-if="toLoadoutId(loadout.id) === loadoutStore.selectedLoadoutId"
@@ -342,9 +347,10 @@ onMounted(async () => {
     <DropdownMenu>
       <DropdownMenuTrigger as-child>
         <Button
-          variant="outline"
+          variant="ghost"
           size="icon"
           data-tutorial="loadout-create"
+          class="border border-border hover:border-border-strong"
           :aria-label="t('loadout.manage') as string"
         >
           <template #icon-left>
@@ -416,7 +422,6 @@ onMounted(async () => {
       :minlength="1"
       :placeholder="t('modals.loadout.create.formPlaceholder') as string"
       data-tutorial="loadout-name-input"
-      class="rounded-full"
     />
     <template #footer>
       <div class="flex justify-end gap-3">
@@ -460,7 +465,6 @@ onMounted(async () => {
       v-model="formInputs.renameName"
       :minlength="1"
       :placeholder="t('modals.loadout.rename.formPlaceholder') as string"
-      class="rounded-full"
     />
     <template #footer>
       <div class="flex justify-end gap-3">
@@ -514,7 +518,6 @@ onMounted(async () => {
         v-model="formInputs.deleteConfirm"
         :minlength="1"
         :placeholder="t('modals.loadout.delete.confirmPlaceholder') as string"
-        class="rounded-full"
       />
     </div>
     <template #footer>
@@ -586,7 +589,6 @@ onMounted(async () => {
       <Input
         v-model="formInputs.clearConfirm"
         :placeholder="t('modals.loadout.clear.confirmPlaceholder') as string"
-        class="rounded-full"
       />
     </div>
     <template #footer>
@@ -625,7 +627,7 @@ onMounted(async () => {
       <template v-if="formInputs.shareCode">
         <p>{{ t('modals.loadout.share.description') }}</p>
         <div class="flex items-center gap-2">
-          <Input v-model="formInputs.shareCode" readonly class="min-w-0 flex-1 rounded-full" />
+          <Input v-model="formInputs.shareCode" readonly class="min-w-0 flex-1" />
           <Button variant="outline" class="shrink-0" @click="copyToClipboard">
             <template #icon-left>
               <DuplicateIcon :size="16" />
@@ -674,7 +676,6 @@ onMounted(async () => {
       <Input
         v-model="formInputs.importCode"
         :placeholder="t('modals.loadout.import.placeholder') as string"
-        class="rounded-full"
       />
     </div>
     <template #footer>

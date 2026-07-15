@@ -3,6 +3,7 @@ import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { APIAgent } from '~/types'
 import { toSteamId } from '~/types/core/branded'
+import agentSilhouette from '~/assets/svg/agent.svg'
 
 const user = ref<SteamUser | null>(null)
 const isLoading = ref<boolean>(true)
@@ -303,30 +304,52 @@ watch(
 <template>
   <div class="p-4">
     <div class="max-w-7xl mx-auto content-fade-in">
-      <SkinPageLayout title="Agents" :user="user" :error="error || ''" :is-loading="isLoading" />
+      <SkinPageLayout
+        :title="t('extras.agents') as string"
+        :user="user"
+        :error="error || ''"
+        :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
+      />
       <!-- Agent Type Groups -->
-      <div v-if="!error && !isLoading && user && loadoutStore.selectedLoadoutId">
-        <!-- Loading State -->
-        <div v-if="isLoading" class="text-center py-12">
-          <Spinner class="size-10 text-primary mx-auto" />
-          <p class="mt-4 text-gray-400">Loading agents...</p>
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
+        <!-- Loading State: skeleton row matching the agent card stage height -->
+        <div v-if="isLoading" class="flex gap-4 overflow-hidden pb-6" aria-hidden="true">
+          <ItemCardSkeleton
+            v-for="i in 5"
+            :key="i"
+            stage-class="h-48"
+            class="mx-2 mt-2 w-56 shrink-0 sm:w-64"
+          />
         </div>
 
         <!-- No Agents State -->
-        <div v-else-if="!agents || agents.length === 0" class="text-center py-12">
-          <p class="text-gray-400">No agents available</p>
-        </div>
+        <Empty v-else-if="!agents || agents.length === 0" class="py-10">
+          <EmptyHeader>
+            <EmptyMedia>
+              <WeaponSilhouette
+                :src="agentSilhouette"
+                class="h-16 w-24 text-text-tertiary opacity-60"
+              />
+            </EmptyMedia>
+            <EmptyTitle class="font-display tracking-[-0.02em]">
+              {{ t('agents.noAgentsAvailable') }}
+            </EmptyTitle>
+          </EmptyHeader>
+        </Empty>
 
         <!-- Agents Grid with Horizontal Scrolling -->
-        <div v-else class="overflow-x-auto">
-          <div class="flex gap-6 w-[800px]">
-            <h2 class="text-xl font-bold mb-4 text-center pt-0.5 w-[200px]">
-              {{ teamSide === 'ct' ? t('teams.counterTerrorists') : t('teams.terrorists') }}
-            </h2>
+        <div v-else>
+          <div class="mb-4 flex flex-col gap-1.5">
+            <span
+              id="agent-select-label"
+              class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+            >
+              {{ t('extras.agents') }}
+            </span>
             <Select :model-value="currentAgentType" @update:model-value="onAgentTypeChange">
-              <SelectTrigger class="w-72">
+              <SelectTrigger class="w-full sm:w-72" aria-labelledby="agent-select-label">
                 <span v-if="currentAgentLabel">{{ currentAgentLabel }}</span>
-                <span v-else class="text-muted-foreground">Select agent</span>
+                <span v-else class="text-muted-foreground">{{ t('agents.selectAgent') }}</span>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem v-for="opt in currentAgentOptions" :key="opt.value" :value="opt.value">
@@ -335,12 +358,13 @@ watch(
               </SelectContent>
             </Select>
           </div>
-          <div
-            ref="ctScrollContainer"
-            class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll"
-            style="min-width: max-content"
-          >
-            <template v-if="currentAgents && currentAgents.length > 0">
+          <div class="overflow-x-auto">
+            <div
+              v-if="currentAgents && currentAgents.length > 0"
+              ref="ctScrollContainer"
+              class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll"
+              style="min-width: max-content"
+            >
               <AgentTabs
                 v-for="agent in currentAgents"
                 :key="agent.id"
@@ -348,8 +372,20 @@ watch(
                 :is-selected="currentAgentType === parseInt(agent.id.replace('agent-', ''))"
                 @select="handleAgentSelect"
               />
-            </template>
-            <p v-else class="text-gray-400 py-4">No agents available for this team</p>
+            </div>
+            <Empty v-else class="py-10">
+              <EmptyHeader>
+                <EmptyMedia>
+                  <WeaponSilhouette
+                    :src="agentSilhouette"
+                    class="h-16 w-24 text-text-tertiary opacity-60"
+                  />
+                </EmptyMedia>
+                <EmptyTitle class="font-display tracking-[-0.02em]">
+                  {{ t('agents.noAgentsForTeam') }}
+                </EmptyTitle>
+              </EmptyHeader>
+            </Empty>
           </div>
         </div>
       </div>
@@ -358,29 +394,10 @@ watch(
 </template>
 
 <style scoped>
+/* Scrollbar styling comes from the global thin-dark recipe in tailwind.css */
 .horizontal-scroll {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: thin;
-  scrollbar-color: #666 #333;
-}
-
-.horizontal-scroll::-webkit-scrollbar {
-  height: 8px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-track {
-  background: #333;
-  border-radius: 4px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-thumb {
-  background-color: #666;
-  border-radius: 4px;
-}
-
-.horizontal-scroll::-webkit-scrollbar-thumb:hover {
-  background-color: #888;
 }
 
 /* Fade-in animation (opacity-only: the card owns its transform for hover lift) */
