@@ -22,6 +22,7 @@
       <div
         v-if="status !== 'idle'"
         ref="pillEl"
+        v-bind="$attrs"
         class="save-status-indicator"
         :class="[statusClass, { 'save-status-indicator--fixed': fixed }]"
       >
@@ -79,6 +80,10 @@
 import type { SaveStatus } from '~/composables/useAutoSave'
 import { Button } from '@/components/ui/button'
 import { DUR } from '~/utils/motion'
+
+// The root is a Teleport, so attrs (e.g. data-tutorial="auto-save") cannot
+// auto-inherit; bind them explicitly onto the teleported pill instead.
+defineOptions({ inheritAttrs: false })
 
 interface Props {
   status: SaveStatus
