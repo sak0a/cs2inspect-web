@@ -107,11 +107,6 @@ const handleMusicKitTypeChange = async (musicKitId: number) => {
     if (loadoutStore.selectedLoadout) {
       loadoutStore.selectedLoadout.selected_music = actualMusicKitId
     }
-
-    // Force refresh the UI to ensure proper rendering
-    nextTick(() => {
-      setupFadeInAnimation()
-    })
   } catch (error) {
     console.error(error)
     message.error('Failed to update Music Kit')
@@ -155,35 +150,13 @@ const fetchMusicKits = async () => {
   }
 }
 
-// No longer need horizontal scrolling setup as we're using vertical scrolling
-
-// Setup fade-in animation for vertical scrolling
-const setupFadeInAnimation = () => {
-  nextTick(() => {
-    // Use Intersection Observer to detect when music kit cards are visible
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry, index) => {
-          if (entry.isIntersecting) {
-            // Add a small delay based on the index for a staggered effect
-            setTimeout(() => {
-              entry.target.classList.add('visible')
-            }, index * 50) // 50ms delay between each item
-
-            // Once the animation is applied, we don't need to observe this element anymore
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.1, rootMargin: '0px 0px 50px 0px' }
-    ) // Trigger when at least 10% of the element is visible and add bottom margin
-
-    // Observe all music kit cards
-    document.querySelectorAll('.fade-in-item').forEach((card) => {
-      observer.observe(card)
-    })
-  })
-}
+// Motion: cards stagger in after the skeletons swap out, on data refetch and
+// on every search/filter change (useGridReveal re-runs post-DOM-update, so no
+// card is ever left invisible after a list mutation).
+const gridRef = ref<HTMLElement | null>(null)
+useGridReveal(gridRef, {
+  watch: [() => isLoading.value, () => filteredMusicKits.value],
+})
 
 onMounted(async () => {
   user.value = steamAuth.getSavedUser()
@@ -191,11 +164,6 @@ onMounted(async () => {
     try {
       await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       await fetchMusicKits()
-
-      // Setup animations after DOM is updated
-      nextTick(() => {
-        setupFadeInAnimation()
-      })
     } catch (error) {
       console.error('Error during initialization:', error)
       message.error('Failed to initialize page')
@@ -206,29 +174,12 @@ onMounted(async () => {
   }
 })
 
-// Update animations when music kits are loaded or changed
-watch([() => musicKits.value, () => filteredMusicKits.value], () => {
-  nextTick(() => {
-    setupFadeInAnimation()
-  })
-})
-
 watch(
   () => loadoutStore.selectedLoadoutId,
   async (newLoadoutId) => {
     if (newLoadoutId !== null && user.value?.steamId) {
       await fetchMusicKits()
     }
-  }
-)
-
-// Update when search query changes
-watch(
-  () => searchQuery.value,
-  () => {
-    nextTick(() => {
-      setupFadeInAnimation()
-    })
   }
 )
 </script>
@@ -244,108 +195,106 @@ watch(
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Music Kit Selection -->
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State (stage height matches MusicKitTabs cards) -->
-        <div v-if="isLoading" class="music-kit-grid" aria-hidden="true">
-          <ItemCardSkeleton v-for="i in 8" :key="i" stage-class="h-32" />
-        </div>
-
-        <!-- Content when loaded -->
-        <template v-else>
-          <div class="mb-6 flex flex-col gap-1.5">
-            <span
-              id="music-kit-select-label"
-              class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
-            >
-              {{ t('extras.music') }}
-            </span>
-            <Select
-              :model-value="selectedMusicKit"
-              @update:model-value="(v) => handleMusicKitTypeChange(Number(v))"
-            >
-              <SelectTrigger class="w-full sm:w-72" aria-labelledby="music-kit-select-label">
-                <span v-if="selectedMusicKitLabel">{{ selectedMusicKitLabel }}</span>
-                <span v-else class="text-muted-foreground">{{ t('musicKits.selectKit') }}</span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="opt in musicKitOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.label }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Skeleton Loading State (stage height matches MusicKitTabs cards) -->
+          <div v-if="isLoading" key="skeleton" class="music-kit-grid" aria-hidden="true">
+            <ItemCardSkeleton v-for="i in 8" :key="i" stage-class="h-32" />
           </div>
 
-          <!-- No Music Kits State -->
-          <Empty v-if="!musicKits || musicKits.length === 0" class="py-10">
-            <EmptyHeader>
-              <EmptyMedia variant="icon">
-                <LucideMusic />
-              </EmptyMedia>
-              <EmptyTitle class="font-display tracking-[-0.02em]">
-                {{ t('musicKits.noKitsAvailable') }}
-              </EmptyTitle>
-            </EmptyHeader>
-          </Empty>
-
-          <!-- Music Kits Content -->
-          <div v-else>
-            <!-- Search Bar -->
-            <div class="mb-6">
-              <div class="relative w-full max-w-md">
-                <LucideSearch
-                  class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary"
-                />
-                <Input
-                  v-model="searchQuery"
-                  :placeholder="t('musicKits.searchPlaceholder')"
-                  class="w-full pl-9 pr-9 font-mono text-[13px] placeholder:text-xs placeholder:tracking-[0.02em] placeholder:text-text-tertiary"
-                />
-                <Button
-                  v-if="searchQuery"
-                  type="button"
-                  variant="ghost"
-                  size="icon-xs"
-                  class="absolute right-2.5 top-1/2 -translate-y-1/2"
-                  :aria-label="t('common.clearSearch')"
-                  @click="searchQuery = ''"
-                >
-                  <LucideX :size="16" />
-                </Button>
-              </div>
+          <!-- Content when loaded -->
+          <div v-else key="content">
+            <div class="mb-6 flex flex-col gap-1.5">
+              <span
+                id="music-kit-select-label"
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+              >
+                {{ t('extras.music') }}
+              </span>
+              <Select
+                :model-value="selectedMusicKit"
+                @update:model-value="(v) => handleMusicKitTypeChange(Number(v))"
+              >
+                <SelectTrigger class="w-full sm:w-72" aria-labelledby="music-kit-select-label">
+                  <span v-if="selectedMusicKitLabel">{{ selectedMusicKitLabel }}</span>
+                  <span v-else class="text-muted-foreground">{{ t('musicKits.selectKit') }}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="opt in musicKitOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            <!-- Music Kits Vertical Grid -->
-            <div class="overflow-visible">
-              <!-- Display music kits in a grid -->
-              <div class="music-kit-grid">
-                <MusicKitTabs
-                  v-for="musicKit in musicKitGrid"
-                  :key="musicKit.id"
-                  ref="musicKitRefs"
-                  :music-kit="musicKit"
-                  :is-selected="getMusicKitBaseId(musicKit) === selectedMusicKit"
-                  :class="[
-                    'fade-in-item',
-                    getMusicKitBaseId(musicKit) === selectedMusicKit ? 'selected-music-kit' : '',
-                  ]"
-                  @select="handleMusicKitSelect"
-                />
+            <!-- No Music Kits State -->
+            <Empty v-if="!musicKits || musicKits.length === 0" class="py-10">
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <LucideMusic />
+                </EmptyMedia>
+                <EmptyTitle class="font-display tracking-[-0.02em]">
+                  {{ t('musicKits.noKitsAvailable') }}
+                </EmptyTitle>
+              </EmptyHeader>
+            </Empty>
+
+            <!-- Music Kits Content -->
+            <div v-else>
+              <!-- Search Bar -->
+              <div class="mb-6">
+                <div class="relative w-full max-w-md">
+                  <LucideSearch
+                    class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary"
+                  />
+                  <Input
+                    v-model="searchQuery"
+                    :placeholder="t('musicKits.searchPlaceholder')"
+                    class="w-full pl-9 pr-9 font-mono text-[13px] placeholder:text-xs placeholder:tracking-[0.02em] placeholder:text-text-tertiary"
+                  />
+                  <Button
+                    v-if="searchQuery"
+                    type="button"
+                    variant="ghost"
+                    size="icon-xs"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2"
+                    :aria-label="t('common.clearSearch')"
+                    @click="searchQuery = ''"
+                  >
+                    <LucideX :size="16" />
+                  </Button>
+                </div>
               </div>
 
-              <!-- No results message -->
-              <Empty v-if="searchQuery && filteredMusicKits.length === 0" class="py-10">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <LucideSearchX />
-                  </EmptyMedia>
-                  <EmptyTitle class="font-display tracking-[-0.02em]">
-                    {{ t('musicKits.noResultsSearch', { query: searchQuery }) }}
-                  </EmptyTitle>
-                </EmptyHeader>
-              </Empty>
+              <!-- Music Kits Vertical Grid -->
+              <div class="overflow-visible">
+                <!-- Display music kits in a grid -->
+                <div ref="gridRef" class="music-kit-grid">
+                  <MusicKitTabs
+                    v-for="musicKit in musicKitGrid"
+                    :key="musicKit.id"
+                    ref="musicKitRefs"
+                    :music-kit="musicKit"
+                    :is-selected="getMusicKitBaseId(musicKit) === selectedMusicKit"
+                    @select="handleMusicKitSelect"
+                  />
+                </div>
+
+                <!-- No results message -->
+                <Empty v-if="searchQuery && filteredMusicKits.length === 0" class="py-10">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <LucideSearchX />
+                    </EmptyMedia>
+                    <EmptyTitle class="font-display tracking-[-0.02em]">
+                      {{ t('musicKits.noResultsSearch', { query: searchQuery }) }}
+                    </EmptyTitle>
+                  </EmptyHeader>
+                </Empty>
+              </div>
             </div>
           </div>
-        </template>
+        </Transition>
       </div>
     </div>
   </div>
@@ -359,41 +308,5 @@ watch(
   gap: 1rem;
   width: 100%;
   margin-bottom: 2rem;
-}
-
-.fade-in-item {
-  opacity: 0;
-  will-change: opacity;
-  margin: 5px;
-}
-
-.fade-in-item.visible {
-  animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-.content-fade-in {
-  animation: fadeIn 0.5s ease-in-out;
-}
-
-/* Selected items are handled by the ring class in the component */
-.fade-in-item.visible {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Ensure selected music kits maintain their styling */
-.selected-music-kit {
-  opacity: 1 !important;
-  visibility: visible !important;
-}
-
-/* Opacity-only: the card owns its transform for hover lift */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 </style>

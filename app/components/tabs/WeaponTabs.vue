@@ -177,6 +177,7 @@ const handleSkinClick = (weapon: WeaponItemData): void => {
       :state="weapon.databaseInfo?.active ? 'normal' : 'inactive'"
       :stat-trak="weapon.databaseInfo?.stattrak_enabled === true"
       :float-value="getFloatValue(weapon)"
+      :flip-id="`weapon-art-${weapon.weapon_defindex}`"
       :badge-text="
         isVanillaSkin(weapon) && weapon.databaseInfo?.active ? 'Vanilla' : undefined
       "

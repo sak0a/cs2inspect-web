@@ -25,6 +25,7 @@
  *  - default  — extra content below the meta row.
  */
 import { LucideCheck } from '@lucide/vue'
+import { DUR, EASE } from '~/utils/motion'
 
 type ItemCardState = 'normal' | 'unconfigured' | 'inactive'
 
@@ -53,6 +54,12 @@ interface Props {
   badgeText?: string
   /** Height/layout classes for the fixed image stage (grid uniformity). */
   stageClass?: string
+  /**
+   * `data-flip-id` for the card→modal Flip morph (useFlipMorph.ts). The page
+   * pairs it with the modal stage img (`weapon-art-<defindex>`). Omit to opt
+   * out (e.g. unconfigured cards fall back to the plain modal entrance).
+   */
+  flipId?: string
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -67,6 +74,7 @@ const props = withDefaults(defineProps<Props>(), {
   floatValue: undefined,
   badgeText: undefined,
   stageClass: 'h-32',
+  flipId: undefined,
 })
 
 const { t } = useI18n()
@@ -98,31 +106,153 @@ const showMetaRow = computed(
 const triggerClick = (event: KeyboardEvent): void => {
   ;(event.currentTarget as HTMLElement | null)?.click()
 }
+
+/* ── Pointer parallax (Phase 3, spec §8) ──────────────────────────────────
+ * The art leans toward the pointer (±8px x / ±6px y, ±2.4deg) while the
+ * rarity glow drifts the opposite way for depth. Driven by gsap.quickTo —
+ * no reactive state per move, one retargeted tween per property. While
+ * active, the `.item-card--parallax` class hands the art's transform over
+ * to GSAP (CSS hover transform + transition are gated off, see <style>).
+ *
+ * Gates: fine pointer only, skipped under reduced motion / the E2E
+ * kill-switch (useReducedMotion), and skipped for unconfigured cards.
+ * Everything runs inside the useGsap context → auto-reverted on unmount.
+ */
+const cardEl = ref<HTMLElement | null>(null)
+const artEl = ref<HTMLImageElement | null>(null)
+const glowEl = ref<HTMLElement | null>(null)
+
+const { gsap, ctx } = useGsap(cardEl)
+const reducedMotion = useReducedMotion()
+
+/** false during SSR/hydration → CSS hover stays authoritative until mount. */
+const hasFinePointer = ref(false)
+onMounted(() => {
+  hasFinePointer.value = window.matchMedia('(pointer: fine)').matches
+})
+
+const parallaxOn = computed(
+  () => hasFinePointer.value && !reducedMotion.value && props.state !== 'unconfigured'
+)
+
+/** Max travel: px for x/y, deg for rot. Glow moves opposite (depth). */
+const PARALLAX = { artX: 8, artY: 6, artRot: 2.4, glowX: 6, glowY: 5 } as const
+
+type QuickTo = ReturnType<typeof gsap.quickTo>
+interface ParallaxSetters {
+  artX: QuickTo
+  artY: QuickTo
+  artRot: QuickTo
+  glowX?: QuickTo
+  glowY?: QuickTo
+}
+
+let parallax: ParallaxSetters | null = null
+let cardRect: DOMRect | null = null
+
+const onParallaxEnter = (event: PointerEvent): void => {
+  if (!parallaxOn.value) return
+  const art = artEl.value
+  if (!art) return
+  // Rect cached per hover — no layout reads inside the move handler.
+  cardRect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+  ctx(() => {
+    const opts = { duration: 0.35, ease: EASE.reveal }
+    parallax = {
+      artX: gsap.quickTo(art, 'x', opts),
+      artY: gsap.quickTo(art, 'y', opts),
+      artRot: gsap.quickTo(art, 'rotation', opts),
+    }
+    const glow = glowEl.value
+    if (glow) {
+      parallax.glowX = gsap.quickTo(glow, 'x', opts)
+      parallax.glowY = gsap.quickTo(glow, 'y', opts)
+    }
+    // Hover pop — replaces the gated-off CSS :hover art transform.
+    gsap.to(art, { scale: 1.045, duration: DUR.slow, ease: EASE.out, overwrite: 'auto' })
+  })
+}
+
+const onParallaxMove = (event: PointerEvent): void => {
+  if (!parallax || !cardRect || cardRect.width === 0 || cardRect.height === 0) return
+  const nx = Math.min(1, Math.max(-1, ((event.clientX - cardRect.left) / cardRect.width) * 2 - 1))
+  const ny = Math.min(1, Math.max(-1, ((event.clientY - cardRect.top) / cardRect.height) * 2 - 1))
+  parallax.artX(nx * PARALLAX.artX)
+  parallax.artY(ny * PARALLAX.artY)
+  parallax.artRot(nx * PARALLAX.artRot)
+  parallax.glowX?.(-nx * PARALLAX.glowX)
+  parallax.glowY?.(-ny * PARALLAX.glowY)
+}
+
+/** Return art + glow to rest; quickTo instances are recreated per hover. */
+const parallaxRest = (animate: boolean): void => {
+  parallax = null
+  cardRect = null
+  const targets = [artEl.value, glowEl.value].filter(
+    (el): el is HTMLElement => el instanceof HTMLElement
+  )
+  if (targets.length === 0) return
+  ctx(() => {
+    if (!animate) {
+      gsap.set(targets, { clearProps: 'transform' })
+      return
+    }
+    gsap.to(targets, {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      scale: 1,
+      duration: DUR.slow,
+      ease: EASE.out,
+      overwrite: 'auto',
+      // Leaves no inline transform behind → CSS owns the resting state.
+      clearProps: 'transform',
+    })
+  })
+}
+
+const onParallaxLeave = (): void => {
+  if (!parallax) return
+  parallaxRest(!reducedMotion.value)
+}
+
+// Gate flips off mid-hover (reduced motion toggled live, card becomes
+// unconfigured, grid data replaced) → snap straight to the resting state.
+watch(parallaxOn, (on) => {
+  if (!on && parallax) parallaxRest(false)
+})
 </script>
 
 <template>
   <div
+    ref="cardEl"
     class="item-card relative cursor-pointer overflow-hidden border border-border bg-card p-3.5"
     :class="{
       'item-card--unconfigured': state === 'unconfigured',
       'item-card--inactive': state === 'inactive',
       'item-card--selected': selected,
+      'item-card--parallax': parallaxOn,
     }"
     :style="{ '--rc': rarityHex }"
     role="button"
     tabindex="0"
     @keydown.enter.prevent="triggerClick"
     @keydown.space.prevent="triggerClick"
+    @pointerenter="onParallaxEnter"
+    @pointermove="onParallaxMove"
+    @pointerleave="onParallaxLeave"
   >
     <!-- Rarity glow — the light the item casts on the surface -->
-    <div class="item-card__glow" aria-hidden="true" />
+    <div ref="glowEl" class="item-card__glow" aria-hidden="true" />
 
     <!-- Fixed-height art stage (uniform grid rows) -->
     <div class="relative z-[1] flex w-full items-center justify-center" :class="stageClass">
       <img
         v-if="imageUrl"
+        ref="artEl"
         :src="imageUrl"
         :alt="imageAlt || name"
+        :data-flip-id="flipId"
         class="item-card__art h-full w-full object-contain"
         loading="lazy"
         draggable="false"
@@ -247,14 +377,20 @@ const triggerClick = (event: KeyboardEvent): void => {
   opacity: 0.3;
 }
 
-/* Art: deep drop-shadow, lifts on hover (pointer parallax lands in Phase 3) */
+/* Art: deep drop-shadow, lifts on hover. On fine-pointer devices the JS
+ * pointer parallax owns the transform instead (`.item-card--parallax` gates
+ * the CSS hover motion + transition off so GSAP never fights a transition). */
 .item-card__art {
   filter: drop-shadow(0 14px 20px rgba(0, 0, 0, 0.55));
   transition: transform var(--dur-slow) var(--ease-out);
 }
 
-.item-card:hover .item-card__art {
+.item-card:not(.item-card--parallax):hover .item-card__art {
   transform: translateY(-5px) scale(1.045) rotate(-1.2deg);
+}
+
+.item-card--parallax .item-card__art {
+  transition: none;
 }
 
 /* Selected: accent-tinted border + inset ring (overlay element — untransitioned) */

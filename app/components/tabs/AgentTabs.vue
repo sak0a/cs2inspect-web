@@ -43,8 +43,7 @@ const nameParts = computed(() => {
     :selected="isSelected"
     :badge-text="teamLabel"
     stage-class="h-48"
-    class="agent-card mx-2 mt-2 w-56 shrink-0 sm:w-64"
-    :class="{ visible: isSelected }"
+    class="mx-2 mt-2 w-56 shrink-0 sm:w-64"
     @click="handleSelect"
   />
 </template>

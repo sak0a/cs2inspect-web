@@ -45,14 +45,9 @@ export default defineNuxtConfig({
     enabled: true,
   },
   app: {
-    pageTransition: {
-      name: 'page',
-      mode: 'out-in',
-    },
-    layoutTransition: {
-      name: 'layout',
-      mode: 'out-in',
-    },
+    // Page transitions are GSAP JS hooks passed via `<NuxtPage :transition>`
+    // in app.vue (usePageTransition). No layoutTransition — layouts swap
+    // instantly so page + layout transitions can't double-fire.
     head: {
       htmlAttrs: { class: 'dark' },
       titleTemplate: '%s | CS2 Inspect',

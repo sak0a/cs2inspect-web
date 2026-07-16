@@ -37,7 +37,10 @@ export function useGsap(scope?: GsapScopeRef): UseGsapReturn {
   let context: gsap.Context | undefined
 
   const ctx = <T>(fn: (self: gsap.Context) => T): T => {
-    context ??= gsap.context(undefined, scope?.value ?? undefined)
+    // NOTE: the no-op function is required — `gsap.context(func, scope)` only
+    // creates a Context when `func` is truthy (with `undefined` it returns the
+    // currently-active context, i.e. `undefined` at boot, and `.add` throws).
+    context ??= gsap.context(() => {}, scope?.value ?? undefined)
     return context.add(fn)
   }
 

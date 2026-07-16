@@ -95,11 +95,6 @@ const handlePinTypeChange = async (pinId: number) => {
     if (loadoutStore.selectedLoadout) {
       loadoutStore.selectedLoadout.selected_pin = actualPinId
     }
-
-    // Force refresh the UI to ensure proper rendering
-    nextTick(() => {
-      setupFadeInAnimation()
-    })
   } catch (error) {
     console.error('Error updating pin:', error)
     // Revert the local state on error
@@ -145,30 +140,13 @@ const fetchCollectibles = async () => {
   }
 }
 
-// Setup fade-in animation for pins
-const setupFadeInAnimation = () => {
-  nextTick(() => {
-    // Create an Intersection Observer to handle fade-in animations
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      {
-        threshold: 0.1, // Trigger when at least 10% of the item is visible
-      }
-    )
-
-    // Observe all pin cards
-    document.querySelectorAll('.fade-in-item').forEach((card) => {
-      observer.observe(card)
-    })
-  })
-}
+// Motion: cards stagger in after the skeletons swap out, on data refetch and
+// on every search/filter change (useGridReveal re-runs post-DOM-update, so no
+// card is ever left invisible after a list mutation).
+const gridRef = ref<HTMLElement | null>(null)
+useGridReveal(gridRef, {
+  watch: [() => isLoading.value, () => filteredCollectibles.value],
+})
 
 onMounted(async () => {
   user.value = steamAuth.getSavedUser()
@@ -176,11 +154,6 @@ onMounted(async () => {
     try {
       await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       await fetchCollectibles()
-
-      // Setup animations after DOM is updated
-      nextTick(() => {
-        setupFadeInAnimation()
-      })
     } catch (error) {
       console.error('Error during initialization:', error)
       message.error('Failed to initialize page')
@@ -189,13 +162,6 @@ onMounted(async () => {
   } else {
     isLoading.value = false
   }
-})
-
-// Update animations when collectibles are loaded or changed
-watch([() => collectibles.value, () => filteredCollectibles.value], () => {
-  nextTick(() => {
-    setupFadeInAnimation()
-  })
 })
 </script>
 
@@ -210,99 +176,100 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Pin Selection -->
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State (stage height matches PinTabs cards) -->
-        <div v-if="isLoading" class="pin-grid" aria-hidden="true">
-          <ItemCardSkeleton v-for="i in 12" :key="i" stage-class="h-32" />
-        </div>
-
-        <!-- Content when loaded -->
-        <template v-else>
-          <div class="mb-6 flex flex-col gap-1.5">
-            <span
-              id="pin-select-label"
-              class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
-            >
-              {{ t('extras.pins') }}
-            </span>
-            <Select
-              :model-value="selectedPin"
-              @update:model-value="(v) => handlePinTypeChange(Number(v))"
-            >
-              <SelectTrigger class="w-full sm:w-72" aria-labelledby="pin-select-label">
-                <span v-if="selectedPinLabel">{{ selectedPinLabel }}</span>
-                <span v-else class="text-muted-foreground">{{ t('pins.selectPin') }}</span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="opt in pinOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.label }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Skeleton Loading State (stage height matches PinTabs cards) -->
+          <div v-if="isLoading" key="skeleton" class="pin-grid" aria-hidden="true">
+            <ItemCardSkeleton v-for="i in 12" :key="i" stage-class="h-32" />
           </div>
 
-          <!-- Search and Filter -->
-          <div class="mb-6">
-            <div class="relative w-full max-w-md">
-              <LucideSearch
-                class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary"
-              />
-              <Input
-                v-model="searchQuery"
-                type="text"
-                :placeholder="t('pins.searchPlaceholder')"
-                class="w-full pl-9 pr-9 font-mono text-[13px] placeholder:text-xs placeholder:tracking-[0.02em] placeholder:text-text-tertiary"
-              />
-              <Button
-                v-if="searchQuery"
-                type="button"
-                variant="ghost"
-                size="icon-xs"
-                class="absolute right-2.5 top-1/2 -translate-y-1/2"
-                :aria-label="t('common.clearSearch')"
-                @click="searchQuery = ''"
+          <!-- Content when loaded -->
+          <div v-else key="content">
+            <div class="mb-6 flex flex-col gap-1.5">
+              <span
+                id="pin-select-label"
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
               >
-                <LucideX :size="16" />
-              </Button>
+                {{ t('extras.pins') }}
+              </span>
+              <Select
+                :model-value="selectedPin"
+                @update:model-value="(v) => handlePinTypeChange(Number(v))"
+              >
+                <SelectTrigger class="w-full sm:w-72" aria-labelledby="pin-select-label">
+                  <span v-if="selectedPinLabel">{{ selectedPinLabel }}</span>
+                  <span v-else class="text-muted-foreground">{{ t('pins.selectPin') }}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="opt in pinOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </div>
 
-          <!-- Main Content Area -->
-          <div>
-            <!-- Pins Vertical Grid -->
-            <div class="overflow-visible">
-              <!-- Display pins in a grid -->
-              <div v-if="filteredCollectibles.length > 0" class="pin-grid">
-                <PinTabs
-                  v-for="collectible in pinGrid"
-                  :key="collectible.id"
-                  ref="pinRefs"
-                  :collectible="collectible"
-                  :is-selected="getCollectibleBaseId(collectible) === selectedPin"
-                  class="fade-in-item"
-                  @select="handlePinSelect"
+            <!-- Search and Filter -->
+            <div class="mb-6">
+              <div class="relative w-full max-w-md">
+                <LucideSearch
+                  class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary"
                 />
+                <Input
+                  v-model="searchQuery"
+                  type="text"
+                  :placeholder="t('pins.searchPlaceholder')"
+                  class="w-full pl-9 pr-9 font-mono text-[13px] placeholder:text-xs placeholder:tracking-[0.02em] placeholder:text-text-tertiary"
+                />
+                <Button
+                  v-if="searchQuery"
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2"
+                  :aria-label="t('common.clearSearch')"
+                  @click="searchQuery = ''"
+                >
+                  <LucideX :size="16" />
+                </Button>
               </div>
+            </div>
 
-              <!-- No results / no pins -->
-              <Empty v-else class="py-10">
-                <EmptyHeader>
-                  <EmptyMedia variant="icon">
-                    <LucideSearchX v-if="searchQuery" />
-                    <LucidePin v-else />
-                  </EmptyMedia>
-                  <EmptyTitle class="font-display tracking-[-0.02em]">
-                    {{
-                      searchQuery
-                        ? t('pins.noResultsSearch', { query: searchQuery })
-                        : t('pins.noPinsAvailable')
-                    }}
-                  </EmptyTitle>
-                </EmptyHeader>
-              </Empty>
+            <!-- Main Content Area -->
+            <div>
+              <!-- Pins Vertical Grid -->
+              <div class="overflow-visible">
+                <!-- Display pins in a grid -->
+                <div v-if="filteredCollectibles.length > 0" ref="gridRef" class="pin-grid">
+                  <PinTabs
+                    v-for="collectible in pinGrid"
+                    :key="collectible.id"
+                    ref="pinRefs"
+                    :collectible="collectible"
+                    :is-selected="getCollectibleBaseId(collectible) === selectedPin"
+                    @select="handlePinSelect"
+                  />
+                </div>
+
+                <!-- No results / no pins -->
+                <Empty v-else class="py-10">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <LucideSearchX v-if="searchQuery" />
+                      <LucidePin v-else />
+                    </EmptyMedia>
+                    <EmptyTitle class="font-display tracking-[-0.02em]">
+                      {{
+                        searchQuery
+                          ? t('pins.noResultsSearch', { query: searchQuery })
+                          : t('pins.noPinsAvailable')
+                      }}
+                    </EmptyTitle>
+                  </EmptyHeader>
+                </Empty>
+              </div>
             </div>
           </div>
-        </template>
+        </Transition>
       </div>
     </div>
   </div>
@@ -314,26 +281,6 @@ watch([() => collectibles.value, () => filteredCollectibles.value], () => {
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
-}
-
-/* Fade-in animation for pins (opacity-only: the card owns its transform/transition) */
-.fade-in-item {
-  opacity: 0;
-  will-change: opacity;
-}
-
-.fade-in-item.visible {
-  opacity: 1;
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
 }
 
 /* Responsive adjustments */

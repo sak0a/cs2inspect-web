@@ -1,6 +1,7 @@
 <!-- WearSlider.vue — Onyx wear slider on reka-ui SliderRoot -->
 <script setup lang="ts">
 import { SliderRange, SliderRoot, SliderThumb, SliderTrack } from 'reka-ui'
+import { EASE } from '~/utils/motion'
 
 interface Props {
   min?: number
@@ -36,6 +37,35 @@ const localValue = ref(clampValue(modelValue.value))
 const isDragging = ref(false)
 const isHovering = ref(false)
 const isFocused = ref(false)
+
+/* Release spring (Phase 3): thumb scale springs back on drag release and the
+ * numeric pill pulses once. Model writes stay raw/live during drag — the
+ * spring is purely visual on the thumb element. */
+const rootEl = ref<HTMLElement | null>(null)
+const inputEl = ref<HTMLInputElement | null>(null)
+const { gsap, ctx } = useGsap(rootEl)
+const reducedMotion = useReducedMotion()
+
+function playReleaseSpring() {
+  if (reducedMotion.value) return
+  ctx(() => {
+    const thumb = rootEl.value?.querySelector<HTMLElement>('[role="slider"]')
+    if (thumb) {
+      gsap.fromTo(
+        thumb,
+        { scale: 1.15 },
+        { scale: 1, duration: 0.35, ease: 'elastic.out(1, 0.5)', overwrite: 'auto', clearProps: 'scale' }
+      )
+    }
+    if (inputEl.value) {
+      gsap.fromTo(
+        inputEl.value,
+        { scale: 1.06 },
+        { scale: 1, duration: 0.3, ease: EASE.out, overwrite: 'auto', clearProps: 'scale' }
+      )
+    }
+  })
+}
 
 const showReadout = computed(() => isDragging.value || isHovering.value || isFocused.value)
 
@@ -98,6 +128,7 @@ function handleBlur(event: Event) {
 }
 
 function stopDragging() {
+  if (isDragging.value) playReleaseSpring()
   isDragging.value = false
 }
 
@@ -131,6 +162,7 @@ onBeforeUnmount(() => {
   <div class="flex w-full items-center gap-4">
     <!-- Compact mono numeric pill -->
     <input
+      ref="inputEl"
       type="text"
       inputmode="decimal"
       class="wear-input h-7 w-20 shrink-0 rounded-full border border-border bg-surface-2 text-center font-mono text-xs text-foreground tabular-nums transition-[border-color,box-shadow] duration-[var(--dur-fast)] ease-[var(--ease-out)] hover:border-border-strong focus:border-primary/60 focus:outline-none focus:ring-2 focus:ring-primary/20 motion-reduce:transition-none"
@@ -143,6 +175,7 @@ onBeforeUnmount(() => {
 
     <!-- Track + labels -->
     <div
+      ref="rootEl"
       class="relative min-w-0 flex-1"
       @pointerenter="isHovering = true"
       @pointerleave="isHovering = false"

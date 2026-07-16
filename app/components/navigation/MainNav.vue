@@ -7,15 +7,18 @@
  * - below lg: icon-only items with a tooltip carrying the label.
  * - Active item: quiet pill (bg-white/6 + text-foreground) plus a single
  *   absolutely-positioned 2px accent underline. The underline is one element
- *   per nav group whose x/width are computed from the active item and moved
- *   with a CSS transition on the motion tokens for now — Phase 3 swaps the
- *   transition for a GSAP morph tween on the same element
- *   (`data-nav-indicator` / `indicatorEl`).
+ *   per nav group whose x/width are computed from the active item and morphed
+ *   into place with GSAP (Phase 3): x gets a slight `back.out` overshoot, the
+ *   width morph is transform-only — a fixed 100px base scaled via `scaleX`
+ *   (origin left) on `expo.out` (motion law: never tween width). Mount/resize
+ *   re-measures snap without animating; reduced motion / E2E flag always
+ *   snaps.
  *
  * Active state derives from the current route (option `key` = route path).
  */
 import type { Component, VNode } from 'vue'
 import type { WeaponSilhouetteName } from '~/components/navigation/WeaponSilhouette.vue'
+import { EASE } from '~/utils/motion'
 
 interface NavItem {
   key: string
@@ -54,29 +57,71 @@ function onMediaChange(event: MediaQueryListEvent) {
   isLgUp.value = event.matches
 }
 
-/* Active underline indicator — measured from the active item */
+/* Active underline indicator — measured from the active item, moved by GSAP */
 const navEl = ref<HTMLElement | null>(null)
 const indicatorEl = ref<HTMLElement | null>(null)
 const indicator = reactive({ x: 0, width: 0, visible: false })
 const INDICATOR_INSET = 10
+/** CSS width of the underline; target widths become scaleX = width / base. */
+const INDICATOR_BASE_WIDTH = 100
 let resizeObserver: ResizeObserver | null = null
 
-function updateIndicator() {
+const { gsap, ctx } = useGsap(navEl)
+const reducedMotion = useReducedMotion()
+
+function updateIndicator(animate = false) {
   const activeItem = navEl.value?.querySelector<HTMLElement>('[aria-current="page"]')
   if (!activeItem) {
     indicator.visible = false
     return
   }
+  const wasVisible = indicator.visible
   const width = Math.max(activeItem.offsetWidth - INDICATOR_INSET * 2, 12)
   indicator.x = activeItem.offsetLeft + (activeItem.offsetWidth - width) / 2
   indicator.width = width
   indicator.visible = true
+  applyIndicator(animate && wasVisible)
+}
+
+/**
+ * Move the underline via GSAP — transform/opacity only (motion law): the
+ * element keeps a fixed 100px CSS width and the measured width maps to
+ * `scaleX` around a left origin, so `x + 100 * scaleX` is the right edge
+ * (identical interpolation to a width tween, zero layout work). Route
+ * changes morph (x with a slight back.out overshoot, scaleX on expo.out,
+ * 0.35s); mount/resize re-measures and reduced motion snap instantly.
+ * `overwrite: 'auto'` kills any in-flight morph on rapid navigation.
+ */
+function applyIndicator(animate: boolean) {
+  const el = indicatorEl.value
+  if (!el) return
+  const scaleX = indicator.width / INDICATOR_BASE_WIDTH
+  if (!animate || reducedMotion.value) {
+    // Every animated morph is preceded by at least one snap (mount/resize),
+    // so the left origin is always established here first.
+    gsap.set(el, { x: indicator.x, scaleX, transformOrigin: 'left center' })
+    return
+  }
+  ctx(() => {
+    gsap.to(el, {
+      x: indicator.x,
+      duration: 0.35,
+      ease: 'back.out(1.2)',
+      overwrite: 'auto',
+    })
+    gsap.to(el, {
+      scaleX,
+      duration: 0.35,
+      ease: EASE.out,
+      overwrite: 'auto',
+    })
+  })
 }
 
 watch(
   () => route.path,
   () => {
-    nextTick(updateIndicator)
+    nextTick(() => updateIndicator(true))
   }
 )
 
@@ -127,16 +172,13 @@ onBeforeUnmount(() => {
         <TooltipContent side="bottom">{{ item.label }}</TooltipContent>
       </Tooltip>
 
-      <!-- Single per-group underline; Phase 3 GSAP morph target -->
+      <!-- Single per-group underline; x/width owned by GSAP (applyIndicator),
+           only visibility is template-driven -->
       <span
         ref="indicatorEl"
         data-nav-indicator
         class="main-nav-indicator"
-        :style="{
-          transform: `translateX(${indicator.x}px)`,
-          width: `${indicator.width}px`,
-          opacity: indicator.visible ? 1 : 0,
-        }"
+        :style="{ opacity: indicator.visible ? 1 : 0 }"
         aria-hidden="true"
       />
     </div>
@@ -192,14 +234,18 @@ onBeforeUnmount(() => {
   position: absolute;
   left: 0;
   bottom: -2px;
+  /* Fixed base width — GSAP maps the measured width to scaleX (origin left),
+     keeping the morph transform-only. Hidden (opacity 0) until measured. */
+  width: 100px;
   height: 2px;
   border-radius: 1px;
   background: var(--primary);
+  transform: scaleX(0);
+  transform-origin: left center;
   pointer-events: none;
-  transition:
-    transform var(--dur-base) var(--ease-out),
-    width var(--dur-base) var(--ease-out),
-    opacity var(--dur-fast) var(--ease-out);
+  /* transform is GSAP-owned (no CSS transition — it would double-animate the
+     morph); only the show/hide fade stays in CSS */
+  transition: opacity var(--dur-fast) var(--ease-out);
 }
 
 @media (prefers-reduced-motion: reduce) {

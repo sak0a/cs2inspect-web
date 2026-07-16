@@ -235,7 +235,10 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
   }
 }
 
-const handleQuickAction = async (payload: { action: 'generate' | 'import' | 'toggle' | 'reset'; weapon: WeaponItemData }) => {
+const handleQuickAction = async (payload: {
+  action: 'generate' | 'import' | 'toggle' | 'reset'
+  weapon: WeaponItemData
+}) => {
   const { action, weapon } = payload
   const db = weapon.databaseInfo
 
@@ -276,7 +279,7 @@ const handleQuickImport = async (inspectUrl: string) => {
     const config = await quickActions.importFromLink(
       quickActionTarget.value.weapon_defindex,
       db.team,
-      inspectUrl,
+      inspectUrl
     )
     await quickActions.save(quickActionTarget.value.weapon_defindex, db.team, config)
     showQuickImportModal.value = false
@@ -320,7 +323,30 @@ const handleWeaponClickWrapper = (weapon: WeaponItemData) => {
   handleWeaponClick(weapon as unknown as IEnhancedWeapon)
 }
 
-// No animation code
+// Motion: cards stagger in after every load/refetch (initial, SSE, auto-save
+// silent refresh — all toggle isLoading); team switches run the directional
+// wipe instead, so teamSide is deliberately NOT a reveal watch source.
+const gridRef = ref<HTMLElement | null>(null)
+useGridReveal(gridRef, { watch: () => isLoading.value })
+const teamSwap = useTeamSwapMotion(teamSide)
+
+/**
+ * Card→modal Flip morph capture (useFlipMorph.ts, spec §8 "heartbeat"):
+ * snapshot the clicked card's art in the CAPTURE phase, before the bubbling
+ * click opens the modal. Trusted pointer clicks only — the tutorial's
+ * programmatic `.click()` and keyboard-dispatched clicks fall back to the
+ * plain modal entrance. Clicks inside the quick-action dropdown (buttons /
+ * menu items) never open the skin modal, so they are excluded up front.
+ * Unconfigured cards carry no `data-flip-id` and fall through untouched.
+ */
+const onGridClickCapture = (event: MouseEvent) => {
+  if (!event.isTrusted) return
+  const target = event.target as HTMLElement | null
+  if (!target || target.closest('button, [role="menu"], [role="menuitem"]')) return
+  const img = target.closest('.weapon-card')?.querySelector<HTMLImageElement>('img[data-flip-id]')
+  const id = img?.dataset.flipId
+  if (img && id) captureFlipMorph(img, id)
+}
 
 // Real-time sync: listen for plugin-originated changes
 const { connect: connectSync, onSyncEvent } = useSyncEvents()
@@ -421,53 +447,65 @@ watch(
         :configured-count="isLoading ? null : configuredCount"
         :total-count="isLoading ? null : totalCount"
       />
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State -->
-        <div
-          v-if="isLoading"
-          class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
-        >
-          <ItemCardSkeleton v-for="i in 8" :key="i" />
-        </div>
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Skeleton Loading State -->
+          <div
+            v-if="isLoading"
+            key="skeleton"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
+          >
+            <ItemCardSkeleton v-for="i in 8" :key="i" />
+          </div>
 
-        <!-- Content when loaded -->
-        <template v-else>
-          <!-- Skins Grid — crossfade entire grid on team switch -->
-          <Transition name="team-swap" mode="out-in">
-            <div
-              :key="teamSide"
-              class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
+          <!-- Content when loaded -->
+          <div v-else key="content">
+            <!-- Skins Grid — directional wipe on team switch (grid stays keyed by teamSide) -->
+            <Transition
+              :css="false"
+              mode="out-in"
+              @enter="teamSwap.onEnter"
+              @leave="teamSwap.onLeave"
+              @enter-cancelled="teamSwap.onEnterCancelled"
+              @leave-cancelled="teamSwap.onLeaveCancelled"
             >
-              <WeaponTabs
-                v-for="(weaponData, weaponName) in visibleGroupedWeapons"
-                :key="weaponName"
-                :weapon-data="weaponData as any"
-                @weapon-click="handleWeaponClickWrapper"
-                @quick-action="handleQuickAction"
-              />
-            </div>
-          </Transition>
-          <!-- No Skins State -->
-          <Empty v-if="skins.length === 0" class="py-12">
-            <EmptyHeader>
-              <EmptyMedia>
-                <WeaponSilhouette
-                  :src="emptySilhouette"
-                  class="h-14 w-44 text-text-tertiary opacity-60"
+              <div
+                :key="teamSide"
+                ref="gridRef"
+                class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
+                @click.capture="onGridClickCapture"
+              >
+                <WeaponTabs
+                  v-for="(weaponData, weaponName) in visibleGroupedWeapons"
+                  :key="weaponName"
+                  :weapon-data="weaponData as any"
+                  @weapon-click="handleWeaponClickWrapper"
+                  @quick-action="handleQuickAction"
                 />
-              </EmptyMedia>
-              <EmptyTitle class="font-display tracking-[-0.02em]">
-                {{ t('emptyTitle') }}
-              </EmptyTitle>
-              <EmptyDescription>{{ t('emptyDescription') }}</EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button variant="outline" @click="fetchLoadoutSkins">
-                {{ t('reload') }}
-              </Button>
-            </EmptyContent>
-          </Empty>
-        </template>
+              </div>
+            </Transition>
+            <!-- No Skins State -->
+            <Empty v-if="skins.length === 0" class="py-12">
+              <EmptyHeader>
+                <EmptyMedia>
+                  <WeaponSilhouette
+                    :src="emptySilhouette"
+                    class="h-14 w-44 text-text-tertiary opacity-60"
+                  />
+                </EmptyMedia>
+                <EmptyTitle class="font-display tracking-[-0.02em]">
+                  {{ t('emptyTitle') }}
+                </EmptyTitle>
+                <EmptyDescription>{{ t('emptyDescription') }}</EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button variant="outline" @click="fetchLoadoutSkins">
+                  {{ t('reload') }}
+                </Button>
+              </EmptyContent>
+            </Empty>
+          </div>
+        </Transition>
       </div>
 
       <!-- Skin Selection & Customization Modal -->
@@ -497,18 +535,3 @@ watch(
     </div>
   </div>
 </template>
-<style>
-/* Crossfade the whole weapon grid when switching teams */
-.team-swap-enter-active {
-  transition: opacity 0.2s ease 0.05s;
-}
-
-.team-swap-leave-active {
-  transition: opacity 0.15s ease;
-}
-
-.team-swap-enter-from,
-.team-swap-leave-to {
-  opacity: 0;
-}
-</style>

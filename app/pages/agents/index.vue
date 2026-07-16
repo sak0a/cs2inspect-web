@@ -93,38 +93,12 @@ const handleAgentTypeChange = async (team: 't' | 'ct', agentDefindex: number) =>
         loadoutStore.selectedLoadout.selected_agent_ct = agentDefindex === -1 ? null : agentDefindex
       }
 
-      // Ensure all agent cards remain visible after selection from dropdown
-      nextTick(() => ensureCardsVisible())
-
       message.success(`${team === 't' ? 'Terrorist' : 'Counter-Terrorist'} agent updated`)
     })
     .catch((error) => {
       console.error(error)
       message.error('Failed to update Agent Type')
     })
-}
-
-// Helper function to ensure all agent cards have 'visible' class
-const ensureCardsVisible = () => {
-  document.querySelectorAll('.agent-card').forEach((card: Element) => {
-    if (!card.classList.contains('visible')) {
-      card.classList.add('visible')
-    }
-  })
-}
-
-// Handler for CT agent type change from dropdown
-const handleCtAgentDropdownChange = (value: number) => {
-  handleAgentTypeChange('ct', value)
-  // Ensure all agent cards remain visible after dropdown selection
-  nextTick(() => ensureCardsVisible())
-}
-
-// Handler for T agent type change from dropdown
-const handleTAgentDropdownChange = (value: number) => {
-  handleAgentTypeChange('t', value)
-  // Ensure all agent cards remain visible after dropdown selection
-  nextTick(() => ensureCardsVisible())
 }
 
 // Display label for the current selection (reka Select won't show a preselected
@@ -136,8 +110,7 @@ const currentAgentLabel = computed(
 const onAgentTypeChange = (val: unknown) => {
   const defindex = Number(val)
   currentAgentType.value = defindex
-  if (teamSide.value === 't') handleTAgentDropdownChange(defindex)
-  else handleCtAgentDropdownChange(defindex)
+  handleAgentTypeChange(teamSide.value, defindex)
 }
 
 const handleAgentSelect = (agent: APIAgent) => {
@@ -149,15 +122,6 @@ const handleAgentSelect = (agent: APIAgent) => {
   } else {
     ctAgentType.value = agentDefindex
   }
-
-  // Ensure all agent cards have the visible class to prevent disappearing
-  nextTick(() => {
-    document.querySelectorAll('.agent-card').forEach((card) => {
-      if (!card.classList.contains('visible')) {
-        card.classList.add('visible')
-      }
-    })
-  })
 
   handleAgentTypeChange(team, agentDefindex)
 }
@@ -188,33 +152,29 @@ const fetchAgents = async () => {
   }
 }
 
-// References to scroll containers
-const ctScrollContainer = ref<HTMLDivElement | null>(null)
-const tScrollContainer = ref<HTMLDivElement | null>(null)
+// Scroll container (team-keyed, remounts on team switch). The wheel listener
+// is bound via an element watch so every remounted container gets one — the
+// old element's listener dies with the element.
+const scrollContainer = ref<HTMLDivElement | null>(null)
+watch(scrollContainer, (container) => {
+  if (!container) return
+  container.addEventListener(
+    'wheel',
+    (event: WheelEvent) => {
+      if (event.deltaY) {
+        event.preventDefault()
+        // Adjust scroll speed for smoother scrolling
+        container.scrollLeft += event.deltaY * 0.5
+      }
+    },
+    { passive: false }
+  )
+})
 
-// Function to handle horizontal scrolling with mouse wheel
-const setupHorizontalScroll = () => {
-  nextTick(() => {
-    const containers = [ctScrollContainer.value, tScrollContainer.value]
-
-    containers.forEach((container) => {
-      if (!container) return
-
-      // Handle mouse wheel scrolling
-      container.addEventListener(
-        'wheel',
-        (event: WheelEvent) => {
-          if (event.deltaY) {
-            event.preventDefault()
-            // Adjust scroll speed for smoother scrolling
-            container.scrollLeft += event.deltaY * 0.5
-          }
-        },
-        { passive: false }
-      )
-    })
-  })
-}
+// Motion: cards stagger in once the skeletons swap out; team switches run the
+// directional wipe (teamSide is deliberately NOT a reveal watch source).
+useGridReveal(scrollContainer, { watch: () => isLoading.value })
+const teamSwap = useTeamSwapMotion(teamSide)
 
 onMounted(async () => {
   user.value = steamAuth.getSavedUser()
@@ -222,12 +182,6 @@ onMounted(async () => {
     try {
       await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       await fetchAgents()
-
-      // Setup horizontal scrolling and animations after DOM is updated
-      nextTick(() => {
-        setupHorizontalScroll()
-        setupFadeInAnimation()
-      })
     } catch (error) {
       console.error('Error during initialization:', error)
       message.error('Failed to initialize page')
@@ -237,55 +191,6 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
-
-// Update horizontal scrolling when agents are loaded or changed
-watch([() => ctAgents.value, () => tAgents.value], () => {
-  nextTick(() => {
-    setupHorizontalScroll()
-    setupFadeInAnimation()
-  })
-})
-
-// Watch for changes in agent type selection to ensure visibility is maintained
-watch([() => tAgentType.value, () => ctAgentType.value], () => {
-  nextTick(() => {
-    // Ensure all agent cards are visible after agent type changes
-    document.querySelectorAll('.agent-card').forEach((card) => {
-      if (!card.classList.contains('visible')) {
-        card.classList.add('visible')
-      }
-    })
-  })
-})
-
-// Function to handle fade-in animation for agent cards
-const setupFadeInAnimation = () => {
-  nextTick(() => {
-    // Use Intersection Observer to detect when agent cards are visible
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-            // Once the animation is applied, we don't need to observe this element anymore
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      { threshold: 0.1 }
-    ) // Trigger when at least 10% of the element is visible
-
-    // Observe all agent cards
-    document.querySelectorAll('.agent-card').forEach((card) => {
-      // If the card is for a selected agent, make sure it's visible immediately
-      if (card.classList.contains('ring-2')) {
-        card.classList.add('visible')
-      } else {
-        observer.observe(card)
-      }
-    })
-  })
-}
 
 watch(
   () => loadoutStore.selectedLoadoutId,
@@ -311,83 +216,105 @@ watch(
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Agent Type Groups -->
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Loading State: skeleton row matching the agent card stage height -->
-        <div v-if="isLoading" class="flex gap-4 overflow-hidden pb-6" aria-hidden="true">
-          <ItemCardSkeleton
-            v-for="i in 5"
-            :key="i"
-            stage-class="h-48"
-            class="mx-2 mt-2 w-56 shrink-0 sm:w-64"
-          />
-        </div>
-
-        <!-- No Agents State -->
-        <Empty v-else-if="!agents || agents.length === 0" class="py-10">
-          <EmptyHeader>
-            <EmptyMedia>
-              <WeaponSilhouette
-                :src="agentSilhouette"
-                class="h-16 w-24 text-text-tertiary opacity-60"
-              />
-            </EmptyMedia>
-            <EmptyTitle class="font-display tracking-[-0.02em]">
-              {{ t('agents.noAgentsAvailable') }}
-            </EmptyTitle>
-          </EmptyHeader>
-        </Empty>
-
-        <!-- Agents Grid with Horizontal Scrolling -->
-        <div v-else>
-          <div class="mb-4 flex flex-col gap-1.5">
-            <span
-              id="agent-select-label"
-              class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
-            >
-              {{ t('extras.agents') }}
-            </span>
-            <Select :model-value="currentAgentType" @update:model-value="onAgentTypeChange">
-              <SelectTrigger class="w-full sm:w-72" aria-labelledby="agent-select-label">
-                <span v-if="currentAgentLabel">{{ currentAgentLabel }}</span>
-                <span v-else class="text-muted-foreground">{{ t('agents.selectAgent') }}</span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="opt in currentAgentOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.label }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Loading State: skeleton row matching the agent card stage height -->
+          <div
+            v-if="isLoading"
+            key="skeleton"
+            class="flex gap-4 overflow-hidden pb-6"
+            aria-hidden="true"
+          >
+            <ItemCardSkeleton
+              v-for="i in 5"
+              :key="i"
+              stage-class="h-48"
+              class="mx-2 mt-2 w-56 shrink-0 sm:w-64"
+            />
           </div>
-          <div class="overflow-x-auto">
-            <div
-              v-if="currentAgents && currentAgents.length > 0"
-              ref="ctScrollContainer"
-              class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll"
-              style="min-width: max-content"
-            >
-              <AgentTabs
-                v-for="agent in currentAgents"
-                :key="agent.id"
-                :agent="agent"
-                :is-selected="currentAgentType === parseInt(agent.id.replace('agent-', ''))"
-                @select="handleAgentSelect"
-              />
+
+          <!-- No Agents State -->
+          <Empty v-else-if="!agents || agents.length === 0" key="empty" class="py-10">
+            <EmptyHeader>
+              <EmptyMedia>
+                <WeaponSilhouette
+                  :src="agentSilhouette"
+                  class="h-16 w-24 text-text-tertiary opacity-60"
+                />
+              </EmptyMedia>
+              <EmptyTitle class="font-display tracking-[-0.02em]">
+                {{ t('agents.noAgentsAvailable') }}
+              </EmptyTitle>
+            </EmptyHeader>
+          </Empty>
+
+          <!-- Agents Grid with Horizontal Scrolling -->
+          <div v-else key="content">
+            <div class="mb-4 flex flex-col gap-1.5">
+              <span
+                id="agent-select-label"
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+              >
+                {{ t('extras.agents') }}
+              </span>
+              <Select :model-value="currentAgentType" @update:model-value="onAgentTypeChange">
+                <SelectTrigger class="w-full sm:w-72" aria-labelledby="agent-select-label">
+                  <span v-if="currentAgentLabel">{{ currentAgentLabel }}</span>
+                  <span v-else class="text-muted-foreground">{{ t('agents.selectAgent') }}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem
+                    v-for="opt in currentAgentOptions"
+                    :key="opt.value"
+                    :value="opt.value"
+                  >
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Empty v-else class="py-10">
-              <EmptyHeader>
-                <EmptyMedia>
-                  <WeaponSilhouette
-                    :src="agentSilhouette"
-                    class="h-16 w-24 text-text-tertiary opacity-60"
+            <div class="overflow-x-auto">
+              <!-- Directional wipe on team switch (grid keyed by teamSide) -->
+              <Transition
+                :css="false"
+                mode="out-in"
+                @enter="teamSwap.onEnter"
+                @leave="teamSwap.onLeave"
+                @enter-cancelled="teamSwap.onEnterCancelled"
+                @leave-cancelled="teamSwap.onLeaveCancelled"
+              >
+                <div
+                  v-if="currentAgents && currentAgents.length > 0"
+                  :key="teamSide"
+                  ref="scrollContainer"
+                  class="flex gap-4 pb-6 overflow-x-auto horizontal-scroll"
+                  style="min-width: max-content"
+                >
+                  <AgentTabs
+                    v-for="agent in currentAgents"
+                    :key="agent.id"
+                    :agent="agent"
+                    :is-selected="currentAgentType === parseInt(agent.id.replace('agent-', ''))"
+                    @select="handleAgentSelect"
                   />
-                </EmptyMedia>
-                <EmptyTitle class="font-display tracking-[-0.02em]">
-                  {{ t('agents.noAgentsForTeam') }}
-                </EmptyTitle>
-              </EmptyHeader>
-            </Empty>
+                </div>
+                <Empty v-else :key="`empty-${teamSide}`" class="py-10">
+                  <EmptyHeader>
+                    <EmptyMedia>
+                      <WeaponSilhouette
+                        :src="agentSilhouette"
+                        class="h-16 w-24 text-text-tertiary opacity-60"
+                      />
+                    </EmptyMedia>
+                    <EmptyTitle class="font-display tracking-[-0.02em]">
+                      {{ t('agents.noAgentsForTeam') }}
+                    </EmptyTitle>
+                  </EmptyHeader>
+                </Empty>
+              </Transition>
+            </div>
           </div>
-        </div>
+        </Transition>
       </div>
     </div>
   </div>
@@ -398,30 +325,5 @@ watch(
 .horizontal-scroll {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-}
-
-/* Fade-in animation (opacity-only: the card owns its transform for hover lift) */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.agent-card {
-  opacity: 0;
-  will-change: opacity;
-}
-
-.agent-card.visible {
-  opacity: 1;
-  animation: fadeIn 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Ensure selected agents are always visible */
-.agent-card.ring-2 {
-  opacity: 1;
 }
 </style>

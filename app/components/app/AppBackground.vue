@@ -19,31 +19,15 @@
  * Replaces the dot-grid recipes previously duplicated inline in app.vue and
  * error.vue. Near-black #070708 ground with a subtle vignette, faint film
  * grain, and an extremely subtle ambient drift (two radial pools) that gently
- * follows the pointer. Fully static under reduced motion.
+ * follows the pointer. The pools are faintly team-reactive: `--pool-tint`
+ * drifts toward the active side's hue (CT blue / T orange) at 2-3% alpha.
+ * Fully static under reduced motion (the tint still updates — instantly).
  */
+import { gsap } from 'gsap'
 
-/**
- * The shared useReducedMotion composable may not be merged yet — resolve it
- * defensively (Nuxt auto-import leaves the identifier undefined when the
- * composable does not exist, so `typeof` is safe), falling back to matchMedia.
- */
-function prefersReducedMotion(): boolean {
-  try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- @ts-ignore (not expect-error) because the line is only errorful until the composable merges
-    // @ts-ignore
-    if (typeof useReducedMotion === 'function') {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment -- see above
-      // @ts-ignore
-      return Boolean(unref(useReducedMotion()))
-    }
-  } catch {
-    // fall through to the matchMedia check
-  }
-  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-    return window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  }
-  return false
-}
+// Shared kill-switch (OS prefers-reduced-motion + E2E flag + runtime config).
+// Resolved at setup so the Nuxt context is always available.
+const reducedMotion = useReducedMotion()
 
 const rootEl = ref<HTMLElement | null>(null)
 
@@ -67,10 +51,41 @@ function onPointerMove(event: PointerEvent) {
   })
 }
 
+// Team-reactive ambient tint: tween `--pool-tint` (consumed by the pool
+// gradients at 2-3% alpha via color-mix) toward the active side's hue.
+const { teamSide } = useTeamToggle()
+let tintTween: gsap.core.Tween | null = null
+
+function applyPoolTint(animate: boolean) {
+  const el = rootEl.value
+  if (!el) return
+  const token = teamSide.value === 'ct' ? '--team-ct' : '--team-t'
+  const fallback = teamSide.value === 'ct' ? '#5d8cff' : '#ff8a3d'
+  const target = getComputedStyle(el).getPropertyValue(token).trim() || fallback
+  tintTween?.kill()
+  tintTween = null
+  if (!animate || reducedMotion.value) {
+    // Reduced motion / first paint: the tint is state, not motion — snap.
+    el.style.setProperty('--pool-tint', target)
+    return
+  }
+  tintTween = gsap.to(el, {
+    '--pool-tint': target,
+    duration: 1.2,
+    ease: 'power2.inOut',
+    overwrite: 'auto',
+  })
+}
+
+watch(teamSide, () => applyPoolTint(true))
+
 onMounted(() => {
+  // Snap to the active side on load (the team cookie may say T).
+  applyPoolTint(false)
+
   // Static under reduced motion: no listener, no var updates (CSS also
   // disables the drift keyframes).
-  if (prefersReducedMotion()) return
+  if (reducedMotion.value) return
   window.addEventListener('pointermove', onPointerMove, { passive: true })
   listenerAttached = true
 })
@@ -84,12 +99,17 @@ onUnmounted(() => {
     window.cancelAnimationFrame(rafId)
     rafId = 0
   }
+  tintTween?.kill()
+  tintTween = null
 })
 </script>
 
 <style scoped>
 .app-background {
   background-color: var(--background);
+  /* Team-reactive ambient tint — JS tweens this toward --team-ct / --team-t.
+   * Neutral white before mount so SSR paint matches the old look. */
+  --pool-tint: #ffffff;
 }
 
 /* Vignette — very subtle darker edges over the pools */
@@ -134,14 +154,22 @@ onUnmounted(() => {
 .bg-pool--a {
   top: -22vmax;
   left: -18vmax;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.02) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--pool-tint) 2.5%, transparent) 0%,
+    transparent 70%
+  );
   animation: pool-drift-a 75s ease-in-out infinite alternate;
 }
 
 .bg-pool--b {
   right: -24vmax;
   bottom: -26vmax;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.015) 0%, transparent 70%);
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--pool-tint) 2%, transparent) 0%,
+    transparent 70%
+  );
   animation: pool-drift-b 95s ease-in-out infinite alternate;
 }
 

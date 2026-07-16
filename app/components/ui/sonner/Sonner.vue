@@ -52,6 +52,13 @@ const props = defineProps<ToasterProps>()
  * solid on purpose), borders are hairline color tints, text tints pass
  * AA on the dark surface.
  */
+/* Onyx: default (untyped) toasts carry a subtle accent left edge so they
+ * read as part of the brand without competing with the rich-color types. */
+[data-sonner-toast]:not([data-type]),
+[data-sonner-toast][data-type='default'] {
+  border-left: 2px solid color-mix(in srgb, var(--primary) 55%, transparent);
+}
+
 [data-sonner-toast][data-type='success'] {
   --normal-bg: color-mix(in srgb, #22c55e 12%, var(--popover));
   --normal-border: rgba(34, 197, 94, 0.3);

@@ -253,7 +253,11 @@ const handleGloveDuplicate = async (glove: IEnhancedGlove, customization: GloveC
   }
 }
 
-// No animation code
+// Motion: cards stagger in after every load/refetch (initial, SSE, auto-save
+// silent refresh — all toggle isLoading). The grid shows both teams, so team
+// switches don't remount it and need no wipe here.
+const gridRef = ref<HTMLElement | null>(null)
+useGridReveal(gridRef, { watch: () => isLoading.value })
 
 // Real-time sync: listen for plugin-originated changes
 const { connect: connectSync, onSyncEvent } = useSyncEvents()
@@ -310,78 +314,78 @@ watch(
         :total-count="isLoading ? null : totalCount"
       />
       <!-- Glove Type Groups -->
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State -->
-        <div
-          v-if="isLoading"
-          class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
-        >
-          <ItemCardSkeleton v-for="i in 8" :key="i" />
-        </div>
-
-        <!-- Content when loaded -->
-        <template v-else>
-          <div class="flex flex-col gap-1.5">
-            <span
-              id="glove-type-label"
-              class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
-            >
-              {{ t('typeLabel') }}
-            </span>
-            <Select :model-value="currentGloveType" @update:model-value="onGloveTypeChange">
-              <SelectTrigger class="w-72" aria-labelledby="glove-type-label">
-                <span v-if="currentGloveLabel">{{ currentGloveLabel }}</span>
-                <span v-else class="text-muted-foreground">{{ t('selectGloveType') }}</span>
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem v-for="opt in gloveOptions" :key="opt.value" :value="opt.value">
-                  {{ opt.label }}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <!-- Skins Grid -->
-          <TransitionGroup
-            name="card-fade"
-            tag="div"
-            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 pt-4"
-            appear
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Skeleton Loading State -->
+          <div
+            v-if="isLoading"
+            key="skeleton"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
           >
-            <GloveTabs
-              v-for="(gloveData, gloveName, index) in groupedGloves"
-              :key="gloveName"
-              :style="{ '--delay': `${index * 50}ms` }"
-              :weapon-data="{
-                weapons: gloveData.weapons as unknown as GloveItemData[],
-                defaultName: gloveData.defaultName,
-                availableTeams: 'both',
-              }"
-              @weapon-click="
-                (glove: GloveItemData) => handleGloveClick(glove as unknown as IEnhancedGlove)
-              "
-            />
-          </TransitionGroup>
-          <!-- No Skins State -->
-          <Empty v-if="skins.length === 0" class="mt-4 py-12">
-            <EmptyHeader>
-              <EmptyMedia>
-                <WeaponSilhouette
-                  :src="gloveSilhouette"
-                  class="h-16 w-24 text-text-tertiary opacity-60"
-                />
-              </EmptyMedia>
-              <EmptyTitle class="font-display tracking-[-0.02em]">
-                {{ t('emptyTitle') }}
-              </EmptyTitle>
-              <EmptyDescription>{{ t('noGloves') }}</EmptyDescription>
-            </EmptyHeader>
-            <EmptyContent>
-              <Button variant="outline" @click="fetchLoadoutGloves">
-                {{ t('reload') }}
-              </Button>
-            </EmptyContent>
-          </Empty>
-        </template>
+            <ItemCardSkeleton v-for="i in 8" :key="i" />
+          </div>
+
+          <!-- Content when loaded -->
+          <div v-else key="content">
+            <div class="flex flex-col gap-1.5">
+              <span
+                id="glove-type-label"
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+              >
+                {{ t('typeLabel') }}
+              </span>
+              <Select :model-value="currentGloveType" @update:model-value="onGloveTypeChange">
+                <SelectTrigger class="w-72" aria-labelledby="glove-type-label">
+                  <span v-if="currentGloveLabel">{{ currentGloveLabel }}</span>
+                  <span v-else class="text-muted-foreground">{{ t('selectGloveType') }}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="opt in gloveOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <!-- Skins Grid -->
+            <div
+              ref="gridRef"
+              class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 pt-4"
+            >
+              <GloveTabs
+                v-for="(gloveData, gloveName) in groupedGloves"
+                :key="gloveName"
+                :weapon-data="{
+                  weapons: gloveData.weapons as unknown as GloveItemData[],
+                  defaultName: gloveData.defaultName,
+                  availableTeams: 'both',
+                }"
+                @weapon-click="
+                  (glove: GloveItemData) => handleGloveClick(glove as unknown as IEnhancedGlove)
+                "
+              />
+            </div>
+            <!-- No Skins State -->
+            <Empty v-if="skins.length === 0" class="mt-4 py-12">
+              <EmptyHeader>
+                <EmptyMedia>
+                  <WeaponSilhouette
+                    :src="gloveSilhouette"
+                    class="h-16 w-24 text-text-tertiary opacity-60"
+                  />
+                </EmptyMedia>
+                <EmptyTitle class="font-display tracking-[-0.02em]">
+                  {{ t('emptyTitle') }}
+                </EmptyTitle>
+                <EmptyDescription>{{ t('noGloves') }}</EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button variant="outline" @click="fetchLoadoutGloves">
+                  {{ t('reload') }}
+                </Button>
+              </EmptyContent>
+            </Empty>
+          </div>
+        </Transition>
       </div>
 
       <!-- Glove Skin Selection & Customization Modal -->
@@ -417,25 +421,5 @@ watch(
 .selected-slot:hover {
   border-color: #888;
   background-color: rgba(26, 26, 26, 0.5);
-}
-
-.card-fade-enter-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-  transition-delay: var(--delay, 0ms);
-}
-
-.card-fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.card-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.card-fade-leave-to {
-  opacity: 0;
 }
 </style>

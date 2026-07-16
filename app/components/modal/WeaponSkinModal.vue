@@ -21,6 +21,8 @@ import { useAutoSave } from '~/composables/useAutoSave'
 import { generateFlatKeychainUrl, generateDefaultFlatImageUrl } from '~/utils/canvasCoordinates'
 import type { ItemHistoryRecord } from '~/server/database/schema/itemHistory'
 import { VideoCanvasManager, generateVideoUrl, checkVideoExists } from '~/utils/videoCanvas'
+import { DUR, EASE } from '~/utils/motion'
+import type { ComponentPublicInstance } from 'vue'
 
 /**
  * Props interface using new type system with backward compatibility
@@ -152,6 +154,25 @@ const previewCtx = ref<CanvasRenderingContext2D | null>(null)
 const previewVideoManager = ref<VideoCanvasManager | null>(null)
 const isPreviewVideoMode = ref(false)
 const isPreviewVideoLoading = ref(false)
+
+/**
+ * Card→stage Flip morph, modal side (useFlipMorph.ts, spec §8 "heartbeat").
+ * Pairs the grid card art with the stage fallback img via a shared
+ * `data-flip-id` (`weapon-art-<defindex>`); the composable watches `visible`
+ * and runs/aborts the flight itself (reduced motion, untrusted opens, src
+ * mismatches and force-closes all short-circuit inside). `whenSettled()`
+ * gates the img→canvas swap in `initializePreviewVideo` so the video canvas
+ * never replaces the art mid-flight.
+ */
+const previewImage = ref<HTMLImageElement | null>(null)
+const stageFlipId = computed(() =>
+  props.weapon ? `weapon-art-${props.weapon.weapon_defindex}` : null
+)
+const stageMorph = useStageFlipMorph({
+  visible: () => props.visible,
+  flipId: () => stageFlipId.value,
+  imgEl: previewImage,
+})
 
 // Preview image: use flat default PNG when paintindex=0, otherwise selected skin image
 const previewImageUrl = computed(() => {
@@ -318,6 +339,9 @@ const initializePreviewVideo = async () => {
       await previewVideoManager.value.loadVideo(videoUrl)
       // Seek to current wear and render after seek completes
       await previewVideoManager.value.seekToWear(customization.value.paintwear)
+      // Hold the img→canvas swap until the card→stage morph settles — the
+      // v-show flip would hide the art mid-flight (guaranteed to resolve).
+      await stageMorph.whenSettled()
       isPreviewVideoMode.value = true
       previewVideoManager.value.renderFrame()
     } else {
@@ -772,6 +796,82 @@ const handleSkinSelect = (skin: APIWeaponSkin) => {
 const draggedStickerIndex = ref<number | null>(null)
 const dragOverStickerIndex = ref<number | null>(null)
 
+/**
+ * Sticker slot GSAP feedback (Phase 3, spec §8) — purely visual layers on
+ * top of the reactive swap/add logic. Skipped under reduced motion / the
+ * E2E kill-switch; the useGsap context reverts everything on unmount, so a
+ * forced close (SSE) or grid-data replacement mid-tween is harmless.
+ */
+const { gsap, ctx: gsapCtx } = useGsap()
+const reducedMotion = useReducedMotion()
+
+/** Slot DOM nodes, indexed by slot position (function ref keeps order). */
+const stickerSlotEls: (HTMLElement | null)[] = [null, null, null, null, null]
+const setStickerSlotEl = (el: Element | ComponentPublicInstance | null, index: number): void => {
+  stickerSlotEls[index] = el instanceof HTMLElement ? el : null
+}
+
+/** Drag-swap feedback: both slots dip (0.95) and crossfade back in. */
+const animateStickerSwap = (fromIndex: number, toIndex: number): void => {
+  if (reducedMotion.value) return
+  // nextTick → the swapped sticker art is already rendered in both slots.
+  nextTick(() => {
+    const els = [stickerSlotEls[fromIndex], stickerSlotEls[toIndex]].filter(
+      (el): el is HTMLElement => el instanceof HTMLElement
+    )
+    if (els.length === 0) return
+    gsapCtx(() => {
+      gsap.fromTo(
+        els,
+        // `transition: 'none'` (set at start, cleared with the rest) keeps
+        // the slots' CSS hover transition from fighting the tween.
+        { scale: 0.95, opacity: 0.3, transition: 'none' },
+        {
+          scale: 1,
+          opacity: 1,
+          duration: DUR.base,
+          ease: EASE.out,
+          overwrite: 'auto',
+          clearProps: 'transform,opacity,transition',
+        }
+      )
+    })
+  })
+}
+
+/** Sticker-added feedback: one pulse (1.04 → 1) + accent border flash. */
+const pulseStickerSlot = (index: number): void => {
+  if (reducedMotion.value) return
+  nextTick(() => {
+    const el = stickerSlotEls[index]
+    if (!el) return
+    gsapCtx(() => {
+      // Read AFTER render so the border rest state reflects the filled slot.
+      const styles = getComputedStyle(el)
+      const accent = styles.getPropertyValue('--primary').trim()
+      const restBorder = styles.borderTopColor
+      const tl = gsap.timeline()
+      tl.set(el, { transition: 'none' }, 0)
+      tl.fromTo(
+        el,
+        { scale: 1.04 },
+        { scale: 1, duration: DUR.base, ease: EASE.out, overwrite: 'auto' },
+        0
+      )
+      if (accent) {
+        tl.fromTo(
+          el,
+          { borderColor: accent },
+          { borderColor: restBorder, duration: 0.4, ease: 'power2.out' },
+          0
+        )
+      }
+      // Hand the slot back to its CSS once the flash settles.
+      tl.set(el, { clearProps: 'transform,borderColor,transition' })
+    })
+  })
+}
+
 const handleStickerDragStart = (e: DragEvent, fromIndex: number) => {
   if (!e.dataTransfer) return
   e.dataTransfer.effectAllowed = 'move'
@@ -808,6 +908,8 @@ const handleStickerDrop = (e: DragEvent, toIndex: number) => {
   stickers[fromIndex] = stickers[toIndex] ?? null
   stickers[toIndex] = temp
   customization.value.stickers = stickers
+
+  animateStickerSwap(fromIndex, toIndex)
 }
 const handleAddSticker = (position: number) => {
   weaponState.value.currentStickerPosition = position
@@ -815,6 +917,7 @@ const handleAddSticker = (position: number) => {
 }
 const handleStickerSelect = (stickerData: StickerConfiguration | null) => {
   customization.value.stickers[weaponState.value.currentStickerPosition] = stickerData
+  if (stickerData) pulseStickerSlot(weaponState.value.currentStickerPosition)
 }
 
 const removeSticker = (index: number) => {
@@ -1225,11 +1328,14 @@ onUnmounted(() => {
                       class="w-full h-64"
                     />
 
-                    <!-- Static image fallback (shown when no video or loading) -->
+                    <!-- Static image fallback (shown when no video or loading);
+                         landing target of the card→stage Flip morph -->
                     <img
                       v-show="!isPreviewVideoMode || isPreviewVideoLoading"
+                      ref="previewImage"
                       :src="previewImageUrl"
                       :alt="selectedSkin?.name"
+                      :data-flip-id="stageFlipId"
                       class="w-full h-64 object-contain"
                     />
                   </template>
@@ -1404,6 +1510,7 @@ onUnmounted(() => {
                     <div
                       v-for="(sticker, index) in customization.stickers"
                       :key="index"
+                      :ref="(el) => setStickerSlotEl(el, index)"
                       class="sticker-slot equip-slot group relative flex items-center justify-center p-2"
                       :class="{
                         'equip-slot--empty': !sticker,

@@ -1,110 +1,150 @@
 <script setup lang="ts">
-interface Props {
-  preloaderName?: string
+/**
+ * SitePreloader — Onyx branded intro (design spec §7/§8).
+ *
+ * Full-screen near-black overlay with the CS2INSPECT wordmark:
+ *  1. letters clip-reveal (y offset + opacity, 30ms stagger, expo.out)
+ *  2. a 1px accent hairline draws across (scaleX, origin left)
+ *  3. the overlay lifts away (y -100%, expo.inOut), handing off to the page
+ * Total run ≤ 1.6s; the element removes itself from the DOM afterwards.
+ *
+ * Plays once per session, gated by the `cs2inspect-intro-seen` sessionStorage
+ * key. (The previous implementation read `preload-<NAME>` but wrote
+ * `siteLoader`, so the gate never matched and the loader replayed on every
+ * load — fixed by using one constant for both sides.)
+ *
+ * Under reduced motion / the E2E kill-switch the overlay is removed
+ * immediately without animating. Purely decorative → `aria-hidden`.
+ */
+import { EASE } from '~/utils/motion'
+
+/** One key, read AND written (the old code's read/write keys never matched). */
+const INTRO_SEEN_KEY = 'cs2inspect-intro-seen'
+
+const WORDMARK_LETTERS = 'CS2INSPECT'.split('')
+
+const visible = ref(true)
+const rootEl = ref<HTMLElement | null>(null)
+
+const { gsap, ctx } = useGsap(rootEl)
+const reducedMotion = useReducedMotion()
+
+function hasSeenIntro(): boolean {
+  try {
+    return sessionStorage.getItem(INTRO_SEEN_KEY) === '1'
+  } catch {
+    // sessionStorage unavailable (privacy mode) — treat as seen, never block.
+    return true
+  }
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  preloaderName: 'preloader' + Math.floor(Math.random() * 100),
-})
-const state = reactive({
-  preloader: true,
-})
-const preloaderStyle: string = 'line-scale-pulse-out'
-const revealDuration: number = 200
-const revealDelay: number = 25
-const preloaderDivsToCreate: number = 5
-
-function animation() {
-  return [
-    { transform: 'scale(1)', opacity: 1 },
-    { transform: 'scale(5)', opacity: 0 },
-  ]
+function markIntroSeen(): void {
+  try {
+    sessionStorage.setItem(INTRO_SEEN_KEY, '1')
+  } catch {
+    /* non-fatal */
+  }
 }
 
 onMounted(() => {
-  if (sessionStorage.getItem('preload-' + props.preloaderName?.toUpperCase()) === 'shown') {
-    state.preloader = false
+  if (hasSeenIntro() || reducedMotion.value) {
+    // Skip entirely: instant removal, no animation, no interaction blocking.
+    markIntroSeen()
+    visible.value = false
     return
   }
-  const preloader = document.getElementById('preloader_' + preloaderStyle)
-  if (!preloader) return
-  preloader.classList.add(preloaderStyle)
-  const outerWrapper = document.querySelector('.preloader_wrapper_outer') as HTMLElement | null
-  if (!outerWrapper) return
-  outerWrapper.animate(animation(), {
-    duration: revealDuration,
-    delay: revealDelay,
-    iterations: 1,
-    fill: 'forwards',
-    easing: 'ease-in-out',
+  markIntroSeen()
+
+  ctx(() => {
+    const tl = gsap.timeline({
+      defaults: { ease: EASE.out },
+      onComplete: () => {
+        visible.value = false
+      },
+    })
+
+    tl
+      // Wordmark clip-reveal: letters slide up into the overflow-hidden line.
+      .set('.preloader-hairline', { scaleX: 0, transformOrigin: 'left center' })
+      .from('.preloader-letter', {
+        yPercent: 120,
+        opacity: 0,
+        duration: 0.6,
+        stagger: 0.03,
+      })
+      // Accent hairline draws across beneath the wordmark.
+      .to('.preloader-hairline', { scaleX: 1, duration: 0.5 }, 0.35)
+      // Overlay lifts away, handing off to the page. Pointer-events drop the
+      // moment the lift starts so the page is interactive during the exit.
+      .to(
+        rootEl.value,
+        {
+          yPercent: -100,
+          duration: 0.5,
+          ease: 'expo.inOut',
+          onStart: () => {
+            rootEl.value?.style.setProperty('pointer-events', 'none')
+          },
+        },
+        1.0
+      )
+    // Timeline ends at 1.5s (≤ 1.6s budget); onComplete removes the node.
   })
-  setTimeout(() => {
-    outerWrapper.style.display = 'none'
-    state.preloader = false
-    sessionStorage.setItem('siteLoader', 'shown')
-  }, revealDelay + revealDuration)
 })
 </script>
 
 <template>
-  <div v-if="state.preloader" class="preloader_wrapper_outer">
-    <div class="preloader_wrapper_inner">
-      <div :id="'preloader_' + preloaderStyle" class="preloader">
-        <div v-for="n in preloaderDivsToCreate" :key="n">
-          <div :id="`loader-div-${n}`" />
-        </div>
+  <!-- z-index preserved from the old preloader: above tutorial/modals/nav -->
+  <div v-if="visible" ref="rootEl" class="site-preloader" aria-hidden="true">
+    <div class="preloader-lockup">
+      <div class="preloader-wordmark">
+        <span v-for="(letter, i) in WORDMARK_LETTERS" :key="i" class="preloader-letter">{{
+          letter
+        }}</span>
       </div>
+      <div class="preloader-hairline" />
     </div>
   </div>
 </template>
 
-<style lang="sass" scoped>
-.preloader_wrapper_outer
-  background: #000
-  display: flex
-  align-items: center
-  justify-content: center
-  position: fixed
-  top: 0
-  left: 0
-  width: 100vw
-  height: 100vh
-  z-index: 10000000
-  animation-timing-function: ease
+<style scoped>
+.site-preloader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #070708;
+}
 
-.preloader_wrapper_outer .preloader.line-scale-pulse-out > div
-  background-color: #fff
+.preloader-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 14px;
+}
 
-.line-scale-pulse-out > div
-  width: 4px
-  height: 35px
-  display: inline-block
-  border-radius: 2px
-  margin: 2px
-  background-color: #fff
-  -webkit-animation: line-scale-pulse-out 0.9s -0.6s infinite cubic-bezier(0.85, 0.25, 0.37, 0.85)
-  animation: line-scale-pulse-out 0.9s -0.6s infinite cubic-bezier(0.85, 0.25, 0.37, 0.85)
+/* Clip container for the letter reveal (letters slide up from below). */
+.preloader-wordmark {
+  display: flex;
+  overflow: hidden;
+  padding: 0.08em 0; /* keep ascenders/descenders inside the clip */
+  font-family: var(--font-display, ui-sans-serif, system-ui, sans-serif);
+  font-size: clamp(2rem, 5.5vw, 3.25rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: #f2f2f4;
+}
 
-.line-scale-pulse-out > div:nth-child(2),
-.line-scale-pulse-out > div:nth-child(4)
-  -webkit-animation-delay: -0.4s !important
-  animation-delay: -0.4s !important
+.preloader-letter {
+  display: inline-block;
+  will-change: transform, opacity;
+}
 
-
-.line-scale-pulse-out > div:nth-child(1),
-.line-scale-pulse-out > div:nth-child(5)
-  -webkit-animation-delay: -0.2s !important
-  animation-delay: -0.2s !important
-@-webkit-keyframes line-scale-pulse-out
-  0%, 100%
-    transform: scaley(1)
-  50%
-    transform: scaleY(0.4)
-
-
-@keyframes line-scale-pulse-out
-  0%, 100%
-    transform: scaleY(1)
-  50%
-    transform: scaleY(0.4)
+.preloader-hairline {
+  height: 1px;
+  background: var(--primary, #facc15);
+}
 </style>
