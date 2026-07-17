@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LucidePin, LucideSearch, LucideSearchX, LucideX } from '@lucide/vue'
 import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { APICollectible } from '~/server/types'
@@ -13,7 +14,7 @@ const searchQuery = ref<string>('')
 const pinRefs = ref<Array<{ select: () => void }>>([])
 
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 
 // Initialize collectibles with an empty array to prevent undefined errors
@@ -58,6 +59,12 @@ const pinOptions = computed(() => {
   ]
 })
 
+// Display label for the current selection (reka Select won't show a preselected
+// option's label until the menu is opened, so derive it from the options list).
+const selectedPinLabel = computed(
+  () => pinOptions.value.find((o) => o.value === selectedPin.value)?.label
+)
+
 const handlePinTypeChange = async (pinId: number) => {
   if (!loadoutStore.selectedLoadoutId || !loadoutStore.selectedLoadout || !user.value?.steamId) {
     message.error('Please select a loadout first')
@@ -88,11 +95,6 @@ const handlePinTypeChange = async (pinId: number) => {
     if (loadoutStore.selectedLoadout) {
       loadoutStore.selectedLoadout.selected_pin = actualPinId
     }
-
-    // Force refresh the UI to ensure proper rendering
-    nextTick(() => {
-      setupFadeInAnimation()
-    })
   } catch (error) {
     console.error('Error updating pin:', error)
     // Revert the local state on error
@@ -138,30 +140,13 @@ const fetchCollectibles = async () => {
   }
 }
 
-// Setup fade-in animation for pins
-const setupFadeInAnimation = () => {
-  nextTick(() => {
-    // Create an Intersection Observer to handle fade-in animations
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible')
-            observer.unobserve(entry.target)
-          }
-        })
-      },
-      {
-        threshold: 0.1, // Trigger when at least 10% of the item is visible
-      }
-    )
-
-    // Observe all pin cards
-    document.querySelectorAll('.fade-in-item').forEach((card) => {
-      observer.observe(card)
-    })
-  })
-}
+// Motion: cards stagger in after the skeletons swap out, on data refetch and
+// on every search/filter change (useGridReveal re-runs post-DOM-update, so no
+// card is ever left invisible after a list mutation).
+const gridRef = ref<HTMLElement | null>(null)
+useGridReveal(gridRef, {
+  watch: [() => isLoading.value, () => filteredCollectibles.value],
+})
 
 onMounted(async () => {
   user.value = steamAuth.getSavedUser()
@@ -169,11 +154,6 @@ onMounted(async () => {
     try {
       await loadoutStore.fetchLoadouts(toSteamId(user.value.steamId))
       await fetchCollectibles()
-
-      // Setup animations after DOM is updated
-      nextTick(() => {
-        setupFadeInAnimation()
-      })
     } catch (error) {
       console.error('Error during initialization:', error)
       message.error('Failed to initialize page')
@@ -183,142 +163,124 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
-
-// Update animations when collectibles are loaded or changed
-watch([() => collectibles.value, () => filteredCollectibles.value], () => {
-  nextTick(() => {
-    setupFadeInAnimation()
-  })
-})
 </script>
 
 <template>
   <div class="p-4">
     <div class="max-w-7xl mx-auto content-fade-in">
       <SkinPageLayout
-        title="Pins"
+        :title="t('extras.pins') as string"
+        :show-team="false"
         :user="user"
         :error="error || ''"
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
       />
       <!-- Pin Selection -->
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State -->
-        <div v-if="isLoading" class="p-6 rounded-lg">
-          <div class="pin-grid">
-            <div
-              v-for="i in 12"
-              :key="i"
-              class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4 flex flex-col"
-              style="height: 300px"
-            >
-              <NSkeleton height="128px" />
-              <div class="mt-2 flex flex-col flex-grow">
-                <NSkeleton text class="mt-1" style="height: 40px" />
-                <NSkeleton text :repeat="2" class="mt-1" style="height: 64px" />
-                <div class="mt-auto">
-                  <NSkeleton height="4px" />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Content when loaded -->
-        <template v-else>
-          <div class="flex gap-x-10 justify-start mb-6">
-            <div class="flex items-center justify-end space-x-2">
-              <span class="font-bold whitespace-nowrap"> Pin </span>
-              <NSelect
-                v-model:value="selectedPin"
-                :options="pinOptions"
-                placeholder="Select pin"
-                class="w-72"
-                @update:value="handlePinTypeChange($event)"
-              />
-            </div>
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Skeleton Loading State (stage height matches PinTabs cards) -->
+          <div v-if="isLoading" key="skeleton" class="pin-grid" aria-hidden="true">
+            <ItemCardSkeleton v-for="i in 12" :key="i" stage-class="h-32" />
           </div>
 
-          <!-- Search and Filter -->
-          <div class="mb-6">
-            <div class="flex items-center space-x-4">
-              <NInput
-                v-model:value="searchQuery"
-                type="text"
-                placeholder="Search pins..."
-                class="w-full max-w-md"
-              />
+          <!-- Content when loaded -->
+          <div v-else key="content">
+            <div class="mb-6 flex flex-col gap-1.5">
+              <span
+                id="pin-select-label"
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+              >
+                {{ t('extras.pins') }}
+              </span>
+              <Select
+                :model-value="selectedPin"
+                @update:model-value="(v) => handlePinTypeChange(Number(v))"
+              >
+                <SelectTrigger class="w-full sm:w-72" aria-labelledby="pin-select-label">
+                  <span v-if="selectedPinLabel">{{ selectedPinLabel }}</span>
+                  <span v-else class="text-muted-foreground">{{ t('pins.selectPin') }}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="opt in pinOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </div>
 
-          <!-- Main Content Area -->
-          <div class="p-6 rounded-lg">
-            <!-- Pins Vertical Grid -->
-            <div class="overflow-visible">
-              <!-- Display pins in a grid -->
-              <div v-if="filteredCollectibles.length > 0" class="pin-grid">
-                <PinTabs
-                  v-for="collectible in pinGrid"
-                  :key="collectible.id"
-                  ref="pinRefs"
-                  :collectible="collectible"
-                  :is-selected="getCollectibleBaseId(collectible) === selectedPin"
-                  class="fade-in-item"
-                  @select="handlePinSelect"
+            <!-- Search and Filter -->
+            <div class="mb-6">
+              <div class="relative w-full max-w-md">
+                <LucideSearch
+                  class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-tertiary"
                 />
+                <Input
+                  v-model="searchQuery"
+                  type="text"
+                  :placeholder="t('pins.searchPlaceholder')"
+                  class="w-full pl-9 pr-9 font-mono text-[13px] placeholder:text-xs placeholder:tracking-[0.02em] placeholder:text-text-tertiary"
+                />
+                <Button
+                  v-if="searchQuery"
+                  type="button"
+                  variant="ghost"
+                  size="icon-xs"
+                  class="absolute right-2.5 top-1/2 -translate-y-1/2"
+                  :aria-label="t('common.clearSearch')"
+                  @click="searchQuery = ''"
+                >
+                  <LucideX :size="16" />
+                </Button>
               </div>
+            </div>
 
-              <!-- No results message -->
-              <div v-else class="text-center py-12">
-                <p v-if="searchQuery" class="text-gray-400 text-lg mb-2">
-                  {{
-                    t('pins.noResultsSearch', { query: searchQuery }) ||
-                    `No pins found matching "${searchQuery}"`
-                  }}
-                </p>
-                <p v-else class="text-gray-400 text-lg">
-                  {{ t('pins.noPinsAvailable') || 'No pins available' }}
-                </p>
+            <!-- Main Content Area -->
+            <div>
+              <!-- Pins Vertical Grid -->
+              <div class="overflow-visible">
+                <!-- Display pins in a grid -->
+                <div v-if="filteredCollectibles.length > 0" ref="gridRef" class="pin-grid">
+                  <PinTabs
+                    v-for="collectible in pinGrid"
+                    :key="collectible.id"
+                    ref="pinRefs"
+                    :collectible="collectible"
+                    :is-selected="getCollectibleBaseId(collectible) === selectedPin"
+                    @select="handlePinSelect"
+                  />
+                </div>
+
+                <!-- No results / no pins -->
+                <Empty v-else class="py-10">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon">
+                      <LucideSearchX v-if="searchQuery" />
+                      <LucidePin v-else />
+                    </EmptyMedia>
+                    <EmptyTitle class="font-display tracking-[-0.02em]">
+                      {{
+                        searchQuery
+                          ? t('pins.noResultsSearch', { query: searchQuery })
+                          : t('pins.noPinsAvailable')
+                      }}
+                    </EmptyTitle>
+                  </EmptyHeader>
+                </Empty>
               </div>
             </div>
           </div>
-        </template>
+        </Transition>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-
 .pin-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
-}
-
-/* Fade-in animation for pins */
-.fade-in-item {
-  opacity: 0;
-  transform: translateY(10px);
-  transition:
-    opacity 0.5s ease,
-    transform 0.5s ease;
-}
-
-.fade-in-item.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Ensure the search input has proper styling */
-.n-input {
-  background: #2a2a2a;
-  border-color: #3a3a3a;
 }
 
 /* Responsive adjustments */

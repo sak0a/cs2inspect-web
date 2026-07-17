@@ -1,9 +1,19 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import {
+  Braces,
+  CloudDownload,
+  Copy,
+  Eye,
+  Link2,
+  Package,
+  Save,
+  Settings2,
+  ShieldCheck,
+} from '@lucide/vue'
 import { steamAuth, type SteamUser } from '~/services/steamAuth'
 
 const user = ref<SteamUser | null>(null)
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
 
 // Computed translations to avoid type issues in template
@@ -132,95 +142,58 @@ onMounted(() => {
       <!-- Header Section -->
       <div class="text-center mb-12">
         <h1
-          class="text-4xl font-extrabold text-white tracking-tight mb-4 flex items-center justify-center gap-3"
+          class="font-display text-4xl font-bold text-foreground tracking-tight mb-4 flex items-center justify-center gap-4"
         >
           <span
-            class="p-3 bg-blue-600/20 rounded-2xl text-blue-500 shadow-xl shadow-blue-500/10 border border-blue-500/20"
+            class="relative flex size-14 shrink-0 items-center justify-center rounded-[var(--radius-card)] border border-border bg-card text-primary"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M12 9a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5a5 5 0 0 1 5-5a5 5 0 0 1 5 5a5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"
-              />
-            </svg>
+            <span
+              class="pointer-events-none absolute inset-0 rounded-[inherit] bg-[radial-gradient(60%_60%_at_50%_45%,rgba(250,204,21,0.16),transparent_72%)]"
+              aria-hidden="true"
+            />
+            <Eye class="relative size-7" />
           </span>
           {{ trans.title.value }}
         </h1>
-        <p class="text-lg text-gray-400 max-w-2xl mx-auto">
+        <p class="text-lg text-muted-foreground max-w-2xl mx-auto">
           {{ trans.description.value }}
         </p>
       </div>
 
       <!-- Main Card -->
-      <div class="rounded-3xl overflow-hidden border border-white/5 shadow-2xl relative group">
-        <!-- Subtle gradient background -->
-
-        <div class="p-8 sm:p-10 relative">
+      <div
+        class="bg-card rounded-[var(--radius-modal)] border border-border shadow-[var(--shadow-card)] overflow-hidden"
+      >
+        <div class="p-8 sm:p-10">
           <div class="space-y-8">
             <!-- Input Link Group -->
             <div class="space-y-3">
               <label
-                class="text-sm font-semibold text-gray-400 uppercase tracking-wider ml-1 flex items-center gap-2"
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary ml-1 flex items-center gap-2"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                >
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                </svg>
+                <Link2 class="size-3.5" />
                 {{ trans.inspectUrlLabel.value }}
               </label>
               <div class="flex flex-col sm:flex-row gap-4">
-                <div class="flex-1 relative group">
-                  <NInput
-                    v-model:value="inspectUrl"
-                    type="text"
-                    size="large"
-                    :placeholder="trans.placeholder.value"
-                    class="main-input"
-                    data-tutorial="inspect-input"
-                  />
-                  <div
-                    class="absolute inset-0 rounded-xl border border-blue-500/0 group-focus-within:border-blue-500/50 transition-all pointer-events-none"
-                  />
-                </div>
-                <SButton
-                  :color="buttonColor.primary"
-                  variant="filled"
+                <Input
+                  v-model="inspectUrl"
+                  type="text"
+                  :placeholder="trans.placeholder.value"
+                  class="h-11 flex-1"
+                  data-tutorial="inspect-input"
+                />
+                <Button
+                  variant="default"
                   size="lg"
                   :loading="isLoading"
-                  class="decode-button px-8 font-bold"
                   data-tutorial="decode-button"
                   @click="handleDecode"
                 >
                   <template #icon-left>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20"
-                      height="20"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="2"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    >
-                      <polyline points="16 16 12 12 8 16" />
-                      <line x1="12" y1="12" x2="12" y2="21" />
-                      <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
-                      <polyline points="16 16 12 12 8 16" />
-                    </svg>
+                    <CloudDownload class="size-5" />
                   </template>
                   {{ trans.importButton.value }}
-                </SButton>
+                </Button>
               </div>
             </div>
 
@@ -228,65 +201,28 @@ onMounted(() => {
             <div class="space-y-3">
               <div class="flex justify-between items-center ml-1">
                 <label
-                  class="text-sm font-semibold text-gray-400 uppercase tracking-wider flex items-center gap-2"
+                  class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary flex items-center gap-2"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <polyline points="16 18 22 12 16 6" />
-                    <polyline points="8 6 2 12 8 18" />
-                  </svg>
+                  <Braces class="size-3.5" />
                   {{ trans.decodedJsonLabel.value }}
                 </label>
                 <div class="flex gap-2">
-                  <SButton
-                    variant="ghost"
-                    size="xs"
-                    :color="buttonColor.info"
-                    class="hover:bg-blue-500/10 transition-colors"
-                    @click="handleCopyJson"
-                  >
+                  <Button variant="ghost" size="xs" @click="handleCopyJson">
                     <template #icon-left>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                      >
-                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                      </svg>
+                      <Copy class="size-3.5" />
                     </template>
                     {{ trans.copy.value }}
-                  </SButton>
+                  </Button>
                 </div>
               </div>
-              <div
-                class="relative group rounded-2xl overflow-hidden shadow-inner bg-black/20 border border-white/5"
-                data-tutorial="inspect-editor"
-              >
-                <NInput
-                  v-model:value="decodedJson"
-                  type="textarea"
-                  :autosize="{ minRows: 12, maxRows: 24 }"
+              <div class="relative" data-tutorial="inspect-editor">
+                <Textarea
+                  v-model="decodedJson"
                   placeholder='{ "defindex": 7, "paintindex": 0, ... }'
-                  class="json-editor"
+                  class="w-full min-h-[318px] max-h-[586px] overflow-y-auto resize-none rounded-[var(--radius-card)] p-5 font-mono text-[13px] leading-[1.6]"
                 />
                 <div
-                  class="absolute bottom-4 right-4 pointer-events-none opacity-20 text-xs font-mono text-gray-500"
+                  class="absolute bottom-4 right-4 pointer-events-none font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary/60"
                 >
                   JSON-SCHEMA-V1
                 </div>
@@ -294,40 +230,26 @@ onMounted(() => {
             </div>
 
             <!-- Footer Actions -->
-            <div class="flex items-center justify-between pt-4 border-t border-white/5">
-              <div class="text-xs text-gray-500 font-medium flex items-center gap-2">
-                <div class="w-2 h-2 rounded-full bg-green-500/50 animate-pulse" />
+            <div class="flex items-center justify-between pt-4 border-t border-border">
+              <div
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary flex items-center gap-2"
+              >
+                <div class="size-2 rounded-full bg-emerald-500 animate-pulse" />
                 {{ trans.apiStatus.value }}
               </div>
-              <SButton
-                :color="buttonColor.info"
-                variant="filled"
+              <Button
+                variant="default"
                 size="lg"
                 :loading="isGenerating"
                 :disabled="!decodedJson"
-                class="generate-button px-10 shadow-lg shadow-blue-500/20"
                 data-tutorial="generate-button"
                 @click="handleGenerate"
               >
                 <template #icon-left>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
-                    <polyline points="17 21 17 13 7 13 7 21" />
-                    <polyline points="7 3 7 8 15 8" />
-                  </svg>
+                  <Save class="size-5" />
                 </template>
                 {{ trans.generateButton.value }}
-              </SButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -336,78 +258,47 @@ onMounted(() => {
       <!-- Feature highlight -->
       <div class="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
         <div
-          class="p-6 bg-[var(--card-bg)] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3"
+          class="p-6 bg-card rounded-[var(--radius-card)] border border-border flex flex-col items-center text-center gap-3"
         >
-          <div class="p-3 bg-indigo-500/10 rounded-xl text-indigo-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path
-                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-              />
-              <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-              <line x1="12" y1="22.08" x2="12" y2="12" />
-            </svg>
+          <div
+            class="flex size-11 items-center justify-center rounded-[var(--radius-ctl)] border border-border bg-surface-2 text-primary"
+          >
+            <Package class="size-5" />
           </div>
-          <h3 class="text-white font-bold">{{ trans.featureDecodingTitle.value }}</h3>
-          <p class="text-xs text-gray-500">
+          <h3 class="font-display font-semibold tracking-tight text-foreground">
+            {{ trans.featureDecodingTitle.value }}
+          </h3>
+          <p class="text-xs text-muted-foreground">
             {{ trans.featureDecodingDesc.value }}
           </p>
         </div>
         <div
-          class="p-6 bg-[var(--card-bg)] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3"
+          class="p-6 bg-card rounded-[var(--radius-card)] border border-border flex flex-col items-center text-center gap-3"
         >
-          <div class="p-3 bg-emerald-500/10 rounded-xl text-emerald-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
+          <div
+            class="flex size-11 items-center justify-center rounded-[var(--radius-ctl)] border border-border bg-surface-2 text-primary"
+          >
+            <ShieldCheck class="size-5" />
           </div>
-          <h3 class="text-white font-bold">{{ trans.featureEncodingTitle.value }}</h3>
-          <p class="text-xs text-gray-500">
+          <h3 class="font-display font-semibold tracking-tight text-foreground">
+            {{ trans.featureEncodingTitle.value }}
+          </h3>
+          <p class="text-xs text-muted-foreground">
             {{ trans.featureEncodingDesc.value }}
           </p>
         </div>
         <div
-          class="p-6 bg-[var(--card-bg)] rounded-2xl border border-white/5 flex flex-col items-center text-center gap-3"
+          class="p-6 bg-card rounded-[var(--radius-card)] border border-border flex flex-col items-center text-center gap-3"
         >
-          <div class="p-3 bg-amber-500/10 rounded-xl text-amber-400">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"
-              />
-            </svg>
+          <div
+            class="flex size-11 items-center justify-center rounded-[var(--radius-ctl)] border border-border bg-surface-2 text-primary"
+          >
+            <Settings2 class="size-5" />
           </div>
-          <h3 class="text-white font-bold">{{ trans.featureMetadataTitle.value }}</h3>
-          <p class="text-xs text-gray-500">
+          <h3 class="font-display font-semibold tracking-tight text-foreground">
+            {{ trans.featureMetadataTitle.value }}
+          </h3>
+          <p class="text-xs text-muted-foreground">
             {{ trans.featureMetadataDesc.value }}
           </p>
         </div>
@@ -415,86 +306,3 @@ onMounted(() => {
     </div>
   </div>
 </template>
-
-<style scoped lang="scss">
-.main-input {
-  :deep(.n-input) {
-    background-color: rgba(0, 0, 0, 0.2) !important;
-    border-radius: 12px !important;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    .n-input-wrapper {
-      border-radius: 12px !important;
-    }
-
-    &:hover {
-      background-color: rgba(0, 0, 0, 0.3) !important;
-      border-color: rgba(59, 130, 246, 0.3);
-    }
-
-    &.n-input--focus {
-      background-color: rgba(0, 0, 0, 0.4) !important;
-      border-color: #3b82f6 !important;
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    }
-  }
-}
-
-.json-editor {
-  :deep(.n-input) {
-    background-color: transparent !important;
-    font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace;
-    color: #e2e8f0;
-    transition: all 0.3s ease;
-    border-radius: 12px !important;
-
-    .n-input-wrapper {
-      border-radius: 12px !important;
-    }
-
-    .n-input__textarea-el {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
-      padding: 1.5rem;
-      line-height: 1.6;
-    }
-  }
-}
-
-.decode-button,
-.generate-button {
-  border-radius: 12px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-  &:hover {
-    transform: translateY(-2px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
-}
-
-.decode-button {
-  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-  }
-}
-
-.generate-button {
-  background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%);
-  border: none;
-
-  &:hover {
-    box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
-  }
-}
-
-:deep(.n-input__placeholder) {
-  color: rgba(255, 255, 255, 0.2) !important;
-}
-</style>

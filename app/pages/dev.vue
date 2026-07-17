@@ -35,122 +35,157 @@ const value3 = ref(5)
 </script>
 
 <template>
-  <ThemeProvider>
-    <div class="min-h-screen bg-[#121212] p-8 text-white">
-      <div class="max-w-5xl mx-auto">
-        <n-h2>Developer UI Test Page</n-h2>
-        <p class="mb-8 text-gray-400">Environment: {{ isDev ? 'Development' : 'Production' }}</p>
+  <div class="min-h-screen bg-[#121212] p-8 text-white">
+    <div class="max-w-5xl mx-auto">
+      <h2 class="text-2xl font-bold mb-1">Developer UI Test Page</h2>
+      <p class="mb-8 text-gray-400">Environment: {{ isDev ? 'Development' : 'Production' }}</p>
 
-        <n-card
-          v-if="devAuthEnabled"
-          title="Dev Authentication"
-          class="bg-[#1a1a1a] border-gray-800 mb-8"
-          data-testid="dev-auth-card"
-        >
-          <n-space vertical>
-            <p class="text-gray-400">
-              Mock Steam login for local development and AI agents. Requires
-              <code class="text-orange-300">DEV_AUTH_ENABLED=true</code> in .env.
-            </p>
-            <n-space>
-              <n-button type="primary" data-testid="dev-login-user" @click="handleDevLogin('user')">
-                Login as Dev User
-              </n-button>
-              <n-button type="warning" data-testid="dev-login-admin" @click="handleDevLogin('admin')">
-                Login as Dev Admin
-              </n-button>
-            </n-space>
-            <p v-if="loginMessage" class="text-green-400">{{ loginMessage }}</p>
-            <p v-if="loginError" class="text-red-400">{{ loginError }}</p>
-          </n-space>
-        </n-card>
+      <div
+        v-if="devAuthEnabled"
+        class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-6 mb-8"
+        data-testid="dev-auth-card"
+      >
+        <h3 class="text-base font-semibold mb-4">Dev Authentication</h3>
+        <div class="flex flex-col gap-3">
+          <p class="text-gray-400">
+            Mock Steam login for local development and AI agents. Requires
+            <code class="text-orange-300">DEV_AUTH_ENABLED=true</code> in .env.
+          </p>
+          <div class="flex gap-3">
+            <Button variant="default" data-testid="dev-login-user" @click="handleDevLogin('user')">
+              Login as Dev User
+            </Button>
+            <Button
+              variant="default"
+              data-testid="dev-login-admin"
+              @click="handleDevLogin('admin')"
+            >
+              Login as Dev Admin
+            </Button>
+          </div>
+          <p v-if="loginMessage" class="text-green-400">{{ loginMessage }}</p>
+          <p v-if="loginError" class="text-red-400">{{ loginError }}</p>
+        </div>
+      </div>
 
-        <n-space vertical size="large">
-          <!-- Original Input Number Section -->
-          <n-h3 class="mt-8">Input Number Styling</n-h3>
-          <n-card title="Input Number Styling" class="bg-[#1a1a1a] border-gray-800">
-            <n-space vertical>
-              <div class="grid grid-cols-2 gap-8">
-                <div>
-                  <n-text class="block mb-2">Default Size</n-text>
-                  <n-input-number v-model:value="value1" />
-                </div>
-
-                <div>
-                  <n-text class="block mb-2">Small Size</n-text>
-                  <n-input-number v-model:value="value2" size="small" />
-                </div>
-
-                <div>
-                  <n-text class="block mb-2">Large Size</n-text>
-                  <n-input-number v-model:value="value3" size="large" />
-                </div>
-
-                <div>
-                  <n-text class="block mb-2">Disabled</n-text>
-                  <n-input-number :value="50" disabled />
-                </div>
-              </div>
-            </n-space>
-          </n-card>
-
-          <n-card title="Glassmorphism Context" class="glass-card">
-            <n-space vertical>
-              <n-text>Testing input inside a glass card</n-text>
-              <n-input-number v-model:value="value1" />
-            </n-space>
-          </n-card>
-
-          <!-- Glass Button Section -->
-          <n-h3 class="mt-8">Glass Button (Figma Clone)</n-h3>
-          <n-card title="SGlassButton Component" class="bg-[#1a1a1a] border-gray-800">
-            <!-- Light background to showcase the glass effect -->
-            <div class="glass-demo-bg rounded-xl p-12 flex flex-col items-center gap-8">
-              <!-- Main example with sparkles icon (matching Figma) -->
-              <SGlassButton size="lg">
-                <template #icon-left>
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="28"
-                    height="28"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <path
-                      d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
-                    />
-                    <path d="M20 3v4" />
-                    <path d="M22 5h-4" />
-                    <path d="M4 17v2" />
-                    <path d="M5 18H3" />
-                  </svg>
-                </template>
-                Generate
-              </SGlassButton>
-
-              <!-- Size variants -->
-              <div class="flex items-center gap-4">
-                <SGlassButton size="sm">Small</SGlassButton>
-                <SGlassButton size="md">Medium</SGlassButton>
-                <SGlassButton size="lg">Large</SGlassButton>
+      <div class="flex flex-col gap-6">
+        <!-- Original Input Number Section -->
+        <h3 class="text-xl font-semibold mt-8">Input Number Styling</h3>
+        <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-6">
+          <h3 class="text-base font-semibold mb-4">Input Number Styling</h3>
+          <div class="flex flex-col gap-3">
+            <div class="grid grid-cols-2 gap-8">
+              <div>
+                <span class="block mb-2">Default Size</span>
+                <NumberField v-model="value1">
+                  <NumberFieldContent>
+                    <NumberFieldDecrement />
+                    <NumberFieldInput />
+                    <NumberFieldIncrement />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
 
-              <!-- States -->
-              <div class="flex items-center gap-4">
-                <SGlassButton>Normal</SGlassButton>
-                <SGlassButton :loading="true">Loading</SGlassButton>
-                <SGlassButton :disabled="true">Disabled</SGlassButton>
+              <div>
+                <span class="block mb-2">Small Size</span>
+                <NumberField v-model="value2">
+                  <NumberFieldContent>
+                    <NumberFieldDecrement />
+                    <NumberFieldInput class="h-8" />
+                    <NumberFieldIncrement />
+                  </NumberFieldContent>
+                </NumberField>
+              </div>
+
+              <div>
+                <span class="block mb-2">Large Size</span>
+                <NumberField v-model="value3">
+                  <NumberFieldContent>
+                    <NumberFieldDecrement />
+                    <NumberFieldInput class="h-11" />
+                    <NumberFieldIncrement />
+                  </NumberFieldContent>
+                </NumberField>
+              </div>
+
+              <div>
+                <span class="block mb-2">Disabled</span>
+                <NumberField :default-value="50" disabled>
+                  <NumberFieldContent>
+                    <NumberFieldDecrement />
+                    <NumberFieldInput />
+                    <NumberFieldIncrement />
+                  </NumberFieldContent>
+                </NumberField>
               </div>
             </div>
-          </n-card>
-        </n-space>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl p-6">
+          <h3 class="text-base font-semibold mb-4">Glassmorphism Context</h3>
+          <div class="flex flex-col gap-3">
+            <span>Testing input inside a glass card</span>
+            <NumberField v-model="value1">
+              <NumberFieldContent>
+                <NumberFieldDecrement />
+                <NumberFieldInput />
+                <NumberFieldIncrement />
+              </NumberFieldContent>
+            </NumberField>
+          </div>
+        </div>
+
+        <!-- Glass Button Section -->
+        <h3 class="text-xl font-semibold mt-8">Glass Button (Figma Clone)</h3>
+        <div class="bg-[#1a1a1a] border border-gray-800 rounded-xl p-6">
+          <h3 class="text-base font-semibold mb-4">SGlassButton Component</h3>
+          <!-- Light background to showcase the glass effect -->
+          <div class="glass-demo-bg rounded-xl p-12 flex flex-col items-center gap-8">
+            <!-- Main example with sparkles icon (matching Figma) -->
+            <Button variant="outline" size="lg">
+              <template #icon-left>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                >
+                  <path
+                    d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"
+                  />
+                  <path d="M20 3v4" />
+                  <path d="M22 5h-4" />
+                  <path d="M4 17v2" />
+                  <path d="M5 18H3" />
+                </svg>
+              </template>
+              Generate
+            </Button>
+
+            <!-- Size variants -->
+            <div class="flex items-center gap-4">
+              <Button variant="outline" size="sm">Small</Button>
+              <Button variant="outline" size="default">Medium</Button>
+              <Button variant="outline" size="lg">Large</Button>
+            </div>
+
+            <!-- States -->
+            <div class="flex items-center gap-4">
+              <Button variant="outline">Normal</Button>
+              <Button variant="outline" :loading="true">Loading</Button>
+              <Button variant="outline" :disabled="true">Disabled</Button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-  </ThemeProvider>
+  </div>
 </template>
 
 <style scoped>

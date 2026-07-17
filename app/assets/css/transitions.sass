@@ -1,29 +1,7 @@
-/* Page Transitions */
-.page-enter-active,
-.page-leave-active
-  transition: all 0.3s cubic-bezier(0.55, 0, 0.1, 1)
+/* Page/layout transitions are GSAP JS hooks (app/composables/usePageTransition.ts).
+ * Only the small shared CSS transitions consumed across components live here. */
 
-.page-enter-from
-  opacity: 0
-  transform: translateY(10px)
-  filter: blur(2px)
-
-.page-leave-to
-  opacity: 0
-  transform: translateY(-10px)
-  filter: blur(2px)
-
-/* Layout Transitions */
-.layout-enter-active,
-.layout-leave-active
-  transition: all 0.3s ease-in-out
-
-.layout-enter-from,
-.layout-leave-to
-  opacity: 0
-  filter: blur(1px)
-
-/* Fade Transition for Components */
+/* Fade Transition for Components (<Transition name="fade">) */
 .fade-enter-active,
 .fade-leave-active
   transition: opacity 0.3s ease
@@ -32,7 +10,7 @@
 .fade-leave-to
   opacity: 0
 
-/* Content Fade-in Animation */
+/* Content Fade-in Animation (.content-fade-in on page containers) */
 @keyframes contentFadeIn
   from
     opacity: 0
@@ -43,3 +21,34 @@
 
 .content-fade-in
   animation: contentFadeIn 0.5s ease-out forwards
+
+/* Skeleton grid → real grid crossfade (item pages).
+ * The leaving skeleton overlays absolutely (its parent carries `relative`)
+ * and fades over 0.2s while the entering content's cards stagger in via
+ * useGridReveal. */
+.skeleton-fade-enter-active
+  transition: opacity 0.2s ease
+
+.skeleton-fade-enter-from
+  opacity: 0
+
+.skeleton-fade-leave-active
+  transition: opacity 0.2s ease
+  position: absolute
+  top: 0
+  left: 0
+  right: 0
+  pointer-events: none
+
+.skeleton-fade-leave-to
+  opacity: 0
+
+/* Team-switch wipe tint (useTeamSwapMotion): the incoming grid briefly
+ * carries this class so its cards' glow picks up the team color at 8%.
+ * Removing the class fades the tint out through ItemCard's own box-shadow
+ * transition — transform/opacity stay GSAP-owned. */
+.team-swap-tint--ct .item-card
+  box-shadow: 0 0 26px 0 color-mix(in srgb, var(--team-ct) 8%, transparent)
+
+.team-swap-tint--t .item-card
+  box-shadow: 0 0 26px 0 color-mix(in srgb, var(--team-t) 8%, transparent)

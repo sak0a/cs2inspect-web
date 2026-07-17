@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import { steamAuth } from '~/services/steamAuth'
 import type { DBLoadout } from '~/types'
 import {
@@ -14,13 +13,14 @@ import {
   LucideEllipsisVertical as MenuIcon,
   LucideRefreshCw as RefreshIcon,
   LucideCheck as CheckIcon,
+  LucideChevronDown as ChevronDownIcon,
 } from '@lucide/vue'
 import { toSteamId, toLoadoutId } from '~/types/core/branded'
 import type { LoadoutId } from '~/types/core/branded'
 
 const loadoutStore = useLoadoutStore()
 const { t } = useI18n()
-const message = useMessage()
+const message = useToast()
 
 // Track the previous loadout ID to avoid activating on initial load
 const previousLoadoutId = ref<LoadoutId | null>(null)
@@ -65,6 +65,32 @@ const availableCategories = [
   'Music',
   'Pins',
 ]
+
+// Form-reset fields per modal (former NModal @after-leave handlers)
+const modalResetField = {
+  create: 'newName',
+  rename: 'renameName',
+  delete: 'deleteConfirm',
+  clear: 'clearConfirm',
+  import: 'importCode',
+} as const
+
+function setModalVisible(modal: keyof typeof modalResetField, visible: boolean) {
+  showModal.value[modal] = visible
+  if (!visible) {
+    formInputs.value[modalResetField[modal]] = ''
+  }
+}
+
+function toggleClearCategory(cat: string, checked: boolean) {
+  const next = new Set(formInputs.value.clearCategories)
+  if (checked) {
+    next.add(cat)
+  } else {
+    next.delete(cat)
+  }
+  formInputs.value.clearCategories = availableCategories.filter((c) => next.has(c))
+}
 
 // Tutorial integration: open/close create modal when tutorial requests it
 const tutorialStore = useTutorialStore()
@@ -247,6 +273,10 @@ const handleGenerateShareCode = async () => {
 const hasSelection = computed(() => loadoutStore.hasLoadouts && loadoutStore.selectedLoadoutId)
 const isSelectedDefault = computed(() => !!loadoutStore.selectedLoadout?.is_default)
 
+// Loadout display label with a localized "(Default)" tag
+const loadoutLabel = (loadout: DBLoadout) =>
+  loadout.name + (loadout.is_default ? ` (${t('loadout.defaultTag')})` : '')
+
 // Filled star icon for "is default" state
 const DefaultIconFilled = markRaw(
   defineComponent({
@@ -276,146 +306,128 @@ onMounted(async () => {
 
 <template>
   <div class="flex items-center gap-2">
-    <SDropdown
-      v-if="loadoutStore.hasLoadouts"
-      trigger="hover"
-      variant="glass"
-      data-tutorial="loadout-selector"
-      @select="(key: string) => (loadoutStore.selectedLoadoutId = toLoadoutId(Number(key)))"
-    >
-      <template #trigger>
-        <SButton
-          rounded="full"
-          variant="elevated"
-          size="md"
-          class="min-w-[140px] h-10 pl-4 pr-3 justify-between"
+    <!-- Loadout picker -->
+    <DropdownMenu v-if="loadoutStore.hasLoadouts">
+      <DropdownMenuTrigger as-child>
+        <Button
+          variant="ghost"
+          size="default"
+          data-tutorial="loadout-selector"
+          class="min-w-[140px] max-w-[240px] justify-between gap-2 border border-border hover:border-border-strong"
         >
-          {{
-            loadoutStore.selectedLoadout
-              ? loadoutStore.selectedLoadout.name +
-                (loadoutStore.selectedLoadout.is_default ? ' (Default)' : '')
-              : t('loadout.select')
-          }}
-          <template #icon-right>
-            <span class="mdi mdi-chevron-down text-xs" />
-          </template>
-        </SButton>
-      </template>
+          <span class="min-w-0 truncate font-mono text-xs">
+            {{
+              loadoutStore.selectedLoadout
+                ? loadoutLabel(loadoutStore.selectedLoadout)
+                : t('loadout.select')
+            }}
+          </span>
+          <ChevronDownIcon class="size-3 shrink-0 text-[var(--text-tertiary)]" />
+        </Button>
+      </DropdownMenuTrigger>
 
-      <SDropdownItem
-        v-for="loadout in loadoutStore.loadouts"
-        :key="loadout.id"
-        :item-key="String(loadout.id)"
-        :label="loadout.name + (loadout.is_default ? ' (Default)' : '')"
-        :class="{
-          '!border !border-primary !text-primary':
-            toLoadoutId(loadout.id) === loadoutStore.selectedLoadoutId,
-        }"
-      >
-        <template v-if="toLoadoutId(loadout.id) === loadoutStore.selectedLoadoutId" #trailing>
-          <CheckIcon :size="14" class="text-primary" />
-        </template>
-      </SDropdownItem>
-    </SDropdown>
+      <DropdownMenuContent align="start" class="min-w-[180px]">
+        <DropdownMenuItem
+          v-for="loadout in loadoutStore.loadouts"
+          :key="loadout.id"
+          @select="loadoutStore.selectedLoadoutId = toLoadoutId(loadout.id)"
+        >
+          <span class="min-w-0 flex-1 truncate">
+            {{ loadoutLabel(loadout) }}
+          </span>
+          <CheckIcon
+            v-if="toLoadoutId(loadout.id) === loadoutStore.selectedLoadoutId"
+            class="ml-auto size-3.5 text-primary"
+          />
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
 
-    <SDropdown trigger="hover" variant="glass" @select="handleDropdownSelect">
-      <template #trigger>
-        <SButton
-          icon-only
-          rounded="full"
-          variant="elevated"
+    <!-- Loadout actions menu -->
+    <DropdownMenu>
+      <DropdownMenuTrigger as-child>
+        <Button
+          variant="ghost"
+          size="icon"
           data-tutorial="loadout-create"
+          class="border border-border hover:border-border-strong"
           :aria-label="t('loadout.manage') as string"
         >
           <template #icon-left>
             <MenuIcon :size="16" />
           </template>
-        </SButton>
-      </template>
+        </Button>
+      </DropdownMenuTrigger>
 
-      <SDropdownItem
-        item-key="create"
-        :label="String(t('loadout.create'))"
-        :icon="NewIcon"
-        icon-color="#22c55e"
-      />
-      <SDropdownItem
-        item-key="import"
-        :label="String(t('loadout.import'))"
-        :icon="ImportIcon"
-        icon-color="#3b82f6"
-      />
+      <DropdownMenuContent align="start" class="min-w-[180px]">
+        <DropdownMenuItem @select="handleDropdownSelect('create')">
+          <NewIcon class="size-4" />
+          <span>{{ String(t('loadout.create')) }}</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem @select="handleDropdownSelect('import')">
+          <ImportIcon class="size-4" />
+          <span>{{ String(t('loadout.import')) }}</span>
+        </DropdownMenuItem>
 
-      <template v-if="hasSelection">
-        <SDropdownDivider class="bg-gray-500/20" />
-        <SDropdownItem
-          item-key="rename"
-          :label="String(t('loadout.actions.rename'))"
-          :icon="RenameIcon"
-        />
-        <SDropdownItem
-          item-key="duplicate"
-          :label="String(t('loadout.actions.duplicate'))"
-          :icon="DuplicateIcon"
-        />
-        <SDropdownItem
-          item-key="share"
-          :label="String(t('loadout.actions.share'))"
-          :icon="ShareIcon"
-        />
-        <SDropdownItem
-          item-key="default"
-          :label="
-            String(
-              isSelectedDefault ? t('loadout.actions.isDefault') : t('loadout.actions.setDefault')
-            )
-          "
-          :icon="isSelectedDefault ? DefaultIconFilled : DefaultIcon"
-          icon-color="#f59e0b"
-          :disabled="isSelectedDefault"
-        />
-        <SDropdownDivider class="bg-gray-500/20" />
-        <SDropdownItem
-          item-key="clear"
-          :label="String(t('loadout.actions.clear'))"
-          :icon="ClearIcon"
-          icon-color="#ef4444"
-        />
-        <SDropdownItem
-          item-key="delete"
-          :label="String(t('loadout.actions.delete'))"
-          :icon="DeleteIcon"
-          icon-color="#ef4444"
-        />
-      </template>
-    </SDropdown>
+        <template v-if="hasSelection">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem @select="handleDropdownSelect('rename')">
+            <RenameIcon class="size-4" />
+            <span>{{ String(t('loadout.actions.rename')) }}</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem @select="handleDropdownSelect('duplicate')">
+            <DuplicateIcon class="size-4" />
+            <span>{{ String(t('loadout.actions.duplicate')) }}</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem @select="handleDropdownSelect('share')">
+            <ShareIcon class="size-4" />
+            <span>{{ String(t('loadout.actions.share')) }}</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem :disabled="isSelectedDefault" @select="handleDropdownSelect('default')">
+            <component :is="isSelectedDefault ? DefaultIconFilled : DefaultIcon" class="size-4" />
+            <span>
+              {{
+                String(
+                  isSelectedDefault
+                    ? t('loadout.actions.isDefault')
+                    : t('loadout.actions.setDefault')
+                )
+              }}
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" @select="handleDropdownSelect('clear')">
+            <ClearIcon class="size-4" />
+            <span>{{ String(t('loadout.actions.clear')) }}</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem variant="destructive" @select="handleDropdownSelect('delete')">
+            <DeleteIcon class="size-4" />
+            <span>{{ String(t('loadout.actions.delete')) }}</span>
+          </DropdownMenuItem>
+        </template>
+      </DropdownMenuContent>
+    </DropdownMenu>
   </div>
 
-  <!-- Create Modal (Existing) -->
-  <NModal
-    v-model:show="showModal.create"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
+  <!-- Create Modal -->
+  <AppModal
+    :visible="showModal.create"
+    :closable="false"
+    max-width="500px"
     :title="t('modals.loadout.create.title') as string"
-    @after-leave="formInputs.newName = ''"
+    @update:visible="(v: boolean) => setModalVisible('create', v)"
   >
-    <NInput
-      v-model:value="formInputs.newName"
+    <Input
+      v-model="formInputs.newName"
       :minlength="1"
       :placeholder="t('modals.loadout.create.formPlaceholder') as string"
       data-tutorial="loadout-name-input"
     />
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton
-          :color="buttonColor.error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        <Button
+          variant="outline"
+          size="default"
           @click="
             () => {
               showModal.create = false
@@ -424,51 +436,41 @@ onMounted(async () => {
           "
         >
           {{ t('modals.loadout.create.cancel') }}
-        </SButton>
-        <SButton
-          :color="buttonColor.success"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        </Button>
+        <Button
+          variant="default"
+          size="default"
           :disabled="formInputs.newName === '' || formInputs.newName.length > 20"
           @click="handleLoadoutAction('create')"
         >
           {{ t('modals.loadout.create.confirm') }}
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 
-  <!-- Rename Modal (Existing) -->
-  <NModal
-    v-model:show="showModal.rename"
-    :bordered="false"
-    :auto-focus="false"
-    preset="card"
-    style="width: 500px"
+  <!-- Rename Modal -->
+  <AppModal
+    :visible="showModal.rename"
+    :closable="false"
+    max-width="500px"
     :title="
       t('modals.loadout.rename.title', {
         name: loadoutStore.selectedLoadout?.name || '',
       }) as string
     "
-    @after-leave="formInputs.renameName = ''"
+    @update:visible="(v: boolean) => setModalVisible('rename', v)"
   >
-    <NInput
-      v-model:value="formInputs.renameName"
+    <Input
+      v-model="formInputs.renameName"
       :minlength="1"
       :placeholder="t('modals.loadout.rename.formPlaceholder') as string"
     />
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton
-          :color="buttonColor.error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        <Button
+          variant="outline"
+          size="default"
           @click="
             () => {
               showModal.rename = false
@@ -477,36 +479,30 @@ onMounted(async () => {
           "
         >
           {{ t('modals.loadout.rename.cancel') }}
-        </SButton>
-        <SButton
-          :color="buttonColor.success"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        </Button>
+        <Button
+          variant="default"
+          size="default"
           :disabled="formInputs.renameName === '' || formInputs.renameName.length > 20"
           @click="handleLoadoutAction('rename')"
         >
           {{ t('modals.loadout.rename.confirm') }}
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 
-  <!-- Delete Modal (Existing) -->
-  <NModal
-    v-model:show="showModal.delete"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
+  <!-- Delete Modal -->
+  <AppModal
+    :visible="showModal.delete"
+    :closable="false"
+    max-width="500px"
     :title="
       t('modals.loadout.delete.title', {
         name: loadoutStore.selectedLoadout?.name || '',
       }) as string
     "
-    @after-leave="formInputs.deleteConfirm = ''"
+    @update:visible="(v: boolean) => setModalVisible('delete', v)"
   >
     <p>{{ t('modals.loadout.delete.question') }}</p>
     <p class="font-bold">{{ t('modals.loadout.delete.warning') }}</p>
@@ -518,21 +514,17 @@ onMounted(async () => {
           })
         }}
       </p>
-      <NInput
-        v-model:value="formInputs.deleteConfirm"
+      <Input
+        v-model="formInputs.deleteConfirm"
         :minlength="1"
         :placeholder="t('modals.loadout.delete.confirmPlaceholder') as string"
       />
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton
-          :color="buttonColor.error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        <Button
+          variant="outline"
+          size="default"
           @click="
             () => {
               showModal.delete = false
@@ -541,46 +533,48 @@ onMounted(async () => {
           "
         >
           {{ t('modals.loadout.delete.cancel') }}
-        </SButton>
-        <SButton
-          :color="buttonColor.error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        </Button>
+        <Button
+          variant="destructive"
+          size="default"
           :disabled="formInputs.deleteConfirm !== loadoutStore.selectedLoadout?.name"
           @click="handleLoadoutAction('delete')"
         >
           {{ t('modals.loadout.delete.confirm') }}
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 
-  <!-- Clear Modal (Updated) -->
-  <NModal
-    v-model:show="showModal.clear"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
+  <!-- Clear Modal -->
+  <AppModal
+    :visible="showModal.clear"
+    :closable="false"
+    max-width="500px"
     :title="
       t('modals.loadout.clear.title', {
         name: loadoutStore.selectedLoadout?.name || '',
       }) as string
     "
-    @after-leave="formInputs.clearConfirm = ''"
+    @update:visible="(v: boolean) => setModalVisible('clear', v)"
   >
     <p>{{ t('modals.loadout.clear.question') }}</p>
 
     <div class="my-4">
       <p class="mb-2 font-bold">{{ t('modals.loadout.clear.selectCategories') }}</p>
-      <NCheckboxGroup v-model:value="formInputs.clearCategories">
-        <NSpace item-style="display: flex;">
-          <NCheckbox v-for="cat in availableCategories" :key="cat" :value="cat" :label="cat" />
-        </NSpace>
-      </NCheckboxGroup>
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <label
+          v-for="cat in availableCategories"
+          :key="cat"
+          class="flex cursor-pointer select-none items-center gap-1.5 text-sm"
+        >
+          <Checkbox
+            :model-value="formInputs.clearCategories.includes(cat)"
+            @update:model-value="(checked) => toggleClearCategory(cat, checked === true)"
+          />
+          {{ cat }}
+        </label>
+      </div>
     </div>
 
     <p class="font-bold text-red-500">{{ t('modals.loadout.clear.warning') }}</p>
@@ -592,29 +586,19 @@ onMounted(async () => {
           })
         }}
       </p>
-      <NInput
-        v-model:value="formInputs.clearConfirm"
+      <Input
+        v-model="formInputs.clearConfirm"
         :placeholder="t('modals.loadout.clear.confirmPlaceholder') as string"
       />
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton
-          variant="elevated"
-          rounded="full"
-          size="md"
-          class="px-5 py-1.5"
-          @click="showModal.clear = false"
-        >
+        <Button variant="outline" size="default" @click="showModal.clear = false">
           {{ t('modals.loadout.clear.cancel') }}
-        </SButton>
-        <SButton
-          :color="buttonColor.error"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        </Button>
+        <Button
+          variant="destructive"
+          size="default"
           :disabled="
             formInputs.clearConfirm !== loadoutStore.selectedLoadout?.name ||
             formInputs.clearCategories.length === 0
@@ -622,18 +606,16 @@ onMounted(async () => {
           @click="handleLoadoutAction('clear')"
         >
           {{ t('modals.loadout.clear.confirm') }}
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 
   <!-- Share Modal -->
-  <NModal
-    v-model:show="showModal.share"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
+  <AppModal
+    v-model:visible="showModal.share"
+    :closable="false"
+    max-width="500px"
     :title="
       t('modals.loadout.share.title', {
         name: loadoutStore.selectedLoadout?.name || '',
@@ -644,115 +626,72 @@ onMounted(async () => {
       <!-- State: Has share code -->
       <template v-if="formInputs.shareCode">
         <p>{{ t('modals.loadout.share.description') }}</p>
-        <NInputGroup>
-          <NInput v-model:value="formInputs.shareCode" readonly />
-          <SButton
-            :color="buttonColor.primary"
-            variant="elevated"
-            tinted
-            rounded="full"
-            @click="copyToClipboard"
-          >
+        <div class="flex items-center gap-2">
+          <Input v-model="formInputs.shareCode" readonly class="min-w-0 flex-1" />
+          <Button variant="outline" class="shrink-0" @click="copyToClipboard">
             <template #icon-left>
               <DuplicateIcon :size="16" />
             </template>
-          </SButton>
-        </NInputGroup>
+          </Button>
+        </div>
         <div class="flex gap-2 justify-center">
-          <SButton
-            :color="buttonColor.warning"
-            variant="elevated"
-            rounded="full"
-            size="md"
-            tinted
-            class="px-5 py-1.5"
-            @click="handleGenerateShareCode"
-          >
+          <Button variant="outline" size="default" @click="handleGenerateShareCode">
             <template #icon-left>
               <RefreshIcon :size="16" />
             </template>
             {{ t('modals.loadout.share.regenerateButton') }}
-          </SButton>
-          <SButton
-            :color="buttonColor.error"
-            variant="elevated"
-            rounded="full"
-            size="md"
-            tinted
-            class="px-5 py-1.5"
-            @click="handleDeleteShareCode"
-          >
+          </Button>
+          <Button variant="destructive" size="default" @click="handleDeleteShareCode">
             <template #icon-left>
               <DeleteIcon :size="16" />
             </template>
             {{ t('modals.loadout.share.deleteButton') }}
-          </SButton>
+          </Button>
         </div>
       </template>
 
       <!-- State: No share code -->
       <template v-else>
         <p>{{ t('modals.loadout.share.noCode') }}</p>
-        <SButton
-          :color="buttonColor.primary"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
-          @click="handleGenerateShareCode"
-        >
+        <Button variant="outline" size="default" @click="handleGenerateShareCode">
           <template #icon-left>
             <ShareIcon :size="16" />
           </template>
           {{ t('modals.loadout.share.generateButton') }}
-        </SButton>
+        </Button>
       </template>
     </div>
-  </NModal>
+  </AppModal>
 
-  <!-- Import Modal (New) -->
-  <NModal
-    v-model:show="showModal.import"
-    preset="card"
-    :bordered="false"
-    :auto-focus="false"
-    style="width: 500px"
+  <!-- Import Modal -->
+  <AppModal
+    :visible="showModal.import"
+    :closable="false"
+    max-width="500px"
     :title="t('modals.loadout.import.title') as string"
-    @after-leave="formInputs.importCode = ''"
+    @update:visible="(v: boolean) => setModalVisible('import', v)"
   >
     <div class="flex flex-col gap-4">
       <p>{{ t('modals.loadout.import.description') }}</p>
-      <NInput
-        v-model:value="formInputs.importCode"
+      <Input
+        v-model="formInputs.importCode"
         :placeholder="t('modals.loadout.import.placeholder') as string"
       />
     </div>
     <template #footer>
       <div class="flex justify-end gap-3">
-        <SButton
-          variant="elevated"
-          rounded="full"
-          size="md"
-          class="px-5 py-1.5"
-          @click="showModal.import = false"
-        >
+        <Button variant="outline" size="default" @click="showModal.import = false">
           {{ t('modals.loadout.import.cancel') }}
-        </SButton>
-        <SButton
-          :color="buttonColor.success"
-          variant="elevated"
-          rounded="full"
-          size="md"
-          tinted
-          class="px-5 py-1.5"
+        </Button>
+        <Button
+          variant="default"
+          size="default"
           :disabled="formInputs.importCode.length < 13"
           @click="handleLoadoutAction('import')"
         >
           {{ t('modals.loadout.import.confirm') }}
-        </SButton>
+        </Button>
       </div>
     </template>
-  </NModal>
+  </AppModal>
 </template>
-<!-- glassmorphism-dropdown CSS removed — SDropdown variant="glass" handles this -->

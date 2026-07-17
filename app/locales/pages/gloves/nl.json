@@ -1,6 +1,9 @@
 {
   "title": "Handschoenen",
   "selectGloveType": "Selecteer handschoentype",
+  "typeLabel": "Handschoentype",
+  "emptyTitle": "Geen handschoenen om weer te geven",
+  "reload": "Opnieuw laden",
   "noGloves": "Geen handschoenen beschikbaar voor dit loadout",
   "defaultGloves": "Standaard handschoenen"
 }

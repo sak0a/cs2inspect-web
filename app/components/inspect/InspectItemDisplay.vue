@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import type {
   ItemConfiguration,
   WeaponConfiguration,
@@ -182,13 +181,13 @@ const handleGenerateLink = () => {
 
 <template>
   <div class="inspect-item-display">
-    <NCard
+    <div
       v-if="item"
       :style="{
         borderColor: item.rarity?.color || '#313030',
         background: itemBackground,
       }"
-      class="item-card"
+      class="item-card rounded-lg p-5"
     >
       <div class="flex flex-col items-center">
         <!-- Item Image -->
@@ -202,7 +201,7 @@ const handleGenerateLink = () => {
           />
           <div
             v-else
-            class="flex flex-col items-center justify-center h-full w-full bg-gray-800/30 rounded"
+            class="flex flex-col items-center justify-center h-full w-full bg-gray-800/30 rounded-sm"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -269,7 +268,7 @@ const handleGenerateLink = () => {
                 <div
                   v-for="(sticker, index) in filteredStickers"
                   :key="index"
-                  class="w-10 h-10 rounded bg-gray-800/30 flex items-center justify-center overflow-hidden"
+                  class="w-10 h-10 rounded-sm bg-gray-800/30 flex items-center justify-center overflow-hidden"
                   :title="sticker.api?.name || 'Sticker'"
                 >
                   <img
@@ -288,7 +287,7 @@ const handleGenerateLink = () => {
               <p class="text-sm text-gray-400 mb-1">{{ t('common.keychain') }}:</p>
               <div class="flex items-center">
                 <div
-                  class="w-10 h-10 rounded bg-gray-800/30 flex items-center justify-center overflow-hidden mr-2"
+                  class="w-10 h-10 rounded-sm bg-gray-800/30 flex items-center justify-center overflow-hidden mr-2"
                 >
                   <img
                     v-if="(customization as WeaponConfiguration)?.keychain?.api?.image"
@@ -311,38 +310,23 @@ const handleGenerateLink = () => {
 
         <!-- Action Buttons -->
         <div class="mt-4 flex justify-between w-full">
-          <SButton
-            :color="buttonColor.primary"
-            variant="filled"
-            :disabled="isLoading"
-            @click="handleCustomize"
-          >
+          <Button variant="default" :disabled="isLoading" @click="handleCustomize">
             {{ t('common.customize') }}
-          </SButton>
+          </Button>
 
-          <SButton
-            :color="buttonColor.info"
-            variant="filled"
-            :disabled="isLoading"
-            @click="handleGenerateLink"
-          >
+          <Button variant="default" :disabled="isLoading" @click="handleGenerateLink">
             {{ t('common.generateLink') }}
-          </SButton>
+          </Button>
 
-          <SButton
-            :color="buttonColor.error"
-            variant="filled"
-            :disabled="isLoading"
-            @click="handleClear"
-          >
+          <Button variant="destructive" :disabled="isLoading" @click="handleClear">
             {{ t('common.clear') }}
-          </SButton>
+          </Button>
         </div>
       </div>
-    </NCard>
+    </div>
 
     <!-- Empty State -->
-    <NCard v-else class="empty-card">
+    <div v-else class="empty-card rounded-lg p-5">
       <div class="flex flex-col items-center justify-center py-8">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -365,7 +349,7 @@ const handleGenerateLink = () => {
         <p class="text-gray-300 text-lg">{{ t('inspectItem.noItemImported') }}</p>
         <p class="text-gray-400 text-sm mt-2">{{ t('inspectItem.useImportButton') }}</p>
       </div>
-    </NCard>
+    </div>
   </div>
 </template>
 
@@ -373,6 +357,7 @@ const handleGenerateLink = () => {
 .item-card {
   transition: all 0.3s ease;
   border-width: 2px;
+  border-style: solid;
 }
 
 .item-card:hover {

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
-
 interface Props {
   show: boolean
   steamId: string
@@ -45,16 +43,12 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="show"
-    preset="card"
-    style="width: 500px"
+  <AppModal
+    :visible="show"
     title="Delete User Data"
-    :bordered="false"
-    :auto-focus="false"
-    :mask-closable="true"
-    :closable="true"
-    @update:show="
+    max-width="500px"
+    variant="admin"
+    @update:visible="
       (val) => {
         if (!val) handleClose()
       }
@@ -74,7 +68,7 @@ watch(
             stroke-width="2"
             stroke-linecap="round"
             stroke-linejoin="round"
-            class="text-red-400 flex-shrink-0 mt-0.5"
+            class="text-red-400 shrink-0 mt-0.5"
           >
             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
             <path d="M12 9v4" />
@@ -108,13 +102,14 @@ watch(
         <label class="block text-sm font-medium text-gray-300 mb-2">
           Type the Steam ID to confirm deletion:
         </label>
-        <NInput
-          v-model:value="confirmInput"
+        <Input
+          :model-value="confirmInput"
           placeholder="Enter Steam ID..."
-          :status="confirmInput && !isConfirmed ? 'error' : undefined"
+          :aria-invalid="confirmInput && !isConfirmed ? true : undefined"
+          @update:model-value="(val) => (confirmInput = String(val))"
         />
         <div class="flex items-center gap-2 mt-2">
-          <code class="text-xs bg-gray-800 px-2 py-1 rounded text-gray-400">{{ steamId }}</code>
+          <code class="text-xs bg-gray-800 px-2 py-1 rounded-sm text-gray-400">{{ steamId }}</code>
           <span v-if="isConfirmed" class="text-green-400 text-sm flex items-center gap-1">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -141,23 +136,10 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <SButton variant="light" @click="handleClose"> Cancel </SButton>
-      <SButton
-        variant="light"
-        :color="buttonColor.error"
-        :disabled="!isConfirmed"
-        @click="handleConfirm"
-      >
+      <Button variant="secondary" @click="handleClose"> Cancel </Button>
+      <Button variant="destructive" :disabled="!isConfirmed" @click="handleConfirm">
         Delete All Data
-      </SButton>
+      </Button>
     </div>
-  </NModal>
+  </AppModal>
 </template>
-
-<style scoped lang="sass">
-:deep(.n-card)
-  background: rgba(12, 12, 12, 0.7) !important
-  border: 1px solid var(--admin-glass-border)
-  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
-  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
-</style>

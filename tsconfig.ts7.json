@@ -1,0 +1,26 @@
+{
+  // TypeScript 7 (Go-native compiler) typecheck for the pure-TS parts of the
+  // repo: server/, shared/, scripts/. Vue SFC checking stays on TS 6 via
+  // `bun run typecheck` (vue-tsc), because Volar/vue-tsc are TS6-only.
+  //
+  // Extends the Nuxt-generated server tsconfig so nitro auto-import types
+  // (defineEventHandler, useRuntimeConfig, ...) and the ~/server & ~/* path
+  // aliases resolve. Requires `nuxt prepare` to have run (postinstall does).
+  // TS7 removed baseUrl and node/node10 moduleResolution — the base config
+  // already uses moduleResolution "Bundler" and path-relative `paths`.
+  "extends": "./.nuxt/tsconfig.server.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "types": ["bun", "node"]
+  },
+  "include": [
+    ".nuxt/types/nitro-nuxt.d.ts",
+    ".nuxt/types/nitro.d.ts",
+    "server/**/*",
+    "shared/**/*",
+    "scripts/**/*.ts"
+  ],
+  // Test files are executed (and effectively checked) by `bun test`; keeping
+  // them out keeps this gate focused on production code.
+  "exclude": ["node_modules", "dist", ".output", "**/__tests__/**", "**/*.test.ts"]
+}

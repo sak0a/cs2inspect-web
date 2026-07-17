@@ -1,4 +1,11 @@
 {
+  "itemPage": {
+    "configuredCount": "{configured} / {total} configurados"
+  },
+  "itemCard": {
+    "notConfigured": "Sin configurar",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "ARMAS",
     "melee": "CUERPO A CUERPO",
@@ -8,7 +15,8 @@
     "loadout": "Loadout",
     "theme": "Tema",
     "mainNav": "Navegación principal",
-    "settings": "Ajustes"
+    "settings": "Ajustes",
+    "openMenu": "Abrir menú"
   },
   "weapons": {
     "rifles": "Rifles",
@@ -27,16 +35,44 @@
     "inspects": "Inspecciones",
     "home": "Inicio"
   },
+  "agents": {
+    "selectAgent": "Seleccionar agente",
+    "noAgentsAvailable": "No hay agentes disponibles",
+    "noAgentsForTeam": "No hay agentes disponibles para este equipo"
+  },
+  "musicKits": {
+    "selectKit": "Seleccionar kit de música",
+    "searchPlaceholder": "Buscar kits de música...",
+    "noKitsAvailable": "No hay kits de música disponibles",
+    "noResultsSearch": "No se encontraron kits de música para \"{query}\""
+  },
+  "pins": {
+    "selectPin": "Seleccionar pin",
+    "searchPlaceholder": "Buscar pins...",
+    "noPinsAvailable": "No hay pins disponibles",
+    "noResultsSearch": "No se encontraron pins para \"{query}\""
+  },
   "teams": {
     "terrorists": "Terroristas",
-    "counterTerrorists": "Contraterroristas"
+    "counterTerrorists": "Contraterroristas",
+    "terroristsShort": "T",
+    "counterTerroristsShort": "CT",
+    "selectTeam": "Seleccionar equipo"
   },
   "wears": {
     "factoryNew": "Nuevo de fábrica",
     "minimalWear": "Desgaste mínimo",
     "fieldTested": "Probado en campo",
     "wellWorn": "Bien desgastado",
-    "battleScarred": "Marcas de batalla"
+    "battleScarred": "Marcas de batalla",
+    "floatValue": "Valor de float",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "skins": {
     "title": "Skins",
@@ -44,6 +80,12 @@
     "selectSkin": "Seleccionar skin para {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Patrón"
+      }
+    },
     "logout": {
       "title": "Confirmar cierre de sesión",
       "question": "¿Estás seguro de que quieres cerrar sesión?",
@@ -195,7 +237,8 @@
         "title": "Crear nuevo loadout",
         "confirm": "Crear",
         "cancel": "Cancelar",
-        "formPlaceholder": "Introduce un nombre para tu nuevo loadout"
+        "formPlaceholder": "Introduce un nombre para tu nuevo loadout",
+        "successMessage": "Loadout creado correctamente"
       },
       "import": {
         "title": "Importar Loadout",
@@ -209,7 +252,8 @@
         "title": "Renombrar loadout {name}",
         "confirm": "Renombrar",
         "cancel": "Cancelar",
-        "formPlaceholder": "Introduce un nuevo nombre para tu loadout"
+        "formPlaceholder": "Introduce un nuevo nombre para tu loadout",
+        "successMessage": "Loadout renombrado correctamente"
       },
       "delete": {
         "title": "Eliminar loadout {name}",
@@ -218,7 +262,8 @@
         "question": "¿Estás seguro de que quieres eliminar este loadout?",
         "warning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
         "confirmText": "Escribe '{name}' para confirmar la eliminación:",
-        "confirmPlaceholder": "Introduce el nombre del loadout para confirmar"
+        "confirmPlaceholder": "Introduce el nombre del loadout para confirmar",
+        "successMessage": "Loadout eliminado correctamente"
       },
       "clear": {
         "title": "Vaciar items del Loadout {name}",
@@ -396,6 +441,9 @@
     "manage": "Gestionar loadout",
     "select": "Seleccionar un loadout",
     "createDefault": "Crear loadout por defecto",
+    "defaultTag": "Predeterminado",
+    "noLoadoutTitle": "Ningún loadout seleccionado",
+    "noLoadoutHint": "Selecciona o crea un loadout para empezar a personalizar tus objetos.",
     "confirmDelete": "¿Estás seguro de que quieres eliminar este loadout?",
     "confirmDeleteWarning": "Todos los skins de este loadout serán eliminados y no se podrán restaurar",
     "nameRequired": "Por favor, introduce un nombre de loadout",
@@ -417,14 +465,21 @@
     "loginButton": "Iniciar sesión",
     "logoutButton": "Cerrar sesión",
     "loginRequired": "Para acceder a este sitio web, por favor inicia sesión con tu cuenta de Steam.",
+    "loginRequiredTitle": "Inicio de sesión requerido",
     "automaticallyLoggedOut": "Has sido desconectado automáticamente",
     "confirmLogout": "¿Estás seguro de que quieres cerrar sesión?",
     "rejectAction": "Inicia sesión para ejecutar esta acción",
     "authenticating": "Autenticando...",
-    "openSteamProfile": "Abrir perfil de Steam"
+    "openSteamProfile": "Abrir perfil de Steam",
+    "heroTagline": "Crea tu loadout de CS2 y previsualiza skins, floats y pegatinas en tiempo real."
   },
   "general": {
-    "copiedToClipboard": "Copiado al portapapeles"
+    "copiedToClipboard": "Copiado al portapapeles",
+    "dismiss": "Descartar"
+  },
+  "maintenance": {
+    "title": "En mantenimiento",
+    "description": "El sitio está actualmente en mantenimiento. Vuelve a intentarlo más tarde."
   },
   "autoSave": {
     "saving": "Guardando...",
@@ -477,6 +532,7 @@
     "selectAll": "Seleccionar todo",
     "noResults": "No se encontraron resultados",
     "pleaseSelectLoadout": "Por favor, selecciona primero un loadout",
+    "clearSearch": "Borrar búsqueda",
     "for": "por",
     "copy": "Copiar"
   },
@@ -658,5 +714,45 @@
   },
   "admin": {
     "panelTitle": "Panel de administración"
+  },
+  "errorPage": {
+    "notFound": {
+      "title": "Página no encontrada",
+      "message": "La página que buscas no existe o ha sido movida."
+    },
+    "forbidden": {
+      "title": "Acceso prohibido",
+      "message": "No tienes permiso para acceder a este recurso."
+    },
+    "unauthorized": {
+      "title": "Autenticación requerida",
+      "message": "Por favor, inicia sesión para acceder a esta página."
+    },
+    "serverError": {
+      "title": "Error interno del servidor",
+      "message": "Algo salió mal de nuestro lado. Por favor, inténtalo de nuevo más tarde."
+    },
+    "timeout": {
+      "title": "Tiempo de espera agotado",
+      "message": "La solicitud tardó demasiado en procesarse. Por favor, inténtalo de nuevo."
+    },
+    "unavailable": {
+      "title": "Servicio no disponible",
+      "message": "El servicio no está disponible temporalmente. Por favor, inténtalo de nuevo en unos momentos."
+    },
+    "unexpected": {
+      "title": "Error inesperado",
+      "message": "Se produjo un error inesperado. Por favor, inténtalo de nuevo."
+    },
+    "goBack": "Volver",
+    "goHome": "Ir al inicio",
+    "debug": {
+      "title": "Depuración",
+      "status": "Estado",
+      "statusText": "Texto de estado",
+      "message": "Mensaje",
+      "stackTrace": "Traza de pila",
+      "none": "(ninguno)"
+    }
   }
 }

@@ -5,16 +5,31 @@ import {
   LucideSettings as SettingsIcon,
   LucideBookOpen as TutorialIcon,
   LucideShield as AdminIcon,
-  LucideChevronRight as ChevronRightIcon,
 } from '@lucide/vue'
-import type { DropdownTrigger, DropdownPlacement } from '~/components/sui/dropdown/context'
 import { getAllTutorials } from '~/utils/tutorialDefinitions'
 
 type ButtonVariant = 'icon' | 'full'
 
-type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+type ButtonSize = 'xs' | 'sm' | 'default' | 'lg'
+
+// Former sui dropdown types, kept locally so existing call sites still type-check
+type DropdownTrigger = 'click' | 'hover' | 'context' | 'manual'
+type DropdownPlacement =
+  | 'top'
+  | 'top-start'
+  | 'top-end'
+  | 'bottom'
+  | 'bottom-start'
+  | 'bottom-end'
+  | 'left'
+  | 'left-start'
+  | 'left-end'
+  | 'right'
+  | 'right-start'
+  | 'right-end'
 
 interface Props {
+  /** Accepted for backward compatibility — the menu is always click-triggered now */
   trigger?: DropdownTrigger
   placement?: DropdownPlacement
   variant?: ButtonVariant
@@ -22,10 +37,11 @@ interface Props {
   showLogout?: boolean
   showTutorials?: boolean
   showAdminLink?: boolean
+  /** Defaults to the localized navigation.settings label */
   ariaLabel?: string
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   trigger: 'click',
   placement: 'bottom-start',
   variant: 'icon',
@@ -33,14 +49,25 @@ withDefaults(defineProps<Props>(), {
   showLogout: true,
   showTutorials: true,
   showAdminLink: true,
-  ariaLabel: 'Settings',
+  ariaLabel: undefined,
 })
 
 const emit = defineEmits<{
   (e: 'logout'): void
 }>()
 
+// Map the legacy placement prop onto reka side/align
+const menuSide = computed(
+  () => props.placement.split('-')[0] as 'top' | 'bottom' | 'left' | 'right'
+)
+const menuAlign = computed(() => {
+  const suffix = props.placement.split('-')[1]
+  return suffix === 'start' ? 'start' : suffix === 'end' ? 'end' : 'center'
+})
+
 const { t, getLocale, switchLocale, getLocales } = useI18n()
+
+const resolvedAriaLabel = computed(() => props.ariaLabel ?? String(t('navigation.settings')))
 const tutorialStore = useTutorialStore()
 const adminStore = useAdminStore()
 const { isFeatureEnabled, loaded: settingsLoaded } = useAppSettings()
@@ -80,11 +107,6 @@ const currentLocaleDisplay = computed(() => {
   return loc?.displayName || locale
 })
 
-// Commented out — replaced by SDropdown with SDropdownGroup + SDropdownItem components
-// const languageOptions = computed(() => { ... })
-// const tutorialOptions = computed(() => { ... })
-// const dropdownOptions = computed(() => { ... })
-
 const tutorialsEnabled = computed(() => {
   return !settingsLoaded.value || isFeatureEnabled('FEATURE_TUTORIALS')
 })
@@ -103,6 +125,18 @@ const getTutorialLabel = (tutorial: { id: string; nameKey: string }) => {
 }
 
 const buttonLabel = computed(() => `${getFlag(getLocale())} ${currentLocaleDisplay.value}`)
+const triggerSize = computed(() => {
+  if (props.variant !== 'icon') return props.size
+
+  return (
+    {
+      xs: 'icon-xs',
+      sm: 'icon-sm',
+      default: 'icon',
+      lg: 'icon-lg',
+    } as const
+  )[props.size]
+})
 
 function handleLanguageSelect(key: string) {
   const langCookie = useCookie('i18n_locale', {
@@ -133,115 +167,96 @@ function handleSelect(key: string) {
     emit('logout')
   }
 }
+
+// Language/tutorial items keep the menu open (former :close-on-select="false")
+function handleSelectKeepOpen(event: Event, key: string) {
+  event.preventDefault()
+  handleSelect(key)
+}
 </script>
 
 <template>
-  <SDropdown :trigger="trigger" :placement="placement" variant="glass" @select="handleSelect">
-    <template #trigger>
-      <SButton
+  <DropdownMenu>
+    <DropdownMenuTrigger as-child>
+      <Button
         v-if="variant === 'icon'"
         variant="ghost"
-        icon-only
-        rounded="full"
-        :size="size"
-        :aria-label="ariaLabel"
+        :size="triggerSize"
+        :aria-label="resolvedAriaLabel"
       >
         <template #icon-left>
           <SettingsIcon :size="18" />
         </template>
-      </SButton>
+      </Button>
 
-      <SButton
+      <Button
         v-else
         variant="ghost"
         class="w-full justify-start"
-        :size="size"
-        :aria-label="ariaLabel"
+        :size="triggerSize"
+        :aria-label="resolvedAriaLabel"
       >
         <template #icon-left>
           <SettingsIcon :size="18" />
         </template>
         {{ buttonLabel }}
-      </SButton>
-    </template>
+      </Button>
+    </DropdownMenuTrigger>
 
-    <!-- Language submenu (nested SDropdown) -->
-    <SDropdown
-      class="block"
-      trigger="hover"
-      placement="right-start"
-      variant="glass"
-      :close-on-select="false"
-      @select="handleSelect"
-    >
-      <template #trigger>
-        <div
-          class="s-dropdown-item relative flex items-center cursor-pointer transition-all duration-150 select-none rounded-lg px-2.5 py-1.5 text-sm text-foreground hover:bg-accent"
-        >
-          <LanguagesIcon :size="14" class="mr-2.5 shrink-0 text-muted-foreground" />
-          <div class="flex-1 min-w-0 truncate">
-            {{ String(t('navigation.language') || 'Language') }}
-          </div>
-          <ChevronRightIcon :size="14" class="ml-4 shrink-0 text-muted-foreground" />
-        </div>
+    <DropdownMenuContent :side="menuSide" :align="menuAlign" class="min-w-[180px]">
+      <!-- Language submenu -->
+      <DropdownMenuSub>
+        <DropdownMenuSubTrigger>
+          <LanguagesIcon class="size-3.5" />
+          <span class="min-w-0 flex-1 truncate">
+            {{ t('navigation.language') }}
+          </span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuSubContent class="min-w-[180px]">
+          <DropdownMenuItem
+            v-for="loc in getLocales()"
+            :key="`lang:${loc.code}`"
+            @select="(e: Event) => handleSelectKeepOpen(e, `lang:${loc.code}`)"
+          >
+            {{ `${getFlag(loc.code)} ${loc.displayName || loc.code}` }}
+          </DropdownMenuItem>
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+
+      <!-- Tutorials submenu -->
+      <DropdownMenuSub v-if="showTutorials && tutorialsEnabled && filteredTutorials.length > 0">
+        <DropdownMenuSubTrigger>
+          <TutorialIcon class="size-3.5" />
+          <span class="min-w-0 flex-1 truncate">
+            {{ t('tutorial.menuTitle') }}
+          </span>
+        </DropdownMenuSubTrigger>
+        <DropdownMenuSubContent class="min-w-[180px]">
+          <DropdownMenuItem
+            v-for="tutorial in filteredTutorials"
+            :key="`tutorial:${tutorial.id}`"
+            :disabled="tutorialStore.isActive"
+            @select="(e: Event) => handleSelectKeepOpen(e, `tutorial:${tutorial.id}`)"
+          >
+            {{ getTutorialLabel(tutorial) }}
+          </DropdownMenuItem>
+        </DropdownMenuSubContent>
+      </DropdownMenuSub>
+
+      <!-- Admin Panel -->
+      <DropdownMenuItem v-if="showAdminLink && adminStore.isAdmin" @select="handleSelect('admin')">
+        <AdminIcon class="size-4" />
+        <span>{{ t('admin.panelTitle') }}</span>
+      </DropdownMenuItem>
+
+      <!-- Logout -->
+      <template v-if="showLogout">
+        <DropdownMenuSeparator />
+        <DropdownMenuItem variant="destructive" @select="handleSelect('logout')">
+          <LogOutIcon class="size-4" />
+          <span>{{ t('auth.logoutButton') }}</span>
+        </DropdownMenuItem>
       </template>
-      <SDropdownItem
-        v-for="loc in getLocales()"
-        :key="`lang:${loc.code}`"
-        :item-key="`lang:${loc.code}`"
-        :label="`${getFlag(loc.code)} ${loc.displayName || loc.code}`"
-      />
-    </SDropdown>
-
-    <!-- Tutorials submenu (nested SDropdown) -->
-    <SDropdown
-      v-if="showTutorials && tutorialsEnabled && filteredTutorials.length > 0"
-      class="block"
-      trigger="hover"
-      placement="right-start"
-      variant="glass"
-      :close-on-select="false"
-      @select="handleSelect"
-    >
-      <template #trigger>
-        <div
-          class="s-dropdown-item relative flex items-center cursor-pointer transition-all duration-150 select-none rounded-lg px-2.5 py-1.5 text-sm text-foreground hover:bg-accent"
-        >
-          <TutorialIcon :size="14" class="mr-2.5 shrink-0 text-muted-foreground" />
-          <div class="flex-1 min-w-0 truncate">
-            {{ String(t('tutorial.menuTitle') || 'Tutorials') }}
-          </div>
-          <ChevronRightIcon :size="14" class="ml-4 shrink-0 text-muted-foreground" />
-        </div>
-      </template>
-      <SDropdownItem
-        v-for="tutorial in filteredTutorials"
-        :key="`tutorial:${tutorial.id}`"
-        :item-key="`tutorial:${tutorial.id}`"
-        :label="getTutorialLabel(tutorial)"
-        :disabled="tutorialStore.isActive"
-      />
-    </SDropdown>
-
-    <!-- Admin Panel -->
-    <SDropdownItem
-      v-if="showAdminLink && adminStore.isAdmin"
-      item-key="admin"
-      :label="String(t('admin.panelTitle') || 'Admin Panel')"
-      :icon="AdminIcon"
-    />
-
-    <!-- Logout -->
-    <template v-if="showLogout">
-      <SDropdownDivider class="bg-gray-500/20" />
-      <SDropdownItem
-        item-key="logout"
-        :label="String(t('auth.logoutButton') || 'Logout')"
-        :icon="LogOutIcon"
-        danger
-      />
-    </template>
-  </SDropdown>
+    </DropdownMenuContent>
+  </DropdownMenu>
 </template>
-
-<!-- glassmorphism-dropdown CSS removed — SDropdown variant="glass" handles this -->

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { PluginSetting } from '~/types'
-import { buttonColor } from '~/lib/buttonColors'
 
 interface Props {
   setting: PluginSetting
@@ -69,6 +68,10 @@ const handleSave = () => {
   }
 
   isEditing.value = false
+}
+
+const handleNumberUpdate = (val: number | undefined) => {
+  editValue.value = val == null || Number.isNaN(val) ? 0 : val
 }
 
 const formatDate = (dateStr: string | null) => {
@@ -157,22 +160,16 @@ const displayValue = computed(() => {
         </div>
 
         <!-- Edit button (when not editing) -->
-        <SButton
-          v-if="!isEditing"
-          size="sm"
-          variant="light"
-          :color="buttonColor.primary"
-          @click="startEditing"
-        >
+        <Button v-if="!isEditing" size="sm" variant="secondary" @click="startEditing">
           Edit
-        </SButton>
+        </Button>
       </div>
 
       <!-- Value Display (when not editing) -->
       <div v-if="!isEditing" class="value-display">
         <template v-if="setting.type === 'boolean'">
           <span
-            class="px-2 py-1 rounded text-sm"
+            class="px-2 py-1 rounded-sm text-sm"
             :class="
               setting.value === 'true'
                 ? 'bg-green-500/20 text-green-400'
@@ -185,8 +182,7 @@ const displayValue = computed(() => {
         <template v-else-if="setting.type === 'json'">
           <pre
             class="text-xs bg-gray-800/50 px-3 py-2 rounded-lg text-gray-300 overflow-x-auto max-h-32"
-            >{{ displayValue }}</pre
-          >
+            >{{ displayValue }}</pre>
         </template>
         <template v-else>
           <span class="text-sm text-gray-300">{{ setting.value }}</span>
@@ -196,30 +192,33 @@ const displayValue = computed(() => {
       <!-- Edit Mode -->
       <div v-else class="edit-area">
         <template v-if="setting.type === 'boolean'">
-          <NSwitch
-            :value="editValue === true || editValue === 'true'"
-            @update:value="(val: boolean) => (editValue = val)"
+          <Switch
+            :model-value="editValue === true || editValue === 'true'"
+            @update:model-value="(val: boolean) => (editValue = val)"
           />
         </template>
         <template v-else-if="setting.type === 'number'">
-          <NInputNumber
-            :value="typeof editValue === 'number' ? editValue : Number(editValue) || 0"
+          <NumberField
+            :model-value="typeof editValue === 'number' ? editValue : Number(editValue) || 0"
             class="w-full"
-            size="small"
-            @update:value="(val: number | null) => (editValue = val ?? 0)"
-          />
+            @update:model-value="handleNumberUpdate"
+          >
+            <NumberFieldContent>
+              <NumberFieldDecrement />
+              <NumberFieldInput class="h-8 text-sm" />
+              <NumberFieldIncrement />
+            </NumberFieldContent>
+          </NumberField>
         </template>
         <template v-else-if="setting.type === 'json'">
-          <NInput
-            :value="String(editValue)"
-            type="textarea"
+          <Textarea
+            :model-value="String(editValue)"
             :rows="8"
-            class="w-full font-mono"
-            size="small"
-            :status="jsonError ? 'error' : undefined"
-            @update:value="
-              (val: string) => {
-                editValue = val
+            class="w-full min-h-[146px] font-mono text-xs"
+            :aria-invalid="jsonError ? true : undefined"
+            @update:model-value="
+              (val) => {
+                editValue = String(val)
                 jsonError = null
               }
             "
@@ -229,21 +228,16 @@ const displayValue = computed(() => {
           </p>
         </template>
         <template v-else>
-          <NInput
-            :value="String(editValue)"
-            class="w-full"
-            size="small"
-            @update:value="(val: string) => (editValue = val)"
+          <Input
+            :model-value="String(editValue)"
+            class="w-full h-8 text-sm"
+            @update:model-value="(val) => (editValue = String(val))"
           />
         </template>
 
         <div class="flex gap-2 mt-2">
-          <SButton size="sm" variant="light" :color="buttonColor.success" @click="handleSave">
-            Save
-          </SButton>
-          <SButton size="sm" variant="light" :color="buttonColor.error" @click="cancelEditing">
-            Cancel
-          </SButton>
+          <Button size="sm" variant="default" @click="handleSave"> Save </Button>
+          <Button size="sm" variant="secondary" @click="cancelEditing"> Cancel </Button>
         </div>
       </div>
     </div>
@@ -273,8 +267,4 @@ pre
   font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace
   white-space: pre-wrap
   word-break: break-word
-
-:deep(.n-input--textarea .n-input__textarea-el)
-  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace !important
-  font-size: 12px !important
 </style>

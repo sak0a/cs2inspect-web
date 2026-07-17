@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
+import { ArrowUp, ArrowDown } from '@lucide/vue'
 import type { APISticker, IEnhancedWeaponSticker } from '~/server/types'
 import { generateStickerImageUrl } from '~/utils/canvasCoordinates'
-import { digitOnlyInputProps } from '~/utils/inputProps'
 
 interface Props {
   visible: boolean
@@ -29,7 +28,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const message = useMessage()
+const message = useToast()
 
 const state = ref({
   searchQuery: '',
@@ -75,7 +74,6 @@ const {
   effectFilterIds,
   availableRarities,
   availableEffects,
-  sortedItems,
   paginatedItems,
   totalPages,
   toggleSortDir,
@@ -239,15 +237,14 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="visible"
-    style="max-width: 1200px; width: 95vw"
-    preset="card"
-    :bordered="false"
+  <AppModal
+    :visible="visible"
     size="huge"
-    :auto-focus="false"
-    :theme-overrides="weaponAttachmentModalThemeOverrides"
-    @update:show="handleClose"
+    @update:visible="
+      (show: boolean) => {
+        if (!show) handleClose()
+      }
+    "
   >
     <template #header>
       <div class="flex items-center gap-3">
@@ -267,193 +264,202 @@ watch(
       </div>
     </template>
     <template #header-extra>
-      <div class="flex items-center gap-2">
-        <SButton
-          variant="elevated"
-          rounded="full"
-          :color="buttonColor.error"
-          tinted
-          :disabled="!currentSticker && !state.selectedItem"
-          class="whitespace-nowrap px-5 py-1.5 !overflow-visible"
-          @click="handleResetConfig"
-        >
-          <template #icon-left>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" />
-              <path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" />
-            </svg>
-          </template>
-          {{ t('modals.weaponSkin.buttons.reset') }}
-        </SButton>
-        <NDivider vertical />
-        <NInput
-          v-model:value="state.searchQuery"
-          :placeholder="String(t('modals.sticker.searchPlaceholder'))"
-          class="w-64"
-        />
-      </div>
+      <ModalToolbar
+        v-model:search="state.searchQuery"
+        :search-placeholder="String(t('modals.sticker.searchPlaceholder'))"
+        show-reset
+        :reset-label="t('modals.weaponSkin.buttons.reset') as string"
+        :reset-disabled="!currentSticker && !state.selectedItem"
+        @reset="handleResetConfig"
+      />
     </template>
 
-    <NSpace vertical size="large" class="-mt-2">
+    <div class="flex flex-col gap-3 -mt-2">
       <!-- Selected Sticker Preview -->
       <div
         v-if="state.selectedItem"
-        class="bg-[var(--bg-secondary)] p-4 md:p-6 rounded-lg bg-opacity-50"
+        class="rounded-[var(--radius-card)] border border-border bg-card p-4 md:p-6"
       >
-        <div class="grid grid-cols-1 md:grid-cols-[200px_1fr] gap-6">
+        <div class="grid grid-cols-1 gap-6 md:grid-cols-[200px_1fr]">
           <!-- Left side - Image -->
-          <div class="flex flex-col items-center justify-center">
-            <img
-              :src="
-                generateStickerImageUrl(
-                  state.selectedItem.id.replace('sticker-', ''),
-                  state.customization.wear
-                )
-              "
-              :alt="state.selectedItem.name"
-              class="h-40 w-full object-contain"
-              @error="(e) => ((e.target as HTMLImageElement).src = state.selectedItem?.image || '')"
-            />
-          </div>
+          <SelectedItemStage
+            :rarity-color="state.selectedItem.rarity?.color"
+            class="flex flex-col justify-center p-3"
+          >
+            <template #media>
+              <img
+                :src="
+                  generateStickerImageUrl(
+                    state.selectedItem.id.replace('sticker-', ''),
+                    state.customization.wear
+                  )
+                "
+                :alt="state.selectedItem.name"
+                class="h-40 w-full object-contain"
+                @error="
+                  (e) => ((e.target as HTMLImageElement).src = state.selectedItem?.image || '')
+                "
+              />
+            </template>
+          </SelectedItemStage>
 
           <!-- Right side - Customization -->
           <div class="flex flex-col gap-4">
             <!-- Main Controls Grid -->
             <div>
-              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 <!-- X Position -->
                 <div>
-                  <h4 class="text-xs font-medium mb-1 text-gray-400">
+                  <h4
+                    class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >
                     X {{ t('modals.sticker.labels.position') }}
                   </h4>
-                  <NInputNumber
-                    v-model:value="state.customization.x"
+                  <NumberField
+                    v-model="state.customization.x"
                     :min="-100"
                     :max="100"
                     :step="0.01"
-                    size="small"
+                    :step-snapping="false"
+                    :format-options="{ useGrouping: false, maximumFractionDigits: 6 }"
                     class="w-full"
-                    :input-props="digitOnlyInputProps"
-                  />
+                  >
+                    <NumberFieldContent>
+                      <NumberFieldDecrement class="p-2" />
+                      <NumberFieldInput class="h-8" />
+                      <NumberFieldIncrement class="p-2" />
+                    </NumberFieldContent>
+                  </NumberField>
                 </div>
                 <!-- Y Position -->
                 <div>
-                  <h4 class="text-xs font-medium mb-1 text-gray-400">
+                  <h4
+                    class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >
                     Y {{ t('modals.sticker.labels.position') }}
                   </h4>
-                  <NInputNumber
-                    v-model:value="state.customization.y"
+                  <NumberField
+                    v-model="state.customization.y"
                     :min="-100"
                     :max="100"
                     :step="0.01"
-                    size="small"
+                    :step-snapping="false"
+                    :format-options="{ useGrouping: false, maximumFractionDigits: 6 }"
                     class="w-full"
-                    :input-props="digitOnlyInputProps"
-                  />
+                  >
+                    <NumberFieldContent>
+                      <NumberFieldDecrement class="p-2" />
+                      <NumberFieldInput class="h-8" />
+                      <NumberFieldIncrement class="p-2" />
+                    </NumberFieldContent>
+                  </NumberField>
                 </div>
                 <!-- Scale -->
                 <div>
-                  <h4 class="text-xs font-medium mb-1 text-gray-400">
+                  <h4
+                    class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >
                     {{ t('modals.sticker.labels.scale') }}
                   </h4>
-                  <NInputNumber
-                    v-model:value="state.customization.scale"
+                  <NumberField
+                    v-model="state.customization.scale"
                     :min="0.01"
                     :max="1"
                     :step="0.01"
-                    size="small"
+                    :step-snapping="false"
+                    :format-options="{ useGrouping: false, maximumFractionDigits: 6 }"
                     class="w-full"
-                    :input-props="digitOnlyInputProps"
-                  />
+                  >
+                    <NumberFieldContent>
+                      <NumberFieldDecrement class="p-2" />
+                      <NumberFieldInput class="h-8" />
+                      <NumberFieldIncrement class="p-2" />
+                    </NumberFieldContent>
+                  </NumberField>
                 </div>
                 <!-- Rotation -->
                 <div>
-                  <h4 class="text-xs font-medium mb-1 text-gray-400">
+                  <h4
+                    class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >
                     {{ t('modals.sticker.labels.rotation') }}
                   </h4>
-                  <NInputNumber
-                    v-model:value="state.customization.rotation"
+                  <NumberField
+                    v-model="state.customization.rotation"
                     :min="-360"
                     :max="360"
                     :step="1"
-                    size="small"
+                    :format-options="{ useGrouping: false, maximumFractionDigits: 0 }"
                     class="w-full"
-                    :input-props="digitOnlyInputProps"
-                  />
+                  >
+                    <NumberFieldContent>
+                      <NumberFieldDecrement class="p-2" />
+                      <NumberFieldInput class="h-8" />
+                      <NumberFieldIncrement class="p-2" />
+                    </NumberFieldContent>
+                  </NumberField>
                 </div>
                 <!-- Wear -->
                 <div>
-                  <h4 class="text-xs font-medium mb-1 text-gray-400">
+                  <h4
+                    class="mb-1 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+                  >
                     {{ t('modals.sticker.labels.wear') }}
                   </h4>
-                  <NInputNumber
-                    v-model:value="state.customization.wear"
+                  <NumberField
+                    v-model="state.customization.wear"
                     :min="0"
                     :max="1"
                     :step="0.01"
-                    size="small"
+                    :step-snapping="false"
+                    :format-options="{ useGrouping: false, maximumFractionDigits: 6 }"
                     class="w-full"
-                  />
+                  >
+                    <NumberFieldContent>
+                      <NumberFieldDecrement class="p-2" />
+                      <NumberFieldInput class="h-8" />
+                      <NumberFieldIncrement class="p-2" />
+                    </NumberFieldContent>
+                  </NumberField>
                 </div>
               </div>
 
               <!-- External normalized offsets (read-only, if available) -->
               <div
                 v-if="currentSticker && (extNormX !== null || extNormY !== null)"
-                class="text-[10px] text-gray-500 whitespace-nowrap mt-2"
+                class="mt-2 whitespace-nowrap font-mono text-[10px] tabular-nums text-text-tertiary"
               >
-                <span class="opacity-70">Ext normalized</span>: X {{ extNormXStr }} | Y
-                {{ extNormYStr }}
+                <span class="uppercase tracking-[0.08em] opacity-70">Ext normalized</span>: X
+                {{ extNormXStr }} | Y {{ extNormYStr }}
               </div>
             </div>
 
             <!-- Bottom Section: Title and Buttons -->
             <div
-              class="border-t border-[var(--border-subtle)] pt-4 flex flex-col lg:flex-row items-center justify-between gap-4"
+              class="flex flex-col items-center justify-between gap-4 border-t border-border pt-4 lg:flex-row"
             >
               <!-- Sticker Name -->
-              <h3 class="text-lg font-bold text-white">
+              <h3 class="font-display text-lg font-medium tracking-[-0.02em] text-foreground">
                 {{ state.selectedItem.name.replace(/^Sticker \| /, '') }}
               </h3>
 
               <!-- Action Buttons -->
-              <div class="flex gap-3 w-full lg:w-auto justify-end">
-                <SButton
-                  :color="buttonColor.primary"
-                  variant="elevated"
-                  rounded="full"
-                  tinted
-                  class="flex-1 lg:flex-none lg:w-32 px-5 py-1.5"
-                  @click="handleSave"
-                >
+              <div class="flex w-full justify-end gap-3 lg:w-auto">
+                <Button variant="outline" class="flex-1 lg:w-32 lg:flex-none" @click="handleSave">
                   {{
                     currentSticker
                       ? t('modals.sticker.buttons.update')
                       : t('modals.sticker.buttons.create')
                   }}
-                </SButton>
-                <SButton
+                </Button>
+                <Button
                   v-if="currentSticker"
-                  :color="buttonColor.error"
-                  variant="elevated"
-                  rounded="full"
-                  tinted
-                  class="flex-1 lg:flex-none lg:w-32 px-5 py-1.5"
+                  variant="destructive"
+                  class="flex-1 lg:w-32 lg:flex-none"
                   @click="handleRemove"
                 >
                   {{ t('modals.sticker.buttons.delete') }}
-                </SButton>
+                </Button>
               </div>
             </div>
           </div>
@@ -463,133 +469,91 @@ watch(
       <!-- Sticker list controls (Sort + Filters) -->
       <div class="flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-300">{{ t('modals.sticker.sort.label') }}</span>
-          <NSelect v-model:value="sortBy" size="small" class="w-44" :options="stickerSortOptions" />
-          <SButton
-            size="xs"
-            icon-only
-            variant="light"
+          <span class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary">{{
+            t('modals.sticker.sort.label')
+          }}</span>
+          <Select :model-value="sortBy" @update:model-value="(v) => (sortBy = String(v ?? sortBy))">
+            <SelectTrigger size="sm" class="w-44">
+              <SelectValue>
+                {{ stickerSortOptions.find((o) => o.value === sortBy)?.label }}
+              </SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem
+                v-for="option in stickerSortOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.label }}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+          <Button
+            size="icon-xs"
+            variant="secondary"
             :aria-label="`Sort ${sortDir === 'asc' ? 'ascending' : 'descending'}`"
             @click="toggleSortDir"
           >
-            {{ sortDir === 'asc' ? '↑' : '↓' }}
-          </SButton>
+            <ArrowUp v-if="sortDir === 'asc'" class="size-3" />
+            <ArrowDown v-else class="size-3" />
+          </Button>
         </div>
 
-        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-2">
-          <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.rarity') }}</span>
-          <SButton
+        <div v-if="availableRarities.length > 0" class="flex flex-wrap items-center gap-1.5">
+          <span
+            class="mr-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+            >{{ t('modals.sticker.filters.rarity') }}</span
+          >
+          <Button
             v-for="rarity in availableRarities"
             :key="rarity.id"
             size="xs"
-            variant="light"
-            :color="rarityFilterIds.includes(rarity.id) ? buttonColor.primary : buttonColor.default"
-            :style="rarityFilterIds.includes(rarity.id) ? { borderColor: rarity.color } : undefined"
+            :variant="rarityFilterIds.includes(rarity.id) ? 'default' : 'secondary'"
+            class="rounded-full"
             :aria-label="`Filter by ${rarity.name} rarity`"
             :aria-pressed="rarityFilterIds.includes(rarity.id)"
             @click="toggleRarityFilter(rarity.id)"
           >
-            <span class="flex items-center gap-2">
-              <span class="h-2 w-2 rounded-full" :style="{ background: rarity.color }" />
+            <span class="flex items-center gap-1.5">
+              <span class="size-2 rounded-full" :style="{ background: rarity.color }" />
               {{ rarity.name }}
             </span>
-          </SButton>
+          </Button>
         </div>
       </div>
 
-      <div v-if="availableEffects.length > 0" class="flex flex-wrap items-center gap-2 -mt-2">
-        <span class="text-sm text-gray-300">{{ t('modals.sticker.filters.effect') }}</span>
-        <SButton
+      <div v-if="availableEffects.length > 0" class="-mt-2 flex flex-wrap items-center gap-1.5">
+        <span class="mr-0.5 font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary">{{
+          t('modals.sticker.filters.effect')
+        }}</span>
+        <Button
           v-for="effect in availableEffects"
           :key="effect.id"
           size="xs"
-          variant="light"
-          :color="effectFilterIds.includes(effect.id) ? buttonColor.primary : buttonColor.default"
+          :variant="effectFilterIds.includes(effect.id) ? 'default' : 'secondary'"
+          class="rounded-full"
           :aria-label="`Filter by ${effect.label} effect`"
           :aria-pressed="effectFilterIds.includes(effect.id)"
           @click="toggleEffectFilter(effect.id)"
         >
           {{ effect.label }}
-        </SButton>
+        </Button>
       </div>
 
-      <!-- Stickers Grid -->
-      <div
-        v-if="!state.isLoading"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-      >
-        <NCard
-          v-for="item in paginatedItems"
-          :key="item.id"
-          :class="[
-            'cursor-pointer transition-all hover:shadow-lg h-full',
-            state.selectedItem?.id === item.id
-              ? 'ring-2 ring-[var(--selection-ring)] border-0 opacity-85'
-              : '',
-          ]"
-          :style="{
-            borderColor: item.rarity?.color || '#313030',
-            background: `linear-gradient(135deg, #101010, ${hexToRgba(
-              item.rarity?.color || '#313030',
-              '0.15'
-            )})`,
-          }"
-          @click="handleSelect(item)"
-        >
-          <div class="flex flex-col items-center">
-            <img
-              :src="item.image"
-              :alt="item.name"
-              class="w-full h-24 object-contain mb-2"
-              loading="lazy"
-            />
-            <p class="text-sm text-center break-words">
-              {{ item.name.replace('Sticker |', '') }}
-            </p>
-            <div class="h-1 w-full mt-2" :style="{ background: item.rarity?.color || '#313030' }" />
-          </div>
-        </NCard>
-      </div>
-
-      <!-- Skeleton Loading State -->
-      <div
-        v-if="state.isLoading"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-      >
-        <div
-          v-for="i in PAGE_SIZE"
-          :key="i"
-          class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
-        >
-          <NSkeleton height="96px" />
-          <div class="mt-3">
-            <NSkeleton text :repeat="1" />
-            <div class="mt-2">
-              <NSkeleton height="4px" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Empty State -->
-      <div
-        v-if="!state.isLoading && sortedItems.length === 0"
-        class="flex justify-center items-center h-64 text-gray-400"
-      >
-        {{ t('modals.sticker.noSearchResults') }}
-      </div>
-
-      <!-- Pagination -->
-      <div v-if="totalPages > 1" class="flex justify-center">
-        <NPagination v-model:page="state.currentPage" :page-count="totalPages" :page-slot="7" />
-      </div>
-    </NSpace>
-  </NModal>
+      <!-- Stickers Grid (skeleton / empty / items + pagination) -->
+      <ItemBrowserGrid
+        v-model:current-page="state.currentPage"
+        :items="paginatedItems"
+        :loading="state.isLoading"
+        :total-pages="totalPages"
+        :selected-id="state.selectedItem?.id ?? null"
+        :skeleton-count="PAGE_SIZE"
+        :sibling-count="2"
+        image-height="sm"
+        :empty-text="t('modals.sticker.noSearchResults') as string"
+        :item-label="(item: APISticker) => item.name.replace('Sticker |', '')"
+        @select="handleSelect"
+      />
+    </div>
+  </AppModal>
 </template>
-
-<style scoped>
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-</style>

@@ -11,13 +11,22 @@ import {
   LucideHome,
 } from '@lucide/vue'
 import type { NuxtError } from '#app'
+import { Button } from '@/components/ui/button'
+import AppBackground from '@/components/app/AppBackground.vue'
 
 interface ErrorConfig {
   icon: typeof LucideAlertTriangle
-  title: string
-  message: string
+  /** Leaf under the `errorPage.*` i18n namespace (all six locales). */
+  key: string
+  /** English defaults used when i18n is unavailable (see `tSafe`). */
+  fallbackTitle: string
+  fallbackMessage: string
+  /**
+   * Status tint (Onyx: accent yellow 404, amber auth/unavailable,
+   * destructive 5xx, violet timeout). Fed into `--sc` for the chip's
+   * radial tint and the code glow.
+   */
   color: string
-  colorRgb: string
 }
 
 const props = defineProps<{
@@ -26,63 +35,100 @@ const props = defineProps<{
 
 const isDev = import.meta.dev
 
+/*
+ * i18n guard: error.vue renders inside the Nuxt app, so nuxt-i18n-micro's
+ * plugin normally has provided $t by the time we get here. But if a plugin
+ * throws during init (including i18n's own translation loading, which throws
+ * a 404 on failure), this page renders WITHOUT $t. The error page must never
+ * crash, so every string goes through tSafe() with an English default.
+ */
+const nuxtApp = useNuxtApp()
+function tSafe(key: string, fallback: string): string {
+  const translate = nuxtApp.$t as ((key: string) => unknown) | undefined
+  if (typeof translate !== 'function') return fallback
+  try {
+    const result = translate(key)
+    if (typeof result === 'string' && result.length > 0 && result !== key) return result
+  } catch {
+    // i18n state unusable in this error context; use the English default
+  }
+  return fallback
+}
+
 const errorMap: Record<number, ErrorConfig> = {
   404: {
     icon: LucideFileQuestion,
-    title: 'Page Not Found',
-    message: 'The page you are looking for does not exist or has been moved.',
-    color: '#FACC15',
-    colorRgb: '250, 204, 21',
+    key: 'notFound',
+    fallbackTitle: 'Page Not Found',
+    fallbackMessage: 'The page you are looking for does not exist or has been moved.',
+    color: 'var(--primary)',
   },
   403: {
     icon: LucideShieldX,
-    title: 'Access Forbidden',
-    message: 'You do not have permission to access this resource.',
-    color: '#F97316',
-    colorRgb: '249, 115, 22',
+    key: 'forbidden',
+    fallbackTitle: 'Access Forbidden',
+    fallbackMessage: 'You do not have permission to access this resource.',
+    color: '#f59e0b',
   },
   401: {
     icon: LucideLock,
-    title: 'Authentication Required',
-    message: 'Please sign in to access this page.',
-    color: '#F59E0B',
-    colorRgb: '245, 158, 11',
+    key: 'unauthorized',
+    fallbackTitle: 'Authentication Required',
+    fallbackMessage: 'Please sign in to access this page.',
+    color: '#f59e0b',
   },
   500: {
     icon: LucideServerCrash,
-    title: 'Internal Server Error',
-    message: 'Something went wrong on our end. Please try again later.',
-    color: '#EF4444',
-    colorRgb: '239, 68, 68',
+    key: 'serverError',
+    fallbackTitle: 'Internal Server Error',
+    fallbackMessage: 'Something went wrong on our end. Please try again later.',
+    color: 'var(--destructive)',
   },
   408: {
     icon: LucideClock,
-    title: 'Request Timeout',
-    message: 'The request took too long to process. Please try again.',
-    color: '#8B5CF6',
-    colorRgb: '139, 92, 246',
+    key: 'timeout',
+    fallbackTitle: 'Request Timeout',
+    fallbackMessage: 'The request took too long to process. Please try again.',
+    color: '#8b5cf6',
   },
   503: {
     icon: LucideConstruction,
-    title: 'Service Unavailable',
-    message: 'The service is temporarily unavailable. Please try again in a few moments.',
-    color: '#F59E0B',
-    colorRgb: '245, 158, 11',
+    key: 'unavailable',
+    fallbackTitle: 'Service Unavailable',
+    fallbackMessage: 'The service is temporarily unavailable. Please try again in a few moments.',
+    color: '#f59e0b',
   },
 }
 
 const defaultError: ErrorConfig = {
   icon: LucideAlertTriangle,
-  title: 'Unexpected Error',
-  message: 'An unexpected error occurred. Please try again.',
-  color: '#EF4444',
-  colorRgb: '239, 68, 68',
+  key: 'unexpected',
+  fallbackTitle: 'Unexpected Error',
+  fallbackMessage: 'An unexpected error occurred. Please try again.',
+  color: 'var(--destructive)',
 }
 
 const errorConfig = computed(() => {
   const code = props.error.status ?? 0
   return errorMap[code] ?? defaultError
 })
+
+const title = computed(() =>
+  tSafe(`errorPage.${errorConfig.value.key}.title`, errorConfig.value.fallbackTitle)
+)
+const message = computed(() =>
+  tSafe(`errorPage.${errorConfig.value.key}.message`, errorConfig.value.fallbackMessage)
+)
+const goBackLabel = computed(() => tSafe('errorPage.goBack', 'Go Back'))
+const goHomeLabel = computed(() => tSafe('errorPage.goHome', 'Go Home'))
+const debugLabels = computed(() => ({
+  title: tSafe('errorPage.debug.title', 'Debug'),
+  status: tSafe('errorPage.debug.status', 'Status'),
+  statusText: tSafe('errorPage.debug.statusText', 'Status Text'),
+  message: tSafe('errorPage.debug.message', 'Message'),
+  stackTrace: tSafe('errorPage.debug.stackTrace', 'Stack Trace'),
+  none: tSafe('errorPage.debug.none', '(none)'),
+}))
 
 function handleGoBack() {
   if (window.history.length > 2) {
@@ -99,260 +145,131 @@ function handleGoHome() {
 </script>
 
 <template>
-  <div class="error-page">
-    <div class="error-bg" />
+  <!-- html/body are overflow-hidden app-wide, so the error page is its own scroller -->
+  <div class="relative h-screen overflow-x-hidden overflow-y-auto">
+    <AppBackground />
 
-    <div class="error-container">
-      <!-- Icon -->
+    <div class="flex min-h-full items-center justify-center p-6">
       <div
-        class="error-icon"
-        :style="{
-          background: `rgba(${errorConfig.colorRgb}, 0.1)`,
-          borderColor: `rgba(${errorConfig.colorRgb}, 0.15)`,
-        }"
+        class="error-panel relative z-[1] w-full max-w-[440px] rounded-[var(--radius-modal)] border border-border bg-card px-9 py-10 text-center shadow-[var(--shadow-modal)] max-[480px]:px-6 max-[480px]:py-8"
+        :style="{ '--sc': errorConfig.color }"
       >
-        <component :is="errorConfig.icon" :size="32" :color="errorConfig.color" />
-      </div>
-
-      <!-- Error code -->
-      <div class="error-code" :style="{ color: errorConfig.color }">
-        {{ error.status }}
-      </div>
-
-      <!-- Title -->
-      <h1 class="error-title">
-        {{ errorConfig.title }}
-      </h1>
-
-      <!-- Message -->
-      <p class="error-message">
-        {{ error.statusText || errorConfig.message }}
-      </p>
-
-      <!-- Debug panel (dev only) -->
-      <div v-if="isDev" class="debug-panel">
-        <div class="debug-header">Debug</div>
-        <div class="debug-row">
-          <span class="debug-key">Status</span>
-          <span class="debug-value">{{ error.status }}</span>
+        <!-- Status chip — radial rarity-glow-style tint, not a solid fill -->
+        <div
+          class="error-chip mx-auto mb-5 flex size-16 items-center justify-center rounded-[var(--radius-card)] border"
+          aria-hidden="true"
+        >
+          <component :is="errorConfig.icon" :size="30" />
         </div>
-        <div class="debug-row">
-          <span class="debug-key">Status Text</span>
-          <span class="debug-value">{{ error.statusText || '(none)' }}</span>
-        </div>
-        <div class="debug-row">
-          <span class="debug-key">Message</span>
-          <span class="debug-value">{{ error.message || '(none)' }}</span>
-        </div>
-        <div v-if="error.stack" class="debug-stack">
-          <div class="debug-key">Stack Trace</div>
-          <pre class="debug-stack-content">{{ error.stack }}</pre>
-        </div>
-      </div>
 
-      <!-- Actions -->
-      <div class="error-actions">
-        <button class="btn btn-secondary" @click="handleGoBack">
-          <LucideArrowLeft :size="16" />
-          Go Back
-        </button>
-        <button class="btn btn-primary" @click="handleGoHome">
-          <LucideHome :size="16" />
-          Go Home
-        </button>
+        <!-- Error code -->
+        <div
+          class="error-code mb-2.5 font-mono text-[68px] font-semibold leading-none tracking-[-0.03em] max-[480px]:text-[52px]"
+        >
+          {{ error.status }}
+        </div>
+
+        <!-- Title -->
+        <h1
+          class="mb-2 font-display text-[21px] font-semibold leading-snug tracking-tight text-foreground"
+        >
+          {{ title }}
+        </h1>
+
+        <!-- Message -->
+        <p class="mb-7 text-sm leading-relaxed text-muted-foreground">
+          {{ error.statusText || message }}
+        </p>
+
+        <!-- Debug panel (dev only) -->
+        <div
+          v-if="isDev"
+          class="mb-7 rounded-[var(--radius-ctl)] border border-border bg-black/30 px-3 py-2.5 text-left font-mono text-[11px]"
+        >
+          <div class="mb-1.5 text-[10px] uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+            {{ debugLabels.title }}
+          </div>
+          <div class="flex justify-between gap-3 py-[3px]">
+            <span class="shrink-0 text-[var(--text-tertiary)]">{{ debugLabels.status }}</span>
+            <span class="break-all text-right text-muted-foreground">{{ error.status }}</span>
+          </div>
+          <div class="flex justify-between gap-3 py-[3px]">
+            <span class="shrink-0 text-[var(--text-tertiary)]">{{ debugLabels.statusText }}</span>
+            <span class="break-all text-right text-muted-foreground">{{
+              error.statusText || debugLabels.none
+            }}</span>
+          </div>
+          <div class="flex justify-between gap-3 py-[3px]">
+            <span class="shrink-0 text-[var(--text-tertiary)]">{{ debugLabels.message }}</span>
+            <span class="break-all text-right text-muted-foreground">{{
+              error.message || debugLabels.none
+            }}</span>
+          </div>
+          <div v-if="error.stack" class="mt-2 border-t border-border pt-2">
+            <div class="text-[10px] uppercase tracking-[0.12em] text-[var(--text-tertiary)]">
+              {{ debugLabels.stackTrace }}
+            </div>
+            <pre
+              class="mt-1 max-h-[200px] overflow-y-auto rounded-[6px] bg-black/30 p-2 text-[10px] break-all whitespace-pre-wrap text-muted-foreground"
+              >{{ error.stack }}</pre>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex gap-2.5 max-[400px]:flex-col">
+          <Button variant="secondary" class="flex-1" @click="handleGoBack">
+            <LucideArrowLeft :size="16" />
+            {{ goBackLabel }}
+          </Button>
+          <Button class="flex-1" @click="handleGoHome">
+            <LucideHome :size="16" />
+            {{ goHomeLabel }}
+          </Button>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped lang="sass">
-// Full-page blurred backdrop with dot grid
-.error-page
-  min-height: 100vh
-  display: flex
-  align-items: center
-  justify-content: center
-  padding: 24px
-  background: rgba(0, 0, 0, 0.6)
-  backdrop-filter: blur(8px) saturate(120%)
-  -webkit-backdrop-filter: blur(8px) saturate(120%)
-  position: relative
-  overflow: hidden
+<style scoped>
+/* Panel entrance */
+.error-panel {
+  animation: cardIn var(--dur-slow) var(--ease-out) both;
+}
 
-.error-bg
-  position: absolute
-  inset: 0
-  z-index: 0
-  background: #000000
-  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.2) 1.5px, transparent 1.5px)
-  background-size: 40px 40px
-  background-position: 0 0
-  mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
-  -webkit-mask-image: linear-gradient(to bottom right, black 10%, transparent 100%)
+@keyframes cardIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
 
-// Glass card (matches .n-modal > .n-card)
-.error-container
-  width: 100%
-  max-width: 440px
-  position: relative
-  z-index: 1
-  backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
-  -webkit-backdrop-filter: var(--glass-blur-strong) var(--glass-saturation)
-  background: var(--glass-bg-primary, rgba(16, 16, 16, 0.70))
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1))
-  border-radius: 18px
-  padding: 40px 36px
-  text-align: center
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.9), 0 16px 32px rgba(0, 0, 0, 0.7), 0 8px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-  animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1)
+/* Status chip — the light the status casts on the surface */
+.error-chip {
+  color: var(--sc);
+  border-color: color-mix(in srgb, var(--sc) 22%, transparent);
+  background: radial-gradient(
+    80% 80% at 50% 32%,
+    color-mix(in srgb, var(--sc) 20%, transparent),
+    transparent 75%
+  );
+}
 
-@keyframes cardIn
-  from
-    opacity: 0
-    transform: scale(0.95) translateY(12px)
-  to
-    opacity: 1
-    transform: scale(1) translateY(0)
+/* Error code — status-tinted glow, kept subtle */
+.error-code {
+  color: var(--sc);
+  text-shadow:
+    0 0 44px color-mix(in srgb, var(--sc) 42%, transparent),
+    0 0 12px color-mix(in srgb, var(--sc) 18%, transparent);
+}
 
-.error-icon
-  width: 64px
-  height: 64px
-  display: flex
-  align-items: center
-  justify-content: center
-  border: 1px solid
-  border-radius: 16px
-  margin: 0 auto 20px
-
-.error-code
-  font-family: 'JetBrains Mono', monospace
-  font-size: 64px
-  font-weight: 800
-  line-height: 1
-  margin-bottom: 8px
-  letter-spacing: -2px
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.5)
-
-.error-title
-  font-size: 20px
-  font-weight: 700
-  color: rgba(255, 255, 255, 0.95)
-  margin: 0 0 8px
-  line-height: 1.3
-
-.error-message
-  font-size: 14px
-  color: rgba(255, 255, 255, 0.55)
-  margin: 0 0 28px
-  line-height: 1.5
-
-// Debug
-.debug-panel
-  text-align: left
-  font-family: 'JetBrains Mono', monospace
-  font-size: 11px
-  background: rgba(0, 0, 0, 0.3)
-  border: 1px solid rgba(255, 255, 255, 0.06)
-  border-radius: 10px
-  padding: 10px 12px
-  margin-bottom: 28px
-
-.debug-header
-  color: rgba(255, 255, 255, 0.3)
-  font-size: 10px
-  text-transform: uppercase
-  letter-spacing: 0.5px
-  margin-bottom: 6px
-
-.debug-row
-  display: flex
-  justify-content: space-between
-  gap: 12px
-  padding: 3px 0
-
-.debug-key
-  color: rgba(255, 255, 255, 0.3)
-  flex-shrink: 0
-
-.debug-value
-  color: #60a5fa
-  word-break: break-all
-  text-align: right
-
-.debug-stack
-  margin-top: 8px
-  padding-top: 8px
-  border-top: 1px solid rgba(255, 255, 255, 0.06)
-
-.debug-stack-content
-  font-size: 10px
-  color: #60a5fa
-  white-space: pre-wrap
-  word-break: break-all
-  max-height: 200px
-  overflow-y: auto
-  margin-top: 4px
-  padding: 8px
-  background: rgba(0, 0, 0, 0.3)
-  border-radius: 4px
-
-// Actions — side by side
-.error-actions
-  display: flex
-  gap: 10px
-
-  @media (max-width: 400px)
-    flex-direction: column
-
-.btn
-  display: flex
-  flex: 1
-  align-items: center
-  justify-content: center
-  gap: 8px
-  padding: 11px 20px
-  border: none
-  border-radius: 10px
-  font-size: 13px
-  font-weight: 600
-  cursor: pointer
-  transition: all 0.2s ease
-  backdrop-filter: var(--glass-blur-light)
-  -webkit-backdrop-filter: var(--glass-blur-light)
-  font-family: inherit
-
-  &:active
-    transform: scale(0.98)
-
-.btn-primary
-  background: linear-gradient(180deg, rgba(250, 204, 21, 0.18), rgba(250, 204, 21, 0.06)), rgba(16, 16, 16, 0.55)
-  color: #FACC15
-  box-shadow: 0 4px 12px rgba(250, 204, 21, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.12)
-
-  &:hover
-    box-shadow: 0 6px 16px rgba(250, 204, 21, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.16)
-
-.btn-secondary
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.10), rgba(255, 255, 255, 0.03)), rgba(16, 16, 16, 0.55)
-  color: rgba(255, 255, 255, 0.75)
-  border: 1px solid rgba(255, 255, 255, 0.14)
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08)
-
-  &:hover
-    border-color: rgba(255, 255, 255, 0.18)
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.12)
-
-@media (max-width: 480px)
-  .error-container
-    padding: 32px 24px
-
-  .error-code
-    font-size: 48px
-
-@media (prefers-reduced-motion: reduce)
-  .error-container
-    animation: none
-
-  .btn
-    transition: none
+@media (prefers-reduced-motion: reduce) {
+  .error-panel {
+    animation: none;
+  }
+}
 </style>

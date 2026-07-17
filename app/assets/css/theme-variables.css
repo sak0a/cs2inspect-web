@@ -1,11 +1,22 @@
-/* Theme CSS Variables */
+/*
+ * Legacy theme variables — re-aliased to the Onyx token layer.
+ *
+ * Every var NAME is preserved (~300 scoped-style usages across 30+ files);
+ * VALUES now point at / match the tokens in tailwind.css. These are burned
+ * down opportunistically — new code should use the shadcn/Onyx tokens
+ * (--background, --card, --surface-2, --border, ...) directly.
+ *
+ * Safe to alias with nested var(): no consumer wraps these in rgba(var(...))
+ * or sass color functions (verified 2026-07-15; the only rgba(var()) pattern
+ * in the app uses --admin-accent-rgb, defined locally in admin components).
+ */
 
 :root {
   /* Base colors */
   --color-black: #000000;
   --color-white: #ffffff;
 
-  /* Gray scale */
+  /* Gray scale (unchanged ramp) */
   --color-gray-50: #fafafa;
   --color-gray-100: #f5f5f5;
   --color-gray-200: #e5e5e5;
@@ -19,176 +30,66 @@
   --color-gray-950: #0a0a0a;
 
   /* Background colors */
-  --bg-primary: #121212;
-  --bg-dark: #101010;
-  --bg-secondary: #1a1a1a;
-  --bg-tertiary: #242424;
-  --bg-hover: #2a2a2a;
-  --bg-quaternary: #2c2c2c;
+  --bg-primary: var(--background); /* #070708 */
+  --bg-dark: #050506;
+  --bg-secondary: #101012;
+  --bg-tertiary: var(--card); /* #0e0e10 */
+  --bg-hover: #1a1a1e;
+  --bg-quaternary: #1a1a1e;
 
   /* Component backgrounds */
-  --card-bg: #242424;
-  --modal-bg: #121212;
-  --dropdown-bg: #242424;
-  --tab-bg: #1a1a1a;
-  --tab-active-bg: #2c2c2c;
+  --card-bg: var(--card); /* #0e0e10 */
+  --modal-bg: #0e0e10;
+  --dropdown-bg: var(--popover); /* #141417 */
+  --tab-bg: #141417;
+  --tab-active-bg: #1a1a1e;
 
   /* Text colors */
-  --text-primary: #ffffff;
-  --text-secondary: #d4d4d4;
-  --text-tertiary: #a3a3a3;
-  --text-inverted: #000000;
+  --text-primary: #f2f2f4;
+  --text-secondary: #a2a2aa;
+  --text-tertiary: #67676f;
+  --text-inverted: #0a0a00;
 
-  /* Border colors */
-  --border-color: #333333;
-  --border-subtle: #313030;
-  --border-light: #444444;
+  /* Border colors (hairlines — rgba is intentional here) */
+  --border-color: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.07);
+  --border-light: rgba(255, 255, 255, 0.13);
 
   /* UI element colors */
   --tab-indicator: #facc15;
   --selection-ring: #facc15;
   --hover-overlay: rgba(255, 255, 255, 0.05);
-  --shadow-color: rgba(0, 0, 0, 0.5);
+  --shadow-color: rgba(0, 0, 0, 0.6);
 
-  /* Primary colors */
+  /* Primary colors (hover/pressed are luminance shifts, never amber) */
   --primary-color: #facc15;
-  --primary-color-hover: #f59e0b;
-  --primary-color-pressed: #ca8a04;
+  --primary-color-hover: #fde047;
+  --primary-color-pressed: #eab308;
 
-  /* Glassmorphism variables */
-  --glass-bg-primary: rgba(16, 16, 16, 0.7);
-  --glass-bg-secondary: rgba(36, 36, 36, 0.65);
-  --glass-border: rgba(255, 255, 255, 0.1);
-  --glass-border-light: rgba(255, 255, 255, 0.08);
+  /* Glassmorphism variables — retired as primary surface language;
+   * retuned darker/near-opaque, blur values unchanged */
+  --glass-bg-primary: rgba(12, 12, 14, 0.88);
+  --glass-bg-secondary: rgba(20, 20, 23, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-light: rgba(255, 255, 255, 0.06);
   --glass-blur-strong: blur(12px);
   --glass-blur-medium: blur(10px);
   --glass-blur-light: blur(6px);
   --glass-saturation: saturate(180%);
 
-  /* Admin glassmorphism (more transparent, stronger blur) */
-  --admin-glass-bg: rgba(255, 255, 255, 0.025);
-  --admin-glass-bg-hover: rgba(255, 255, 255, 0.045);
+  /* Admin glassmorphism — hairlines aligned to Onyx border tokens,
+   * blur values unchanged */
+  --admin-glass-bg: rgba(255, 255, 255, 0.03);
+  --admin-glass-bg-hover: rgba(255, 255, 255, 0.05);
   --admin-glass-border: rgba(255, 255, 255, 0.07);
-  --admin-glass-border-hover: rgba(255, 255, 255, 0.12);
+  --admin-glass-border-hover: rgba(255, 255, 255, 0.13);
   --admin-glass-blur: blur(20px);
   --admin-glass-blur-strong: blur(28px);
   --admin-glass-blur-light: blur(14px);
   --admin-glass-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 
-  /* Skin card backgrounds */
-  --skin-card-bg: #242424;
-  --skin-card-gradient-start: #1a1a1a;
-  --skin-card-gradient-end: #2c2c2c;
-
-  /* SButton design system tokens */
-  --s-primary: var(--primary-color);
-  --s-primary-alpha: rgba(250, 204, 21, 0.15);
-  --s-error: #e88080;
-  --s-error-alpha: rgba(232, 128, 128, 0.15);
-  --s-success: #63e2b7;
-  --s-success-alpha: rgba(99, 226, 183, 0.15);
-  --s-info: #70c0e8;
-  --s-info-alpha: rgba(112, 192, 232, 0.15);
-  --s-warning: #f2c97d;
-  --s-warning-alpha: rgba(242, 201, 125, 0.15);
-  --s-default: var(--text-secondary);
-  --s-default-alpha: rgba(255, 255, 255, 0.08);
-  --s-bg-primary: var(--bg-primary);
-  --s-bg-tertiary: var(--bg-tertiary);
-
-  /* Glass button tokens */
-  --s-glass-btn-bg: rgba(255, 255, 255, 0.06);
-  --s-glass-btn-bg-hover: rgba(255, 255, 255, 0.1);
-  --s-glass-btn-border: rgba(255, 255, 255, 0.12);
-
-  /* Glass button glow colors (higher opacity for visible specular highlight) */
-  --s-glass-glow-default: rgba(255, 255, 255, 0.25);
-  --s-glass-glow-primary: rgba(250, 204, 21, 0.35);
-  --s-glass-glow-error: rgba(232, 128, 128, 0.4);
-  --s-glass-glow-success: rgba(99, 226, 183, 0.35);
-  --s-glass-glow-info: rgba(112, 192, 232, 0.35);
-  --s-glass-glow-warning: rgba(242, 201, 125, 0.35);
-}
-
-/* Light theme overrides */
-.light-theme {
-  /* Background colors */
-  --bg-primary: #f8f8f8;
-  --bg-dark: #f0f0f0;
-  --bg-secondary: #f0f0f0;
-  --bg-tertiary: #e5e5e5;
-  --bg-hover: #e0e0e0;
-  --bg-quaternary: #d8d8d8;
-
-  /* Component backgrounds */
-  --card-bg: #ffffff;
-  --modal-bg: #ffffff;
-  --dropdown-bg: #ffffff;
-  --tab-bg: #f0f0f0;
-  --tab-active-bg: #ffffff;
-
-  /* Text colors */
-  --text-primary: #000000;
-  --text-secondary: #404040;
-  --text-tertiary: #737373;
-  --text-inverted: #ffffff;
-
-  /* Border colors */
-  --border-color: #d4d4d4;
-  --border-subtle: #c8c8c8;
-  --border-light: #e5e5e5;
-
-  /* UI element colors */
-  --tab-indicator: #facc15;
-  --selection-ring: #facc15;
-  --hover-overlay: rgba(0, 0, 0, 0.05);
-  --shadow-color: rgba(0, 0, 0, 0.1);
-
-  /* Primary colors */
-  --primary-color: #facc15;
-  --primary-color-hover: #f59e0b;
-  --primary-color-pressed: #ca8a04;
-
-  /* Glassmorphism variables for light theme */
-  --glass-bg-primary: rgba(255, 255, 255, 0.7);
-  --glass-bg-secondary: rgba(240, 240, 240, 0.65);
-  --glass-border: rgba(0, 0, 0, 0.1);
-  --glass-border-light: rgba(0, 0, 0, 0.08);
-  --glass-blur-strong: blur(12px);
-  --glass-blur-medium: blur(10px);
-  --glass-blur-light: blur(6px);
-  --glass-saturation: saturate(180%);
-
-  /* Skin card backgrounds */
-  --skin-card-bg: #ffffff;
-  --skin-card-gradient-start: #f5f5f5;
-  --skin-card-gradient-end: #e5e5e5;
-
-  /* SButton design system tokens (light overrides) */
-  --s-primary-alpha: rgba(250, 204, 21, 0.12);
-  --s-error: #d03050;
-  --s-error-alpha: rgba(208, 48, 80, 0.12);
-  --s-success: #18a058;
-  --s-success-alpha: rgba(24, 160, 88, 0.12);
-  --s-info: #2080f0;
-  --s-info-alpha: rgba(32, 128, 240, 0.12);
-  --s-warning: #f0a020;
-  --s-warning-alpha: rgba(240, 160, 32, 0.12);
-  --s-default: var(--text-secondary);
-  --s-default-alpha: rgba(0, 0, 0, 0.06);
-  --s-bg-primary: var(--bg-primary);
-  --s-bg-tertiary: var(--bg-tertiary);
-
-  /* Glass button tokens */
-  --s-glass-btn-bg: rgba(0, 0, 0, 0.05);
-  --s-glass-btn-bg-hover: rgba(0, 0, 0, 0.08);
-  --s-glass-btn-border: rgba(0, 0, 0, 0.1);
-
-  /* Glass button glow colors for light theme (dark-tinted for visibility on light backgrounds) */
-  --s-glass-glow-default: rgba(0, 0, 0, 0.12);
-  --s-glass-glow-primary: rgba(202, 138, 4, 0.3);
-  --s-glass-glow-error: rgba(208, 48, 80, 0.3);
-  --s-glass-glow-success: rgba(24, 160, 88, 0.3);
-  --s-glass-glow-info: rgba(32, 128, 240, 0.3);
-  --s-glass-glow-warning: rgba(240, 160, 32, 0.3);
+  /* Skin card backgrounds — flat Onyx surface (gradients collapsed) */
+  --skin-card-bg: #0e0e10;
+  --skin-card-gradient-start: #0e0e10;
+  --skin-card-gradient-end: #0e0e10;
 }

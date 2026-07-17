@@ -1,6 +1,9 @@
 {
   "title": "Gants",
   "selectGloveType": "Sélectionner le type de gant",
+  "typeLabel": "Type de gants",
+  "emptyTitle": "Aucun gant à afficher",
+  "reload": "Recharger",
   "noGloves": "Aucun gant disponible pour ce loadout",
   "defaultGloves": "Gants par défaut"
 }

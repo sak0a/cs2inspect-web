@@ -1,4 +1,11 @@
 {
+  "itemPage": {
+    "configuredCount": "{configured} / {total} geconfigureerd"
+  },
+  "itemCard": {
+    "notConfigured": "Niet geconfigureerd",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "WAPENS",
     "melee": "NAHGEVECHT",
@@ -8,7 +15,8 @@
     "loadout": "Loadout",
     "theme": "Thema",
     "mainNav": "Hoofdnavigatie",
-    "settings": "Instellingen"
+    "settings": "Instellingen",
+    "openMenu": "Menu openen"
   },
   "weapons": {
     "rifles": "Geweren",
@@ -27,16 +35,44 @@
     "inspects": "Inspecties",
     "home": "Home"
   },
+  "agents": {
+    "selectAgent": "Selecteer agent",
+    "noAgentsAvailable": "Geen agenten beschikbaar",
+    "noAgentsForTeam": "Geen agenten beschikbaar voor dit team"
+  },
+  "musicKits": {
+    "selectKit": "Selecteer muziekkit",
+    "searchPlaceholder": "Zoek muziekkits...",
+    "noKitsAvailable": "Geen muziekkits beschikbaar",
+    "noResultsSearch": "Geen muziekkits gevonden voor \"{query}\""
+  },
+  "pins": {
+    "selectPin": "Selecteer pin",
+    "searchPlaceholder": "Zoek pins...",
+    "noPinsAvailable": "Geen pins beschikbaar",
+    "noResultsSearch": "Geen pins gevonden voor \"{query}\""
+  },
   "teams": {
     "terrorists": "Terroristen",
-    "counterTerrorists": "Anti-terroristen"
+    "counterTerrorists": "Anti-terroristen",
+    "terroristsShort": "T",
+    "counterTerroristsShort": "CT",
+    "selectTeam": "Team selecteren"
   },
   "wears": {
     "factoryNew": "Fabrieksnieuw",
     "minimalWear": "Minimale slijtage",
     "fieldTested": "Veldgetest",
     "wellWorn": "Goed versleten",
-    "battleScarred": "Gevechtssporen"
+    "battleScarred": "Gevechtssporen",
+    "floatValue": "Floatwaarde",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "skins": {
     "title": "Skins",
@@ -44,6 +80,12 @@
     "selectSkin": "Selecteer skin voor {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Patroon"
+      }
+    },
     "logout": {
       "title": "Afmelden bevestigen",
       "question": "Weet je zeker dat je wilt afmelden?",
@@ -195,13 +237,15 @@
         "title": "Nieuw loadout maken",
         "confirm": "Maken",
         "cancel": "Annuleren",
-        "formPlaceholder": "Voer een naam in voor je nieuwe loadout"
+        "formPlaceholder": "Voer een naam in voor je nieuwe loadout",
+        "successMessage": "Loadout succesvol aangemaakt"
       },
       "rename": {
         "title": "Loadout hernoemen",
         "confirm": "Hernoemen",
         "cancel": "Annuleren",
-        "formPlaceholder": "Voer een nieuwe naam in voor je loadout"
+        "formPlaceholder": "Voer een nieuwe naam in voor je loadout",
+        "successMessage": "Loadout succesvol hernoemd"
       },
       "delete": {
         "title": "Loadout verwijderen",
@@ -210,7 +254,8 @@
         "question": "Weet je zeker dat je dit loadout wilt verwijderen?",
         "warning": "Alle skins van dit loadout worden verwijderd en kunnen niet worden hersteld",
         "confirmText": "Typ '{name}' om verwijdering te bevestigen:",
-        "confirmPlaceholder": "Voer loadoutnaam in om te bevestigen"
+        "confirmPlaceholder": "Voer loadoutnaam in om te bevestigen",
+        "successMessage": "Loadout succesvol verwijderd"
       },
       "share": {
         "title": "Loadout delen {name}",
@@ -396,6 +441,9 @@
     "manage": "Loadout beheren",
     "select": "Selecteer een loadout",
     "createDefault": "Standaard loadout maken",
+    "defaultTag": "Standaard",
+    "noLoadoutTitle": "Geen loadout geselecteerd",
+    "noLoadoutHint": "Selecteer of maak een loadout om je items aan te passen.",
     "confirmDelete": "Weet je zeker dat je dit loadout wilt verwijderen?",
     "confirmDeleteWarning": "Alle skins van dit loadout worden verwijderd en kunnen niet worden hersteld",
     "nameRequired": "Voer een loadoutnaam in",
@@ -417,14 +465,21 @@
     "loginButton": "Inloggen",
     "logoutButton": "Uitloggen",
     "loginRequired": "Om toegang te krijgen tot deze website, log in met je Steam-account.",
+    "loginRequiredTitle": "Inloggen vereist",
     "automaticallyLoggedOut": "Je bent automatisch uitgelogd",
     "confirmLogout": "Weet je zeker dat je wilt uitloggen?",
     "rejectAction": "Log in om deze actie uit te voeren",
     "authenticating": "Authenticeren...",
-    "openSteamProfile": "Steam-profiel openen"
+    "openSteamProfile": "Steam-profiel openen",
+    "heroTagline": "Stel je CS2-loadout samen en bekijk skins, floats en stickers in realtime."
   },
   "general": {
-    "copiedToClipboard": "Gekopieerd naar klembord"
+    "copiedToClipboard": "Gekopieerd naar klembord",
+    "dismiss": "Verbergen"
+  },
+  "maintenance": {
+    "title": "Onderhoud",
+    "description": "De site is momenteel in onderhoud. Kom later terug."
   },
   "autoSave": {
     "saving": "Opslaan...",
@@ -477,6 +532,7 @@
     "selectAll": "Alles selecteren",
     "noResults": "Geen resultaten gevonden",
     "pleaseSelectLoadout": "Selecteer eerst een loadout",
+    "clearSearch": "Zoekopdracht wissen",
     "for": "voor",
     "copy": "Kopiëren"
   },
@@ -658,5 +714,45 @@
   },
   "admin": {
     "panelTitle": "Beheerderspaneel"
+  },
+  "errorPage": {
+    "notFound": {
+      "title": "Pagina niet gevonden",
+      "message": "De pagina die je zoekt bestaat niet of is verplaatst."
+    },
+    "forbidden": {
+      "title": "Toegang geweigerd",
+      "message": "Je hebt geen toestemming om deze bron te openen."
+    },
+    "unauthorized": {
+      "title": "Aanmelden vereist",
+      "message": "Log in om deze pagina te bekijken."
+    },
+    "serverError": {
+      "title": "Interne serverfout",
+      "message": "Er is iets misgegaan aan onze kant. Probeer het later opnieuw."
+    },
+    "timeout": {
+      "title": "Time-out van verzoek",
+      "message": "Het verzoek duurde te lang om te verwerken. Probeer het opnieuw."
+    },
+    "unavailable": {
+      "title": "Dienst niet beschikbaar",
+      "message": "De dienst is tijdelijk niet beschikbaar. Probeer het over enkele ogenblikken opnieuw."
+    },
+    "unexpected": {
+      "title": "Onverwachte fout",
+      "message": "Er is een onverwachte fout opgetreden. Probeer het opnieuw."
+    },
+    "goBack": "Terug",
+    "goHome": "Naar startpagina",
+    "debug": {
+      "title": "Foutopsporing",
+      "status": "Status",
+      "statusText": "Statustekst",
+      "message": "Bericht",
+      "stackTrace": "Stacktrace",
+      "none": "(geen)"
+    }
   }
 }

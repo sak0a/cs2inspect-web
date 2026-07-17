@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LucideRefreshCw as RefreshIcon } from '@lucide/vue'
+import { LucideRefreshCw as RefreshIcon, LucideChevronRight as ChevronRightIcon } from '@lucide/vue'
 import type { HealthCheck } from '~/composables/useAdminHealth'
 
 interface Props {
@@ -17,6 +17,12 @@ const emit = defineEmits<{
 
 const metadataExpanded = ref<string[]>(props.check.status === 'fail' ? ['metadata'] : [])
 
+const isMetadataOpen = computed(() => metadataExpanded.value.includes('metadata'))
+
+function handleMetadataToggle(open: boolean) {
+  metadataExpanded.value = open ? ['metadata'] : []
+}
+
 // Display name mapping
 const displayNameMap: Record<string, string> = {
   database: 'Database',
@@ -30,9 +36,9 @@ const displayNameMap: Record<string, string> = {
 const displayName = computed(() => displayNameMap[props.check.name] || props.check.name)
 
 const statusIcon = computed(() => {
-  if (props.check.status === 'ok') return '\u2713'
-  if (props.check.status === 'degraded') return '\u26A0'
-  return '\u2717'
+  if (props.check.status === 'ok') return '✓'
+  if (props.check.status === 'degraded') return '⚠'
+  return '✗'
 })
 
 const statusLabel = computed(() => {
@@ -41,10 +47,18 @@ const statusLabel = computed(() => {
   return 'Failed'
 })
 
-const statusTagType = computed(() => {
-  if (props.check.status === 'ok') return 'success'
-  if (props.check.status === 'degraded') return 'warning'
-  return 'error'
+// Pill (tag) recipes for the old success/warning/error/default tag types
+const badgeTypeClasses = {
+  success: 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400',
+  warning: 'border-amber-500/30 bg-amber-500/15 text-amber-400',
+  error: 'border-red-500/30 bg-red-500/15 text-red-400',
+  default: 'border-white/10 bg-white/5 text-gray-300',
+} as const
+
+const statusBadgeClass = computed(() => {
+  if (props.check.status === 'ok') return badgeTypeClasses.success
+  if (props.check.status === 'degraded') return badgeTypeClasses.warning
+  return badgeTypeClasses.error
 })
 
 const statusBorderColor = computed(() => {
@@ -100,26 +114,19 @@ function formatValue(value: unknown): string {
       <div class="health-card-title-section">
         <span class="status-icon" :class="`status-icon--${check.status}`">{{ statusIcon }}</span>
         <h3 class="health-card-name">{{ displayName }}</h3>
-        <NTag :type="statusTagType" size="small" round>
+        <Badge variant="outline" :class="statusBadgeClass">
           {{ statusLabel }}
-        </NTag>
+        </Badge>
       </div>
       <div class="health-card-actions">
         <span v-if="check.latency_ms !== undefined" class="latency-badge">
           {{ check.latency_ms }}ms
         </span>
-        <SButton
-          variant="ghost"
-          icon-only
-          rounded="full"
-          size="sm"
-          :loading="loading"
-          @click="emit('recheck')"
-        >
+        <Button variant="ghost" size="icon-sm" :loading="loading" @click="emit('recheck')">
           <template #icon-left>
             <RefreshIcon :size="14" />
           </template>
-        </SButton>
+        </Button>
       </div>
     </div>
 
@@ -129,15 +136,15 @@ function formatValue(value: unknown): string {
         <span class="uptime-label">Uptime (1h)</span>
         <span class="uptime-value">{{ uptimePercentage.toFixed(1) }}%</span>
       </div>
-      <NProgress
-        type="line"
-        :percentage="uptimePercentage"
-        :show-indicator="false"
-        :color="uptimeColor"
-        rail-color="rgba(255, 255, 255, 0.05)"
-        :height="6"
-        :border-radius="3"
-      />
+      <div class="uptime-track">
+        <div
+          class="uptime-fill"
+          :style="{
+            width: `${Math.min(Math.max(uptimePercentage, 0), 100)}%`,
+            backgroundColor: uptimeColor,
+          }"
+        />
+      </div>
     </div>
 
     <!-- Message -->
@@ -151,11 +158,17 @@ function formatValue(value: unknown): string {
 
     <!-- Metadata Details (collapsible) -->
     <div v-if="hasMetadata" class="health-card-details">
-      <NCollapse v-model:expanded-names="metadataExpanded" arrow-placement="left">
-        <NCollapseItem title="Details" name="metadata">
-          <template #header-extra>
-            <span class="details-count">{{ metadataEntries.length }} fields</span>
-          </template>
+      <Collapsible :open="isMetadataOpen" @update:open="handleMetadataToggle">
+        <CollapsibleTrigger class="details-header">
+          <ChevronRightIcon
+            :size="14"
+            class="shrink-0 transition-transform duration-200"
+            :class="{ 'rotate-90': isMetadataOpen }"
+          />
+          <span>Details</span>
+          <span class="details-count">{{ metadataEntries.length }} fields</span>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
           <div class="metadata-table">
             <div
               v-for="entry in metadataEntries"
@@ -171,15 +184,15 @@ function formatValue(value: unknown): string {
                     (empty)
                   </div>
                   <div v-else class="metadata-tags">
-                    <NTag
+                    <Badge
                       v-for="(item, i) in entry.value as unknown[]"
                       :key="i"
-                      size="tiny"
-                      :type="entry.isError ? 'error' : 'default'"
-                      round
+                      variant="outline"
+                      class="px-1.5 py-0 text-[10px]"
+                      :class="entry.isError ? badgeTypeClasses.error : badgeTypeClasses.default"
                     >
                       {{ String(item) }}
-                    </NTag>
+                    </Badge>
                   </div>
                 </template>
 
@@ -190,9 +203,13 @@ function formatValue(value: unknown): string {
 
                 <!-- Boolean values -->
                 <template v-else-if="typeof entry.value === 'boolean'">
-                  <NTag :type="entry.value ? 'success' : 'error'" size="tiny" round>
+                  <Badge
+                    variant="outline"
+                    class="px-1.5 py-0 text-[10px]"
+                    :class="entry.value ? badgeTypeClasses.success : badgeTypeClasses.error"
+                  >
                     {{ entry.value }}
-                  </NTag>
+                  </Badge>
                 </template>
 
                 <!-- Scalar values -->
@@ -209,8 +226,8 @@ function formatValue(value: unknown): string {
               </div>
             </div>
           </div>
-        </NCollapseItem>
-      </NCollapse>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   </div>
 </template>
@@ -298,6 +315,18 @@ function formatValue(value: unknown): string {
     font-family: 'SF Mono', 'Fira Code', monospace
     color: rgba(255, 255, 255, 0.7)
 
+// Thin uptime progress bar (replacement for the old line progress)
+.uptime-track
+    height: 6px
+    border-radius: 3px
+    background: rgba(255, 255, 255, 0.05)
+    overflow: hidden
+
+.uptime-fill
+    height: 100%
+    border-radius: 3px
+    transition: width 0.3s ease, background-color 0.3s ease
+
 .health-card-message
     font-size: 13px
     color: rgba(255, 255, 255, 0.65)
@@ -316,16 +345,35 @@ function formatValue(value: unknown): string {
     border-top: 1px solid rgba(255, 255, 255, 0.06)
     padding-top: 8px
 
+// Collapsible header (port of the old collapse-item header overrides)
+.details-header
+    display: flex
+    align-items: center
+    gap: 8px
+    width: 100%
+    padding: 8px 0
+    background: transparent
+    border: none
+    text-align: left
+    font-size: 13px
+    font-weight: 500
+    color: rgba(255, 255, 255, 0.6)
+
+    &:hover
+        color: rgba(255, 255, 255, 0.8)
+
 .details-count
+    margin-left: auto
     font-size: 11px
     color: rgba(255, 255, 255, 0.35)
     font-family: 'SF Mono', 'Fira Code', monospace
 
-// Metadata table
+// Metadata table (port of the old collapse content-inner padding)
 .metadata-table
     display: flex
     flex-direction: column
     gap: 6px
+    padding-top: 8px
 
 .metadata-row
     display: grid
@@ -383,16 +431,4 @@ function formatValue(value: unknown): string {
 .metadata-empty
     font-style: italic
     color: rgba(255, 255, 255, 0.3)
-
-// Override NCollapse styles for dark theme
-:deep(.n-collapse-item__header)
-    padding: 8px 0 !important
-
-:deep(.n-collapse-item__header-main)
-    font-size: 13px !important
-    font-weight: 500
-    color: rgba(255, 255, 255, 0.6) !important
-
-:deep(.n-collapse-item__content-inner)
-    padding-top: 8px !important
 </style>

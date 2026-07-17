@@ -3,6 +3,7 @@ import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { IEnhancedKnife, IEnhancedItem, KnifeConfiguration, UserProfile } from '~/types'
 import { toSteamId } from '~/types/core/common'
+import knifeSilhouette from '~/assets/svg/weapon_knife.svg'
 
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedKnife[]>([])
@@ -18,11 +19,21 @@ const selectedTeamKnives = ref({
 })
 
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 const { t } = useI18n()
-const { teamSide } = useTeamToggle()
+const { teamSide, teamNumber } = useTeamToggle()
 const otherTeamHasSkin = useOtherTeamSkin(selectedKnife, skins)
 const groupedKnives = useGroupedWeapons(skins)
+
+// Heading micro-label counts, derived from already-loaded grid data:
+// a knife counts as configured when it has a DB entry for the active team.
+const totalCount = computed(() => Object.keys(groupedKnives.value).length)
+const configuredCount = computed(
+  () =>
+    Object.values(groupedKnives.value).filter((data) =>
+      data.weapons.some((w) => w.databaseInfo?.team === teamNumber.value)
+    ).length
+)
 
 // Single knife type computed that reacts to global team toggle
 const currentKnifeType = computed({
@@ -75,6 +86,18 @@ const handleKnifeTypeChange = async (team: 't' | 'ct', knifeDefindex: number) =>
       console.error(error)
       message.error('Failed to update Knife Type')
     })
+}
+
+// Display label for the current selection (reka Select won't show a preselected
+// option's label until the menu is opened, so derive it from the options list).
+const currentKnifeLabel = computed(
+  () => knifeOptions.value.find((o) => o.value === currentKnifeType.value)?.label
+)
+
+const onKnifeTypeChange = (val: unknown) => {
+  const defindex = Number(val)
+  currentKnifeType.value = defindex
+  handleKnifeTypeChange(teamSide.value, defindex)
 }
 
 const fetchLoadoutKnives = async () => {
@@ -259,7 +282,11 @@ const handleKnifeDuplicate = async (knife: IEnhancedKnife, customization: KnifeC
   }
 }
 
-// No animation code
+// Motion: cards stagger in after every load/refetch (initial, SSE, auto-save
+// silent refresh — all toggle isLoading). The grid shows both teams, so team
+// switches don't remount it and need no wipe here.
+const gridRef = ref<HTMLElement | null>(null)
+useGridReveal(gridRef, { watch: () => isLoading.value })
 
 // Real-time sync: listen for plugin-originated changes
 const { connect: connectSync, onSyncEvent } = useSyncEvents()
@@ -320,71 +347,84 @@ watch(
   <div class="p-4">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
-        title="Knives"
+        :title="t('melee.knives') as string"
         :user="user"
         :error="error || ''"
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
+        :configured-count="isLoading ? null : configuredCount"
+        :total-count="isLoading ? null : totalCount"
       />
       <!-- Knife Type Groups -->
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State -->
-        <div
-          v-if="isLoading"
-          class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
-        >
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Skeleton Loading State -->
           <div
-            v-for="i in 8"
-            :key="i"
-            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
+            v-if="isLoading"
+            key="skeleton"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
           >
-            <NSkeleton height="128px" />
-            <div class="mt-3">
-              <NSkeleton text :repeat="1" />
-              <div class="mt-2">
-                <NSkeleton height="4px" />
-              </div>
-            </div>
+            <ItemCardSkeleton v-for="i in 8" :key="i" />
           </div>
-        </div>
 
-        <!-- Content when loaded -->
-        <template v-else>
-          <div class="flex items-center space-x-2">
-            <span class="font-bold whitespace-nowrap text-white">
-              {{ t('navigation.melee') }}
-            </span>
-            <NSelect
-              v-model:value="currentKnifeType"
-              :options="knifeOptions"
-              placeholder="Select knife type"
-              class="w-72"
-              @update:value="handleKnifeTypeChange(teamSide, $event)"
-            />
+          <!-- Content when loaded -->
+          <div v-else key="content">
+            <div class="flex flex-col gap-1.5">
+              <span
+                id="knife-type-label"
+                class="font-mono text-[10px] uppercase tracking-[0.12em] text-text-tertiary"
+              >
+                {{ t('typeLabel') }}
+              </span>
+              <Select :model-value="currentKnifeType" @update:model-value="onKnifeTypeChange">
+                <SelectTrigger class="w-72" aria-labelledby="knife-type-label">
+                  <span v-if="currentKnifeLabel">{{ currentKnifeLabel }}</span>
+                  <span v-else class="text-muted-foreground">{{ t('selectType') }}</span>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem v-for="opt in knifeOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <!-- Skins Grid -->
+            <div
+              ref="gridRef"
+              class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 pt-4"
+            >
+              <KnifeTabs
+                v-for="(knifeData, knifeName) in groupedKnives"
+                :key="knifeName"
+                :weapon-data="{
+                  weapons: knifeData.weapons as any,
+                  defaultName: knifeData.defaultName,
+                  availableTeams: 'both',
+                }"
+                @weapon-click="handleKnifeClick as any"
+              />
+            </div>
+            <!-- No Skins State -->
+            <Empty v-if="skins.length === 0" class="mt-4 py-12">
+              <EmptyHeader>
+                <EmptyMedia>
+                  <WeaponSilhouette
+                    :src="knifeSilhouette"
+                    class="h-14 w-44 text-text-tertiary opacity-60"
+                  />
+                </EmptyMedia>
+                <EmptyTitle class="font-display tracking-[-0.02em]">
+                  {{ t('emptyTitle') }}
+                </EmptyTitle>
+                <EmptyDescription>{{ t('emptyDescription') }}</EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button variant="outline" @click="fetchLoadoutKnives">
+                  {{ t('reload') }}
+                </Button>
+              </EmptyContent>
+            </Empty>
           </div>
-          <!-- Skins Grid -->
-          <TransitionGroup
-            name="card-fade"
-            tag="div"
-            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4 pt-4"
-            appear
-          >
-            <KnifeTabs
-              v-for="(knifeData, knifeName, index) in groupedKnives"
-              :key="knifeName"
-              :style="{ '--delay': `${index * 50}ms` }"
-              :weapon-data="{
-                weapons: knifeData.weapons as any,
-                defaultName: knifeData.defaultName,
-                availableTeams: 'both',
-              }"
-              @weapon-click="handleKnifeClick as any"
-            />
-          </TransitionGroup>
-          <!-- No Skins State -->
-          <div v-if="skins.length === 0" class="text-center py-12">
-            <p class="text-gray-400">No skins available for this loadout</p>
-          </div>
-        </template>
+        </Transition>
       </div>
 
       <!-- Knife Skin Selection & Customization Modal -->
@@ -411,30 +451,5 @@ watch(
 .selected-slot:hover {
   border-color: #888;
   background-color: rgba(26, 26, 26, 0.5);
-}
-
-.n-card {
-  background: #242424;
-  border: 1px solid #313030;
-}
-
-.card-fade-enter-active {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-  transition-delay: var(--delay, 0ms);
-}
-
-.card-fade-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.card-fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-
-.card-fade-leave-to {
-  opacity: 0;
 }
 </style>

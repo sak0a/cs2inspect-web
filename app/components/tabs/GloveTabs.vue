@@ -34,6 +34,24 @@ const filteredWeapons = computed(() =>
 
 const hasCurrentTeamSkin = computed(() => filteredWeapons.value.length > 0)
 
+const isVanillaSkin = (weapon: GloveItemData): boolean => {
+  return weapon.databaseInfo !== undefined && weapon.databaseInfo.paintindex === 0
+}
+
+/** Split "★ Gloves | Skin" into ItemCard's name / muted subName pair. */
+const getDisplayName = (weapon: GloveItemData): { name: string; sub?: string } => {
+  const full = weapon.name || weapon.defaultName
+  const idx = full.indexOf(' | ')
+  if (idx === -1) return { name: full }
+  return { name: full.slice(0, idx), sub: full.slice(idx + 3) }
+}
+
+/** Wear readout — only meaningful when a paint is applied (not default). */
+const getFloatValue = (weapon: GloveItemData): string | null => {
+  if (isVanillaSkin(weapon)) return null
+  return weapon.databaseInfo?.paintwear ?? null
+}
+
 const handleDefaultWeaponClick = (team: number): void => {
   try {
     if (!team || (team !== 1 && team !== 2)) {
@@ -100,53 +118,31 @@ const handleSkinClick = (weapon: GloveItemData): void => {
 <template>
   <div v-if="isVisible">
     <!-- Default glove if no skin for current team -->
-    <NCard
+    <ItemCard
       v-if="!hasCurrentTeamSkin"
-      :style="{
-        borderColor: '#313030',
-        background: 'linear-gradient(135deg, rgb(16, 16, 16), rgba(49, 49, 49, 0.15))',
-      }"
-      class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+      class="glove-card"
+      :name="weaponData.defaultName"
+      :image-url="weaponData.weapons[0]?.defaultImage"
+      :image-alt="weaponData.defaultName"
+      state="unconfigured"
+      :aria-label="`${weaponData.defaultName} — not configured, click to configure`"
       @click="handleDefaultWeaponClick(teamNumber)"
-    >
-      <div class="flex flex-col items-center">
-        <img
-          :src="weaponData.weapons[0]?.defaultImage"
-          :alt="weaponData.defaultName"
-          class="w-full h-32 object-contain mb-2"
-          loading="lazy"
-        />
-        <div class="w-full">
-          <p class="text-sm text-white truncate">{{ weaponData.defaultName }}</p>
-          <div class="h-1 mt-2" :style="{ background: '#313030' }" />
-        </div>
-      </div>
-    </NCard>
+    />
     <!-- Skins for the current team -->
-    <NCard
+    <ItemCard
       v-for="weapon in filteredWeapons"
       :key="weapon.paintindex"
-      :style="{
-        borderColor: weapon.rarity?.color || '#313030',
-        background: weapon.rarity?.color
-          ? 'linear-gradient(135deg, #101010, ' + hexToRgba(weapon.rarity?.color, '0.15') + ')'
-          : '#242424',
-      }"
-      class="hover:shadow-lg transition-all cursor-pointer rounded-xl bg-[var(--card-bg)] glove-card"
+      class="glove-card"
+      :name="getDisplayName(weapon).name"
+      :sub-name="getDisplayName(weapon).sub"
+      :image-url="weapon.image"
+      :image-alt="weapon.name"
+      :rarity-color="weapon.rarity?.color"
+      :rarity-label="weapon.rarity?.name"
+      :state="weapon.databaseInfo?.active ? 'normal' : 'inactive'"
+      :float-value="getFloatValue(weapon)"
+      :aria-label="`${weapon.name}${!weapon.databaseInfo?.active ? ', inactive' : ''}`"
       @click="handleSkinClick(weapon)"
-    >
-      <div class="flex flex-col items-center">
-        <img
-          :src="weapon.image"
-          :alt="weapon.name"
-          class="w-full h-32 object-contain mb-2"
-          loading="lazy"
-        />
-        <div class="w-full">
-          <p class="text-sm text-white truncate">{{ weapon.name }}</p>
-          <div class="h-1 mt-2" :style="{ background: weapon.rarity?.color || '#313030' }" />
-        </div>
-      </div>
-    </NCard>
+    />
   </div>
 </template>

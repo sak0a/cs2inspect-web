@@ -1,5 +1,5 @@
 <script setup lang="ts">
-const { getLocale, switchLocale, getLocales } = useI18n()
+const { t, getLocale, switchLocale, getLocales } = useI18n()
 
 // Create dropdown options from locales
 const options = computed(() =>
@@ -11,6 +11,12 @@ const options = computed(() =>
 
 // Current locale
 const currentLocale = computed(() => getLocale())
+
+// Label shown in the closed trigger (rendered explicitly so it is correct on
+// first paint, before the select content has ever been mounted)
+const currentLabel = computed(
+  () => options.value.find((opt) => opt.value === currentLocale.value)?.label || currentLocale.value
+)
 
 // Function to get flag emoji based on locale code
 const getFlag = (code: string) => {
@@ -58,38 +64,26 @@ const handleSelect = (key: string) => {
     }
   }
 }
+
+// Reka Select emits AcceptableValue — narrow to the string locale codes we render
+function onUpdateLocale(value: unknown) {
+  if (typeof value === 'string' && value) {
+    handleSelect(value)
+  }
+}
 </script>
 
 <template>
-  <div class="language-switcher">
-    <NSelect
-      v-model:value="currentLocale"
-      :options="options"
-      size="medium"
-      class="language-select"
-      @update:value="handleSelect"
-    />
+  <div class="flex items-center">
+    <Select :model-value="currentLocale" @update:model-value="onUpdateLocale">
+      <SelectTrigger class="w-[150px]" :aria-label="String(t('navigation.language'))">
+        <SelectValue>{{ currentLabel }}</SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem v-for="opt in options" :key="opt.value" :value="opt.value">
+          {{ opt.label }}
+        </SelectItem>
+      </SelectContent>
+    </Select>
   </div>
 </template>
-
-<style scoped>
-.language-switcher {
-  display: flex;
-  align-items: center;
-}
-
-.language-select {
-  width: 140px;
-}
-
-:deep(.n-base-selection-label) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-:deep(.n-base-selection-placeholder) {
-  display: flex;
-  align-items: center;
-}
-</style>

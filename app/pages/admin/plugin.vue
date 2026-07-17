@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import {
   LucidePlug as PlugIcon,
   LucideSettings as GeneralIcon,
@@ -18,8 +17,8 @@ definePageMeta({
 })
 
 const adminStore = useAdminStore()
-const message = useMessage()
-const dialog = useDialog()
+const message = useToast()
+const confirm = useConfirm()
 
 const isLoading = ref(true)
 const isSaving = ref(false)
@@ -82,7 +81,7 @@ async function handleRefresh() {
 
 // Reset to defaults
 function handleReset() {
-  dialog.warning({
+  confirm.warning({
     title: 'Reset Plugin Settings',
     content:
       'Are you sure you want to reset all plugin settings to their default values? This action cannot be undone.',
@@ -107,7 +106,7 @@ function handleReset() {
     <div class="page-header">
       <div class="flex items-center gap-3">
         <div class="icon-container">
-          <NIcon :component="PlugIcon" :size="24" />
+          <PlugIcon :size="24" />
         </div>
         <div>
           <h2 class="text-xl font-bold text-white">Plugin Configuration</h2>
@@ -115,50 +114,38 @@ function handleReset() {
         </div>
       </div>
       <div class="flex gap-2">
-        <SButton
-          variant="light"
-          :color="buttonColor.warning"
-          :loading="isLoading"
-          @click="handleReset"
-        >
+        <Button variant="secondary" :loading="isLoading" @click="handleReset">
           Reset to Defaults
-        </SButton>
-        <SButton
-          variant="light"
-          :color="buttonColor.primary"
-          :loading="isLoading"
-          @click="handleRefresh"
-        >
-          Refresh
-        </SButton>
+        </Button>
+        <Button variant="secondary" :loading="isLoading" @click="handleRefresh"> Refresh </Button>
       </div>
     </div>
 
     <!-- Loading State -->
     <div v-if="isLoading" class="loading-container">
-      <NSpin size="large" />
+      <Spinner class="size-9 text-primary" />
       <p class="text-gray-400 mt-4">Loading plugin settings...</p>
     </div>
 
     <!-- Settings Tabs -->
     <div v-else class="settings-container">
-      <NTabs
-        :value="activeTab"
-        type="line"
-        animated
-        @update:value="(val: string) => (activeTab = val as PluginSettingCategory)"
+      <Tabs
+        :model-value="activeTab"
+        @update:model-value="(val) => (activeTab = val as PluginSettingCategory)"
       >
-        <NTabPane v-for="tab in tabs" :key="tab.key" :name="tab.key" :tab="tab.label">
-          <template #tab>
+        <TabsList class="h-auto w-full flex-wrap justify-start">
+          <TabsTrigger v-for="tab in tabs" :key="tab.key" :value="tab.key">
             <div class="flex items-center gap-2">
-              <NIcon :component="tab.icon" :size="16" />
+              <component :is="tab.icon" :size="16" />
               <span>{{ tab.label }}</span>
               <span v-if="settingsByCategory[tab.key]?.length" class="text-xs text-gray-500">
                 ({{ settingsByCategory[tab.key].length }})
               </span>
             </div>
-          </template>
+          </TabsTrigger>
+        </TabsList>
 
+        <TabsContent v-for="tab in tabs" :key="tab.key" :value="tab.key">
           <div v-if="settingsByCategory[tab.key]?.length" class="settings-list">
             <AdminPluginSettingItem
               v-for="setting in settingsByCategory[tab.key]"
@@ -171,13 +158,13 @@ function handleReset() {
           <div v-else class="empty-tab">
             <p class="text-gray-500 text-sm">No settings in this category.</p>
           </div>
-        </NTabPane>
-      </NTabs>
+        </TabsContent>
+      </Tabs>
     </div>
 
     <!-- Saving Overlay -->
     <div v-if="isSaving" class="saving-overlay">
-      <NSpin size="medium" />
+      <Spinner class="size-6 text-primary" />
       <span class="ml-3 text-gray-300">Saving...</span>
     </div>
   </div>

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideShield as ShieldIcon,
   LucideShieldAlert as ShieldAlertIcon,
@@ -17,8 +16,8 @@ definePageMeta({
 
 const adminStore = useAdminStore()
 const { isSuperAdmin } = useAdminAuth()
-const message = useMessage()
-const dialog = useDialog()
+const message = useToast()
+const confirm = useConfirm()
 
 // Local state
 const isLoading = ref(true)
@@ -59,7 +58,7 @@ async function handleAddAdmin(payload: { steamId: string; role: 'admin' | 'super
 
 // Handle remove admin with confirmation
 function handleRemoveAdmin(admin: AdminInfo) {
-  dialog.warning({
+  confirm.warning({
     title: 'Remove Admin',
     content: `Are you sure you want to remove "${admin.steamId}" as an admin? This action cannot be undone.`,
     positiveText: 'Remove',
@@ -111,7 +110,7 @@ function formatDate(dateStr: string) {
     <!-- Access Warning Banner -->
     <div class="warning-banner">
       <div class="flex items-center gap-3">
-        <NIcon :component="ShieldAlertIcon" :size="24" class="text-orange-400" />
+        <ShieldAlertIcon :size="24" class="text-orange-400" />
         <div>
           <h3 class="font-semibold text-orange-400">Superadmin Access Only</h3>
           <p class="text-sm text-gray-400">
@@ -124,14 +123,12 @@ function formatDate(dateStr: string) {
 
     <!-- Not Superadmin State -->
     <div v-if="!isSuperAdmin" class="access-denied">
-      <NIcon :component="ShieldAlertIcon" :size="64" class="text-red-500 mb-4" />
+      <ShieldAlertIcon :size="64" class="text-red-500 mb-4" />
       <h2 class="text-2xl font-bold text-white mb-2">Access Denied</h2>
       <p class="text-gray-400">
         You do not have permission to access this page. Only superadmins can manage administrators.
       </p>
-      <SButton variant="light" :color="buttonColor.primary" class="mt-6" tag="a" href="/admin">
-        Back to Dashboard
-      </SButton>
+      <Button variant="secondary" class="mt-6" as="a" href="/admin"> Back to Dashboard </Button>
     </div>
 
     <!-- Main Content (Superadmin only) -->
@@ -140,7 +137,7 @@ function formatDate(dateStr: string) {
       <div class="page-header">
         <div class="flex items-center gap-3">
           <div class="icon-container">
-            <NIcon :component="ShieldIcon" :size="24" />
+            <ShieldIcon :size="24" />
           </div>
           <div>
             <h2 class="text-xl font-bold text-white">Admin Management</h2>
@@ -148,19 +145,19 @@ function formatDate(dateStr: string) {
           </div>
         </div>
         <div class="flex items-center gap-3">
-          <SButton variant="light" :loading="isLoading" @click="handleRefresh"> Refresh </SButton>
-          <SButton variant="filled" :color="buttonColor.primary" @click="showAddModal = true">
+          <Button variant="secondary" :loading="isLoading" @click="handleRefresh"> Refresh </Button>
+          <Button variant="default" @click="showAddModal = true">
             <template #icon-left>
               <UserPlusIcon :size="16" />
             </template>
             Add Admin
-          </SButton>
+          </Button>
         </div>
       </div>
 
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-container">
-        <NSpin size="large" />
+        <Spinner class="size-9 text-primary" />
         <p class="text-gray-400 mt-4">Loading administrators...</p>
       </div>
 
@@ -173,7 +170,7 @@ function formatDate(dateStr: string) {
               class="avatar"
               :class="admin.role === 'superadmin' ? 'avatar--superadmin' : 'avatar--admin'"
             >
-              <NIcon :component="ShieldIcon" :size="24" />
+              <ShieldIcon :size="24" />
             </div>
 
             <!-- Info -->
@@ -199,7 +196,7 @@ function formatDate(dateStr: string) {
                 <span
                   v-for="permission in admin.permissions"
                   :key="permission"
-                  class="px-2 py-0.5 bg-gray-700/50 text-gray-400 text-xs rounded"
+                  class="px-2 py-0.5 bg-gray-700/50 text-gray-400 text-xs rounded-sm"
                 >
                   {{ permission }}
                 </span>
@@ -208,9 +205,8 @@ function formatDate(dateStr: string) {
 
             <!-- Actions -->
             <div class="flex items-center gap-2">
-              <SButton
-                variant="light"
-                :color="buttonColor.error"
+              <Button
+                variant="destructive"
                 size="sm"
                 :loading="removingAdminId === admin.steamId"
                 :disabled="admin.role === 'superadmin'"
@@ -220,7 +216,7 @@ function formatDate(dateStr: string) {
                   <TrashIcon :size="16" />
                 </template>
                 Remove
-              </SButton>
+              </Button>
             </div>
           </div>
         </div>
@@ -228,22 +224,17 @@ function formatDate(dateStr: string) {
 
       <!-- Empty State -->
       <div v-else class="empty-state">
-        <NIcon :component="ShieldIcon" :size="48" class="text-gray-600 mb-4" />
+        <ShieldIcon :size="48" class="text-gray-600 mb-4" />
         <h3 class="text-lg font-semibold text-gray-400">No Administrators Found</h3>
         <p class="text-sm text-gray-500 mt-2">
           There are no administrators configured yet. Add your first admin to get started.
         </p>
-        <SButton
-          variant="filled"
-          :color="buttonColor.primary"
-          class="mt-4"
-          @click="showAddModal = true"
-        >
+        <Button variant="default" class="mt-4" @click="showAddModal = true">
           <template #icon-left>
             <UserPlusIcon :size="16" />
           </template>
           Add First Admin
-        </SButton>
+        </Button>
       </div>
     </template>
 

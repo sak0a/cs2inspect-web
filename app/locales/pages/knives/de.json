@@ -1,1 +1,7 @@
-{}
+{
+  "typeLabel": "Messertyp",
+  "selectType": "Messertyp auswählen",
+  "emptyTitle": "Keine Messer vorhanden",
+  "emptyDescription": "Dieses Loadout enthält noch keine Messer.",
+  "reload": "Neu laden"
+}

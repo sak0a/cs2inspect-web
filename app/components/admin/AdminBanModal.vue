@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
-
 interface Props {
   show: boolean
   steamId: string
@@ -28,6 +26,10 @@ const resetForm = () => {
   reason.value = ''
   durationHours.value = null
   reasonError.value = ''
+}
+
+const handleDurationUpdate = (val: number | undefined) => {
+  durationHours.value = val == null || Number.isNaN(val) ? null : val
 }
 
 const handleConfirm = () => {
@@ -69,16 +71,12 @@ watch(
 </script>
 
 <template>
-  <NModal
-    :show="show"
-    preset="card"
-    style="width: 500px"
+  <AppModal
+    :visible="show"
     title="Ban User"
-    :bordered="false"
-    :auto-focus="false"
-    :mask-closable="true"
-    :closable="true"
-    @update:show="
+    max-width="500px"
+    variant="admin"
+    @update:visible="
       (val) => {
         if (!val) handleClose()
       }
@@ -115,12 +113,13 @@ watch(
         <label class="block text-sm font-medium text-gray-300 mb-2">
           Ban Reason <span class="text-red-400">*</span>
         </label>
-        <NInput
-          v-model:value="reason"
-          type="textarea"
+        <Textarea
+          :model-value="reason"
           :rows="3"
+          class="min-h-[78px]"
           placeholder="Enter the reason for banning this user..."
-          :status="reasonError ? 'error' : undefined"
+          :aria-invalid="reasonError ? true : undefined"
+          @update:model-value="(val) => (reason = String(val))"
         />
         <p v-if="reasonError" class="text-red-400 text-sm mt-1">{{ reasonError }}</p>
       </div>
@@ -128,11 +127,17 @@ watch(
       <!-- Duration Input -->
       <div>
         <label class="block text-sm font-medium text-gray-300 mb-2"> Duration (hours) </label>
-        <NInputNumber
-          v-model:value="durationHours"
-          :min="1"
+        <!-- Plain number input instead of NumberField: reka restores the last value
+             when cleared, which would make "empty = permanent ban" unreachable -->
+        <Input
+          :model-value="durationHours ?? ''"
+          type="number"
+          min="1"
           placeholder="Leave empty for permanent ban"
           class="w-full"
+          @update:model-value="
+            (v) => handleDurationUpdate(v === '' || v == null ? undefined : Number(v))
+          "
         />
         <p class="text-gray-500 text-xs mt-1">
           Leave empty for a permanent ban. Enter hours for a temporary ban.
@@ -156,18 +161,8 @@ watch(
 
     <!-- Actions -->
     <div class="flex justify-end gap-3 mt-6">
-      <SButton variant="light" @click="handleClose"> Cancel </SButton>
-      <SButton variant="light" :color="buttonColor.error" @click="handleConfirm">
-        Ban User
-      </SButton>
+      <Button variant="secondary" @click="handleClose"> Cancel </Button>
+      <Button variant="destructive" @click="handleConfirm"> Ban User </Button>
     </div>
-  </NModal>
+  </AppModal>
 </template>
-
-<style scoped lang="sass">
-:deep(.n-card)
-  background: rgba(12, 12, 12, 0.7) !important
-  border: 1px solid var(--admin-glass-border)
-  backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
-  -webkit-backdrop-filter: var(--admin-glass-blur-strong) saturate(160%)
-</style>

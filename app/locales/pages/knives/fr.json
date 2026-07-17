@@ -1,1 +1,7 @@
-{}
+{
+  "typeLabel": "Type de couteau",
+  "selectType": "Sélectionner un type de couteau",
+  "emptyTitle": "Aucun couteau à afficher",
+  "emptyDescription": "Ce loadout ne contient encore aucun couteau.",
+  "reload": "Recharger"
+}

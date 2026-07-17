@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
 import {
   LucideRefreshCw as RefreshIcon,
   LucideSend as SendIcon,
   LucidePlus as PlusIcon,
   LucideX as RemoveIcon,
+  LucideChevronRight as ChevronRightIcon,
 } from '@lucide/vue'
 import { useAdminHealth, formatBytes, formatUptime } from '~/composables/useAdminHealth'
 
@@ -39,6 +39,11 @@ const timeRangeOptions = [
   { label: 'Last 24 Hours', value: '24h' },
   { label: 'Last 7 Days', value: '7d' },
 ]
+
+function onTimeRangeChange(value: unknown) {
+  timeRange.value = value as typeof timeRange.value
+  fetchHistory()
+}
 
 // Status summary text
 const statusSummary = computed(() => {
@@ -99,6 +104,9 @@ const fetchTestResult = ref<{
   error: { code: string | null; message: string } | null
   latencyMs: number
 } | null>(null)
+
+// Response headers collapsible state
+const responseHeadersOpen = ref(false)
 
 const methodOptions = [
   { label: 'GET', value: 'GET' },
@@ -184,13 +192,13 @@ function tryFormatJson(str: string): string {
         <span v-if="timeSinceUpdate" class="last-updated"> Updated {{ timeSinceUpdate }} </span>
         <div class="auto-refresh-toggle">
           <span class="toggle-label">Auto-refresh</span>
-          <NSwitch :value="autoRefreshEnabled" size="small" @update:value="toggleAutoRefresh" />
+          <Switch :model-value="autoRefreshEnabled" @update:model-value="toggleAutoRefresh" />
         </div>
-        <SButton variant="ghost" icon-only rounded="full" :loading="isLoading" @click="refreshAll">
+        <Button variant="ghost" size="icon" :loading="isLoading" @click="refreshAll">
           <template #icon-left>
             <RefreshIcon :size="16" />
           </template>
-        </SButton>
+        </Button>
       </div>
     </div>
 
@@ -203,9 +211,7 @@ function tryFormatJson(str: string): string {
     <div class="status-banner" :class="statusBannerClass">
       <div class="status-banner-left">
         <span class="status-banner-icon">
-          {{
-            overallStatus === 'ok' ? '\u2713' : overallStatus === 'degraded' ? '\u26A0' : '\u2717'
-          }}
+          {{ overallStatus === 'ok' ? '✓' : overallStatus === 'degraded' ? '⚠' : '✗' }}
         </span>
         <span class="status-banner-text">{{ statusSummary }}</span>
       </div>
@@ -221,7 +227,13 @@ function tryFormatJson(str: string): string {
           {{ formatBytes(serverInfo.memoryUsage.heapTotal) }}</span
         >
         <span v-if="samplerRunning" class="info-separator">&middot;</span>
-        <NTag v-if="samplerRunning" size="tiny" type="success" round>Sampler Active</NTag>
+        <Badge
+          v-if="samplerRunning"
+          variant="outline"
+          class="rounded-full border-emerald-500/30 bg-emerald-500/15 px-1.5 py-0 text-[10px] text-emerald-400"
+        >
+          Sampler Active
+        </Badge>
       </div>
     </div>
 
@@ -229,7 +241,7 @@ function tryFormatJson(str: string): string {
     <div class="health-cards">
       <template v-if="isLoading && healthChecks.length === 0">
         <div v-for="i in 6" :key="i" class="loading-placeholder">
-          <NSkeleton :height="120" :sharp="false" />
+          <Skeleton class="h-[120px] w-full" />
         </div>
       </template>
       <AdminHealthCard
@@ -251,22 +263,28 @@ function tryFormatJson(str: string): string {
 
       <!-- URL + Method row -->
       <div class="fetch-input-row">
-        <NSelect
-          v-model:value="fetchTestMethod"
-          :options="methodOptions"
-          size="small"
-          style="width: 110px; flex-shrink: 0"
-        />
-        <NInput
-          v-model:value="fetchTestUrl"
+        <Select
+          :model-value="fetchTestMethod"
+          @update:model-value="(v) => (fetchTestMethod = String(v))"
+        >
+          <SelectTrigger size="sm" class="w-[110px] shrink-0">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem v-for="option in methodOptions" :key="option.value" :value="option.value">
+              {{ option.label }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
+        <Input
+          :model-value="fetchTestUrl"
           placeholder="https://example.com/api/health/ready"
-          size="small"
-          clearable
+          class="h-8 flex-1"
+          @update:model-value="(v) => (fetchTestUrl = String(v))"
           @keydown.enter="sendFetchTest"
         />
-        <SButton
-          variant="filled"
-          :color="buttonColor.primary"
+        <Button
+          variant="default"
           size="sm"
           :loading="fetchTestLoading"
           :disabled="!fetchTestUrl.trim()"
@@ -276,32 +294,38 @@ function tryFormatJson(str: string): string {
             <SendIcon :size="14" />
           </template>
           Send
-        </SButton>
+        </Button>
       </div>
 
       <!-- Headers -->
       <div class="fetch-headers">
         <div class="fetch-section-label">
           <span>Headers</span>
-          <SButton variant="ghost" size="xs" @click="addHeader">
+          <Button variant="ghost" size="xs" @click="addHeader">
             <template #icon-left>
               <PlusIcon :size="12" />
             </template>
             Add
-          </SButton>
+          </Button>
         </div>
         <div v-for="(header, index) in fetchTestHeaders" :key="index" class="fetch-header-row">
-          <NInput
-            v-model:value="header.key"
+          <Input
+            :model-value="header.key"
             placeholder="Header name (e.g. X-API-Key)"
-            size="tiny"
+            class="h-7 flex-1 px-2 text-xs"
+            @update:model-value="(v) => (header.key = String(v))"
           />
-          <NInput v-model:value="header.value" placeholder="Value" size="tiny" />
-          <SButton variant="ghost" icon-only rounded="full" size="xs" @click="removeHeader(index)">
+          <Input
+            :model-value="header.value"
+            placeholder="Value"
+            class="h-7 flex-1 px-2 text-xs"
+            @update:model-value="(v) => (header.value = String(v))"
+          />
+          <Button variant="ghost" size="icon-xs" @click="removeHeader(index)">
             <template #icon-left>
               <RemoveIcon :size="12" />
             </template>
-          </SButton>
+          </Button>
         </div>
       </div>
 
@@ -310,12 +334,11 @@ function tryFormatJson(str: string): string {
         <div class="fetch-section-label">
           <span>Body</span>
         </div>
-        <NInput
-          v-model:value="fetchTestBody"
-          type="textarea"
+        <Textarea
+          :model-value="fetchTestBody"
           placeholder='{"key": "value"}'
-          size="small"
-          :autosize="{ minRows: 2, maxRows: 8 }"
+          class="max-h-44 min-h-14 text-sm"
+          @update:model-value="(v) => (fetchTestBody = String(v))"
         />
       </div>
 
@@ -324,16 +347,26 @@ function tryFormatJson(str: string): string {
         <!-- Response or Error summary -->
         <div class="fetch-result-summary">
           <template v-if="fetchTestResult.response">
-            <NTag
-              :type="fetchTestResult.response.status < 400 ? 'success' : 'error'"
-              size="small"
-              round
+            <Badge
+              variant="outline"
+              class="rounded-full"
+              :class="
+                fetchTestResult.response.status < 400
+                  ? 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400'
+                  : 'border-red-500/30 bg-red-500/15 text-red-400'
+              "
             >
               {{ fetchTestResult.response.status }}
               {{ fetchTestResult.response.statusText }}
-            </NTag>
+            </Badge>
           </template>
-          <NTag v-else type="error" size="small" round> Error </NTag>
+          <Badge
+            v-else
+            variant="outline"
+            class="rounded-full border-red-500/30 bg-red-500/15 text-red-400"
+          >
+            Error
+          </Badge>
           <span class="fetch-latency">{{ fetchTestResult.latencyMs }}ms</span>
           <span class="fetch-result-method"
             >{{ fetchTestResult.request.method }} {{ fetchTestResult.request.url }}</span
@@ -350,13 +383,21 @@ function tryFormatJson(str: string): string {
 
         <!-- Response headers -->
         <template v-if="fetchTestResult.response">
-          <NCollapse arrow-placement="left" class="fetch-response-collapse">
-            <NCollapseItem title="Response Headers" name="headers">
-              <template #header-extra>
-                <span class="details-count"
-                  >{{ Object.keys(fetchTestResult.response.headers).length }} headers</span
-                >
-              </template>
+          <Collapsible v-model:open="responseHeadersOpen" class="fetch-response-collapse">
+            <CollapsibleTrigger
+              class="flex w-full items-center gap-2 py-1.5 text-xs text-white/50 transition-colors hover:text-white/75"
+            >
+              <ChevronRightIcon
+                :size="14"
+                class="shrink-0 transition-transform duration-200"
+                :class="{ 'rotate-90': responseHeadersOpen }"
+              />
+              <span>Response Headers</span>
+              <span class="details-count ml-auto"
+                >{{ Object.keys(fetchTestResult.response.headers).length }} headers</span
+              >
+            </CollapsibleTrigger>
+            <CollapsibleContent>
               <div class="fetch-headers-table">
                 <div
                   v-for="(value, key) in fetchTestResult.response.headers"
@@ -367,8 +408,8 @@ function tryFormatJson(str: string): string {
                   <span class="fetch-kv-value">{{ value }}</span>
                 </div>
               </div>
-            </NCollapseItem>
-          </NCollapse>
+            </CollapsibleContent>
+          </Collapsible>
 
           <!-- Response body -->
           <div class="fetch-section-label mt-3">
@@ -383,27 +424,42 @@ function tryFormatJson(str: string): string {
     <div class="history-section">
       <div class="history-header">
         <h3 class="text-lg font-semibold text-white/90">Performance History</h3>
-        <NSelect
-          v-model:value="timeRange"
-          :options="timeRangeOptions"
-          size="small"
-          style="width: 180px"
-          @update:value="fetchHistory"
-        />
+        <Select :model-value="timeRange" @update:model-value="onTimeRangeChange">
+          <SelectTrigger size="sm" class="w-[180px]">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem
+              v-for="option in timeRangeOptions"
+              :key="option.value"
+              :value="option.value"
+            >
+              {{ option.label }}
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      <NSpin :show="isLoadingHistory">
-        <div v-if="filteredHistoricalData.length === 0 && !isLoadingHistory" class="history-empty">
-          No historical data available for this time range.
+      <div class="relative" :class="{ 'min-h-[120px]': isLoadingHistory }">
+        <div v-if="isLoadingHistory" class="absolute inset-0 z-10 flex items-center justify-center">
+          <Spinner class="size-8 text-primary" />
         </div>
-        <div v-else class="history-charts">
-          <LazyHistoryChart
-            v-for="data in filteredHistoricalData"
-            :key="data.check_name"
-            :data="data"
-          />
+        <div :class="{ 'pointer-events-none opacity-50': isLoadingHistory }">
+          <div
+            v-if="filteredHistoricalData.length === 0 && !isLoadingHistory"
+            class="history-empty"
+          >
+            No historical data available for this time range.
+          </div>
+          <div v-else class="history-charts">
+            <LazyHistoryChart
+              v-for="data in filteredHistoricalData"
+              :key="data.check_name"
+              :data="data"
+            />
+          </div>
         </div>
-      </NSpin>
+      </div>
     </div>
   </div>
 </template>
@@ -560,9 +616,6 @@ function tryFormatJson(str: string): string {
     margin-bottom: 4px
     align-items: center
 
-    .n-input
-        flex: 1
-
 .fetch-body
     margin-bottom: 12px
 
@@ -623,6 +676,7 @@ function tryFormatJson(str: string): string {
     display: flex
     flex-direction: column
     gap: 2px
+    padding-top: 4px
 
 .fetch-kv-row
     display: grid
@@ -663,13 +717,6 @@ function tryFormatJson(str: string): string {
     line-height: 1.5
     max-height: 500px
     overflow-y: auto
-
-:deep(.fetch-response-collapse .n-collapse-item__header)
-    padding: 6px 0 !important
-
-:deep(.fetch-response-collapse .n-collapse-item__header-main)
-    font-size: 12px !important
-    color: rgba(255, 255, 255, 0.5) !important
 
 // History Section
 .history-section

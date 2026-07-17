@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { buttonColor } from '~/lib/buttonColors'
-
 interface Props {
   visible: boolean
   loading?: boolean
@@ -25,48 +23,27 @@ const handleConfirm = () => {
 </script>
 
 <template>
-  <NModal
-    :show="visible"
-    style="width: 600px"
-    preset="card"
+  <AppModal
+    :visible="visible"
+    size="sm"
     :title="String(t('modals.reset.title'))"
-    :bordered="false"
-    :auto-focus="false"
     :mask-closable="!loading"
     :closable="!loading"
-    @update:show="
-      (show) => {
+    @update:visible="
+      (show: boolean) => {
         if (!show) handleClose()
       }
     "
   >
     <p>{{ t('modals.reset.question') }}</p>
     <div class="flex justify-end mt-4 gap-3">
-      <SButton
-        variant="elevated"
-        rounded="full"
-        size="md"
-        :color="buttonColor.error"
-        :loading="loading"
-        class="px-5 py-1.5"
-        tinted
-        @click="handleClose"
-      >
+      <Button variant="outline" size="default" :loading="loading" @click="handleClose">
         {{ t('modals.reset.cancel') }}
-      </SButton>
+      </Button>
 
-      <SButton
-        variant="elevated"
-        rounded="full"
-        size="md"
-        :color="buttonColor.success"
-        :loading="loading"
-        class="px-5 py-1.5"
-        tinted
-        @click="handleConfirm"
-      >
+      <Button variant="destructive" size="default" :loading="loading" @click="handleConfirm">
         {{ t('modals.reset.confirm') }}
-      </SButton>
+      </Button>
     </div>
-  </NModal>
+  </AppModal>
 </template>

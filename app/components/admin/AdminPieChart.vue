@@ -23,7 +23,7 @@
             :key="item.label"
             class="legend-item flex items-center gap-3"
           >
-            <div class="w-4 h-4 rounded-sm" :style="{ backgroundColor: colors[index] }" />
+            <div class="w-4 h-4 rounded-xs" :style="{ backgroundColor: colors[index] }" />
             <span class="text-gray-300">{{ item.label }}</span>
             <span class="text-gray-500 ml-auto">{{ item.value.toLocaleString() }}</span>
           </div>

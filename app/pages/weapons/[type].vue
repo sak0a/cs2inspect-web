@@ -3,6 +3,10 @@ import type { SteamUser } from '~/services/steamAuth'
 import { steamAuth } from '~/services/steamAuth'
 import type { IEnhancedWeapon, WeaponConfiguration, WeaponItemData } from '~/types'
 import { toSteamId } from '~/types/core/common'
+import rifleSilhouette from '~/assets/svg/weapon_ak47.svg'
+import smgSilhouette from '~/assets/svg/weapon_p90.svg'
+import pistolSilhouette from '~/assets/svg/weapon_deagle.svg'
+import heavySilhouette from '~/assets/svg/weapon_m249.svg'
 
 definePageMeta({
   middleware: ['validate-weapon-url'],
@@ -12,19 +16,31 @@ const { t } = useI18n()
 const route = useRoute()
 const WEAPON_TYPE = ((route.params as Record<string, string | string[]>).type as string) ?? 'rifles'
 
+// Localized H1 label — WEAPON_TYPE is constrained to rifles|smgs|pistols|heavys
+// by the validate-weapon-url middleware, matching the global weapons.* keys.
+const pageTitle = computed(() => t(`weapons.${WEAPON_TYPE}`) as string)
+
+const silhouettes: Record<string, string> = {
+  rifles: rifleSilhouette,
+  smgs: smgSilhouette,
+  pistols: pistolSilhouette,
+  heavys: heavySilhouette,
+}
+const emptySilhouette = silhouettes[WEAPON_TYPE] ?? rifleSilhouette
+
 const user = ref<SteamUser | null>(null)
 const skins = ref<IEnhancedWeapon[]>([])
 const isLoading = ref<boolean>(true)
 const error = ref<string | null>(null)
 const loadoutStore = useLoadoutStore()
-const message = useMessage()
+const message = useToast()
 
 const showSkinModal = ref<boolean>(false)
 const selectedWeapon = ref<IEnhancedWeapon | null>(null)
 
 const otherTeamHasSkin = useOtherTeamSkin(selectedWeapon, skins)
 const groupedWeapons = useGroupedWeapons(skins)
-const { teamSide } = useTeamToggle()
+const { teamSide, teamNumber } = useTeamToggle()
 
 // Quick action state
 const quickActionTarget = ref<WeaponItemData | null>(null)
@@ -48,6 +64,16 @@ const visibleGroupedWeapons = computed(() => {
   }
   return result
 })
+
+// Heading micro-label counts, derived from already-loaded grid data:
+// a weapon counts as configured when it has a DB entry for the active team.
+const totalCount = computed(() => Object.keys(visibleGroupedWeapons.value).length)
+const configuredCount = computed(
+  () =>
+    Object.values(visibleGroupedWeapons.value).filter((data) =>
+      data.weapons.some((w) => w.databaseInfo?.team === teamNumber.value)
+    ).length
+)
 
 const handleWeaponClick = (weapon: IEnhancedWeapon) => {
   selectedWeapon.value = weapon
@@ -209,7 +235,10 @@ const handleWeaponDuplicate = async (skin: IEnhancedWeapon, customization: Weapo
   }
 }
 
-const handleQuickAction = async (payload: { action: 'generate' | 'import' | 'toggle' | 'reset'; weapon: WeaponItemData }) => {
+const handleQuickAction = async (payload: {
+  action: 'generate' | 'import' | 'toggle' | 'reset'
+  weapon: WeaponItemData
+}) => {
   const { action, weapon } = payload
   const db = weapon.databaseInfo
 
@@ -250,7 +279,7 @@ const handleQuickImport = async (inspectUrl: string) => {
     const config = await quickActions.importFromLink(
       quickActionTarget.value.weapon_defindex,
       db.team,
-      inspectUrl,
+      inspectUrl
     )
     await quickActions.save(quickActionTarget.value.weapon_defindex, db.team, config)
     showQuickImportModal.value = false
@@ -294,7 +323,30 @@ const handleWeaponClickWrapper = (weapon: WeaponItemData) => {
   handleWeaponClick(weapon as unknown as IEnhancedWeapon)
 }
 
-// No animation code
+// Motion: cards stagger in after every load/refetch (initial, SSE, auto-save
+// silent refresh — all toggle isLoading); team switches run the directional
+// wipe instead, so teamSide is deliberately NOT a reveal watch source.
+const gridRef = ref<HTMLElement | null>(null)
+useGridReveal(gridRef, { watch: () => isLoading.value })
+const teamSwap = useTeamSwapMotion(teamSide)
+
+/**
+ * Card→modal Flip morph capture (useFlipMorph.ts, spec §8 "heartbeat"):
+ * snapshot the clicked card's art in the CAPTURE phase, before the bubbling
+ * click opens the modal. Trusted pointer clicks only — the tutorial's
+ * programmatic `.click()` and keyboard-dispatched clicks fall back to the
+ * plain modal entrance. Clicks inside the quick-action dropdown (buttons /
+ * menu items) never open the skin modal, so they are excluded up front.
+ * Unconfigured cards carry no `data-flip-id` and fall through untouched.
+ */
+const onGridClickCapture = (event: MouseEvent) => {
+  if (!event.isTrusted) return
+  const target = event.target as HTMLElement | null
+  if (!target || target.closest('button, [role="menu"], [role="menuitem"]')) return
+  const img = target.closest('.weapon-card')?.querySelector<HTMLImageElement>('img[data-flip-id]')
+  const id = img?.dataset.flipId
+  if (img && id) captureFlipMorph(img, id)
+}
 
 // Real-time sync: listen for plugin-originated changes
 const { connect: connectSync, onSyncEvent } = useSyncEvents()
@@ -388,54 +440,72 @@ watch(
   <div class="p-4">
     <div class="max-w-7xl mx-auto">
       <SkinPageLayout
-        title="Rifles"
+        :title="pageTitle"
         :user="user"
         :error="error || loadoutStore.error || ''"
         :is-loading="isLoading && (!user || !loadoutStore.selectedLoadoutId)"
+        :configured-count="isLoading ? null : configuredCount"
+        :total-count="isLoading ? null : totalCount"
       />
-      <div v-if="!error && user && loadoutStore.selectedLoadoutId">
-        <!-- Skeleton Loading State -->
-        <div
-          v-if="isLoading"
-          class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
-        >
+      <div v-if="!error && user && loadoutStore.selectedLoadoutId" class="relative">
+        <Transition name="skeleton-fade">
+          <!-- Skeleton Loading State -->
           <div
-            v-for="i in 8"
-            :key="i"
-            class="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-dark)] p-4"
+            v-if="isLoading"
+            key="skeleton"
+            class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
           >
-            <NSkeleton height="128px" />
-            <div class="mt-3">
-              <NSkeleton text :repeat="1" />
-              <div class="mt-2">
-                <NSkeleton height="4px" />
-              </div>
-            </div>
+            <ItemCardSkeleton v-for="i in 8" :key="i" />
           </div>
-        </div>
 
-        <!-- Content when loaded -->
-        <template v-else>
-          <!-- Skins Grid — crossfade entire grid on team switch -->
-          <Transition name="team-swap" mode="out-in">
-            <div
-              :key="teamSide"
-              class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
+          <!-- Content when loaded -->
+          <div v-else key="content">
+            <!-- Skins Grid — directional wipe on team switch (grid stays keyed by teamSide) -->
+            <Transition
+              :css="false"
+              mode="out-in"
+              @enter="teamSwap.onEnter"
+              @leave="teamSwap.onLeave"
+              @enter-cancelled="teamSwap.onEnterCancelled"
+              @leave-cancelled="teamSwap.onLeaveCancelled"
             >
-              <WeaponTabs
-                v-for="(weaponData, weaponName) in visibleGroupedWeapons"
-                :key="weaponName"
-                :weapon-data="weaponData as any"
-                @weapon-click="handleWeaponClickWrapper"
-                @quick-action="handleQuickAction"
-              />
-            </div>
-          </Transition>
-          <!-- No Skins State -->
-          <div v-if="skins.length === 0" class="text-center py-12">
-            <p class="text-gray-400">No skins available for this loadout</p>
+              <div
+                :key="teamSide"
+                ref="gridRef"
+                class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-4"
+                @click.capture="onGridClickCapture"
+              >
+                <WeaponTabs
+                  v-for="(weaponData, weaponName) in visibleGroupedWeapons"
+                  :key="weaponName"
+                  :weapon-data="weaponData as any"
+                  @weapon-click="handleWeaponClickWrapper"
+                  @quick-action="handleQuickAction"
+                />
+              </div>
+            </Transition>
+            <!-- No Skins State -->
+            <Empty v-if="skins.length === 0" class="py-12">
+              <EmptyHeader>
+                <EmptyMedia>
+                  <WeaponSilhouette
+                    :src="emptySilhouette"
+                    class="h-14 w-44 text-text-tertiary opacity-60"
+                  />
+                </EmptyMedia>
+                <EmptyTitle class="font-display tracking-[-0.02em]">
+                  {{ t('emptyTitle') }}
+                </EmptyTitle>
+                <EmptyDescription>{{ t('emptyDescription') }}</EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent>
+                <Button variant="outline" @click="fetchLoadoutSkins">
+                  {{ t('reload') }}
+                </Button>
+              </EmptyContent>
+            </Empty>
           </div>
-        </template>
+        </Transition>
       </div>
 
       <!-- Skin Selection & Customization Modal -->
@@ -465,18 +535,3 @@ watch(
     </div>
   </div>
 </template>
-<style>
-/* Crossfade the whole weapon grid when switching teams */
-.team-swap-enter-active {
-  transition: opacity 0.2s ease 0.05s;
-}
-
-.team-swap-leave-active {
-  transition: opacity 0.15s ease;
-}
-
-.team-swap-enter-from,
-.team-swap-leave-to {
-  opacity: 0;
-}
-</style>

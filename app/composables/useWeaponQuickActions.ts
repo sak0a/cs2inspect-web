@@ -50,7 +50,7 @@ function dbWeaponToConfig(db: DBWeapon): WeaponConfiguration {
 export function useWeaponQuickActions(options: UseWeaponQuickActionsOptions) {
   const { user, loadoutId, weaponType, onSuccess } = options
   const { t } = useI18n()
-  const message = useMessage()
+  const message = useToast()
   const isLoading = ref(false)
 
   const save = async (

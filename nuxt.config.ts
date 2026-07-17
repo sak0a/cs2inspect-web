@@ -1,10 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import Components from 'unplugin-vue-components/vite'
 import { defineNuxtConfig } from 'nuxt/config'
 import { fileURLToPath } from 'node:url'
-import { existsSync, readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
+import tailwindcss from '@tailwindcss/vite'
 
 export default defineNuxtConfig({
   alias: {
@@ -18,12 +15,6 @@ export default defineNuxtConfig({
   ssr: true,
   imports: {
     dirs: ['stores', 'composables', 'utils', 'middleware'],
-    presets: [
-      {
-        from: 'naive-ui',
-        imports: ['useMessage', 'useNotification', 'useDialog', 'useTheme', 'useLoading'],
-      },
-    ],
   },
   components: [{ path: '~/components', pathPrefix: false }],
   typescript: {
@@ -53,19 +44,12 @@ export default defineNuxtConfig({
   devtools: {
     enabled: true,
   },
-  build: {
-    transpile: ['vueuc'],
-  },
   app: {
-    pageTransition: {
-      name: 'page',
-      mode: 'out-in',
-    },
-    layoutTransition: {
-      name: 'layout',
-      mode: 'out-in',
-    },
+    // Page transitions are GSAP JS hooks passed via `<NuxtPage :transition>`
+    // in app.vue (usePageTransition). No layoutTransition — layouts swap
+    // instantly so page + layout transitions can't double-fire.
     head: {
+      htmlAttrs: { class: 'dark' },
       titleTemplate: '%s | CS2 Inspect',
       title: 'CS2 Inspect',
       meta: [
@@ -76,7 +60,7 @@ export default defineNuxtConfig({
           content:
             'Inspect CS2 Skins on generic server with any float, pattern and sticker combination.',
         },
-        { name: 'theme-color', content: '#000000' },
+        { name: 'theme-color', content: '#070708' },
         { property: 'og:title', content: 'CS2 Inspect' },
         {
           property: 'og:description',
@@ -86,14 +70,31 @@ export default defineNuxtConfig({
         { property: 'og:type', content: 'website' },
         // { property: 'og:image', content: '/og-image.png' }, // TODO: Add OG Image
       ],
-      link: [{ rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+        // Above-the-fold latin subsets (variable files: 500-700 display, 400-600 mono)
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          crossorigin: '',
+          href: '/fonts/space-grotesk-500-700-latin.woff2',
+        },
+        {
+          rel: 'preload',
+          as: 'font',
+          type: 'font/woff2',
+          crossorigin: '',
+          href: '/fonts/jetbrains-mono-400-600-latin.woff2',
+        },
+      ],
     },
   },
   css: [
+    '~/assets/css/fonts.css',
     '~/assets/css/tailwind.css',
     '~/assets/css/transitions.sass',
     '~/assets/css/theme-variables.css',
-    '~/assets/css/glassmorphism.css',
     '~/assets/css/tutorial.css',
   ],
   router: {
@@ -104,9 +105,6 @@ export default defineNuxtConfig({
   vite: {
     optimizeDeps: {
       exclude: ['oxc-parser'],
-    },
-    ssr: {
-      noExternal: ['naive-ui'],
     },
     css: {
       preprocessorOptions: {
@@ -122,64 +120,16 @@ export default defineNuxtConfig({
         ignored: ['**/public/img/charms/**', '**/public/img/weapons/**', '**/storage/stickers/**'],
       },
     },
-    plugins: [
-      // Fix Vite resolving node_modules .vue files without project root prefix
-      {
-        name: 'fix-node-modules-path',
-        enforce: 'pre' as const,
-        load(id: string) {
-          if (id.startsWith('/node_modules/') && id.endsWith('.vue') && !existsSync(id)) {
-            const resolved = resolve(process.cwd(), id.slice(1))
-            if (existsSync(resolved)) {
-              return readFileSync(resolved, 'utf-8')
-            }
-          }
-        },
-      },
-      Components({
-        resolvers: [NaiveUiResolver()],
-      }) as unknown as { name: string },
-    ],
+    plugins: [tailwindcss() as unknown as { name: string }],
   },
-  tailwindcss: {
-    cssPath: ['~/assets/css/tailwind.css', { injectPosition: 'first' }],
-    exposeConfig: {
-      level: 2,
-    },
-    config: {
-      theme: {
-        extend: {
-          colors: {
-            background: 'var(--bg-primary)',
-            foreground: 'var(--text-primary)',
-            muted: {
-              DEFAULT: 'var(--bg-secondary)',
-              foreground: 'var(--text-tertiary)',
-            },
-            accent: {
-              DEFAULT: 'var(--bg-hover)',
-              foreground: 'var(--text-primary)',
-            },
-            border: 'var(--border-color)',
-            input: 'var(--border-light)',
-            primary: {
-              DEFAULT: 'var(--primary-color)',
-              foreground: 'var(--text-inverted)',
-            },
-          },
-          borderColor: {
-            DEFAULT: 'var(--border-color)',
-          },
-        },
-      },
-    },
-    viewer: false,
+  shadcn: {
+    prefix: '',
+    componentDir: '@/components/ui',
   },
   modules: [
-    '@nuxtjs/tailwindcss',
     '@nuxt/test-utils/module',
     'nuxt-lucide-icons',
-    'nuxtjs-naive-ui',
+    'shadcn-nuxt',
     '@nuxt/eslint',
     '@pinia/nuxt',
     'nuxt-i18n-micro',
@@ -196,6 +146,9 @@ export default defineNuxtConfig({
         process.env['NODE_ENV'] !== 'production' &&
         (process.env.NUXT_PUBLIC_DEV_AUTH_ENABLED === 'true' ||
           process.env.DEV_AUTH_ENABLED === 'true'),
+      // Kill-switch for JS-driven motion (GSAP), consumed by useReducedMotion().
+      // Override at runtime with NUXT_PUBLIC_DISABLE_MOTION=true (E2E stability).
+      disableMotion: process.env.NUXT_PUBLIC_DISABLE_MOTION === 'true',
     },
   },
   // PWA config ready to enable — uncomment @vite-pwa/nuxt module above and this block

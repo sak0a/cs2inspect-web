@@ -24,7 +24,8 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="flex items-center justify-center min-h-screen">
+  <div class="flex items-center justify-center gap-3 min-h-screen">
+    <Spinner class="size-5 text-primary" />
     <p>Authenticating...</p>
   </div>
 </template>

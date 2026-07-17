@@ -1,4 +1,11 @@
 {
+  "itemPage": {
+    "configuredCount": "{configured} / {total} configured"
+  },
+  "itemCard": {
+    "notConfigured": "Not Configured",
+    "statTrak": "StatTrak™"
+  },
   "navigation": {
     "weapons": "WEAPONS",
     "melee": "MELEE",
@@ -8,7 +15,8 @@
     "loadout": "Loadout",
     "theme": "Theme",
     "mainNav": "Main navigation",
-    "settings": "Settings"
+    "settings": "Settings",
+    "openMenu": "Open menu"
   },
   "weapons": {
     "rifles": "Rifles",
@@ -27,16 +35,44 @@
     "inspects": "Inspect Link Decoder/Encoder",
     "home": "Home"
   },
+  "agents": {
+    "selectAgent": "Select agent",
+    "noAgentsAvailable": "No agents available",
+    "noAgentsForTeam": "No agents available for this team"
+  },
+  "musicKits": {
+    "selectKit": "Select music kit",
+    "searchPlaceholder": "Search music kits...",
+    "noKitsAvailable": "No music kits available",
+    "noResultsSearch": "No music kits found matching \"{query}\""
+  },
+  "pins": {
+    "selectPin": "Select pin",
+    "searchPlaceholder": "Search pins...",
+    "noPinsAvailable": "No pins available",
+    "noResultsSearch": "No pins found matching \"{query}\""
+  },
   "teams": {
     "terrorists": "Terrorists",
-    "counterTerrorists": "Counter-Terrorists"
+    "counterTerrorists": "Counter-Terrorists",
+    "terroristsShort": "T",
+    "counterTerroristsShort": "CT",
+    "selectTeam": "Select team"
   },
   "wears": {
     "factoryNew": "Factory New",
     "minimalWear": "Minimal Wear",
     "fieldTested": "Field-Tested",
     "wellWorn": "Well-Worn",
-    "battleScarred": "Battle-Scarred"
+    "battleScarred": "Battle-Scarred",
+    "floatValue": "Float value",
+    "short": {
+      "factoryNew": "FN",
+      "minimalWear": "MW",
+      "fieldTested": "FT",
+      "wellWorn": "WW",
+      "battleScarred": "BS"
+    }
   },
   "skins": {
     "title": "Skins",
@@ -44,6 +80,12 @@
     "selectSkin": "Select Skin for {weapon}"
   },
   "modals": {
+    "shared": {
+      "stage": {
+        "float": "Float",
+        "pattern": "Pattern"
+      }
+    },
     "logout": {
       "title": "Confirm Logout",
       "question": "Are you sure you want to logout?",
@@ -195,7 +237,8 @@
         "title": "Create New Loadout",
         "confirm": "Create",
         "cancel": "Cancel",
-        "formPlaceholder": "Enter a name for your new loadout"
+        "formPlaceholder": "Enter a name for your new loadout",
+        "successMessage": "Loadout created successfully"
       },
       "import": {
         "title": "Import Loadout",
@@ -209,7 +252,8 @@
         "title": "Rename Loadout {name}",
         "confirm": "Rename",
         "cancel": "Cancel",
-        "formPlaceholder": "Enter a new name for your loadout"
+        "formPlaceholder": "Enter a new name for your loadout",
+        "successMessage": "Loadout renamed successfully"
       },
       "delete": {
         "title": "Delete Loadout {name}",
@@ -218,7 +262,8 @@
         "question": "Are you sure you want to delete this loadout?",
         "warning": "All Skins from this Loadout will be deleted and can't be restored",
         "confirmText": "Type '{name}' to confirm deletion:",
-        "confirmPlaceholder": "Enter loadout name to confirm"
+        "confirmPlaceholder": "Enter loadout name to confirm",
+        "successMessage": "Loadout deleted successfully"
       },
       "clear": {
         "title": "Clear Loadout {name}",
@@ -397,6 +442,9 @@
     "import": "Import",
     "select": "Select a loadout",
     "createDefault": "Create Default Loadout",
+    "defaultTag": "Default",
+    "noLoadoutTitle": "No loadout selected",
+    "noLoadoutHint": "Select or create a loadout to start customizing your items.",
     "confirmDelete": "Are you sure you want to delete this loadout?",
     "confirmDeleteWarning": "All Skins from this Loadout will be deleted and can't be restored",
     "nameRequired": "Please enter a loadout name",
@@ -417,14 +465,21 @@
     "loginButton": "Sign In",
     "logoutButton": "Logout",
     "loginRequired": "To access this website, please login with your Steam account.",
+    "loginRequiredTitle": "Sign in required",
     "automaticallyLoggedOut": "You have been automatically log out",
     "confirmLogout": "Are you sure you want to logout?",
     "rejectAction": "Sign In to execute this action",
     "authenticating": "Authenticating...",
-    "openSteamProfile": "Open Steam profile"
+    "openSteamProfile": "Open Steam profile",
+    "heroTagline": "Design your CS2 loadout and preview every skin, float and sticker in real time."
   },
   "general": {
-    "copiedToClipboard": "Copied to clipboard"
+    "copiedToClipboard": "Copied to clipboard",
+    "dismiss": "Dismiss"
+  },
+  "maintenance": {
+    "title": "Under maintenance",
+    "description": "The site is currently undergoing maintenance. Please check back later."
   },
   "autoSave": {
     "saving": "Saving...",
@@ -477,6 +532,7 @@
     "selectAll": "Select All",
     "noResults": "No results found",
     "pleaseSelectLoadout": "Please select a loadout first",
+    "clearSearch": "Clear search",
     "for": "for",
     "copy": "Copy"
   },
@@ -658,5 +714,45 @@
   },
   "admin": {
     "panelTitle": "Admin Panel"
+  },
+  "errorPage": {
+    "notFound": {
+      "title": "Page Not Found",
+      "message": "The page you are looking for does not exist or has been moved."
+    },
+    "forbidden": {
+      "title": "Access Forbidden",
+      "message": "You do not have permission to access this resource."
+    },
+    "unauthorized": {
+      "title": "Authentication Required",
+      "message": "Please sign in to access this page."
+    },
+    "serverError": {
+      "title": "Internal Server Error",
+      "message": "Something went wrong on our end. Please try again later."
+    },
+    "timeout": {
+      "title": "Request Timeout",
+      "message": "The request took too long to process. Please try again."
+    },
+    "unavailable": {
+      "title": "Service Unavailable",
+      "message": "The service is temporarily unavailable. Please try again in a few moments."
+    },
+    "unexpected": {
+      "title": "Unexpected Error",
+      "message": "An unexpected error occurred. Please try again."
+    },
+    "goBack": "Go Back",
+    "goHome": "Go Home",
+    "debug": {
+      "title": "Debug",
+      "status": "Status",
+      "statusText": "Status Text",
+      "message": "Message",
+      "stackTrace": "Stack Trace",
+      "none": "(none)"
+    }
   }
 }

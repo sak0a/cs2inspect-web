@@ -1,6 +1,9 @@
 {
   "title": "Handschuhe",
   "selectGloveType": "Handschuhtyp auswählen",
+  "typeLabel": "Handschuhtyp",
+  "emptyTitle": "Keine Handschuhe vorhanden",
+  "reload": "Neu laden",
   "noGloves": "Keine Handschuhe für dieses Loadout verfügbar",
   "defaultGloves": "Standard-Handschuhe"
 }
