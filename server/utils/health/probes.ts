@@ -371,6 +371,11 @@ export async function checkEnvironment(): Promise<HealthCheckResult> {
       'STEAM_API_KEY',
     ]
 
+    // A configured external service needs both values; local Steam credentials are optional.
+    if (process.env.STEAM_SERVICE_URL || process.env.STEAM_SERVICE_API_KEY) {
+      requiredVars.push('STEAM_SERVICE_URL', 'STEAM_SERVICE_API_KEY')
+    }
+
     // All environment variables from .env.example
     const allEnvVars = [
       'PORT',
@@ -387,6 +392,7 @@ export async function checkEnvironment(): Promise<HealthCheckResult> {
       'STEAM_USERNAME',
       'STEAM_PASSWORD',
       'LOG_API_REQUESTS',
+      ...requiredVars.filter((name) => name.startsWith('STEAM_SERVICE_')),
     ]
 
     const missingRequired: string[] = []
@@ -415,12 +421,12 @@ export async function checkEnvironment(): Promise<HealthCheckResult> {
     if (missingRequired.length > 0) {
       result.status = 'fail'
       result.message = `Missing required environment variables: ${missingRequired.join(', ')}`
-    } else if (missingAll.length > 0) {
-      result.status = 'degraded'
-      result.message = `Some optional environment variables missing: ${presentAll.length} of ${allEnvVars.length} present`
     } else {
       result.status = 'ok'
-      result.message = 'All environment variables present'
+      result.message =
+        missingAll.length > 0
+          ? 'Required environment variables present; optional variables use defaults or remain disabled'
+          : 'All environment variables present'
     }
 
     result.metadata = {
@@ -463,10 +469,18 @@ export async function checkImageProxy(): Promise<HealthCheckResult> {
   const makeBaseURL = () => {
     const explicit = process.env.PROXY_HEALTH_BASE_URL
     if (explicit && /^https?:\/\//i.test(explicit)) return explicit.replace(/\/$/, '')
-    const host = process.env.HOST || '127.0.0.1'
-    const port = Number(process.env.PORT) || 3000
-    const proto = process.env.NODE_ENV === 'production' ? 'https' : 'http'
-    return `${proto}://${host}:${port}`
+    const bindHost = process.env.NITRO_HOST || process.env.HOST || '127.0.0.1'
+    const host =
+      bindHost === '0.0.0.0'
+        ? '127.0.0.1'
+        : bindHost === '::' || bindHost === '[::]'
+          ? '[::1]'
+          : bindHost.includes(':') && !bindHost.startsWith('[')
+            ? `[${bindHost}]`
+            : bindHost
+    const port = Number(process.env.NITRO_PORT || process.env.PORT) || 3210
+    // TLS terminates at the reverse proxy. Use the HTTP listener unless explicitly overridden.
+    return `http://${host}:${port}`
   }
 
   try {
@@ -475,6 +489,8 @@ export async function checkImageProxy(): Promise<HealthCheckResult> {
     const resp = await $fetch.raw(`${baseURL}/api/proxy/image`, {
       method: 'GET',
       params: { url: sampleUrl },
+      timeout: 5000,
+      retry: 0,
     })
 
     const latency = Date.now() - startTime
@@ -510,7 +526,7 @@ export async function checkImageProxy(): Promise<HealthCheckResult> {
   } catch (error1: unknown) {
     // Fallback: check upstream directly (degraded), confirms internet/CDN path
     try {
-      const upstream = await fetch(sampleUrl, { method: 'GET' })
+      const upstream = await fetch(sampleUrl, { method: 'GET', signal: AbortSignal.timeout(5000) })
       const latency = Date.now() - startTime
       result.latency_ms = latency
       const contentType = upstream.headers.get('content-type') || ''

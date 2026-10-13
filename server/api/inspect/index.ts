@@ -148,7 +148,7 @@ export default defineEventHandler(async (event) => {
           defindex: createUrlBody.defindex || config.defaultDefindex,
           paintindex: createUrlBody.paintindex || config.defaultPaintindex,
           paintseed: createUrlBody.paintseed || config.defaultPaintseed,
-          paintwear: createUrlBody.paintwear || config.defaultPaintwear,
+          paintwear: createUrlBody.paintwear ?? config.defaultPaintwear,
           rarity: createUrlBody.rarity || config.defaultRarity,
           killeaterscoretype: config.supportsStatTrak && createUrlBody.stattrak_enabled ? 1 : 0,
           killeatervalue: (config.supportsStatTrak && createUrlBody.stattrak_count) || 0,

@@ -204,6 +204,22 @@ describe('/api/inspect route contracts', () => {
     expect(mocks.createInspectUrl).toHaveBeenCalledTimes(1)
   })
 
+  it.each([0, 0.000123, 0.75])('preserves wear %s when encoding an inspect link', async (wear) => {
+    const mocks = createMocks()
+    seedMockDefaults(mocks)
+    const handler = await buildHandler(mocks, false)
+    const response = await post(handler, 'create-url', {
+      itemType: 'weapon',
+      defindex: 16,
+      paintindex: 1463,
+      paintwear: wear,
+    })
+    expect(response.status).toBe(200)
+    expect(mocks.createInspectUrl).toHaveBeenCalledWith(
+      expect.objectContaining({ paintwear: wear })
+    )
+  })
+
   it('returns 400 for URL actions when inspectUrl is missing', async () => {
     const mocks = createMocks()
     seedMockDefaults(mocks)

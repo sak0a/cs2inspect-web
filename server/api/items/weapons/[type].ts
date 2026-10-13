@@ -262,7 +262,7 @@ export default useErrorHandling(async (event) => {
           stattrak_enabled: !!databaseResult.stattrak_enabled,
           stattrak_count: databaseResult.stattrak_count || 0,
           paintindex: databaseResult.paintindex || 0,
-          paintwear: databaseResult.paintwear || 0.01,
+          paintwear: databaseResult.paintwear ?? 0.01,
           paintseed: databaseResult.paintseed || 0,
           nametag: databaseResult.nametag || '',
           stickers: parseStickers(
