@@ -7,13 +7,19 @@ import type {
   APICollectible,
   APIHighlight,
 } from '~/server/types'
-import { EXTERNAL_API_URLS, CACHE_PERIODS, DATA_STALENESS_THRESHOLD } from './constants'
+import { EXTERNAL_API_URLS, DATA_STALENESS_THRESHOLD } from './constants'
 import { processSkinData } from './data/skinUtils'
 import { processKeychainData } from './data/keychainUtils'
 import { Logger } from '~/server/utils/logger'
 import fs from 'fs'
 import path from 'path'
+import {
+  CatalogueRefreshGate,
+  mergeSkinCatalogue,
+  validateSkinCatalogue,
+} from './data/catalogueRefresh'
 
+let rawSkinCatalogue: unknown = []
 let skinsData: APISkin[]
 let stickerData: APISticker[]
 let agentData: APIAgent[]
@@ -28,11 +34,13 @@ let dataLoadDuration: number | null = null
 
 // In-memory cache for serverless environments
 let isDataInitialized = false
-const CACHE_DURATION = 30 * 60 * 1000 // 30 minutes
-let lastCacheTime = 0
+const refreshGate = new CatalogueRefreshGate()
+let refreshUsedFallback = false
+let oldestFallbackTime: number | null = null
 
 // Promise to track initialization status (for non-blocking startup)
 let initializationPromise: Promise<void> | null = null
+let refreshTimer: ReturnType<typeof setInterval> | null = null
 
 // Define storage directory and file paths
 // Use /tmp in serverless environments (like Vercel), fallback to local storage
@@ -179,19 +187,6 @@ function ensureStorageDirectoryExists(): boolean {
 }
 
 /**
- * Checks if a file exists and is not older than the cache validity period
- */
-function isFileValid(filePath: string): boolean {
-  if (!fs.existsSync(filePath)) {
-    return false
-  }
-
-  const stats = fs.statSync(filePath)
-  const fileAge = Date.now() - stats.mtimeMs
-  return fileAge < CACHE_PERIODS.API_DATA
-}
-
-/**
  * Fetches data from API and saves it to a file
  */
 async function fetchAndSaveData(
@@ -201,22 +196,44 @@ async function fetchAndSaveData(
 ): Promise<unknown> {
   try {
     Logger.info(`Fetching data from ${url}`, 'csgo-api')
-    const response = await fetch(url)
+    const response = await fetch(url, { signal: AbortSignal.timeout(30_000) })
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 
-    let data = await response.json()
+    const body = await response.text()
+    if (Buffer.byteLength(body) > (url === EXTERNAL_API_URLS.SKINS ? 16 : 128) * 1024 * 1024)
+      throw new Error('Oversized catalogue response')
+    let data = JSON.parse(body)
+    if (!Array.isArray(data) || data.length === 0) throw new Error('Invalid catalogue response')
 
     // Apply post-fetch transform before caching (e.g. fix API inconsistencies)
     if (postFetchTransform) {
       data = postFetchTransform(data)
     }
 
+    if (url === EXTERNAL_API_URLS.SKINS) {
+      validateSkinCatalogue(data)
+      // Merge raw cached data, never processed Doppler display names.
+      let previous: unknown = rawSkinCatalogue
+      if (Array.isArray(previous) && previous.length === 0 && fs.existsSync(filePath)) {
+        try {
+          previous = readDataFromFile(filePath)
+          validateSkinCatalogue(previous)
+        } catch {
+          previous = []
+        }
+      }
+      data = mergeSkinCatalogue(previous, data)
+      rawSkinCatalogue = data
+    }
+
     // Try to save to file, but don't fail if we can't (serverless environment)
     try {
-      fs.writeFileSync(filePath, JSON.stringify(data, null, 2))
+      const temporary = `${filePath}.tmp`
+      fs.writeFileSync(temporary, JSON.stringify(data, null, 2))
+      fs.renameSync(temporary, filePath)
       Logger.debug(`Saved data to ${filePath}`, 'csgo-api')
     } catch {
       Logger.warn(
@@ -260,17 +277,8 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
   try {
     let data: T[]
 
-    // In serverless environments, we might not have cached files, so always fetch fresh
-    const isServerless =
-      process.env.VERCEL || process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME
-
-    if (!isServerless && isFileValid(config.path)) {
-      Logger.debug(`Using cached ${type} data from ${config.path}`, 'csgo-api')
-      data = readDataFromFile(config.path) as T[]
-    } else {
-      Logger.debug(`Fetching fresh ${type} data`, 'csgo-api')
-      data = (await fetchAndSaveData(config.url, config.path, config.postFetchTransform)) as T[]
-    }
+    // The refresh gate controls cadence. Always revalidate upstream on a due refresh.
+    data = (await fetchAndSaveData(config.url, config.path, config.postFetchTransform)) as T[]
 
     // Apply processor function if provided
     if (config.processor && typeof config.processor === 'function') {
@@ -287,40 +295,56 @@ async function loadData<T>(type: keyof typeof API_FILES): Promise<T[]> {
     // If file exists but is invalid or we failed to fetch, try to use it anyway
     if (fs.existsSync(config.path)) {
       Logger.warn(`Falling back to existing ${type} data file`, 'csgo-api')
-      return readDataFromFile(config.path) as T[]
+      const cached = readDataFromFile(config.path) as T[]
+      if (!Array.isArray(cached) || cached.length === 0) throw new Error('Invalid cached catalogue', { cause: error })
+      if (type === 'skins') {
+        validateSkinCatalogue(cached)
+        rawSkinCatalogue = cached
+      }
+      refreshUsedFallback = true
+      const mtime = fs.statSync(config.path).mtimeMs
+      oldestFallbackTime = Math.min(oldestFallbackTime ?? mtime, mtime)
+      return config.processor ? (config.processor(cached) as T[]) : cached
     }
 
     throw error
   }
 }
 
-export async function initCSGOApiData() {
+async function loadCatalogueSnapshot(): Promise<boolean> {
   const startTime = Date.now()
 
   try {
-    // Check if we already have fresh data in memory (for serverless environments)
-    const now = Date.now()
-    if (isDataInitialized && now - lastCacheTime < CACHE_DURATION) {
-      Logger.debug('Using cached data from memory', 'csgo-api')
-      return
-    }
-
+    refreshUsedFallback = false
+    oldestFallbackTime = null
     const canWriteToStorage = ensureStorageDirectoryExists()
     if (!canWriteToStorage) {
       Logger.info('Running in serverless environment - using in-memory caching only', 'csgo-api')
     }
 
     // Load all data types in parallel
-    const [skins, stickers, keychains, agents, musicKits, collectibles, highlights] =
-      await Promise.all([
-        loadData<APISkin>('skins'),
-        loadData<APISticker>('stickers'),
-        loadData<APIKeychain>('keychains'),
-        loadData<APIAgent>('agents'),
-        loadData<APIMusicKit>('music_kits'),
-        loadData<APICollectible>('collectibles'),
-        loadData<APIHighlight>('highlights'),
-      ])
+    const results = await Promise.allSettled([
+      loadData<APISkin>('skins'),
+      loadData<APISticker>('stickers'),
+      loadData<APIKeychain>('keychains'),
+      loadData<APIAgent>('agents'),
+      loadData<APIMusicKit>('music_kits'),
+      loadData<APICollectible>('collectibles'),
+      loadData<APIHighlight>('highlights'),
+    ] as const)
+    const keepUsable = <T>(result: PromiseSettledResult<T[]>, previous: T[]): T[] => {
+      if (result.status === 'fulfilled') return result.value
+      if (!isDataInitialized || !previous) throw result.reason
+      refreshUsedFallback = true
+      return previous
+    }
+    const skins = keepUsable(results[0]!, skinsData)
+    const stickers = keepUsable(results[1]!, stickerData)
+    const keychains = keepUsable(results[2]!, keychainData)
+    const agents = keepUsable(results[3]!, agentData)
+    const musicKits = keepUsable(results[4]!, musicKitData)
+    const collectibles = keepUsable(results[5]!, collectibleData)
+    const highlights = keepUsable(results[6]!, highlightData)
 
     // Assign to global variables
     skinsData = skins
@@ -332,14 +356,16 @@ export async function initCSGOApiData() {
     highlightData = highlights
 
     // Track data freshness
-    dataLoadTimestamp = new Date().toISOString()
+    dataLoadTimestamp = refreshUsedFallback
+      ? (dataLoadTimestamp ?? new Date(oldestFallbackTime ?? startTime).toISOString())
+      : new Date().toISOString()
     dataLoadDuration = Date.now() - startTime
 
     // Update cache flags for serverless environments
     isDataInitialized = true
-    lastCacheTime = Date.now()
 
     Logger.info('CSGO API data loaded successfully', 'csgo-api')
+    return !refreshUsedFallback
   } catch (error) {
     Logger.error(
       `Failed to initialize CSGO API data: ${error instanceof Error ? error.message : String(error)}`,
@@ -355,45 +381,42 @@ export async function initCSGOApiData() {
  * Starts initialization in the background and returns the promise
  * Use this in server plugins to start initialization non-blocking
  */
+export function initCSGOApiData(): Promise<void> {
+  return refreshGate.run(loadCatalogueSnapshot)
+}
+
 export function startDataInitialization(): Promise<void> {
-  if (initializationPromise) {
-    return initializationPromise
-  }
-
-  if (isDataInitialized) {
-    return Promise.resolve()
-  }
-
-  initializationPromise = initCSGOApiData().catch((error) => {
-    Logger.error(
-      `Data initialization failed: ${error instanceof Error ? error.message : String(error)}`,
-      'csgo-api'
-    )
-    // Reset promise so it can be retried
+  if (initializationPromise) return initializationPromise
+  initializationPromise = initCSGOApiData().finally(() => {
     initializationPromise = null
-    throw error
   })
-
   return initializationPromise
 }
 
-/**
- * Ensures data is initialized before accessing it
- * Waits for initialization if it's in progress
- */
+/** Serve the previous complete snapshot while a due refresh runs in the background. */
 export async function ensureDataInitialized(): Promise<void> {
-  if (isDataInitialized) {
+  const refresh = startDataInitialization()
+  if (!isDataInitialized) {
+    await refresh
     return
   }
+  void refresh.catch(() => {
+    /* loadCatalogueSnapshot logs failures; keep last good memory */
+  })
+}
 
-  if (initializationPromise) {
-    // Initialization is in progress, wait for it
-    await initializationPromise
-    return
+/** Also refresh idle persistent servers. Request-driven refresh covers serverless deployments. */
+export function startCatalogueRefresh(): () => void {
+  if (!refreshTimer) {
+    refreshTimer = setInterval(() => {
+      void ensureDataInitialized().catch(() => {})
+    }, 60_000)
+    refreshTimer.unref?.()
   }
-
-  // Start initialization if not already started
-  await startDataInitialization()
+  return () => {
+    if (refreshTimer) clearInterval(refreshTimer)
+    refreshTimer = null
+  }
 }
 
 /**

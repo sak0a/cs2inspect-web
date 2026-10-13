@@ -203,8 +203,8 @@ export function detectDopplerPattern(skin: APISkin): APISkin {
 
   for (const [key, value] of Object.entries(patterns)) {
     if (skin.pattern.id.includes(key)) {
-      skin.name += ` (${value})`
-      break
+      const suffix = ` (${value})`
+      return { ...skin, name: skin.name.endsWith(suffix) ? skin.name : skin.name + suffix }
     }
   }
 

@@ -52,7 +52,7 @@ export function getCS2Client(): CS2Inspect {
   return cs2InspectInstance
 }
 
-export default defineNitroPlugin(async () => {
+export default defineNitroPlugin(async (nitroApp) => {
   try {
     const { runMigrations } = await import('../database/migrate')
     await runMigrations()
@@ -68,7 +68,9 @@ export default defineNitroPlugin(async () => {
   // Initialize CSGO API data in the background (non-blocking)
   // This allows the server to start immediately while data loads
   // The promise is tracked in csgoAPI.ts so API endpoints can wait for it if needed
-  const { startDataInitialization } = await import('../utils/csgoAPI')
+  const { startDataInitialization, startCatalogueRefresh } = await import('../utils/csgoAPI')
+  const stopCatalogueRefresh = startCatalogueRefresh()
+  nitroApp.hooks.hook('close', stopCatalogueRefresh)
   startDataInitialization().catch((error) => {
     Logger.error(
       `Data init failed error=${error instanceof Error ? error.message : String(error)}`,
